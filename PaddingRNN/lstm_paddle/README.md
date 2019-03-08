@@ -38,10 +38,12 @@ model_type 为模型配置的大小，目前支持 small，medium, large 三种�
 ## 与tf结果对比
 
 tf采用的版本是1.12
-```text
-large config
-             单卡训练速度    单卡训练显存占用（最大batchsize）  单卡GPU预测速度（batch_size=1）  单卡GPU预测显存占用(batch_size=1)
-fluid dev   146/epoch       500    236s  6121MB
-tf 1.12     83/epoch    1642   46s      1095MB
 
-```
+large config
+
+
+
+|         |单卡训练速度|单卡训练显存占用（最大batchsize)|单卡GPU预测速度（batch_size=1)|单卡GPU预测显存占用(batch_size=1)|
+| --------   | -----:   | :----: |:----: |:----: |
+|fluid dev|146/epoch|500|236s|6121MB|
+|tf 1.12  |83/epoch|1642|46s|1095MB|
