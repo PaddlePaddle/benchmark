@@ -3,4 +3,4 @@ export FLAGS_cudnn_deterministic=true
 
 #export FLAGS_benchmark=1
 #nvprof -o timeline_output_medium -f --cpu-profiling off  --profile-from-start off  python  train.py \
-CUDA_VISIBLE_DEVICES='' python  ptb_lm.py large True
+CUDA_VISIBLE_DEVICES='0' python  ptb_lm.py large True

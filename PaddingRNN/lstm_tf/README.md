@@ -5,7 +5,7 @@
 ```text
 .
 ├── README.md            # 文档
-├── train.py             # 训练脚本
+├── ptb_lm.py             # 训练脚本
 ├── reader.py            # 数据读取
 └── lm_model.py             # 模型定义文件
 ```
@@ -19,18 +19,39 @@ http://www.fit.vutbr.cz/~imikolov/rnnlm/simple-examples.tgz
 ## 数据下载
 用户可以自行下载数据，并解压， 也可以利用目录中的脚本
 
-cd data; sh download_data.sh
+参考tf文档https://www.tensorflow.org/tutorials/sequences/recurrent
 
 ## 训练
-
+修改debug.sh中的参数为
+CUDA_VISIBLE_DEVICES='0' python  ptb_lm.py large False
 运行命令
-`CUDA_VISIBLE_DEVICES=0 python  train.py --data_path data/simple-examples/data/  --model_type large --use_gpu True`
- 开始单卡训练模型。
+bash debug.sh
+开始单卡训练模型。
 
+修改debug.sh中的参数为
+CUDA_VISIBLE_DEVICES='' python  ptb_lm.py large False
 运行命令
-`CUDA_VISIBLE_DEVICES=0 python  train.py --data_path data/simple-examples/data/  --model_type large --use_gpu True --inference_only True`
-model_type 为模型配置的大小，目前支持 small，medium, large 三种配置形式
-开始单卡预测
+bash debug.sh
+开始cpu训练模型
+
+##预测
+修改debug.sh中的参数为
+CUDA_VISIBLE_DEVICES='0' python  ptb_lm.py large True
+运行命令
+bash debug.sh
+开始单卡预测模型
+
+修改debug.sh中的参数为
+CUDA_VISIBLE_DEVICES='' python  ptb_lm.py large True
+运行命令
+bash debug.sh
+开始cpu预测模型。
+
+##debug.sh参数
+ptb_lm.py后的
+第一个参数对应模型大小，large为大模型
+第二个参数对应是否只做预测
+
 
 实现采用双层的lstm，具体的参数和网络配置 可以参考 train.py， lm_model.py 文件中的设置
 
