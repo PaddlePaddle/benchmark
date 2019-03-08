@@ -1,0 +1,54 @@
+INFO: 2019-02-27 15:31:12,232 - paddle_simnet.py:100 * 140501709018880 device count: 1
+INFO: 2019-02-27 15:31:12,234 - paddle_simnet.py:102 * 140501709018880 start train process ...
+WARNING: 2019-02-27 15:31:12,235 - data_reader.py:80 * 140501709018880 line not match format in train file: 
+
+INFO: 2019-02-27 15:38:11,583 - paddle_simnet.py:100 * 140490244876032 device count: 1
+INFO: 2019-02-27 15:38:11,583 - paddle_simnet.py:102 * 140490244876032 start train process ...
+WARNING: 2019-02-27 15:38:11,585 - data_reader.py:80 * 140490244876032 line not match format in train file: 
+
+WARNING: 2019-02-27 15:38:12,904 - data_reader.py:80 * 140490244876032 line not match format in train file: 
+
+WARNING: 2019-02-27 15:38:12,969 - data_reader.py:80 * 140490244876032 line not match format in train file: 
+
+WARNING: 2019-02-27 15:38:13,033 - data_reader.py:80 * 140490244876032 line not match format in train file: 
+
+WARNING: 2019-02-27 15:38:13,098 - data_reader.py:80 * 140490244876032 line not match format in train file: 
+
+INFO: 2019-02-27 15:47:36,152 - paddle_simnet.py:100 * 140694599161600 device count: 1
+INFO: 2019-02-27 15:47:36,152 - paddle_simnet.py:102 * 140694599161600 start train process ...
+INFO: 2019-02-27 15:56:30,529 - paddle_simnet.py:100 * 139843613857536 device count: 1
+INFO: 2019-02-27 15:56:30,530 - paddle_simnet.py:102 * 139843613857536 start train process ...
+INFO: 2019-02-27 15:57:00,238 - paddle_simnet.py:100 * 140249316435712 device count: 1
+INFO: 2019-02-27 15:57:00,239 - paddle_simnet.py:102 * 140249316435712 start train process ...
+INFO: 2019-02-27 16:09:50,980 - paddle_simnet.py:100 * 140299155642112 device count: 1
+INFO: 2019-02-27 16:09:50,981 - paddle_simnet.py:102 * 140299155642112 start train process ...
+WARNING: 2019-02-27 16:09:50,982 - data_reader.py:80 * 140299155642112 line not match format in train file: 
+
+WARNING: 2019-02-27 16:09:51,790 - data_reader.py:80 * 140299155642112 line not match format in train file: 
+
+WARNING: 2019-02-27 16:09:51,919 - data_reader.py:80 * 140299155642112 line not match format in train file: 
+
+WARNING: 2019-02-27 16:09:52,055 - data_reader.py:80 * 140299155642112 line not match format in train file: 
+
+WARNING: 2019-02-27 16:09:52,202 - data_reader.py:80 * 140299155642112 line not match format in train file: 
+
+INFO: 2019-02-27 16:14:30,961 - paddle_simnet.py:100 * 139732415235840 device count: 1
+INFO: 2019-02-27 16:14:30,962 - paddle_simnet.py:102 * 139732415235840 start train process ...
+WARNING: 2019-02-27 16:14:30,964 - data_reader.py:80 * 139732415235840 line not match format in train file: 
+
+WARNING: 2019-02-27 16:14:31,758 - data_reader.py:80 * 139732415235840 line not match format in train file: 
+
+WARNING: 2019-02-27 16:14:31,917 - data_reader.py:80 * 139732415235840 line not match format in train file: 
+
+WARNING: 2019-02-27 16:14:32,068 - data_reader.py:80 * 139732415235840 line not match format in train file: 
+
+WARNING: 2019-02-27 16:14:32,330 - data_reader.py:80 * 139732415235840 line not match format in train file: 
+
+INFO: 2019-02-27 16:18:26,732 - paddle_simnet.py:100 * 139764167374592 device count: 1
+INFO: 2019-02-27 16:18:26,733 - paddle_simnet.py:102 * 139764167374592 start train process ...
+INFO: 2019-02-27 16:19:25,399 - paddle_simnet.py:100 * 140200115140352 device count: 1
+INFO: 2019-02-27 16:19:25,401 - paddle_simnet.py:102 * 140200115140352 start train process ...
+INFO: 2019-02-27 16:21:37,479 - paddle_simnet.py:100 * 139891751687936 device count: 1
+INFO: 2019-02-27 16:21:37,479 - paddle_simnet.py:102 * 139891751687936 start train process ...
+INFO: 2019-02-27 16:24:22,253 - paddle_simnet.py:100 * 140065821087488 device count: 4
+INFO: 2019-02-27 16:24:22,254 - paddle_simnet.py:102 * 140065821087488 start train process ...
