@@ -25,6 +25,9 @@ simnet
 ## <span id="1">安装</span>
 
 TensorFlow版本Simnet需要TensorFlow v1.2.0，详细安装方式见[TensorFlow官网](https://www.tensorflow.org/)。
+```
+pip install tensorflow_gpu-1.12.0-cp27-cp27mu-manylinux1_x86_64.whl
+```
 
 ## <span id="2">数据准备</span>
 
@@ -74,7 +77,7 @@ python tools/tf_record_writer.py
 ```
 python tf_simnet.py
         --task train
-        --task_conf examples/cnn-pointwise.json
+        --task_conf examples/mmdnn-pointwise.json
 ```
 **参数说明：**
 * **task**: 任务类型 ，可选择train或predict。
@@ -134,11 +137,15 @@ python tf_simnet.py
 ```
 
 ## <span id="4">模型推断</span>
-模型推断可以得到模型预测结果或得分，您可以通过执行脚本run_infer.sh启动示例训练，也可以通过如下方式启动自定义训练：
+模型推断可以得到模型预测结果或得分，您可以通过执行脚本run_infer.sh启动示例训练，
+```
+sh run_infer.sh
+```
+也可以通过如下方式启动自定义训练：
 ```
 python tf_simnet.py
         --task predict
-        --task_conf examples/cnn-pointwise.json
+        --task_conf examples/mmdnn-pointwise.json
 ```
 **参数说明：**
 同模型训练部分

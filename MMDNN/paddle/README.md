@@ -25,6 +25,7 @@ simnet
 ## <span id="1">安装</span>
 
 Paddle版SimNet需要PaddlePaddle Fluid v1.0.2，详细安装方式见[PaddlePaddle官网](http://www.paddlepaddle.org/)。
+预测版本：paddlepaddle-gpu==1.3.0.post97
 
 ## <span id="2">数据准备</span>
 
@@ -62,7 +63,7 @@ SimNet可以使用Pointwise与Pairwise两种类型的数据进行训练
 ```
 python paddle_simnet.py
         --task_type train
-        --conf_file_path examples/cnn_pointwise.json
+        --conf_file_path examples/mmdnn-pointwise.json
 ```
 **参数说明：**
 * **task_type**: 任务类型 ，可选择train或predict。
@@ -104,11 +105,15 @@ python paddle_simnet.py
 ```
 
 ## <span id="4">模型推断</span>
-模型推断可以得到模型预测结果或得分，您可以通过执行脚本run_infer.sh启动示例训练，也可以通过如下方式启动自定义训练：
+模型推断可以得到模型预测结果或得分，您可以通过执行脚本run_infer.sh启动示例训练【推荐】:
+```
+sh run_infer.sh
+```
+也可以通过如下方式启动自定义训练：
 ```
 python paddle_simnet.py
         --task_type predict
-        --conf_file_path examples/cnn_pointwise.json
+        --conf_file_path examples/mmdnn-pointwise.json
 ```
 **参数说明：**
 同模型训练部分
