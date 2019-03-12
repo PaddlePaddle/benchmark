@@ -1,0 +1,144 @@
+nohup: ignoring input
+++++ dirname /benchmark/download.sh
++++ cd /benchmark/
++++ pwd
+++ DOWNLOAD_ROOT=/benchmark
+++ export OCR_train_images=/benchmark/data/train_images
+++ OCR_train_images=/benchmark/data/train_images
+++ export OCR_train_list=/benchmark/data/train.list
+++ OCR_train_list=/benchmark/data/train.list
+++ export OCR_test_images=/benchmark/data/test_images
+++ OCR_test_images=/benchmark/data/test_images
+++ export OCR_test_list=/benchmark/data/test.list
+++ OCR_test_list=/benchmark/data/test.list
+++ '[' '!' -f /benchmark/data/train.list ']'
+++ export OCR_TF_train_list=/benchmark/data/train_tf.list
+++ OCR_TF_train_list=/benchmark/data/train_tf.list
+++ '[' '!' -f /benchmark/data/train_tf.list ']'
+++ export OCR_TF_test_list=/benchmark/data/test_tf.list
+++ OCR_TF_test_list=/benchmark/data/test_tf.list
+++ '[' '!' -f /benchmark/data/test_tf.list ']'
++ source configs/train_gpu_perf_1.sh
+++ set -x
+++ export CUDA_VISIBLE_DEVICES=1
+++ CUDA_VISIBLE_DEVICES=1
+++ export OCR_mode=GPU
+++ OCR_mode=GPU
+++ export OCR_parallel=False
+++ OCR_parallel=False
+++ export OCR_batch_size=32
+++ OCR_batch_size=32
+++ export OCR_log_period=100
+++ OCR_log_period=100
+++ export OCR_save_model_period=1000
+++ OCR_save_model_period=1000
+++ export OCR_eval_period=1000
+++ OCR_eval_period=1000
+++ export OCR_total_step=1000
+++ OCR_total_step=1000
++ bash train.sh
+++ lscpu
+++ grep -m1 'CPU(s)'
+++ awk -F: '{print $2}'
+++ xargs
++ core_num=38
++ '[' GPU = CPU ']'
++ '[' GPU = GPU ']'
++ use_gpu=True
++ save_model_dir=/benchmark/paddle/results/gpu_attention_models_32
++ source env.sh
+++ export MKL_NUM_THREADS=1
+++ MKL_NUM_THREADS=1
+++ export OMP_NUM_THREADS=1
+++ OMP_NUM_THREADS=1
++++ lscpu
++++ grep 'per core'
++++ awk -F: '{print $2}'
++++ xargs
+++ ht=1
+++ '[' 1 -eq 1 ']'
+++ '[' -z '' ']'
+++ export KMP_AFFINITY=granularity=fine,compact,0,0
+++ KMP_AFFINITY=granularity=fine,compact,0,0
+++ '[' -z '' ']'
+++ export OMP_DYNAMIC=FALSE
+++ OMP_DYNAMIC=FALSE
++ python /benchmark/paddle/ocr_recognition/train.py --model attention --init_model /benchmark/paddle/ocr_attention/ocr_attention_params --train_images /benchmark/data/train_images --train_list /benchmark/data/train.list --test_images /benchmark/data/test_images --test_list /benchmark/data/test.list --save_model_dir /benchmark/paddle/results/gpu_attention_models_32 --use_gpu True --parallel False --batch_size 32 --log_period 100 --save_model_period 1000 --eval_period 1000 --total_step 1000
+/usr/local/lib/python2.7/dist-packages/paddle/fluid/evaluator.py:71: Warning: The EditDistance is deprecated, because maintain a modified program inside evaluator cause bug easily, please use fluid.metrics.EditDistance instead.
+  % (self.__class__.__name__, self.__class__.__name__), Warning)
+W0312 06:09:06.358642   405 device_context.cc:263] Please NOTE: device: 0, CUDA Capability: 70, Driver API Version: 9.2, Runtime API Version: 9.0
+W0312 06:09:06.358716   405 device_context.cc:271] device: 0, cuDNN Version: 7.0.
+-----------  Configuration Arguments -----------
+average_window: 0.15
+batch_size: 32
+eval_period: 1000
+init_model: /benchmark/paddle/ocr_attention/ocr_attention_params
+log_period: 100
+max_average_window: 12500
+min_average_window: 10000
+model: attention
+parallel: 0
+profile: False
+save_model_dir: /benchmark/paddle/results/gpu_attention_models_32
+save_model_period: 1000
+skip_batch_num: 0
+skip_test: False
+test_images: /benchmark/data/test_images
+test_list: /benchmark/data/test.list
+total_step: 1000
+train_images: /benchmark/data/train_images
+train_list: /benchmark/data/train.list
+use_gpu: 1
+------------------------------------------------
+finish batch shuffle
+Init model from: /benchmark/paddle/ocr_attention/ocr_attention_params.
+
+Time: 1552370964.33; Iter[100]; Avg loss: 1.339; Avg seq err: 0.192
+kpis	train_cost	1.339496
+kpis	train_acc	0.807813
+
+Time: 1552370981.67; Iter[200]; Avg loss: 1.232; Avg seq err: 0.198
+kpis	train_cost	1.231627
+kpis	train_acc	0.802500
+
+Time: 1552370999.12; Iter[300]; Avg loss: 1.213; Avg seq err: 0.183
+kpis	train_cost	1.212532
+kpis	train_acc	0.817187
+
+Time: 1552371016.11; Iter[400]; Avg loss: 1.309; Avg seq err: 0.195
+kpis	train_cost	1.308782
+kpis	train_acc	0.805312
+
+Time: 1552371035.89; Iter[500]; Avg loss: 1.246; Avg seq err: 0.188
+kpis	train_cost	1.245704
+kpis	train_acc	0.811562
+
+Time: 1552371053.39; Iter[600]; Avg loss: 1.138; Avg seq err: 0.184
+kpis	train_cost	1.138455
+kpis	train_acc	0.815625
+
+Time: 1552371070.81; Iter[700]; Avg loss: 1.684; Avg seq err: 0.211
+kpis	train_cost	1.683750
+kpis	train_acc	0.788750
+
+Time: 1552371089.61; Iter[800]; Avg loss: 1.413; Avg seq err: 0.206
+kpis	train_cost	1.412588
+kpis	train_acc	0.793750
+
+Time: 1552371107.38; Iter[900]; Avg loss: 1.351; Avg seq err: 0.192
+kpis	train_cost	1.351251
+kpis	train_acc	0.808438
+
+Time: 1552371124.72; Iter[1000]; Avg loss: 1.606; Avg seq err: 0.219
+kpis	train_cost	1.606281
+kpis	train_acc	0.780625
+
+Time: 1552371177.15; Iter[1000]; Test seq error: 0.17500001.
+
+kpis	test_acc	0.825000
+Saved model to: /benchmark/paddle/results/gpu_attention_models_32/params_01000.
+kpis	train_duration	230.868667
+
+Total examples (incl. warm-up): 32000
+average latency: 0.12371 s, 99pc latency: 0.27687 s
+average fps: 271.27649, fps for 99pc latency: 115.57683
