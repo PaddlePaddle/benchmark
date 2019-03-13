@@ -210,7 +210,7 @@ def attention_train_net(args, data_shape, num_classes):
     return sum_cost, error_evaluator, inference_program, model_average
 
 
-def simple_attention(encoder_vec, encoder_proj, decoder_state, decoder_size):
+def simple_attention(encoder_vec, encoder_proj, decoder_state, decoder_size, use_cudnn=True):
     decoder_state_proj = fluid.layers.fc(input=decoder_state,
                                          size=decoder_size,
                                          bias_attr=False)
@@ -222,10 +222,9 @@ def simple_attention(encoder_vec, encoder_proj, decoder_state, decoder_size):
                                         size=1,
                                         act=None,
                                         bias_attr=False)
-    attention_weights = fluid.layers.sequence_softmax(input=attention_weights)
-    weigths_reshape = fluid.layers.reshape(x=attention_weights, shape=[-1])
+    attention_weights = fluid.layers.sequence_softmax(input=attention_weights, use_cudnn=use_cudnn)
     scaled = fluid.layers.elementwise_mul(
-        x=encoder_vec, y=weigths_reshape, axis=0)
+        x=encoder_vec, y=attention_weights, axis=0)
     context = fluid.layers.sequence_pool(input=scaled, pool_type='sum')
     return context
 
@@ -242,14 +241,10 @@ def attention_infer(images, num_classes, use_cudnn=True):
                                    size=decoder_size,
                                    bias_attr=False,
                                    act="relu")
-    init_state = decoder_boot
+    pre_state = decoder_boot
     array_len = fluid.layers.fill_constant(
-        shape=[1], dtype='int64', value=max_length)
+        shape=[1], dtype='int64', value=max_length, force_cpu=True)
     counter = fluid.layers.zeros(shape=[1], dtype='int64', force_cpu=True)
-
-    # fill the first element with init_state
-    state_array = fluid.layers.create_array('float32')
-    fluid.layers.array_write(init_state, array=state_array, i=counter)
 
     # ids, scores as memory
     ids_array = fluid.layers.create_array('int64')
@@ -267,7 +262,6 @@ def attention_infer(images, num_classes, use_cudnn=True):
     while_op = fluid.layers.While(cond=cond)
     with while_op.block():
         pre_ids = fluid.layers.array_read(array=ids_array, i=counter)
-        pre_state = fluid.layers.array_read(array=state_array, i=counter)
         pre_score = fluid.layers.array_read(array=scores_array, i=counter)
 
         pre_ids_emb = fluid.layers.embedding(
@@ -276,7 +270,7 @@ def attention_infer(images, num_classes, use_cudnn=True):
             dtype='float32')
 
         context = simple_attention(encoded_vector, encoded_proj, pre_state,
-                                   decoder_size)
+                                   decoder_size, use_cudnn=use_cudnn)
 
         # expand the recursive_sequence_lengths of pre_state to be the same with pre_score
         pre_state_expanded = fluid.layers.sequence_expand(pre_state, pre_score)
@@ -297,33 +291,30 @@ def attention_infer(images, num_classes, use_cudnn=True):
         current_state_with_lod = fluid.layers.lod_reset(
             x=current_state, y=pre_score)
         # use score to do beam search
-        current_score = fluid.layers.fc(input=current_state_with_lod,
+        current_scores_noacted = fluid.layers.fc(input=current_state_with_lod,
                                         size=num_classes + 2,
                                         bias_attr=True,
-                                        act='softmax')
-        topk_scores, topk_indices = fluid.layers.topk(
-            current_score, k=beam_size)
+                                        act=None)
+        current_scores = fluid.layers.softmax(current_scores_noacted, use_cudnn=use_cudnn)
 
-        # calculate accumulated scores after topk to reduce computation cost
-        accu_scores = fluid.layers.elementwise_add(
-            x=fluid.layers.log(topk_scores),
-            y=fluid.layers.reshape(
-                pre_score, shape=[-1]),
-            axis=0)
+        #topk_scores, topk_indices = fluid.layers.topk(
+        #    current_scores, k=beam_size)
+
         selected_ids, selected_scores = fluid.layers.beam_search(
-            pre_ids,
-            pre_score,
-            topk_indices,
-            accu_scores,
-            beam_size,
-            1,  # end_id
+            pre_ids=pre_ids,
+            pre_scores=pre_score,
+            ids=None,
+            scores=current_scores,
+            beam_size=beam_size,
+            end_id=1,  # end_id
+            is_accumulated=False,
             #level=0
         )
 
         fluid.layers.increment(x=counter, value=1, in_place=True)
 
         # update the memories
-        fluid.layers.array_write(current_state, array=state_array, i=counter)
+        fluid.layers.assign(current_state, pre_state)
         fluid.layers.array_write(selected_ids, array=ids_array, i=counter)
         fluid.layers.array_write(selected_scores, array=scores_array, i=counter)
 
