@@ -90,7 +90,8 @@ def inference(args):
         result = exe.run(fluid.default_main_program(),
                          feed=feed_dict,
                          fetch_list=[ids],
-                         return_numpy=False)
+                         return_numpy=False,
+                         use_program_cache=True)
         indexes = prune(np.array(result[0]).flatten(), 0, 1)
         batch_time = time.time() - start
         fps = args.batch_size / batch_time
