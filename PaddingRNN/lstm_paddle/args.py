@@ -39,7 +39,6 @@ def parse_args():
         help="if use inference only")
     parser.add_argument(
         "--data_path", type=str, help="all the data for train,valid,test")
-    parser.add_argument('--para_init', action='store_true')
     parser.add_argument(
         '--use_gpu', type=bool, default=False, help='whether using gpu')
     parser.add_argument(

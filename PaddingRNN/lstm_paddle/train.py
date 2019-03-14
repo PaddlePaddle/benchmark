@@ -229,6 +229,7 @@ def main():
                 batch, init_hidden, init_cell, epoch_id=0, with_lr=False)
             batch_start_time = time.time()
             if args.inference_only:
+                # Use Executor to infer
                 fetch_outs = exe.run(
                     program=inference_program,
                     feed=input_data_feed,
@@ -258,6 +259,14 @@ def main():
             print("Eval batch_size: %d; Time (total): %.5f s; Time (only run): %.5f s; ppl: %.5f" % (batch_size, eval_time_total, eval_time_run, ppl[0]))
             print("")
 
+            # Save the inference model for C++ inference purpose
+            fluid.io.save_inference_model("infer_models",
+                                          feed_order,
+                                          [loss, last_hidden, last_cell],
+                                          exe,
+                                          main_program=inference_program,
+                                          model_filename="model",
+                                          params_filename="params")
         return ppl
 
 
@@ -346,17 +355,23 @@ def main():
 
     if args.profile:
         if args.use_gpu:
-            with profiler.cuda_profiler("cuda_profiler.txt", 'csv') as nvprof:
-                if not args.inference_only:
-                    train()
-                else:
-                    eval(test_data)
+            profiler.start_profiler("All")
+            if not args.inference_only:
+                profile_filename = "train_padding_rnn.gpu.profile"
+                train()
+            else:
+                profile_filename = "infer_padding_rnn.gpu.profile"
+                eval(test_data)
+            profiler.stop_profiler("total", profile_filename)
         else:
-            with profiler.profiler("CPU", sorted_key='total') as cpuprof:
-                if not args.inference_only:
-                    train()
-                else:
-                    eval(test_data)
+            profiler.start_profiler("CPU")
+            if not args.inference_only:
+                profile_filename = "train_padding_rnn.cpu.profile"
+                train()
+            else:
+                profile_filename = "infer_padding_rnn.cpu.profile"
+                eval(test_data)
+            profiler.stop_profiler("total", profile_filename)
     else:
         if not args.inference_only:
             train()
