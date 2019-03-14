@@ -28,6 +28,7 @@ import paddle.fluid as fluid
 import paddle.fluid.core as core
 import paddle.fluid.framework as framework
 from paddle.fluid.executor import Executor
+import paddle.fluid.profiler as profiler
 
 import reader
 
@@ -74,10 +75,12 @@ def save_para_npz(train_prog, train_exe):
     np.savez("mode_base", **vals)
 
 
-def train():
+def main():
     args = parse_args()
     model_type = args.model_type
     rnn_model = args.rnn_model
+    save_model_dir = args.save_model_dir
+
     logger = logging.getLogger("lm")
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter(
@@ -150,6 +153,9 @@ def train():
         print("model type not support")
         return
 
+    if args.batch_size > 0:
+        batch_size = args.batch_size
+
     # Training process
     loss, last_hidden, last_cell, feed_order = lm_model.lm_model(
         hidden_size,
@@ -210,6 +216,8 @@ def train():
         return res
 
     def eval(data):
+        batch_times = []
+        start_time = time.time()
         # when eval the batch_size set to 1
         eval_data_iter = reader.get_data_iter(data, batch_size, num_steps)
         total_loss = 0.0
@@ -219,9 +227,18 @@ def train():
         for batch_id, batch in enumerate(eval_data_iter):
             input_data_feed = prepare_input(
                 batch, init_hidden, init_cell, epoch_id=0, with_lr=False)
-            fetch_outs = train_exe.run(
-                feed=input_data_feed,
-                fetch_list=[loss.name, last_hidden.name, last_cell.name])
+            batch_start_time = time.time()
+            if args.inference_only:
+                fetch_outs = exe.run(
+                    program=inference_program,
+                    feed=input_data_feed,
+                    fetch_list=[loss.name, last_hidden.name, last_cell.name],
+                    use_program_cache=True)
+            else:
+                fetch_outs = train_exe.run(
+                    feed=input_data_feed,
+                    fetch_list=[loss.name, last_hidden.name, last_cell.name])
+            batch_times.append(time.time() - batch_start_time)
 
             cost_train = np.array(fetch_outs[0])
             init_hidden = np.array(fetch_outs[1])
@@ -231,17 +248,29 @@ def train():
             iters += num_steps
 
         ppl = np.exp(total_loss / iters)
+
+        eval_time_total = time.time() - start_time
+        eval_time_run = np.sum(batch_times)
+
+        # Benchmark
+        if args.inference_only:
+            print("\n======== Benchmark Result ========")
+            print("Eval batch_size: %d; Time (total): %.5f s; Time (only run): %.5f s; ppl: %.5f" % (batch_size, eval_time_total, eval_time_run, ppl[0]))
+            print("")
+
         return ppl
 
-    if not args.inference_only:
+
+    def train():
         # get train epoch size
         batch_len = len(train_data) // batch_size
         epoch_size = (batch_len - 1) // num_steps
         log_interval = epoch_size // 10
         total_time = 0.0
+        batch_times = []
+        epoch_times = []
         for epoch_id in range(max_epoch):
             start_time = time.time()
-            print("epoch id", epoch_id)
             train_data_iter = reader.get_data_iter(train_data, batch_size,
                                                    num_steps)
 
@@ -259,9 +288,12 @@ def train():
             for batch_id, batch in enumerate(train_data_iter):
                 input_data_feed = prepare_input(
                     batch, init_hidden, init_cell, epoch_id=epoch_id)
+                batch_start_time = time.time()
                 fetch_outs = train_exe.run(
                     feed=input_data_feed,
                     fetch_list=[loss.name, last_hidden.name, last_cell.name, "learning_rate"])
+                batch_time = time.time() - batch_start_time
+                batch_times.append(batch_time)
 
                 cost_train = np.array(fetch_outs[0])
                 init_hidden = np.array(fetch_outs[1])
@@ -273,32 +305,64 @@ def train():
                 iters += num_steps
                 if batch_id > 0 and batch_id % log_interval == 0:
                     ppl = np.exp(total_loss / iters)
-                    print("ppl ", batch_id, ppl[0], lr[0])
+                    print("-- Epoch:[%d]; Batch:[%d]; Time: %.5f s; ppl: %.5f, lr: %.5f" % (epoch_id, batch_id, batch_time, ppl[0], lr[0]))
 
             ppl = np.exp(total_loss / iters)
             if epoch_id == 0 and ppl[0] > 1000:
                 # for bad init, after first epoch, the loss is over 1000
                 # no more need to continue
+                print("Parameters are randomly initialized and not good this time because the loss is over 1000 after the first epoch.")
+                print("Abort this training process and please start again.")
                 return
-            end_time = time.time()
-            total_time += end_time - start_time
-            print("train ppl", ppl[0])
+            epoch_time = time.time() - start_time
+            epoch_times.append(epoch_time)
+            total_time += epoch_time
+            print("\nTrain epoch:[%d]; Time: %.5f; ppl %.5f\n" % (epoch_id, epoch_time, ppl[0]))
 
             if epoch_id == max_epoch - 1 and args.enable_ce:
+                # kpis
                 print("ptblm\tlstm_language_model_duration\t%s" %
                             (total_time / max_epoch))
                 print("ptblm\tlstm_language_model_loss\t%s" % ppl[0])
 
-            model_path = os.path.join("model_new/", str(epoch_id))
-            if not os.path.isdir(model_path):
-                os.makedirs(model_path)
+            filename = "params_%05d" % epoch_id
             fluid.io.save_persistables(
-                executor=exe, dirname=model_path, main_program=main_program)
-        valid_ppl = eval(valid_data)
-        print("valid ppl", valid_ppl[0])
-    test_ppl = eval(test_data)
-    print("test ppl", test_ppl[0])
+                executor=exe, dirname=save_model_dir, main_program=main_program, filename=filename)
+
+            valid_ppl = eval(valid_data)
+            print("Valid ppl: %.5f" % valid_ppl[0])
+
+            test_ppl = eval(test_data)
+            print("Test ppl: %.5f", test_ppl[0])
+
+        # Benchmark output
+        epoch_latency_total = np.average(epoch_times)
+        epoch_latency_run = np.sum(batch_times) // max_epoch
+        batch_latency_run = np.average(batch_times)
+        print("\n======== Benchmark Result ========")
+        print("max_epoch: %d, batch_size: %d" % (max_epoch, batch_size)) 
+        print("average latency (including data reading): %.5f s/epoch" % epoch_latency_total)
+        print("average latency (without data reading): %.5f s/epoch, %.5f s/batch\n" % (epoch_latency_run, batch_latency_run))
+
+    if args.profile:
+        if args.use_gpu:
+            with profiler.cuda_profiler("cuda_profiler.txt", 'csv') as nvprof:
+                if not args.inference_only:
+                    train()
+                else:
+                    eval(test_data)
+        else:
+            with profiler.profiler("CPU", sorted_key='total') as cpuprof:
+                if not args.inference_only:
+                    train()
+                else:
+                    eval(test_data)
+    else:
+        if not args.inference_only:
+            train()
+        else:
+            eval(test_data)
 
 
 if __name__ == '__main__':
-    train()
+    main()
