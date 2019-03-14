@@ -342,7 +342,7 @@ def main():
             print("Valid ppl: %.5f" % valid_ppl[0])
 
             test_ppl = eval(test_data)
-            print("Test ppl: %.5f", test_ppl[0])
+            print("Test ppl: %.5f\n" % test_ppl[0])
 
         # Benchmark output
         epoch_latency_total = np.average(epoch_times)
