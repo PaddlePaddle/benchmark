@@ -45,10 +45,9 @@ def parse_args():
         '--log_path',
         help='path of the log file. If not set, logs are printed to console')
     parser.add_argument(
-        '--save_model_dir',
-        type=str, default="models", help='dir of the saved model.')
+        '--save_model_dir', type=str, help='dir of the saved model.')
     parser.add_argument(
-        '--init_model', type=str, help='path of the init model.')
+        '--init_params_path', type=str, help='path of the init parameters.')
     parser.add_argument('--enable_ce', action='store_true')
     parser.add_argument(
         "--profile", type=bool, default=False, help="whether enable the profiler.")

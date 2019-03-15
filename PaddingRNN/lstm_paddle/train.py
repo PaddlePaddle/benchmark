@@ -79,7 +79,6 @@ def main():
     args = parse_args()
     model_type = args.model_type
     rnn_model = args.rnn_model
-    save_model_dir = args.save_model_dir
 
     logger = logging.getLogger("lm")
     logger.setLevel(logging.INFO)
@@ -153,6 +152,19 @@ def main():
         print("model type not support")
         return
 
+    if not args.save_model_dir:
+        save_model_dir = model_type + "_models"
+        if args.use_gpu:
+            save_model_dir = "gpu_" + save_model_dir
+        else:
+            save_model_dir = "cpu_" + save_model_dir
+        if args.inference_only:
+            save_model_dir = "infer_" + save_model_dir
+        else:
+            save_model_dir = "train_" + save_model_dir
+    else:
+        save_model_dir = args.save_model_dir
+
     if args.batch_size > 0:
         batch_size = args.batch_size
 
@@ -216,6 +228,16 @@ def main():
         return res
 
     def eval(data):
+        if args.inference_only and args.init_params_path:
+            dirname = args.init_params_path
+            filename = None
+            if not os.path.isdir(args.init_params_path):
+                dirname = os.path.dirname(args.init_params_path)
+                filename = os.path.basename(args.init_params_path)
+            fluid.io.load_persistables(
+                exe, dirname, main_program=main_program, filename=filename)
+            print("Load parameters from: %s." % args.init_params_path)
+
         batch_times = []
         start_time = time.time()
         # when eval the batch_size set to 1
@@ -227,18 +249,15 @@ def main():
         for batch_id, batch in enumerate(eval_data_iter):
             input_data_feed = prepare_input(
                 batch, init_hidden, init_cell, epoch_id=0, with_lr=False)
+
             batch_start_time = time.time()
-            if args.inference_only:
-                # Use Executor to infer
-                fetch_outs = exe.run(
-                    program=inference_program,
-                    feed=input_data_feed,
-                    fetch_list=[loss.name, last_hidden.name, last_cell.name],
-                    use_program_cache=True)
-            else:
-                fetch_outs = train_exe.run(
-                    feed=input_data_feed,
-                    fetch_list=[loss.name, last_hidden.name, last_cell.name])
+            # eval should not run the grad op and change the parameters.
+            # use Executor to eval
+            fetch_outs = exe.run(
+                program=inference_program,
+                feed=input_data_feed,
+                fetch_list=[loss.name, last_hidden.name, last_cell.name],
+                use_program_cache=True)
             batch_times.append(time.time() - batch_start_time)
 
             cost_train = np.array(fetch_outs[0])
@@ -260,13 +279,15 @@ def main():
             print("")
 
             # Save the inference model for C++ inference purpose
-            fluid.io.save_inference_model("infer_models",
+            fluid.io.save_inference_model(save_model_dir,
                                           feed_order,
                                           [loss, last_hidden, last_cell],
                                           exe,
                                           main_program=inference_program,
                                           model_filename="model",
                                           params_filename="params")
+            print("Save inference model to: %s." % save_model_dir)
+
         return ppl
 
 
@@ -334,15 +355,16 @@ def main():
                             (total_time / max_epoch))
                 print("ptblm\tlstm_language_model_loss\t%s" % ppl[0])
 
-            filename = "params_%05d" % epoch_id
-            fluid.io.save_persistables(
-                executor=exe, dirname=save_model_dir, main_program=main_program, filename=filename)
-
             valid_ppl = eval(valid_data)
             print("Valid ppl: %.5f" % valid_ppl[0])
 
             test_ppl = eval(test_data)
-            print("Test ppl: %.5f\n" % test_ppl[0])
+            print("Test ppl: %.5f" % test_ppl[0])
+
+            filename = "params_%05d" % epoch_id
+            fluid.io.save_persistables(
+                executor=exe, dirname=save_model_dir, main_program=main_program, filename=filename)
+            print("Saved model to: %s/%s.\n" % (save_model_dir, filename))
 
         # Benchmark output
         epoch_latency_total = np.average(epoch_times)
