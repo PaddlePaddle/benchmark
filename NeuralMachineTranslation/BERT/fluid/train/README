@@ -1,0 +1,32 @@
+模型来自：https://github.com/PaddlePaddle/LARK/tree/develop/BERT
+
+```
+export CUDA_VISIBLE_DEVICES=0
+#model_based
+SAVE_STEPS=5000
+BATCH_SIZE=32
+LR_RATE=1e-4
+WEIGHT_DECAY=0.01
+MAX_LEN=128
+DATA_DIR=baike_v3_part00
+CONFIG_PATH=../bert/chinese_L-12_H-768_A-12/bert_config.json
+
+export FLAGS_enable_parallel_graph=1
+export FLAGS_sync_nccl_allreduce=1
+
+# Change your train arguments:
+python -u ./train.py\
+        --use_cuda \
+        --weight_sharing \
+        --batch_size ${BATCH_SIZE} \
+        --data_dir ${DATA_DIR} \
+        --bert_config_path ${CONFIG_PATH} \
+        --checkpoints ./output \
+        --warmup_steps 2000 \
+        --num_train_steps 20000 \
+        --save_steps ${SAVE_STEPS} \
+        --learning_rate ${LR_RATE} \
+        --weight_decay ${WEIGHT_DECAY:-0} \
+        --max_seq_len ${MAX_LEN} \
+        --skip_steps 100
+```
