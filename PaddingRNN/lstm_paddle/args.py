@@ -39,12 +39,18 @@ def parse_args():
         help="if use inference only")
     parser.add_argument(
         "--data_path", type=str, help="all the data for train,valid,test")
-    parser.add_argument('--para_init', action='store_true')
     parser.add_argument(
         '--use_gpu', type=bool, default=False, help='whether using gpu')
     parser.add_argument(
         '--log_path',
         help='path of the log file. If not set, logs are printed to console')
+    parser.add_argument(
+        '--save_model_dir', type=str, help='dir of the saved model.')
+    parser.add_argument(
+        '--init_params_path', type=str, help='path of the init parameters.')
     parser.add_argument('--enable_ce', action='store_true')
+    parser.add_argument(
+        "--profile", type=bool, default=False, help="whether enable the profiler.")
+    parser.add_argument('--batch_size', type=int, default=0, help='batch size')
     args = parser.parse_args()
     return args
