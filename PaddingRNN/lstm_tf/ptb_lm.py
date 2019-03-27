@@ -182,8 +182,14 @@ with tf.Session(config=config) as sess:
     # Check for correct sizes
     # my_profiler = model_analyzer.Profiler(graph=sess.graph)
     # run_metadata = tf.RunMetadata()
+
+    total_time = 0.0
+    batch_times = []
+    epoch_times = []
+
     start = time.time()
-    for epoch_id in xrange( max_epoch ):
+    for epoch_id in xrange(max_epoch):
+        epoch_start_time = time.time()
         train_data_iter = reader.get_data_iter( train_data, batch_size, num_steps)
         # assign lr
         new_lr_1 = base_learning_rate * ( lr_decay ** max(epoch_id + 1 - epoch_start_decay, 0.0) )
@@ -231,16 +237,18 @@ with tf.Session(config=config) as sess:
         if not inference_only:
             count = 0.0
             for batch_id, batch in enumerate(train_data_iter):
-
                 x,y = batch
                 feed_dict = {}
                 feed_dict[x_place] = x
                 feed_dict[y_place] = y
                 feed_dict[init_h_place] = init_h
                 feed_dict[init_c_place] = init_c
-                t1 = time.time()
+
+                batch_start_time = time.time()
                 output = sess.run( [cost, final_h, final_c, train_op], feed_dict )
 
+                batch_time = time.time() - batch_start_time
+                batch_times.append(batch_time)
 
                 train_cost = output[0]
                 init_h = output[1]
@@ -248,21 +256,20 @@ with tf.Session(config=config) as sess:
 
                 total_loss += train_cost
                 iters += num_steps
-                count  = count + 1
+                count = count + 1
                 if batch_id >0 and  batch_id % log_fre == 0:
                     ppl = np.exp( total_loss / iters )
-                    print( "ppl ", batch_id, ppl, new_lr_1 )
-
-
-
+                    print("-- Epoch:[%d]; Batch:[%d]; Time: %.5f s; ppl: %.5f, lr: %.5f" % (epoch_id, batch_id, batch_time, ppl, new_lr_1))
 
             ppl  = np.exp( total_loss / iters )
+            epoch_time = time.time() - epoch_start_time
+            epoch_times.append(epoch_time)
+            total_time += epoch_time
 
-            print( "epoch", epoch_id, "loss", ppl)
+            print("\nTrain epoch:[%d]; Time: %.5f s; ppl: %.5f\n" % (epoch_id, epoch_time, ppl))
 
-            val_ppl = eval( valid_data )
-
-            print( "eval ppl", val_ppl)
+            valid_ppl = eval( valid_data )
+            print("Valid ppl: %.5f" % valid_ppl)
 
     start = time.time()
 
