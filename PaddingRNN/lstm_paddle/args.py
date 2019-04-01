@@ -42,6 +42,8 @@ def parse_args():
     parser.add_argument(
         '--use_gpu', type=bool, default=False, help='whether using gpu')
     parser.add_argument(
+        '--parallel', type=bool, default=True, help='whether using gpu in parallel')
+    parser.add_argument(
         '--log_path',
         help='path of the log file. If not set, logs are printed to console')
     parser.add_argument(
@@ -52,5 +54,6 @@ def parse_args():
     parser.add_argument(
         "--profile", type=bool, default=False, help="whether enable the profiler.")
     parser.add_argument('--batch_size', type=int, default=0, help='batch size')
+    parser.add_argument('--max_epoch', type=int, default=0, help='max epoch')
     args = parser.parse_args()
     return args
