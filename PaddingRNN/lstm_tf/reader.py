@@ -100,8 +100,8 @@ def get_data_iter(raw_data, batch_size, num_steps ):
     #print( "h", h[:20])
     
     epoch_size = (batch_len - 1) // num_steps
-    print( batch_size)
-    print( data.shape )
+    #print( batch_size)
+    #print( data.shape )
     for i in range(epoch_size):
         start = i * num_steps
         #print( i * num_steps )
