@@ -4,9 +4,11 @@ import numpy as np
 import os
 
 # cudnn is not better when batch size is 1.
-use_cudnn = False
+use_cudnn_conv2d_transpose = False
+use_cudnn_conv2d=True
 if 'ce_mode' in os.environ:
-    use_cudnn = False
+    use_cudnn_conv2d_transpose = False
+    use_cudnn_conv2d = False
 
 
 def cal_padding(img_size, stride, filter_size, dilation=1):
@@ -90,7 +92,7 @@ def conv2d(input,
         name=name,
         stride=stride,
         padding=padding,
-        use_cudnn=use_cudnn,
+        use_cudnn=use_cudnn_conv2d,
         param_attr=param_attr,
         bias_attr=bias_attr)
     if need_crop:
@@ -145,7 +147,7 @@ def deconv2d(input,
         filter_size=filter_size,
         stride=stride,
         padding=padding,
-        use_cudnn=use_cudnn,
+        use_cudnn=use_cudnn_conv2d_transpose,
         param_attr=param_attr,
         bias_attr=bias_attr)
 
