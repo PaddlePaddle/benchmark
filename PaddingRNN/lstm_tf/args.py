@@ -42,11 +42,11 @@ def parse_args():
 #        type=int,
 #        default=32,
 #        help="The sequence number of a mini-batch data. (default: %(default)d)")
-#    parser.add_argument(
-#        "--pass_num",
-#        type=int,
-#        default=5,
-#        help="The pass number to train. (default: %(default)d)")
+    parser.add_argument(
+        "--max_epoch",
+        type=int,
+        default=0,
+        help="The pass number to train. (default: %(default)d)")
 #    parser.add_argument(
 #        "--learning_rate",
 #        type=float,
@@ -57,17 +57,15 @@ def parse_args():
 #        type=distutils.util.strtobool,
 #        default=True,
 #        help="Whether to use gpu. (default: %(default)d)")
-    parser.add_argument(
-        '--log_path',
-        help='path of the log file. If not set, logs are printed to console')
 #    parser.add_argument(
 #        "--debug",
 #        action='store_true',
 #        help="Whether to print debug info. (default: %(default)d)")
-#    parser.add_argument(
-#        "--profile",
-#        action='store_true',
-#        help='Early exit if profile = True. (default: %(default)d)')
+    parser.add_argument(
+        "--profile",
+        type=bool,
+        default=False,
+        help='Early exit if profile = True. (default: %(default)d)')
 #    parser.add_argument(
 #        "--save_dir",
 #        type=str,
@@ -96,6 +94,6 @@ def parse_args():
 #    parser.add_argument('--single_doc', action='store_true')
 #    parser.add_argument('--simple_net', type=int, default=0)
 #    parser.add_argument('--para_init', action='store_true')
-#    parser.add_argument('--log_path', help='path of the log file. If not set, logs are printed to console')
+    parser.add_argument('--log_path', help='path of the log file. If not set, logs are printed to console')
     args = parser.parse_args()
     return args

@@ -10,9 +10,8 @@ from ptb_lm_model import *
 import reader
 
 # from tensorflow.python.client import timeline
-# from tensorflow.python.profiler import model_analyzer
-# from tensorflow.python.profiler import option_builder
-# Get data
+from tensorflow.python.profiler import model_analyzer
+from tensorflow.python.profiler import option_builder
 
 def main():
     args = parse_args()
@@ -78,6 +77,13 @@ def main():
     else:
         print("type not support", model_type)
         exit()
+
+    if args.max_epoch > 0:
+        max_epoch = args.max_epoch
+
+    if args.profile:
+        print("\nProfiler is enabled, only 1 epoch will be ran (set max_epoch = 1).\n")
+        max_epoch = 1
 
     # Create symbolic vars
     cost, final_h, final_c, train_op, new_lr, lr_update, feeding_list = ptb_lm_model(
@@ -152,19 +158,21 @@ def main():
     def train(sess):
         sess.run(init)
 
-        # Check for correct sizes
-        # my_profiler = model_analyzer.Profiler(graph=sess.graph)
-        # run_metadata = tf.RunMetadata()
+        if args.profile:
+            profiler_step = 0
+            profiler = model_analyzer.Profiler(graph=sess.graph)
+            run_options = tf.RunOptions(trace_level = tf.RunOptions.FULL_TRACE)
+            run_metadata = tf.RunMetadata()
         
         total_time = 0.0
         batch_times = []
         epoch_times = []
         
-        start = time.time()
         for epoch_id in xrange(max_epoch):
             epoch_start_time = time.time()
             train_data_iter = reader.get_data_iter( train_data, batch_size, num_steps)
-            # assign lr
+
+            # assign lr, update the learning rate
             new_lr_1 = base_learning_rate * ( lr_decay ** max(epoch_id + 1 - epoch_start_decay, 0.0) )
             sess.run( lr_update, {new_lr: new_lr_1})
         
@@ -172,7 +180,11 @@ def main():
             iters = 0
             batch_len = len(train_data) // batch_size
             epoch_size = ( batch_len - 1 ) // num_steps
-            log_fre = epoch_size // 10
+
+            if args.profile:
+                log_fre = 1
+            else:
+                log_fre = epoch_size // 10
         
             init_h = np.zeros( (num_layers, batch_size, hidden_size), dtype='float32')
             init_c = np.zeros( (num_layers, batch_size, hidden_size), dtype='float32')
@@ -187,7 +199,14 @@ def main():
                 feed_dict[feeding_list[3]] = init_c
         
                 batch_start_time = time.time()
-                output = sess.run( [cost, final_h, final_c, train_op], feed_dict )
+                if args.profile:
+                    output = sess.run([cost, final_h, final_c, train_op], feed_dict, options=run_options, run_metadata=run_metadata)
+                    profiler.add_step(step=profiler_step, run_meta=run_metadata)
+                    profiler_step = profiler_step + 1
+                    if batch_id >= 10:
+                        break
+                else:
+                    output = sess.run([cost, final_h, final_c, train_op], feed_dict)
                 batch_time = time.time() - batch_start_time
                 batch_times.append(batch_time)
         
@@ -213,8 +232,15 @@ def main():
             print("Valid ppl: %.5f" % valid_ppl)
     
         test_ppl, test_time = eval(sess, test_data)
-        print("Test Time (total): %.5f, ppl: %.5f", test_time, test_ppl)
+        print("Test Time (total): %.5f, ppl: %.5f" % (test_time, test_ppl))
               
+        if args.profile:
+            profile_op_opt_builder = option_builder.ProfileOptionBuilder()
+            profile_op_opt_builder.select(['micros','occurrence'])
+            profile_op_opt_builder.order_by('micros')
+            profile_op_opt_builder.with_max_depth(50)
+            profiler.profile_operations(profile_op_opt_builder.build())
+
 
     with tf.Session(config=config) as sess:
         if not args.inference_only:
