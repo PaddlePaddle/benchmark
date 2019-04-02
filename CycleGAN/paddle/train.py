@@ -152,7 +152,7 @@ def train(args):
     build_strategy.memory_optimize = True
     
     exec_strategy = fluid.ExecutionStrategy()
-    exec_strategy.num_threads = 4
+    exec_strategy.num_threads = 1
     exec_strategy.use_experimental_executor = True
     #exec_strategy.num_iteration_per_drop_scope = 100
 
