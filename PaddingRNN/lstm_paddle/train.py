@@ -179,15 +179,28 @@ def main():
 
     with fluid.program_guard(main_program, startup_program):
         # Training process
-        loss, last_hidden, last_cell, feed_order = lm_model.lm_model(
-            hidden_size,
-            vocab_size,
-            batch_size,
-            num_layers=num_layers,
-            num_steps=num_steps,
-            init_scale=init_scale,
-            dropout=dropout, 
-            rnn_model=rnn_model)
+        if args.use_py_reader and not args.inference_only:
+            loss, last_hidden, last_cell, feed_order, py_reader = lm_model.lm_model(
+                hidden_size,
+                vocab_size,
+                batch_size,
+                num_layers=num_layers,
+                num_steps=num_steps,
+                init_scale=init_scale,
+                dropout=dropout, 
+                rnn_model=rnn_model,
+                use_py_reader=True)
+        else:
+            loss, last_hidden, last_cell, feed_order = lm_model.lm_model(
+                hidden_size,
+                vocab_size,
+                batch_size,
+                num_layers=num_layers,
+                num_steps=num_steps,
+                init_scale=init_scale,
+                dropout=dropout, 
+                rnn_model=rnn_model,
+                use_py_reader=False)
 
         # clone from default main program and use it as the validation program
         inference_program = fluid.default_main_program().clone(for_test=True)
@@ -211,25 +224,37 @@ def main():
 
     exec_strategy = fluid.ExecutionStrategy()
     exec_strategy.num_threads = fluid.core.get_cuda_device_count()
-    #exec_strategy.use_experimental_executor = True
+#    exec_strategy.use_experimental_executor = True
     exec_strategy.num_iteration_per_drop_scope = 100
 
     build_strategy = fluid.BuildStrategy()
     #if args.memory_optimize:
     if True:
-        #build_strategy.fuse_relu_depthwise_conv = True
         build_strategy.enable_inplace = True
-        build_strategy.memory_optimize = True
+        # When use py_reader, memory_optimize cannot be set to True
+        build_strategy.memory_optimize = False
+#        if args.use_py_reader:
+#            build_strategy.memory_optimize = False
+#        else:
+#            build_strategy.memory_optimize = True
 
     build_strategy.remove_unnecessary_lock = True
-    build_strategy.enable_sequential_execution = False
+    build_strategy.fuse_elewise_add_act_ops = True
+#    build_strategy.enable_sequential_execution = True
+#    build_strategy.cache_runtime_context = True
+#    build_strategy.debug_graphviz_path = "padding_rnn." + model_type + ".";
     if args.parallel:
-        compiled_program = fluid.compiler.CompiledProgram(main_program).with_data_parallel(
+        train_program = fluid.compiler.CompiledProgram(main_program).with_data_parallel(
+            loss_name=loss.name,
+            build_strategy=build_strategy,
+            exec_strategy=exec_strategy)
+        eval_program = fluid.compiler.CompiledProgram(inference_program).with_data_parallel(
             loss_name=loss.name,
             build_strategy=build_strategy,
             exec_strategy=exec_strategy)
     else:
-        compiled_program = fluid.compiler.CompiledProgram(main_program)
+        train_program = fluid.compiler.CompiledProgram(main_program)
+        eval_program = fluid.compiler.CompiledProgram(inference_program)
 
     data_path = args.data_path
     print("begin to load data")
@@ -282,7 +307,7 @@ def main():
             # eval should not run the grad op and change the parameters.
             # use Executor to eval
             fetch_outs = exe.run(
-                program=inference_program,
+                program=eval_program,
                 feed=input_data_feed,
                 fetch_list=[loss.name, last_hidden.name, last_cell.name],
                 use_program_cache=True)
@@ -319,41 +344,81 @@ def main():
         return ppl
 
 
-    def train():
+    def train_an_epoch(epoch_id, batch_times):
         # get train epoch size
-        batch_len = len(train_data) // batch_size
-        epoch_size = (batch_len - 1) // num_steps
+        num_batchs = len(train_data) // batch_size
+        epoch_size = (num_batchs - 1) // num_steps
         if args.profile:
             log_interval = 1
         else:
             log_interval = epoch_size // 10
-        total_time = 0.0
-        batch_times = []
-        epoch_times = []
-        for epoch_id in range(max_epoch):
-            epoch_start_time = time.time()
-            train_data_iter = reader.get_data_iter(train_data, batch_size,
-                                                   num_steps)
 
-            total_loss = 0
+        train_data_iter = reader.get_data_iter(train_data, batch_size,
+                                               num_steps)
 
-            init_hidden = None
-            init_cell = None
-            total_loss = 0
-            iters = 0
-            init_hidden = np.zeros(
-                (num_layers, batch_size, hidden_size), dtype='float32')
-            init_cell = np.zeros(
-                (num_layers, batch_size, hidden_size), dtype='float32')
-            for batch_id, batch in enumerate(train_data_iter):
-                input_data_feed = prepare_input(
-                    batch, init_hidden, init_cell, epoch_id=epoch_id)
+        total_loss = 0
+        iters = 0
+        init_hidden = np.zeros(
+            (num_layers, batch_size, hidden_size), dtype='float32')
+        init_cell = np.zeros(
+            (num_layers, batch_size, hidden_size), dtype='float32')
+        for batch_id, batch in enumerate(train_data_iter):
+            input_data_feed = prepare_input(
+                batch, init_hidden, init_cell, epoch_id=epoch_id)
+            batch_start_time = time.time()
+            fetch_outs = exe.run(
+                train_program,
+                feed=input_data_feed,
+                #fetch_list=[loss.name, last_hidden.name, last_cell.name, "learning_rate"],
+                fetch_list=[loss, last_hidden, last_cell, learning_rate],
+                use_program_cache=True)
+
+            batch_time = time.time() - batch_start_time
+            batch_times.append(batch_time)
+
+            cost_train = np.array(fetch_outs[0])
+            init_hidden = np.array(fetch_outs[1])
+            init_cell = np.array(fetch_outs[2])
+
+            lr = np.array(fetch_outs[3])
+
+            total_loss += cost_train
+            iters += num_steps
+            if batch_id > 0 and batch_id % log_interval == 0:
+                ppl = np.exp(total_loss / iters)
+                print("-- Epoch:[%d]; Batch:[%d]; Time: %.5f s; ppl: %.5f, lr: %.5f" % (epoch_id, batch_id, batch_time, ppl[0], lr[0]))
+
+            if args.profile:
+                if batch_id == 1:
+                    profiler.reset_profiler()
+                elif batch_id >= 11:
+                    break
+
+        ppl = np.exp(total_loss / iters)
+        return ppl
+
+
+    def train_an_epoch_py_reader(epoch_id, batch_times):
+        # get train epoch size
+        num_batchs = len(train_data) // batch_size
+        epoch_size = (num_batchs - 1) // num_steps
+        if args.profile:
+            log_interval = 1
+        else:
+            log_interval = epoch_size // 10
+
+        total_loss = 0
+        iters = 0
+
+        py_reader.start()
+        batch_id = 1
+        try:
+            while True:
                 batch_start_time = time.time()
                 fetch_outs = exe.run(
-                    compiled_program,
-                    feed=input_data_feed,
-                    fetch_list=[loss.name, last_hidden.name, last_cell.name, "learning_rate"],
-                    use_program_cache=True)
+                    train_program,
+                    #fetch_list=[loss.name, last_hidden.name, last_cell.name, "learning_rate"])
+                    fetch_list=[loss, last_hidden, last_cell, learning_rate])
 
                 batch_time = time.time() - batch_start_time
                 batch_times.append(batch_time)
@@ -361,7 +426,6 @@ def main():
                 cost_train = np.array(fetch_outs[0])
                 init_hidden = np.array(fetch_outs[1])
                 init_cell = np.array(fetch_outs[2])
-
                 lr = np.array(fetch_outs[3])
 
                 total_loss += cost_train
@@ -375,18 +439,53 @@ def main():
                         profiler.reset_profiler()
                     elif batch_id >= 11:
                         break
+                batch_id += 1
+        except fluid.core.EOFException:
+            py_reader.reset()
 
-            ppl = np.exp(total_loss / iters)
-            if epoch_id == 0 and ppl[0] > 1000:
+        ppl = np.exp(total_loss / iters)
+        return ppl
+
+
+    def train():
+        #print(main_program)
+
+        if args.use_py_reader:
+            def data_gen():
+                init_hidden = np.zeros(
+                    (num_layers, batch_size, hidden_size), dtype='float32')
+                init_cell = np.zeros(
+                    (num_layers, batch_size, hidden_size), dtype='float32')
+
+                train_batches = reader.get_data_iter(train_data, batch_size, num_steps)
+                for batch in train_batches:
+                    x, y = batch
+                    x = x.reshape((-1, num_steps, 1))
+                    y = y.reshape((-1, 1))
+                    yield x, y, init_hidden, init_cell
+
+            py_reader.decorate_tensor_provider(data_gen)
+
+        total_time = 0.0
+        batch_times = []
+        epoch_times = []
+        for epoch_id in range(max_epoch):
+            epoch_start_time = time.time()
+            if args.use_py_reader:
+                train_ppl = train_an_epoch_py_reader(epoch_id, batch_times)
+            else:
+                train_ppl = train_an_epoch(epoch_id, batch_times)
+            epoch_time = time.time() - epoch_start_time
+            epoch_times.append(epoch_time)
+            total_time += epoch_time
+            print("\nTrain epoch:[%d]; Time: %.5f; ppl: %.5f\n" % (epoch_id, epoch_time, train_ppl[0]))
+
+            if epoch_id == 0 and train_ppl[0] > 1000:
                 # for bad init, after first epoch, the loss is over 1000
                 # no more need to continue
                 print("Parameters are randomly initialized and not good this time because the loss is over 1000 after the first epoch.")
                 print("Abort this training process and please start again.")
                 return
-            epoch_time = time.time() - epoch_start_time
-            epoch_times.append(epoch_time)
-            total_time += epoch_time
-            print("\nTrain epoch:[%d]; Time: %.5f; ppl: %.5f\n" % (epoch_id, epoch_time, ppl[0]))
 
             if epoch_id == max_epoch - 1 and args.enable_ce:
                 # kpis
@@ -394,7 +493,7 @@ def main():
                             (total_time / max_epoch))
                 print("ptblm\tlstm_language_model_loss\t%s" % ppl[0])
 
-            if not args.profile:
+            if not args.profile and not args.use_py_reader:
                 valid_ppl = eval(valid_data)
                 print("Valid ppl: %.5f" % valid_ppl[0])
 
@@ -414,6 +513,7 @@ def main():
         print("max_epoch: %d, batch_size: %d" % (max_epoch, batch_size)) 
         print("average latency (including data reading): %.5f s/epoch" % epoch_latency_total)
         print("average latency (without data reading): %.5f s/epoch, %.5f s/batch\n" % (epoch_latency_run, batch_latency_run))
+
 
     if args.profile:
         if args.use_gpu:
