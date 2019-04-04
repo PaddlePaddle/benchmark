@@ -369,8 +369,7 @@ def main():
             fetch_outs = exe.run(
                 train_program,
                 feed=input_data_feed,
-                #fetch_list=[loss.name, last_hidden.name, last_cell.name, "learning_rate"],
-                fetch_list=[loss, last_hidden, last_cell, learning_rate],
+                fetch_list=[loss.name, last_hidden.name, last_cell.name, "learning_rate"],
                 use_program_cache=True)
 
             batch_time = time.time() - batch_start_time
@@ -417,8 +416,8 @@ def main():
                 batch_start_time = time.time()
                 fetch_outs = exe.run(
                     train_program,
-                    #fetch_list=[loss.name, last_hidden.name, last_cell.name, "learning_rate"])
-                    fetch_list=[loss, last_hidden, last_cell, learning_rate])
+                    fetch_list=[loss.name, last_hidden.name, last_cell.name, "learning_rate"],
+                    use_program_cache=True)
 
                 batch_time = time.time() - batch_start_time
                 batch_times.append(batch_time)
@@ -448,8 +447,6 @@ def main():
 
 
     def train():
-        #print(main_program)
-
         if args.use_py_reader:
             def data_gen():
                 init_hidden = np.zeros(
