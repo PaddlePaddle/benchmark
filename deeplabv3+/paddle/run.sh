@@ -6,23 +6,21 @@ echo $DATASET_PATH
 #GLOG_vmodule=inplace_op_pass=3,eager_deletion_pass=10,memory_optimize_pass=3,parallel_executor=10 GLOG_logtostderr=1 python ./train.py  --batch_size=2  --train_crop_size=513  --total_step=50  --init_weights_path=$INIT_WEIGHTS_PATH --save_weights_path=$SAVE_WEIGHTS_PATH  --dataset_path=$DATASET_PATH --parallel=True
 # benchmark command:
 # sinlge card
+if [ $# -ne 1 ]; then
+  echo "Usage: "
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed"
+  exit
+fi
+
 fun(){
-    echo $CUDA_VISIBLE_DEVICES
-    if [ $CUDA_VISIBLE_DEVICES = "0" ]
-    then
-        echo "run on one gpu"
-        python ./train.py  --batch_size=2  --train_crop_size=513  --total_step=80 \
-        --init_weights_path=$INIT_WEIGHTS_PATH --save_weights_path=$SAVE_WEIGHTS_PATH \
-        --dataset_path=$DATASET_PATH --parallel=True > log 2>&1
-    elif [ $CUDA_VISIBLE_DEVICES = "0,1,2,3" ]
-    then
-        echo "run on four gpus"
-        python ./train.py  --batch_size=8  --train_crop_size=513  --total_step=80
-        --init_weights_path=$INIT_WEIGHTS_PATH --save_weights_path=$SAVE_WEIGHTS_PATH  \
-        --dataset_path=$DATASET_PATH --parallel=True > log 2>&1
-    else
-        echo "not support 8 gpus"
-    fi
+    device=${CUDA_VISIBLE_DEVICES//,/ }
+    arr=($device)
+    gpus=${#arr[*]}
+    batch_size=`expr 2 \* $gpus`
+    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$gpus, batch_size=$batch_size"
+    python ./train.py --batch_size=$batch_size --train_crop_size=513 --total_step=80 \
+           --init_weights_path=$INIT_WEIGHTS_PATH --save_weights_path=$SAVE_WEIGHTS_PATH  \
+           --dataset_path=$DATASET_PATH --parallel=True > log 2>&1
 }
 if [ $1 = 'mem' ]
 then
@@ -33,7 +31,7 @@ then
     gpu_memory_pid=$!
     fun
     kill $gpu_memory_pid
-    awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
+    awk 'BEGIN {max=0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max_mem_used=", max}' gpu_use.log
 else
     echo "test for $1"
     fun
