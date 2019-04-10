@@ -166,6 +166,7 @@ def predict(conf_dict):
             # Get batch data iterator
             batch_data = paddle.batch(reader, conf_dict["batch_size"], drop_last=False)
             logging.info("start test process ...")
+            bt = time.time()
             for iter, data in enumerate(batch_data()):
                 output = executor.run(program, feed=feeder.feed(
                     data), fetch_list=fetch_targets)
@@ -175,6 +176,10 @@ def predict(conf_dict):
                 else:
                     predictions_file.write(
                         "\n".join(map(lambda item: str(np.argmax(item)), output[1])) + "\n")
+            if iter:
+                print("predict speed is {} s/examples".format((time.time() - bt) / iter))
+            else:
+                print("please check data, maybe it's null!")
     utils.get_result_file(conf_dict, "samples.txt", "predictions.txt")
 
 
