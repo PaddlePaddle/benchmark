@@ -2,22 +2,22 @@
 
 We release distributed training benchmark in this repository. The following tasks will be included for user reference.
 
-## Parameter Server Based Training
+## 1.Parameter Server Based Training
 
-### Click Through Rate Estimation
+### 1.1 Click Through Rate Estimation
 
-### Word2vec
+### 1.2 Word2vec
 
-### Simnet-Bow
+### 1.3 Simnet-Bow
 
-## Collective Training
+## 2. Collective Training
 
-### Resnet50
+### 2.1 Resnet50
 
-#### Repo
+#### 2.1.1 Repo
 [image_classification](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/image_classification/dist_train)
 
-#### Performance
+#### 2.1.2 Performance
 
 The below figure shows fluid distributed training performances. We did these on a 4-node V100 GPU cluster,
 each has 8 V100 GPU card, with total of 32 GPUs. All modes can reach the "state of the art (choose loss scale carefully when using fp16 mode)" of ResNet50 model with imagenet dataset. The Y axis in the figure shows
@@ -41,11 +41,11 @@ The third figure shows performance when using DGC of resnet-fp32 under different
 Speed-ups of Multiple-GPU Training of Resnet50 on Imagenet
 </p>
 
-### Se-Resnet50
+### 2.2 Se-Resnet50
 
-### Transformer
+### 2.3 Transformer
 
-### Bert
+### 2.4 Bert
 
-### VGG16
+### 2.5 VGG16
 
