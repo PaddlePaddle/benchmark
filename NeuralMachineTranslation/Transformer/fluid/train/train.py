@@ -122,7 +122,7 @@ def parse_args():
     parser.add_argument(
         "--use_default_pe",
         type=ast.literal_eval,
-        default=True,
+        default=False,
         help="")
     parser.add_argument(
         "--use_py_reader",
