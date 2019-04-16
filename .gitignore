@@ -4,3 +4,5 @@ __MACOSX
 .idea
 *~
 __pycache__
+log*
+*.swp
