@@ -43,9 +43,10 @@ infer(){
   python eval_coco_map.py \
     --dataset=coco2017 \
     --pretrained_model=../imagenet_resnet50_fusebn/ \
-    --MASK_ON=True > log_infer 2>&1 &
+    --MASK_ON=True > ${log_file} 2>&1 &
+  infer_pid=$!
   sleep 60
-  kill -9 $train_pid
+  kill -9 $infer_pid
 }
 
 analysis_times(){
@@ -104,5 +105,10 @@ then
 else
   echo "Benchmark for $task"
   $task
-  analysis_times 3 20 20
+  if [ ${task} = "train" ]
+  then
+      analysis_times 3 20 20
+  else
+      analysis_times 3 5 5
+  fi
 fi
