@@ -18,9 +18,9 @@ INIT_WEIGHTS_PATH=${PWD}/deeplabv3plus_xception65_initialize
 SAVE_WEIGHTS_PATH=${PWD}/output/model
 echo $DATASET_PATH
 
-device=${CUDA_VISIBLE_DEVICES//,/ }
-arr=($device)
-num_gpu_devices=${#arr[*]}
+devices_str=${CUDA_VISIBLE_DEVICES//,/ }
+gpu_devices=($devices_str)
+num_gpu_devices=${#gpu_devices[*]}
 
 train_crop_size=513
 total_step=80
@@ -101,4 +101,3 @@ else
   train
   analysis_times
 fi
-
