@@ -2,52 +2,47 @@
 
 set -xe
 
-#export FLAGS_cudnn_deterministic=true
-#export FLAGS_enable_parallel_graph=1
+export CUDA_VISIBLE_DEVICES="0,1,2,3"
+#export CUDA_VISIBLE_DEVICES="1"
 
-if [ $# -ne 1 ]; then
-  echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem"
-  exit
-fi
+export TF_MODELS_ROOT=/work/tensorflow/models
 
-task="$1"
-
-DATASET_PATH=${PWD}/data/cityscape/
-INIT_WEIGHTS_PATH=${PWD}/deeplabv3plus_xception65_initialize
-SAVE_WEIGHTS_PATH=${PWD}/output/model
-echo $DATASET_PATH
-
-device=${CUDA_VISIBLE_DEVICES//,/ }
-arr=($device)
-num_gpu_devices=${#arr[*]}
+gpu_devices=(`echo ${CUDA_VISIBLE_DEVICES} | tr "," " "`)
+num_gpu_devices=${#gpu_devices[@]}
 
 train_crop_size=513
 total_step=80
-batch_size=`expr 2 \* $num_gpu_devices`
+batch_size=$((2 * num_gpu_devices))
 
+task=speed
 log_file=log_${task}_bs${batch_size}_${num_gpu_devices}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
-  echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  python $PWD/train.py \
-      --batch_size=${batch_size} \
-      --train_crop_size=${train_crop_size} \
-      --total_step=${total_step} \
-      --init_weights_path=${INIT_WEIGHTS_PATH} \
-      --save_weights_path=${SAVE_WEIGHTS_PATH} \
-      --dataset_path=${DATASET_PATH} \
-      --parallel=True > ${log_file} 2>&1
-
-  # Python multi-processing is used to read images, so need to
-  # kill those processes if the main train process is aborted.
-  #ps -aux | grep "$PWD/train.py" | awk '{print $2}' | xargs kill -9
+  export PYTHONPATH=${TF_MODELS_ROOT}/research:${TF_MODELS_ROOT}/research/slim
+  python ${TF_MODELS_ROOT}/research/deeplab/train.py  \
+           --logtostderr  \
+           --training_number_of_steps=${total_step}  \
+           --train_split=train  \
+           --model_variant=xception_65  \
+           --atrous_rates=6  \
+           --atrous_rates=12  \
+           --atrous_rates=18  \
+           --output_stride=16  \
+           --decoder_output_stride=4  \
+           --train_crop_size=${train_crop_size}  \
+           --train_crop_size=${train_crop_size}  \
+           --train_batch_size=${batch_size}  \
+           --dataset=cityscapes  \
+           --train_logdir=./train_logs  \
+           --dataset_dir=${TF_MODELS_ROOT}/research/deeplab/datasets/cityscapes/tfrecord/  \
+           --tf_initial_checkpoint=./deeplabv3_cityscapes_train/model.ckpt.index  \
+           --num_clones ${num_gpu_devices} > ${log_file} 2>&1
 }
 
 analysis_times(){
-  awk 'BEGIN{count=0}/step_time_cost:/{
-    step_times[count]=$6;
+  awk 'BEGIN{count=0}/global_step\/sec:/{
+    step_times[count]=1/$2;
     count+=1;
   }END{
     print "\n================ Benchmark Result ================"
@@ -86,19 +81,6 @@ analysis_times(){
   }' ${log_file} 
 }
 
-if [ $task = "mem" ]
-then
-  echo "Benchmark for $task"
-  export FLAGS_fraction_of_gpu_memory_to_use=0.001
-  gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
-  nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
-  gpu_memory_pid=$!
-  train
-  kill $gpu_memory_pid
-  awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
-else
-  echo "Benchmark for $task"
-  train
-  analysis_times
-fi
-
+echo "test for $1"
+train
+analysis_times
