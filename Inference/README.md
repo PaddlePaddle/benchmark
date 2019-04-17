@@ -29,6 +29,10 @@ To run Resnet50 in TensorRT,run:
 
 `python inference_benchmark.py --model resnet --model_dir models/resnet50 --model_filename model --params_filename params --device gpu --use_tensorrt`
 
+To run Resnet50 in Anakin,run:
+
+`python inference_benchmark.py --model resnet --model_dir models/resnet50 --model_filename model --params_filename params --device gpu --use_anakin`
+
 ---
 
 ## Benchmark Model
