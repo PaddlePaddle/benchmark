@@ -1,11 +1,16 @@
-#**PaddlePaddle inference benchmarks**
+# **PaddlePaddle inference benchmarks**
 ---
+
 inference_benchmark contains implementations of several popular  models inference,and is designed to be as fast as possible. inference_benchmark supports both running on CPU and GPU. It support three mode:native、tensorrt subgraph and anakin subgraph.
-##Getting Started
+
+## Getting Started
+
 To run the Resnet50 inference speed with GPU,run
+
  `python inference_benchmark.py --model resnet --model_dir models/resnet50 --model_filename model --params_filename params --device gpu`
  
  Some important flags are
+
 + model: Model to use, e.g. resnet, mobilenet,vgg, googlenet, and shufflenet.
 + model_dir: The dir of inference model file, which is train and save in PaddlePaddle.
 + model_filename: The model graph file in model_file. 
@@ -21,10 +26,12 @@ To run the Resnet50 inference speed with GPU,run
 To see the full list of flags, run python inference_benchmark.py --help
 
 To run Resnet50 in TensorRT,run:
+
 `python inference_benchmark.py --model resnet --model_dir models/resnet50 --model_filename model --params_filename params --device gpu --use_tensorrt`
 
 ---
-##Benchmark Model
+
+## Benchmark Model
 
 The following  neural networks are tested with both CPU and GPU. You can use pretrained paddlepaddle fluid model or the model trained by youself.
 
