@@ -69,7 +69,7 @@ def train_model(args, model, criterion, optimizer, scheduler, num_epochs, datase
                 if phase == 'train' and i%args.print_freq == 0:
                     print('[Epoch {}/{}]-[batch:{}/{}] lr:{:.4f} {} Loss: {:.6f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
                           epoch, num_epochs - 1, i, round(dataset_sizes[phase]/args.batch_size)-1, scheduler.get_lr()[0], phase, batch_loss, batch_acc, \
-                        args.print_freq/(time.time()-tic_batch)))
+                        args.print_freq/(time.time()-tic_batch)), flush=True)
                     tic_batch = time.time()
 
             epoch_loss = running_loss / dataset_sizes[phase]
