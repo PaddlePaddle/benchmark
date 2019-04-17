@@ -1,0 +1,4 @@
+[submodule "models"]
+  path = models
+  url = https://github.com/PaddlePaddle/models.git
+  branch = benchmark
