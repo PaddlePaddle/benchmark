@@ -17,16 +17,22 @@ echo "          pip install scipy"
 echo ""
 #pip install --upgrade pytorch torchvision
 
-export CUDA_VISIBLE_DEVICES="0"
+#export CUDA_VISIBLE_DEVICES="0"
 #export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7"
 
-task=speed
+if [ $# -ne 2 ]; then
+  echo "Usage: "
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh 32"
+  exit
+fi
 
+task=speed
+base_batchsize=$1
 devices_str=${CUDA_VISIBLE_DEVICES//,/ }
 gpu_devices=($devices_str)
 num_gpu_devices=${#gpu_devices[*]}
 
-batch_size=`expr 32 \* $num_gpu_devices`
+batch_size=`expr $base_batchsize \* $num_gpu_devices`
 num_epochs=2
 num_workers=`expr 2 \* $num_gpu_devices`
 
@@ -41,7 +47,10 @@ train() {
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
   python -c "import torch; print(torch.__version__)"
-  python train.py \
+  gpu_id=`echo $CUDA_VISIBLE_DEVICES |cut -c1`
+  nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
+  gpu_memory_pid=$!
+  stdbuf -oL python train.py \
         --network se_resnext_50 \
         --data-dir ImageData/ \
         --batch-size ${batch_size} \
@@ -50,6 +59,7 @@ train() {
         --gpus ${CUDA_VISIBLE_DEVICES} > ${log_file} 2>&1 &
   train_pid=$!
   sleep 300
+  kill -9 `ps -ef|grep 'python train.py --network se_resnext_50'|awk '{print $2}'`
 #  kill -9 $train_pid
 }
 
@@ -94,6 +104,6 @@ analysis_times(){
   }'
 }
 
-echo "Benchmark for $task"
 train
 analysis_times
+awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
