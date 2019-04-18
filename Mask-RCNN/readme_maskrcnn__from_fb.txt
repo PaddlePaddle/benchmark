@@ -1,7 +1,7 @@
-¾µÏñÊÇ»ùÓÚhttps://hub.docker.com/r/pytorch/pytorch/tags ÉÏµÄ 0.4.1-cuda9-cudnn7-runtime½¨Á¢µÄ
+é•œåƒæ˜¯åŸºäºhttps://hub.docker.com/r/pytorch/pytorch/tags ä¸Šçš„ 0.4.1-cuda9-cudnn7-runtimeå»ºç«‹çš„
 
 
-1.ÖØĞÂ°²×°conda 
+1.é‡æ–°å®‰è£…conda 
 
 mkdir conda
 cd conda
@@ -11,7 +11,7 @@ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 sh Miniconda3-latest-Linux-x86_64.sh
 
 
-2. ×¼±¸»·¾³
+2. å‡†å¤‡ç¯å¢ƒ
 
 conda create --name maskrcnn_benchmark
 conda activate maskrcnn_benchmark
@@ -22,29 +22,29 @@ pip install ninja yacs cython matplotlib tqdm
 
 conda install -c pytorch pytorch-nightly torchvision cudatoolkit=9.0
 
-À´×Ô£ºhttps://github.com/facebookresearch/maskrcnn-benchmark/blob/master/INSTALL.md
+æ¥è‡ªï¼šhttps://github.com/facebookresearch/maskrcnn-benchmark/blob/master/INSTALL.md
 
-3. °²×°copoapi
-ÕâÀï°²×°ÔÚ£º/ssd1/ljh/benchmark/Mask-RCNN/mask-rcc-fb_workspace
+3. å®‰è£…copoapi
+è¿™é‡Œå®‰è£…åœ¨ï¼š/ssd1/ljh/benchmark/Mask-RCNN/mask-rcc-fb_workspace
   cd benchmark/Mask-RCNN/mask-rcc-fb_workspace
   git clone https://github.com/cocodataset/cocoapi.git
   cd cocoapi/PythonAPI
   python setup.py build_ext install
 
-4.ÅäÖÃCUDA_HOME
+4.é…ç½®CUDA_HOME
 find / -name "libnvblas.so.*"
-ÕÒµ½µÄÂ·¾¶Èç£º /home/work/docker/devicemapper/mnt/294816e447998c28557c2bca88ff5ee1573dac5dd6f51e0b875ea463ceeeaec2/rootfs/usr/local/cuda-9.0/
-ÒòÎªÊÇ°²×°µ½ÁËconda»·¾³Àï£¬´´½¨Ò»¸ö¶ÌÂ·¾¶
+æ‰¾åˆ°çš„è·¯å¾„å¦‚ï¼š /home/work/docker/devicemapper/mnt/294816e447998c28557c2bca88ff5ee1573dac5dd6f51e0b875ea463ceeeaec2/rootfs/usr/local/cuda-9.0/
+å› ä¸ºæ˜¯å®‰è£…åˆ°äº†condaç¯å¢ƒé‡Œï¼Œåˆ›å»ºä¸€ä¸ªçŸ­è·¯å¾„
 ln -s /home/work/docker/devicemapper/mnt/294816e447998c28557c2bca88ff5ee1573dac5dd6f51e0b875ea463ceeeaec2/rootfs/usr/local/cuda-9.0/ /usr/local/cuda-9.0/
 
-¼ÓÈëµ½»·¾³±äÁ¿export CUDA_HOME=/usr/local/cuda-9.0/
+åŠ å…¥åˆ°ç¯å¢ƒå˜é‡export CUDA_HOME=/usr/local/cuda-9.0/
 
 
-4. ±àÒëmaskrcnn-benchmark
+4. ç¼–è¯‘maskrcnn-benchmark
   cd ../../maskrcnn-from-fb
   python setup.py build develop
   
-Á´½ÓcocoÊı¾İµØÖ·
+é“¾æ¥cocoæ•°æ®åœ°å€
 mkdir -p datasets/coco
 ln -s /ssd1/ljh/dataset/COCO17/annotations datasets/coco/annotations
 ln -s /ssd1/ljh/dataset/COCO17/train2017 datasets/coco/train2017
@@ -52,15 +52,17 @@ ln -s /ssd1/ljh/dataset/COCO17/test2017 datasets/coco/test2017
 ln -s /ssd1/ljh/dataset/COCO17/val2017 datasets/coco/val2017
 
 
-5. ĞŞ¸Äconfigs/e2e_mask_rcnn_R_50_FPN_1x.yaml
+5. ä¿®æ”¹configs/e2e_mask_rcnn_R_50_C4_1x.yaml
 
- coco2017Àï£º
-  5.1 coco_2014_valminusminival ¸ÄÎª coco_2017_train
+ coco2017é‡Œï¼š
+  5.1 coco_2014_valminusminival æ”¹ä¸º coco_2017_train,å…¶ä»–coco_2014ä¿®æ”¹ä¸ºcoco_2017
 
-  5.2 ÔÚ SIZE_DIVISIBILITY: 32 ÏÂÔö¼ÓÒ»ĞĞ£º
-      NUM_WORKERS: 0
-6. Ö´ĞĞÃüÁî£º
-  python tools/train_net.py --config-file "configs/e2e_mask_rcnn_R_50_FPN_1x.yaml" SOLVER.IMS_PER_BATCH 2 SOLVER.BASE_LR 0.0025 SOLVER.MAX_ITER 720000 SOLVER.STEPS "(480000, 640000)" TEST.IMS_PER_BATCH 1
+  5.2 ä¿®æ”¹DATALOADERé…ç½®,æ³¨æ„,é’ˆå¯¹å¤šå¡,ä»¥åŠå¤šæœºæƒ…å†µæ—¶è°ƒæ•´è¯¥å‚æ•°èƒ½æ”¹å–„æ•°æ®ioæ€§èƒ½. å¢åŠ èŠ‚ç‚¹DATALOADER, é…ç½®ä¸ºï¼š
+      DATALOADER:
+        SIZE_DIVISIBILITY: 32
+        NUM_WORKERS: 0
+6. æ‰§è¡Œå‘½ä»¤ï¼š
+  python tools/train_net.py --config-file "configs/e2e_mask_rcnn_R_50_R_50_C4_1x.yaml" SOLVER.IMS_PER_BATCH 2 SOLVER.BASE_LR 0.0025 SOLVER.MAX_ITER 720000 SOLVER.STEPS "(480000, 640000)" TEST.IMS_PER_BATCH 1
  
 
 
