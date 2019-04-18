@@ -39,17 +39,17 @@ To run Resnet50 in Anakin,run:
 
 The following  neural networks are tested with both CPU and GPU. You can use pretrained paddlepaddle fluid model or the model trained by youself.
 
-model name|   inference model
---|--|
-ResNet50|
-ResNet101|
-MobileNetV1|
-MobileNetV2|
-Vgg16|
-Vgg19|
-GoogleNet|
-ShuffleNet|
-MobileNet_SSD|
-faster-rcnn|
-yolo_v3|
-deeplab|
+Model name|  Network file |inference model
+--|--|--
+ResNet50|[Code](https://github.com/PaddlePaddle/models/blob/develop/PaddleCV/image_classification/models/resnet.py)|[ResNet50_inference_model](https://paddlepaddle-inference-banchmark.bj.bcebos.com/ResNet50_inference.tar)
+ResNet101|[Code](https://github.com/PaddlePaddle/models/blob/develop/PaddleCV/image_classification/models/resnet.py)|[Resnet101_inference_model](https://paddlepaddle-inference-banchmark.bj.bcebos.com/ResNet101_inference.tar)
+MobileNetV1|[Code](https://github.com/PaddlePaddle/models/blob/develop/PaddleCV/image_classification/models/mobilenet.py)|[MobileNetV1_inference_model](https://paddlepaddle-inference-banchmark.bj.bcebos.com/MobileNetV1_inference.tar)
+MobileNetV2|[Code](https://github.com/PaddlePaddle/models/blob/develop/PaddleCV/image_classification/models/mobilenet_v2.py)|[MobileNetV2_inference_model](https://paddlepaddle-inference-banchmark.bj.bcebos.com/MobileNetV2_inference.tar)
+Vgg16|[Code](https://github.com/PaddlePaddle/models/blob/develop/PaddleCV/image_classification/models/vgg.py)|[Vgg16_inference_model](https://paddlepaddle-inference-banchmark.bj.bcebos.com/VGG16_inference.tar)
+Vgg19|[Code](https://github.com/PaddlePaddle/models/blob/develop/PaddleCV/image_classification/models/vgg.py)|[Vgg19_inference_model](https://paddlepaddle-inference-banchmark.bj.bcebos.com/VGG19_inference.tar)
+GoogleNet|[Code](https://github.com/PaddlePaddle/models/blob/develop/PaddleCV/image_classification/models/googlenet.py)|[GoogleNet_inference_model](https://paddlepaddle-inference-banchmark.bj.bcebos.com/GoogleNet_inference.tar)
+ShuffleNet|[Code](https://github.com/PaddlePaddle/models/blob/develop/PaddleCV/image_classification/models/shufflenet_v2.py)|[ShuffleNet_inference_model](https://paddlepaddle-inference-banchmark.bj.bcebos.com/shufflenet_inference.tar.gz)
+MobileNet_SSD|[Code](https://github.com/PaddlePaddle/models/blob/develop/PaddleCV/object_detection/mobilenet_ssd.py)|[MobileNetSSD_inference_model](https://paddlepaddle-inference-banchmark.bj.bcebos.com/MobileNet_SSD_infer_model.tar.gz)
+faster-rcnn|[Code](https://github.com/PaddlePaddle/models/blob/develop/PaddleCV/rcnn/models/model_builder.py)|[faster-rcnn_inference_model](https://paddlepaddle-inference-banchmark.bj.bcebos.com/faster_rcnn.tar)
+yolo_v3|[Code](https://github.com/PaddlePaddle/models/blob/develop/PaddleCV/yolov3/models/yolov3.py)|[yolov3_inference_model](https://paddlepaddle-inference-banchmark.bj.bcebos.com/yolo_v3_inference.tgz)
+
