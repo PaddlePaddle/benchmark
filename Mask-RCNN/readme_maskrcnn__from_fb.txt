@@ -62,7 +62,7 @@ ln -s /ssd1/ljh/dataset/COCO17/val2017 datasets/coco/val2017
         SIZE_DIVISIBILITY: 32
         NUM_WORKERS: 0
 6. 执行命令：
-  python tools/train_net.py --config-file "configs/e2e_mask_rcnn_R_50_R_50_C4_1x.yaml" SOLVER.IMS_PER_BATCH 2 SOLVER.BASE_LR 0.0025 SOLVER.MAX_ITER 720000 SOLVER.STEPS "(480000, 640000)" TEST.IMS_PER_BATCH 1
+  python tools/train_net.py --config-file "configs/e2e_mask_rcnn_R_50_C4_1x.yaml" SOLVER.IMS_PER_BATCH 2 SOLVER.BASE_LR 0.0025 SOLVER.MAX_ITER 720000 SOLVER.STEPS "(480000, 640000)" TEST.IMS_PER_BATCH 1
  
 
 
