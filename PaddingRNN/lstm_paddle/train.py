@@ -225,8 +225,10 @@ def main():
     exe = Executor(place)
     exe.run(startup_program)
 
+    device_count = fluid.core.get_cuda_device_count()
+
     exec_strategy = fluid.ExecutionStrategy()
-    exec_strategy.num_threads = fluid.core.get_cuda_device_count()
+    exec_strategy.num_threads = device_count
     exec_strategy.use_experimental_executor = False
     exec_strategy.num_iteration_per_drop_scope = 100
 
@@ -234,20 +236,15 @@ def main():
     #if args.memory_optimize:
     if True:
         build_strategy.enable_inplace = True
-        # When use py_reader, memory_optimize cannot be set to True
         build_strategy.memory_optimize = False
-#        if args.use_py_reader:
-#            build_strategy.memory_optimize = False
-#        else:
-#            build_strategy.memory_optimize = True
 
     build_strategy.remove_unnecessary_lock = True
-    build_strategy.fuse_elewise_add_act_ops = True
-#    build_strategy.enable_sequential_execution = True
+    build_strategy.enable_sequential_execution = False
     build_strategy.cache_runtime_context = True
     build_strategy.cache_expected_kernel = True
-#    build_strategy.fuse_all_optimizer_ops = True
+    build_strategy.fuse_all_optimizer_ops = True
 #    build_strategy.debug_graphviz_path = "padding_rnn." + model_type + ".";
+
     if args.parallel:
         train_program = fluid.compiler.CompiledProgram(main_program).with_data_parallel(
             loss_name=loss.name,
@@ -318,10 +315,10 @@ def main():
         eval_data_iter = reader.get_data_iter(data, batch_size, num_steps)
         total_loss = 0.0
         iters = 0
-        init_hidden = np.zeros((num_layers, batch_size, hidden_size),
-                               dtype='float32')
-        init_cell = np.zeros((num_layers, batch_size, hidden_size),
-                             dtype='float32')
+        init_hidden = np.zeros(
+            (num_layers, batch_size, hidden_size), dtype='float32')
+        init_cell = np.zeros(
+            (num_layers, batch_size, hidden_size), dtype='float32')
         for batch_id, batch in enumerate(eval_data_iter):
             input_data_feed = prepare_input(
                 batch, init_hidden, init_cell, epoch_id=0, with_lr=False)
@@ -377,7 +374,6 @@ def main():
         else:
             log_interval = epoch_size // 10
 
-        device_count = fluid.core.get_cuda_device_count()
         data_iter_size = batch_size
         if device_count > 1 and args.parallel:
             data_iter_size = batch_size * device_count
@@ -400,14 +396,20 @@ def main():
                 (num_layers, batch_size, hidden_size), dtype='float32')
         for batch_id, batch in enumerate(train_data_iter):
             input_data_feed = prepare_input(
-                batch, init_hidden, init_cell, epoch_id=epoch_id)
-            batch_start_time = time.time()
-            fetch_outs = exe.run(
-                train_program,
-                feed=input_data_feed,
-                fetch_list=[loss.name, last_hidden.name, last_cell.name, "learning_rate"],
-                use_program_cache=True)
+                batch,
+                init_hidden,
+                init_cell,
+                epoch_id=epoch_id,
+                device_count=device_count)
 
+            batch_start_time = time.time()
+            fetch_outs = exe.run(train_program,
+                                 feed=input_data_feed,
+                                 fetch_list=[
+                                    loss.name, last_hidden.name,
+                                    last_cell.name, "learning_rate"
+                                 ],
+                use_program_cache=True)
             batch_time = time.time() - batch_start_time
             batch_times.append(batch_time)
 
@@ -456,7 +458,6 @@ def main():
                         "learning_rate"
                     ],
                     use_program_cache=True)
-
                 batch_time = time.time() - batch_start_time
                 batch_times.append(batch_time)
 
@@ -467,7 +468,7 @@ def main():
 
                 total_loss += cost_train
                 iters += num_steps
-                if batch_id > 0 and batch_id % log_interval == 0:
+                if batch_id > 0 and (log_interval == 0 or batch_id % log_interval == 0):
                     ppl = np.exp(total_loss / iters)
                     print(
                         "-- Epoch:[%d]; Batch:[%d]; Time: %.5f s; ppl: %.5f, lr: %.5f"
@@ -517,7 +518,10 @@ def main():
             total_time += epoch_time
             print("\nTrain epoch:[%d]; Time: %.5f s; ppl: %.5f\n" % (epoch_id, epoch_time, train_ppl[0]))
 
-            if epoch_id == 0 and train_ppl[0] > 1000:
+            # FIXME(zjl): ppl[0] increases as batch_size increases. 
+            # We should find a better way to calculate ppl by normalizing batch_size. 
+            if device_count == 1 and batch_size <= 20 and epoch_id == 0 and train_ppl[
+                    0] > 1000:
                 # for bad init, after first epoch, the loss is over 1000
                 # no more need to continue
                 print(
@@ -532,17 +536,46 @@ def main():
                       (total_time / max_epoch))
                 print("ptblm\tlstm_language_model_loss\t%s" % ppl[0])
 
-#            if not args.profile and not args.use_py_reader:
-#                valid_ppl = eval(valid_data)
-#                print("Valid ppl: %.5f" % valid_ppl[0])
-#
-#                test_ppl = eval(test_data)
-#                print("Test ppl: %.5f" % test_ppl[0])
-#
-#                filename = "params_%05d" % epoch_id
-#                fluid.io.save_persistables(
-#                    executor=exe, dirname=save_model_dir, main_program=main_program, filename=filename)
-#                print("Saved model to: %s/%s.\n" % (save_model_dir, filename))
+            if not args.profile:
+                # NOTE(zjl): sometimes we have not enough data for eval if batch_size is large, i.e., 2100
+                # Just skip to avoid error
+                def is_valid_data(data, batch_size, num_steps):
+                    data_len = len(data)
+                    batch_len = data_len // batch_size
+                    epoch_size = (batch_len - 1) // num_steps
+                    return epoch_size >= 1
+
+                valid_data_valid = is_valid_data(valid_data, batch_size,
+                                                 num_steps)
+
+                test_data_valid = is_valid_data(test_data, batch_size,
+                                                num_steps)
+
+                if valid_data_valid and test_data_valid:
+                    valid_ppl = eval(valid_data)
+                    print("Valid ppl: %.5f" % valid_ppl[0])
+
+                    test_ppl = eval(test_data)
+                    print("Test ppl: %.5f" % test_ppl[0])
+                else:
+                    if not valid_data_valid:
+                        print(
+                            'WARNING: length of valid_data is {}, which is not enough for batch_size {} and num_steps {}'.
+                            format(len(valid_data), batch_size, num_steps))
+
+                    if not test_data_valid:
+                        print(
+                            'WARNING: length of test_data is {}, which is not enough for batch_size {} and num_steps {}'.
+                            format(len(test_data), batch_size, num_steps))
+
+                filename = "params_%05d" % epoch_id
+                fluid.io.save_persistables(
+                    executor=exe,
+                    dirname=save_model_dir,
+                    main_program=main_program,
+                    filename=filename)
+                print("Saved model to: %s/%s.\n" % (save_model_dir, filename))
+
 
         # Benchmark output
         epoch_latency_total = np.average(epoch_times)

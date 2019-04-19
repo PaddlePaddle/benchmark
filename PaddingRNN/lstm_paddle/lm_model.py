@@ -187,9 +187,11 @@ def lm_model(hidden_size,
             cell_array.append(pre_cell)
 
         res = []
+        sliced_inputs = layers.split(
+            input_embedding, num_or_sections=len, dim=1)
+
         for index in range(len):
-            input = layers.slice(
-                input_embedding, axes=[1], starts=[index], ends=[index + 1])
+            input = sliced_inputs[index]
             input = layers.reshape(input, shape=[-1, hidden_size], inplace=True)
             for k in range(num_layers):
                 pre_hidden = hidden_array[k]
@@ -268,7 +270,7 @@ def lm_model(hidden_size,
             x_emb,
             dropout_prob=dropout,
             dropout_implementation='upscale_in_train')
-    
+
     if rnn_model == "padding":
         rnn_out, last_hidden, last_cell = padding_rnn(
             x_emb, len=num_steps, init_hidden=init_hidden, init_cell=init_cell)
@@ -276,13 +278,13 @@ def lm_model(hidden_size,
         rnn_out, last_hidden, last_cell = encoder_static(
             x_emb, len=num_steps, init_hidden=init_hidden, init_cell=init_cell)
     elif rnn_model == "cudnn":
-        x_emb = layers.transpose( x_emb, perm=[1, 0, 2])
+        x_emb = layers.transpose(x_emb, perm=[1, 0, 2])
         rnn_out, last_hidden, last_cell = layers.lstm( x_emb, init_hidden, init_cell,  num_steps, hidden_size, num_layers, \
                 is_bidirec=False, \
                 default_initializer=fluid.initializer.UniformInitializer(low=-init_scale, high=init_scale) )
-        rnn_out = layers.transpose( rnn_out, perm=[1, 0, 2])
+        rnn_out = layers.transpose(rnn_out, perm=[1, 0, 2])
     else:
-        print( "type not support")
+        print("type not support")
         return
     rnn_out = layers.reshape(rnn_out, shape=[-1, num_steps, hidden_size], inplace=True)
 
@@ -305,8 +307,9 @@ def lm_model(hidden_size,
     loss = layers.reduce_mean(loss, dim=[0])
     loss = layers.reduce_sum(loss)
 
-    loss.permissions = True
     loss.persistable = True
+    last_cell.persistable = True
+    last_hidden.persistable = True
 
     feeding_list = ['x', 'y', 'init_hidden', 'init_cell']
     if use_py_reader:
