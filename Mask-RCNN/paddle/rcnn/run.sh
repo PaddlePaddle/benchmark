@@ -3,6 +3,9 @@ set -xe
 
 #export FLAGS_cudnn_deterministic=true
 #export FLAGS_enable_parallel_graph=1
+export FLAGS_eager_delete_tensor_gb=0.0
+export FLAGS_fraction_of_gpu_memory_to_use=0.98
+export FLAGS_memory_fraction_of_eager_deletion=1.0
 
 if [ $# -ne 2 ]; then
   echo "Usage: "
