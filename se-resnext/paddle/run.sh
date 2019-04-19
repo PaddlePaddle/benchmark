@@ -3,7 +3,7 @@
 set -xe
 
 #export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7"
-export CUDA_VISIBLE_DEVICES="0"
+#export CUDA_VISIBLE_DEVICES="0"
 
 export PD_MODELS_ROOT=/work/models
 
@@ -12,7 +12,7 @@ export PD_MODELS_ROOT=/work/models
 
 if [ $# -ne 2 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed 16"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed 32"
   exit
 fi
 
@@ -52,21 +52,23 @@ train(){
 }
 
 analysis_times(){
+  skip_step=$1
+  count_fields=$2
   sed 's/batch\/sec/\ batch\/sec/' ${log_file} | awk 'BEGIN{count=0}/trainbatch/{
-    step_times[count]=$14;
+    step_times[count]=$'${count_fields}';
     count+=1;
   }END{
     print "\n================ Benchmark Result ================"
     print "num_epochs:", "'${num_epochs}'"
     print "batch_size:", "'${batch_size}'"
-    if(count>1){
+    if(count>'${skip_step}'){
       step_latency=0
       step_latency_without_step0_avg=0
-      step_latency_without_step0_min=step_times[1]
-      step_latency_without_step0_max=step_times[1]
+      step_latency_without_step0_min=step_times['${skip_step}']
+      step_latency_without_step0_max=step_times['${skip_step}']
       for(i=0;i<count;++i){
         step_latency+=step_times[i];
-        if(i>0){
+        if(i>='${skip_step}'){
           step_latency_without_step0_avg+=step_times[i];
           if(step_times[i]<step_latency_without_step0_min){
             step_latency_without_step0_min=step_times[i];
@@ -77,11 +79,11 @@ analysis_times(){
         }
       }
       step_latency/=count;
-      step_latency_without_step0_avg/=(count-1)
+      step_latency_without_step0_avg/=(count-'${skip_step}')
       printf("average latency (including data reading):\n")
       printf("\tAvg: %.3f s/step\n", step_latency)
       printf("\tFPS: %.3f images/s\n", "'${batch_size}'"/step_latency)
-      printf("average latency (including data reading, without step 0):\n")
+      printf("average latency (skip '${skip_step}' steps):\n")
       printf("\tAvg: %.3f s/step\n", step_latency_without_step0_avg)
       printf("\tMin: %.3f s/step\n", step_latency_without_step0_min)
       printf("\tMax: %.3f s/step\n", step_latency_without_step0_max)
@@ -104,5 +106,5 @@ then
 else
   echo "test for $task"
   train
-  analysis_times
+  analysis_times 2 14
 fi
