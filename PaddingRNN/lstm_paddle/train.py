@@ -226,6 +226,8 @@ def main():
 
     build_strategy.remove_unnecessary_lock = True
     build_strategy.enable_sequential_execution = False
+    exec_strategy.num_threads = 1
+
     if args.parallel:
         compiled_program = fluid.compiler.CompiledProgram(
             main_program).with_data_parallel(
@@ -402,7 +404,7 @@ def main():
 
                 total_loss += cost_train
                 iters += num_steps
-                if batch_id > 0 and batch_id % log_interval == 0:
+                if batch_id > 0 and (log_interval == 0 or batch_id % log_interval == 0):
                     ppl = np.exp(total_loss / iters)
                     print(
                         "-- Epoch:[%d]; Batch:[%d]; Time: %.5f s; ppl: %.5f, lr: %.5f"

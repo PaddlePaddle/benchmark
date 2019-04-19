@@ -668,7 +668,8 @@ def train(args):
             optimizer.minimize(avg_cost)
 
     if args.use_mem_opt:
-        fluid.memory_optimize(train_prog)
+        pass
+        # fluid.memory_optimize(train_prog)
 
     if args.local:
         logging.info("local start_up:")

@@ -1,6 +1,11 @@
 export CUDA_VISIBLE_DEVICES=4,5,6,7 
-export FLAGS_enable_parallel_graph=1
+export FLAGS_enable_parallel_graph=0
 export FLAGS_sync_nccl_allreduce=1
+
+export FLAGS_fraction_of_gpu_memory_to_use=1.0
+export FLAGS_eager_delete_tensor_gb=0.0
+export FLAGS_memory_fraction_of_eager_deletion=0.99999
+
 gen_data=/ssd1/gs/transformer_1.1/gen_data
 
 # base model
