@@ -480,6 +480,9 @@ def train_loop(exe,
     build_strategy = fluid.BuildStrategy()
     build_strategy.memory_optimize = False
     build_strategy.enable_inplace = True
+
+    sum_cost.persistable = True
+    token_num.persistable = True
     # Since the token number differs among devices, customize gradient scale to
     # use token average cost among multi-devices. and the gradient scale is
     # `1 / token_number` for average cost.
