@@ -16,10 +16,10 @@ fi
 task="$1"
 index="$2"
 
-BERT_BASE_PATH="/ssd1/ljh/benchmark/NeuralMachineTranslation/BERT/fluid/train/chinese_L-12_H-768_A-12"
+BERT_BASE_PATH=$(pwd)/../../chinese_L-12_H-768_A-12
 TASK_NAME='XNLI'
-DATA_PATH=/ssd1/ljh/benchmark/NeuralMachineTranslation/BERT/fluid/train/data
-CKPT_PATH=/ssd1/ljh/benchmark/NeuralMachineTranslation/BERT/fluid/train/save
+DATA_PATH=$(pwd)/../../data
+CKPT_PATH=$(pwd)/../../save
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
