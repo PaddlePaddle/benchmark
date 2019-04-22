@@ -49,4 +49,4 @@ if __name__ == '__main__':
 
         for t in th_list:
           t.join()
-    logger.info("[learn] {} heads, time consuming:{}".format(ensemble_num, (time.time() - start_time) / args.test_times))
+    logger.info("[learn] {} heads, time consuming: {}".format(ensemble_num, (time.time() - start_time) / args.test_times))

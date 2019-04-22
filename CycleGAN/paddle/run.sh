@@ -22,13 +22,10 @@ log_file=log_${task}_${index}_${num_gpu_devices}
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  for i in {1:5}
-  do
-      FLAGS_enforce_when_check_program_=0 GLOG_vmodule=operator=1,computation_op_handle=1 \
-      python ./multi_thread_test.py \
-          --ensemble_num 1 \
-          --test_times 10 >> ${log_file} 2>&1
-  done
+  python train.py > ${log_file} 2>&1 &
+  train_pid=$!
+  sleep 120
+  kill -9 $train_pid
 }
 
 infer(){
@@ -45,10 +42,11 @@ infer(){
 
 analysis_times(){
   skip_step=$1
-  count_fields=$2
-  awk 'BEGIN{count=0}/time consuming:/{
+  filter_fields=$2
+  count_fields=$3
+  awk 'BEGIN{count=0}{if(NF=='${filter_fields}'){
     step_times[count]=$'${count_fields}';
-    count+=1;
+    count+=1;}
   }END{
     print "\n================ Benchmark Result ================"
     print "total_step:", count
@@ -105,19 +103,9 @@ else
     $task
     if [ ${task} = "train" ]
     then
-      analysis_times 1 10
+      analysis_times 3 12 12
     else
       echo "no infer cmd"
       #analysis_times 3 5 5
     fi
 fi
-
-source activate python35
-export CUDA_VISIBLE_DEVICES="1"
-
-#wget ftp://yq01-sys-hic-p40-box-a12-0057.yq01.baidu.com:/home/users/minqiyang/workspace/paddle/Paddle/build935/accelerate_ddpg/python/dist/paddlepaddle_gpu-0.0.0-cp35-cp35m-linux_x86_64.whl -O paddlepaddle_gpu-0.0.0-cp35-cp35m-linux_x86_64.whl && pip uninstall -y paddlepaddle-gpu && pip install paddlepaddle_gpu-0.0.0-cp35-cp35m-linux_x86_64.whl
-
-#export PATH=/usr/local/cuda/bin:$PATH
-#FLAGS_enforce_when_check_program_=0 GLOG_vmodule=operator=1,computation_op_handle=1 python ./multi_thread_test.py --ensemble_num 1 --test_times 10 >log 2>errorlog
-
-#python timeline.py --profile_path=./profile --timeline_path=./timeline
