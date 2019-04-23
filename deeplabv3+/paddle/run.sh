@@ -75,12 +75,12 @@ analysis_times(){
       step_latency_without_step0_avg/=(count-1)
       printf("average latency (including data reading):\n")
       printf("\tAvg: %.3f s/step\n", step_latency)
-      printf("\tFPS: %.3f images/s\n", "'${batch_size}'"/step_latency)
+      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency)
       printf("average latency (including data reading, without step 0):\n")
       printf("\tAvg: %.3f s/step\n", step_latency_without_step0_avg)
       printf("\tMin: %.3f s/step\n", step_latency_without_step0_min)
       printf("\tMax: %.3f s/step\n", step_latency_without_step0_max)
-      printf("\tFPS: %.3f images/s\n", "'${batch_size}'"/step_latency_without_step0_avg)
+      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency_without_step0_avg)
       printf("\n")
     }
   }' ${log_file} 
