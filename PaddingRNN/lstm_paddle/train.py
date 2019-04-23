@@ -226,7 +226,6 @@ def main():
 
     build_strategy.remove_unnecessary_lock = True
     build_strategy.enable_sequential_execution = False
-    exec_strategy.num_threads = 1
 
     if args.parallel:
         compiled_program = fluid.compiler.CompiledProgram(
