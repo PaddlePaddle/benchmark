@@ -10,6 +10,8 @@ export PD_MODELS_ROOT=/work/models
 #export FLAGS_cudnn_deterministic=true
 #export FLAGS_enable_parallel_graph=1
 
+export FLAGS_cudnn_exhaustive_search=true
+
 if [ $# -ne 2 ]; then
   echo "Usage: "
   echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed 32"
