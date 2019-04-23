@@ -22,7 +22,7 @@ log_file=log_${task}_${index}_${num_gpu_devices}
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  for i in {1:5}
+  for i in {1..5}
   do
       FLAGS_enforce_when_check_program_=0 GLOG_vmodule=operator=1,computation_op_handle=1 \
       python ./multi_thread_test.py \
@@ -73,12 +73,12 @@ analysis_times(){
       step_latency/=count;
       step_latency_without_step0_avg/=(count-'${skip_step}')
       printf("average latency (origin result):\n")
-      printf("\tAvg: %.3f s/step\n", step_latency)
-      printf("\tFPS: %.3f images/s\n", "'${batch_size}'"/step_latency)
+      printf("\tAvg: %.3f s/epoch\n", step_latency)
+      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency)
       printf("average latency (skip '${skip_step}' steps):\n")
-      printf("\tAvg: %.3f s/step\n", step_latency_without_step0_avg)
-      printf("\tMin: %.3f s/step\n", step_latency_without_step0_min)
-      printf("\tMax: %.3f s/step\n", step_latency_without_step0_max)
+      printf("\tAvg: %.3f s/epoch\n", step_latency_without_step0_avg)
+      printf("\tMin: %.3f s/epoch\n", step_latency_without_step0_min)
+      printf("\tMax: %.3f s/epoch\n", step_latency_without_step0_max)
       printf("\tFPS: %.3f examples/s\n", '${batch_size}'/step_latency_without_step0_avg)
       printf("\n")
     }
@@ -112,8 +112,8 @@ else
     fi
 fi
 
-source activate python35
-export CUDA_VISIBLE_DEVICES="1"
+#source activate python35
+#export CUDA_VISIBLE_DEVICES="1"
 
 #wget ftp://yq01-sys-hic-p40-box-a12-0057.yq01.baidu.com:/home/users/minqiyang/workspace/paddle/Paddle/build935/accelerate_ddpg/python/dist/paddlepaddle_gpu-0.0.0-cp35-cp35m-linux_x86_64.whl -O paddlepaddle_gpu-0.0.0-cp35-cp35m-linux_x86_64.whl && pip uninstall -y paddlepaddle-gpu && pip install paddlepaddle_gpu-0.0.0-cp35-cp35m-linux_x86_64.whl
 

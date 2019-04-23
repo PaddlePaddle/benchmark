@@ -16,15 +16,10 @@ fi
 task="$1"
 index="$2"
 
-DATASET_PATH=${PWD}/data/cityscape/
-INIT_WEIGHTS_PATH=${PWD}/deeplabv3plus_xception65_initialize
-SAVE_WEIGHTS_PATH=${PWD}/output/model
-echo $DATASET_PATH
-
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-batch_size=1
+batch_size=`expr 1 \* $num_gpu_devices`
 log_file=log_${task}_${index}_${num_gpu_devices}
 
 train(){
@@ -84,12 +79,12 @@ analysis_times(){
       step_latency_without_step0_avg/=(count-'${skip_step}')
       printf("average latency (origin result):\n")
       printf("\tAvg: %.3f s/step\n", step_latency)
-      printf("\tFPS: %.3f images/s\n", "'${batch_size}'"/step_latency)
+      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency)
       printf("average latency (skip '${skip_step}' steps):\n")
       printf("\tAvg: %.3f s/step\n", step_latency_without_step0_avg)
       printf("\tMin: %.3f s/step\n", step_latency_without_step0_min)
       printf("\tMax: %.3f s/step\n", step_latency_without_step0_max)
-      printf("\tFPS: %.3f images/s\n", '${batch_size}'/step_latency_without_step0_avg)
+      printf("\tFPS: %.3f examples/s\n", '${batch_size}'/step_latency_without_step0_avg)
       printf("\n")
     }
   }' ${log_file}
