@@ -21,3 +21,6 @@ python3 train_yolo3.py --no-random-shape
 1. Redmon, Joseph, et al. "You only look once: Unified, real-time object detection." Proceedings of the IEEE conference on computer vision and pattern recognition. 2016.
 2. Redmon, Joseph, and Ali Farhadi. "YOLO9000: better, faster, stronger." arXiv preprint (2017).
 3. Redmon, Joseph, and Ali Farhadi. "Yolov3: An incremental improvement." arXiv preprint arXiv:1804.02767 (2018).
+
+Model Link: https://github.com/dmlc/gluon-cv/tree/master/scripts/detection/yolo
+Commit id: fcb3375226cb23c40a302df7015014c18ea54d66
