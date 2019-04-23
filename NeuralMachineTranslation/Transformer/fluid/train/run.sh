@@ -7,6 +7,14 @@ if [ $# -ne 2 ]; then
   exit
 fi
 
+export FLAGS_enable_parallel_graph=0
+export FLAGS_sync_nccl_allreduce=1
+
+# Configuration of Allocator and GC
+export FLAGS_fraction_of_gpu_memory_to_use=1.0
+export FLAGS_eager_delete_tensor_gb=0.0
+export FLAGS_memory_fraction_of_eager_deletion=0.99999
+
 task="$1"
 index="$2"
 
@@ -35,6 +43,7 @@ train(){
       --shuffle_batch False \
       --use_py_reader True \
       --use_mem_opt True \
+      --use_default_pe False \
       --fetch_steps 100  $@ \
       dropout_seed 10 \
       learning_rate 2.0 \
@@ -98,13 +107,13 @@ analysis_times(){
       step_latency/=count;
       step_latency_without_step0_avg/=(count-'${skip_step}')
       printf("average latency (origin result):\n")
-      printf("\tAvg: %.3f s/step\n", step_latency)
-      printf("\tFPS: %.3f images/s\n", "'${batch_size}'"/step_latency)
+      printf("\tAvg: %.3f steps/s\n", step_latency)
+      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"*step_latency)
       printf("average latency (skip '${skip_step}' steps):\n")
-      printf("\tAvg: %.3f s/step\n", step_latency_without_step0_avg)
-      printf("\tMin: %.3f s/step\n", step_latency_without_step0_min)
-      printf("\tMax: %.3f s/step\n", step_latency_without_step0_max)
-      printf("\tFPS: %.3f examples/s\n", '${batch_size}'/step_latency_without_step0_avg)
+      printf("\tAvg: %.3f steps/s\n", step_latency_without_step0_avg)
+      printf("\tMin: %.3f steps/s\n", step_latency_without_step0_min)
+      printf("\tMax: %.3f steps/s\n", step_latency_without_step0_max)
+      printf("\tFPS: %.3f examples/s\n", '${batch_size}'*step_latency_without_step0_avg)
       printf("\n")
     }
   }' ${log_file}
@@ -115,9 +124,6 @@ then
     echo "Benchmark for $task"
     #若测试最大batchsize，FLAGS_fraction_of_gpu_memory_to_use=1
     export FLAGS_fraction_of_gpu_memory_to_use=0.001
-    export FLAGS_enable_parallel_graph=0
-    export FLAGS_memory_fraction_of_eager_deletion=0.99999
-    export FLAGS_eager_delete_tensor_gb=0.0
     gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
     nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
     gpu_memory_pid=$!
