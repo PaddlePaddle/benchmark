@@ -122,7 +122,7 @@ def parse_args():
     parser.add_argument(
         "--use_default_pe",
         type=ast.literal_eval,
-        default=True,
+        default=False,
         help="")
     parser.add_argument(
         "--use_py_reader",
@@ -475,13 +475,18 @@ def train_loop(exe,
     exec_strategy = fluid.ExecutionStrategy()
     exec_strategy.use_experimental_executor = not args.use_default_pe
     #exec_strategy.num_threads = dev_count
-    #exec_strategy.allow_op_delay=1 
     exec_strategy.num_iteration_per_drop_scope = int(args.fetch_steps)
     build_strategy = fluid.BuildStrategy()
+    build_strategy.memory_optimize = False
+    build_strategy.enable_inplace = True
+
+    sum_cost.persistable = True
+    token_num.persistable = True
     # Since the token number differs among devices, customize gradient scale to
     # use token average cost among multi-devices. and the gradient scale is
     # `1 / token_number` for average cost.
     # build_strategy.gradient_scale_strategy = fluid.BuildStrategy.GradientScaleStrategy.Customized
+    build_strategy.fuse_all_optimizer_ops = True
 
     logging.info("begin executor")
     train_exe = fluid.ParallelExecutor(
@@ -668,7 +673,8 @@ def train(args):
             optimizer.minimize(avg_cost)
 
     if args.use_mem_opt:
-        fluid.memory_optimize(train_prog)
+        pass
+        # fluid.memory_optimize(train_prog)
 
     if args.local:
         logging.info("local start_up:")

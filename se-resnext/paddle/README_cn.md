@@ -1,5 +1,6 @@
 
 resnext50 的benchmark例子来自 https://github.com/PaddlePaddle/models/tree/develop/fluid/PaddleCV/image_classification
+但是调用了新的显存优化API接口
 
 ## 安装
 
