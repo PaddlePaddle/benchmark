@@ -346,11 +346,12 @@ def main():
         else:
             log_interval = epoch_size // 10
         total_time = 0.0
-        batch_times = []
+
         epoch_times = []
 
         device_count = fluid.core.get_cuda_device_count()
         for epoch_id in range(max_epoch):
+            batch_times = []
             epoch_start_time = time.time()
             data_iter_size = batch_size
             if device_count > 1 and args.parallel:
@@ -430,8 +431,8 @@ def main():
             epoch_time = time.time() - epoch_start_time
             epoch_times.append(epoch_time)
             total_time += epoch_time
-            print("\nTrain epoch:[%d]; Time: %.5f; ppl: %.5f\n" %
-                  (epoch_id, epoch_time, ppl[0]))
+            print("\nTrain epoch:[%d]; Time: %.5f; ppl: %.5f; avg_time: %.5f steps/s \n" %
+                  (epoch_id, epoch_time, ppl[0], (batch_id + 1) / sum(batch_times)))
 
             if epoch_id == max_epoch - 1 and args.enable_ce:
                 # kpis
@@ -480,16 +481,16 @@ def main():
                 print("Saved model to: %s/%s.\n" % (save_model_dir, filename))
 
         # Benchmark output
-        epoch_latency_total = np.average(epoch_times)
-        epoch_latency_run = np.sum(batch_times) // max_epoch
-        batch_latency_run = np.average(batch_times)
-        print("\n======== Benchmark Result ========")
-        print("max_epoch: %d, batch_size: %d" % (max_epoch, batch_size))
-        print("average latency (including data reading): %.5f s/epoch" %
-              epoch_latency_total)
-        print(
-            "average latency (without data reading): %.5f s/epoch, %.5f s/batch\n"
-            % (epoch_latency_run, batch_latency_run))
+        # epoch_latency_total = np.average(epoch_times)
+        # epoch_latency_run = np.sum(batch_times) // max_epoch
+        # batch_latency_run = np.average(batch_times)
+        # print("\n======== Benchmark Result ========")
+        # print("max_epoch: %d, batch_size: %d" % (max_epoch, batch_size))
+        # print("average latency (including data reading): %.5f s/epoch" %
+        #       epoch_latency_total)
+        # print(
+        #     "average latency (without data reading): %.5f s/epoch, %.5f s/batch\n"
+        #     % (epoch_latency_run, batch_latency_run))
 
     if args.profile:
         if args.use_gpu:
