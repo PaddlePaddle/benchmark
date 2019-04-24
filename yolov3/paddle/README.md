@@ -1,75 +1,51 @@
-# YOLO V3 Objective Detection
+# YOLO V3 目标检测
 
 ---
-## Table of Contents
+## 内容
 
-- [Installation](#installation)
-- [Introduction](#introduction)
-- [Data preparation](#data-preparation)
-- [Training](#training)
-- [Evaluation](#evaluation)
-- [Inference and Visualization](#inference-and-visualization)
+- [安装](#安装)
+- [数据准备](#数据准备)
+- [模型训练](#模型训练)
+- [模型评估](#模型评估)
 
-## Installation
 
-Running sample code in this directory requires PaddelPaddle Fluid v.1.4 and later. If the PaddlePaddle on your device is lower than this version, please follow the instructions in [installation document](http://www.paddlepaddle.org/documentation/docs/en/1.4/beginners_guide/install/index_en.html) and make an update.
+## 安装
 
-## Introduction
+在当前目录下运行样例代码需要PadddlePaddle Fluid的v.1.4或以上的版本。如果你的运行环境中的PaddlePaddle低于此版本，请根据[安装文档](http://paddlepaddle.org/documentation/docs/zh/1.4/beginners_guide/install/index_cn.html)中的说明来更新PaddlePaddle。
 
-[YOLOv3](https://arxiv.org/abs/1804.02767) is a one stage end to end detector。the detection principle of YOLOv3 is as follow:
-<p align="center">
-<img src="image/YOLOv3.jpg" height=400 width=600 hspace='10'/> <br />
-YOLOv3 detection principle
-</p>
+## 数据准备
 
-YOLOv3 divides the input image in to S\*S grids and predict B bounding boxes in each grid, predictions of boxes include Location(x, y, w, h), Confidence Score and probabilities of C classes, therefore YOLOv3 output layer has S\*S\*B\*(5 + C) channels. YOLOv3 loss consists of three parts: location loss, confidence loss and classification loss.
-The bone network of YOLOv3 is darknet53, the structure of YOLOv3 is as follow:
-<p align="center">
-<img src="image/YOLOv3_structure.jpg" height=400 width=400 hspace='10'/> <br />
-YOLOv3 structure
-</p>
-
-YOLOv3 networks are composed of base feature extraction network, multi-scale feature fusion layers, and output layers.
-
-1. Feature extraction network: YOLOv3 uses [DarkNet53](https://arxiv.org/abs/1612.08242) for feature extracion. Darknet53 uses a full convolution structure, replacing the pooling layer with a convolution operation of step size 2, and adding Residual-block to avoid gradient dispersion when the number of network layers is too deep.
-
-2. Feature fusion layer. In order to solve the problem that the previous YOLO version is not sensitive to small objects, YOLOv3 uses three different scale feature maps for target detection, which are 13\*13, 26\*26, 52\*52, respectively, for detecting large, medium and small objects. The feature fusion layer selects the three scale feature maps produced by DarkNet as input, and draws on the idea of FPN (feature pyramid networks) to fuse the feature maps of each scale through a series of convolutional layers and upsampling.
-
-3. Output layer: The output layer also uses a full convolution structure. The number of convolution kernels in the last convolutional layer is 255:3\*(80+4+1)=255, and 3 indicates that a grid cell contains 3 bounding boxes. 4 represents the four coordinate information of the box, 1 represents the Confidence Score, and 80 represents the probability of 80 categories in the COCO dataset.
-
-## Data preparation
-
-Train the model on [MS-COCO dataset](http://cocodataset.org/#download), download dataset as below:
+在[MS-COCO数据集](http://cocodataset.org/#download)上进行训练，通过如下方式下载数据集。
 
     cd dataset/coco
     ./download.sh
 
-The data catalog structure is as follows:
+数据目录结构如下：
 
 ```
-  dataset/coco/
-  ├── annotations
-  │   ├── instances_train2014.json
-  │   ├── instances_train2017.json
-  │   ├── instances_val2014.json
-  │   ├── instances_val2017.json
-  |   ...
-  ├── train2017
-  │   ├── 000000000009.jpg
-  │   ├── 000000580008.jpg
-  |   ...
-  ├── val2017
-  │   ├── 000000000139.jpg
-  │   ├── 000000000285.jpg
-  |   ...
-  
+dataset/coco/
+├── annotations
+│   ├── instances_train2014.json
+│   ├── instances_train2017.json
+│   ├── instances_val2014.json
+│   ├── instances_val2017.json
+|   ...
+├── train2017
+│   ├── 000000000009.jpg
+│   ├── 000000580008.jpg
+|   ...
+├── val2017
+│   ├── 000000000139.jpg
+│   ├── 000000000285.jpg
+|   ...
+
 ```
 
-## Training
+## 模型训练
 
-**Install the [cocoapi](https://github.com/cocodataset/cocoapi):**
+**安装[cocoapi](https://github.com/cocodataset/cocoapi)：**
 
-To train the model, [cocoapi](https://github.com/cocodataset/cocoapi) is needed. Install the cocoapi:
+训练前需要首先下载[cocoapi](https://github.com/cocodataset/cocoapi)：
 
     git clone https://github.com/cocodataset/cocoapi.git
     cd cocoapi/PythonAPI
@@ -81,102 +57,32 @@ To train the model, [cocoapi](https://github.com/cocodataset/cocoapi) is needed.
     # not to install the COCO API into global site-packages
     python2 setup.py install --user
 
-**download the pre-trained model:** This sample provides Resnet-50 pre-trained model which is converted from Caffe. The model fuses the parameters in batch normalization layer. One can download pre-trained model as:
+**下载预训练模型：** 本示例提供darknet53预训练模型，该模型转换自作者提供的darknet53在ImageNet上预训练的权重，采用如下命令下载预训练模型：
 
     sh ./weights/download.sh
 
-Set `pretrain` to load pre-trained model. In addition, this parameter is used to load trained model when finetuning as well.
-Please make sure that pre-trained model is downloaded and loaded correctly, otherwise, the loss may be NAN during training.
+通过初始化`pretrain` 加载预训练模型。同时在参数微调时也采用该设置加载已训练模型。
+请在训练前确认预训练模型下载与加载正确，否则训练过程中损失可能会出现NAN。
 
-
-**training:** After data preparation, one can start the training step by:
+**开始训练：** 数据准备完毕后，可以通过如下的方式启动训练：
 
     python train.py \
        --model_save_dir=output/ \
        --pretrain=${path_to_pretrain_model}
        --data_dir=${path_to_data}
 
-- Set ```export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7``` to specifiy 8 GPU to train.
-- For more help on arguments:
+- 通过设置export CUDA\_VISIBLE\_DEVICES=0,1,2,3,4,5,6,7指定8卡GPU训练。
 
-    python train.py --help
 
-**data reader introduction:**
+## 模型评估
 
-* Data reader is defined in `reader.py` .
+模型评估是指对训练完毕的模型评估各类性能指标。本示例采用[COCO官方评估](http://cocodataset.org/#detections-eval)
 
-**model configuration:**
-
-* The model uses 9 anchors generated based on the COCO dataset, which are 10x13, 16x30, 33x23, 30x61, 62x45, 59x119, 116x90, 156x198, 373x326.
-
-* NMS threshold=0.45, NMS valid=0.005 nms_topk=400, nms_posk=100
-
-**training strategy:**
-
-*  Use momentum optimizer with momentum=0.9.
-*  In first 4000 iteration, the learning rate increases linearly from 0.0 to 0.001. Then lr is decayed at 400000, 450000 iteration with multiplier 0.1, 0.01. The maximum iteration is 500000.
-
-Training result is shown as below：
-<p align="center">
-<img src="image/train_loss.png" height="500" width="650" hspace="10"/><br />
-Train Loss
-</p>
-
-## Evaluation
-
-Evaluation is to evaluate the performance of a trained model. This sample provides `eval.py` which uses a COCO-specific mAP metric defined by [COCO committee](http://cocodataset.org/#detections-eval).
-
-`eval.py` is the main executor for evalution, one can start evalution step by:
+`eval.py`是评估模块的主要执行程序，调用示例如下：
 
     python eval.py \
         --dataset=coco2017 \
         --weights=${path_to_weights} \
 
-- Set ```export CUDA_VISIBLE_DEVICES=0``` to specifiy one GPU to eval.
-
-If train with '--syncbn=False', Evalutaion result is shown as below:
-
-|   input size  | mAP(IoU=0.50:0.95) | mAP(IoU=0.50) | mAP(IoU=0.75) |
-| :------: | :------: | :------: | :------: |
-| 608x608 | 37.7 | 59.8 | 40.8 |
-| 416x416 | 36.5 | 58.2 | 39.1 |
-| 320x320 | 34.1 | 55.4 | 36.3 |
-
-If train with '--syncbn=True', Evalutaion result is shown as below:
-
-|   input size  | mAP(IoU=0.50:0.95) | mAP(IoU=0.50) | mAP(IoU=0.75) |
-| :------: | :------: | :------: | :------: |
-| 608x608 | 38.9 | 61.1 | 42.0 |
-| 416x416 | 37.5 | 59.6 | 40.2 |
-| 320x320 | 34.8 | 56.4 | 36.9 |
-
-- **NOTE:** evaluations based on `pycocotools` evaluator, predict bounding boxes with `score < 0.05` were not filtered out. Some frameworks which filtered out predict bounding boxes with `score < 0.05` will cause a drop in accuracy.
-
-## Inference and Visualization
-
-Inference is used to get prediction score or image features based on trained models. `infer.py`  is the main executor for inference, one can start infer step by:
-
-    python infer.py \
-       --dataset=coco2017 \
-        --weights=${path_to_weights}  \
-        --image_path=data/COCO17/val2017/  \
-        --image_name=000000000139.jpg \
-        --draw_threshold=0.5
-
-Inference speed:
-
-
-|   input size  | 608x608 | 416x416 | 320x320 |
-|:-------------:| :-----: | :-----: | :-----: |
-| infer speed | 48 ms/frame | 29 ms/frame |24 ms/frame | 
-
-
-Visualization of infer result is shown as below:
-<p align="center">
-<img src="image/000000000139.png" height=300 width=400 hspace='10'/>
-<img src="image/000000127517.png" height=300 width=400 hspace='10'/>
-<img src="image/000000203864.png" height=300 width=400 hspace='10'/>
-<img src="image/000000515077.png" height=300 width=400 hspace='10'/> <br />
-YOLOv3 Visualization Examples
-</p>
+- 通过设置export CUDA\_VISIBLE\_DEVICES=0指定单卡GPU评估。
 
