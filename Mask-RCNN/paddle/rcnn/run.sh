@@ -29,6 +29,7 @@ train(){
    --model_save_dir=output/ \
    --pretrained_model=../imagenet_resnet50_fusebn/ \
    --data_dir=./dataset/coco \
+   --im_per_batch=${batch_size} \
    --MASK_ON=True > ${log_file} 2>&1 &
   train_pid=$!
   sleep 240
