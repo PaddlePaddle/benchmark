@@ -53,7 +53,7 @@ analysis_times(){
     count+=1;
   }END{
     print "\n================ Benchmark Result ================"
-    print "model:", "'${model}'"
+    print "model:", "'${model_type}'"
     print "batch_size:", "'${batch_size}'"
     if(count>'${skip_step}'){
       step_latency=0

@@ -21,7 +21,7 @@ log_file=log_${model_type}_${task}_${num_gpu_devices}
 train(){
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices"
   python train.py \
-    --model_type small > ${log_file} 2>&1 &
+    --model_type $model_type > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600
   kill -9 $train_pid
@@ -35,7 +35,7 @@ analysis_times(){
     count+=1;
   }END{
     print "\n================ Benchmark Result ================"
-    print "model:", "'${model}'"
+    print "model:", "'${model_type}'"
     if(count>'${skip_step}'){
       step_latency=0
       step_latency_without_step0_avg=0
