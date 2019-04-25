@@ -431,7 +431,7 @@ def main():
             epoch_time = time.time() - epoch_start_time
             epoch_times.append(epoch_time)
             total_time += epoch_time
-            print("\nTrain epoch:[%d]; Time: %.5f; ppl: %.5f; avg_time: %.5f steps/s \n" %
+            print("\nTrain epoch:[%d]; epoch Time: %.5f; ppl: %.5f; avg_time: %.5f steps/s \n" %
                   (epoch_id, epoch_time, ppl[0], (batch_id + 1) / sum(batch_times)))
 
             if epoch_id == max_epoch - 1 and args.enable_ce:
