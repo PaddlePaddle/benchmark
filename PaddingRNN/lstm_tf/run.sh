@@ -65,7 +65,7 @@ analysis_times(){
       printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"*step_latency_without_step0_avg)
       printf("\n")
     }
-  }'
+  }' ${log_file}
 }
 
 if [ $1 = 'mem' ]
