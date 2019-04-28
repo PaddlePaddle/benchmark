@@ -1,7 +1,7 @@
 #!bin/bash
 set -xe
 
-cd ../../../../LARK_Paddle_BERT/BERT/
+cd ./LARK_Paddle_BERT/BERT/
 
 export FLAGS_cudnn_deterministic=true
 export FLAGS_enable_parallel_graph=1
