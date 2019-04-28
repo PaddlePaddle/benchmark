@@ -1,6 +1,8 @@
 #!bin/bash
 set -xe
 
+cd ../../../../LARK_Paddle_BERT/BERT/
+
 export FLAGS_cudnn_deterministic=true
 export FLAGS_enable_parallel_graph=1
 #export FLAGS_eager_delete_tensor_gb=0.0
@@ -130,3 +132,5 @@ else
       analysis_times 1 5
   fi
 fi
+
+cd -
