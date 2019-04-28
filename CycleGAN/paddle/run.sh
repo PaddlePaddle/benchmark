@@ -10,6 +10,10 @@ fi
 #打开后速度变快
 export FLAGS_cudnn_exhaustive_search=1
 
+#显存占用减少，不影响性能
+export FLAGS_eager_delete_tensor_gb=0.0
+export FLAGS_conv_workspace_size_limit=256
+
 task="$1"
 index="$2"
 
@@ -88,9 +92,6 @@ then
     echo "Benchmark for $task"
     #若测试最大batchsize，FLAGS_fraction_of_gpu_memory_to_use=1
     export FLAGS_fraction_of_gpu_memory_to_use=0.001
-#    export FLAGS_enable_parallel_graph=0
-#    export FLAGS_memory_fraction_of_eager_deletion=0.99999
-#    export FLAGS_eager_delete_tensor_gb=0.0
     gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
     nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
     gpu_memory_pid=$!
