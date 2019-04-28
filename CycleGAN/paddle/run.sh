@@ -44,9 +44,9 @@ analysis_times(){
   skip_step=$1
   filter_fields=$2
   count_fields=$3
-  awk 'BEGIN{count=0}{if(NF=='${filter_fields}'){
+  awk 'BEGIN{count=0}/Batch_time_cost:/{
     step_times[count]=$'${count_fields}';
-    count+=1;}
+    count+=1;
   }END{
     print "\n================ Benchmark Result ================"
     print "total_step:", count
