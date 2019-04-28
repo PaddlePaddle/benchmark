@@ -19,21 +19,24 @@ index="$2"
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-batch_size=8
+base_batchsize=8
+batch_size=`expr ${base_batchsize} \* $num_gpu_devices`
 log_file=log_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  python train.py \
-   --model_save_dir=output/ \
-   --pretrain=./weights/darknet53/ \
-   --data_dir=./dataset/coco/ \
-   --batch_size=$batch_size > ${log_file} 2>&1 &
+  export MXNET_CUDNN_AUTOTUNE_DEFAULT=0
+  python train_yolo3.py \
+      --dataset=coco --batch-size=${batch_size} \
+      --gpus=${CUDA_VISIBLE_DEVICES} \
+      --data-shape=608 \
+      --no-random-shape > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600
+  sleep 600
   kill -9 $train_pid
-  kill -9 `ps -ef|grep 'darknet53'|awk '{print $2}'`
+  kill -9 `ps -ef|grep 'train_yolo3'|awk '{print $2}'`
 }
 
 infer(){
