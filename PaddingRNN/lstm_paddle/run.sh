@@ -39,6 +39,7 @@ train(){
   python train.py --data_path data/simple-examples/data/ \
     --model_type $model_type \
     --use_gpu True \
+    --enable_ce \
     --batch_size $batch_size > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600
@@ -84,7 +85,7 @@ analysis_times(){
       printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"*step_latency_without_step0_avg)
       printf("\n")
     }
-  }'
+  }' ${log_file}
 }
 
 if [ $1 = 'mem' ]
