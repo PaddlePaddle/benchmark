@@ -20,7 +20,8 @@ index="$2"
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-batch_size=`expr 1 \* $num_gpu_devices`
+base_batch_size=1
+batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
 log_file=log_${task}_${index}_${num_gpu_devices}
 
 train(){
@@ -30,7 +31,7 @@ train(){
    --model_save_dir=output/ \
    --pretrained_model=../imagenet_resnet50_fusebn/ \
    --data_dir=./dataset/coco \
-   --im_per_batch=${batch_size} \
+   --im_per_batch=${base_batch_size} \
    --MASK_ON=True > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600
