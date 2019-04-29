@@ -21,23 +21,33 @@ do
   esac
 done
 
-set -xe
 export http_proxy=http://172.19.57.45:3128
 export https_proxy=http://172.19.57.45:3128
 
-rm -rf /home/crim
+prepare(){
+    echo "*******prepare benchmark***********"
 
-fluid_path=/home/crim/benchmark
-log_path=/home/crim/benchmark/logs
-mkdir -p $log_path
-data_path=/ssd1/ljh/dataset
-prepare_path=/ssd1/ljh/prepare
+    rm -rf /home/crim/benchmark
+    root_path=/home/crim/
+    fluid_path=/home/crim/benchmark
+    log_path=/home/crim/benchmark/logs
+    data_path=/ssd1/ljh/dataset
+    prepare_path=/ssd1/ljh/prepare
 
+    cd ${root_path}
+    git clone https://github.com/PaddlePaddle/benchmark.git
+    cd ${fluid_path}
+    git submodule init
+    git submodule update
 
-cd ${fluid_path}
-git clone https://github.com/PaddlePaddle/benchmark/benchmark.git
-git submodule init
-git submodule update
+    if [ -e ${fluid_path} ]
+    then
+        mkdir $log_path
+    else
+        exit 1
+    fi
+    echo "*******prepare end!***********"
+}
 
 #run_cycle_gan
 cycle_gan(){
@@ -87,8 +97,12 @@ se_resnext50(){
     sleep 60
     echo "index is speed, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed 32 > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
-    #echo "index is mem, begin"
-    #CUDA_VISIBLE_DEVICES=0 bash run.sh mem > ${log_path}/${FUNCNAME}_mem 2>&1
+    sleep 60
+    echo "index is mem, 1gpus, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh mem 32 > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    sleep 60
+    echo "index is mem, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh mem 32 > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
 }
 
 
@@ -118,8 +132,11 @@ mask_rcnn(){
     echo "index is speed, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
     sleep 60
-    #echo "index is mem, begin"
-    #CUDA_VISIBLE_DEVICES=0 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem 2>&1
+    echo "index is mem, 1gpu, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    sleep 60
+    echo "index is mem, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
 }
 
 
@@ -136,8 +153,11 @@ bert(){
     echo "index is speed, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
     sleep 60
-    #echo "index is mem, begin"
-    #CUDA_VISIBLE_DEVICES=0 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    echo "index is mem, 1gpus, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    sleep 60
+    echo "index is mem, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
 }
 
 
@@ -176,8 +196,8 @@ ddpg_deep_explore(){
     echo "index is speed, begin"
     CUDA_VISIBLE_DEVICES=0 bash run.sh train speed > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
-    #echo "index is mem, begin"
-    #CUDA_VISIBLE_DEVICES=0 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    echo "index is mem, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -240,6 +260,8 @@ yolov3(){
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
 
 }
+
+prepare
 
 if [ $model = "all" ]
 then
