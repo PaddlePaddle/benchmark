@@ -208,6 +208,8 @@ def main():
         # clone from default main program and use it as the validation program
         inference_program = fluid.default_main_program().clone(for_test=True)
 
+        #print(inference_program)
+
         fluid.clip.set_gradient_clip(
             clip=fluid.clip.GradientClipByGlobalNorm(clip_norm=max_grad_norm))
 
@@ -255,14 +257,15 @@ def main():
             build_strategy=build_strategy,
             exec_strategy=exec_strategy)
     else:
+#        print(main_program)
         train_program = fluid.compiler.CompiledProgram(main_program).with_default(
             cache_runtime_context=True,
             cache_expected_kernel=True,
-            remove_reshape=True)
+            remove_reshape=False)
         eval_program = fluid.compiler.CompiledProgram(inference_program).with_default(
             cache_runtime_context=True,
             cache_expected_kernel=True,
-            remove_reshape=True)
+            remove_reshape=False)
 
     data_path = args.data_path
     print("begin to load data")
@@ -534,7 +537,7 @@ def main():
                 # kpis
                 print("ptblm\tlstm_language_model_duration\t%s" %
                       (total_time / max_epoch))
-                print("ptblm\tlstm_language_model_loss\t%s" % ppl[0])
+                print("ptblm\tlstm_language_model_loss\t%s" % train_ppl[0])
 
             if not args.profile:
                 # NOTE(zjl): sometimes we have not enough data for eval if batch_size is large, i.e., 2100
@@ -551,23 +554,23 @@ def main():
                 test_data_valid = is_valid_data(test_data, batch_size,
                                                 num_steps)
 
-                if valid_data_valid and test_data_valid:
-                    valid_ppl = eval(valid_data)
-                    print("Valid ppl: %.5f" % valid_ppl[0])
-
-                    test_ppl = eval(test_data)
-                    print("Test ppl: %.5f" % test_ppl[0])
-                else:
-                    if not valid_data_valid:
-                        print(
-                            'WARNING: length of valid_data is {}, which is not enough for batch_size {} and num_steps {}'.
-                            format(len(valid_data), batch_size, num_steps))
-
-                    if not test_data_valid:
-                        print(
-                            'WARNING: length of test_data is {}, which is not enough for batch_size {} and num_steps {}'.
-                            format(len(test_data), batch_size, num_steps))
-
+#                if valid_data_valid and test_data_valid:
+#                    valid_ppl = eval(valid_data)
+#                    print("Valid ppl: %.5f" % valid_ppl[0])
+#
+#                    test_ppl = eval(test_data)
+#                    print("Test ppl: %.5f" % test_ppl[0])
+#                else:
+#                    if not valid_data_valid:
+#                        print(
+#                            'WARNING: length of valid_data is {}, which is not enough for batch_size {} and num_steps {}'.
+#                            format(len(valid_data), batch_size, num_steps))
+#
+#                    if not test_data_valid:
+#                        print(
+#                            'WARNING: length of test_data is {}, which is not enough for batch_size {} and num_steps {}'.
+#                            format(len(test_data), batch_size, num_steps))
+#
                 filename = "params_%05d" % epoch_id
                 fluid.io.save_persistables(
                     executor=exe,
