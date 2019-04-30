@@ -243,15 +243,8 @@ def main():
             build_strategy=build_strategy,
             exec_strategy=exec_strategy)
     else:
-#        print(main_program)
-        train_program = fluid.compiler.CompiledProgram(main_program).with_default(
-            cache_runtime_context=True,
-            cache_expected_kernel=True,
-            remove_reshape=False)
-        eval_program = fluid.compiler.CompiledProgram(inference_program).with_default(
-            cache_runtime_context=True,
-            cache_expected_kernel=True,
-            remove_reshape=False)
+        train_program = fluid.compiler.CompiledProgram(main_program)
+        eval_program = fluid.compiler.CompiledProgram(inference_program)
 
     data_path = args.data_path
     print("begin to load data")
@@ -426,15 +419,14 @@ def main():
 
     def train():
         total_time = 0.0
-        batch_times = []
-        epoch_times = []
         for epoch_id in range(max_epoch):
+            batch_times = []
             epoch_start_time = time.time()
             train_ppl = train_an_epoch(epoch_id, batch_times)
             epoch_time = time.time() - epoch_start_time
-            epoch_times.append(epoch_time)
             total_time += epoch_time
-            print("\nTrain epoch:[%d]; Time: %.5f s; ppl: %.5f\n" % (epoch_id, epoch_time, train_ppl[0]))
+            print("\nTrain epoch:[%d]; epoch Time: %.5f; ppl: %.5f; avg_time: %.5f steps/s \n" %
+                  (epoch_id, epoch_time, train_ppl[0], len(batch_times) / sum(batch_times)))
 
             # FIXME(zjl): ppl[0] increases as batch_size increases. 
             # We should find a better way to calculate ppl by normalizing batch_size. 
@@ -447,11 +439,6 @@ def main():
                 )
                 print("Abort this training process and please start again.")
                 return
-            epoch_time = time.time() - epoch_start_time
-            epoch_times.append(epoch_time)
-            total_time += epoch_time
-            print("\nTrain epoch:[%d]; epoch Time: %.5f; ppl: %.5f; avg_time: %.5f steps/s \n" %
-                  (epoch_id, epoch_time, ppl[0], (batch_id + 1) / sum(batch_times)))
 
             if epoch_id == max_epoch - 1 and args.enable_ce:
                 # kpis
@@ -459,7 +446,7 @@ def main():
                       (total_time / max_epoch))
                 print("ptblm\tlstm_language_model_loss\t%s" % train_ppl[0])
 
-            if not args.profile:
+            if False:#not args.profile:
                 # NOTE(zjl): sometimes we have not enough data for eval if batch_size is large, i.e., 2100
                 # Just skip to avoid error
                 def is_valid_data(data, batch_size, num_steps):
