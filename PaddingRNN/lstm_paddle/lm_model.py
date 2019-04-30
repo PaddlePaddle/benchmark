@@ -219,7 +219,6 @@ def lm_model(hidden_size,
                         dropout_implementation='upscale_in_train')
 
             res.append(input)
-#            res.append(layers.reshape(input, shape=[1, -1, hidden_size]))
 
         last_hidden = layers.concat(hidden_array, 1)
         last_hidden = layers.reshape(
@@ -231,9 +230,6 @@ def lm_model(hidden_size,
             last_cell, shape=[-1, num_layers, hidden_size])
         last_cell = layers.transpose(x=last_cell, perm=[1, 0, 2])
 
-#        real_res = layers.concat(res, 0)
-#        real_res = layers.reshape(real_res, shape=[len, -1, hidden_size], inplace=True)
-#        real_res = layers.transpose(x=real_res, perm=[1, 0, 2])
         real_res = layers.concat(res, 1)
         real_res = layers.reshape(real_res, shape=[-1, len, hidden_size], inplace=True)
 
@@ -248,9 +244,6 @@ def lm_model(hidden_size,
     init_hidden = layers.reshape(
         init_hidden, shape=[num_layers, -1, hidden_size])
     init_cell = layers.reshape(init_cell, shape=[num_layers, -1, hidden_size])
-#    init_hidden = layers.reshape(
-#        init_hidden, shape=[-1, hidden_size])
-#    init_cell = layers.reshape(init_cell, shape=[-1, hidden_size])
 
     x_emb = layers.embedding(
         input=x,
