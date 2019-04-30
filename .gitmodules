@@ -2,3 +2,6 @@
   path = models
   url = https://github.com/PaddlePaddle/models.git
   branch = benchmark
+[submodule "NeuralMachineTranslation/BERT/fluid/train/LARK_Paddle_BERT"]
+	path = NeuralMachineTranslation/BERT/fluid/train/LARK_Paddle_BERT
+	url = https://github.com/PaddlePaddle/LARK

@@ -7,6 +7,10 @@ set -xe
 
 export PD_MODELS_ROOT=/work/models
 
+#开启gc
+export FLAGS_eager_delete_tensor_gb=0.0
+export FLAGS_fraction_of_gpu_memory_to_use=0.98
+
 #export FLAGS_cudnn_deterministic=true
 #export FLAGS_enable_parallel_graph=1
 
@@ -41,12 +45,14 @@ train(){
      --model_save_dir=output/ \
      --pretrained_model=SE_ResNext50_32x4d_pretrained/ \
      --data_dir=data/ILSVRC2012 \
-     --with_mem_opt=True \
-     --lr_strategy=piecewise_decay \
+     --with_mem_opt=False \
+     --with_inplace=True \
+     --lr_strategy=cosine_decay \
      --lr=0.1 \
+     --l2_decay=1.2e-4 \
      --num_epochs=${num_epochs} > ${log_file} 2>&1 &
   train_pid=$!
-  sleep 300
+  sleep 600
   kill -9 $train_pid
   cd ${WORK_ROOT}
 }
@@ -82,12 +88,12 @@ analysis_times(){
       step_latency_without_step0_avg/=(count-'${skip_step}')
       printf("average latency (including data reading):\n")
       printf("\tAvg: %.3f s/step\n", step_latency)
-      printf("\tFPS: %.3f images/s\n", "'${batch_size}'"/step_latency)
+      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency)
       printf("average latency (skip '${skip_step}' steps):\n")
       printf("\tAvg: %.3f s/step\n", step_latency_without_step0_avg)
       printf("\tMin: %.3f s/step\n", step_latency_without_step0_min)
       printf("\tMax: %.3f s/step\n", step_latency_without_step0_max)
-      printf("\tFPS: %.3f images/s\n", "'${batch_size}'"/step_latency_without_step0_avg)
+      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency_without_step0_avg)
       printf("\n")
     }
   }'

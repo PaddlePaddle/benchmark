@@ -1,12 +1,13 @@
 #!bin/bash
 set -xe
 
-#export FLAGS_cudnn_deterministic=true
-#export FLAGS_enable_parallel_graph=1
-export FLAGS_eager_delete_tensor_gb=0.0
-export FLAGS_fraction_of_gpu_memory_to_use=0.98
-export FLAGS_memory_fraction_of_eager_deletion=1.0
-export FLAGS_conv_workspace_size_limit=1500
+cd ./LARK_Paddle_BERT/BERT/
+
+export FLAGS_cudnn_deterministic=true
+export FLAGS_enable_parallel_graph=1
+#export FLAGS_eager_delete_tensor_gb=0.0
+#export FLAGS_fraction_of_gpu_memory_to_use=0.98
+#export FLAGS_memory_fraction_of_eager_deletion=1.0
 
 if [ $# -ne 2 ]; then
   echo "Usage: "
@@ -17,22 +18,41 @@ fi
 task="$1"
 index="$2"
 
+BERT_BASE_PATH=$(pwd)/../../chinese_L-12_H-768_A-12
+TASK_NAME='XNLI'
+DATA_PATH=$(pwd)/../../data
+CKPT_PATH=$(pwd)/../../save
+
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-base_batch_size=1
-batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
+batch_size=32
 log_file=log_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  python train.py \
-   --model_save_dir=output/ \
-   --pretrained_model=../imagenet_resnet50_fusebn/ \
-   --data_dir=./dataset/coco \
-   --im_per_batch=${base_batch_size} \
-   --MASK_ON=True > ${log_file} 2>&1 &
+  python -u run_classifier.py --task_name ${TASK_NAME} \
+       --use_cuda true \
+       --do_train true \
+       --do_val true \
+       --do_test true \
+       --batch_size $batch_size \
+       --in_tokens False \
+       --init_pretraining_params ${BERT_BASE_PATH}/params \
+       --data_dir ${DATA_PATH} \
+       --vocab_path ${BERT_BASE_PATH}/vocab.txt \
+       --checkpoints ${CKPT_PATH} \
+       --save_steps 1000 \
+       --weight_decay  0.01 \
+       --warmup_proportion 0.1 \
+       --validation_steps 1000 \
+       --epoch 2 \
+       --max_seq_len 128 \
+       --bert_config_path ${BERT_BASE_PATH}/bert_config.json \
+       --learning_rate 5e-5 \
+       --skip_steps 100 \
+       --random_seed 1 > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600
   kill -9 $train_pid
@@ -41,22 +61,21 @@ train(){
 infer(){
   echo "infer on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  python eval_coco_map.py \
-    --dataset=coco2017 \
-    --pretrained_model=../imagenet_resnet50_fusebn/ \
-    --MASK_ON=True > ${log_file} 2>&1 &
-  infer_pid=$!
-  sleep 60
-  kill -9 $infer_pid
+#  python eval_coco_map.py \
+#    --dataset=coco2017 \
+#    --pretrained_model=../imagenet_resnet50_fusebn/ \
+#    --MASK_ON=True > ${log_file} 2>&1 &
+#  infer_pid=$!
+#  sleep 60
+#  kill -9 $infer_pid
 }
 
 analysis_times(){
   skip_step=$1
-  filter_fields=$2
-  count_fields=$3
-  awk 'BEGIN{count=0}{if(NF=='${filter_fields}'){
+  count_fields=$2
+  awk 'BEGIN{count=0}/speed:/{
     step_times[count]=$'${count_fields}';
-    count+=1;}
+    count+=1;
   }END{
     print "\n================ Benchmark Result ================"
     print "total_step:", count
@@ -81,13 +100,13 @@ analysis_times(){
       step_latency/=count;
       step_latency_without_step0_avg/=(count-'${skip_step}')
       printf("average latency (origin result):\n")
-      printf("\tAvg: %.3f s/step\n", step_latency)
-      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency)
+      printf("\tAvg: %.3f steps/s\n", step_latency)
+      printf("\tFPS: %.3f examples/s\n", '${batch_size}'*step_latency)
       printf("average latency (skip '${skip_step}' steps):\n")
-      printf("\tAvg: %.3f s/step\n", step_latency_without_step0_avg)
-      printf("\tMin: %.3f s/step\n", step_latency_without_step0_min)
-      printf("\tMax: %.3f s/step\n", step_latency_without_step0_max)
-      printf("\tFPS: %.3f examples/s\n", '${batch_size}'/step_latency_without_step0_avg)
+      printf("\tAvg: %.3f steps/s\n", step_latency_without_step0_avg)
+      printf("\tMin: %.3f steps/s\n", step_latency_without_step0_min)
+      printf("\tMax: %.3f steps/s\n", step_latency_without_step0_max)
+      printf("\tFPS: %.3f examples/s\n", '${batch_size}'*step_latency_without_step0_avg)
       printf("\n")
     }
   }' ${log_file}
@@ -108,8 +127,10 @@ else
   $task
   if [ ${task} = "train" ]
   then
-      analysis_times 3 20 20
+      analysis_times 1 14
   else
-      analysis_times 3 5 5
+      analysis_times 1 5
   fi
 fi
+
+cd -

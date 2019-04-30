@@ -245,7 +245,6 @@ def main():
     build_strategy.cache_runtime_context = True
     build_strategy.cache_expected_kernel = True
     build_strategy.fuse_all_optimizer_ops = True
-#    build_strategy.debug_graphviz_path = "padding_rnn." + model_type + ".";
 
     if args.parallel:
         train_program = fluid.compiler.CompiledProgram(main_program).with_data_parallel(
@@ -532,6 +531,11 @@ def main():
                 )
                 print("Abort this training process and please start again.")
                 return
+            epoch_time = time.time() - epoch_start_time
+            epoch_times.append(epoch_time)
+            total_time += epoch_time
+            print("\nTrain epoch:[%d]; epoch Time: %.5f; ppl: %.5f; avg_time: %.5f steps/s \n" %
+                  (epoch_id, epoch_time, ppl[0], (batch_id + 1) / sum(batch_times)))
 
             if epoch_id == max_epoch - 1 and args.enable_ce:
                 # kpis
@@ -554,23 +558,23 @@ def main():
                 test_data_valid = is_valid_data(test_data, batch_size,
                                                 num_steps)
 
-#                if valid_data_valid and test_data_valid:
-#                    valid_ppl = eval(valid_data)
-#                    print("Valid ppl: %.5f" % valid_ppl[0])
-#
-#                    test_ppl = eval(test_data)
-#                    print("Test ppl: %.5f" % test_ppl[0])
-#                else:
-#                    if not valid_data_valid:
-#                        print(
-#                            'WARNING: length of valid_data is {}, which is not enough for batch_size {} and num_steps {}'.
-#                            format(len(valid_data), batch_size, num_steps))
-#
-#                    if not test_data_valid:
-#                        print(
-#                            'WARNING: length of test_data is {}, which is not enough for batch_size {} and num_steps {}'.
-#                            format(len(test_data), batch_size, num_steps))
-#
+                if valid_data_valid and test_data_valid:
+                    valid_ppl = eval(valid_data)
+                    print("Valid ppl: %.5f" % valid_ppl[0])
+
+                    test_ppl = eval(test_data)
+                    print("Test ppl: %.5f" % test_ppl[0])
+                else:
+                    if not valid_data_valid:
+                        print(
+                            'WARNING: length of valid_data is {}, which is not enough for batch_size {} and num_steps {}'.
+                            format(len(valid_data), batch_size, num_steps))
+
+                    if not test_data_valid:
+                        print(
+                            'WARNING: length of test_data is {}, which is not enough for batch_size {} and num_steps {}'.
+                            format(len(test_data), batch_size, num_steps))
+
                 filename = "params_%05d" % epoch_id
                 fluid.io.save_persistables(
                     executor=exe,
@@ -578,20 +582,6 @@ def main():
                     main_program=main_program,
                     filename=filename)
                 print("Saved model to: %s/%s.\n" % (save_model_dir, filename))
-
-
-        # Benchmark output
-        epoch_latency_total = np.average(epoch_times)
-        epoch_latency_run = np.sum(batch_times) // max_epoch
-        batch_latency_run = np.average(batch_times)
-        print("\n======== Benchmark Result ========")
-        print("max_epoch: %d, batch_size: %d" % (max_epoch, batch_size))
-        print("average latency (including data reading): %.5f s/epoch" %
-              epoch_latency_total)
-        print(
-            "average latency (without data reading): %.5f s/epoch, %.5f s/batch\n"
-            % (epoch_latency_run, batch_latency_run))
-
 
     if args.profile:
         if args.use_gpu:

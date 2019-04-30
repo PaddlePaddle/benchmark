@@ -165,10 +165,10 @@ def main():
             run_metadata = tf.RunMetadata()
         
         total_time = 0.0
-        batch_times = []
         epoch_times = []
         
         for epoch_id in xrange(max_epoch):
+            batch_times = []
             epoch_start_time = time.time()
             train_data_iter = reader.get_data_iter( train_data, batch_size, num_steps)
 
@@ -226,8 +226,9 @@ def main():
             epoch_times.append(epoch_time)
             total_time += epoch_time
         
-            print("\nTrain epoch:[%d]; Time: %.5f s; ppl: %.5f\n" % (epoch_id, epoch_time, ppl))
-        
+            print("\nTrain epoch:[%d]; epoch Time: %.5f s; ppl: %.5f; avg_time: %.5f steps/s\n"
+                  % (epoch_id, epoch_time, ppl, (batch_id + 1) / sum(batch_times)))
+
             valid_ppl, _ = eval(sess, valid_data)
             print("Valid ppl: %.5f" % valid_ppl)
     

@@ -6,7 +6,6 @@ set -xe
 export FLAGS_eager_delete_tensor_gb=0.0
 export FLAGS_fraction_of_gpu_memory_to_use=0.98
 export FLAGS_memory_fraction_of_eager_deletion=1.0
-export FLAGS_conv_workspace_size_limit=1500
 
 if [ $# -ne 2 ]; then
   echo "Usage: "
@@ -20,19 +19,28 @@ index="$2"
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-base_batch_size=1
-batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
+batch_size=`expr 1 \* $num_gpu_devices`
 log_file=log_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  python train.py \
-   --model_save_dir=output/ \
-   --pretrained_model=../imagenet_resnet50_fusebn/ \
-   --data_dir=./dataset/coco \
-   --im_per_batch=${base_batch_size} \
-   --MASK_ON=True > ${log_file} 2>&1 &
+  if [ ${num_gpu_devices} -eq 1 ]
+  then
+      python tools/train_net.py \
+      --config-file "configs/e2e_mask_rcnn_R_50_C4_1x.yaml" \
+      SOLVER.IMS_PER_BATCH 1 \
+      SOLVER.BASE_LR 0.0025 \
+      SOLVER.MAX_ITER 720000 \
+      SOLVER.STEPS "(480000, 640000)" \
+      TEST.IMS_PER_BATCH 1 > ${log_file} 2>&1 &
+  else
+      python -m torch.distributed.launch \
+      --nproc_per_node=8 \
+      ./tools/train_net.py \
+      --config-file "configs/e2e_mask_rcnn_R_50_C4_1x.yaml"\
+       SOLVER.IMS_PER_BATCH 8 > ${log_file} 2>&1 &
+  fi
   train_pid=$!
   sleep 600
   kill -9 $train_pid
@@ -41,13 +49,13 @@ train(){
 infer(){
   echo "infer on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  python eval_coco_map.py \
-    --dataset=coco2017 \
-    --pretrained_model=../imagenet_resnet50_fusebn/ \
-    --MASK_ON=True > ${log_file} 2>&1 &
-  infer_pid=$!
-  sleep 60
-  kill -9 $infer_pid
+#  python eval_coco_map.py \
+#    --dataset=coco2017 \
+#    --pretrained_model=../imagenet_resnet50_fusebn/ \
+#    --MASK_ON=True > ${log_file} 2>&1 &
+#  infer_pid=$!
+#  sleep 60
+#  kill -9 $infer_pid
 }
 
 analysis_times(){
@@ -106,9 +114,12 @@ then
 else
   echo "Benchmark for $task"
   $task
-  if [ ${task} = "train" ]
+  if [ ${task} = "train" -a ${num_gpu_devices} -eq 1 ]
   then
-      analysis_times 3 20 20
+      analysis_times 3 39 30
+  elif [ ${task} = "train" -a ${num_gpu_devices} -ne 1 ]
+  then
+      analysis_times 3 37 28
   else
       analysis_times 3 5 5
   fi

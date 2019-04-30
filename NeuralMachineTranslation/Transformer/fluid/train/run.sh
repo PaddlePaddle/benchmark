@@ -7,8 +7,13 @@ if [ $# -ne 2 ]; then
   exit
 fi
 
-#打开后速度变快
-export FLAGS_cudnn_exhaustive_search=1
+export FLAGS_enable_parallel_graph=0
+export FLAGS_sync_nccl_allreduce=1
+
+# Configuration of Allocator and GC
+export FLAGS_fraction_of_gpu_memory_to_use=1.0
+export FLAGS_eager_delete_tensor_gb=0.0
+export FLAGS_memory_fraction_of_eager_deletion=0.99999
 
 task="$1"
 index="$2"
@@ -16,19 +21,47 @@ index="$2"
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-batch_size=1
+batch_size=4096
 log_file=log_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  for i in {1..5}
-  do
-      FLAGS_enforce_when_check_program_=0 GLOG_vmodule=operator=1,computation_op_handle=1 \
-      python ./multi_thread_test.py \
-          --ensemble_num 1 \
-          --test_times 10 >> ${log_file} 2>&1
-  done
+  # base model
+  python -u train.py \
+      --src_vocab_fpath data/vocab.bpe.32000 \
+      --trg_vocab_fpath data/vocab.bpe.32000 \
+      --special_token '<s>' '<e>' '<unk>' \
+      --train_file_pattern data/train.tok.clean.bpe.32000.en-de \
+      --token_delimiter ' ' \
+      --use_token_batch True \
+      --batch_size $batch_size \
+      --sort_type pool \
+      --pool_size 200000 \
+      --shuffle False \
+      --enable_ce True \
+      --shuffle_batch False \
+      --use_py_reader True \
+      --use_mem_opt True \
+      --use_default_pe False \
+      --fetch_steps 100  $@ \
+      dropout_seed 10 \
+      learning_rate 2.0 \
+      warmup_steps 8000 \
+      beta2 0.997 \
+      d_model 512 \
+      d_inner_hid 2048 \
+      n_head 8 \
+      prepostprocess_dropout 0.1 \
+      attention_dropout 0.1 \
+      relu_dropout 0.1 \
+      weight_sharing True \
+      pass_num 1 \
+      model_dir 'tmp_models' \
+      ckpt_dir 'tmp_ckpts' > ${log_file} 2>&1 &
+  train_pid=$!
+  sleep 900
+  kill -9 $train_pid
 }
 
 infer(){
@@ -45,10 +78,11 @@ infer(){
 
 analysis_times(){
   skip_step=$1
-  count_fields=$2
-  awk 'BEGIN{count=0}/time consuming:/{
+  filter_fields=$2
+  count_fields=$3
+  awk 'BEGIN{count=0}{if(NF=='${filter_fields}'){
     step_times[count]=$'${count_fields}';
-    count+=1;
+    count+=1;}
   }END{
     print "\n================ Benchmark Result ================"
     print "total_step:", count
@@ -73,13 +107,13 @@ analysis_times(){
       step_latency/=count;
       step_latency_without_step0_avg/=(count-'${skip_step}')
       printf("average latency (origin result):\n")
-      printf("\tAvg: %.3f s/epoch\n", step_latency)
-      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency)
+      printf("\tAvg: %.3f steps/s\n", step_latency)
+      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"*step_latency)
       printf("average latency (skip '${skip_step}' steps):\n")
-      printf("\tAvg: %.3f s/epoch\n", step_latency_without_step0_avg)
-      printf("\tMin: %.3f s/epoch\n", step_latency_without_step0_min)
-      printf("\tMax: %.3f s/epoch\n", step_latency_without_step0_max)
-      printf("\tFPS: %.3f examples/s\n", '${batch_size}'/step_latency_without_step0_avg)
+      printf("\tAvg: %.3f steps/s\n", step_latency_without_step0_avg)
+      printf("\tMin: %.3f steps/s\n", step_latency_without_step0_min)
+      printf("\tMax: %.3f steps/s\n", step_latency_without_step0_max)
+      printf("\tFPS: %.3f examples/s\n", '${batch_size}'*step_latency_without_step0_avg)
       printf("\n")
     }
   }' ${log_file}
@@ -90,9 +124,6 @@ then
     echo "Benchmark for $task"
     #若测试最大batchsize，FLAGS_fraction_of_gpu_memory_to_use=1
     export FLAGS_fraction_of_gpu_memory_to_use=0.001
-#    export FLAGS_enable_parallel_graph=0
-#    export FLAGS_memory_fraction_of_eager_deletion=0.99999
-#    export FLAGS_eager_delete_tensor_gb=0.0
     gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
     nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
     gpu_memory_pid=$!
@@ -101,23 +132,12 @@ then
     awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
 else
     echo "Benchmark for $task"
-
     $task
     if [ ${task} = "train" ]
     then
-      analysis_times 1 10
+      analysis_times 3 19 18
     else
       echo "no infer cmd"
       #analysis_times 3 5 5
     fi
 fi
-
-#source activate python35
-#export CUDA_VISIBLE_DEVICES="1"
-
-#wget ftp://yq01-sys-hic-p40-box-a12-0057.yq01.baidu.com:/home/users/minqiyang/workspace/paddle/Paddle/build935/accelerate_ddpg/python/dist/paddlepaddle_gpu-0.0.0-cp35-cp35m-linux_x86_64.whl -O paddlepaddle_gpu-0.0.0-cp35-cp35m-linux_x86_64.whl && pip uninstall -y paddlepaddle-gpu && pip install paddlepaddle_gpu-0.0.0-cp35-cp35m-linux_x86_64.whl
-
-#export PATH=/usr/local/cuda/bin:$PATH
-#FLAGS_enforce_when_check_program_=0 GLOG_vmodule=operator=1,computation_op_handle=1 python ./multi_thread_test.py --ensemble_num 1 --test_times 10 >log 2>errorlog
-
-#python timeline.py --profile_path=./profile --timeline_path=./timeline
