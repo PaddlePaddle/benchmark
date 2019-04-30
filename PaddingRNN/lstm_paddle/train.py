@@ -182,28 +182,15 @@ def main():
 
     with fluid.program_guard(main_program, startup_program):
         # Training process
-        if args.use_py_reader and not args.inference_only:
-            loss, last_hidden, last_cell, feed_order, py_reader = lm_model.lm_model(
-                hidden_size,
-                vocab_size,
-                batch_size,
-                num_layers=num_layers,
-                num_steps=num_steps,
-                init_scale=init_scale,
-                dropout=dropout, 
-                rnn_model=rnn_model,
-                use_py_reader=True)
-        else:
-            loss, last_hidden, last_cell, feed_order = lm_model.lm_model(
-                hidden_size,
-                vocab_size,
-                batch_size,
-                num_layers=num_layers,
-                num_steps=num_steps,
-                init_scale=init_scale,
-                dropout=dropout, 
-                rnn_model=rnn_model,
-                use_py_reader=False)
+        loss, last_hidden, last_cell, feed_order = lm_model.lm_model(
+            hidden_size,
+            vocab_size,
+            batch_size,
+            num_layers=num_layers,
+            num_steps=num_steps,
+            init_scale=init_scale,
+            dropout=dropout, 
+            rnn_model=rnn_model)
 
         # clone from default main program and use it as the validation program
         inference_program = fluid.default_main_program().clone(for_test=True)
@@ -436,85 +423,14 @@ def main():
         ppl = np.exp(total_loss / iters)
         return ppl
 
-    def train_an_epoch_py_reader(epoch_id, batch_times):
-        # get train epoch size
-        num_batchs = len(train_data) // batch_size
-        epoch_size = (num_batchs - 1) // num_steps
-        if args.profile:
-            log_interval = 1
-        else:
-            log_interval = epoch_size // 10
-
-        total_loss = 0
-        iters = 0
-
-        py_reader.start()
-        batch_id = 1
-        try:
-            while True:
-                batch_start_time = time.time()
-                fetch_outs = exe.run(
-                    train_program,
-                    fetch_list=[
-                        loss.name, last_hidden.name, last_cell.name,
-                        "learning_rate"
-                    ],
-                    use_program_cache=True)
-                batch_time = time.time() - batch_start_time
-                batch_times.append(batch_time)
-
-                cost_train = np.array(fetch_outs[0])
-                init_hidden = np.array(fetch_outs[1])
-                init_cell = np.array(fetch_outs[2])
-                lr = np.array(fetch_outs[3])
-
-                total_loss += cost_train
-                iters += num_steps
-                if batch_id > 0 and (log_interval == 0 or batch_id % log_interval == 0):
-                    ppl = np.exp(total_loss / iters)
-                    print(
-                        "-- Epoch:[%d]; Batch:[%d]; Time: %.5f s; ppl: %.5f, lr: %.5f"
-                        % (epoch_id, batch_id, batch_time, ppl[0], lr[0]))
-
-                if args.profile:
-                    if batch_id == 1:
-                        profiler.reset_profiler()
-                    elif batch_id >= 11:
-                        break
-                batch_id += 1
-        except fluid.core.EOFException:
-            py_reader.reset()
-
-        ppl = np.exp(total_loss / iters)
-        return ppl
-
 
     def train():
-        if args.use_py_reader:
-            def data_gen():
-                init_hidden = np.zeros(
-                    (num_layers, batch_size, hidden_size), dtype='float32')
-                init_cell = np.zeros(
-                    (num_layers, batch_size, hidden_size), dtype='float32')
-
-                train_batches = reader.get_data_iter(train_data, batch_size, num_steps)
-                for batch in train_batches:
-                    x, y = batch
-                    x = x.reshape((-1, num_steps, 1))
-                    y = y.reshape((-1, 1))
-                    yield x, y, init_hidden, init_cell
-
-            py_reader.decorate_tensor_provider(data_gen)
-
         total_time = 0.0
         batch_times = []
         epoch_times = []
         for epoch_id in range(max_epoch):
             epoch_start_time = time.time()
-            if args.use_py_reader:
-                train_ppl = train_an_epoch_py_reader(epoch_id, batch_times)
-            else:
-                train_ppl = train_an_epoch(epoch_id, batch_times)
+            train_ppl = train_an_epoch(epoch_id, batch_times)
             epoch_time = time.time() - epoch_start_time
             epoch_times.append(epoch_time)
             total_time += epoch_time

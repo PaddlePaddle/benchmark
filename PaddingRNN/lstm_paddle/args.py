@@ -59,11 +59,6 @@ def parse_args():
         default=True,
         help='Whether using gpu in parallel [True|False]')
     parser.add_argument(
-        '--use_py_reader',
-        type=str2bool,
-        default=False,
-        help='Whether using py_reader to feed data [True|False]')
-    parser.add_argument(
         '--log_path',
         help='path of the log file. If not set, logs are printed to console')
     parser.add_argument(

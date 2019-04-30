@@ -29,8 +29,7 @@ def lm_model(hidden_size,
              num_steps=20,
              init_scale=0.1,
              dropout=None, 
-             rnn_model='static',
-             use_py_reader=False):
+             rnn_model='static'):
     def padding_rnn(input_embedding, len=3, init_hidden=None, init_cell=None):
         weight_1_arr = []
         weight_2_arr = []
@@ -240,22 +239,11 @@ def lm_model(hidden_size,
 
         return real_res, last_hidden, last_cell
 
-    if use_py_reader:
-        batch_size_each = batch_size // fluid.core.get_cuda_device_count()
-        feed_shapes = [[batch_size_each, num_steps, 1],
-                       [batch_size_each, 1],
-                       [num_layers, batch_size_each, hidden_size],
-                       [num_layers, batch_size_each, hidden_size]]
-        py_reader = fluid.layers.py_reader(capacity=16,
-                                           shapes=feed_shapes,
-                                           dtypes=['int64', 'float32', 'float32', 'float32'])
-        x, y, init_hidden, init_cell = fluid.layers.read_file(py_reader)
-    else:
-        x = layers.data(name="x", shape=[-1, 1, 1], dtype='int64')
-        y = layers.data(name="y", shape=[-1, 1], dtype='float32')
+    x = layers.data(name="x", shape=[-1, 1, 1], dtype='int64')
+    y = layers.data(name="y", shape=[-1, 1], dtype='float32')
 
-        init_hidden = layers.data(name="init_hidden", shape=[1], dtype='float32')
-        init_cell = layers.data(name="init_cell", shape=[1], dtype='float32')
+    init_hidden = layers.data(name="init_hidden", shape=[1], dtype='float32')
+    init_cell = layers.data(name="init_cell", shape=[1], dtype='float32')
 
     init_hidden = layers.reshape(
         init_hidden, shape=[num_layers, -1, hidden_size])
@@ -322,7 +310,4 @@ def lm_model(hidden_size,
     last_hidden.persistable = True
 
     feeding_list = ['x', 'y', 'init_hidden', 'init_cell']
-    if use_py_reader:
-        return loss, last_hidden, last_cell, feeding_list, py_reader
-    else:
-        return loss, last_hidden, last_cell, feeding_list
+    return loss, last_hidden, last_cell, feeding_list
