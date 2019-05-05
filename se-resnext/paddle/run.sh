@@ -9,7 +9,7 @@ export PD_MODELS_ROOT=/work/models
 
 #开启gc
 export FLAGS_eager_delete_tensor_gb=0.0
-export FLAGS_fraction_of_gpu_memory_to_use=1.0
+export FLAGS_fraction_of_gpu_memory_to_use=0.98
 
 #export FLAGS_cudnn_deterministic=true
 #export FLAGS_enable_parallel_graph=1

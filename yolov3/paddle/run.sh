@@ -16,12 +16,10 @@ fi
 task="$1"
 index="$2"
 
-
-
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-batch_size=1
+batch_size=8
 log_file=log_${task}_${index}_${num_gpu_devices}
 
 train(){
@@ -30,11 +28,12 @@ train(){
   python train.py \
    --model_save_dir=output/ \
    --pretrain=./weights/darknet53/ \
-   --data_dir=./datast/coco/ \
+   --data_dir=./dataset/coco/ \
    --batch_size=$batch_size > ${log_file} 2>&1 &
   train_pid=$!
-  sleep 60
+  sleep 600
   kill -9 $train_pid
+  kill -9 `ps -ef|grep 'darknet53'|awk '{print $2}'`
 }
 
 infer(){
@@ -54,7 +53,6 @@ analysis_times(){
   filter_fields=$2
   count_fields=$3
   awk 'BEGIN{count=0}{
-    print "NF:" $NF
     if(NF=='${filter_fields}'){
     step_times[count]=$'${count_fields}';
     count+=1;}
@@ -83,12 +81,12 @@ analysis_times(){
       step_latency_without_step0_avg/=(count-'${skip_step}')
       printf("average latency (origin result):\n")
       printf("\tAvg: %.3f s/step\n", step_latency)
-      printf("\tFPS: %.3f images/s\n", "'${batch_size}'"/step_latency)
+      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency)
       printf("average latency (skip '${skip_step}' steps):\n")
       printf("\tAvg: %.3f s/step\n", step_latency_without_step0_avg)
       printf("\tMin: %.3f s/step\n", step_latency_without_step0_min)
       printf("\tMax: %.3f s/step\n", step_latency_without_step0_max)
-      printf("\tFPS: %.3f images/s\n", '${batch_size}'/step_latency_without_step0_avg)
+      printf("\tFPS: %.3f examples/s\n", '${batch_size}'* '${num_gpu_devices}'/step_latency_without_step0_avg)
       printf("\n")
     }
   }' ${log_file}
@@ -109,7 +107,7 @@ else
   $task
   if [ ${task} = "train" ]
   then
-      analysis_times 3 8 8
+      analysis_times 5 8 8
   else
       analysis_times 3 5 5
   fi
