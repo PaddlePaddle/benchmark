@@ -238,13 +238,8 @@ def main():
             loss_name=loss.name,
             build_strategy=build_strategy,
             exec_strategy=exec_strategy)
-        eval_program = fluid.compiler.CompiledProgram(inference_program).with_data_parallel(
-            loss_name=loss.name,
-            build_strategy=build_strategy,
-            exec_strategy=exec_strategy)
     else:
         train_program = fluid.compiler.CompiledProgram(main_program)
-        eval_program = fluid.compiler.CompiledProgram(inference_program)
 
     data_path = args.data_path
     print("begin to load data")
@@ -309,7 +304,7 @@ def main():
             # eval should not run the grad op and change the parameters.
             # use Executor to eval
             fetch_outs = exe.run(
-                program=eval_program,
+                program=inference_program,
                 feed=input_data_feed,
                 fetch_list=[loss.name, last_hidden.name, last_cell.name],
                 use_program_cache=True)
@@ -446,7 +441,7 @@ def main():
                       (total_time / max_epoch))
                 print("ptblm\tlstm_language_model_loss\t%s" % train_ppl[0])
 
-            if False:#not args.profile:
+            if not args.profile:
                 # NOTE(zjl): sometimes we have not enough data for eval if batch_size is large, i.e., 2100
                 # Just skip to avoid error
                 def is_valid_data(data, batch_size, num_steps):
