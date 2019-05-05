@@ -58,10 +58,13 @@ train(){
       weight_sharing True \
       pass_num 1 \
       model_dir 'tmp_models' \
-      ckpt_dir 'tmp_ckpts' > ${log_file} 2>&1 &
+      ckpt_dir 'tmp_ckpts' > ${log_file} 2>&1
   train_pid=$!
-  sleep 900
-  kill -9 $train_pid
+  line=`ps aux | grep ${train_pid} |grep -v "grep"|wc -l`
+  if [ $line -gt 0 ]; 
+  then
+     kill -9 $train_pid
+  fi
 }
 
 infer(){

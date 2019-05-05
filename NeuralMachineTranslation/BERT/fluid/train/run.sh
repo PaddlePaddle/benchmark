@@ -29,6 +29,7 @@ num_gpu_devices=${#arr[*]}
 batch_size=32
 log_file=log_${task}_${index}_${num_gpu_devices}
 
+
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
@@ -44,18 +45,23 @@ train(){
        --vocab_path ${BERT_BASE_PATH}/vocab.txt \
        --checkpoints ${CKPT_PATH} \
        --save_steps 1000 \
+       --shuffle false \
        --weight_decay  0.01 \
        --warmup_proportion 0.1 \
        --validation_steps 1000 \
-       --epoch 2 \
+       --epoch 1 \
        --max_seq_len 128 \
        --bert_config_path ${BERT_BASE_PATH}/bert_config.json \
        --learning_rate 5e-5 \
        --skip_steps 100 \
-       --random_seed 1 > ${log_file} 2>&1 &
+       --random_seed 1 > ${log_file} 2>&1 
   train_pid=$!
-  sleep 600
-  kill -9 $train_pid
+
+  line=`ps aux | grep ${train_pid} |grep -v "grep"|wc -l`
+  if [ ${line} -gt 0 ];
+  then
+     kill -9 ${train_pid}
+  fi
 }
 
 infer(){

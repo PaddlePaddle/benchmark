@@ -134,6 +134,11 @@ def parse_args():
         type=int,
         default=100,
         help="The frequency to fetch and print output.")
+    parser.add_argument(
+        "--run_epoch",
+        type=int,
+        default=1,
+        help="")
 
     args = parser.parse_args()
     # Append args related to dict
@@ -589,6 +594,8 @@ def train_loop(exe,
                                    time_consumed))
         else:
             logging.info("epoch: %d, consumed %fs, avg_speed: %f step/s" % (pass_id, time_consumed, np.average(avg_speed)))
+        if pass_id + 1 >= args.run_epoch:
+            return 
         avg_speed = []
         if not args.enable_ce:
             fluid.io.save_persistables(
