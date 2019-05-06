@@ -26,7 +26,6 @@ import math
 import paddle
 import paddle.fluid as fluid
 import paddle.fluid.core as core
-import paddle.fluid.framework as framework
 from paddle.fluid.executor import Executor
 import paddle.fluid.profiler as profiler
 
@@ -222,10 +221,8 @@ def main():
     exec_strategy.num_iteration_per_drop_scope = 100
 
     build_strategy = fluid.BuildStrategy()
-    #if args.memory_optimize:
-    if True:
-        build_strategy.enable_inplace = True
-        build_strategy.memory_optimize = False
+    build_strategy.enable_inplace = True
+    build_strategy.memory_optimize = True
 
     build_strategy.remove_unnecessary_lock = True
     build_strategy.enable_sequential_execution = False
@@ -349,7 +346,7 @@ def main():
         if args.profile:
             log_interval = 1
         else:
-            log_interval = epoch_size // 10
+            log_interval = max(1, epoch_size // 10)
 
         data_iter_size = batch_size
         if device_count > 1 and args.parallel:
