@@ -77,14 +77,14 @@ deeplab(){
     echo "index is speed, 1gpu, begin"
     CUDA_VISIBLE_DEVICES=0 bash run.sh speed > ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
     sleep 60
-    echo "index is speed, 4gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3 bash run.sh speed > ${log_path}/DeepLab_V3+_speed_4gpus 2>&1
+    echo "index is speed, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed > ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
     CUDA_VISIBLE_DEVICES=0 bash run.sh mem > ${log_path}/DeepLab_V3+_mem_1gpus 2>&1
     sleep 60
-    echo "index is mem, 4gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3 bash run.sh mem > ${log_path}/DeepLab_V3+_mem_4gpus 2>&1
+    echo "index is mem, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh mem > ${log_path}/DeepLab_V3+_mem_8gpus 2>&1
 }
 
 
