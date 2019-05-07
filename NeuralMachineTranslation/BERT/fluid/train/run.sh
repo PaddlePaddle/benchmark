@@ -132,5 +132,3 @@ else
       analysis_times 1 5
   fi
 fi
-
-cd -
