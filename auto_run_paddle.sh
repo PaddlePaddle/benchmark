@@ -6,17 +6,23 @@ usage () {
   usage: $0 [options]
   -h         optional   Print this help message
   -m  model  ${cur_model_list[@]} | all
+  -n  image_name
+  -i  image_commit_id
+  -p  all_path contains dir of prepare(pretrained models), dataset, logs.., such as /ssd1/ljh
 EOF
 }
-if [ $# != 2 ] ; then
+if [ $# != 8 ] ; then
   usage
   exit 1;
 fi
-while getopts h:m: opt
+while getopts h:m:n:i:p: opt
 do
   case $opt in
   h) usage; exit 0 ;;
   m) model="$OPTARG" ;;
+  n) image_name="$OPTARG" ;;
+  i) image_commit_id="$OPTARG" ;;
+  p) all_path="$OPTARG" ;;
   \?) usage; exit 1 ;;
   esac
 done
@@ -27,11 +33,20 @@ export https_proxy=http://172.19.57.45:3128
 prepare(){
     echo "*******prepare benchmark***********"
 
+    ln -s /usr/lib/x86_64-linux-gnu/libnccl.so.2 /usr/lib/x86_64-linux-gnu/libnccl.so
+    rm /etc/apt/sources.list
+    cp ${all_path}/sources.list /etc/apt
+    apt-get update
+    apt-get install libmysqlclient-dev -y
+    apt-get install git -y
+    pip install MySQL-python
+
+    ct=`date '+%Y%m%d%H%M%S'`
     root_path=/home/crim/
     fluid_path=/home/crim/benchmark
     log_path=/home/crim/benchmark/logs
-    data_path=/ssd1/ljh/dataset
-    prepare_path=/ssd1/ljh/prepare
+    data_path=${all_path}/dataset
+    prepare_path=${all_path}/prepare
 
     if [ -e ${root_path} ]
     then
@@ -49,8 +64,14 @@ prepare(){
         mkdir $log_path
     fi
 
+    cd ${fluid_path}
+    benchmark_commit_id=$(git log|head -n1|awk '{print $2}')
+    echo "benchmark_commit_id is: "${benchmark_commit_id}
+    pip uninstall paddlepaddle-gpu -y
+    pip install ${image_name}
     echo "*******prepare end!***********"
 }
+
 
 #run_cycle_gan
 CycleGAN(){
@@ -126,7 +147,7 @@ mask_rcnn(){
         echo "cocoapi installed"
     fi
     ln -s ${prepare_path}/mask-rcnn/imagenet_resnet50_fusebn ${cur_model_path}/imagenet_resnet50_fusebn
-    cd rcnn
+    cd ${cur_model_path}/rcnn
     rm -rf dataset/coco
     ln -s ${data_path}/COCO17 ${cur_model_path}/rcnn/dataset/coco
     echo "index is speed, 1gpu, begin"
@@ -284,3 +305,13 @@ then
 else
     echo "model: $model not support!"
 fi
+
+
+sql(){
+    echo "==================== begin insert to sql ================="
+    python db.py --code_commit_id ${benchmark_commit_id} --image_commit_id ${image_commit_id}
+    echo "******************** end insert to sql!! *****************"
+    mv ${log_path} ${all_path}/logs/log_${ct}
+}
+
+sql
