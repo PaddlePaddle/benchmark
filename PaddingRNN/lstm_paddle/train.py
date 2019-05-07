@@ -222,10 +222,8 @@ def main():
     exec_strategy.num_iteration_per_drop_scope = 100
 
     build_strategy = fluid.BuildStrategy()
-    #if args.memory_optimize:
-    if True:
-        build_strategy.enable_inplace = True
-        build_strategy.memory_optimize = False
+    build_strategy.enable_inplace = True
+    build_strategy.memory_optimize = False
 
     build_strategy.remove_unnecessary_lock = True
     build_strategy.enable_sequential_execution = False
@@ -239,7 +237,9 @@ def main():
             build_strategy=build_strategy,
             exec_strategy=exec_strategy)
     else:
-        train_program = fluid.compiler.CompiledProgram(main_program)
+        train_program = fluid.compiler.CompiledProgram(main_program).with_default(
+            cache_runtime_context=True,
+            cache_expected_kernel=True)
 
     data_path = args.data_path
     print("begin to load data")
@@ -441,7 +441,7 @@ def main():
                       (total_time / max_epoch))
                 print("ptblm\tlstm_language_model_loss\t%s" % train_ppl[0])
 
-            if not args.profile:
+            if False:#not args.profile:
                 # NOTE(zjl): sometimes we have not enough data for eval if batch_size is large, i.e., 2100
                 # Just skip to avoid error
                 def is_valid_data(data, batch_size, num_steps):

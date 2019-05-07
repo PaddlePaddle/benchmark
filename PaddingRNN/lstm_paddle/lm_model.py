@@ -204,8 +204,15 @@ def lm_model(hidden_size,
                 gate_input = layers.elementwise_add(gate_input, bias)
                 i, j, f, o = layers.split(gate_input, num_or_sections=4, dim=-1)
 
-                c = pre_cell * layers.sigmoid(f) + layers.sigmoid(
-                    i) * layers.tanh(j)
+#                try:
+#                    from paddle.fluid.contrib.layers import fused_elemwise_activation
+#                    print("Use fused_elemwise_activation")
+#                    c = pre_cell * layers.sigmoid(f) + fused_elemwise_activation(x=layers.sigmoid(i), y=j, functor_list=['elementwise_mul','tanh'], save_intermediate_out=True)
+#                    m = fused_elemwise_activation(x=layers.sigmoid(o), y=c, functor_list=['elementwise_mul','tanh'], save_intermediate_out=True)
+#                except ImportError:
+#                    c = pre_cell * layers.sigmoid(f) + layers.sigmoid(i) * layers.tanh(j)
+#                    m = layers.tanh(c) * layers.sigmoid(o)
+                c = pre_cell * layers.sigmoid(f) + layers.sigmoid(i) * layers.tanh(j)
                 m = layers.tanh(c) * layers.sigmoid(o)
 
                 hidden_array[k] = m
@@ -218,6 +225,7 @@ def lm_model(hidden_size,
                         dropout_prob=dropout,
                         dropout_implementation='upscale_in_train')
 
+#            res.append(layers.reshape(input, shape=[1, -1, hidden_size]))
             res.append(input)
 
         last_hidden = layers.concat(hidden_array, 1)
@@ -233,6 +241,7 @@ def lm_model(hidden_size,
         real_res = layers.concat(res, 0)
         real_res = layers.reshape(real_res, shape=[len, -1, hidden_size], inplace=True)
         real_res = layers.transpose(x=real_res, perm=[1, 0, 2])
+        
 
         return real_res, last_hidden, last_cell
 
