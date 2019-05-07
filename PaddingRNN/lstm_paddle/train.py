@@ -26,7 +26,6 @@ import math
 import paddle
 import paddle.fluid as fluid
 import paddle.fluid.core as core
-import paddle.fluid.framework as framework
 from paddle.fluid.executor import Executor
 import paddle.fluid.profiler as profiler
 
@@ -223,7 +222,7 @@ def main():
 
     build_strategy = fluid.BuildStrategy()
     build_strategy.enable_inplace = True
-    build_strategy.memory_optimize = False
+    build_strategy.memory_optimize = True
 
     build_strategy.remove_unnecessary_lock = True
     build_strategy.enable_sequential_execution = False
@@ -349,7 +348,7 @@ def main():
         if args.profile:
             log_interval = 1
         else:
-            log_interval = epoch_size // 10
+            log_interval = max(1, epoch_size // 10)
 
         data_iter_size = batch_size
         if device_count > 1 and args.parallel:
@@ -441,7 +440,7 @@ def main():
                       (total_time / max_epoch))
                 print("ptblm\tlstm_language_model_loss\t%s" % train_ppl[0])
 
-            if False:#not args.profile:
+            if not args.profile:
                 # NOTE(zjl): sometimes we have not enough data for eval if batch_size is large, i.e., 2100
                 # Just skip to avoid error
                 def is_valid_data(data, batch_size, num_steps):

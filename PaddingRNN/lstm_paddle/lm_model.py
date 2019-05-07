@@ -245,11 +245,15 @@ def lm_model(hidden_size,
 
         return real_res, last_hidden, last_cell
 
-    x = layers.data(name="x", shape=[-1, 1, 1], dtype='int64')
-    y = layers.data(name="y", shape=[-1, 1], dtype='float32')
+    x = layers.data(name="x", shape=[batch_size, num_steps, 1], 
+            dtype='int64', append_batch_size=False)
+    y = layers.data(name="y", shape=[batch_size*num_steps, 1], 
+            dtype='int64', append_batch_size=False)
 
-    init_hidden = layers.data(name="init_hidden", shape=[1], dtype='float32')
-    init_cell = layers.data(name="init_cell", shape=[1], dtype='float32')
+    init_hidden = layers.data(name="init_hidden", shape=[num_layers, batch_size, hidden_size], 
+            dtype='float32', append_batch_size=False)
+    init_cell = layers.data(name="init_cell", shape=[num_layers, batch_size, hidden_size], 
+            dtype='float32', append_batch_size=False)
 
     init_hidden = layers.reshape(
         init_hidden, shape=[num_layers, -1, hidden_size])
@@ -299,7 +303,6 @@ def lm_model(hidden_size,
     projection = layers.elementwise_add(projection, softmax_bias)
 
     projection = layers.reshape(projection, shape=[-1, vocab_size], inplace=True)
-    #y = layers.reshape( y, shape=[-1, vocab_size])
 
     loss = layers.softmax_with_cross_entropy(
         logits=projection, label=y, soft_label=False)

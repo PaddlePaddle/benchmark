@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cur_model_list=(cycle_gan deeplab se_resnext50 mask_rcnn bert transformer ddpg_deep_explore paddingrnn yolov3)
+cur_model_list=(CycleGAN deeplab se_resnext50 mask_rcnn bert transformer ddpg_deep_explore paddingrnn yolov3)
 usage () {
   cat <<EOF
   usage: $0 [options]
@@ -27,30 +27,33 @@ export https_proxy=http://172.19.57.45:3128
 prepare(){
     echo "*******prepare benchmark***********"
 
-    rm -rf /home/crim/benchmark
     root_path=/home/crim/
     fluid_path=/home/crim/benchmark
     log_path=/home/crim/benchmark/logs
     data_path=/ssd1/ljh/dataset
     prepare_path=/ssd1/ljh/prepare
 
-    cd ${root_path}
-    git clone https://github.com/PaddlePaddle/benchmark.git
-    cd ${fluid_path}
-    git submodule init
-    git submodule update
-
-    if [ -e ${fluid_path} ]
+    if [ -e ${root_path} ]
     then
-        mkdir $log_path
+        rm ${log_path}/*
+        cd ${root_path}
+        git pull
+        echo "prepare had done"
     else
-        exit 1
+        mkdir /home/crim
+        cd ${root_path}
+        git clone https://github.com/PaddlePaddle/benchmark.git
+        cd ${fluid_path}
+        git submodule init
+        git submodule update
+        mkdir $log_path
     fi
+
     echo "*******prepare end!***********"
 }
 
 #run_cycle_gan
-cycle_gan(){
+CycleGAN(){
     cur_model_path=${fluid_path}/CycleGAN/paddle
     cd ${cur_model_path}
     mkdir data
@@ -72,16 +75,16 @@ deeplab(){
     ln -s ${data_path}/cityscape ${cur_model_path}/data/cityscape
     ln -s ${prepare_path}/deeplabv3plus_xception65_initialize ${cur_model_path}/deeplabv3plus_xception65_initialize
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh speed > ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
     sleep 60
-    echo "index is speed, 4gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3 bash run.sh speed > ${log_path}/${FUNCNAME}_speed_4gpus 2>&1
+    echo "index is speed, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed > ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh mem > ${log_path}/DeepLab_V3+_mem_1gpus 2>&1
     sleep 60
-    echo "index is mem, 4gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3 bash run.sh mem > ${log_path}/${FUNCNAME}_mem_4gpus 2>&1
+    echo "index is mem, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh mem > ${log_path}/DeepLab_V3+_mem_8gpus 2>&1
 }
 
 
@@ -93,16 +96,16 @@ se_resnext50(){
     ln -s ${data_path}/ILSVRC2012 ${cur_model_path}/data/ILSVRC2012
     sed -i '/cd /d' run.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed 32 > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh speed 32 > ${log_path}/SE-ResNeXt50_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed 32 > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed 32 > ${log_path}/SE-ResNeXt50_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem 32 > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh mem 32 > ${log_path}/SE-ResNeXt50_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh mem 32 > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh mem 32 > ${log_path}/SE-ResNeXt50_mem_8gpus 2>&1
 }
 
 
@@ -208,15 +211,15 @@ paddingrnn(){
     batch_size=20
     ln -s ${data_path}/simple-examples ${cur_model_path}/data/simple-examples
     echo "index is speed, 1gpus, small model, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed small ${batch_size} > ${log_path}/${FUNCNAME}_speed_1gpus_small 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh speed small ${batch_size} > ${log_path}/${FUNCNAME}_small_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, small model, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem small ${batch_size} > ${log_path}/${FUNCNAME}_mem_1gpus_small 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh mem small ${batch_size} > ${log_path}/${FUNCNAME}_small_mem_1gpus 2>&1
     echo "index is speed, 1gpus, large model, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed large ${batch_size} > ${log_path}/${FUNCNAME}_speed_1gpus_large 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh speed large ${batch_size} > ${log_path}/${FUNCNAME}_large_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, large model, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem large ${batch_size} > ${log_path}/${FUNCNAME}_mem_1gpus_large 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh mem large ${batch_size} > ${log_path}/${FUNCNAME}_large_mem_1gpus 2>&1
 }
 
 
