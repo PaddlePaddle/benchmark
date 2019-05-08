@@ -19,12 +19,12 @@ import os
 import paddle.fluid as fluid
 
 
- def nccl2_prepare(trainer_id, startup_prog, main_prog):
-    config = fluid.DistributeTranspilerConfig()
-    config.mode = "nccl2"
-    t = fluid.DistributeTranspiler(config=config)
-    t.transpile(trainer_id,
-        trainers=os.environ.get('PADDLE_TRAINER_ENDPOINTS'),
-        current_endpoint=os.environ.get('PADDLE_CURRENT_ENDPOINT'),
-        startup_program=startup_prog,
-        program=main_prog)
+def nccl2_prepare(trainer_id, startup_prog, main_prog):
+   config = fluid.DistributeTranspilerConfig()
+   config.mode = "nccl2"
+   t = fluid.DistributeTranspiler(config=config)
+   t.transpile(trainer_id,
+       trainers=os.environ.get('PADDLE_TRAINER_ENDPOINTS'),
+       current_endpoint=os.environ.get('PADDLE_CURRENT_ENDPOINT'),
+       startup_program=startup_prog,
+       program=main_prog)
