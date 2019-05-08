@@ -9,7 +9,7 @@ usage () {
   -d  dir of benchmark_path
   -c  cuda_version 9.0|10.0
   -n  cudnn_version 7
-  -p  all_path contains dir of prepare(pretrained models), dataset, logs.., such as /ssd1/ljh
+  -p  all_path contains dir of prepare(pretrained models), dataset, logs, db.py.., such as /ssd1/ljh
 EOF
 }
 if [ $# != 10 ] ; then
@@ -93,12 +93,11 @@ run(){
     if [ -e ${all_path}/images/${image_name} ]
     then
         echo "build paddle success, begin run !"
-        run
     else
         echo "build paddle failed, exit!"
         exit 1
     fi
-    cd ${benchmark_path}
+    
     RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
     nvidia-docker run -i --rm \
         -v /home/work:/home/work \
@@ -113,7 +112,7 @@ run(){
         --privileged \
         --shm-size=30G \
         $RUN_IMAGE_NAME \
-        /bin/bash -c "bash auto_run_paddle.sh -m $model -c ${cuda_version} -n ${all_path}/images/${image_name} -i ${image_commit_id}  -p ${all_path}"
+        /bin/bash -c "cd ${benchmark_path}; bash auto_run_paddle.sh -m $model -c ${cuda_version} -n ${all_path}/images/${image_name} -i ${image_commit_id}  -p ${all_path}"
 
 }
 
