@@ -6,20 +6,22 @@ usage () {
   usage: $0 [options]
   -h         optional   Print this help message
   -m  model  ${cur_model_list[@]} | all
+  -c  cuda_version 9.0|10.0
   -n  image_name
   -i  image_commit_id
-  -p  all_path contains dir of prepare(pretrained models), dataset, logs.., such as /ssd1/ljh
+  -p  all_path contains dir of prepare(pretrained models), dataset, logs, db.py..,  such as /ssd1/ljh
 EOF
 }
-if [ $# != 8 ] ; then
+if [ $# != 10 ] ; then
   usage
   exit 1;
 fi
-while getopts h:m:n:i:p: opt
+while getopts h:m:c:n:i:p: opt
 do
   case $opt in
   h) usage; exit 0 ;;
   m) model="$OPTARG" ;;
+  c) cuda_version="$OPTARG" ;;
   n) image_name="$OPTARG" ;;
   i) image_commit_id="$OPTARG" ;;
   p) all_path="$OPTARG" ;;
@@ -33,6 +35,10 @@ export https_proxy=http://172.19.57.45:3128
 prepare(){
     echo "*******prepare benchmark***********"
 
+    if [ '10.0' == $cuda_version ]
+    then
+        export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
+    fi
     ln -s /usr/lib/x86_64-linux-gnu/libnccl.so.2 /usr/lib/x86_64-linux-gnu/libnccl.so
     rm /etc/apt/sources.list
     cp ${all_path}/sources.list /etc/apt
@@ -141,9 +147,9 @@ mask_rcnn(){
         echo "cocoapi NOT FOUND"
         cp -r ${prepare_path}/cocoapi/ ./
         cd cocoapi/PythonAPI/
-        pip install Cython > ${log_path}/${FUNCNAME}_speed 2>&1
-        make install > ${log_path}/${FUNCNAME}_speed 2>&1
-        python2 setup.py install --user > ${log_path}/${FUNCNAME}_speed 2>&1
+        pip install Cython
+        make install
+        python2 setup.py install --user
         echo "cocoapi installed"
     fi
     ln -s ${prepare_path}/mask-rcnn/imagenet_resnet50_fusebn ${cur_model_path}/imagenet_resnet50_fusebn
@@ -214,7 +220,7 @@ ddpg_deep_explore(){
         echo "parl have already installed"
     else
         echo "parl NOT FOUND"
-        pip install parl > ${log_path}/${FUNCNAME}_speed 2>&1
+        pip install parl
         echo "parl installed"
     fi
     echo "index is speed, begin"
@@ -255,11 +261,12 @@ yolov3(){
         echo "cocoapi NOT FOUND"
         cp -r ${prepare_path}/cocoapi/ ./
         cd cocoapi/PythonAPI/
-        pip install Cython > ${log_path}/${FUNCNAME}_speed 2>&1
-        make install > ${log_path}/${FUNCNAME}_speed 2>&1
-        python2 setup.py install --user > ${log_path}/${FUNCNAME}_speed 2>&1
+        pip install Cython
+        make install
+        python2 setup.py install --user
         echo "cocoapi installed"
     fi
+    cd ${cur_model_path}
     #yolov3 的模型代码还在models
     git clone https://github.com/PaddlePaddle/models.git
     cd models/PaddleCV/yolov3/
@@ -308,10 +315,11 @@ fi
 
 
 sql(){
-    echo "==================== begin insert to sql ================="
-    python db.py --code_commit_id ${benchmark_commit_id} --image_commit_id ${image_commit_id}
-    echo "******************** end insert to sql!! *****************"
     mv ${log_path} ${all_path}/logs/log_${ct}
+    cd ${all_path}
+    echo "==================== begin insert to sql ================="
+    python db.py --code_commit_id ${benchmark_commit_id} --image_commit_id ${image_commit_id} --log_path ${all_path}/logs/log_${ct}
+    echo "******************** end insert to sql!! *****************"
 }
 
 sql
