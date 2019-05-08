@@ -9,7 +9,7 @@ usage () {
   -c  cuda_version 9.0|10.0
   -n  image_name
   -i  image_commit_id
-  -p  all_path contains dir of prepare(pretrained models), dataset, logs.., such as /ssd1/ljh
+  -p  all_path contains dir of prepare(pretrained models), dataset, logs, db.py..,  such as /ssd1/ljh
 EOF
 }
 if [ $# != 10 ] ; then
