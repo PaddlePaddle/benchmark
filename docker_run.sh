@@ -6,7 +6,7 @@ usage () {
   usage: $0 [options]
   -h         optional   Print this help message
   -m  model  ${cur_model_list[@]} | all
-  -d  dir of paddle_path
+  -d  dir of benchmark_path
   -c  cuda_version 9.0|10.0
   -n  cudnn_version 7
   -p  all_path contains dir of prepare(pretrained models), dataset, logs.., such as /ssd1/ljh
@@ -21,7 +21,7 @@ do
   case $opt in
   h) usage; exit 0 ;;
   m) model="$OPTARG" ;;
-  d) paddle_path="$OPTARG" ;;
+  d) benchmark_path="$OPTARG" ;;
   c) cuda_version="$OPTARG" ;;
   n) cudnn_version="$OPTARG" ;;
   p) all_path="$OPTARG" ;;
@@ -37,13 +37,13 @@ paddle_repo="https://github.com/PaddlePaddle/Paddle.git"
 #build paddle
 build(){
 
-    if [ -e ${paddle_path} ]
+    if [ -e ${benchmark_path} ]
     then
-         rm -rf ${paddle_path}/Paddle
+         rm -rf ${benchmark_path}/Paddle
     else
-        mkdir -p ${paddle_path}
+        mkdir -p ${benchmark_path}
     fi
-    cd ${paddle_path}
+    cd ${benchmark_path}
     git clone ${paddle_repo}
     cd Paddle
     image_commit_id=$(git log|head -n1|awk '{print $2}')
@@ -98,7 +98,7 @@ run(){
         echo "build paddle failed, exit!"
         exit 1
     fi
-    cd ${paddle_path}
+    cd ${benchmark_path}
     RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
     nvidia-docker run -i --rm \
         -v /home/work:/home/work \
@@ -113,7 +113,7 @@ run(){
         --privileged \
         --shm-size=30G \
         $RUN_IMAGE_NAME \
-        /bin/bash -c "bash auto_run_paddle.sh -m $model -i ${image_commit_id} -n ${all_path}/images/${image_name} -p ${all_path}"
+        /bin/bash -c "bash auto_run_paddle.sh -m $model -c ${cuda_version} -n ${all_path}/images/${image_name} -i ${image_commit_id}  -p ${all_path}"
 
 }
 

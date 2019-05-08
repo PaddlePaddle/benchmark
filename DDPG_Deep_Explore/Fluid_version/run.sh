@@ -10,6 +10,10 @@ fi
 #打开后速度变快
 export FLAGS_cudnn_exhaustive_search=1
 
+#开启
+export FLAGS_eager_delete_tensor_gb=0.0
+export FLAGS_fast_eager_deletion_mode=1
+
 task="$1"
 index="$2"
 
