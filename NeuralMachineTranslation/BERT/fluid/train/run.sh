@@ -9,14 +9,16 @@ export FLAGS_enable_parallel_graph=1
 #export FLAGS_fraction_of_gpu_memory_to_use=0.98
 #export FLAGS_memory_fraction_of_eager_deletion=1.0
 
-if [ $# -ne 2 ]; then
+if [ $# -ne 3 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem /ssd1/ljh/logs"
   exit
 fi
 
 task="$1"
 index="$2"
+run_log_path="$3"
+model_name="bert"
 
 BERT_BASE_PATH=$(pwd)/../../chinese_L-12_H-768_A-12
 TASK_NAME='XNLI'
@@ -27,7 +29,7 @@ device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
 batch_size=32
-log_file=log_${task}_${index}_${num_gpu_devices}
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"

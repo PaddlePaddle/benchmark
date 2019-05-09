@@ -48,6 +48,9 @@ prepare(){
     pip install MySQL-python
 
     ct=`date '+%Y%m%d%H%M%S'`
+    save_log_dir=${all_path}/logs/log_${ct}
+    train_log_dir=${save_log_dir}/train_log
+    mkdir -p ${train_log_dir}
     root_path=/home/crim/
     fluid_path=/home/crim/benchmark
     log_path=/home/crim/benchmark/logs
@@ -86,10 +89,10 @@ CycleGAN(){
     mkdir data
     ln -s ${data_path}/horse2zebra/ ${cur_model_path}/data
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -102,16 +105,16 @@ deeplab(){
     ln -s ${data_path}/cityscape ${cur_model_path}/data/cityscape
     ln -s ${prepare_path}/deeplabv3plus_xception65_initialize ${cur_model_path}/deeplabv3plus_xception65_initialize
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed > ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed ${train_log_dir} > ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed > ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed ${train_log_dir} > ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem > ${log_path}/DeepLab_V3+_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem ${train_log_dir} > ${log_path}/DeepLab_V3+_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh mem > ${log_path}/DeepLab_V3+_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/DeepLab_V3+_mem_8gpus 2>&1
 }
 
 
@@ -123,16 +126,16 @@ se_resnext50(){
     ln -s ${data_path}/ILSVRC2012 ${cur_model_path}/data/ILSVRC2012
     sed -i '/cd /d' run.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed 32 > ${log_path}/SE-ResNeXt50_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh speed 32 ${train_log_dir} > ${log_path}/SE-ResNeXt50_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed 32 > ${log_path}/SE-ResNeXt50_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed 32 ${train_log_dir} > ${log_path}/SE-ResNeXt50_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem 32 > ${log_path}/SE-ResNeXt50_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh mem 32 ${train_log_dir} > ${log_path}/SE-ResNeXt50_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh mem 32 > ${log_path}/SE-ResNeXt50_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh mem 32 ${train_log_dir} > ${log_path}/SE-ResNeXt50_mem_8gpus 2>&1
 }
 
 
@@ -157,16 +160,16 @@ mask_rcnn(){
     rm -rf dataset/coco
     ln -s ${data_path}/COCO17 ${cur_model_path}/rcnn/dataset/coco
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
 }
 
 
@@ -178,16 +181,16 @@ bert(){
     ln -s ${prepare_path}/chinese_L-12_H-768_A-12 ${cur_model_path}/chinese_L-12_H-768_A-12
 
     echo "index is speed, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
 }
 
 
@@ -198,16 +201,16 @@ transformer(){
     ln -s ${data_path}/transformer/data ${cur_model_path}/data
     cp -r ${prepare_path}/transformer/mosesdecoder ${cur_model_path}/mosesdecoder
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
 }
 
 
@@ -224,10 +227,10 @@ ddpg_deep_explore(){
         echo "parl installed"
     fi
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -238,15 +241,15 @@ paddingrnn(){
     batch_size=20
     ln -s ${data_path}/simple-examples ${cur_model_path}/data/simple-examples
     echo "index is speed, 1gpus, small model, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed small ${batch_size} > ${log_path}/${FUNCNAME}_small_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh speed small ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_small_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, small model, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem small ${batch_size} > ${log_path}/${FUNCNAME}_small_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh mem small ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_small_mem_1gpus 2>&1
     echo "index is speed, 1gpus, large model, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed large ${batch_size} > ${log_path}/${FUNCNAME}_large_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh speed large ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_large_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, large model, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem large ${batch_size} > ${log_path}/${FUNCNAME}_large_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh mem large ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_large_mem_1gpus 2>&1
 }
 
 
@@ -279,16 +282,16 @@ yolov3(){
     ln -s ${data_path}/coco ./dataset/coco
     cp ${fluid_path}/yolov3/paddle/run.sh ./
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
 
 }
 
@@ -315,10 +318,10 @@ fi
 
 
 sql(){
-    mv ${log_path} ${all_path}/logs/log_${ct}
+    mv ${log_path} ${save_log_dir}/index
     cd ${all_path}
     echo "==================== begin insert to sql ================="
-    python db.py --code_commit_id ${benchmark_commit_id} --image_commit_id ${image_commit_id} --log_path ${all_path}/logs/log_${ct}
+    python db.py --code_commit_id ${benchmark_commit_id} --image_commit_id ${image_commit_id} --log_path ${save_log_dir}/index
     echo "******************** end insert to sql!! *****************"
 }
 
