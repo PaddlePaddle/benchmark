@@ -222,7 +222,7 @@ def main():
 
     build_strategy = fluid.BuildStrategy()
     build_strategy.enable_inplace = True
-    build_strategy.memory_optimize = True
+    build_strategy.memory_optimize = False
 
     build_strategy.remove_unnecessary_lock = True
     build_strategy.enable_sequential_execution = False
