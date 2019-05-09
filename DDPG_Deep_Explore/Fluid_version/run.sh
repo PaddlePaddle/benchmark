@@ -84,7 +84,7 @@ analysis_times(){
       printf("average latency (skip '${skip_step}' steps):\n")
       printf("\tAvg: %.3f epoch/s\n", 1/step_latency_without_step0_avg)
       printf("\tMin: %.3f epoch/s\n", 1/step_latency_without_step0_min)
-      printf("\tMax: %.3f epoch/s\n", 1/tep_latency_without_step0_max)
+      printf("\tMax: %.3f epoch/s\n", 1/step_latency_without_step0_max)
       printf("\tFPS: %.3f examples/s\n", '${batch_size}'/step_latency_without_step0_avg)
       printf("\n")
     }
