@@ -7,7 +7,7 @@ export FLAGS_eager_delete_tensor_gb=0.0
 export FLAGS_fraction_of_gpu_memory_to_use=0.98
 export FLAGS_memory_fraction_of_eager_deletion=1.0
 
-if [ $# -ne 3 ]; then
+if [ $# -lt 2 ]; then
   echo "Usage: "
   echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem /ssd1/ljh/logs"
   exit
@@ -15,7 +15,7 @@ fi
 
 task="$1"
 index="$2"
-run_log_path=$3
+run_log_path=${3:-$(pwd)}
 model_name="yolov3"
 
 device=${CUDA_VISIBLE_DEVICES//,/ }

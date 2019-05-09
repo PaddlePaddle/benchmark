@@ -16,7 +16,7 @@ export FLAGS_eager_delete_tensor_gb=0.0
 # can run when batch_size = 5365
 export FLAGS_memory_fraction_of_eager_deletion=0.5
 
-if [ $# -ne 4 ]; then
+if [ $# -lt 3 ]; then
   echo "Usage: "
   echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem large|small 20 /ssd1/ljh/logs"
   exit
@@ -26,7 +26,7 @@ task="train"
 index=$1
 model_type=$2
 base_batchsize=$3
-run_log_path=$4
+run_log_path=${4:-$(pwd)}
 model_name="paddingrnn_"${model_type}
 
 devices_str=${CUDA_VISIBLE_DEVICES//,/ }

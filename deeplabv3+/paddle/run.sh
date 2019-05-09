@@ -8,7 +8,7 @@ set -xe
 export FLAGS_eager_delete_tensor_gb=0.0
 export FLAGS_fast_eager_deletion_mode=1
 
-if [ $# -ne 3 ]; then
+if [ $# -lt 2 ]; then
   echo "Usage: "
   echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem /ssd1/ljh/logs"
   exit
@@ -16,7 +16,7 @@ fi
 
 task="$1"
 index="$2"
-run_log_path="$3"
+run_log_path=${3:-$(pwd)}
 model_name="DeepLab_V3+"
 
 DATASET_PATH=${PWD}/data/cityscape/

@@ -14,7 +14,7 @@ export FLAGS_fraction_of_gpu_memory_to_use=0.98
 #export FLAGS_cudnn_deterministic=true
 #export FLAGS_enable_parallel_graph=1
 
-if [ $# -ne 3 ]; then
+if [ $# -lt 2 ]; then
   echo "Usage: "
   echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem 32 /ssd1/ljh/logs"
   exit
@@ -23,7 +23,7 @@ fi
 task="train"
 index=$1
 base_batchsize=$2
-run_log_path=$3
+run_log_path=${3:-$(pwd)}
 model_name="SE-ResNeXt50"
 
 devices_str=${CUDA_VISIBLE_DEVICES//,/ }
