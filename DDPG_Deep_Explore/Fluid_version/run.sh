@@ -1,9 +1,9 @@
 #!bin/bash
 set -xe
 
-if [ $# -ne 2 ]; then
+if [ $# -lt 2 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem /ssd1/ljh/logs"
   exit
 fi
 
@@ -16,12 +16,14 @@ export FLAGS_fast_eager_deletion_mode=1
 
 task="$1"
 index="$2"
+run_log_path=${3:-$(pwd)}
+model_name="ddpg_deep_explore"
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
 batch_size=1
-log_file=log_${task}_${index}_${num_gpu_devices}
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
@@ -77,12 +79,12 @@ analysis_times(){
       step_latency/=count;
       step_latency_without_step0_avg/=(count-'${skip_step}')
       printf("average latency (origin result):\n")
-      printf("\tAvg: %.3f s/epoch\n", step_latency)
+      printf("\tAvg: %.3f epoch/s\n", 1/step_latency)
       printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency)
       printf("average latency (skip '${skip_step}' steps):\n")
-      printf("\tAvg: %.3f s/epoch\n", step_latency_without_step0_avg)
-      printf("\tMin: %.3f s/epoch\n", step_latency_without_step0_min)
-      printf("\tMax: %.3f s/epoch\n", step_latency_without_step0_max)
+      printf("\tAvg: %.3f epoch/s\n", 1/step_latency_without_step0_avg)
+      printf("\tMin: %.3f epoch/s\n", 1/step_latency_without_step0_min)
+      printf("\tMax: %.3f epoch/s\n", 1/step_latency_without_step0_max)
       printf("\tFPS: %.3f examples/s\n", '${batch_size}'/step_latency_without_step0_avg)
       printf("\n")
     }
