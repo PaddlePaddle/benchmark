@@ -14,14 +14,17 @@ export FLAGS_fraction_of_gpu_memory_to_use=0.98
 #export FLAGS_cudnn_deterministic=true
 #export FLAGS_enable_parallel_graph=1
 
-if [ $# -ne 2 ]; then
+if [ $# -ne 3 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed 32"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem 32 /ssd1/ljh/logs"
   exit
 fi
 
-task=$1
+task="train"
+index=$1
 base_batchsize=$2
+run_log_path=$3
+model_name="SE-ResNeXt50"
 
 devices_str=${CUDA_VISIBLE_DEVICES//,/ }
 gpu_devices=($devices_str)
@@ -30,7 +33,7 @@ num_gpu_devices=${#gpu_devices[*]}
 batch_size=`expr $base_batchsize \* $num_gpu_devices`
 num_epochs=2
 
-log_file=${PWD}/log_${task}_bs${batch_size}_${num_gpu_devices}
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
@@ -99,9 +102,9 @@ analysis_times(){
   }'
 }
 
-if [ $1 = 'mem' ]
+if [ ${index} = 'mem' ]
 then
-  echo "test for $task"
+  echo "test for $index"
   export FLAGS_fraction_of_gpu_memory_to_use=0.001
   gpu_id=`echo $CUDA_VISIBLE_DEVICES |cut -c1`
   nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
@@ -110,7 +113,7 @@ then
   kill $gpu_memory_pid
   awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
 else
-  echo "test for $task"
+  echo "test for $index"
   train
   analysis_times 2 14
 fi

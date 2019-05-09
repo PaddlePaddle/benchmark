@@ -1,9 +1,9 @@
 #!bin/bash
 set -xe
 
-if [ $# -ne 2 ]; then
+if [ $# -ne 3 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem /ssd1/ljh/logs"
   exit
 fi
 
@@ -17,12 +17,14 @@ export FLAGS_memory_fraction_of_eager_deletion=0.99999
 
 task="$1"
 index="$2"
+run_log_path="$3"
+model_name="transformer"
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
 batch_size=4096
-log_file=log_${task}_${index}_${num_gpu_devices}
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
