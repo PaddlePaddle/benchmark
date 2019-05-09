@@ -321,7 +321,7 @@ sql(){
     mv ${log_path} ${save_log_dir}/index
     cd ${all_path}
     echo "==================== begin insert to sql ================="
-    python db.py --code_commit_id ${benchmark_commit_id} --image_commit_id ${image_commit_id} --log_path ${save_log_dir}/index
+    python db.py --code_commit_id ${benchmark_commit_id} --image_commit_id ${image_commit_id} --log_path ${save_log_dir}
     echo "******************** end insert to sql!! *****************"
 }
 
