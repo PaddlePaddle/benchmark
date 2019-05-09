@@ -26,6 +26,10 @@ task=$1
 model_type=$2
 base_batchsize=$3
 
+if [ ${model_type} == "large" ]; then
+  export FLAGS_memory_fraction_of_eager_deletion=1.0
+fi
+
 devices_str=${CUDA_VISIBLE_DEVICES//,/ }
 gpu_devices=($devices_str)
 num_gpu_devices=${#gpu_devices[*]}
