@@ -1,7 +1,7 @@
 #!bin/bash
 set -xe
 
-if [ $# -ne 3 ]; then
+if [ $# -lt 2 ]; then
   echo "Usage: "
   echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem /ssd1/ljh/logs"
   exit
@@ -17,7 +17,7 @@ export FLAGS_memory_fraction_of_eager_deletion=0.99999
 
 task="$1"
 index="$2"
-run_log_path="$3"
+run_log_path=${3:-$(pwd)}
 model_name="transformer"
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
