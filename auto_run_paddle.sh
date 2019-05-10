@@ -245,6 +245,7 @@ paddingrnn(){
     sleep 60
     echo "index is mem, 1gpus, small model, begin"
     CUDA_VISIBLE_DEVICES=0 bash run.sh mem small ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_small_mem_1gpus 2>&1
+    sleep 60
     echo "index is speed, 1gpus, large model, begin"
     CUDA_VISIBLE_DEVICES=0 bash run.sh speed large ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_large_speed_1gpus 2>&1
     sleep 60
