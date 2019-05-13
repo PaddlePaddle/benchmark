@@ -8,20 +8,23 @@ export FLAGS_fraction_of_gpu_memory_to_use=0.98
 export FLAGS_memory_fraction_of_eager_deletion=1.0
 export FLAGS_conv_workspace_size_limit=1500
 
-if [ $# -ne 2 ]; then
+if [ $# -lt 2 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem /ssd1/ljh/logs"
   exit
 fi
 
 task="$1"
 index="$2"
+run_log_path=${3:-$(pwd)}
+model_name="mask_rcnn"
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-batch_size=`expr 1 \* $num_gpu_devices`
-log_file=log_${task}_${index}_${num_gpu_devices}
+base_batch_size=1
+batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
@@ -30,7 +33,7 @@ train(){
    --model_save_dir=output/ \
    --pretrained_model=../imagenet_resnet50_fusebn/ \
    --data_dir=./dataset/coco \
-   --im_per_batch=${batch_size} \
+   --im_per_batch=${base_batch_size} \
    --MASK_ON=True > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600

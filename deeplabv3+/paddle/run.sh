@@ -1,17 +1,23 @@
 #!/bin/bash
 
-set -xe
+set -x
 
 #export FLAGS_cudnn_deterministic=true
 #export FLAGS_enable_parallel_graph=1
 
-if [ $# -ne 1 ]; then
+export FLAGS_eager_delete_tensor_gb=0.0
+export FLAGS_fast_eager_deletion_mode=1
+
+if [ $# -lt 2 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem /ssd1/ljh/logs"
   exit
 fi
 
 task="$1"
+index="$2"
+run_log_path=${3:-$(pwd)}
+model_name="DeepLab_V3+"
 
 DATASET_PATH=${PWD}/data/cityscape/
 INIT_WEIGHTS_PATH=${PWD}/deeplabv3plus_xception65_initialize
@@ -26,7 +32,7 @@ train_crop_size=513
 total_step=80
 batch_size=`expr 2 \* $num_gpu_devices`
 
-log_file=log_${task}_bs${batch_size}_${num_gpu_devices}
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
@@ -86,9 +92,9 @@ analysis_times(){
   }' ${log_file} 
 }
 
-if [ $task = "mem" ]
+if [ $index = "mem" ]
 then
-  echo "Benchmark for $task"
+  echo "Benchmark for $index"
   export FLAGS_fraction_of_gpu_memory_to_use=0.001
   gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
   nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
@@ -97,7 +103,7 @@ then
   kill $gpu_memory_pid
   awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
 else
-  echo "Benchmark for $task"
+  echo "Benchmark for $index"
   train
   analysis_times
 fi

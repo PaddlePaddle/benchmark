@@ -1,46 +1,51 @@
 #!bin/bash
 set -xe
 
-if [ $# -lt 2 ]; then
+#export FLAGS_cudnn_deterministic=true
+#export FLAGS_enable_parallel_graph=1
+export FLAGS_eager_delete_tensor_gb=0.0
+export FLAGS_fraction_of_gpu_memory_to_use=0.98
+export FLAGS_memory_fraction_of_eager_deletion=1.0
+
+if [ $# -ne 2 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem /ssd1/ljh/logs"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem"
   exit
 fi
 
-#打开后速度变快
-export FLAGS_cudnn_exhaustive_search=1
-
-#显存占用减少，不影响性能
-export FLAGS_eager_delete_tensor_gb=0.0
-export FLAGS_conv_workspace_size_limit=256
-
 task="$1"
 index="$2"
-run_log_path=${3:-$(pwd)}
-model_name="CycleGAN"
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-batch_size=1
-log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
+base_batchsize=8
+batch_size=`expr ${base_batchsize} \* $num_gpu_devices`
+log_file=log_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  python train.py > ${log_file} 2>&1 &
+  export MXNET_CUDNN_AUTOTUNE_DEFAULT=0
+  python train_yolo3.py \
+      --dataset=coco --batch-size=${batch_size} \
+      --gpus=${CUDA_VISIBLE_DEVICES} \
+      --data-shape=608 \
+      --no-random-shape > ${log_file} 2>&1 &
   train_pid=$!
-  sleep 120
+  sleep 600
+  sleep 600
   kill -9 $train_pid
+  kill -9 `ps -ef|grep 'train_yolo3'|awk '{print $2}'`
 }
 
 infer(){
   echo "infer on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-#  python eval_coco_map.py \
-#    --dataset=coco2017 \
-#    --pretrained_model=../imagenet_resnet50_fusebn/ \
-#    --MASK_ON=True > ${log_file} 2>&1 &
+#  python eval.py \
+#    --data_dir=./dataset/coco/ \
+#    --batch_size=$batch_size \
+#    --weights=./weights/yolov3 > ${log_file} 2>&1 &
 #  infer_pid=$!
 #  sleep 60
 #  kill -9 $infer_pid
@@ -48,9 +53,8 @@ infer(){
 
 analysis_times(){
   skip_step=$1
-  filter_fields=$2
-  count_fields=$3
-  awk 'BEGIN{count=0}/Batch_time_cost:/{
+  count_fields=$2
+  awk 'BEGIN{count=0}/samples\/sec/{
     step_times[count]=$'${count_fields}';
     count+=1;
   }END{
@@ -77,13 +81,13 @@ analysis_times(){
       step_latency/=count;
       step_latency_without_step0_avg/=(count-'${skip_step}')
       printf("average latency (origin result):\n")
-      printf("\tAvg: %.3f s/step\n", step_latency)
-      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency)
+      printf("\tAvg: %.3f examples/s\n", step_latency)
+      printf("\tFPS: %.3f s/step\n", "'${batch_size}'"/step_latency)
       printf("average latency (skip '${skip_step}' steps):\n")
-      printf("\tAvg: %.3f s/step\n", step_latency_without_step0_avg)
-      printf("\tMin: %.3f s/step\n", step_latency_without_step0_min)
-      printf("\tMax: %.3f s/step\n", step_latency_without_step0_max)
-      printf("\tFPS: %.3f examples/s\n", '${batch_size}'/step_latency_without_step0_avg)
+      printf("\tAvg: %.3f examples/s\n", step_latency_without_step0_avg)
+      printf("\tMin: %.3f examples/s\n", step_latency_without_step0_min)
+      printf("\tMax: %.3f examples/s\n", step_latency_without_step0_max)
+      printf("\tFPS: %.3f s/step\n", '${batch_size}'/step_latency_without_step0_avg)
       printf("\n")
     }
   }' ${log_file}
@@ -103,12 +107,12 @@ then
 else
     echo "Benchmark for $task"
 
-    $task
     if [ ${task} = "train" ]
     then
-      analysis_times 3 12 12
+      analysis_times 3 7
     else
       echo "no infer cmd"
       #analysis_times 3 5 5
     fi
 fi
+
