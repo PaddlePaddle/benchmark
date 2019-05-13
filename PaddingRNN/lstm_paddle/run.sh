@@ -48,7 +48,7 @@ train(){
     --use_gpu True \
     --enable_ce \
     --max_epoch=5 \
-    --batch_size $batch_size > ${log_file} 2>&1 &
+    --batch_size $batch_size > ${log_file} 2>&1
 #  train_pid=$!
 #  sleep 600
 #  kill -9 $train_pid
