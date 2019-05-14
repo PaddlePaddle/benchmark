@@ -47,6 +47,9 @@ prepare(){
     apt-get install git -y
     pip install MySQL-python
 
+#    yum install mysql-devel
+#    pip install MySQL-python
+
     ct=`date '+%Y%m%d%H%M%S'`
     save_log_dir=${all_path}/logs/log_${ct}
     train_log_dir=${save_log_dir}/train_log
@@ -115,6 +118,12 @@ deeplab(){
     sleep 60
     echo "index is mem, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/DeepLab_V3+_mem_8gpus 2>&1
+    sleep 60
+    echo "index is maxbs, 1gpus, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs ${train_log_dir} > ${log_path}/DeepLab_V3+_maxbs_1gpus 2>&1
+    sleep 60
+    echo "index is maxbs, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs ${train_log_dir} > ${log_path}/DeepLab_V3+_maxbs_8gpus 2>&1
 }
 
 
@@ -136,6 +145,12 @@ se_resnext50(){
     sleep 60
     echo "index is mem, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh mem 32 ${train_log_dir} > ${log_path}/SE-ResNeXt50_mem_8gpus 2>&1
+    sleep 60
+    echo "index is maxbs, 1gpus, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh maxbs 112 ${train_log_dir} > ${log_path}/SE-ResNeXt50_maxbs_1gpus 2>&1
+    sleep 60
+    echo "index is maxbs, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh maxbs 112 ${train_log_dir} > ${log_path}/SE-ResNeXt50_maxbs_8gpus 2>&1
 }
 
 
@@ -170,6 +185,13 @@ mask_rcnn(){
     sleep 60
     echo "index is mem, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    sleep 60
+    echo "index is maxbs, 1gpu, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
+    sleep 60
+    echo "index is maxbs, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
+
 }
 
 
@@ -191,6 +213,12 @@ bert(){
     sleep 60
     echo "index is mem, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    sleep 60
+    echo "index is maxbs, 1gpus, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
+    sleep 60
+    echo "index is maxbs, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
 }
 
 
@@ -211,6 +239,12 @@ transformer(){
     sleep 60
     echo "index is mem, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    sleep 60
+    echo "index is maxbs, 1gpus, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
+    sleep 60
+    echo "index is maxbs, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
 }
 
 
@@ -275,6 +309,7 @@ yolov3(){
     git clone https://github.com/PaddlePaddle/models.git
     cd models/PaddleCV/yolov3/
 
+    sed -i 's/build_strategy.memory_optimize/#build_strategy.memory_optimize/g' train.py
     #sh ./weights/download.sh
     ln -s ${prepare_path}/yolov3/yolov3 ./weights/yolov3
     ln -s ${prepare_path}/yolov3/darknet53 ./weights/darknet53
@@ -293,7 +328,12 @@ yolov3(){
     sleep 60
     echo "index is mem, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
-
+    sleep 60
+    echo "index is maxbs, 1gpus, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
+    sleep 60
+    echo "index is maxbs, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
 }
 
 prepare
