@@ -49,6 +49,7 @@ train(){
   # Python multi-processing is used to read images, so need to
   # kill those processes if the main train process is aborted.
   #ps -aux | grep "$PWD/train.py" | awk '{print $2}' | xargs kill -9
+  kill -9 `ps -ef|grep 'deeplabv3+'|awk '{print $2}'`
 }
 
 analysis_times(){
