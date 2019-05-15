@@ -16,6 +16,13 @@ export FLAGS_eager_delete_tensor_gb=0.0
 # can run when batch_size = 5365
 export FLAGS_memory_fraction_of_eager_deletion=0.5
 
+# Enable tensor-core for V100
+NUM_V100_CARDS=`nvidia-smi | grep V100 | wc -l`
+echo $NUM_V100_CARDS
+if [ $NUM_V100_CARDS -ne 0 ]; then
+  export FLAGS_enable_cublas_tensor_op_math=true
+fi
+
 if [ $# -lt 3 ]; then
   echo "Usage: "
   echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem large|small 20 /ssd1/ljh/logs"
