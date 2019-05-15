@@ -32,6 +32,18 @@ from learning_rate import exponential_with_warmup_decay
 from config import cfg
 import dist_utils 
 
+def get_device_num():
+    visible_device = os.getenv('CUDA_VISIBLE_DEVICES')
+    # NOTE(zcd): use multi processes to train the model,
+    # and each process use one GPU card.
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    if num_trainers > 1 : return 1
+    if visible_device:
+        device_num = len(visible_device.split(','))
+    else:
+        device_num = subprocess.check_output(['nvidia-smi','-L']).decode().count('\n')
+    return device_num
+
 def train():
     learning_rate = cfg.learning_rate
     image_shape = [3, cfg.TRAIN.max_size, cfg.TRAIN.max_size]
@@ -43,8 +55,7 @@ def train():
         random.seed(0)
         np.random.seed(0)
 
-    devices = os.getenv("CUDA_VISIBLE_DEVICES") or ""
-    devices_num = len(devices.split(","))
+    devices_num = get_device_num()
     total_batch_size = devices_num * cfg.TRAIN.im_per_batch
 
     use_random = True
