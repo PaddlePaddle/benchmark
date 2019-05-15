@@ -222,7 +222,7 @@ def main():
 
     build_strategy = fluid.BuildStrategy()
     build_strategy.enable_inplace = True
-    build_strategy.memory_optimize = True
+    build_strategy.memory_optimize = False
 
     build_strategy.remove_unnecessary_lock = True
     build_strategy.enable_sequential_execution = False
@@ -247,8 +247,8 @@ def main():
     train_data, valid_data, test_data, _ = raw_data
 
     def prepare_input(batch,
-                      init_hidden,
-                      init_cell,
+                      init_hidden=None,
+                      init_cell=None,
                       epoch_id=0,
                       with_lr=True,
                       device_count=1):
@@ -267,8 +267,10 @@ def main():
 
         res['x'] = x
         res['y'] = y
-        res['init_hidden'] = init_hidden
-        res['init_cell'] = init_cell
+        if init_hidden is not None:
+            res['init_hidden'] = init_hidden
+        if init_cell is not None:
+            res['init_cell'] = init_cell
         if with_lr:
             res['learning_rate'] = lr
 
@@ -371,29 +373,31 @@ def main():
             init_cell = np.zeros(
                 (num_layers, batch_size, hidden_size), dtype='float32')
         for batch_id, batch in enumerate(train_data_iter):
-            input_data_feed = prepare_input(
-                batch,
-                init_hidden,
-                init_cell,
-                epoch_id=epoch_id,
-                device_count=device_count)
+            if batch_id == 0:
+                input_data_feed = prepare_input(
+                    batch,
+                    init_hidden=init_hidden,
+                    init_cell=init_cell,
+                    epoch_id=epoch_id,
+                    device_count=device_count)
+            else:
+                input_data_feed = prepare_input(
+                    batch,
+                    init_hidden=None,
+                    init_cell=None,
+                    epoch_id=epoch_id,
+                    device_count=device_count)
 
             batch_start_time = time.time()
             fetch_outs = exe.run(train_program,
                                  feed=input_data_feed,
-                                 fetch_list=[
-                                    loss.name, last_hidden.name,
-                                    last_cell.name, "learning_rate"
-                                 ],
+                                 fetch_list=[loss.name, "learning_rate"],
                 use_program_cache=True)
             batch_time = time.time() - batch_start_time
             batch_times.append(batch_time)
 
             cost_train = np.array(fetch_outs[0])
-            init_hidden = np.array(fetch_outs[1])
-            init_cell = np.array(fetch_outs[2])
-
-            lr = np.array(fetch_outs[3])
+            lr = np.array(fetch_outs[1])
 
             total_loss += cost_train
             iters += num_steps

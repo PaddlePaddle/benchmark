@@ -259,6 +259,9 @@ def lm_model(hidden_size,
         init_hidden, shape=[num_layers, -1, hidden_size])
     init_cell = layers.reshape(init_cell, shape=[num_layers, -1, hidden_size])
 
+    init_cell.persistable = True
+    init_hidden.persistable = True
+
     x_emb = layers.embedding(
         input=x,
         size=[vocab_size, hidden_size],
@@ -293,7 +296,6 @@ def lm_model(hidden_size,
         return
     rnn_out = layers.reshape(rnn_out, shape=[-1, num_steps, hidden_size], inplace=True)
 
-
     softmax_weight = layers.create_parameter([hidden_size, vocab_size], dtype="float32", name="softmax_weight", \
             default_initializer=fluid.initializer.UniformInitializer(low=-init_scale, high=init_scale))
     softmax_bias = layers.create_parameter([vocab_size], dtype="float32", name='softmax_bias', \
@@ -314,6 +316,9 @@ def lm_model(hidden_size,
     loss.persistable = True
     last_cell.persistable = True
     last_hidden.persistable = True
+
+    layers.assign(input=last_cell, output=init_cell)
+    layers.assign(input=last_hidden, output=init_hidden)
 
     feeding_list = ['x', 'y', 'init_hidden', 'init_cell']
     return loss, last_hidden, last_cell, feeding_list
