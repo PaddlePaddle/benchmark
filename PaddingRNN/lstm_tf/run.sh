@@ -2,14 +2,15 @@
 
 #nvprof -o timeline_output_medium -f --cpu-profiling off  --profile-from-start off  python  train.py \
 #export CUDA_VISIBLE_DEVICES=1
-if [ $# -ne 2 ]; then
+if [ $# -ne 3 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem large|small"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem large|medium|small static|padding"
   exit
 fi
 
 task=$1
 model_type=$2
+rnn_type=$3
 batch_size=20
 
 devices_str=${CUDA_VISIBLE_DEVICES//,/ }
@@ -20,8 +21,9 @@ log_file=log_${model_type}_${task}_${num_gpu_devices}
 
 train(){
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices"
-  python train.py \
-    --model_type $model_type > ${log_file} 2>&1 &
+  python -u train.py \
+    --model_type $model_type \
+    --rnn_type $rnn_type > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600
   kill -9 $train_pid

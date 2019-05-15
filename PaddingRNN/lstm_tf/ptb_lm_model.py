@@ -7,7 +7,8 @@ def ptb_lm_model(hidden_size,
                  num_steps,
                  init_scale,
                  keep_prob,
-                 max_grad_norm):
+                 max_grad_norm,
+                 rnn_type='static'):
     x_place = tf.placeholder(tf.int32, [batch_size, num_steps])
     y_place = tf.placeholder(tf.int32, [batch_size, num_steps])
     init_h_place = tf.placeholder(tf.float32, [num_layers, batch_size, hidden_size])
@@ -44,14 +45,26 @@ def ptb_lm_model(hidden_size,
         mul_cell = tf.contrib.rnn.MultiRNNCell( cell_list, state_is_tuple=True )
     
         outputs = []
-        with tf.variable_scope("RNN"):
-            for time_step in range(num_steps):
-                if time_step > 0: tf.get_variable_scope().reuse_variables()
+        if rnn_type == "static":
+            print( "rnn type is ", rnn_type)
+            with tf.variable_scope("RNN"):
+                for time_step in range(num_steps):
+                    if time_step > 0: tf.get_variable_scope().reuse_variables()
     
-                (cell_output, run_state) = mul_cell(inputs[:, time_step, :], run_state)
-                outputs.append(cell_output)
-        output = tf.reshape(tf.concat(outputs, 1), [-1, hidden_size])
-    
+                    (cell_output, run_state) = mul_cell(inputs[:, time_step, :], run_state)
+                    outputs.append(cell_output)
+            output = tf.reshape(tf.concat(outputs, 1), [-1, hidden_size])
+        
+        elif rnn_type == "padding":
+            print( "rnn type is ", rnn_type)
+            with tf.variable_scope("RNN"):
+                output, run_state = tf.nn.dynamic_rnn( mul_cell, inputs, initial_state=run_state, time_major = False)
+        
+                output = tf.reshape( output, [-1, hidden_size])
+        else:
+            print( "not support rnn type", rnn_type)
+            return Exception( "not supprt rnn type")
+
         final_h_arr = []
         final_c_arr = []
     

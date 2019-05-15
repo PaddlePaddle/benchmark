@@ -1,9 +1,9 @@
 #!bin/bash
 set -xe
 
-if [ $# -ne 2 ]; then
+if [ $# -lt 2 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem|maxbs /ssd1/ljh/logs"
   exit
 fi
 
@@ -17,12 +17,15 @@ export FLAGS_memory_fraction_of_eager_deletion=0.99999
 
 task="$1"
 index="$2"
+run_log_path=${3:-$(pwd)}
+model_name="transformer"
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-batch_size=4096
-log_file=log_${task}_${index}_${num_gpu_devices}
+if [ $index = "maxbs" ]; then base_batch_size=12000; else base_batch_size=4096; fi
+batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
@@ -35,7 +38,7 @@ train(){
       --train_file_pattern data/train.tok.clean.bpe.32000.en-de \
       --token_delimiter ' ' \
       --use_token_batch True \
-      --batch_size $batch_size \
+      --batch_size ${base_batch_size} \
       --sort_type pool \
       --pool_size 200000 \
       --shuffle False \
@@ -119,9 +122,10 @@ analysis_times(){
   }' ${log_file}
 }
 
+echo "Benchmark for $task"
+
 if [ $index = "mem" ]
 then
-    echo "Benchmark for $task"
     #若测试最大batchsize，FLAGS_fraction_of_gpu_memory_to_use=1
     export FLAGS_fraction_of_gpu_memory_to_use=0.001
     gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
@@ -130,8 +134,8 @@ then
     $task
     kill $gpu_memory_pid
     awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
-else
-    echo "Benchmark for $task"
+elif [ ${index} = 'speed' ]
+then
     $task
     if [ ${task} = "train" ]
     then
@@ -140,4 +144,12 @@ else
       echo "no infer cmd"
       #analysis_times 3 5 5
     fi
+else
+  $task
+  error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use or FLAGS_initial_gpu_memory_in_mb or FLAGS_reallocate_gpu_memory_in_mbenvironment variable to a lower value"
+  if [ `grep -c "${error_string}" ${log_file}` -eq 0 ]; then
+    echo "maxbs is ${batch_size}"
+  else
+    echo "maxbs running error"
+  fi
 fi
