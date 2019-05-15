@@ -25,6 +25,8 @@ num_gpu_devices=${#arr[*]}
 if [ $index = "maxbs" ]; then base_batch_size=5; else base_batch_size=1; fi
 batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
 log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
+# The default learning_rate is 0.01, which is used for training with 8 GPUs.
+learning_rate=$(awk 'BEGIN{ print 0.00125 * '${num_gpu_devices}' }')
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
@@ -34,6 +36,7 @@ train(){
    --pretrained_model=../imagenet_resnet50_fusebn/ \
    --data_dir=./dataset/coco \
    --im_per_batch=${base_batch_size} \
+   --learning_rate=${learning_rate} \
    --MASK_ON=True > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600
