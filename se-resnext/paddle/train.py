@@ -338,10 +338,17 @@ def train(args):
     else:
         train_exe = exe
 
-    train_fetch_list = [
-        train_cost.name, train_acc1.name, train_acc5.name, global_lr.name
-    ]
-    test_fetch_list = [test_cost.name, test_acc1.name, test_acc5.name]
+    train_fetch_vars = [train_cost, train_acc1, train_acc5, global_lr]
+    train_fetch_list = []
+    for var in train_fetch_vars:
+       var.persistable=True
+       train_fetch_list.append(var.name)
+    
+    test_fetch_vars = [test_cost, test_acc1, test_acc5]
+    test_fetch_list = []
+    for var in test_fetch_vars:
+       var.persistable=True
+       test_fetch_list.append(var.name)
 
     params = models.__dict__[args.model]().params
     for pass_id in range(params["num_epochs"]):
