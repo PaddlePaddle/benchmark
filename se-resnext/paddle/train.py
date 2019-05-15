@@ -246,6 +246,10 @@ def build_program(is_train, main_prog, startup_prog, args):
 
 def get_device_num():
     visible_device = os.getenv('CUDA_VISIBLE_DEVICES')
+    # NOTE(zcd): use multi processes to train the model,
+    # and each process use one GPU card.
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    if num_trainers > 1 : return 1
     if visible_device:
         device_num = len(visible_device.split(','))
     else:
@@ -357,10 +361,17 @@ def train(args):
     else:
         train_exe = exe
 
-    train_fetch_list = [
-        train_cost.name, train_acc1.name, train_acc5.name, global_lr.name
-    ]
-    test_fetch_list = [test_cost.name, test_acc1.name, test_acc5.name]
+    train_fetch_vars = [train_cost, train_acc1, train_acc5, global_lr]
+    train_fetch_list = []
+    for var in train_fetch_vars:
+       var.persistable=True
+       train_fetch_list.append(var.name)
+    
+    test_fetch_vars = [test_cost, test_acc1, test_acc5]
+    test_fetch_list = []
+    for var in test_fetch_vars:
+       var.persistable=True
+       test_fetch_list.append(var.name)
 
     params = models.__dict__[args.model]().params
     for pass_id in range(params["num_epochs"]):
