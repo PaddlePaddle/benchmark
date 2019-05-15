@@ -284,7 +284,8 @@ def train(args):
         fluid.memory_optimize(train_prog)
         fluid.memory_optimize(test_prog)
 
-    place = fluid.CUDAPlace(0) if args.use_gpu else fluid.CPUPlace()
+    gpu_id = int(os.environ.get('FLAGS_selected_gpus', 0))
+    place = fluid.CUDAPlace(gpu_id) if args.use_gpu else fluid.CPUPlace()
     exe = fluid.Executor(place)
     exe.run(startup_prog)
 
