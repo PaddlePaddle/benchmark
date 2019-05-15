@@ -4,19 +4,23 @@ set -xe
 cd ./LARK_Paddle_BERT/BERT/
 
 export FLAGS_cudnn_deterministic=true
-export FLAGS_enable_parallel_graph=1
-#export FLAGS_eager_delete_tensor_gb=0.0
-#export FLAGS_fraction_of_gpu_memory_to_use=0.98
+
+export FLAGS_enable_parallel_graph=0
+
+export FLAGS_eager_delete_tensor_gb=0.0
+export FLAGS_fraction_of_gpu_memory_to_use=1.0
 #export FLAGS_memory_fraction_of_eager_deletion=1.0
 
-if [ $# -ne 2 ]; then
+if [ $# -lt 2 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem|maxbs /ssd1/ljh/logs"
   exit
 fi
 
 task="$1"
 index="$2"
+run_log_path=${3:-$(pwd)}
+model_name="bert"
 
 BERT_BASE_PATH=$(pwd)/../../chinese_L-12_H-768_A-12
 TASK_NAME='XNLI'
@@ -26,8 +30,9 @@ CKPT_PATH=$(pwd)/../../save
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-batch_size=32
-log_file=log_${task}_${index}_${num_gpu_devices}
+if [ $index = "maxbs" ]; then base_batch_size=78; else base_batch_size=32; fi
+batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
@@ -37,7 +42,7 @@ train(){
        --do_train true \
        --do_val true \
        --do_test true \
-       --batch_size $batch_size \
+       --batch_size ${base_batch_size} \
        --in_tokens False \
        --init_pretraining_params ${BERT_BASE_PATH}/params \
        --data_dir ${DATA_PATH} \
@@ -112,9 +117,10 @@ analysis_times(){
   }' ${log_file}
 }
 
+echo "Benchmark for $task"
+
 if [ $index = "mem" ]
 then
-  echo "Benchmark for $task"
   export FLAGS_fraction_of_gpu_memory_to_use=0.001
   gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
   nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
@@ -122,8 +128,8 @@ then
   $task
   kill $gpu_memory_pid
   awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
-else
-  echo "Benchmark for $task"
+elif [ ${index} = 'speed' ]
+then
   $task
   if [ ${task} = "train" ]
   then
@@ -131,6 +137,12 @@ else
   else
       analysis_times 1 5
   fi
+else
+  $task
+  error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use or FLAGS_initial_gpu_memory_in_mb or FLAGS_reallocate_gpu_memory_in_mbenvironment variable to a lower value"
+  if [ `grep -c "${error_string}" ${log_file}` -eq 0 ]; then
+    echo "maxbs is $((${batch_size}*128))"
+  else
+    echo "maxbs running error"
+  fi
 fi
-
-cd -

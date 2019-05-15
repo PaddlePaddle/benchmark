@@ -76,6 +76,13 @@ def parse_args():
         type=bool,
         default=False,
         help="if use inference only")
+
+    parser.add_argument(
+        "--rnn_type",
+        type=str,
+        default='static',
+        help="which rnn type to use")
+
 #    parser.add_argument(
 #        "--save_interval",
 #        type=int,

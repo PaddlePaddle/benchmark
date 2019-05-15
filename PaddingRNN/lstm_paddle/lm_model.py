@@ -28,7 +28,7 @@ def lm_model(hidden_size,
              num_layers=2,
              num_steps=20,
              init_scale=0.1,
-             dropout=None,
+             dropout=None, 
              rnn_model='static'):
     def padding_rnn(input_embedding, len=3, init_hidden=None, init_cell=None):
         weight_1_arr = []
@@ -180,8 +180,8 @@ def lm_model(hidden_size,
                 init_hidden, axes=[0], starts=[i], ends=[i + 1])
             pre_cell = layers.slice(
                 init_cell, axes=[0], starts=[i], ends=[i + 1])
-            pre_hidden = layers.reshape(pre_hidden, shape=[-1, hidden_size])
-            pre_cell = layers.reshape(pre_cell, shape=[-1, hidden_size])
+            pre_hidden = layers.reshape(pre_hidden, shape=[-1, hidden_size], inplace=True)
+            pre_cell = layers.reshape(pre_cell, shape=[-1, hidden_size], inplace=True)
             hidden_array.append(pre_hidden)
             cell_array.append(pre_cell)
 
@@ -191,7 +191,7 @@ def lm_model(hidden_size,
 
         for index in range(len):
             input = sliced_inputs[index]
-            input = layers.reshape(input, shape=[-1, hidden_size])
+            input = layers.reshape(input, shape=[-1, hidden_size], inplace=True)
             for k in range(num_layers):
                 pre_hidden = hidden_array[k]
                 pre_cell = cell_array[k]
@@ -218,29 +218,40 @@ def lm_model(hidden_size,
                         dropout_prob=dropout,
                         dropout_implementation='upscale_in_train')
 
-            res.append(layers.reshape(input, shape=[1, -1, hidden_size]))
-        real_res = layers.concat(res, 0)
-        real_res = layers.transpose(x=real_res, perm=[1, 0, 2])
+            res.append(input)
+
         last_hidden = layers.concat(hidden_array, 1)
         last_hidden = layers.reshape(
-            last_hidden, shape=[-1, num_layers, hidden_size])
+            last_hidden, shape=[-1, num_layers, hidden_size], inplace=True)
         last_hidden = layers.transpose(x=last_hidden, perm=[1, 0, 2])
+
         last_cell = layers.concat(cell_array, 1)
         last_cell = layers.reshape(
             last_cell, shape=[-1, num_layers, hidden_size])
         last_cell = layers.transpose(x=last_cell, perm=[1, 0, 2])
 
+        real_res = layers.concat(res, 0)
+        real_res = layers.reshape(real_res, shape=[len, -1, hidden_size], inplace=True)
+        real_res = layers.transpose(x=real_res, perm=[1, 0, 2])
+
         return real_res, last_hidden, last_cell
 
-    x = layers.data(name="x", shape=[-1, 1, 1], dtype='int64')
-    y = layers.data(name="y", shape=[-1, 1], dtype='float32')
+    x = layers.data(name="x", shape=[batch_size, num_steps, 1], 
+            dtype='int64', append_batch_size=False)
+    y = layers.data(name="y", shape=[batch_size*num_steps, 1], 
+            dtype='int64', append_batch_size=False)
 
-    init_hidden = layers.data(name="init_hidden", shape=[1], dtype='float32')
-    init_cell = layers.data(name="init_cell", shape=[1], dtype='float32')
+    init_hidden = layers.data(name="init_hidden", shape=[num_layers, batch_size, hidden_size], 
+            dtype='float32', append_batch_size=False)
+    init_cell = layers.data(name="init_cell", shape=[num_layers, batch_size, hidden_size], 
+            dtype='float32', append_batch_size=False)
 
     init_hidden = layers.reshape(
         init_hidden, shape=[num_layers, -1, hidden_size])
     init_cell = layers.reshape(init_cell, shape=[num_layers, -1, hidden_size])
+
+    init_cell.persistable = True
+    init_hidden.persistable = True
 
     x_emb = layers.embedding(
         input=x,
@@ -252,7 +263,7 @@ def lm_model(hidden_size,
             initializer=fluid.initializer.UniformInitializer(
                 low=-init_scale, high=init_scale)))
 
-    x_emb = layers.reshape(x_emb, shape=[-1, num_steps, hidden_size])
+    x_emb = layers.reshape(x_emb, shape=[-1, num_steps, hidden_size], inplace=True)
     if dropout != None and dropout > 0.0:
         x_emb = layers.dropout(
             x_emb,
@@ -274,8 +285,7 @@ def lm_model(hidden_size,
     else:
         print("type not support")
         return
-    rnn_out = layers.reshape(rnn_out, shape=[-1, num_steps, hidden_size])
-
+    rnn_out = layers.reshape(rnn_out, shape=[-1, num_steps, hidden_size], inplace=True)
 
     softmax_weight = layers.create_parameter([hidden_size, vocab_size], dtype="float32", name="softmax_weight", \
             default_initializer=fluid.initializer.UniformInitializer(low=-init_scale, high=init_scale))
@@ -285,19 +295,21 @@ def lm_model(hidden_size,
     projection = layers.matmul(rnn_out, softmax_weight)
     projection = layers.elementwise_add(projection, softmax_bias)
 
-    projection = layers.reshape(projection, shape=[-1, vocab_size])
-    #y = layers.reshape( y, shape=[-1, vocab_size])
+    projection = layers.reshape(projection, shape=[-1, vocab_size], inplace=True)
 
     loss = layers.softmax_with_cross_entropy(
         logits=projection, label=y, soft_label=False)
 
-    loss = layers.reshape(loss, shape=[-1, num_steps])
+    loss = layers.reshape(loss, shape=[-1, num_steps], inplace=True)
     loss = layers.reduce_mean(loss, dim=[0])
     loss = layers.reduce_sum(loss)
 
     loss.persistable = True
     last_cell.persistable = True
     last_hidden.persistable = True
+
+    layers.assign(input=last_cell, output=init_cell)
+    layers.assign(input=last_hidden, output=init_hidden)
 
     feeding_list = ['x', 'y', 'init_hidden', 'init_cell']
     return loss, last_hidden, last_cell, feeding_list
