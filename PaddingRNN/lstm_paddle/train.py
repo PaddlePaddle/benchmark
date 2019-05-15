@@ -236,9 +236,7 @@ def main():
             build_strategy=build_strategy,
             exec_strategy=exec_strategy)
     else:
-        train_program = fluid.compiler.CompiledProgram(main_program).with_default(
-            cache_runtime_context=True,
-            cache_expected_kernel=True)
+        train_program = fluid.compiler.CompiledProgram(main_program)
 
     data_path = args.data_path
     print("begin to load data")
