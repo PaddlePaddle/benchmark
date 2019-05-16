@@ -18,13 +18,29 @@ from __future__ import print_function
 import os
 import paddle.fluid as fluid
 
-
 def nccl2_prepare(trainer_id, startup_prog, main_prog):
    config = fluid.DistributeTranspilerConfig()
    config.mode = "nccl2"
    t = fluid.DistributeTranspiler(config=config)
    t.transpile(trainer_id,
-       trainers=os.environ.get('PADDLE_TRAINER_ENDPOINTS'),
-       current_endpoint=os.environ.get('PADDLE_CURRENT_ENDPOINT'),
-       startup_program=startup_prog,
-       program=main_prog)
+      trainers=os.environ.get('PADDLE_TRAINER_ENDPOINTS'),
+      current_endpoint=os.environ.get('PADDLE_CURRENT_ENDPOINT'),
+      startup_program=startup_prog,
+      program=main_prog)
+
+def prepare_for_multi_process(exe, build_strategy, train_prog, startup_prog):
+   # prepare for multi-process
+   trainer_id = int(os.environ.get('PADDLE_TRAINER_ID', 0))
+   num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+   print("PADDLE_TRAINERS_NUM", num_trainers)
+   print("PADDLE_TRAINER_ID", trainer_id)
+   build_strategy.num_trainers =  num_trainers
+   build_strategy.trainer_id = trainer_id
+   # NOTE(zcd): use multi processes to train the model,
+   # and each process use one GPU card.
+   if num_trainers > 1:
+       nccl2_prepare(trainer_id,
+           startup_prog, train_prog)
+
+     # the startup_prog are run two times, but it doesn't matter.
+   exe.run(startup_prog) 
