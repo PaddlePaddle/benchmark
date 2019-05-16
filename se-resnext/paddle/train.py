@@ -194,7 +194,7 @@ def net_config(image, label, model, args):
 
     return avg_cost, acc_top1, acc_top5
 
-def update_lr():
+def update_lr(args):
     num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
     args.lr = args.lr / num_trainers
 
@@ -205,7 +205,7 @@ def build_program(is_train, main_prog, startup_prog, args):
     assert model_name in model_list, "{} is not in lists: {}".format(args.model,
                                                                      model_list)
     model = models.__dict__[model_name]()
-    update_lr()
+    update_lr(args)
     with fluid.program_guard(main_prog, startup_prog):
         py_reader = fluid.layers.py_reader(
             capacity=16,
@@ -341,20 +341,9 @@ def train(args):
         build_strategy.memory_optimize = args.with_mem_opt
         build_strategy.enable_inplace = args.with_inplace
 
-        trainer_id = int(os.environ.get('PADDLE_TRAINER_ID', 0))
+        dist_utils.prepare_for_multi_process(exe, build_strategy, train_prog, startup_prog)
         num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
-        print("PADDLE_TRAINERS_NUM", num_trainers)
-        print("PADDLE_TRAINER_ID", trainer_id)
-        build_strategy.num_trainers =  num_trainers
-        build_strategy.trainer_id = trainer_id
-        # NOTE(zcd): use multi processes to train the model,
-        # and each process use one GPU card.
-        if num_trainers > 1:
-            dist_utils.nccl2_prepare(trainer_id,
-                startup_prog, train_prog)
-
-        # the startup_prog are run two times, but it doesn't matter.
-        exe.run(startup_prog)
+        trainer_id = int(os.environ.get('PADDLE_TRAINER_ID', 0))
 
         train_exe = fluid.ParallelExecutor(
             main_program=train_prog,
@@ -371,7 +360,7 @@ def train(args):
     for var in train_fetch_vars:
        var.persistable=True
        train_fetch_list.append(var.name)
-    
+
     test_fetch_vars = [test_cost, test_acc1, test_acc5]
     test_fetch_list = []
     for var in test_fetch_vars:
