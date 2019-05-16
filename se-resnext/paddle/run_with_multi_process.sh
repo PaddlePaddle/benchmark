@@ -6,7 +6,7 @@ device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
 
-batch_size= 32 #$[32*${num_gpu_devices}]
+batch_size=32 
 
 python -m paddle.distributed.launch --gpus ${num_gpu_devices}  train.py \
    --model=SE_ResNeXt50_32x4d \
