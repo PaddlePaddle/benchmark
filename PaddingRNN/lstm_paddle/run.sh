@@ -16,18 +16,19 @@ export FLAGS_eager_delete_tensor_gb=0.0
 # can run when batch_size = 5365
 export FLAGS_memory_fraction_of_eager_deletion=0.5
 
-if [ $# -lt 3 ]; then
+if [ $# -lt 4 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem large|small 20 /ssd1/ljh/logs"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem large|medium|small static|padding 20 /ssd1/ljh/logs"
   exit
 fi
 
 task="train"
 index=$1
 model_type=$2
-base_batchsize=$3
-run_log_path=${4:-$(pwd)}
-model_name="paddingrnn_"${model_type}
+rnn_type=$3
+base_batchsize=$4
+run_log_path=${5:-$(pwd)}
+model_name="paddingrnn_"${model_type}_${rnn_type}
 
 if [ ${model_type} == "large" ]; then
   export FLAGS_memory_fraction_of_eager_deletion=1.0
@@ -48,6 +49,7 @@ train(){
     --use_gpu True \
     --enable_ce \
     --max_epoch=5 \
+    --rnn_model $rnn_type \
     --batch_size $batch_size > ${log_file} 2>&1
 #  train_pid=$!
 #  sleep 600
