@@ -485,8 +485,9 @@ def train_loop(exe,
     # `1 / token_number` for average cost.
     # build_strategy.gradient_scale_strategy = fluid.BuildStrategy.GradientScaleStrategy.Customized
     build_strategy.fuse_all_optimizer_ops = True
-
-    dist_utils.prepare_for_multi_process(exe, build_strategy, train_prog, startup_prog)
+    
+    if TrainTaskConfig.use_gpu:
+        dist_utils.prepare_for_multi_process(exe, build_strategy, train_prog, startup_prog)
 
     logging.info("begin executor")
     train_exe = fluid.ParallelExecutor(
@@ -615,6 +616,9 @@ def get_device_num():
         device_num = subprocess.check_output(['nvidia-smi','-L']).decode().count('\n')
     return device_num
 
+def update_lr(TrainTaskConfig):
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    TrainTaskConfig.learning_rate = TrainTaskConfig.learning_rate / num_trainers
 
 def train(args):
     # priority: ENV > args > config
@@ -638,8 +642,9 @@ def train(args):
         # place = fluid.CUDAPlace(0)
         # dev_count = fluid.core.get_cuda_device_count()
 
-    exe = fluid.Executor(place)
+    update_lr(TrainTaskConfig)
 
+    exe = fluid.Executor(place)
     train_prog = fluid.Program()
     startup_prog = fluid.Program()
 
