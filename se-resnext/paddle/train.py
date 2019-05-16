@@ -19,6 +19,7 @@ import models
 from utils.fp16_utils import create_master_params_grads, master_param_to_train_param
 from utils.utility import add_arguments, print_arguments
 from utils.learning_rate import cosine_decay_with_warmup
+import dist_utils
 
 IMAGENET1000 = 1281167
 
@@ -245,6 +246,10 @@ def build_program(is_train, main_prog, startup_prog, args):
 
 def get_device_num():
     visible_device = os.getenv('CUDA_VISIBLE_DEVICES')
+    # NOTE(zcd): use multi processes to train the model,
+    # and each process use one GPU card.
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    if num_trainers > 1 : return 1
     if visible_device:
         device_num = len(visible_device.split(','))
     else:
@@ -283,7 +288,8 @@ def train(args):
         fluid.memory_optimize(train_prog)
         fluid.memory_optimize(test_prog)
 
-    place = fluid.CUDAPlace(0) if args.use_gpu else fluid.CPUPlace()
+    gpu_id = int(os.environ.get('FLAGS_selected_gpus', 0))
+    place = fluid.CUDAPlace(gpu_id) if args.use_gpu else fluid.CPUPlace()
     exe = fluid.Executor(place)
     exe.run(startup_prog)
 
@@ -330,11 +336,28 @@ def train(args):
         build_strategy.memory_optimize = args.with_mem_opt
         build_strategy.enable_inplace = args.with_inplace
 
+        trainer_id = int(os.environ.get('PADDLE_TRAINER_ID', 0))
+        num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+        print("PADDLE_TRAINERS_NUM", num_trainers)
+        print("PADDLE_TRAINER_ID", trainer_id)
+        build_strategy.num_trainers =  num_trainers
+        build_strategy.trainer_id = trainer_id
+        # NOTE(zcd): use multi processes to train the model,
+        # and each process use one GPU card.
+        if num_trainers > 1:
+            dist_utils.nccl2_prepare(trainer_id,
+                startup_prog, train_prog)
+
+        # the startup_prog are run two times, but it doesn't matter.
+        exe.run(startup_prog)
+
         train_exe = fluid.ParallelExecutor(
             main_program=train_prog,
             use_cuda=bool(args.use_gpu),
             loss_name=train_cost.name,
-            build_strategy=build_strategy)
+            build_strategy=build_strategy,
+            num_trainers=num_trainers,
+            trainer_id=trainer_id)
     else:
         train_exe = exe
 
