@@ -194,6 +194,9 @@ def net_config(image, label, model, args):
 
     return avg_cost, acc_top1, acc_top5
 
+def update_lr():
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    args.lr = args.lr / num_trainers
 
 def build_program(is_train, main_prog, startup_prog, args):
     image_shape = [int(m) for m in args.image_shape.split(",")]
@@ -202,6 +205,7 @@ def build_program(is_train, main_prog, startup_prog, args):
     assert model_name in model_list, "{} is not in lists: {}".format(args.model,
                                                                      model_list)
     model = models.__dict__[model_name]()
+    update_lr()
     with fluid.program_guard(main_prog, startup_prog):
         py_reader = fluid.layers.py_reader(
             capacity=16,
@@ -292,6 +296,7 @@ def train(args):
     place = fluid.CUDAPlace(gpu_id) if args.use_gpu else fluid.CPUPlace()
     exe = fluid.Executor(place)
     exe.run(startup_prog)
+
 
     if checkpoint is not None:
         fluid.io.load_persistables(exe, checkpoint, main_program=train_prog)
