@@ -87,7 +87,8 @@ def main():
 
     # Create symbolic vars
     cost, final_h, final_c, train_op, new_lr, lr_update, feeding_list = ptb_lm_model(
-        hidden_size, vocab_size, batch_size, num_layers, num_steps, init_scale, keep_prob, max_grad_norm)
+        hidden_size, vocab_size, batch_size, num_layers, num_steps, init_scale, keep_prob, max_grad_norm,
+        rnn_type = args.rnn_type)
     
     # Initialize session
     init = tf.global_variables_initializer()

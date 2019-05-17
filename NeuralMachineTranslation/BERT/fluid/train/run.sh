@@ -13,7 +13,7 @@ export FLAGS_fraction_of_gpu_memory_to_use=1.0
 
 if [ $# -lt 2 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem /ssd1/ljh/logs"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem|maxbs /ssd1/ljh/logs"
   exit
 fi
 
@@ -30,7 +30,8 @@ CKPT_PATH=$(pwd)/../../save
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-batch_size=32
+if [ $index = "maxbs" ]; then base_batch_size=78; else base_batch_size=32; fi
+batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
 log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
 train(){
@@ -41,7 +42,7 @@ train(){
        --do_train true \
        --do_val true \
        --do_test true \
-       --batch_size $batch_size \
+       --batch_size ${base_batch_size} \
        --in_tokens False \
        --init_pretraining_params ${BERT_BASE_PATH}/params \
        --data_dir ${DATA_PATH} \
@@ -116,9 +117,10 @@ analysis_times(){
   }' ${log_file}
 }
 
+echo "Benchmark for $task"
+
 if [ $index = "mem" ]
 then
-  echo "Benchmark for $task"
   export FLAGS_fraction_of_gpu_memory_to_use=0.001
   gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
   nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
@@ -126,13 +128,21 @@ then
   $task
   kill $gpu_memory_pid
   awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
-else
-  echo "Benchmark for $task"
+elif [ ${index} = 'speed' ]
+then
   $task
   if [ ${task} = "train" ]
   then
       analysis_times 1 14
   else
       analysis_times 1 5
+  fi
+else
+  $task
+  error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use or FLAGS_initial_gpu_memory_in_mb or FLAGS_reallocate_gpu_memory_in_mbenvironment variable to a lower value"
+  if [ `grep -c "${error_string}" ${log_file}` -eq 0 ]; then
+    echo "maxbs is $((${batch_size}*128))"
+  else
+    echo "maxbs running error"
   fi
 fi
