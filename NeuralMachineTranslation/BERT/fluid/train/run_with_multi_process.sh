@@ -28,8 +28,8 @@ log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 python -m paddle.distributed.launch --gpus ${num_gpu_devices}  run_classifier.py --task_name ${TASK_NAME} \
        --use_cuda true \
        --do_train true \
-       --do_val true \
-       --do_test true \
+       --do_val false \
+       --do_test false \
        --batch_size ${base_batch_size} \
        --in_tokens False \
        --init_pretraining_params ${BERT_BASE_PATH}/params \
