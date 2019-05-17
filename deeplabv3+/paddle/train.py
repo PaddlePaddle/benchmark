@@ -16,6 +16,23 @@ import time
 import contextlib
 import paddle.fluid.profiler as profiler
 import utility
+import dist_utils
+
+def get_device_num():
+    visible_device = os.getenv('CUDA_VISIBLE_DEVICES')
+    # NOTE(zcd): use multi processes to train the model,
+    # and each process use one GPU card.
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    if num_trainers > 1 : return 1
+    if visible_device:
+        device_num = len(visible_device.split(','))
+    else:
+        device_num = subprocess.check_output(['nvidia-smi','-L']).decode().count('\n')
+    return device_num
+
+ def update_lr(args):
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    args.learning_rate = args.learning_rate / num_trainers
 
 parser = argparse.ArgumentParser()
 add_arg = lambda *args: utility.add_arguments(*args, argparser=parser)
@@ -121,6 +138,8 @@ reader.default_config['shuffle'] = True
 num_classes = args.num_classes
 weight_decay = 0.00004
 
+update_lr(args)
+
 base_lr = args.base_lr
 total_step = args.total_step
 
@@ -166,11 +185,14 @@ if args.memory_optimize:
     build_strategy.enable_inplace = True
     build_strategy.memory_optimize = True
 
-place = fluid.CPUPlace()
-if args.use_gpu:
-    place = fluid.CUDAPlace(0)
+gpu_id = int(os.environ.get('FLAGS_selected_gpus', 0))
+place = fluid.CUDAPlace(gpu_id) if args.use_gpu else fluid.CPUPlace()
+
 exe = fluid.Executor(place)
 exe.run(sp)
+
+if args.use_gpu and args.parallel
+    dist_utils.prepare_for_multi_process(exe,  build_strategy,  tp,  sp)
 
 if args.init_weights_path:
     print("load from:", args.init_weights_path)
