@@ -108,20 +108,14 @@ def train():
         build_strategy.memory_optimize = False
         build_strategy.enable_inplace = False
 
+        dist_utils.prepare_for_multi_process(
+                    exe, 
+                    build_strategy, 
+                    fluid.default_main_program(), 
+                    fluid.default_startup_program())
+
         trainer_id = int(os.environ.get('PADDLE_TRAINER_ID', 0))
         num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
-        print("PADDLE_TRAINERS_NUM", num_trainers)
-        print("PADDLE_TRAINER_ID", trainer_id)
-        build_strategy.num_trainers =  num_trainers
-        build_strategy.trainer_id = trainer_id
-        # NOTE(zcd): use multi processes to train the model, 
-        # and each process use one GPU card.
-        if num_trainers > 1:
-            dist_utils.nccl2_prepare(trainer_id, 
-                fluid.default_startup_program(), 
-                main_prog=fluid.default_main_program())
-                
-        exe.run(fluid.default_startup_program())
 
         exec_strategy = fluid.ExecutionStrategy()
         exec_strategy.use_experimental_executor = True
