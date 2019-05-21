@@ -44,7 +44,12 @@ def get_device_num():
         device_num = subprocess.check_output(['nvidia-smi','-L']).decode().count('\n')
     return device_num
 
+def update_lr(args):
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    args.learning_rate = args.learning_rate / num_trainers
+
 def train():
+    update_lr(cfg)
     learning_rate = cfg.learning_rate
     image_shape = [3, cfg.TRAIN.max_size, cfg.TRAIN.max_size]
 
