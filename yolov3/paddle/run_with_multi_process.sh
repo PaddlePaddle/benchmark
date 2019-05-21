@@ -14,7 +14,7 @@ if [ $index = "maxbs" ]; then base_batch_size=14; else base_batch_size=8; fi
 batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
 log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
-python -m paddle.distributed.launch --gpus ${num_gpu_devices}  python train.py \
+python -m paddle.distributed.launch --gpus ${num_gpu_devices} train.py \
  --model_save_dir=output/ \
  --pretrain=./weights/darknet53/ \
  --data_dir=./dataset/coco/ \
