@@ -47,6 +47,10 @@ def get_device_num():
 def update_lr(args):
     num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
     args.learning_rate = args.learning_rate / num_trainers
+    # TODO(zcd): The loss_cls or loss maybe NAN, so we decreate the learning rate here.
+    # The reasons for this should be analyzed in depth.
+    if num_trainers > 1:
+        args.learning_rate = args.learning_rate / 10
 
 def train():
     update_lr(cfg)
