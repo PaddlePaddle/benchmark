@@ -227,7 +227,6 @@ def main():
     build_strategy.remove_unnecessary_lock = True
     build_strategy.enable_sequential_execution = False
     build_strategy.cache_runtime_context = True
-    build_strategy.cache_expected_kernel = True
     build_strategy.fuse_all_optimizer_ops = True
 
     if args.parallel:

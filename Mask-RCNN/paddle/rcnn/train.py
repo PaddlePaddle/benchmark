@@ -108,7 +108,8 @@ def train():
         build_strategy.memory_optimize = False
         build_strategy.enable_inplace = False
 
-        dist_utils.prepare_for_multi_process(
+        if cfg.use_gpu:
+            dist_utils.prepare_for_multi_process(
                     exe, 
                     build_strategy, 
                     fluid.default_main_program(), 
@@ -119,6 +120,7 @@ def train():
 
         exec_strategy = fluid.ExecutionStrategy()
         exec_strategy.use_experimental_executor = True
+        exec_strategy.num_iteration_per_drop_scope = 100
         train_exe = fluid.ParallelExecutor(use_cuda=bool(cfg.use_gpu), 
                             loss_name=loss.name, 
                             build_strategy=build_strategy, 
