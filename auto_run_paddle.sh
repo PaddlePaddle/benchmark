@@ -9,14 +9,15 @@ usage () {
   -c  cuda_version 9.0|10.0
   -n  image_name
   -i  image_commit_id
-  -p  all_path contains dir of prepare(pretrained models), dataset, logs, db.py..,  such as /ssd1/ljh
+  -v  paddle_version
+  -p  all_path contains dir of prepare(pretrained models), dataset, logs, such as /ssd1/ljh
 EOF
 }
-if [ $# != 10 ] ; then
+if [ $# != 12 ] ; then
   usage
   exit 1;
 fi
-while getopts h:m:c:n:i:p: opt
+while getopts h:m:c:n:i:v:p: opt
 do
   case $opt in
   h) usage; exit 0 ;;
@@ -24,6 +25,7 @@ do
   c) cuda_version="$OPTARG" ;;
   n) image_name="$OPTARG" ;;
   i) image_commit_id="$OPTARG" ;;
+  v) paddle_version="$OPTARG" ;;
   p) all_path="$OPTARG" ;;
   \?) usage; exit 1 ;;
   esac
@@ -32,26 +34,29 @@ done
 export http_proxy=http://172.19.57.45:3128
 export https_proxy=http://172.19.57.45:3128
 
+origin_path=$(pwd)
+
 prepare(){
     echo "*******prepare benchmark***********"
 
-    if [ '10.0' == $cuda_version ]
-    then
-        export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
-    fi
-    ln -s /usr/lib/x86_64-linux-gnu/libnccl.so.2 /usr/lib/x86_64-linux-gnu/libnccl.so
-    rm /etc/apt/sources.list
-    cp ${all_path}/sources.list /etc/apt
-    apt-get update
-    apt-get install libmysqlclient-dev -y
-    apt-get install git -y
-    pip install MySQL-python
-
-#    yum install mysql-devel
+#    if [ '10.0' == $cuda_version ]
+#    then
+#        export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
+#    fi
+    export LD_LIBRARY_PATH=/opt/_internal/cpython-2.7.11-ucs4/lib:${LD_LIBRARY_PATH#/opt/_internal/cpython-2.7.11-ucs2/lib:}
+    export PATH=/opt/python/cp27-cp27mu/bin/:${PATH}
+#    ln -s /usr/lib/x86_64-linux-gnu/libnccl.so.2 /usr/lib/x86_64-linux-gnu/libnccl.so
+#    rm /etc/apt/sources.list
+#    cp ${all_path}/sources.list /etc/apt
+#    apt-get update
+#    apt-get install libmysqlclient-dev -y
+#    apt-get install git -y
 #    pip install MySQL-python
 
-    ct=`date '+%Y%m%d%H%M%S'`
-    save_log_dir=${all_path}/logs/log_${ct}
+    yum install mysql-devel -y
+    pip install MySQL-python
+
+    save_log_dir=${all_path}/logs/log_${paddle_version}
     train_log_dir=${save_log_dir}/train_log
     mkdir -p ${train_log_dir}
     root_path=/home/crim/
@@ -108,22 +113,25 @@ deeplab(){
     ln -s ${data_path}/cityscape ${cur_model_path}/data/cityscape
     ln -s ${prepare_path}/deeplabv3plus_xception65_initialize ${cur_model_path}/deeplabv3plus_xception65_initialize
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed ${train_log_dir} > ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed sp ${train_log_dir} > ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed ${train_log_dir} > ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed sp ${train_log_dir} > ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem ${train_log_dir} > ${log_path}/DeepLab_V3+_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem sp ${train_log_dir} > ${log_path}/DeepLab_V3+_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/DeepLab_V3+_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem sp ${train_log_dir} > ${log_path}/DeepLab_V3+_mem_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs ${train_log_dir} > ${log_path}/DeepLab_V3+_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs sp ${train_log_dir} > ${log_path}/DeepLab_V3+_maxbs_1gpus 2>&1
     sleep 60
     echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs ${train_log_dir} > ${log_path}/DeepLab_V3+_maxbs_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs sp ${train_log_dir} > ${log_path}/DeepLab_V3+_maxbs_8gpus 2>&1
+    sleep 60
+    echo "index is speed, 8gpus, run_mode is multi_process, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed mp ${train_log_dir} > ${log_path}/DeepLab_V3+_speed_8gpus8p 2>&1
 }
 
 
@@ -175,23 +183,25 @@ mask_rcnn(){
     rm -rf dataset/coco
     ln -s ${data_path}/COCO17 ${cur_model_path}/rcnn/dataset/coco
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed sp ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed sp ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem sp ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem sp ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs sp ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
     sleep 60
     echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
-
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs sp ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
+    sleep 60
+    echo "index is speed, 8gpus, run_mode is multi_process, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed mp ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
 }
 
 
@@ -229,22 +239,25 @@ transformer(){
     ln -s ${data_path}/transformer/data ${cur_model_path}/data
     cp -r ${prepare_path}/transformer/mosesdecoder ${cur_model_path}/mosesdecoder
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed sp ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed sp ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem sp ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem sp ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs sp ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
     sleep 60
     echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs sp ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
+    sleep 60
+    echo "index is speed, 8gpus, run_mode is multi_process, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed mp ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
 }
 
 
@@ -274,17 +287,29 @@ paddingrnn(){
     cd ${cur_model_path}
     batch_size=20
     ln -s ${data_path}/simple-examples ${cur_model_path}/data/simple-examples
-    echo "index is speed, 1gpus, small model, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed small ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_small_speed_1gpus 2>&1
+    echo "index is speed, 1gpus, small model, rnn_type=static, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh speed small static ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_small_static_speed_1gpus 2>&1
     sleep 60
-    echo "index is mem, 1gpus, small model, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem small ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_small_mem_1gpus 2>&1
+    echo "index is mem, 1gpus, small model, rnn_type=static, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh mem small static ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_small_static_mem_1gpus 2>&1
     sleep 60
-    echo "index is speed, 1gpus, large model, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed large ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_large_speed_1gpus 2>&1
+    echo "index is speed, 1gpus, large model, rnn_type=static, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh speed large static ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_large_static_speed_1gpus 2>&1
     sleep 60
-    echo "index is mem, 1gpus, large model, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem large ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_large_mem_1gpus 2>&1
+    echo "index is mem, 1gpus, large model, rnn_type=static, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh mem large static ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_large_static_mem_1gpus 2>&1
+    sleep 60
+    echo "index is speed, 1gpus, small model, rnn_type=padding, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh speed small padding ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_small_padding_speed_1gpus 2>&1
+    sleep 60
+    echo "index is mem, 1gpus, small model, rnn_type=padding, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh mem small padding ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_small_padding_mem_1gpus 2>&1
+    sleep 60
+    echo "index is speed, 1gpus, large model, rnn_type=padding, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh speed large padding ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_large_padding_speed_1gpus 2>&1
+    sleep 60
+    echo "index is mem, 1gpus, large model, rnn_type=padding, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh mem large padding ${batch_size} ${train_log_dir} > ${log_path}/${FUNCNAME}_large_padding_mem_1gpus 2>&1
 }
 
 
@@ -304,10 +329,14 @@ yolov3(){
         python2 setup.py install --user
         echo "cocoapi installed"
     fi
-    cd ${cur_model_path}
-    #yolov3 的模型代码还在models
-    git clone https://github.com/PaddlePaddle/models.git
-    cd models/PaddleCV/yolov3/
+
+#    cd ${cur_model_path}
+#    #yolov3 的模型代码还在models
+#    git clone https://github.com/PaddlePaddle/models.git
+#    cd models/PaddleCV/yolov3/
+
+    cd ${fluid_path}/models/PaddleCV/yolov3/
+    git checkout -b benchmark origin/benchmark
 
     sed -i 's/build_strategy.memory_optimize/#build_strategy.memory_optimize/g' train.py
     #sh ./weights/download.sh
@@ -318,22 +347,25 @@ yolov3(){
     ln -s ${data_path}/coco ./dataset/coco
     cp ${fluid_path}/yolov3/paddle/run.sh ./
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed sp ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed sp ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem sp ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem sp ${train_log_dir} > ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs sp ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
     sleep 60
     echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs sp ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
+    sleep 60
+    echo "index is speed, 8gpus, run_mode is multi_process, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed mp ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
 }
 
 prepare
@@ -358,12 +390,18 @@ else
 fi
 
 
-sql(){
+save(){
     mv ${log_path} ${save_log_dir}/index
-    cd ${all_path}
+    ln -s ${all_path}/env/bin/python /usr/local/bin/mypython
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${all_path}/env/lib/
+    cd ${origin_path}
     echo "==================== begin insert to sql ================="
-    python db.py --code_commit_id ${benchmark_commit_id} --image_commit_id ${image_commit_id} --log_path ${save_log_dir}
+    mypython save.py --code_commit_id ${benchmark_commit_id} \
+                 --image_commit_id ${image_commit_id} \
+                 --log_path ${save_log_dir} \
+                 --cuda_version ${cuda_version} \
+                 --paddle_version ${paddle_version}
     echo "******************** end insert to sql!! *****************"
 }
 
-sql
+save
