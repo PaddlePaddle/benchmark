@@ -7,15 +7,16 @@ export FLAGS_eager_delete_tensor_gb=0.0
 export FLAGS_fraction_of_gpu_memory_to_use=0.98
 export FLAGS_memory_fraction_of_eager_deletion=1.0
 
-if [ $# -lt 2 ]; then
+if [ $# -lt 3 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem|maxbs /ssd1/ljh/logs"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem|maxbs sp|mp /ssd1/ljh/logs"
   exit
 fi
 
 task="$1"
 index="$2"
-run_log_path=${3:-$(pwd)}
+run_mode="$3"
+run_log_path=${4:-$(pwd)}
 model_name="yolov3"
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -24,19 +25,30 @@ num_gpu_devices=${#arr[*]}
 if [ $index = "maxbs" ]; then base_batch_size=14; else base_batch_size=8; fi
 batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
 log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
+log_parse_file=${log_file}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  python train.py \
-   --model_save_dir=output/ \
+
+  train_cmd=" --model_save_dir=output/ \
    --pretrain=./weights/darknet53/ \
    --data_dir=./dataset/coco/ \
-   --batch_size=${base_batch_size} > ${log_file} 2>&1 &
+   --batch_size=${base_batch_size}"
+
+  case ${run_mode} in
+  sp) train_cmd="python -u train.py "${train_cmd} ;;
+  mp)
+      train_cmd="python -m paddle.distributed.launch --gpus ${num_gpu_devices}  train.py "${train_cmd}
+      log_parse_file="mylog/workerlog.0" ;;
+  *) echo "choose run_mode(sp or mp)"; exit 1;
+  esac
+
+  ${train_cmd} > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600
   kill -9 $train_pid
-  kill -9 `ps -ef|grep 'darknet53'|awk '{print $2}'`
+  kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 }
 
 infer(){
@@ -92,7 +104,7 @@ analysis_times(){
       printf("\tFPS: %.3f examples/s\n", '${batch_size}'/step_latency_without_step0_avg)
       printf("\n")
     }
-  }' ${log_file}
+  }' ${log_parse_file}
 }
 
 echo "Benchmark for $index"
@@ -118,7 +130,7 @@ then
 else
   $task
   error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use or FLAGS_initial_gpu_memory_in_mb or FLAGS_reallocate_gpu_memory_in_mbenvironment variable to a lower value"
-  if [ `grep -c "${error_string}" ${log_file}` -eq 0 ]; then
+  if [ `grep -c "${error_string}" ${log_parse_file}` -eq 0 ]; then
     echo "maxbs is ${batch_size}"
   else
     echo "maxbs running error"
