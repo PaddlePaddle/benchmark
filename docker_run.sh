@@ -6,25 +6,27 @@ usage () {
   usage: $0 [options]
   -h         optional   Print this help message
   -m  model  ${cur_model_list[@]} | all
-  -d  dir of benchmark_path
+  -d  dir of benchmark_work_path
   -c  cuda_version 9.0|10.0
   -n  cudnn_version 7
-  -p  all_path contains dir of prepare(pretrained models), dataset, logs, db.py.., such as /ssd1/ljh
+  -p  all_path contains dir of prepare(pretrained models), dataset, logs, such as /ssd1/ljh
+  -r  run_module  ce or local
 EOF
 }
-if [ $# != 10 ] ; then
+if [ $# != 12 ] ; then
   usage
   exit 1;
 fi
-while getopts h:m:d:c:n:p: opt
+while getopts h:m:d:c:n:p:r: opt
 do
   case $opt in
   h) usage; exit 0 ;;
   m) model="$OPTARG" ;;
-  d) benchmark_path="$OPTARG" ;;
+  d) benchmark_work_path="$OPTARG" ;;
   c) cuda_version="$OPTARG" ;;
   n) cudnn_version="$OPTARG" ;;
   p) all_path="$OPTARG" ;;
+  r) run_module="$OPTARG" ;;
   \?) usage; exit 1 ;;
   esac
 done
@@ -33,33 +35,39 @@ export http_proxy=http://172.19.57.45:3128
 export https_proxy=http://172.19.57.45:3128
 paddle_repo="https://github.com/PaddlePaddle/Paddle.git"
 
+export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
+export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
 
 #build paddle
 build(){
 
-    if [ -e ${benchmark_path} ]
-    then
-         rm -rf ${benchmark_path}/Paddle
+    if [ ${run_module} = "local" ]; then
+        if [ -e ${benchmark_work_path} ]; then
+             rm -rf ${benchmark_work_path}/Paddle
+        else
+            mkdir -p ${benchmark_work_path}
+        fi
+        cd ${benchmark_work_path}
+        git clone ${paddle_repo}
+        cd Paddle
     else
-        mkdir -p ${benchmark_path}
+        cd ${benchmark_work_path}/Paddle
     fi
-    cd ${benchmark_path}
-    git clone ${paddle_repo}
-    cd Paddle
+
     image_commit_id=$(git log|head -n1|awk '{print $2}')
     echo "image_commit_id is: "${image_commit_id}
 
     PADDLE_DEV_NAME=docker.io/paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
-    version=`date '+%Y%m%d'`
-    PADDLE_VERSION=${version}'.post'$(echo $cuda_version|cut -c1)${cudnn_version}
+    version=`date '+%Y%m%d%H%M%S'`
+    PADDLE_VERSION=${version}'.post'$(echo $cuda_version|cut -d "." -f1)${cudnn_version}
     image_name=paddlepaddle_gpu-${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
     echo "image_name is: "${image_name}
 
     docker pull ${PADDLE_DEV_NAME}
-    docker run -i --rm -v $PWD:/paddle ${PADDLE_DEV_NAME} \
-      rm -rf /paddle/third_party /paddle/build /paddle/output /paddle/python/paddle/fluid/core.so
+#    docker run ${CUDA_SO} ${DEVICES} -i --rm -v $PWD:/paddle ${PADDLE_DEV_NAME} \
+#      rm -rf /paddle/third_party /paddle/build /paddle/output /paddle/python/paddle/fluid/core.so
 
-    nvidia-docker run -i --rm -v $PWD:/paddle \
+    docker run ${CUDA_SO} ${DEVICES} -i --rm -v $PWD:/paddle \
       -w /paddle \
       -e "CMAKE_BUILD_TYPE=Release" \
       -e "PYTHON_ABI=cp27-cp27mu" \
@@ -97,23 +105,19 @@ run(){
         echo "build paddle failed, exit!"
         exit 1
     fi
-    
-    RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
-    nvidia-docker run -i --rm \
+
+    RUN_IMAGE_NAME=paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
+    docker run  ${CUDA_SO} ${DEVICES} -i --rm \
         -v /home/work:/home/work \
         -v /ssd1:/ssd1 \
+        -v /ssd2:/ssd2 \
         -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
-        -v /usr/bin/ibdev2netdev:/usr/bin/ibdev2netdev \
-        -v /usr/bin/ib_write_bw:/usr/bin/ib_write_bw \
-        -v /usr/bin/ofed_info:/usr/bin/ofed_info \
-        -v /etc/libibverbs.d:/etc/libibverbs.d \
-        -v /usr/lib64/mlnx_ofed/valgrind:/usr/lib64/mlnx_ofed/valgrind \
         --net=host \
         --privileged \
         --shm-size=30G \
         $RUN_IMAGE_NAME \
-        /bin/bash -c "cd ${benchmark_path}; bash auto_run_paddle.sh -m $model -c ${cuda_version} -n ${all_path}/images/${image_name} -i ${image_commit_id}  -p ${all_path}"
-
+        /bin/bash -c "cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/benchmark;
+        bash auto_run_paddle.sh -m $model -c ${cuda_version} -n ${all_path}/images/${image_name} -i ${image_commit_id} -v ${PADDLE_VERSION} -p ${all_path}"
 }
 
 build
