@@ -30,9 +30,9 @@ def get_device_num():
         device_num = subprocess.check_output(['nvidia-smi','-L']).decode().count('\n')
     return device_num
 
- def update_lr(args):
-    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
-    args.learning_rate = args.learning_rate / num_trainers
+def update_lr(args):
+   num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+   args.base_lr = args.base_lr / num_trainers
 
 parser = argparse.ArgumentParser()
 add_arg = lambda *args: utility.add_arguments(*args, argparser=parser)
@@ -164,7 +164,7 @@ with fluid.program_guard(tp, sp):
         fluid.layers.assign(np.array(
             [0.1], dtype=np.float32)))
     loss_mean = fluid.layers.reduce_mean(loss) / area
-
+    loss_mean.persistable=1
     opt = fluid.optimizer.Momentum(
         lr,
         momentum=0.9,
@@ -191,7 +191,7 @@ place = fluid.CUDAPlace(gpu_id) if args.use_gpu else fluid.CPUPlace()
 exe = fluid.Executor(place)
 exe.run(sp)
 
-if args.use_gpu and args.parallel
+if args.use_gpu and args.parallel:
     dist_utils.prepare_for_multi_process(exe,  build_strategy,  tp,  sp)
 
 if args.init_weights_path:
