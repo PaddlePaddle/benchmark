@@ -15,7 +15,7 @@ from paddle.fluid.transpiler.details import program_to_code
 import reader
 from config import *
 from model import transformer, position_encoding_init
-
+import dist_utils
 
 def parse_args():
     parser = argparse.ArgumentParser("Training for Transformer.")
@@ -148,7 +148,6 @@ def parse_args():
     merge_cfg_from_list(args.opts + dict_args,
                         [TrainTaskConfig, ModelHyperParams])
     return args
-
 
 def append_nccl2_prepare(startup_prog, trainer_id, worker_endpoints,
                          current_endpoint):
@@ -448,7 +447,6 @@ def test_context(exe, train_exe, dev_count):
 
     return test
 
-
 def train_loop(exe,
                train_prog,
                startup_prog,
@@ -487,6 +485,9 @@ def train_loop(exe,
     # `1 / token_number` for average cost.
     # build_strategy.gradient_scale_strategy = fluid.BuildStrategy.GradientScaleStrategy.Customized
     build_strategy.fuse_all_optimizer_ops = True
+    
+    if TrainTaskConfig.use_gpu:
+        dist_utils.prepare_for_multi_process(exe, build_strategy, train_prog, startup_prog)
 
     logging.info("begin executor")
     train_exe = fluid.ParallelExecutor(
@@ -603,6 +604,21 @@ def train_loop(exe,
             print("kpis\ttest_cost_card%d\t%f" % (dev_count, val_avg_cost))
         print("kpis\ttrain_duration_card%d\t%f" % (dev_count, time_consumed))
 
+def get_device_num():
+    visible_device = os.getenv('CUDA_VISIBLE_DEVICES')
+    # NOTE(zcd): use multi processes to train the model,
+    # and each process use one GPU card.
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    if num_trainers > 1 : return 1
+    if visible_device:
+        device_num = len(visible_device.split(','))
+    else:
+        device_num = subprocess.check_output(['nvidia-smi','-L']).decode().count('\n')
+    return device_num
+
+def update_lr(TrainTaskConfig):
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    TrainTaskConfig.learning_rate = TrainTaskConfig.learning_rate / num_trainers
 
 def train(args):
     # priority: ENV > args > config
@@ -620,11 +636,15 @@ def train(args):
         place = fluid.CPUPlace()
         dev_count = int(os.environ.get('CPU_NUM', multiprocessing.cpu_count()))
     else:
-        place = fluid.CUDAPlace(0)
-        dev_count = fluid.core.get_cuda_device_count()
+        gpu_id = int(os.environ.get('FLAGS_selected_gpus', 0))
+        place = fluid.CUDAPlace(gpu_id)
+        dev_count = get_device_num()
+        # place = fluid.CUDAPlace(0)
+        # dev_count = fluid.core.get_cuda_device_count()
+
+    update_lr(TrainTaskConfig)
 
     exe = fluid.Executor(place)
-
     train_prog = fluid.Program()
     startup_prog = fluid.Program()
 
@@ -681,6 +701,8 @@ def train(args):
         train_loop(exe, train_prog, startup_prog, dev_count, sum_cost, avg_cost,
                    token_num, predict, pyreader)
     else:
+        print("This script cannot run in distributed mode.")
+        sys.exit(0)
         if args.update_method == "nccl2":
             trainer_id = int(os.getenv("PADDLE_TRAINER_ID", "0"))
             port = os.getenv("PADDLE_PORT")

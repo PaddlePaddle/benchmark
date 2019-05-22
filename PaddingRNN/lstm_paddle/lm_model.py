@@ -246,12 +246,12 @@ def lm_model(hidden_size,
     init_cell = layers.data(name="init_cell", shape=[num_layers, batch_size, hidden_size], 
             dtype='float32', append_batch_size=False)
 
+    init_cell.persistable = True
+    init_hidden.persistable = True
+
     init_hidden = layers.reshape(
         init_hidden, shape=[num_layers, -1, hidden_size])
     init_cell = layers.reshape(init_cell, shape=[num_layers, -1, hidden_size])
-
-    init_cell.persistable = True
-    init_hidden.persistable = True
 
     x_emb = layers.embedding(
         input=x,

@@ -30,9 +30,30 @@ import models.model_builder as model_builder
 import models.resnet as resnet
 from learning_rate import exponential_with_warmup_decay
 from config import cfg
+import dist_utils 
 
+def get_device_num():
+    visible_device = os.getenv('CUDA_VISIBLE_DEVICES')
+    # NOTE(zcd): use multi processes to train the model,
+    # and each process use one GPU card.
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    if num_trainers > 1 : return 1
+    if visible_device:
+        device_num = len(visible_device.split(','))
+    else:
+        device_num = subprocess.check_output(['nvidia-smi','-L']).decode().count('\n')
+    return device_num
+
+def update_lr(args):
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    args.learning_rate = args.learning_rate / num_trainers
+    # TODO(zcd): The loss_cls or loss maybe NAN, so we decreate the learning rate here.
+    # The reasons for this should be analyzed in depth.
+    if num_trainers > 1:
+        args.learning_rate = args.learning_rate / 10
 
 def train():
+    update_lr(cfg)
     learning_rate = cfg.learning_rate
     image_shape = [3, cfg.TRAIN.max_size, cfg.TRAIN.max_size]
 
@@ -43,8 +64,7 @@ def train():
         random.seed(0)
         np.random.seed(0)
 
-    devices = os.getenv("CUDA_VISIBLE_DEVICES") or ""
-    devices_num = len(devices.split(","))
+    devices_num = get_device_num()
     total_batch_size = devices_num * cfg.TRAIN.im_per_batch
 
     use_random = True
@@ -82,16 +102,14 @@ def train():
         var.persistable = True
 
     #fluid.memory_optimize(fluid.default_main_program(), skip_opt_set=set(fetch_list))
-
-    place = fluid.CUDAPlace(0) if cfg.use_gpu else fluid.CPUPlace()
+    gpu_id = int(os.environ.get('FLAGS_selected_gpus', 0))
+    place = fluid.CUDAPlace(gpu_id) if cfg.use_gpu else fluid.CPUPlace()
     exe = fluid.Executor(place)
-    exe.run(fluid.default_startup_program())
+    if not cfg.parallel: exe.run(fluid.default_startup_program())
 
     if cfg.pretrained_model:
-
         def if_exist(var):
             return os.path.exists(os.path.join(cfg.pretrained_model, var.name))
-
         fluid.io.load_vars(exe, cfg.pretrained_model, predicate=if_exist)
 
     if cfg.parallel:
@@ -99,10 +117,25 @@ def train():
         build_strategy.memory_optimize = False
         build_strategy.enable_inplace = False
 
+        if cfg.use_gpu:
+            dist_utils.prepare_for_multi_process(
+                    exe, 
+                    build_strategy, 
+                    fluid.default_main_program(), 
+                    fluid.default_startup_program())
+
+        trainer_id = int(os.environ.get('PADDLE_TRAINER_ID', 0))
+        num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+
         exec_strategy = fluid.ExecutionStrategy()
         exec_strategy.use_experimental_executor = True
-        train_exe = fluid.ParallelExecutor(
-            use_cuda=bool(cfg.use_gpu), loss_name=loss.name, build_strategy=build_strategy, exec_strategy=exec_strategy)
+        exec_strategy.num_iteration_per_drop_scope = 100
+        train_exe = fluid.ParallelExecutor(use_cuda=bool(cfg.use_gpu), 
+                            loss_name=loss.name, 
+                            build_strategy=build_strategy, 
+                            exec_strategy=exec_strategy,
+                            num_trainers=num_trainers,
+                            trainer_id=trainer_id)
     else:
         train_exe = exe
 
@@ -208,3 +241,4 @@ if __name__ == '__main__':
     args = parse_args()
     print_arguments(args)
     train()
+
