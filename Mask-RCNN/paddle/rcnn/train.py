@@ -105,7 +105,7 @@ def train():
     gpu_id = int(os.environ.get('FLAGS_selected_gpus', 0))
     place = fluid.CUDAPlace(gpu_id) if cfg.use_gpu else fluid.CPUPlace()
     exe = fluid.Executor(place)
-    if not cfg.parallel: exe.run(fluid.default_startup_program())
+    exe.run(fluid.default_startup_program())
 
     if cfg.pretrained_model:
         def if_exist(var):
