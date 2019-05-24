@@ -105,8 +105,7 @@ def train():
     gpu_id = int(os.environ.get('FLAGS_selected_gpus', 0))
     place = fluid.CUDAPlace(gpu_id) if cfg.use_gpu else fluid.CPUPlace()
     exe = fluid.Executor(place)
-    if not cfg.parallel or not cfg.use_gpu:
-        exe.run(fluid.default_startup_program())
+    exe.run(fluid.default_startup_program())
 
     if cfg.pretrained_model:
         def if_exist(var):
@@ -125,18 +124,13 @@ def train():
                     fluid.default_main_program(), 
                     fluid.default_startup_program())
 
-        trainer_id = int(os.environ.get('PADDLE_TRAINER_ID', 0))
-        num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
-
         exec_strategy = fluid.ExecutionStrategy()
         exec_strategy.use_experimental_executor = True
-        exec_strategy.num_iteration_per_drop_scope = 100
+        #exec_strategy.num_iteration_per_drop_scope = 100
         train_exe = fluid.ParallelExecutor(use_cuda=bool(cfg.use_gpu), 
                             loss_name=loss.name, 
                             build_strategy=build_strategy, 
-                            exec_strategy=exec_strategy,
-                            num_trainers=num_trainers,
-                            trainer_id=trainer_id)
+                            exec_strategy=exec_strategy)
     else:
         train_exe = exe
 
