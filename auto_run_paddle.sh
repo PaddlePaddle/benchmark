@@ -199,9 +199,9 @@ mask_rcnn(){
     sleep 60
     echo "index is maxbs, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs sp ${train_log_dir} > ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
-    #sleep 60
-    #echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed mp ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
+    sleep 60
+    echo "index is speed, 8gpus, run_mode is multi_process, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed mp ${train_log_dir} > ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
 }
 
 
