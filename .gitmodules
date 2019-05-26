@@ -5,3 +5,4 @@
 [submodule "NeuralMachineTranslation/BERT/fluid/train/LARK_Paddle_BERT"]
 	path = NeuralMachineTranslation/BERT/fluid/train/LARK_Paddle_BERT
 	url = https://github.com/PaddlePaddle/LARK
+	branch = benchmark
