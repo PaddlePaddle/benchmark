@@ -126,7 +126,7 @@ def train():
 
         exec_strategy = fluid.ExecutionStrategy()
         exec_strategy.use_experimental_executor = True
-        #exec_strategy.num_iteration_per_drop_scope = 100
+        exec_strategy.num_iteration_per_drop_scope = 10
         train_exe = fluid.ParallelExecutor(use_cuda=bool(cfg.use_gpu), 
                             loss_name=loss.name, 
                             build_strategy=build_strategy, 
