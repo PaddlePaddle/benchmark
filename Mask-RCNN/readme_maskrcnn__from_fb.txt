@@ -55,7 +55,7 @@ ln -s /ssd1/ljh/dataset/COCO17/val2017 datasets/coco/val2017
 5. 修改configs/e2e_mask_rcnn_R_50_C4_1x.yaml
 
  coco2017里：
-  5.1 coco_2014_valminusminival 改为 coco_2017_train,其他coco_2014修改为coco_2017
+  5.1 coco_2014_valminusminival 改为 coco_2017_train;coco_2014_minival 改为 coco_2017_val; 其他coco_2014修改为coco_2017
 
   5.2 修改DATALOADER配置,注意,针对多卡,以及多机情况时调整该参数能改善数据io性能. 增加节点DATALOADER, 配置为：
       DATALOADER:
