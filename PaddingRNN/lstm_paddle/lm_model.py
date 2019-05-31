@@ -204,9 +204,18 @@ def lm_model(hidden_size,
                 gate_input = layers.elementwise_add(gate_input, bias)
                 i, j, f, o = layers.split(gate_input, num_or_sections=4, dim=-1)
 
-                c = pre_cell * layers.sigmoid(f) + layers.sigmoid(
-                    i) * layers.tanh(j)
-                m = layers.tanh(c) * layers.sigmoid(o)
+                try:
+                    from paddle.fluid.contrib.layers import fused_elemwise_activation
+                    # layers.sigmoid(i) * layers.tanh(j)
+                    tmp0 = fused_elemwise_activation(x=layers.tanh(j), y=i, functor_list=['elementwise_mul','sigmoid'])
+                    # pre_cell * layers.sigmoid(f)
+                    tmp1 = fused_elemwise_activation(x=pre_cell, y=f, functor_list=['elementwise_mul','sigmoid'])
+                    c = tmp0 + tmp1
+                    # layers.tanh(c) * layers.sigmoid(o)
+                    m = fused_elemwise_activation(x=layers.tanh(c), y=o, functor_list=['elementwise_mul','sigmoid'])
+                except ImportError:
+                    c = pre_cell * layers.sigmoid(f) + layers.sigmoid(i) * layers.tanh(j)
+                    m = layers.tanh(c) * layers.sigmoid(o)
 
                 hidden_array[k] = m
                 cell_array[k] = c
@@ -285,6 +294,7 @@ def lm_model(hidden_size,
     else:
         print("type not support")
         return
+
     rnn_out = layers.reshape(rnn_out, shape=[-1, num_steps, hidden_size], inplace=True)
 
     softmax_weight = layers.create_parameter([hidden_size, vocab_size], dtype="float32", name="softmax_weight", \
