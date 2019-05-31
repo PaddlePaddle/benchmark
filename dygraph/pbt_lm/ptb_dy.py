@@ -33,6 +33,8 @@ from args import *
 #from fluid.dygraph_grad_clip  import *
 
 import sys
+from benchmark import AverageMeter, ProgressMeter, Tools
+
 if sys.version[0] == '2':
     reload(sys)
     sys.setdefaultencoding("utf-8")
@@ -322,6 +324,9 @@ def train_ptb_lm():
         return
 
     with fluid.dygraph.guard(core.CUDAPlace(0)):
+        fluid.default_main_program().random_seed = 33
+        fluid.default_startup_program().random_seed = 33
+        np.random.seed(33)
         ptb_model = PtbModel(
             "ptb_model",
             hidden_size=hidden_size,
@@ -345,7 +350,7 @@ def train_ptb_lm():
 
         batch_len = len(train_data) // batch_size
         total_batch_size = (batch_len - 1) // num_steps
-        log_interval = total_batch_size // 10
+        log_interval = total_batch_size // 100
 
         bd = []
         lr_arr = [1.0]
@@ -405,8 +410,15 @@ def train_ptb_lm():
             train_data_iter = reader.get_data_iter(train_data, batch_size,
                                                    num_steps)
 
+            batch_time = AverageMeter('Time', ':6.3f')
+            data_time = AverageMeter('Data', ':6.3f')
+            losses = AverageMeter('Loss', ':.4e')
+            progress = ProgressMeter(total_batch_size, batch_time, data_time,
+                                     prefix="epoch: [{}]".format(epoch_id))
             start_time = time.time()
+            end = Tools.time()
             for batch_id, batch in enumerate(train_data_iter):
+                data_time.update(Tools.time() - end)
                 x_data, y_data = batch
                 x_data = x_data.reshape((-1, num_steps, 1))
                 y_data = y_data.reshape((-1, 1))
@@ -418,26 +430,30 @@ def train_ptb_lm():
                                                             init_cell)
 
                 out_loss = dy_loss.numpy()
-
                 init_hidden_data = last_hidden.numpy()
                 init_cell_data = last_cell.numpy()
                 dy_loss.backward()
                 sgd.minimize(dy_loss, grad_clip=grad_clip)
-
+                
                 ptb_model.clear_gradients()
+                batch_time.update(Tools.time() - end)
+                #losses.update(out_loss, batch_size)
                 total_loss += out_loss
                 iters += num_steps
 
                 if batch_id > 0 and batch_id % log_interval == 0:
+                    progress.print(batch_id)
                     ppl = np.exp(total_loss / iters)
                     print(epoch_id, "ppl ", batch_id, ppl[0],
                           sgd._global_learning_rate().numpy())
+                end = Tools.time()
 
             print("one ecpoh finished", epoch_id)
             print("time cost ", time.time() - start_time)
             ppl = np.exp(total_loss / iters)
             print("ppl ", epoch_id, ppl[0])
 
+            eval(ptb_model, valid_data)
         eval(ptb_model, test_data)
 
 
