@@ -8,17 +8,32 @@ export FLAGS_fraction_of_gpu_memory_to_use=0.98
 export FLAGS_memory_fraction_of_eager_deletion=1.0
 export FLAGS_conv_workspace_size_limit=1500
 
-if [ $# -lt 3 ]; then
+if [ $# -lt 4 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem|maxbs sp|mp /ssd1/ljh/logs"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem|maxbs sp|mp train_dataset|val_dataset /ssd1/ljh/logs"
   exit
 fi
 
 task="$1"
 index="$2"
 run_mode="$3"
-run_log_path=${4:-$(pwd)}
+train_dataset="$4"
+run_log_path=${5:-$(pwd)}
 model_name="mask_rcnn"
+
+if [[ $train_dataset = "val_dataset"  &&  ! -f "./dataset/coco/annotations/instances_train2017.json.bak" ]];then
+    mv ./dataset/coco/annotations/instances_train2017.json ./dataset/coco/annotations/instances_train2017.json.bak
+    mv ./dataset/coco/annotations/instances_val2017.json ./dataset/coco/annotations/instances_train2017.json
+    mv ./dataset/coco/train2017 ./dataset/coco/train2017_bak
+    mv ./dataset/coco/val2017 ./dataset/coco/train2017
+fi
+
+if [[ $train_dataset = "train_dataset"  &&  -f "./dataset/coco/annotations/instances_train2017.json.bak" ]];then
+   mv ./dataset/coco/annotations/instances_train2017.json ./dataset/coco/annotations/instances_val2017.json
+   mv ./dataset/coco/annotations/instances_train2017.json.bak ./dataset/coco/annotations/instances_train2017.json
+   mv ./dataset/coco/train2017 ./dataset/coco/val2017
+   mv ./dataset/coco/train2017_bak ./dataset/coco/train2017
+fi
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
