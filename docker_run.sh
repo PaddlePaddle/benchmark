@@ -11,13 +11,16 @@ usage () {
   -n  cudnn_version 7
   -p  all_path contains dir of prepare(pretrained models), dataset, logs, such as /ssd1/ljh
   -r  run_module  ce or local
+  -t  job_type  benchmark_daliy | models test | pr_test
+  -g  gpu_type  p40 | v100
+  -s  implement_type of model static | dynamic
 EOF
 }
-if [ $# != 12 ] ; then
+if [ $# != 18 ] ; then
   usage
   exit 1;
 fi
-while getopts h:m:d:c:n:p:r: opt
+while getopts h:m:d:c:n:p:r:t:g:s: opt
 do
   case $opt in
   h) usage; exit 0 ;;
@@ -27,16 +30,21 @@ do
   n) cudnn_version="$OPTARG" ;;
   p) all_path="$OPTARG" ;;
   r) run_module="$OPTARG" ;;
+  t) job_type="$OPTARG" ;;
+  g) gpu_type="$OPTARG" ;;
+  s) implement_type="$OPTARG" ;;
   \?) usage; exit 1 ;;
   esac
 done
 
-export http_proxy=http://172.19.57.45:3128
-export https_proxy=http://172.19.57.45:3128
+export https_proxy=http://172.19.56.199:3128
+export http_proxy=http://172.19.56.199:3128
+
 paddle_repo="https://github.com/PaddlePaddle/Paddle.git"
 
 export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
 export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
+EMAIL_ADDRESS="xyz@cc.com"
 
 #build paddle
 build(){
@@ -58,7 +66,8 @@ build(){
     echo "image_commit_id is: "${image_commit_id}
 
     PADDLE_DEV_NAME=docker.io/paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
-    version=`date '+%Y%m%d%H%M%S'`
+    #version=`date '+%Y%m%d%H%M%S'`
+    version=`date -d @$(git log -1 --pretty=format:%ct) "+%Y%m%d%H%M%S"`
     PADDLE_VERSION=${version}'.post'$(echo $cuda_version|cut -d "." -f1)${cudnn_version}
     image_name=paddlepaddle_gpu-${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
     echo "image_name is: "${image_name}
@@ -66,8 +75,8 @@ build(){
     docker pull ${PADDLE_DEV_NAME}
 #    docker run ${CUDA_SO} ${DEVICES} -i --rm -v $PWD:/paddle ${PADDLE_DEV_NAME} \
 #      rm -rf /paddle/third_party /paddle/build /paddle/output /paddle/python/paddle/fluid/core.so
-
-    docker run ${CUDA_SO} ${DEVICES} -i --rm -v $PWD:/paddle \
+#    docker run ${CUDA_SO} ${DEVICES} -i --rm -v $PWD:/paddle \
+    nvidia-docker run -i --rm -v $PWD:/paddle \
       -w /paddle \
       -e "CMAKE_BUILD_TYPE=Release" \
       -e "PYTHON_ABI=cp27-cp27mu" \
@@ -89,8 +98,8 @@ build(){
       -e "WITH_DISTRIBUTE=ON" \
       -e "WITH_FLUID_ONLY=OFF" \
       -e "CMAKE_VERBOSE_MAKEFILE=OFF" \
-      -e "http_proxy=http://172.19.57.45:3128" \
-      -e "https_proxy=http://172.19.57.45:3128" \
+      -e "http_proxy=${http_proxy}" \
+      -e "https_proxy=${https_proxy}" \
       ${PADDLE_DEV_NAME} \
        /bin/bash -c "paddle/scripts/paddle_build.sh build"
     mkdir -p ./output
@@ -106,19 +115,57 @@ run(){
         exit 1
     fi
 
-    RUN_IMAGE_NAME=paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
-    docker run  ${CUDA_SO} ${DEVICES} -i --rm \
+#    RUN_IMAGE_NAME=paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
+#    docker run  ${CUDA_SO} ${DEVICES} -i --rm \
+#        -v /home/work:/home/work \
+#        -v /ssd1:/ssd1 \
+#        -v /ssd2:/ssd2 \
+#        -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
+#        --net=host \
+#        --privileged \
+#        --shm-size=30G \
+#        $RUN_IMAGE_NAME \
+#        /bin/bash -c "cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/benchmark;
+#        bash auto_run_paddle.sh -m $model -c ${cuda_version} -n ${all_path}/images/${image_name} -i ${image_commit_id} -v ${PADDLE_VERSION} -p ${all_path}"
+
+    RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
+    nvidia-docker run -i --rm \
         -v /home/work:/home/work \
         -v /ssd1:/ssd1 \
         -v /ssd2:/ssd2 \
         -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
         --net=host \
         --privileged \
-        --shm-size=30G \
         $RUN_IMAGE_NAME \
         /bin/bash -c "cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/benchmark;
-        bash auto_run_paddle.sh -m $model -c ${cuda_version} -n ${all_path}/images/${image_name} -i ${image_commit_id} -v ${PADDLE_VERSION} -p ${all_path}"
+        bash auto_run_paddle.sh -m $model \
+        -c ${cuda_version} \
+        -n ${all_path}/images/${image_name} \
+        -i ${image_commit_id} \
+        -v ${PADDLE_VERSION} \
+        -p ${all_path} \
+        -t ${job_type} \
+        -g ${gpu_type} \
+        -s ${implement_type}"
+}
+
+send_email(){
+    if [[ ${job_type} == 2 && -e ${all_path}/logs/log_${PADDLE_VERSION}/mail.html ]]; then
+        cat ${all_path}/logs/log_${PADDLE_VERSION}/mail.html |sendmail -t ${EMAIL_ADDRESS}
+    fi
+}
+
+zip_log(){
+    echo $(pwd)
+    if [ -d ${all_path}/logs/log_${PADDLE_VERSION} ]; then
+        rm -rf output/*
+        tar -zcvf output/log_${PADDLE_VERSION}.tar.gz ${all_path}/logs/log_${PADDLE_VERSION}
+        cp ${all_path}/images/${image_name}  output/
+    fi
 }
 
 build
 run
+send_email
+zip_log
+
