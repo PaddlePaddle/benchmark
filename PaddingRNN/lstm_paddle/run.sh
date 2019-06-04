@@ -1,20 +1,5 @@
 #!/bin/bash
-# Occupy all GPU memory (5% reserved actually)
-#export FLAGS_fraction_of_gpu_memory_to_use=1.0
 
-# Enable gc when this flag is larger than or equal to 0. 
-# If you change this value, please make sure that the large
-# model can run when batch_size = 1750; and the small model
-# can run when batch_size = 5365
-#export FLAGS_eager_delete_tensor_gb=0.0
-
-# You can set this ratio to control the number of gc ops 
-# GC is disabled when this flag is 0; and full gc would be
-# performed when this flag is 1. Must be inside [0, 1].
-# If you change this value, please make sure that the large
-# model can run when batch_size = 1750; and the small model
-# can run when batch_size = 5365
-#export FLAGS_memory_fraction_of_eager_deletion=0.5
 
 if [ $# -lt 4 ]; then
   echo "Usage: "
@@ -30,7 +15,22 @@ base_batchsize=$4
 run_log_path=${5:-$(pwd)}
 model_name="paddingrnn_"${model_type}_${rnn_type}
 
+# Occupy all GPU memory (5% reserved actually)
+export FLAGS_fraction_of_gpu_memory_to_use=1.0
+
 if [ ${model_type} == "large" ]; then
+  # Enable gc when this flag is larger than or equal to 0. 
+  # If you change this value, please make sure that the large
+  # model can run when batch_size = 1750; and the small model
+  # can run when batch_size = 5365
+  export FLAGS_eager_delete_tensor_gb=0.0
+
+  # You can set this ratio to control the number of gc ops 
+  # GC is disabled when this flag is 0; and full gc would be
+  # performed when this flag is 1. Must be inside [0, 1].
+  # If you change this value, please make sure that the large
+  # model can run when batch_size = 1750; and the small model
+  # can run when batch_size = 5365
   export FLAGS_memory_fraction_of_eager_deletion=1.0
 fi
 
