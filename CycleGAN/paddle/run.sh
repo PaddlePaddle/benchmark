@@ -28,7 +28,7 @@ log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  python train.py > ${log_file} 2>&1 &
+  python train.py | tee ${log_file} 2>&1 &
   train_pid=$!
   sleep 120
   kill -9 $train_pid
