@@ -8,34 +8,53 @@ export FLAGS_fraction_of_gpu_memory_to_use=0.98
 export FLAGS_memory_fraction_of_eager_deletion=1.0
 export FLAGS_conv_workspace_size_limit=1500
 
-if [ $# -ne 2 ]; then
+if [ $# -lt 3 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem|maxbs sp|mp /ssd1/ljh/logs"
   exit
 fi
 
 task="$1"
 index="$2"
+run_mode="$3"
+run_log_path=${4:-$(pwd)}
+model_name="mask_rcnn"
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-base_batch_size=1
+if [ $index = "maxbs" ]; then base_batch_size=5; else base_batch_size=1; fi
 batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
-log_file=log_${task}_${index}_${num_gpu_devices}
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}_${run_mode}
+log_parse_file=${log_file}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  python train.py \
-   --model_save_dir=output/ \
+
+  train_cmd=" --model_save_dir=output/ \
    --pretrained_model=../imagenet_resnet50_fusebn/ \
    --data_dir=./dataset/coco \
    --im_per_batch=${base_batch_size} \
-   --MASK_ON=True > ${log_file} 2>&1 &
+   --MASK_ON=True"
+
+  case ${run_mode} in
+  sp) train_cmd="python -u train.py "${train_cmd} ;;
+  mp)
+      train_cmd="python -m paddle.distributed.launch --gpus ${num_gpu_devices}  train.py "${train_cmd}
+      log_parse_file="mylog/workerlog.0" ;;
+  *) echo "choose run_mode(sp or mp)"; exit 1;
+  esac
+
+  ${train_cmd} > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600
-  kill -9 $train_pid
+  kill -9 `ps -ef|grep python |awk '{print $2}'`
+
+  if [ -d mylog ]; then
+      rm ${log_file}
+      cp mylog/workerlog.0 ${log_file}
+  fi
 }
 
 infer(){
@@ -90,12 +109,13 @@ analysis_times(){
       printf("\tFPS: %.3f examples/s\n", '${batch_size}'/step_latency_without_step0_avg)
       printf("\n")
     }
-  }' ${log_file}
+  }' ${log_parse_file}
 }
+
+echo "Benchmark for $index"
 
 if [ $index = "mem" ]
 then
-  echo "Benchmark for $task"
   export FLAGS_fraction_of_gpu_memory_to_use=0.001
   gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
   nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
@@ -103,13 +123,21 @@ then
   $task
   kill $gpu_memory_pid
   awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
-else
-  echo "Benchmark for $task"
+elif [ ${index} = 'speed' ]
+then
   $task
   if [ ${task} = "train" ]
   then
       analysis_times 3 20 20
   else
       analysis_times 3 5 5
+  fi
+else
+  $task
+  error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use or FLAGS_initial_gpu_memory_in_mb or FLAGS_reallocate_gpu_memory_in_mbenvironment variable to a lower value"
+  if [ `grep -c "${error_string}" ${log_parse_file}` -eq 0 ]; then
+    echo "maxbs is ${batch_size}"
+  else
+    echo "maxbs running error"
   fi
 fi

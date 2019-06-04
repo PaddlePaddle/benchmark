@@ -205,9 +205,18 @@ def lm_model(hidden_size,
                 gate_input = layers.elementwise_add(gate_input, bias)
                 i, j, f, o = layers.split(gate_input, num_or_sections=4, dim=-1)
 
-                c = pre_cell * layers.sigmoid(f) + layers.sigmoid(
-                    i) * layers.tanh(j)
-                m = layers.tanh(c) * layers.sigmoid(o)
+                try:
+                    from paddle.fluid.contrib.layers import fused_elemwise_activation
+                    # layers.sigmoid(i) * layers.tanh(j)
+                    tmp0 = fused_elemwise_activation(x=layers.tanh(j), y=i, functor_list=['elementwise_mul','sigmoid'])
+                    # pre_cell * layers.sigmoid(f)
+                    tmp1 = fused_elemwise_activation(x=pre_cell, y=f, functor_list=['elementwise_mul','sigmoid'])
+                    c = tmp0 + tmp1
+                    # layers.tanh(c) * layers.sigmoid(o)
+                    m = fused_elemwise_activation(x=layers.tanh(c), y=o, functor_list=['elementwise_mul','sigmoid'])
+                except ImportError:
+                    c = pre_cell * layers.sigmoid(f) + layers.sigmoid(i) * layers.tanh(j)
+                    m = layers.tanh(c) * layers.sigmoid(o)
 
                 hidden_array[k] = m
                 cell_array[k] = c
@@ -220,7 +229,6 @@ def lm_model(hidden_size,
                         dropout_implementation='upscale_in_train')
 
             res.append(input)
-#            res.append(layers.reshape(input, shape=[1, -1, hidden_size]))
 
         last_hidden = layers.concat(hidden_array, 1)
         last_hidden = layers.reshape(
@@ -232,37 +240,37 @@ def lm_model(hidden_size,
             last_cell, shape=[-1, num_layers, hidden_size])
         last_cell = layers.transpose(x=last_cell, perm=[1, 0, 2])
 
-#        real_res = layers.concat(res, 0)
-#        real_res = layers.reshape(real_res, shape=[len, -1, hidden_size], inplace=True)
-#        real_res = layers.transpose(x=real_res, perm=[1, 0, 2])
-        real_res = layers.concat(res, 1)
-        real_res = layers.reshape(real_res, shape=[-1, len, hidden_size], inplace=True)
+        real_res = layers.concat(res, 0)
+        real_res = layers.reshape(real_res, shape=[len, -1, hidden_size], inplace=True)
+        real_res = layers.transpose(x=real_res, perm=[1, 0, 2])
 
         return real_res, last_hidden, last_cell
 
+    batch_size_each = batch_size // fluid.core.get_cuda_device_count()
     if use_py_reader:
-        batch_size_each = batch_size // fluid.core.get_cuda_device_count()
         feed_shapes = [[batch_size_each, num_steps, 1],
-                       [batch_size_each, 1],
-                       [num_layers, batch_size_each, hidden_size],
-                       [num_layers, batch_size_each, hidden_size]]
+                       [batch_size_each * num_steps, 1]]
         py_reader = fluid.layers.py_reader(capacity=16,
                                            shapes=feed_shapes,
-                                           dtypes=['int64', 'float32', 'float32', 'float32'])
-        x, y, init_hidden, init_cell = fluid.layers.read_file(py_reader)
+                                           dtypes=['int64', 'int64'])
+        x, y = fluid.layers.read_file(py_reader)
     else:
-        x = layers.data(name="x", shape=[-1, 1, 1], dtype='int64')
-        y = layers.data(name="y", shape=[-1, 1], dtype='float32')
+        x = layers.data(name="x", shape=[batch_size, num_steps, 1], 
+                dtype='int64', append_batch_size=False)
+        y = layers.data(name="y", shape=[batch_size * num_steps, 1], 
+                dtype='int64', append_batch_size=False)
 
-        init_hidden = layers.data(name="init_hidden", shape=[1], dtype='float32')
-        init_cell = layers.data(name="init_cell", shape=[1], dtype='float32')
+    init_hidden = layers.data(name="init_hidden", shape=[num_layers, batch_size_each, hidden_size], 
+            dtype='float32', append_batch_size=False)
+    init_cell = layers.data(name="init_cell", shape=[num_layers, batch_size_each, hidden_size], 
+            dtype='float32', append_batch_size=False)
+
+    init_cell.persistable = True
+    init_hidden.persistable = True
 
     init_hidden = layers.reshape(
         init_hidden, shape=[num_layers, -1, hidden_size])
     init_cell = layers.reshape(init_cell, shape=[num_layers, -1, hidden_size])
-#    init_hidden = layers.reshape(
-#        init_hidden, shape=[-1, hidden_size])
-#    init_cell = layers.reshape(init_cell, shape=[-1, hidden_size])
 
     x_emb = layers.embedding(
         input=x,
@@ -296,8 +304,8 @@ def lm_model(hidden_size,
     else:
         print("type not support")
         return
-    rnn_out = layers.reshape(rnn_out, shape=[-1, num_steps, hidden_size], inplace=True)
 
+    rnn_out = layers.reshape(rnn_out, shape=[-1, num_steps, hidden_size], inplace=True)
 
     softmax_weight = layers.create_parameter([hidden_size, vocab_size], dtype="float32", name="softmax_weight", \
             default_initializer=fluid.initializer.UniformInitializer(low=-init_scale, high=init_scale))
@@ -306,9 +314,7 @@ def lm_model(hidden_size,
 
     projection = layers.matmul(rnn_out, softmax_weight)
     projection = layers.elementwise_add(projection, softmax_bias)
-
     projection = layers.reshape(projection, shape=[-1, vocab_size], inplace=True)
-    #y = layers.reshape( y, shape=[-1, vocab_size])
 
     loss = layers.softmax_with_cross_entropy(
         logits=projection, label=y, soft_label=False)
@@ -320,6 +326,9 @@ def lm_model(hidden_size,
     loss.persistable = True
     last_cell.persistable = True
     last_hidden.persistable = True
+
+    layers.assign(input=last_cell, output=init_cell)
+    layers.assign(input=last_hidden, output=init_hidden)
 
     feeding_list = ['x', 'y', 'init_hidden', 'init_cell']
     if use_py_reader:

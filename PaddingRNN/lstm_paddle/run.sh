@@ -4,7 +4,7 @@ export FLAGS_fraction_of_gpu_memory_to_use=1.0
 
 # Enable gc when this flag is larger than or equal to 0. 
 # If you change this value, please make sure that the large
-# model can run when batch_size = 2100; and the small model
+# model can run when batch_size = 1750; and the small model
 # can run when batch_size = 5365
 export FLAGS_eager_delete_tensor_gb=0.0
 
@@ -12,19 +12,27 @@ export FLAGS_eager_delete_tensor_gb=0.0
 # GC is disabled when this flag is 0; and full gc would be
 # performed when this flag is 1. Must be inside [0, 1].
 # If you change this value, please make sure that the large
-# model can run when batch_size = 2100; and the small model
+# model can run when batch_size = 1750; and the small model
 # can run when batch_size = 5365
-export FLAGS_memory_fraction_of_eager_deletion=1.0
+export FLAGS_memory_fraction_of_eager_deletion=0.5
 
-if [ $# -ne 3 ]; then
+if [ $# -lt 4 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem large|small 20"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem large|medium|small static|padding 20 /ssd1/ljh/logs"
   exit
 fi
 
-task=$1
+task="train"
+index=$1
 model_type=$2
-base_batchsize=$3
+rnn_type=$3
+base_batchsize=$4
+run_log_path=${5:-$(pwd)}
+model_name="paddingrnn_"${model_type}_${rnn_type}
+
+if [ ${model_type} == "large" ]; then
+  export FLAGS_memory_fraction_of_eager_deletion=1.0
+fi
 
 devices_str=${CUDA_VISIBLE_DEVICES//,/ }
 gpu_devices=($devices_str)
@@ -32,7 +40,7 @@ num_gpu_devices=${#gpu_devices[*]}
 
 batch_size=`expr $base_batchsize \* $num_gpu_devices`
 
-log_file=log_${model_type}_${task}_${batch_size}_${num_gpu_devices}
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
 train(){
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
@@ -40,10 +48,12 @@ train(){
     --model_type $model_type \
     --use_gpu True \
     --enable_ce \
-    --batch_size $batch_size > ${log_file} 2>&1 &
-  train_pid=$!
-  sleep 600
-  kill -9 $train_pid
+    --max_epoch=5 \
+    --rnn_model $rnn_type \
+    --batch_size $batch_size > ${log_file} 2>&1
+#  train_pid=$!
+#  sleep 600
+#  kill -9 $train_pid
 }
 
 analysis_times(){
@@ -88,9 +98,9 @@ analysis_times(){
   }' ${log_file}
 }
 
-if [ $1 = 'mem' ]
+if [ ${index} = 'mem' ]
 then
-  echo "test for $task"
+  echo "test for $index"
   export FLAGS_fraction_of_gpu_memory_to_use=0.001
   gpu_id=`echo $CUDA_VISIBLE_DEVICES |cut -c1`
   nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
@@ -99,7 +109,7 @@ then
   kill $gpu_memory_pid
   awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
 else
-  echo "test for $task"
+  echo "test for $index"
   train
   analysis_times 0 9
 fi

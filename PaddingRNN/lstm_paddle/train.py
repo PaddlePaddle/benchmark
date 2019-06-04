@@ -26,7 +26,6 @@ import math
 import paddle
 import paddle.fluid as fluid
 import paddle.fluid.core as core
-import paddle.fluid.framework as framework
 from paddle.fluid.executor import Executor
 import paddle.fluid.profiler as profiler
 
@@ -235,15 +234,12 @@ def main():
     exec_strategy.num_iteration_per_drop_scope = 100
 
     build_strategy = fluid.BuildStrategy()
-    #if args.memory_optimize:
-    if True:
-        build_strategy.enable_inplace = True
-        build_strategy.memory_optimize = False
+    build_strategy.enable_inplace = True
+    build_strategy.memory_optimize = False
 
     build_strategy.remove_unnecessary_lock = True
     build_strategy.enable_sequential_execution = False
     build_strategy.cache_runtime_context = True
-    build_strategy.cache_expected_kernel = True
     build_strategy.fuse_all_optimizer_ops = True
 
     if args.parallel:
@@ -251,20 +247,8 @@ def main():
             loss_name=loss.name,
             build_strategy=build_strategy,
             exec_strategy=exec_strategy)
-        eval_program = fluid.compiler.CompiledProgram(inference_program).with_data_parallel(
-            loss_name=loss.name,
-            build_strategy=build_strategy,
-            exec_strategy=exec_strategy)
     else:
-#        print(main_program)
-        train_program = fluid.compiler.CompiledProgram(main_program).with_default(
-            cache_runtime_context=True,
-            cache_expected_kernel=True,
-            remove_reshape=False)
-        eval_program = fluid.compiler.CompiledProgram(inference_program).with_default(
-            cache_runtime_context=True,
-            cache_expected_kernel=True,
-            remove_reshape=False)
+        train_program = fluid.compiler.CompiledProgram(main_program)
 
     data_path = args.data_path
     print("begin to load data")
@@ -273,8 +257,8 @@ def main():
     train_data, valid_data, test_data, _ = raw_data
 
     def prepare_input(batch,
-                      init_hidden,
-                      init_cell,
+                      init_hidden=None,
+                      init_cell=None,
                       epoch_id=0,
                       with_lr=True,
                       device_count=1):
@@ -293,8 +277,10 @@ def main():
 
         res['x'] = x
         res['y'] = y
-        res['init_hidden'] = init_hidden
-        res['init_cell'] = init_cell
+        if init_hidden is not None:
+            res['init_hidden'] = init_hidden
+        if init_cell is not None:
+            res['init_cell'] = init_cell
         if with_lr:
             res['learning_rate'] = lr
 
@@ -367,23 +353,16 @@ def main():
 
         return ppl
 
-    def train_an_epoch(epoch_id, batch_times):
-        # get train epoch size
-        num_batchs = len(train_data) // batch_size
+    def get_log_interval(data_len, batch_size):
+        num_batchs = data_len // batch_size
         epoch_size = (num_batchs - 1) // num_steps
         if args.profile:
             log_interval = 1
         else:
-            log_interval = epoch_size // 10
+            log_interval = max(1, epoch_size // 10)
+        return log_interval
 
-        data_iter_size = batch_size
-        if device_count > 1 and args.parallel:
-            data_iter_size = batch_size * device_count
-        train_data_iter = reader.get_data_iter(train_data, data_iter_size,
-                                               num_steps)
-
-        total_loss = 0
-        iters = 0
+    def get_init_data():
         if device_count > 1 and args.parallel:
             init_hidden = np.zeros(
                 (num_layers * device_count, batch_size, hidden_size),
@@ -396,30 +375,50 @@ def main():
                 (num_layers, batch_size, hidden_size), dtype='float32')
             init_cell = np.zeros(
                 (num_layers, batch_size, hidden_size), dtype='float32')
+        return init_hidden, init_cell
+
+    def train_an_epoch(epoch_id, batch_times):
+        data_iter_size = batch_size
+        if device_count > 1 and args.parallel:
+            data_iter_size = batch_size * device_count
+
+        # get train epoch size
+        log_interval = get_log_interval(len(train_data), data_iter_size)
+        train_data_iter = reader.get_data_iter(train_data, data_iter_size,
+                                               num_steps)
+
+        init_hidden, init_cell = get_init_data()
+        first_data_feeds["init_hidden"] = init_hidden
+        first_data_feeds["init_cell"] = init_cell
+
+        total_loss = 0
+        iters = 0
         for batch_id, batch in enumerate(train_data_iter):
-            input_data_feed = prepare_input(
-                batch,
-                init_hidden,
-                init_cell,
-                epoch_id=epoch_id,
-                device_count=device_count)
+            if batch_id == 0:
+                input_data_feed = prepare_input(
+                    batch,
+                    init_hidden=init_hidden,
+                    init_cell=init_cell,
+                    epoch_id=epoch_id,
+                    device_count=device_count)
+            else:
+                input_data_feed = prepare_input(
+                    batch,
+                    init_hidden=None,
+                    init_cell=None,
+                    epoch_id=epoch_id,
+                    device_count=device_count)
 
             batch_start_time = time.time()
             fetch_outs = exe.run(train_program,
                                  feed=input_data_feed,
-                                 fetch_list=[
-                                    loss.name, last_hidden.name,
-                                    last_cell.name, "learning_rate"
-                                 ],
-                use_program_cache=True)
+                                 fetch_list=[loss.name, "learning_rate"],
+                                 use_program_cache=True)
             batch_time = time.time() - batch_start_time
             batch_times.append(batch_time)
 
             cost_train = np.array(fetch_outs[0])
-            init_hidden = np.array(fetch_outs[1])
-            init_cell = np.array(fetch_outs[2])
-
-            lr = np.array(fetch_outs[3])
+            lr = np.array(fetch_outs[1])
 
             total_loss += cost_train
             iters += num_steps
@@ -437,35 +436,49 @@ def main():
         return ppl
 
     def train_an_epoch_py_reader(epoch_id, batch_times):
-        # get train epoch size
-        num_batchs = len(train_data) // batch_size
-        epoch_size = (num_batchs - 1) // num_steps
-        if args.profile:
-            log_interval = 1
-        else:
-            log_interval = epoch_size // 10
+        data_iter_size = batch_size
+        if device_count > 1 and args.parallel:
+            data_iter_size = batch_size * device_count
 
+        # get train epoch size
+        log_interval = get_log_interval(len(train_data), data_iter_size)
+
+        if args.use_py_reader:
+            def data_gen():
+                train_batches = reader.get_data_iter(train_data, data_iter_size,
+                                                     num_steps)
+                for batch in train_batches:
+                    x, y = batch
+                    x = x.reshape((-1, num_steps, 1))
+                    y = y.reshape((-1, 1))
+                    yield x, y
+
+            py_reader.decorate_tensor_provider(data_gen)
+
+        init_hidden, init_cell = get_init_data()
         total_loss = 0
         iters = 0
 
         py_reader.start()
-        batch_id = 1
+        batch_id = 0
         try:
             while True:
                 batch_start_time = time.time()
-                fetch_outs = exe.run(
-                    train_program,
-                    fetch_list=[
-                        loss.name, last_hidden.name, last_cell.name,
-                        "learning_rate"
-                    ],
-                    use_program_cache=True)
+                if batch_id == 0:
+                    fetch_outs = exe.run(
+                        train_program,
+                        feed=first_data_feeds,
+                        fetch_list=[loss.name, "learning_rate"],
+                        use_program_cache=True)
+                else:
+                    fetch_outs = exe.run(
+                        train_program,
+                        fetch_list=[loss.name, "learning_rate"],
+                        use_program_cache=True)
                 batch_time = time.time() - batch_start_time
                 batch_times.append(batch_time)
 
                 cost_train = np.array(fetch_outs[0])
-                init_hidden = np.array(fetch_outs[1])
-                init_cell = np.array(fetch_outs[2])
                 lr = np.array(fetch_outs[3])
 
                 total_loss += cost_train
@@ -488,37 +501,19 @@ def main():
         ppl = np.exp(total_loss / iters)
         return ppl
 
-
     def train():
-        if args.use_py_reader:
-            def data_gen():
-                init_hidden = np.zeros(
-                    (num_layers, batch_size, hidden_size), dtype='float32')
-                init_cell = np.zeros(
-                    (num_layers, batch_size, hidden_size), dtype='float32')
-
-                train_batches = reader.get_data_iter(train_data, batch_size, num_steps)
-                for batch in train_batches:
-                    x, y = batch
-                    x = x.reshape((-1, num_steps, 1))
-                    y = y.reshape((-1, 1))
-                    yield x, y, init_hidden, init_cell
-
-            py_reader.decorate_tensor_provider(data_gen)
-
         total_time = 0.0
-        batch_times = []
-        epoch_times = []
         for epoch_id in range(max_epoch):
+            batch_times = []
             epoch_start_time = time.time()
             if args.use_py_reader:
                 train_ppl = train_an_epoch_py_reader(epoch_id, batch_times)
             else:
                 train_ppl = train_an_epoch(epoch_id, batch_times)
             epoch_time = time.time() - epoch_start_time
-            epoch_times.append(epoch_time)
             total_time += epoch_time
-            print("\nTrain epoch:[%d]; Time: %.5f s; ppl: %.5f\n" % (epoch_id, epoch_time, train_ppl[0]))
+            print("\nTrain epoch:[%d]; epoch Time: %.5f; ppl: %.5f; avg_time: %.5f steps/s \n" %
+                  (epoch_id, epoch_time, train_ppl[0], len(batch_times) / sum(batch_times)))
 
             # FIXME(zjl): ppl[0] increases as batch_size increases. 
             # We should find a better way to calculate ppl by normalizing batch_size. 
@@ -531,11 +526,6 @@ def main():
                 )
                 print("Abort this training process and please start again.")
                 return
-            epoch_time = time.time() - epoch_start_time
-            epoch_times.append(epoch_time)
-            total_time += epoch_time
-            print("\nTrain epoch:[%d]; epoch Time: %.5f; ppl: %.5f; avg_time: %.5f steps/s \n" %
-                  (epoch_id, epoch_time, ppl[0], (batch_id + 1) / sum(batch_times)))
 
             if epoch_id == max_epoch - 1 and args.enable_ce:
                 # kpis

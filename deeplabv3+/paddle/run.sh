@@ -1,17 +1,24 @@
 #!/bin/bash
 
-set -xe
+set -x
 
 #export FLAGS_cudnn_deterministic=true
 #export FLAGS_enable_parallel_graph=1
 
-if [ $# -ne 1 ]; then
+export FLAGS_eager_delete_tensor_gb=0.0
+export FLAGS_fast_eager_deletion_mode=1
+
+if [ $# -lt 3 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem|maxbs sp|mp /ssd1/ljh/logs"
   exit
 fi
 
 task="$1"
+index="$2"
+run_mode="$3"
+run_log_path=${4:-$(pwd)}
+model_name="DeepLab_V3+"
 
 DATASET_PATH=${PWD}/data/cityscape/
 INIT_WEIGHTS_PATH=${PWD}/deeplabv3plus_xception65_initialize
@@ -24,25 +31,37 @@ num_gpu_devices=${#gpu_devices[*]}
 
 train_crop_size=513
 total_step=80
-batch_size=`expr 2 \* $num_gpu_devices`
+if [ $index = "maxbs" ]; then base_batch_size=9; else base_batch_size=2; fi
+batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
 
-log_file=log_${task}_bs${batch_size}_${num_gpu_devices}
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
+log_parse_file=${log_file}
 
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  python $PWD/train.py \
-      --batch_size=${batch_size} \
+
+  train_cmd=" --batch_size=${batch_size} \
       --train_crop_size=${train_crop_size} \
       --total_step=${total_step} \
       --init_weights_path=${INIT_WEIGHTS_PATH} \
       --save_weights_path=${SAVE_WEIGHTS_PATH} \
       --dataset_path=${DATASET_PATH} \
-      --parallel=True > ${log_file} 2>&1
+      --parallel=True"
 
+  case ${run_mode} in
+  sp) train_cmd="python -u train.py "${train_cmd} ;;
+  mp)
+      train_cmd="python -m paddle.distributed.launch --gpus ${num_gpu_devices}  train.py "${train_cmd}
+      log_parse_file="mylog/workerlog.0" ;;
+  *) echo "choose run_mode(sp or mp)"; exit 1;
+  esac
+
+  ${train_cmd} > ${log_file} 2>&1
   # Python multi-processing is used to read images, so need to
   # kill those processes if the main train process is aborted.
   #ps -aux | grep "$PWD/train.py" | awk '{print $2}' | xargs kill -9
+  kill -9 `ps -ef|grep 'deeplabv3+'|awk '{print $2}'`
 }
 
 analysis_times(){
@@ -83,12 +102,13 @@ analysis_times(){
       printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency_without_step0_avg)
       printf("\n")
     }
-  }' ${log_file} 
+  }' ${log_parse_file}
 }
 
-if [ $task = "mem" ]
+echo "Benchmark for $index"
+
+if [ $index = "mem" ]
 then
-  echo "Benchmark for $task"
   export FLAGS_fraction_of_gpu_memory_to_use=0.001
   gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
   nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
@@ -96,8 +116,16 @@ then
   train
   kill $gpu_memory_pid
   awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
-else
-  echo "Benchmark for $task"
+elif [ ${index} = 'speed' ]
+then
   train
   analysis_times
+else
+  train
+  error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use or FLAGS_initial_gpu_memory_in_mb or FLAGS_reallocate_gpu_memory_in_mbenvironment variable to a lower value"
+  if [ `grep -c "${error_string}" ${log_parse_file}` -eq 0 ]; then
+    echo "maxbs is ${batch_size}"
+  else
+    echo "maxbs running error"
+  fi
 fi
