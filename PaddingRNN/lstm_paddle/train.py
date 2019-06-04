@@ -174,26 +174,55 @@ def main():
         )
         max_epoch = 1
 
+    # define train program
     main_program = fluid.Program()
     startup_program = fluid.Program()
     if args.enable_ce:
         startup_program.random_seed = SEED
-
     with fluid.program_guard(main_program, startup_program):
-        # Training process
-        if args.use_py_reader and not args.inference_only:
-            loss, last_hidden, last_cell, feed_order, py_reader = lm_model.lm_model(
-                hidden_size,
-                vocab_size,
-                batch_size,
-                num_layers=num_layers,
-                num_steps=num_steps,
-                init_scale=init_scale,
-                dropout=dropout, 
-                rnn_model=rnn_model,
-                use_py_reader=True)
-        else:
-            loss, last_hidden, last_cell, feed_order = lm_model.lm_model(
+        with fluid.unique_name.guard():
+            if args.use_py_reader and not args.inference_only:
+                loss, last_hidden, last_cell, feed_order, py_reader = lm_model.lm_model(
+                    hidden_size,
+                    vocab_size,
+                    batch_size,
+                    num_layers=num_layers,
+                    num_steps=num_steps,
+                    init_scale=init_scale,
+                    dropout=dropout, 
+                    rnn_model=rnn_model,
+                    use_py_reader=True)
+            else:
+                loss, last_hidden, last_cell, feed_order = lm_model.lm_model(
+                    hidden_size,
+                    vocab_size,
+                    batch_size,
+                    num_layers=num_layers,
+                    num_steps=num_steps,
+                    init_scale=init_scale,
+                    dropout=dropout, 
+                    rnn_model=rnn_model,
+                    use_py_reader=False)
+
+            fluid.clip.set_gradient_clip(
+                clip=fluid.clip.GradientClipByGlobalNorm(clip_norm=max_grad_norm))
+
+            learning_rate = fluid.layers.create_global_var(
+                name="learning_rate",
+                shape=[1],
+                value=1.0,
+                dtype='float32',
+                persistable=True)
+
+            optimizer = fluid.optimizer.SGD(learning_rate=learning_rate)
+            optimizer.minimize(loss)
+
+    # define eval program
+    inference_program = fluid.Program()
+    inference_startup_program = fluid.Program()
+    with fluid.program_guard(inference_program, inference_startup_program):
+        with fluid.unique_name.guard():
+            lm_model.lm_model(
                 hidden_size,
                 vocab_size,
                 batch_size,
@@ -203,24 +232,6 @@ def main():
                 dropout=dropout, 
                 rnn_model=rnn_model,
                 use_py_reader=False)
-
-        # clone from default main program and use it as the validation program
-        inference_program = fluid.default_main_program().clone(for_test=True)
-
-        #print(inference_program)
-
-        fluid.clip.set_gradient_clip(
-            clip=fluid.clip.GradientClipByGlobalNorm(clip_norm=max_grad_norm))
-
-        learning_rate = fluid.layers.create_global_var(
-            name="learning_rate",
-            shape=[1],
-            value=1.0,
-            dtype='float32',
-            persistable=True)
-
-        optimizer = fluid.optimizer.SGD(learning_rate=learning_rate)
-        optimizer.minimize(loss)
 
     place = core.CUDAPlace(0) if args.use_gpu else core.CPUPlace()
     exe = Executor(place)
@@ -315,7 +326,7 @@ def main():
             # eval should not run the grad op and change the parameters.
             # use Executor to eval
             fetch_outs = exe.run(
-                program=eval_program,
+                program=inference_program,
                 feed=input_data_feed,
                 fetch_list=[loss.name, last_hidden.name, last_cell.name],
                 use_program_cache=True)
@@ -388,8 +399,6 @@ def main():
                                                num_steps)
 
         init_hidden, init_cell = get_init_data()
-        first_data_feeds["init_hidden"] = init_hidden
-        first_data_feeds["init_cell"] = init_cell
 
         total_loss = 0
         iters = 0
@@ -456,6 +465,10 @@ def main():
             py_reader.decorate_tensor_provider(data_gen)
 
         init_hidden, init_cell = get_init_data()
+        first_data_feeds = {}
+        first_data_feeds["init_hidden"] = init_hidden
+        first_data_feeds["init_cell"] = init_cell
+
         total_loss = 0
         iters = 0
 
@@ -463,23 +476,25 @@ def main():
         batch_id = 0
         try:
             while True:
-                batch_start_time = time.time()
                 if batch_id == 0:
+                    batch_time = 0
+                    batch_start_time = time.time()
                     fetch_outs = exe.run(
                         train_program,
                         feed=first_data_feeds,
                         fetch_list=[loss.name, "learning_rate"],
                         use_program_cache=True)
                 else:
+                    batch_time = time.time() - batch_start_time
+                    batch_times.append(batch_time)
+                    batch_start_time = time.time()
                     fetch_outs = exe.run(
                         train_program,
                         fetch_list=[loss.name, "learning_rate"],
                         use_program_cache=True)
-                batch_time = time.time() - batch_start_time
-                batch_times.append(batch_time)
 
                 cost_train = np.array(fetch_outs[0])
-                lr = np.array(fetch_outs[3])
+                lr = np.array(fetch_outs[1])
 
                 total_loss += cost_train
                 iters += num_steps
@@ -498,6 +513,7 @@ def main():
         except fluid.core.EOFException:
             py_reader.reset()
 
+        batch_times.append(time.time() - batch_start_time)
         ppl = np.exp(total_loss / iters)
         return ppl
 
