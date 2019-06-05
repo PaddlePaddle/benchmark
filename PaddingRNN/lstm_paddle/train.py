@@ -181,8 +181,7 @@ def main():
         startup_program.random_seed = SEED
     with fluid.program_guard(main_program, startup_program):
         with fluid.unique_name.guard():
-            if args.use_py_reader and not args.inference_only:
-                loss, last_hidden, last_cell, feed_order, py_reader = lm_model.lm_model(
+            res_vars = lm_model.lm_model(
                     hidden_size,
                     vocab_size,
                     batch_size,
@@ -191,18 +190,12 @@ def main():
                     init_scale=init_scale,
                     dropout=dropout, 
                     rnn_model=rnn_model,
-                    use_py_reader=True)
-            else:
-                loss, last_hidden, last_cell, feed_order = lm_model.lm_model(
-                    hidden_size,
-                    vocab_size,
-                    batch_size,
-                    num_layers=num_layers,
-                    num_steps=num_steps,
-                    init_scale=init_scale,
-                    dropout=dropout, 
-                    rnn_model=rnn_model,
-                    use_py_reader=False)
+                    use_py_reader=args.use_py_reader)
+
+            if args.use_py_reader:
+                py_reader = res_vars[-1]
+                res_vars = res_vars[:-1]
+            loss, last_hidden, last_cell, feed_order = res_vars
 
             fluid.clip.set_gradient_clip(
                 clip=fluid.clip.GradientClipByGlobalNorm(clip_norm=max_grad_norm))
@@ -247,7 +240,6 @@ def main():
     build_strategy = fluid.BuildStrategy()
     build_strategy.enable_inplace = True
     build_strategy.memory_optimize = False
-
     build_strategy.remove_unnecessary_lock = True
     build_strategy.enable_sequential_execution = False
     build_strategy.cache_runtime_context = True
@@ -374,49 +366,31 @@ def main():
         return log_interval
 
     def get_init_data():
-        if device_count > 1 and args.parallel:
-            init_hidden = np.zeros(
-                (num_layers * device_count, batch_size, hidden_size),
-                dtype='float32')
-            init_cell = np.zeros(
-                (num_layers * device_count, batch_size, hidden_size),
-                dtype='float32')
-        else:
-            init_hidden = np.zeros(
-                (num_layers, batch_size, hidden_size), dtype='float32')
-            init_cell = np.zeros(
-                (num_layers, batch_size, hidden_size), dtype='float32')
+        init_hidden = np.zeros(
+            (num_layers, batch_size, hidden_size), dtype='float32')
+        init_cell = np.zeros(
+            (num_layers, batch_size, hidden_size), dtype='float32')
         return init_hidden, init_cell
 
     def train_an_epoch(epoch_id, batch_times):
-        data_iter_size = batch_size
-        if device_count > 1 and args.parallel:
-            data_iter_size = batch_size * device_count
-
         # get train epoch size
-        log_interval = get_log_interval(len(train_data), data_iter_size)
-        train_data_iter = reader.get_data_iter(train_data, data_iter_size,
-                                               num_steps)
-
-        init_hidden, init_cell = get_init_data()
+        log_interval = get_log_interval(len(train_data), batch_size)
+        train_data_iter = reader.get_data_iter(train_data, batch_size, num_steps)
 
         total_loss = 0
         iters = 0
         for batch_id, batch in enumerate(train_data_iter):
             if batch_id == 0:
-                input_data_feed = prepare_input(
-                    batch,
-                    init_hidden=init_hidden,
-                    init_cell=init_cell,
-                    epoch_id=epoch_id,
-                    device_count=device_count)
+                init_hidden, init_cell = get_init_data()
             else:
-                input_data_feed = prepare_input(
-                    batch,
-                    init_hidden=None,
-                    init_cell=None,
-                    epoch_id=epoch_id,
-                    device_count=device_count)
+                init_hidden = None
+                init_cell = None
+            input_data_feed = prepare_input(
+                batch,
+                init_hidden=init_hidden,
+                init_cell=init_cell,
+                epoch_id=epoch_id,
+                device_count=device_count)
 
             batch_start_time = time.time()
             fetch_outs = exe.run(train_program,
@@ -445,24 +419,8 @@ def main():
         return ppl
 
     def train_an_epoch_py_reader(epoch_id, batch_times):
-        data_iter_size = batch_size
-        if device_count > 1 and args.parallel:
-            data_iter_size = batch_size * device_count
-
         # get train epoch size
-        log_interval = get_log_interval(len(train_data), data_iter_size)
-
-        if args.use_py_reader:
-            def data_gen():
-                train_batches = reader.get_data_iter(train_data, data_iter_size,
-                                                     num_steps)
-                for batch in train_batches:
-                    x, y = batch
-                    x = x.reshape((-1, num_steps, 1))
-                    y = y.reshape((-1, 1))
-                    yield x, y
-
-            py_reader.decorate_tensor_provider(data_gen)
+        log_interval = get_log_interval(len(train_data), batch_size)
 
         init_hidden, init_cell = get_init_data()
         first_data_feeds = {}
@@ -477,21 +435,20 @@ def main():
         try:
             while True:
                 if batch_id == 0:
+                    data_feeds = first_data_feeds
                     batch_time = 0
                     batch_start_time = time.time()
-                    fetch_outs = exe.run(
-                        train_program,
-                        feed=first_data_feeds,
-                        fetch_list=[loss.name, "learning_rate"],
-                        use_program_cache=True)
                 else:
+                    data_feeds = None
                     batch_time = time.time() - batch_start_time
                     batch_times.append(batch_time)
                     batch_start_time = time.time()
-                    fetch_outs = exe.run(
-                        train_program,
-                        fetch_list=[loss.name, "learning_rate"],
-                        use_program_cache=True)
+
+                fetch_outs = exe.run(
+                    train_program,
+                    feed=data_feeds,
+                    fetch_list=[loss.name, "learning_rate"],
+                    use_program_cache=True)
 
                 cost_train = np.array(fetch_outs[0])
                 lr = np.array(fetch_outs[1])
@@ -518,6 +475,19 @@ def main():
         return ppl
 
     def train():
+        if args.use_py_reader:
+            def data_gen():
+                data_iter_size = batch_size // device_count
+                train_batches = reader.get_data_iter(train_data, data_iter_size,
+                                                     num_steps)
+                for batch in train_batches:
+                    x, y = batch
+                    x = x.reshape((-1, num_steps, 1))
+                    y = y.reshape((-1, 1))
+                    yield x, y
+
+            py_reader.decorate_tensor_provider(data_gen)
+
         total_time = 0.0
         for epoch_id in range(max_epoch):
             batch_times = []

@@ -255,9 +255,9 @@ def lm_model(hidden_size,
                                            dtypes=['int64', 'int64'])
         x, y = fluid.layers.read_file(py_reader)
     else:
-        x = layers.data(name="x", shape=[batch_size, num_steps, 1], 
+        x = layers.data(name="x", shape=[batch_size_each, num_steps, 1], 
                 dtype='int64', append_batch_size=False)
-        y = layers.data(name="y", shape=[batch_size * num_steps, 1], 
+        y = layers.data(name="y", shape=[batch_size_each * num_steps, 1], 
                 dtype='int64', append_batch_size=False)
 
     init_hidden = layers.data(name="init_hidden", shape=[num_layers, batch_size_each, hidden_size], 
