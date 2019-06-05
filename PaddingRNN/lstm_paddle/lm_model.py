@@ -29,7 +29,8 @@ def lm_model(hidden_size,
              num_steps=20,
              init_scale=0.1,
              dropout=None, 
-             rnn_model='static'):
+             rnn_model='static',
+             use_py_reader=False):
     def padding_rnn(input_embedding, len=3, init_hidden=None, init_cell=None):
         weight_1_arr = []
         weight_2_arr = []
@@ -245,14 +246,23 @@ def lm_model(hidden_size,
 
         return real_res, last_hidden, last_cell
 
-    x = layers.data(name="x", shape=[batch_size, num_steps, 1], 
-            dtype='int64', append_batch_size=False)
-    y = layers.data(name="y", shape=[batch_size*num_steps, 1], 
-            dtype='int64', append_batch_size=False)
+    batch_size_each = batch_size // fluid.core.get_cuda_device_count()
+    if use_py_reader:
+        feed_shapes = [[batch_size_each, num_steps, 1],
+                       [batch_size_each * num_steps, 1]]
+        py_reader = fluid.layers.py_reader(capacity=16,
+                                           shapes=feed_shapes,
+                                           dtypes=['int64', 'int64'])
+        x, y = fluid.layers.read_file(py_reader)
+    else:
+        x = layers.data(name="x", shape=[batch_size_each, num_steps, 1], 
+                dtype='int64', append_batch_size=False)
+        y = layers.data(name="y", shape=[batch_size_each * num_steps, 1], 
+                dtype='int64', append_batch_size=False)
 
-    init_hidden = layers.data(name="init_hidden", shape=[num_layers, batch_size, hidden_size], 
+    init_hidden = layers.data(name="init_hidden", shape=[num_layers, batch_size_each, hidden_size], 
             dtype='float32', append_batch_size=False)
-    init_cell = layers.data(name="init_cell", shape=[num_layers, batch_size, hidden_size], 
+    init_cell = layers.data(name="init_cell", shape=[num_layers, batch_size_each, hidden_size], 
             dtype='float32', append_batch_size=False)
 
     init_cell.persistable = True
@@ -304,7 +314,6 @@ def lm_model(hidden_size,
 
     projection = layers.matmul(rnn_out, softmax_weight)
     projection = layers.elementwise_add(projection, softmax_bias)
-
     projection = layers.reshape(projection, shape=[-1, vocab_size], inplace=True)
 
     loss = layers.softmax_with_cross_entropy(
@@ -322,4 +331,7 @@ def lm_model(hidden_size,
     layers.assign(input=last_hidden, output=init_hidden)
 
     feeding_list = ['x', 'y', 'init_hidden', 'init_cell']
-    return loss, last_hidden, last_cell, feeding_list
+    if use_py_reader:
+        return loss, last_hidden, last_cell, feeding_list, py_reader
+    else:
+        return loss, last_hidden, last_cell, feeding_list
