@@ -125,7 +125,8 @@ def train():
                     fluid.default_startup_program())
 
         exec_strategy = fluid.ExecutionStrategy()
-        exec_strategy.use_experimental_executor = True
+        num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+        exec_strategy.num_threads = 1 if num_trainers > 1  else 0
         exec_strategy.num_iteration_per_drop_scope = 10
         train_exe = fluid.ParallelExecutor(use_cuda=bool(cfg.use_gpu), 
                             loss_name=loss.name, 
