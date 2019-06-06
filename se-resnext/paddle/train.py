@@ -340,18 +340,20 @@ def train(args):
         build_strategy = fluid.BuildStrategy()
         build_strategy.memory_optimize = args.with_mem_opt
         build_strategy.enable_inplace = args.with_inplace
+        build_strategy.fuse_all_reduce_ops=1
 
         dist_utils.prepare_for_multi_process(exe, build_strategy, train_prog, startup_prog)
-        num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
-        trainer_id = int(os.environ.get('PADDLE_TRAINER_ID', 0))
+ 
+        exec_strategy = fluid.ExecutionStrategy()
+        exec_strategy.num_threads = 8
+        exec_strategy.num_iteration_per_drop_scope = 10
 
         train_exe = fluid.ParallelExecutor(
             main_program=train_prog,
             use_cuda=bool(args.use_gpu),
             loss_name=train_cost.name,
             build_strategy=build_strategy,
-            num_trainers=num_trainers,
-            trainer_id=trainer_id)
+            exec_strategy=exec_strategy)
     else:
         train_exe = exe
 
@@ -369,13 +371,13 @@ def train(args):
 
     params = models.__dict__[args.model]().params
     for pass_id in range(params["num_epochs"]):
-
         train_py_reader.start()
 
         train_info = [[], [], []]
         test_info = [[], [], []]
         train_time = []
         batch_id = 0
+        time_record=[]
         try:
             while True:
                 t1 = time.time()
@@ -387,7 +389,7 @@ def train(args):
                     loss, acc1, acc5, lr = train_exe.run(
                         fetch_list=train_fetch_list)
                 t2 = time.time()
-                period = t2 - t1
+                time_record.append(t2 - t1)
                 loss = np.mean(np.array(loss))
                 acc1 = np.mean(np.array(acc1))
                 acc5 = np.mean(np.array(acc5))
@@ -395,9 +397,11 @@ def train(args):
                 train_info[1].append(acc1)
                 train_info[2].append(acc5)
                 lr = np.mean(np.array(lr))
-                train_time.append(period)
+                train_time.append(t2-t1)
 
                 if batch_id % 10 == 0:
+                    period = np.mean(time_record)
+                    time_record=[]
                     print("Pass {0}, trainbatch {1}, loss {2}, \
                         acc1 {3}, acc5 {4}, lr {5}, time {6}"
                           .format(pass_id, batch_id, "%.5f"%loss, "%.5f"%acc1, "%.5f"%acc5, "%.5f" %
