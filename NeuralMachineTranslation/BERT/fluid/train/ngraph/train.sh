@@ -7,8 +7,6 @@ export KMP_AFFINITY=granularity=fine,compact,1,0
 
 git clone https://github.com/PaddlePaddle/LARK.git
 cd ./LARK/BERT
-cp -rf ../../train.py .
-
 
 # pretrain config
 SAVE_STEPS=10000
@@ -23,7 +21,7 @@ CONFIG_PATH=data/demo_config/bert_config.json
 VOCAB_PATH=data/demo_config/vocab.txt
 
 # Change your train arguments:
-FLAGS_use_ngraph=true python -u ./train.py \
+FLAGS_use_ngraph=true python -u ./train_ngraph.py \
         --is_distributed false\
         --use_cuda false\
         --weight_sharing true\
@@ -45,4 +43,3 @@ FLAGS_use_ngraph=true python -u ./train.py \
         --in_token false\
         --use_fp16 false \
         --loss_scaling 8.0
-       
