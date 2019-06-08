@@ -17,7 +17,7 @@ export FLAGS_memory_fraction_of_eager_deletion=0.99999
 gen_data=/ssd1/transformer_1.1/gen_data
 
 # base model
-python -m paddle.distributed.launch --gpus ${num_gpu_devices}   train.py \
+python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES  train.py \
   --src_vocab_fpath $gen_data/wmt16_ende_data_bpe/vocab_all.bpe.32000 \
   --trg_vocab_fpath $gen_data/wmt16_ende_data_bpe/vocab_all.bpe.32000 \
   --special_token '<s>' '<e>' '<unk>' \

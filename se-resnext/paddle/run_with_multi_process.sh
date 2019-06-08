@@ -8,7 +8,7 @@ num_gpu_devices=${#arr[*]}
 
 batch_size=32 
 
-python -m paddle.distributed.launch --gpus ${num_gpu_devices}  train.py \
+python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES train.py \
    --model=SE_ResNeXt50_32x4d \
    --batch_size=${batch_size} \
    --total_images=1281167 \
