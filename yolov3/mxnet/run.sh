@@ -102,6 +102,7 @@ else
 
     if [ ${task} = "train" ]
     then
+      train
       analysis_times 3 7
     else
       echo "no infer cmd"
