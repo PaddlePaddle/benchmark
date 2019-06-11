@@ -6,7 +6,7 @@ set -xe
 export FLAGS_eager_delete_tensor_gb=0.0
 export FLAGS_fraction_of_gpu_memory_to_use=0.98
 export FLAGS_memory_fraction_of_eager_deletion=1.0
-export FLAGS_conv_workspace_size_limit=1500
+export FLAGS_conv_workspace_size_limit=500
 
 if [ $# -lt 3 ]; then
   echo "Usage: "
