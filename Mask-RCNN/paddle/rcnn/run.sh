@@ -6,7 +6,7 @@ set -xe
 export FLAGS_eager_delete_tensor_gb=0.0
 export FLAGS_fraction_of_gpu_memory_to_use=0.98
 export FLAGS_memory_fraction_of_eager_deletion=1.0
-export FLAGS_conv_workspace_size_limit=1500
+export FLAGS_conv_workspace_size_limit=500
 
 if [ $# -lt 3 ]; then
   echo "Usage: "
@@ -41,7 +41,7 @@ train(){
   case ${run_mode} in
   sp) train_cmd="python -u train.py "${train_cmd} ;;
   mp)
-      train_cmd="python -m paddle.distributed.launch --gpus ${num_gpu_devices}  train.py "${train_cmd}
+      train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES train.py "${train_cmd}
       log_parse_file="mylog/workerlog.0" ;;
   *) echo "choose run_mode(sp or mp)"; exit 1;
   esac

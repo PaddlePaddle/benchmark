@@ -25,7 +25,7 @@ if [ $index = "maxbs" ]; then base_batch_size=78; else base_batch_size=32; fi
 batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
 log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
-python -m paddle.distributed.launch --gpus ${num_gpu_devices}  run_classifier.py --task_name ${TASK_NAME} \
+python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES run_classifier.py --task_name ${TASK_NAME} \
        --use_cuda true \
        --do_train true \
        --do_val false \
