@@ -10,32 +10,38 @@ export FLAGS_fraction_of_gpu_memory_to_use=0.98
 #export FLAGS_cudnn_deterministic=true
 #export FLAGS_enable_parallel_graph=1
 
-if [ $# -lt 2 ]; then
+if [ $# -lt 3 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs 32 /ssd1/ljh/logs"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs 32 sp|mp /ssd1/ljh/logs"
   exit
 fi
 
 task="train"
 index=$1
 base_batchsize=$2
-run_log_path=${3:-$(pwd)}
+run_mode="$3"
+run_log_path=${4:-$(pwd)}
 model_name="SE-ResNeXt50"
 
 devices_str=${CUDA_VISIBLE_DEVICES//,/ }
 gpu_devices=($devices_str)
 num_gpu_devices=${#gpu_devices[*]}
 
-batch_size=`expr $base_batchsize \* $num_gpu_devices`
+if [ $run_mode = "sp" ]; then
+    batch_size=`expr $base_batchsize \* $num_gpu_devices`
+else
+    batch_size=$base_batchsize
+fi
+
 num_epochs=2
 
-log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}_${run_mode}
+log_parse_file=${log_file}
 
 train(){
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
   WORK_ROOT=$PWD
-  python train.py \
-     --model=SE_ResNeXt50_32x4d \
+  train_cmd=" --model=SE_ResNeXt50_32x4d \
      --batch_size=${batch_size} \
      --total_images=1281167 \
      --class_dim=1000 \
@@ -48,17 +54,32 @@ train(){
      --lr_strategy=cosine_decay \
      --lr=0.1 \
      --l2_decay=1.2e-4 \
-     --num_epochs=${num_epochs} > ${log_file} 2>&1 &
+     --num_epochs=${num_epochs}"
+
+  case ${run_mode} in
+  sp) train_cmd="python -u train.py "${train_cmd} ;;
+  mp)
+      train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES train.py "${train_cmd}
+      log_parse_file="mylog/workerlog.0" ;;
+  *) echo "choose run_mode(sp or mp)"; exit 1;
+  esac
+
+  ${train_cmd} > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600
-  kill -9 $train_pid
+  kill -9 `ps -ef|grep python |awk '{print $2}'`
+
+  if [ -d mylog ]; then
+      rm ${log_file}
+      cp mylog/workerlog.0 ${log_file}
+  fi
   cd ${WORK_ROOT}
 }
 
 analysis_times(){
   skip_step=$1
   count_fields=$2
-  sed 's/batch\/sec/\ batch\/sec/' ${log_file} | awk 'BEGIN{count=0}/trainbatch/{
+  sed 's/batch\/sec/\ batch\/sec/' ${log_parse_file} | awk 'BEGIN{count=0}/trainbatch/{
     step_times[count]=$'${count_fields}';
     count+=1;
   }END{
@@ -115,7 +136,7 @@ then
 else
   train
   error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use or FLAGS_initial_gpu_memory_in_mb or FLAGS_reallocate_gpu_memory_in_mbenvironment variable to a lower value"
-  if [ `grep -c "${error_string}" ${log_file}` -eq 0 ]; then
+  if [ `grep -c "${error_string}" ${log_parse_file}` -eq 0 ]; then
     echo "maxbs is ${batch_size}"
   else
     echo "maxbs running error"
