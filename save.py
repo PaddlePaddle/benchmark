@@ -257,7 +257,7 @@ def parse_logs(args):
     cv_models = ['DeepLab_V3+', 'CycleGAN', 'mask_rcnn', 'SE-ResNeXt50', 'yolov3']
     # nlp_models = ['bert', 'paddingrnn_large', 'paddingrnn_small', 'transformer']
     # rl_models = ['ddpg_deep_explore']
-    multi_process_models = ['mask_rcnn', 'yolov3', 'transformer', 'bert']
+    multi_process_models = ['mask_rcnn', 'yolov3', 'transformer', 'bert', 'SE-ResNeXt50']
     html_results = []
     for file in file_list:
         # file_name like CycleGAN_mem_1gpus or ddpg_deep_explore_speed_1gpus
