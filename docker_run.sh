@@ -186,6 +186,3 @@ zip_log
 if [ ${gpu_type} == "v100" ]; then
     send_email
 fi
-
-
-
