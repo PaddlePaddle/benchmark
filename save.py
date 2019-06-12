@@ -20,6 +20,7 @@ import uuid
 import subprocess
 import numpy as np
 import template
+import socket
 
 base_path=os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 sys.path.append(base_path)
@@ -82,8 +83,8 @@ parser.add_argument(
     default="staticgraph",
     help="The benchmark model implement method")
 
-log_server_cuda10 = "http://yq01-gpu-255-125-19-00.epc.baidu.com:8887/"
-log_server_cuda9 = "http://yq01-gpu-255-125-21-00.epc.baidu.com:8887/"
+# log_server_cuda10 = "http://yq01-gpu-255-125-19-00.epc.baidu.com:8887/"
+# log_server_cuda9 = "http://yq01-gpu-255-125-21-00.epc.baidu.com:8887/"
 
 def load_folder_files(folder_path, recursive=True):
     """
@@ -200,21 +201,30 @@ def check_results(model_name, index, run_machine_type, cur_value):
         if len(results_list) == 3:
             break
         try:
+            if not float(result.report_result) or result.report_result == '-inf':
+                continue
             results_list.append(float(result.report_result))
         except Exception as e:
-            print result.report_result
-            print e
+            print "add hitory data error {}".format(e)
 
+    #如果历史数据一直为空，则不报警
     if not results_list:
         return 0
 
     try:
-        avg_values = np.array(results_list).mean()
-        ranges = (float(cur_value) - avg_values) / avg_values
-        if ranges > 0.03 or ranges < -0.03:
+        avg_values = round(np.array(results_list).mean(), 4)
+
+        try:
+            ranges = round((float(cur_value) - avg_values) / avg_values, 4)
+        except RuntimeWarning as rw:
+            print "range solve error {}".format(rw)
+            ranges = -1
+
+        if ranges > 0.05 or ranges < -0.05:
             return avg_values, ranges
         else:
             return 0
+
     except Exception as e:
         print cur_value, e
         return 0
@@ -284,7 +294,10 @@ def parse_logs(args):
         pj.model_implement_type = args.implement_type
         pj.log_extracted = "yes"
         pj.save()
-        log_server = log_server_cuda9 if args.cuda_version == '9.0' else log_server_cuda10
+        #log_server = log_server_cuda9 if args.cuda_version == '9.0' else log_server_cuda10
+        log_server = socket.gethostname()
+        #todo config the log_server port
+        log_server = "http://" + log_server + ":8777/"
         train_log_name = "{}_{}_{}_{}".format(model_name, "train",
                                                task_index,
                                                file_name.split('_')[-1][0])
@@ -324,15 +337,19 @@ def parse_logs(args):
             else:
                 print("models: {}, run_machine_type: {}, index: {}, result: {}".format(
                     model_name, run_machine_type, task_index, result))
-                if args.job_type == 2 and result:
-                    value = check_results(model_name, report_index, run_machine_type, result)
 
-                    if value:
-                        current_html_result = [model_name, run_machine_type,
-                                               task_index, value[0], result, value[1]]
-                        html_results.append(current_html_result)
+                # 如果当前值是空或者inf(speed 会出现)
+                if not result or result == '-inf':
+                    result = 0
 
-    if args.job_type == 2 and html_results:
+                value = check_results(model_name, report_index, run_machine_type, result)
+
+                if value:
+                    current_html_result = [model_name, run_machine_type,
+                                           task_index, value[0], result, value[1]]
+                    html_results.append(current_html_result)
+
+    if html_results:
         template.construct_email_content(html_results, args.log_path, args)
 
 
