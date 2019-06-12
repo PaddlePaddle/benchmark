@@ -17,7 +17,7 @@ export KMP_AFFINITY=granularity=fine,compact,1,0
 The KMP_AFFINITTY is recommended if multiple threads are used.
 3. Run the bert training (Paddlepaddle needs to be installed)
 ```
-FLAGS_use_ngraph=true python -u ./train_ngraph.py \
+FLAGS_use_ngraph=true python -u ./train.py \
         --is_distributed false\
         --use_cuda false\
         --weight_sharing true\

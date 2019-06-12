@@ -21,7 +21,7 @@ CONFIG_PATH=data/demo_config/bert_config.json
 VOCAB_PATH=data/demo_config/vocab.txt
 
 # Change your train arguments:
-FLAGS_use_ngraph=true python -u ./train_ngraph.py \
+FLAGS_use_ngraph=true python -u ./train.py \
         --is_distributed false\
         --use_cuda false\
         --weight_sharing true\
