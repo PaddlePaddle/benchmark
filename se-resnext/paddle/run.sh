@@ -32,6 +32,7 @@ if [ $run_mode = "sp" ]; then
 else
     batch_size=$base_batchsize
 fi
+cal_batch_size=`expr $base_batchsize \* $num_gpu_devices`
 
 num_epochs=2
 
@@ -39,7 +40,7 @@ log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}_${run
 log_parse_file=${log_file}
 
 train(){
-  echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+  echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$cal_batch_size"
   WORK_ROOT=$PWD
   train_cmd=" --model=SE_ResNeXt50_32x4d \
      --batch_size=${batch_size} \
@@ -85,7 +86,7 @@ analysis_times(){
   }END{
     print "\n================ Benchmark Result ================"
     print "num_epochs:", "'${num_epochs}'"
-    print "batch_size:", "'${batch_size}'"
+    print "batch_size:", "'${cal_batch_size}'"
     if(count>'${skip_step}'){
       step_latency=0
       step_latency_without_step0_avg=0
@@ -107,12 +108,12 @@ analysis_times(){
       step_latency_without_step0_avg/=(count-'${skip_step}')
       printf("average latency (including data reading):\n")
       printf("\tAvg: %.3f s/step\n", step_latency)
-      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency)
+      printf("\tFPS: %.3f examples/s\n", "'${cal_batch_size}'"/step_latency)
       printf("average latency (skip '${skip_step}' steps):\n")
       printf("\tAvg: %.3f s/step\n", step_latency_without_step0_avg)
       printf("\tMin: %.3f s/step\n", step_latency_without_step0_min)
       printf("\tMax: %.3f s/step\n", step_latency_without_step0_max)
-      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency_without_step0_avg)
+      printf("\tFPS: %.3f examples/s\n", "'${cal_batch_size}'"/step_latency_without_step0_avg)
       printf("\n")
     }
   }'
