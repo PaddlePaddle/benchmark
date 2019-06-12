@@ -16,7 +16,7 @@ device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
 
-python -m paddle.distributed.launch --gpus ${num_gpu_devices}  train.py \
+python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES train.py \
             --model_save_dir=output/ \
             --pretrained_model=../imagenet_resnet50_fusebn/ \
             --data_dir=./dataset/coco \

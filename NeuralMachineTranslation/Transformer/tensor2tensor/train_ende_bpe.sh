@@ -32,5 +32,5 @@ t2t-trainer \
   --train_steps=1000000 \
   --eval_throttle_seconds=8640000 \
   --train_steps=1000000 \
-  --worker_gpu=$GPU_CARDS
+  --worker_gpu=$GPU_CARDS \
   --hparams="batch_size=4096"

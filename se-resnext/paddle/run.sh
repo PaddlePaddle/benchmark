@@ -2,10 +2,6 @@
 
 set -xe
 
-#export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7"
-#export CUDA_VISIBLE_DEVICES="0"
-
-export PD_MODELS_ROOT=/work/models
 
 #开启gc
 export FLAGS_eager_delete_tensor_gb=0.0
@@ -38,7 +34,6 @@ log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 train(){
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
   WORK_ROOT=$PWD
-  cd ${PD_MODELS_ROOT}/PaddleCV/image_classification
   python train.py \
      --model=SE_ResNeXt50_32x4d \
      --batch_size=${batch_size} \
