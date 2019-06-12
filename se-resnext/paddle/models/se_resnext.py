@@ -53,8 +53,7 @@ class SE_ResNeXt():
                 pool_size=3,
                 pool_stride=2,
                 pool_padding=1,
-                pool_type='max',
-                use_cudnn=False)
+                pool_type='max')
         elif layers == 101:
             cardinality = 32
             reduction_ratio = 16
@@ -73,8 +72,7 @@ class SE_ResNeXt():
                 pool_size=3,
                 pool_stride=2,
                 pool_padding=1,
-                pool_type='max',
-                use_cudnn=False)
+                pool_type='max')
         elif layers == 152:
             cardinality = 64
             reduction_ratio = 16
@@ -104,8 +102,7 @@ class SE_ResNeXt():
                 name='conv3')
             conv = fluid.layers.pool2d(
                 input=conv, pool_size=3, pool_stride=2, pool_padding=1, \
-                pool_type='max',
-                use_cudnn=False)
+                pool_type='max')
         n = 1 if layers == 50 or layers == 101 else 3
         for block in range(len(depth)):
             n += 1
