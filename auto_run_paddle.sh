@@ -53,8 +53,7 @@ prepare(){
 
 
 #    this is for image paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
-    if [ '10.0' == $cuda_version ]
-    then
+    if [ '10.0' = ${cuda_version} -o "p40" = ${gpu_type} ] ; then
         export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
     fi
 
