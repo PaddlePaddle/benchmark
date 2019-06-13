@@ -50,7 +50,7 @@ train(){
   kill -9 $train_pid
   kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 
-  if [ -d mylog ]; then
+  if [ $run_mode = "mp" -a -d mylog ]; then
       rm ${log_file}
       cp mylog/workerlog.0 ${log_file}
   fi

@@ -62,6 +62,11 @@ train(){
   # kill those processes if the main train process is aborted.
   #ps -aux | grep "$PWD/train.py" | awk '{print $2}' | xargs kill -9
   kill -9 `ps -ef|grep 'deeplabv3+'|awk '{print $2}'`
+
+  if [ $run_mode = "mp" -a -d mylog ]; then
+      rm ${log_file}
+      cp mylog/workerlog.0 ${log_file}
+  fi
 }
 
 analysis_times(){
