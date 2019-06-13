@@ -76,7 +76,7 @@ train(){
   sleep 900
   kill -9 `ps -ef|grep python |awk '{print $2}'`
 
-  if [ -d mylog ]; then
+  if [ $run_mode = "mp" -a -d mylog ]; then
       rm ${log_file}
       cp mylog/workerlog.0 ${log_file}
   fi
@@ -96,11 +96,10 @@ infer(){
 
 analysis_times(){
   skip_step=$1
-  filter_fields=$2
-  count_fields=$3
-  awk 'BEGIN{count=0}{if(NF=='${filter_fields}'){
-    step_times[count]=$'${count_fields}';
-    count+=1;}
+  awk 'BEGIN{count=0}/speed:/{
+    count_fields=NF-1
+    step_times[count]=$count_fields;
+    count+=1;
   }END{
     print "\n================ Benchmark Result ================"
     print "total_step:", count
@@ -154,10 +153,10 @@ then
     $task
     if [ ${task} = "train" ]
     then
-      analysis_times 3 19 18
+      analysis_times 3
     else
       echo "no infer cmd"
-      #analysis_times 3 5 5
+      #analysis_times 3
     fi
 else
   $task
