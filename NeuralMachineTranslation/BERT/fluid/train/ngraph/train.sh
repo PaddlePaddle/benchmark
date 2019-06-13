@@ -5,8 +5,8 @@ set -xe
 export OMP_NUM_THREADS=$(nproc)
 export KMP_AFFINITY=granularity=fine,compact,1,0
 
-git clone https://github.com/PaddlePaddle/LARK.git
-cd ./LARK/BERT
+# go to your BERT directory
+cd ./LARK_PADDLE_BERT/BERT
 
 # pretrain config
 SAVE_STEPS=10000

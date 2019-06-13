@@ -2,13 +2,22 @@
 
 To run Bert training:
 
+Please git clone paddlepaddle/LARK.
+```
+git clone https://github.com/PaddlePaddle/LARK.git
+```
+Then run the script:
 ```
 ./train.sh
 ```
 
 The script will do the following:
 
-1. git clone paddlepaddle/LARK. The model is from https://github.com/PaddlePaddle/LARK/tree/develop/BERT
+1. Enter BERT dictory
+```
+cd ./LARK_PADDLE_BERT/BERT
+```
+where LARK_PADDLE_BERT=<your path to BERT directory>
 2. Set env exports for nGraph
 ```
 export OMP_NUM_THREADS=<num_cpu_cores>
