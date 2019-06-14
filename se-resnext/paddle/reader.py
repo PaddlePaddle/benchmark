@@ -135,16 +135,19 @@ def _reader_creator(file_list,
                     data_dir=DATA_DIR,
                     pass_id_as_seed=0):
     def reader():
+        trainer_count = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+        trainer_id = int(os.getenv("PADDLE_TRAINER_ID", 0))
+        if trainer_count > 1:
+            print("start data reader (trainers_num: {}, trainer_id: {})".format(
+                trainer_count, trainer_id))
         with open(file_list) as flist:
             full_lines = [line.strip() for line in flist]
             if shuffle:
                 if pass_id_as_seed:
                     np.random.seed(pass_id_as_seed)
                 np.random.shuffle(full_lines)
-            if mode == 'train' and os.getenv('PADDLE_TRAINING_ROLE'):
+            if mode == 'train':
                 # distributed mode if the env var `PADDLE_TRAINING_ROLE` exits
-                trainer_id = int(os.getenv("PADDLE_TRAINER_ID", "0"))
-                trainer_count = int(os.getenv("PADDLE_TRAINERS_NUM", "1"))
                 per_node_lines = len(full_lines) // trainer_count
                 lines = full_lines[trainer_id * per_node_lines:(trainer_id + 1)
                                    * per_node_lines]
