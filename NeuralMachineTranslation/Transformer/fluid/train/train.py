@@ -12,6 +12,7 @@ import numpy as np
 import paddle.fluid as fluid
 from paddle.fluid.transpiler.details import program_to_code
 
+import functools
 import reader
 from config import *
 from model import transformer, position_encoding_init
@@ -388,18 +389,20 @@ def py_reader_provider_wrapper(data_reader):
     trainer_id = int(os.getenv("PADDLE_TRAINER_ID", 0)) + 1
     if trainers_num > 1:
         logging.info("start data reader (trainers_num: {}, trainer_id: {})".format(
-            trainers_num, trainer_id-1)))
+            trainers_num, trainer_id-1))
     def py_reader_provider():
         data_input_names = encoder_data_input_fields + \
                     decoder_data_input_fields[:-1] + label_data_input_fields
 
-        def get_prepared_batch_input(data):
-            return  prepare_batch_input(
-                            data, data_input_names, ModelHyperParams.eos_idx,
-                            ModelHyperParams.eos_idx, ModelHyperParams.n_head,
-                            ModelHyperParams.d_model)
-
+        get_prepared_batch_input = functools.partial(
+                prepare_batch_input, 
+                data_input_names=data_input_names, 
+                src_pad_idx=ModelHyperParams.eos_idx,
+                trg_pad_idx=ModelHyperParams.eos_idx, 
+                n_head=ModelHyperParams.n_head,
+                d_model=ModelHyperParams.d_model)
         train_data, idx = None, 1
+
         for batch_id, data in enumerate(data_reader()):
             if trainers_num > 1:
                 if idx < trainers_num:
