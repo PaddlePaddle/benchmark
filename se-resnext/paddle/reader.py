@@ -12,7 +12,9 @@ np.random.seed(0)
 DATA_DIM = 224
 
 THREAD = 8
-BUF_SIZE = 102400
+# NOTE: if the buf_size is too large, There will be insufficient memory. 
+# If the program is in the docker, there will be a strange hang-up of the program.
+BUF_SIZE = 1024
 
 DATA_DIR = 'data/ILSVRC2012'
 
