@@ -208,12 +208,12 @@ def lm_model(hidden_size,
                 try:
                     from paddle.fluid.contrib.layers import fused_elemwise_activation
                     # layers.sigmoid(i) * layers.tanh(j)
-                    tmp0 = fused_elemwise_activation(x=layers.tanh(j), y=i, functor_list=['elementwise_mul','sigmoid'])
+                    tmp0 = fused_elemwise_activation(x=layers.tanh(j), y=i, functor_list=['elementwise_mul','sigmoid'], save_intermediate_out=False)
                     # pre_cell * layers.sigmoid(f)
-                    tmp1 = fused_elemwise_activation(x=pre_cell, y=f, functor_list=['elementwise_mul','sigmoid'])
+                    tmp1 = fused_elemwise_activation(x=pre_cell, y=f, functor_list=['elementwise_mul','sigmoid'], save_intermediate_out=False)
                     c = tmp0 + tmp1
                     # layers.tanh(c) * layers.sigmoid(o)
-                    m = fused_elemwise_activation(x=layers.tanh(c), y=o, functor_list=['elementwise_mul','sigmoid'])
+                    m = fused_elemwise_activation(x=layers.tanh(c), y=o, functor_list=['elementwise_mul','sigmoid'], save_intermediate_out=False)
                 except ImportError:
                     c = pre_cell * layers.sigmoid(f) + layers.sigmoid(i) * layers.tanh(j)
                     m = layers.tanh(c) * layers.sigmoid(o)
