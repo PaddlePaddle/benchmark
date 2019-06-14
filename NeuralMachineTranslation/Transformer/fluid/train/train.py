@@ -150,9 +150,6 @@ def parse_args():
                         [TrainTaskConfig, ModelHyperParams])
     return args
 
-def is_multi_process():
-    return int(os.environ.get('PADDLE_TRAINERS_NUM', 1)) > 1
-
 def get_device_num():
     visible_device = os.getenv('CUDA_VISIBLE_DEVICES')
     # NOTE(zcd): use multi processes to train the model,
