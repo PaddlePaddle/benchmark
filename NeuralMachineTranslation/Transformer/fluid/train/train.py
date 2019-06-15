@@ -12,7 +12,6 @@ import numpy as np
 import paddle.fluid as fluid
 from paddle.fluid.transpiler.details import program_to_code
 
-import functools
 import reader
 from config import *
 from model import transformer, position_encoding_init
@@ -149,22 +148,6 @@ def parse_args():
     merge_cfg_from_list(args.opts + dict_args,
                         [TrainTaskConfig, ModelHyperParams])
     return args
-
-def get_device_num():
-    visible_device = os.getenv('CUDA_VISIBLE_DEVICES')
-    # NOTE(zcd): use multi processes to train the model,
-    # and each process use one GPU card.
-    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
-    if num_trainers > 1 : return 1
-    if visible_device:
-        device_num = len(visible_device.split(','))
-    else:
-        device_num = subprocess.check_output(['nvidia-smi','-L']).decode().count('\n')
-    return device_num
-
-def update_lr(TrainTaskConfig):
-    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
-    TrainTaskConfig.learning_rate = TrainTaskConfig.learning_rate / num_trainers
 
 def append_nccl2_prepare(startup_prog, trainer_id, worker_endpoints,
                          current_endpoint):
@@ -382,42 +365,17 @@ def py_reader_provider_wrapper(data_reader):
     """
     Data provider needed by fluid.layers.py_reader.
     """
-    trainers_num = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
-    trainer_id = int(os.getenv("PADDLE_TRAINER_ID", 0)) + 1
-    if trainers_num > 1:
-        logging.info("start data reader (trainers_num: {}, trainer_id: {})".format(
-            trainers_num, trainer_id-1))
+
     def py_reader_provider():
         data_input_names = encoder_data_input_fields + \
                     decoder_data_input_fields[:-1] + label_data_input_fields
-
-        get_prepared_batch_input = functools.partial(
-                prepare_batch_input, 
-                data_input_names=data_input_names, 
-                src_pad_idx=ModelHyperParams.eos_idx,
-                trg_pad_idx=ModelHyperParams.eos_idx, 
-                n_head=ModelHyperParams.n_head,
-                d_model=ModelHyperParams.d_model)
-        train_data, idx = None, 1
-
         for batch_id, data in enumerate(data_reader()):
-            if trainers_num > 1:
-                if idx < trainers_num:
-                    if idx == trainer_id:
-                        train_data= data
-                    idx += 1 
-                else:
-                   if idx == trainer_id:
-                        train_data= data
-                   assert train_data is not None, "train data should not be None."
-                   data_input_dict, num_token = get_prepared_batch_input(train_data)
-                   total_dict = dict(data_input_dict.items())
-                   yield [total_dict[item] for item in data_input_names]
-                   train_data, idx = None, 1
-            else:
-                data_input_dict, num_token = get_prepared_batch_input(data)
-                total_dict = dict(data_input_dict.items())
-                yield [total_dict[item] for item in data_input_names]
+            data_input_dict, num_token = prepare_batch_input(
+                data, data_input_names, ModelHyperParams.eos_idx,
+                ModelHyperParams.eos_idx, ModelHyperParams.n_head,
+                ModelHyperParams.d_model)
+            total_dict = dict(data_input_dict.items())
+            yield [total_dict[item] for item in data_input_names]
 
     return py_reader_provider
 
@@ -537,7 +495,9 @@ def train_loop(exe,
         loss_name=avg_cost.name,
         main_program=train_prog,
         build_strategy=build_strategy,
-        exec_strategy=exec_strategy)
+        exec_strategy=exec_strategy,
+        num_trainers=nccl2_num_trainers,
+        trainer_id=nccl2_trainer_id)
 
     if args.val_file_pattern is not None:
         test = test_context(exe, train_exe, dev_count)
@@ -643,6 +603,22 @@ def train_loop(exe,
         if args.val_file_pattern is not None:
             print("kpis\ttest_cost_card%d\t%f" % (dev_count, val_avg_cost))
         print("kpis\ttrain_duration_card%d\t%f" % (dev_count, time_consumed))
+
+def get_device_num():
+    visible_device = os.getenv('CUDA_VISIBLE_DEVICES')
+    # NOTE(zcd): use multi processes to train the model,
+    # and each process use one GPU card.
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    if num_trainers > 1 : return 1
+    if visible_device:
+        device_num = len(visible_device.split(','))
+    else:
+        device_num = subprocess.check_output(['nvidia-smi','-L']).decode().count('\n')
+    return device_num
+
+def update_lr(TrainTaskConfig):
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    TrainTaskConfig.learning_rate = TrainTaskConfig.learning_rate / num_trainers
 
 def train(args):
     # priority: ENV > args > config
