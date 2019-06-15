@@ -146,7 +146,7 @@ def _reader_creator(file_list,
                 if pass_id_as_seed:
                     np.random.seed(pass_id_as_seed)
                 np.random.shuffle(full_lines)
-            if mode == 'train':
+            if mode == 'train' and trainer_count > 1:
                 # distributed mode if the env var `PADDLE_TRAINING_ROLE` exits
                 per_node_lines = len(full_lines) // trainer_count
                 lines = full_lines[trainer_id * per_node_lines:(trainer_id + 1)
