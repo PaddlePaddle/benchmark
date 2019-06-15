@@ -144,6 +144,10 @@ def train():
             total_batch_size=total_batch_size,
             padding_total=cfg.TRAIN.padding_minibatch,
             shuffle=shuffle)
+        num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+        if num_trainers > 1:
+            train_reader = fluid.contrib.reader.multi_process_reader(
+                train_reader)
         py_reader = model.py_reader
         py_reader.decorate_paddle_reader(train_reader)
     else:
