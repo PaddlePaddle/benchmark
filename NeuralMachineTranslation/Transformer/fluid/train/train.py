@@ -325,7 +325,7 @@ def prepare_data_generator(args, is_test, count, pyreader):
         train_reader = py_reader_provider_wrapper(data_reader)
         num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
         if num_trainers > 1:
-            train_reader = fluid.contrib.reader.multi_process_reader(train_reader)
+            train_reader = fluid.contrib.reader.distributed_batch_reader(train_reader)
         pyreader.decorate_tensor_provider(train_reader)
         data_reader = None
     else:  # Data generator for multi-devices
