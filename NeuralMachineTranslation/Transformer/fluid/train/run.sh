@@ -35,7 +35,7 @@ log_parse_file=${log_file}
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  cd ../../../../models/PaddleNLP/neural_machine_translation/transformer/
+  #cd ../../../../models/PaddleNLP/neural_machine_translation/transformer/
   # base model
   if [ ${model_type} = 'big' ]; then
       train_cmd=" --src_vocab_fpath data/vocab.bpe.32000 \
@@ -115,7 +115,7 @@ train(){
       cp mylog/workerlog.0 ${log_file}
   fi
 
-  cd -
+  #cd -
 }
 
 infer(){
