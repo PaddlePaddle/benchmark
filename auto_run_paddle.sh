@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cur_model_list=(CycleGAN bert mask_rcnn transformer deeplab se_resnext50 ddpg_deep_explore paddingrnn yolov3)
+cur_model_list=(transformer se_resnext50 CycleGAN deeplab mask_rcnn bert  ddpg_deep_explore paddingrnn yolov3)
 usage () {
   cat <<EOF
   usage: $0 [options]
@@ -180,7 +180,7 @@ se_resnext50(){
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh maxbs 112 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_maxbs_8gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed 32 mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed 32 mp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_speed_8gpus8p 2>&1
 }
 
 
@@ -262,31 +262,55 @@ bert(){
 
 #run_transformer
 transformer(){
-    cur_model_path=${fluid_path}/models/PaddleNLP/neural_machine_translation/transformer 
+    cur_model_path=${fluid_path}/models/PaddleNLP/neural_machine_translation/transformer
     cd ${cur_model_path}
     ln -s ${data_path}/transformer/data ${cur_model_path}/data
     cp -r ${prepare_path}/transformer/mosesdecoder ${cur_model_path}/mosesdecoder
+    cp ${fluid_path}/NeuralMachineTranslation/Transformer/fluid/train/run.sh ./
     sed -i 's/set\ -xe/set\ -e/g' run.sh
-    echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    model_type="base"
+    echo "model_type is ${model_type}, index is speed, 1gpu, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed sp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_speed_1gpus 2>&1
     sleep 60
-    echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    echo "model_type is ${model_type}, index is speed, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed sp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus 2>&1
     sleep 60
-    echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    echo "model_type is ${model_type}, index is mem, 1gpus, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem sp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_mem_1gpus 2>&1
     sleep 60
-    echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    echo "model_type is ${model_type}, index is mem, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem sp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_mem_8gpus 2>&1
     sleep 60
-    echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
+    echo "model_type is ${model_type}, index is maxbs, 1gpus, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs sp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_1gpus 2>&1
     sleep 60
-    echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
+    echo "model_type is ${model_type}, index is maxbs, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs sp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_8gpus 2>&1
     sleep 60
-    echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
+    echo "model_type is ${model_type}, index is speed, 8gpus, run_mode is multi_process, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed mp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus8p 2>&1
+
+    model_type="big"
+    echo "model_type is ${model_type}, index is speed, 1gpu, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed sp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_speed_1gpus 2>&1
+    sleep 60
+    echo "model_type is ${model_type}, index is speed, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed sp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus 2>&1
+    sleep 60
+    echo "model_type is ${model_type}, index is mem, 1gpus, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem sp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_mem_1gpus 2>&1
+    sleep 60
+    echo "model_type is ${model_type}, index is mem, 8gpus, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem sp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_mem_8gpus 2>&1
+    sleep 60
+#    echo "model_type is ${model_type}, index is maxbs, 1gpus, begin"
+#    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs sp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_1gpus 2>&1
+#    sleep 60
+#    echo "model_type is ${model_type}, index is maxbs, 8gpus, begin"
+#    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs sp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_8gpus 2>&1
+#    sleep 60
+    echo "model_type is ${model_type}, index is speed, 8gpus, run_mode is multi_process, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed mp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus8p 2>&1
 }
 
 
@@ -402,24 +426,26 @@ yolov3(){
 
 prepare
 
-if [ $model = "all" ]
-then
-    for model_name in ${cur_model_list[@]}
-    do
-        echo "=====================${model_name} run begin=================="
-        $model_name
+run(){
+    if [ $model = "all" ]
+    then
+        for model_name in ${cur_model_list[@]}
+        do
+            echo "=====================${model_name} run begin=================="
+            $model_name
+            sleep 60
+            echo "*********************${model_name} run end!!******************"
+        done
+    elif echo ${cur_model_list[@]} | grep -w $model &>/dev/null
+    then
+        echo "=====================${model} run begin=================="
+        $model
         sleep 60
-        echo "*********************${model_name} run end!!******************"
-    done
-elif echo ${cur_model_list[@]} | grep -w $model &>/dev/null
-then
-    echo "=====================${model} run begin=================="
-    $model
-    sleep 60
-    echo "*********************${model} run end!!******************"
-else
-    echo "model: $model not support!"
-fi
+        echo "*********************${model} run end!!******************"
+    else
+        echo "model: $model not support!"
+    fi
+}
 
 
 save(){
@@ -450,4 +476,5 @@ save(){
     echo "******************** end insert to sql!! *****************"
 }
 
+run
 save
