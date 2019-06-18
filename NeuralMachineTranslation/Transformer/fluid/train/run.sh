@@ -79,7 +79,6 @@ train(){
           --shuffle_batch False \
           --use_py_reader True \
           --use_mem_opt True \
-          --use_default_pe False \
           --fetch_steps 100  $@ \
           dropout_seed 10 \
           learning_rate 2.0 \
