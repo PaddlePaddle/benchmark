@@ -7,9 +7,6 @@ if [ $# -lt 3 ]; then
   exit
 fi
 
-export FLAGS_enable_parallel_graph=0
-export FLAGS_sync_nccl_allreduce=1
-
 # Configuration of Allocator and GC
 export FLAGS_fraction_of_gpu_memory_to_use=1.0
 export FLAGS_eager_delete_tensor_gb=0.0
@@ -32,6 +29,7 @@ log_parse_file=${log_file}
 train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+  cd ../../../../models/PaddleNLP/neural_machine_translation/transformer/
   # base model
   train_cmd=" --src_vocab_fpath data/vocab.bpe.32000 \
       --trg_vocab_fpath data/vocab.bpe.32000 \
@@ -80,6 +78,8 @@ train(){
       rm ${log_file}
       cp mylog/workerlog.0 ${log_file}
   fi
+
+  cd -
 }
 
 infer(){

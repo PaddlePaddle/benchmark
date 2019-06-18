@@ -262,7 +262,7 @@ bert(){
 
 #run_transformer
 transformer(){
-    cur_model_path=${fluid_path}/NeuralMachineTranslation/Transformer/fluid/train
+    cur_model_path=${fluid_path}/models/PaddleNLP/neural_machine_translation/transformer 
     cd ${cur_model_path}
     ln -s ${data_path}/transformer/data ${cur_model_path}/data
     cp -r ${prepare_path}/transformer/mosesdecoder ${cur_model_path}/mosesdecoder
