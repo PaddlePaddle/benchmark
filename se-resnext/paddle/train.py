@@ -345,7 +345,10 @@ def train(args):
         dist_utils.prepare_for_multi_process(exe, build_strategy, train_prog, startup_prog)
  
         exec_strategy = fluid.ExecutionStrategy()
-        exec_strategy.num_threads = 8
+        exec_strategy.num_threads = device_num 
+        num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+        if num_trainers > 1:
+            exec_strategy.num_threads = 1 
         exec_strategy.num_iteration_per_drop_scope = 10
 
         train_exe = fluid.ParallelExecutor(

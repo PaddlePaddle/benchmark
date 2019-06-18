@@ -9,8 +9,6 @@
 """
 @Desc: template module
 @File: template.py
-@Author: liangjinhua
-@Date: 2019/5/30 19:26
 """
 import os
 
@@ -46,7 +44,7 @@ content-type:text/html
 place_holder
         </table>
         <HR align=center width="80%" SIZE=1>
-        <h4 align=center>历史详细数据 http://yq01-page-powerbang-table1077.yq01.baidu.com:8988/</h4> 
+        <h4 align=center>历史详细数据 http://xxxxxx:yyy/</h4> 
     </body>
 </html>
 """.format(args.image_commit_id,

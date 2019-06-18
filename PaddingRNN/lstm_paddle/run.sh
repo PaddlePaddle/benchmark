@@ -1,4 +1,8 @@
 #!/bin/bash
+
+export MKL_NUM_THREADS=1
+export OMP_NUM_THREADS=1
+
 # Occupy all GPU memory (5% reserved actually)
 export FLAGS_fraction_of_gpu_memory_to_use=1.0
 
