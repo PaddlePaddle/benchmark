@@ -5,7 +5,7 @@ import functools
 import numpy as np
 import paddle
 from PIL import Image, ImageEnhance
-
+import paddle.fluid as fluid
 random.seed(0)
 np.random.seed(0)
 
@@ -127,6 +127,13 @@ def process_image(sample, mode, color_jitter, rotate):
         return [img]
 
 
+def process_batch_data(input_data, mode, color_jitter, rotate):
+    batch_data = []
+    for sample in input_data:
+        batch_data.append(process_image(sample, mode, color_jitter, rotate))
+        if mode == 'train':
+    return batch_data
+
 def _reader_creator(file_list,
                     mode,
                     shuffle=False,
@@ -175,10 +182,49 @@ def _reader_creator(file_list,
     return paddle.reader.xmap_readers(mapper, reader, THREAD, BUF_SIZE)
 
 
-def train(data_dir=DATA_DIR, pass_id_as_seed=0):
+def _reader_creator2(file_list,
+                    mode,
+                    batch_size,
+                    shuffle=False,
+                    color_jitter=False,
+                    rotate=False,
+                    data_dir=DATA_DIR,
+                    pass_id_as_seed=0):
+    def reader():
+        def read_file_list():
+            with open(file_list) as flist:
+                full_lines = [line.strip() for line in flist]
+                if shuffle:
+                    if pass_id_as_seed:
+                        np.random.seed(pass_id_as_seed)
+                    np.random.shuffle(full_lines)
+
+            batch_data = []
+            for line in lines:
+                img_path, label = line.split()
+                img_path = os.path.join(data_dir, img_path)
+                batch_data.append([img_path, int(label)])
+                if len(batch_data) == batch_size
+                    if mode == 'train' or mode == 'val':
+                        yield batch_data #img_path, int(label)
+                    elif mode == 'test':
+                        yield [sample[0] for sample : batch_data]
+                    batch_data = []    
+
+	    return fluid.contrib.reader.distributed_batch_reader(
+                read_file_list)
+
+    mapper = functools.partial(
+        process_batch_data, mode=mode, color_jitter=color_jitter, rotate=rotate)
+
+    return paddle.reader.xmap_readers(mapper, reader, THREAD, BUF_SIZE)
+
+
+def train(batch_size, data_dir=DATA_DIR, pass_id_as_seed=0):
     file_list = os.path.join(data_dir, 'train_list.txt')
-    return _reader_creator(
+    return _reader_creator2(
         file_list,
+        batch_size,
         'train',
         shuffle=True,
         color_jitter=False,

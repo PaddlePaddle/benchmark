@@ -317,8 +317,9 @@ def train(args):
 
     test_batch_size = 16
     if not args.enable_ce:
-        train_reader = paddle.batch(
-            reader.train(), batch_size=train_batch_size, drop_last=True)
+        train_reader = reader.train(batch_size=train_batch_size)
+        # train_reader = paddle.batch(
+            # reader.train(), batch_size=train_batch_size, drop_last=True)
         test_reader = paddle.batch(reader.val(), batch_size=test_batch_size)
     else:
         # use flowers dataset for CE and set use_xmap False to avoid disorder data
