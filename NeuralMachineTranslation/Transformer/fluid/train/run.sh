@@ -1,9 +1,9 @@
 #!bin/bash
 set -xe
 
-if [ $# -lt 3 ]; then
+if [ $# -lt 4 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem|maxbs sp|mp /ssd1/ljh/logs"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem|maxbs sp|mp base|big /ssd1/ljh/logs"
   exit
 fi
 
@@ -18,13 +18,19 @@ export FLAGS_memory_fraction_of_eager_deletion=0.99999
 task="$1"
 index="$2"
 run_mode="$3"
-run_log_path=${4:-$(pwd)}
-model_name="transformer"
+model_type="$4"
+run_log_path=${5:-$(pwd)}
+model_name="transformer_"${model_type}
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-if [ $index = "maxbs" ]; then base_batch_size=12000; else base_batch_size=4096; fi
+if [ $index = "maxbs" -a ${model_type} = "base" ]
+then
+    base_batch_size=12000
+else
+    base_batch_size=4096
+fi
 batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
 log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}_${run_mode}
 log_parse_file=${log_file}
@@ -33,35 +39,65 @@ train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
   # base model
-  train_cmd=" --src_vocab_fpath data/vocab.bpe.32000 \
-      --trg_vocab_fpath data/vocab.bpe.32000 \
-      --special_token <s> <e> <unk> \
-      --train_file_pattern data/train.tok.clean.bpe.32000.en-de \
-      --use_token_batch True \
-      --batch_size ${base_batch_size} \
-      --sort_type pool \
-      --pool_size 200000 \
-      --shuffle False \
-      --enable_ce True \
-      --shuffle_batch False \
-      --use_py_reader True \
-      --use_mem_opt True \
-      --use_default_pe False \
-      --fetch_steps 100  $@ \
-      dropout_seed 10 \
-      learning_rate 2.0 \
-      warmup_steps 8000 \
-      beta2 0.997 \
-      d_model 512 \
-      d_inner_hid 2048 \
-      n_head 8 \
-      prepostprocess_dropout 0.1 \
-      attention_dropout 0.1 \
-      relu_dropout 0.1 \
-      weight_sharing True \
-      pass_num 1 \
-      model_dir tmp_models \
-      ckpt_dir tmp_ckpts"
+  if [ ${model_type} = 'big' ]; then
+      train_cmd=" --src_vocab_fpath data/vocab.bpe.32000 \
+          --trg_vocab_fpath data/vocab.bpe.32000 \
+          --special_token <s> <e> <unk> \
+          --train_file_pattern data/train.tok.clean.bpe.32000.en-de \
+          --use_token_batch True \
+          --batch_size ${base_batch_size} \
+          --use_token_batch True \
+          --sort_type pool \
+          --pool_size 200000 \
+          --shuffle True \
+          --shuffle_batch True \
+          --use_py_reader True \
+          --use_mem_opt True \
+          --enable_ce False \
+          --fetch_steps 100 \
+          learning_rate 2.0 \
+          warmup_steps 8000 \
+          beta2 0.997 \
+          d_model 1024 \
+          d_inner_hid 4096 \
+          n_head 16 \
+          prepostprocess_dropout 0.3 \
+          attention_dropout 0.1 \
+          relu_dropout 0.1 \
+          weight_sharing True \
+          pass_num 100 \
+          max_length 256"
+  else
+      train_cmd=" --src_vocab_fpath data/vocab.bpe.32000 \
+          --trg_vocab_fpath data/vocab.bpe.32000 \
+          --special_token <s> <e> <unk> \
+          --train_file_pattern data/train.tok.clean.bpe.32000.en-de \
+          --use_token_batch True \
+          --batch_size ${base_batch_size} \
+          --sort_type pool \
+          --pool_size 200000 \
+          --shuffle False \
+          --enable_ce True \
+          --shuffle_batch False \
+          --use_py_reader True \
+          --use_mem_opt True \
+          --use_default_pe False \
+          --fetch_steps 100  $@ \
+          dropout_seed 10 \
+          learning_rate 2.0 \
+          warmup_steps 8000 \
+          beta2 0.997 \
+          d_model 512 \
+          d_inner_hid 2048 \
+          n_head 8 \
+          prepostprocess_dropout 0.1 \
+          attention_dropout 0.1 \
+          relu_dropout 0.1 \
+          weight_sharing True \
+          pass_num 1 \
+          model_dir tmp_models \
+          ckpt_dir tmp_ckpts"
+  fi
 
   case ${run_mode} in
   sp) train_cmd="python -u train.py "${train_cmd} ;;
