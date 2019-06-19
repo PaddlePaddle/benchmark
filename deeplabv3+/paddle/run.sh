@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -e
 
 #export FLAGS_cudnn_deterministic=true
 #export FLAGS_enable_parallel_graph=1
