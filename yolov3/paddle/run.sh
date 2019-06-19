@@ -34,7 +34,8 @@ train(){
   train_cmd=" --model_save_dir=output/ \
    --pretrain=./weights/darknet53/ \
    --data_dir=./dataset/coco/ \
-   --batch_size=${base_batch_size}"
+   --batch_size=${base_batch_size} \
+   --syncbn==False"
 
   case ${run_mode} in
   sp) train_cmd="python -u train.py "${train_cmd} ;;
