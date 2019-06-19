@@ -337,10 +337,12 @@ ddpg_deep_explore(){
 
 #run_paddingrnn
 paddingrnn(){
-    cur_model_path=${fluid_path}/PaddingRNN/lstm_paddle
-    cd ${cur_model_path}
+    cd ${fluid_path}/models/PaddleNLP/language_model
+    # Prepare data.
     batch_size=20
     ln -s ${data_path}/simple-examples ${cur_model_path}/data/simple-examples
+    # Running ...
+    cp ${fluid_path}/PaddingRNN/lstm_paddle/run.sh ./
     sed -i 's/set\ -xe/set\ -e/g' run.sh
     echo "index is speed, 1gpus, small model, rnn_type=static, begin"
     CUDA_VISIBLE_DEVICES=0 bash run.sh speed small static ${batch_size} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_small_static_speed_1gpus 2>&1
