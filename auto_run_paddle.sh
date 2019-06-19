@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cur_model_list=(transformer se_resnext50 CycleGAN deeplab mask_rcnn bert  ddpg_deep_explore paddingrnn yolov3)
+cur_model_list=(transformer se_resnext50 CycleGAN deeplab mask_rcnn bert ddpg_deep_explore paddingrnn yolov3)
 usage () {
   cat <<EOF
   usage: $0 [options]
@@ -16,6 +16,7 @@ usage () {
   -s  implement_type of model static | dynamic
 EOF
 }
+
 if [ $# != 18 ] ; then
   usage
   exit 1;
@@ -76,8 +77,8 @@ prepare(){
     mkdir -p ${train_log_dir}
 
     root_path=/home/crim/
-    fluid_path=/home/crim/benchmark
-    log_path=/home/crim/benchmark/logs
+    fluid_path=${root_path}/benchmark
+    log_path=${root_path}/benchmark/logs
     data_path=${all_path}/dataset
     prepare_path=${all_path}/prepare
 
@@ -86,11 +87,12 @@ prepare(){
         rm ${log_path}/*
         cd ${root_path}
         git pull
+        git submodule update
         echo "prepare had done"
     else
         mkdir /home/crim
         cd ${root_path}
-        git clone https://github.com/PaddlePaddle/benchmark.git
+        git clone --recursive https://github.com/PaddlePaddle/benchmark.git
         cd ${fluid_path}
         git submodule init
         git submodule update
@@ -123,12 +125,14 @@ CycleGAN(){
 
 #run_deeplabv3+
 deeplab(){
-    cur_model_path=${fluid_path}/deeplabv3+/paddle
-    cd ${cur_model_path}
+    cd ${fluid_path}/models/PaddleCV/deeplabv3+
+    # Prepare data and pretrained parameters.
     mkdir data
     mkdir -p ./output/model
     ln -s ${data_path}/cityscape ${cur_model_path}/data/cityscape
     ln -s ${prepare_path}/deeplabv3plus_xception65_initialize ${cur_model_path}/deeplabv3plus_xception65_initialize
+    # Running ...
+    cp ${fluid_path}/deeplabv3+/paddle/run.sh ./
     sed -i 's/set\ -xe/set\ -e/g' run.sh
     echo "index is speed, 1gpu, begin"
     CUDA_VISIBLE_DEVICES=0 bash run.sh train speed sp ${train_log_dir} | tee ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
@@ -424,8 +428,6 @@ yolov3(){
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
 }
 
-prepare
-
 run(){
     if [ $model = "all" ]
     then
@@ -476,5 +478,6 @@ save(){
     echo "******************** end insert to sql!! *****************"
 }
 
+prepare
 run
 save
