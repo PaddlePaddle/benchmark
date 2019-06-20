@@ -5,14 +5,14 @@ import functools
 import numpy as np
 import paddle
 from PIL import Image, ImageEnhance
-
+import paddle.fluid as fluid
 random.seed(0)
 np.random.seed(0)
 
 DATA_DIM = 224
 
 THREAD = 8
-# NOTE: if the buf_size is too large, There will be insufficient memory. 
+# NOTE: if the buf_size is too large, There will be insufficient memory.
 # If the program is in the docker, there will be a strange hang-up of the program.
 BUF_SIZE = 1024
 
@@ -127,70 +127,72 @@ def process_image(sample, mode, color_jitter, rotate):
         return [img]
 
 
+def process_batch_data(input_data, mode, color_jitter, rotate):
+    batch_data = []
+    for sample in input_data:
+        batch_data.append(process_image(sample, mode, color_jitter, rotate))
+    return batch_data
+
 def _reader_creator(file_list,
+                    batch_size,
                     mode,
                     shuffle=False,
                     color_jitter=False,
                     rotate=False,
                     data_dir=DATA_DIR,
-                    pass_id_as_seed=0):
+                    shuffle_seed=0):
     def reader():
-        with open(file_list) as flist:
-            full_lines = [line.strip() for line in flist]
-            if shuffle:
-                if pass_id_as_seed:
-                    np.random.seed(pass_id_as_seed)
-                np.random.shuffle(full_lines)
-            if mode == 'train' and os.getenv('PADDLE_TRAINING_ROLE'):
-                # distributed mode if the env var `PADDLE_TRAINING_ROLE` exits
-                trainer_id = int(os.getenv("PADDLE_TRAINER_ID", "0"))
-                trainer_count = int(os.getenv("PADDLE_TRAINERS_NUM", "1"))
-                per_node_lines = len(full_lines) // trainer_count
-                lines = full_lines[trainer_id * per_node_lines:(trainer_id + 1)
-                                   * per_node_lines]
-                print(
-                    "read images from %d, length: %d, lines length: %d, total: %d"
-                    % (trainer_id * per_node_lines, per_node_lines, len(lines),
-                       len(full_lines)))
-            else:
-                lines = full_lines
+        def read_file_list():
+            with open(file_list) as flist:
+                full_lines = [line.strip() for line in flist]
+                if shuffle:
+                    if shuffle_seed:
+                        np.random.seed(shuffle_seed)
+                    np.random.shuffle(full_lines)
+            batch_data = []
+            for line in full_lines:
+                img_path, label = line.split()
+                img_path = os.path.join(data_dir, img_path)
+                batch_data.append([img_path, int(label)])
+                if len(batch_data) == batch_size:
+                    if mode == 'train' or mode == 'val':
+                        yield batch_data
+                    elif mode == 'test':
+                        yield [sample[0] for sample in batch_data]
+                    batch_data = []
+        return read_file_list
 
-            for line in lines:
-                if mode == 'train' or mode == 'val':
-                    img_path, label = line.split()
-                    img_path = os.path.join(data_dir, img_path)
-                    yield img_path, int(label)
-                elif mode == 'test':
-                    img_path, label = line.split()
-                    img_path = os.path.join(data_dir, img_path)
-
-                    yield [img_path]
+    data_reader = reader()
+    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    if mode == 'train' and num_trainers > 1:
+        data_reader = fluid.contrib.reader.distributed_batch_reader(data_reader)
 
     mapper = functools.partial(
-        process_image, mode=mode, color_jitter=color_jitter, rotate=rotate)
+        process_batch_data, mode=mode, color_jitter=color_jitter, rotate=rotate)
 
-    return paddle.reader.xmap_readers(mapper, reader, THREAD, BUF_SIZE)
+    return paddle.reader.xmap_readers(mapper, data_reader, THREAD, BUF_SIZE)
 
 
-def train(data_dir=DATA_DIR, pass_id_as_seed=0):
+def train(batch_size, data_dir=DATA_DIR, shuffle_seed=0):
     file_list = os.path.join(data_dir, 'train_list.txt')
     return _reader_creator(
         file_list,
+        batch_size,
         'train',
         shuffle=True,
         color_jitter=False,
         rotate=False,
         data_dir=data_dir,
-        pass_id_as_seed=pass_id_as_seed)
+        shuffle_seed=shuffle_seed)
 
 
-def val(data_dir=DATA_DIR):
+def val(batch_size, data_dir=DATA_DIR):
     file_list = os.path.join(data_dir, 'val_list.txt')
-    return _reader_creator(file_list, 'val', shuffle=False, 
+    return _reader_creator(file_list, 'val', batch_size, shuffle=False,
             data_dir=data_dir)
 
 
-def test(data_dir=DATA_DIR):
+def test(batch_size, data_dir=DATA_DIR):
     file_list = os.path.join(data_dir, 'val_list.txt')
-    return _reader_creator(file_list, 'test', shuffle=False, 
+    return _reader_creator(file_list, 'test', batch_size, shuffle=False,
             data_dir=data_dir)
