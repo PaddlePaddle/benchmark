@@ -33,27 +33,18 @@ from config import cfg
 import dist_utils 
 
 def get_device_num():
-    visible_device = os.getenv('CUDA_VISIBLE_DEVICES')
     # NOTE(zcd): use multi processes to train the model,
     # and each process use one GPU card.
     num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
     if num_trainers > 1 : return 1
+    visible_device = os.environ.get('CUDA_VISIBLE_DEVICES', None)
     if visible_device:
         device_num = len(visible_device.split(','))
     else:
         device_num = subprocess.check_output(['nvidia-smi','-L']).decode().count('\n')
     return device_num
 
-def update_lr(args):
-    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
-    args.learning_rate = args.learning_rate / num_trainers
-    # TODO(zcd): The loss_cls or loss maybe NAN, so we decreate the learning rate here.
-    # The reasons for this should be analyzed in depth.
-    if num_trainers > 1:
-        args.learning_rate = args.learning_rate / 10
-
 def train():
-    update_lr(cfg)
     learning_rate = cfg.learning_rate
     image_shape = [3, cfg.TRAIN.max_size, cfg.TRAIN.max_size]
 
@@ -121,8 +112,7 @@ def train():
             dist_utils.prepare_for_multi_process(
                     exe, 
                     build_strategy, 
-                    fluid.default_main_program(), 
-                    fluid.default_startup_program())
+                    fluid.default_main_program())
 
         exec_strategy = fluid.ExecutionStrategy()
         num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
