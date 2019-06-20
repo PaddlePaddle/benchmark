@@ -140,7 +140,7 @@ def _reader_creator(file_list,
                     color_jitter=False,
                     rotate=False,
                     data_dir=DATA_DIR,
-                    pass_id_as_seed=1):
+                    pass_id_as_seed=0):
     def reader():
         def read_file_list():
             with open(file_list) as flist:

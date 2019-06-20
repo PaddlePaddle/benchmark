@@ -32,10 +32,10 @@ from learning_rate import exponential_with_warmup_decay
 from config import cfg
 import dist_utils 
 
+num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+
 def get_device_num():
-    # NOTE(zcd): use multi processes to train the model,
-    # and each process use one GPU card.
-    num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+    # NOTE(zcd): for multi-processe training, each process use one GPU card.
     if num_trainers > 1 : return 1
     visible_device = os.environ.get('CUDA_VISIBLE_DEVICES', None)
     if visible_device:
@@ -108,14 +108,13 @@ def train():
         build_strategy.memory_optimize = False
         build_strategy.enable_inplace = False
 
-        if cfg.use_gpu:
+        if num_trainers > 1 and cfg.use_gpu:
             dist_utils.prepare_for_multi_process(
                     exe, 
                     build_strategy, 
                     fluid.default_main_program())
 
         exec_strategy = fluid.ExecutionStrategy()
-        num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
         exec_strategy.num_threads = 1 if num_trainers > 1  else 0
         exec_strategy.num_iteration_per_drop_scope = 10
         train_exe = fluid.ParallelExecutor(use_cuda=bool(cfg.use_gpu), 
@@ -134,7 +133,7 @@ def train():
             total_batch_size=total_batch_size,
             padding_total=cfg.TRAIN.padding_minibatch,
             shuffle=shuffle)
-        num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
+        
         if num_trainers > 1:
             train_reader = fluid.contrib.reader.distributed_batch_reader(
                 train_reader)
