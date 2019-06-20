@@ -126,7 +126,7 @@ def train():
     else:
         train_exe = exe
 
-    # NOTE: donot shuffle dataset when using multi-process training 
+    # NOTE: do not shuffle dataset when using multi-process training 
     shuffle = True if num_trainers > 1 else False
     if cfg.enable_ce:
         shuffle = False
