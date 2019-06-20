@@ -25,8 +25,3 @@ $ CUDA_VISIBLE_DEVICES="0" ./run.sh speed
 ```
 $ CUDA_VISIBLE_DEVICES="0,1,2,3" ./run.sh speed
 ```
-
-#### 说明
-
-当前仓库中，我们对reader进行了优化，通过配置multiprocessing多进程读取数据，来优化模型训练的总体速度。
-待[PaddlePaddle/models/PaddleCV/deeplabv3+](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/deeplabv3%2B)进行相应的更新之后，我们将以[PaddlePaddle/models/PaddleCV/deeplabv3+](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/deeplabv3%2B)中的版本为准。

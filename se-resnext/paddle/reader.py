@@ -140,14 +140,14 @@ def _reader_creator(file_list,
                     color_jitter=False,
                     rotate=False,
                     data_dir=DATA_DIR,
-                    pass_id_as_seed=0):
+                    shuffle_seed=0):
     def reader():
         def read_file_list():
             with open(file_list) as flist:
                 full_lines = [line.strip() for line in flist]
                 if shuffle:
-                    if pass_id_as_seed:
-                        np.random.seed(pass_id_as_seed)
+                    if shuffle_seed:
+                        np.random.seed(shuffle_seed)
                     np.random.shuffle(full_lines)
             batch_data = []
             for line in full_lines:
@@ -173,7 +173,7 @@ def _reader_creator(file_list,
     return paddle.reader.xmap_readers(mapper, data_reader, THREAD, BUF_SIZE)
 
 
-def train(batch_size, data_dir=DATA_DIR, pass_id_as_seed=0):
+def train(batch_size, data_dir=DATA_DIR, shuffle_seed=0):
     file_list = os.path.join(data_dir, 'train_list.txt')
     return _reader_creator(
         file_list,
@@ -183,7 +183,7 @@ def train(batch_size, data_dir=DATA_DIR, pass_id_as_seed=0):
         color_jitter=False,
         rotate=False,
         data_dir=data_dir,
-        pass_id_as_seed=pass_id_as_seed)
+        shuffle_seed=shuffle_seed)
 
 
 def val(batch_size, data_dir=DATA_DIR):
