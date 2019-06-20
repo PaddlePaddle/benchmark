@@ -125,7 +125,8 @@ CycleGAN(){
 
 #run_deeplabv3+
 deeplab(){
-    cd ${fluid_path}/models/PaddleCV/deeplabv3+
+    cur_model_path=${fluid_path}/models/PaddleCV/deeplabv3+
+    cd ${cur_model_path}
     # Prepare data and pretrained parameters.
     mkdir data
     mkdir -p ./output/model
@@ -341,7 +342,8 @@ ddpg_deep_explore(){
 
 #run_paddingrnn
 paddingrnn(){
-    cd ${fluid_path}/models/PaddleNLP/language_model
+    cur_model_path=${fluid_path}/models/PaddleNLP/language_model
+    cd ${cur_model_path}
     # Prepare data.
     batch_size=20
     ln -s ${data_path}/simple-examples ${cur_model_path}/data/simple-examples
