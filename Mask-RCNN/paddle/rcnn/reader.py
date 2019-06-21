@@ -71,7 +71,8 @@ def coco(mode,
          batch_size=None,
          total_batch_size=None,
          padding_total=False,
-         shuffle=False):
+         shuffle=False,
+         shuffle_seed=None):
     total_batch_size = total_batch_size if total_batch_size else batch_size
     assert total_batch_size % batch_size == 0
     json_dataset = JsonDataset(mode)
@@ -97,6 +98,8 @@ def coco(mode,
     def reader():
         if mode == "train":
             if shuffle:
+                if shuffle_seed is not None:
+                    np.random.seed(shuffle_seed)
                 roidb_perm = deque(np.random.permutation(roidbs))
             else:
                 roidb_perm = deque(roidbs)
@@ -156,9 +159,9 @@ def coco(mode,
     return reader
 
 
-def train(batch_size, total_batch_size=None, padding_total=False, shuffle=True):
+def train(batch_size, total_batch_size=None, padding_total=False, shuffle=True, shuffle_seed=None):
     return coco(
-        'train', batch_size, total_batch_size, padding_total, shuffle=shuffle)
+        'train', batch_size, total_batch_size, padding_total, shuffle=shuffle, shuffle_seed=shuffle_seed)
 
 
 def test(batch_size, total_batch_size=None, padding_total=False):
