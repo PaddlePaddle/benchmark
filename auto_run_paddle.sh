@@ -110,10 +110,13 @@ prepare(){
 
 #run_cycle_gan
 CycleGAN(){
-    cur_model_path=${fluid_path}/CycleGAN/paddle
+    cur_model_path=${fluid_path}/models/PaddleCV/gan/cycle_gan
     cd ${cur_model_path}
+    # Prepare data
     mkdir data
     ln -s ${data_path}/horse2zebra/ ${cur_model_path}/data
+    # Running ...
+    cp ${fluid_path}/CycleGAN/paddle/run.sh ./
     sed -i 's/set\ -xe/set\ -e/g' run.sh
     echo "index is speed, begin"
     CUDA_VISIBLE_DEVICES=0 bash run.sh train speed ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
