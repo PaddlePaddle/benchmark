@@ -18,3 +18,6 @@
   path = se-resnext/pytorch/examples
   url = https://github.com/pytorch/examples.git
   branch = master
+[submodule "se-resnext/pytorch/SENet"]
+  path = se-resnext/pytorch/SENet
+  url = https://github.com/Xreki/SENet-PyTorch.git
