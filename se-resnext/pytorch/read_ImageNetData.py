@@ -1,4 +1,4 @@
-from torchvision import transforms, datasets
+from torchvision import transforms
 import os
 import torch
 from PIL import Image
