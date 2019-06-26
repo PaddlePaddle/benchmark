@@ -163,32 +163,37 @@ deeplab(){
 
 #run_se-resnext50
 se_resnext50(){
-    cur_model_path=${fluid_path}/se-resnext/paddle
+    cur_model_path=${fluid_path}/models/PaddleCV/image_classification
     cd ${cur_model_path}
-    rm -rf ${cur_model_path}/data/ILSVRC2012
-    ln -s ${data_path}/ILSVRC2012 ${cur_model_path}/data/ILSVRC2012
-    sed -i '/cd /d' run.sh
-    sed -i 's/set\ -xe/set\ -e/g' run.sh
+    # Prepare data
+    ln -s ${data_path}/ILSVRC2012/train ${cur_model_path}/data/ILSVRC2012/train
+    ln -s ${data_path}/ILSVRC2012/train_list ${cur_model_path}/data/ILSVRC2012/train_list
+    ln -s ${data_path}/ILSVRC2012/val ${cur_model_path}/data/ILSVRC2012/val
+    ln -s ${data_path}/ILSVRC2012/val_list ${cur_model_path}/data/ILSVRC2012/val_list
+    # Copy run.sh and running ...
+    cp ${fluid_path}/se-resnext/paddle/run.sh ./run_benchmark.sh
+    sed -i '/cd /d' run_benchmark.sh
+    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed 32 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed 32 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem 32 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem 32 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh mem 32 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem 32 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_mem_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh maxbs 112 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs 112 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_maxbs_1gpus 2>&1
     sleep 60
     echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh maxbs 112 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_maxbs_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs 112 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_maxbs_8gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed 32 mp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_speed_8gpus8p 2>&1
+#    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 mp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_speed_8gpus8p 2>&1
 }
 
 
