@@ -15,6 +15,7 @@
 from __future__ import print_function
 
 import argparse
+import re
 
 
 def parse_args():
@@ -61,16 +62,25 @@ class TimeAnalyzer(object):
             if line.find(self.keyword) == -1:
                 continue
 
+            line = line.strip().replace("\t", self.separator)
+            line = re.sub(r"\s+", self.separator, line)
             items = line.split(self.separator)
-            if self.position >= 0 and self.position < len(items):
+            clean_items = []
+            for item in items:
+                if item != self.separator:
+                    clean_items.append(item)
+
+            if self.position >= 0 and self.position < len(clean_items):
                 position = self.position
             else:
                 position = 0
-                for item in items:
+                for item in clean_items:
                     position += 1
                     if item == self.keyword:
                         break
-            self.records.append(float(items[position]))
+            #print(position)
+            #print(clean_items[position])
+            self.records.append(float(clean_items[position]))
             
         if len(self.records) <= 0:
             raise Exception("No items in %s!" % (self.filename))
