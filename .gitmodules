@@ -14,3 +14,7 @@
   path = se-resnext/pytorch/vision
   url = https://github.com/pytorch/vision.git
   branch = master
+[submodule "se-resnext/pytorch/examples"]
+  path = se-resnext/pytorch/examples
+  url = https://github.com/pytorch/examples.git
+  branch = master
