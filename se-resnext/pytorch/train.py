@@ -12,6 +12,8 @@ from read_ImageNetData import ImageNetData
 import se_resnet
 import se_resnext
 
+from torchvision import models
+
 def train_model(args, model, criterion, optimizer, scheduler, num_epochs, dataset_sizes):
     since = time.time()
     resumed = False
@@ -120,11 +122,19 @@ if __name__ == '__main__':
     script_name = '_'.join([args.network.strip().split('_')[0], args.network.strip().split('_')[1]])
 
     if script_name == "se_resnet":
+        print("model: se_resnet.{}".format(args.network))
         model = getattr(se_resnet ,args.network)(num_classes = args.num_class)
     elif script_name == "se_resnext":
+        print("model: se_resnext.{}".format(args.network))
         model = getattr(se_resnext, args.network)(num_classes=args.num_class)
+    elif args.network.startswith("resnet"):
+        network = args.network.replace("_", "");
+        print("model: models.resnet.{}".format(network))
+        model = getattr(models.resnet, network)(num_classes=args.num_class)
     else:
         raise Exception("Please give correct network name such as se_resnet_xx or se_rexnext_xx")
+
+    print(model)
 
     if args.resume:
         if os.path.isfile(args.resume):

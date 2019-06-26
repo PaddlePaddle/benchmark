@@ -332,6 +332,18 @@ def train(args):
     train_py_reader.decorate_paddle_reader(train_reader)
     test_py_reader.decorate_paddle_reader(test_reader)
 
+    train_fetch_vars = [train_cost, train_acc1, train_acc5, global_lr]
+    train_fetch_list = []
+    for var in train_fetch_vars:
+       var.persistable=True
+       train_fetch_list.append(var.name)
+
+    test_fetch_vars = [test_cost, test_acc1, test_acc5]
+    test_fetch_list = []
+    for var in test_fetch_vars:
+       var.persistable=True
+       test_fetch_list.append(var.name)
+
     if not use_ngraph:
         build_strategy = fluid.BuildStrategy()
         build_strategy.memory_optimize = args.with_mem_opt
@@ -355,18 +367,6 @@ def train(args):
             exec_strategy=exec_strategy)
     else:
         train_exe = exe
-
-    train_fetch_vars = [train_cost, train_acc1, train_acc5, global_lr]
-    train_fetch_list = []
-    for var in train_fetch_vars:
-       var.persistable=True
-       train_fetch_list.append(var.name)
-
-    test_fetch_vars = [test_cost, test_acc1, test_acc5]
-    test_fetch_list = []
-    for var in test_fetch_vars:
-       var.persistable=True
-       test_fetch_list.append(var.name)
 
     params = models.__dict__[args.model]().params
     for pass_id in range(params["num_epochs"]):

@@ -26,7 +26,7 @@ from roidbs import JsonDataset
 import data_utils
 from config import cfg
 import segm_utils
-
+num_trainers = int(os.environ.get('PADDLE_TRAINERS_NUM', 1))
 
 def roidb_reader(roidb, mode):
     im, im_scales = data_utils.get_image_blob(roidb, mode)
@@ -143,7 +143,7 @@ def coco(mode,
                             sub_batch_out = []
                         batch_out = []
                 iter_id = count // device_num
-                if iter_id >= cfg.max_iter:
+                if iter_id >= cfg.max_iter * num_trainers:
                     return
         elif mode == "val":
             batch_out = []

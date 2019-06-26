@@ -22,12 +22,13 @@ echo ""
 
 if [ $# -ne 2 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh 32"
+  echo "  CUDA_VISBLE_DEVICES=0 bash run.sh se_resnext_50|resnet_50 32"
   exit
 fi
 
 task=speed
-base_batchsize=$1
+network=$1
+base_batchsize=$2
 devices_str=${CUDA_VISIBLE_DEVICES//,/ }
 gpu_devices=($devices_str)
 num_gpu_devices=${#gpu_devices[*]}
@@ -36,12 +37,13 @@ batch_size=`expr $base_batchsize \* $num_gpu_devices`
 num_epochs=2
 num_workers=`expr 2 \* $num_gpu_devices`
 
-log_file=log_${task}_bs${batch_size}_${num_gpu_devices}
+log_file=log_${network}_${task}_bs${batch_size}_${num_gpu_devices}
 
 if [ ! -d vision ]; then
   git clone https://github.com/pytorch/vision.git
 fi
 export PYTHONPATH=$PWD/vision
+
 
 train() {
   echo "Train on ${num_gpu_devices} GPUs"
@@ -51,7 +53,7 @@ train() {
   nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
   gpu_memory_pid=$!
   stdbuf -oL python train.py \
-        --network se_resnext_50 \
+        --network ${network} \
         --data-dir ImageData/ \
         --batch-size ${batch_size} \
         --num-workers ${num_workers} \
