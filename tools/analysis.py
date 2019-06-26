@@ -107,18 +107,21 @@ class TimeAnalyzer(object):
         avg_of_records = sum_of_records / float(count)
         avg_of_records_skipped = sum_of_records_skipped / float(count - skip_steps)
 
-        if mode == 0:
-            print("average latency of %d steps, skip 0 step:" % (count))
-            print("\tAvg: %.3f s/step" % (avg_of_records))
-            print("\tFPS: %.3f samples/s" % (batch_size / avg_of_records))
-            if skip_steps > 0:
-                print("average latency of %d steps, skip %d steps:" % (count, skip_steps))
-                print("\tAvg: %.3f s/step" % (avg_of_records_skipped))
-                print("\tMin: %.3f s/step" % (skip_min))
-                print("\tMax: %.3f s/step" % (skip_max))
-                print("\tFPS: %.3f samples/s" % (batch_size / avg_of_records_skipped))
-        else:
-            raise ValueError("Not supportted.")
+        if mode == 1:
+            avg_of_records = float(1) / avg_of_records
+            avg_of_records_skipped = float(1) / avg_of_records_skipped
+            skip_min = float(1) / skip_min
+            skip_max = float(1) / skip_max
+            
+        print("average latency of %d steps, skip 0 step:" % (count))
+        print("\tAvg: %.3f s/step" % (avg_of_records))
+        print("\tFPS: %.3f samples/s" % (batch_size / avg_of_records))
+        if skip_steps > 0:
+            print("average latency of %d steps, skip %d steps:" % (count, skip_steps))
+            print("\tAvg: %.3f s/step" % (avg_of_records_skipped))
+            print("\tMin: %.3f s/step" % (skip_min))
+            print("\tMax: %.3f s/step" % (skip_max))
+            print("\tFPS: %.3f samples/s" % (batch_size / avg_of_records_skipped))
 
 
 if __name__ == "__main__":
