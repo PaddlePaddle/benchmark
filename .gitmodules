@@ -10,3 +10,7 @@
 	path = NeuralMachineTranslation/BERT/pytorch/Megatron-LM
 	url = https://github.com/chengduoZH/Megatron-LM
 	branch = benchmark
+[submodule "se-resnext/pytorch/vision"]
+  path = se-resnext/pytorch/vision
+  url = https://github.com/pytorch/vision.git
+  branch = master
