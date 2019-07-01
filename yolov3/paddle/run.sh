@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 set -xe
 
 #export FLAGS_cudnn_deterministic=true
@@ -48,7 +48,7 @@ train(){
   ${train_cmd} > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600
-  kill -9 $train_pid
+  #kill -9 $train_pid
   kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 
   if [ $run_mode = "mp" -a -d mylog ]; then
