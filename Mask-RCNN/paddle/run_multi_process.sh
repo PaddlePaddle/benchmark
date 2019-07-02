@@ -18,7 +18,7 @@ num_gpu_devices=${#arr[*]}
 
 python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES train.py \
             --model_save_dir=output/ \
-            --pretrained_model=../imagenet_resnet50_fusebn/ \
+            --pretrained_model=./imagenet_resnet50_fusebn/ \
             --data_dir=./dataset/coco \
             --im_per_batch=${base_batch_size} \
             --MASK_ON=True
