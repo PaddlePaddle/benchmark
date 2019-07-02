@@ -33,7 +33,7 @@ train(){
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
   train_cmd=" --model_save_dir=output/ \
-   --pretrained_model=../imagenet_resnet50_fusebn/ \
+   --pretrained_model=./imagenet_resnet50_fusebn/ \
    --data_dir=./dataset/coco \
    --im_per_batch=${base_batch_size} \
    --MASK_ON=True"
@@ -62,7 +62,7 @@ infer(){
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
   python eval_coco_map.py \
     --dataset=coco2017 \
-    --pretrained_model=../imagenet_resnet50_fusebn/ \
+    --pretrained_model=./imagenet_resnet50_fusebn/ \
     --MASK_ON=True > ${log_file} 2>&1 &
   infer_pid=$!
   sleep 60
