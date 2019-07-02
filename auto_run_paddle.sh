@@ -167,9 +167,9 @@ se_resnext50(){
     cd ${cur_model_path}
     # Prepare data
     ln -s ${data_path}/ILSVRC2012/train ${cur_model_path}/data/ILSVRC2012/train
-    ln -s ${data_path}/ILSVRC2012/train_list ${cur_model_path}/data/ILSVRC2012/train_list
+    ln -s ${data_path}/ILSVRC2012/train_list.txt ${cur_model_path}/data/ILSVRC2012/train_list.txt
     ln -s ${data_path}/ILSVRC2012/val ${cur_model_path}/data/ILSVRC2012/val
-    ln -s ${data_path}/ILSVRC2012/val_list ${cur_model_path}/data/ILSVRC2012/val_list
+    ln -s ${data_path}/ILSVRC2012/val_list.txt ${cur_model_path}/data/ILSVRC2012/val_list.txt
     # Copy run.sh and running ...
     cp ${fluid_path}/se-resnext/paddle/run.sh ./run_benchmark.sh
     sed -i '/cd /d' run_benchmark.sh
@@ -193,7 +193,7 @@ se_resnext50(){
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs 112 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_maxbs_8gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
-#    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 mp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_speed_8gpus8p 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 mp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_speed_8gpus8p 2>&1
 }
 
 
