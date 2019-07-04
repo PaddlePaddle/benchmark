@@ -113,7 +113,7 @@ CycleGAN(){
     cur_model_path=${fluid_path}/models/PaddleCV/PaddleGAN/cycle_gan
     cd ${cur_model_path}
     # Prepare data
-    rm ${cur_model_path}/data
+    rm -rf data/horse2zebra
     ln -s ${data_path}/horse2zebra/ ${cur_model_path}/data
     # Running ...
     cp ${fluid_path}/CycleGAN/paddle/run.sh ./
