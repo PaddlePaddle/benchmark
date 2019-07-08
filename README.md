@@ -8,7 +8,7 @@
   * [SE-ResNeXt50](#SE-ResNeXt50)
   * [Mask-RCNN](#Mask-RCNN)
   * [YOLOv3](#YOLOv3)
-  * [DeepLab V3+](#DeepLab\ V3+)
+  * [DeepLab V3+](#deepLab-v3)
   * [Cycle-GAN](#Cycle-GAN)
 * [智能文本处理（PaddleNLP）](#PaddleNLP)
   * [PaddingRNN](#PaddingRNN)
@@ -57,7 +57,7 @@
 |---|---|---|---|---|---|---|---|
 | 图像分类 | SE-ResNeXt50 | [PaddleCV/image_classification](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/image_classification) | - | [SENet-PyTorch](https://github.com/miraclewkf/SENet-PyTorch) | - | ILSVRC2012 | 32 |
 | 目标检测 | Mask-RCNN | [PaddleCV/rcnn](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/rcnn) | - | [maskrcnn-benchmark](https://github.com/facebookresearch/maskrcnn-benchmark) | - | COCO17 | 1 |
-| 目标检测 | YOLOv3 | [Paddle/yolov3](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/yolov3) | - | - | [gluon-cv](https://github.com/dmlc/gluon-cv/tree/master/scripts/detection/yolo) | COCO17 | 8 |
+| 目标检测 | YOLOv3 | [PaddleCV/yolov3](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/yolov3) | - | - | [gluon-cv](https://github.com/dmlc/gluon-cv/tree/master/scripts/detection/yolo) | COCO17 | 8 |
 | 图像分割 | DeepLab V3+ | [PaddleCV/deeplabv3+](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/deeplabv3%2B) | [tensorflow/models](https://github.com/tensorflow/models/tree/master/research/deeplab) | - | - | cityscape | 2 |
 | 图像生成 | Cycle-GAN | [PaddleCV/PaddleGAN](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/PaddleGAN/cycle_gan) | [CycleGAN](https://github.com/hardikbansal/CycleGAN) | - | - | horse2zebra | 1 |
 
