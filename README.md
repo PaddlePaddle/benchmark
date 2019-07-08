@@ -62,7 +62,26 @@
 ### SE-ResNeXt50
 SE-ResNeXt50模型单卡训练速度与PyTorch**持平**，八卡训练速度和显存占用都**优于**PyTorch。
 
-- 准备工作
+- 测试说明
+  
+  测试之前，需要做如下准备工作：
+  - 将测试脚本[se-resnext/paddle/run.sh](https://github.com/PaddlePaddle/benchmark/blob/master/se-resnext/paddle/run.sh)拷贝到模型代码目录[PaddleCV/image_classification](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/image_classification)下面。
+  - 下载预训练参数`SE_ResNeXt50_32x4d_pretrained.tar`，并解压到模型代码目录[PaddleCV/image_classification](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/image_classification)下面。
+  - 准备数据集`ILSVRC2012`。如果你本地已有`ILSVRC2012`数据集，可将相应目录和文件软链接到模型目录[PaddleCV/image_classification](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/image_classification)的子目录`data/ILSVRC2012`下面。数据准备好后，目录结构如下。
+  ```bash
+  $ ls -l data/ILSVRC2012/
+  -rw-r--r-- 1 liuyiqun liuyiqun     1127 Jun 12 11:54 download_imagenet2012.sh
+  lrwxrwxrwx 1 root     root           22 Jun 12 11:53 train -> /data/ILSVRC2012/train
+  -rw-r--r-- 1   181779 DOORGOD  51516435 Aug 10  2018 train_list.txt
+  lrwxrwxrwx 1 root     root           20 Jun 12 11:53 val -> /data/ILSVRC2012/val
+  -rw-r--r-- 1   181779 DOORGOD   1844500 Aug 10  2018 val_list.txt
+  ```
+  
+  训练速度测试命令：
+  - 单GPU：`CUDA_VISIBLE_DEVICES=0 bash run.sh speed 32 sp`
+  - 8 GPUs (单进程)：`CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed 32 sp`
+  - 8 GPUs (多进程)：`CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed 32 mp`
+
 - 训练速度（单位：images/s）
 
 <table>
