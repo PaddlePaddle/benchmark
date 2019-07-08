@@ -8,8 +8,8 @@
   * [SE-ResNeXt50](#SE-ResNeXt50)
   * [Mask-RCNN](#Mask-RCNN)
   * [YOLOv3](#YOLOv3)
-  * [DeepLab&nbsp;V3+](#DeepLab&nbsp;V3+)
-  * [CycleGAN](#CycleGAN)
+  * [DeepLab V3+](#DeepLab\ V3+)
+  * [Cycle-GAN](#Cycle-GAN)
 * [智能文本处理（PaddleNLP）](#PaddleNLP)
   * [PaddingRNN](#PaddingRNN)
   * [BERT](#BERT)
@@ -45,6 +45,8 @@
   - NCCL Version：2.4.2
   - cuDNN Version：7.4.2.24，7.5.0.56
 
+  注意：测试所用GPU服务器为虚拟机，跟相同配置的物理机测试结果可能会有一定的差别。
+
 - CPU服务器参数
   - CPU型号：Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz，24核
   - 指令集：AVX2
@@ -57,30 +59,10 @@
 | 目标检测 | Mask-RCNN | [PaddleCV/rcnn](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/rcnn) | - | [maskrcnn-benchmark](https://github.com/facebookresearch/maskrcnn-benchmark) | - | COCO17 | 1 |
 | 目标检测 | YOLOv3 | [Paddle/yolov3](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/yolov3) | - | - | [gluon-cv](https://github.com/dmlc/gluon-cv/tree/master/scripts/detection/yolo) | COCO17 | 8 |
 | 图像分割 | DeepLab V3+ | [PaddleCV/deeplabv3+](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/deeplabv3%2B) | [tensorflow/models](https://github.com/tensorflow/models/tree/master/research/deeplab) | - | - | cityscape | 2 |
-| 图像生成 | CycleGAN | [PaddleCV/PaddleGAN](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/PaddleGAN/cycle_gan) | [CycleGAN](https://github.com/hardikbansal/CycleGAN) | - | - | horse2zebra | 1 |
+| 图像生成 | Cycle-GAN | [PaddleCV/PaddleGAN](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/PaddleGAN/cycle_gan) | [CycleGAN](https://github.com/hardikbansal/CycleGAN) | - | - | horse2zebra | 1 |
 
 ### SE-ResNeXt50
 SE-ResNeXt50模型单卡训练速度与PyTorch**持平**，八卡训练速度和显存占用都**优于**PyTorch。
-
-- 测试说明
-  
-  测试之前，需要做如下准备工作：
-  - 将测试脚本[se-resnext/paddle/run.sh](https://github.com/PaddlePaddle/benchmark/blob/master/se-resnext/paddle/run.sh)拷贝到模型代码目录[PaddleCV/image_classification](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/image_classification)下面。
-  - 下载预训练参数`SE_ResNeXt50_32x4d_pretrained.tar`，并解压到模型代码目录[PaddleCV/image_classification](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/image_classification)下面。
-  - 准备数据集`ILSVRC2012`。如果你本地已有`ILSVRC2012`数据集，可将相应目录和文件软链接到模型目录[PaddleCV/image_classification](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/image_classification)的子目录`data/ILSVRC2012`下面。数据准备好后，目录结构如下。
-  ```bash
-  $ ls -l data/ILSVRC2012/
-  -rw-r--r-- 1 liuyiqun liuyiqun     1127 Jun 12 11:54 download_imagenet2012.sh
-  lrwxrwxrwx 1 root     root           22 Jun 12 11:53 train -> /data/ILSVRC2012/train
-  -rw-r--r-- 1   181779 DOORGOD  51516435 Aug 10  2018 train_list.txt
-  lrwxrwxrwx 1 root     root           20 Jun 12 11:53 val -> /data/ILSVRC2012/val
-  -rw-r--r-- 1   181779 DOORGOD   1844500 Aug 10  2018 val_list.txt
-  ```
-  
-  训练速度测试命令：
-  - 单GPU：`CUDA_VISIBLE_DEVICES=0 bash run.sh speed 32 sp`
-  - 8 GPUs (单进程)：`CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed 32 sp`
-  - 8 GPUs (多进程)：`CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh speed 32 mp`
 
 - 训练速度（单位：images/s）
 
@@ -154,7 +136,6 @@ SE-ResNeXt50模型单卡训练速度与PyTorch**持平**，八卡训练速度和
 ### Mask-RCNN
 Mask-RCNN模型训练速度和显存占用都**优于**PyTorch。
 
-- 准备工作
 - 训练速度（单位：images/s）
 
 <table>
@@ -227,7 +208,6 @@ Mask-RCNN模型训练速度和显存占用都**优于**PyTorch。
 ### YOLOv3
 YOLOv3模型训练速度和显存占用都**优于**MXNet。
 
-- 准备工作
 - 训练速度（单位：images/s）
 
 <table>
@@ -297,10 +277,9 @@ YOLOv3模型训练速度和显存占用都**优于**MXNet。
   </tr>
 </table>
 
-### DeepLab&nbsp;V3+
+### DeepLab V3+
 Deep Lab V3+模型训练速度和显存占用都**优于**TensorFlow。
 
-- 准备工作
 - 训练速度（单位：images/s）
 
 <table>
@@ -363,10 +342,9 @@ Deep Lab V3+模型训练速度和显存占用都**优于**TensorFlow。
   </tr>
 </table>
 
-### CycleGAN
+### Cycle-GAN
 Cycle-GAN模型不支持多卡训练，其单卡训练速度和显存占用都**优于**TensorFlow。
 
-- 准备工作
 - 训练速度（单位：images/s）
 
 <table>
@@ -427,7 +405,6 @@ Cycle-GAN模型不支持多卡训练，其单卡训练速度和显存占用都**
 TensorFlow的PaddingRNN开源模型多卡训练失败，故只测试单卡训练的情况。
 PaddleRNN模型在static模式下，单卡训练速度和显存占用都**差于**TensorFlow。
 
-- 准备工作
 - 训练速度（单位：steps/s）
 
 <table>
@@ -528,7 +505,6 @@ PaddleRNN模型在static模式下，单卡训练速度和显存占用都**差于
 TensorFlow的BERT开源模型暂无多卡实现。
 BERT模型单卡训练速度和显存占用都优于TensorFlow。
 
-- 准备工作
 - 训练速度（单位：steps/s）
 
 <table>
@@ -601,7 +577,6 @@ BERT模型单卡训练速度和显存占用都优于TensorFlow。
 ### Transformer
 Transformer模型单卡训练速度与TensorFlow**持平**；多卡训练速度和显存占用**优于**TensorFlow。
 
-- 准备工作
 - 训练速度（单位：steps/s）
 
 <table>
@@ -680,7 +655,6 @@ Transformer模型单卡训练速度与TensorFlow**持平**；多卡训练速度�
 ### DDPG
 DDPG模型不支持多卡训练，其训练速度与竞品持平，显存占用**优于**TensorFlow。
 
-- 准备工作
 - 训练速度（单位：epoch/s）
 
 <table>
