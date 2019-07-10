@@ -132,8 +132,8 @@ then
     hostname=`echo $(hostname)|awk -F '.baidu.com' '{print $1}'`
     monquery -n $hostname -i GPU_AVERAGE_UTILIZATION -s $job_bt -e $job_et -d 60 > gpu_avg_utilization
     monquery -n $hostname -i CPU_USER -s $job_bt -e $job_et -d 60 > cpu_use
-    awk '{if(NR>1){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_gpu_use=%.2f\n" ,avg)}' gpu_avg_utilization
-    awk '{if(NR>1){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_cpu_use=%.2f\n" ,avg)}' cpu_use
+    awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_gpu_use=%.2f\n" ,avg)}' gpu_avg_utilization
+    awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_cpu_use=%.2f\n" ,avg)}' cpu_use
     if [ ${task} = "train" ]
     then
         analysis_times 5 8 8
