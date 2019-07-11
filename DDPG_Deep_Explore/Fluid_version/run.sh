@@ -112,8 +112,8 @@ else
     $task
     job_et=`date '+%Y%m%d%H%M%S'`
     hostname=`echo $(hostname)|awk -F '.baidu.com' '{print $1}'`
-    monquery -n $hostname -i GPU_AVERAGE_UTILIZATION -s $job_bt -e $job_et -d 60 > gpu_avg_utilization
-    monquery -n $hostname -i CPU_USER -s $job_bt -e $job_et -d 60 > cpu_use
+    monquery -n $hostname -i GPU_AVERAGE_UTILIZATION -s $job_bt -e $job_et > gpu_avg_utilization
+    monquery -n $hostname -i CPU_USER -s $job_bt -e $job_et > cpu_use
     awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_gpu_use=%.2f\n" ,avg)}' gpu_avg_utilization
     awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_cpu_use=%.2f\n" ,avg)}' cpu_use
 
