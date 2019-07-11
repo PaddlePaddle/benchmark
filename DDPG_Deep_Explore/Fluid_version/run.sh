@@ -2,9 +2,9 @@
 set -xe
 
 if [ $# -lt 2 ]; then
-  echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem /ssd1/ljh/logs"
-  exit
+    echo "Usage: "
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem /ssd1/ljh/logs"
+    exit
 fi
 
 #打开后速度变快
@@ -26,69 +26,69 @@ batch_size=1
 log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
 train(){
-  echo "Train on ${num_gpu_devices} GPUs"
-  echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  for i in {1..5}
-  do
-      FLAGS_enforce_when_check_program_=0 GLOG_vmodule=operator=1,computation_op_handle=1 \
-      python ./multi_thread_test.py \
-          --ensemble_num 1 \
-          --test_times 10 >> ${log_file} 2>&1
-  done
+    echo "Train on ${num_gpu_devices} GPUs"
+    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+    for i in {1..5}
+    do
+        FLAGS_enforce_when_check_program_=0 GLOG_vmodule=operator=1,computation_op_handle=1 \
+        python ./multi_thread_test.py \
+            --ensemble_num 1 \
+            --test_times 10 >> ${log_file} 2>&1
+    done
 }
 
 infer(){
-  echo "infer on ${num_gpu_devices} GPUs"
-  echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-#  python eval_coco_map.py \
-#    --dataset=coco2017 \
-#    --pretrained_model=../imagenet_resnet50_fusebn/ \
-#    --MASK_ON=True > ${log_file} 2>&1 &
-#  infer_pid=$!
-#  sleep 60
-#  kill -9 $infer_pid
+    echo "infer on ${num_gpu_devices} GPUs"
+    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+#    python eval_coco_map.py \
+#      --dataset=coco2017 \
+#      --pretrained_model=../imagenet_resnet50_fusebn/ \
+#      --MASK_ON=True > ${log_file} 2>&1 &
+#    infer_pid=$!
+#    sleep 60
+#    kill -9 $infer_pid
 }
 
 analysis_times(){
-  skip_step=$1
-  count_fields=$2
-  awk 'BEGIN{count=0}/time consuming:/{
-    step_times[count]=$'${count_fields}';
-    count+=1;
-  }END{
-    print "\n================ Benchmark Result ================"
-    print "total_step:", count
-    print "batch_size:", "'${batch_size}'"
-    if(count>1){
-      step_latency=0
-      step_latency_without_step0_avg=0
-      step_latency_without_step0_min=step_times['${skip_step}']
-      step_latency_without_step0_max=step_times['${skip_step}']
-      for(i=0;i<count;++i){
-        step_latency+=step_times[i];
-        if(i>='${skip_step}'){
-          step_latency_without_step0_avg+=step_times[i];
-          if(step_times[i]<step_latency_without_step0_min){
-            step_latency_without_step0_min=step_times[i];
-          }
-          if(step_times[i]>step_latency_without_step0_max){
-            step_latency_without_step0_max=step_times[i];
+    skip_step=$1
+    count_fields=$2
+    awk 'BEGIN{count=0}/time consuming:/{
+      step_times[count]=$'${count_fields}';
+      count+=1;
+    }END{
+      print "\n================ Benchmark Result ================"
+      print "total_step:", count
+      print "batch_size:", "'${batch_size}'"
+      if(count>1){
+        step_latency=0
+        step_latency_without_step0_avg=0
+        step_latency_without_step0_min=step_times['${skip_step}']
+        step_latency_without_step0_max=step_times['${skip_step}']
+        for(i=0;i<count;++i){
+          step_latency+=step_times[i];
+          if(i>='${skip_step}'){
+            step_latency_without_step0_avg+=step_times[i];
+            if(step_times[i]<step_latency_without_step0_min){
+              step_latency_without_step0_min=step_times[i];
+            }
+            if(step_times[i]>step_latency_without_step0_max){
+              step_latency_without_step0_max=step_times[i];
+            }
           }
         }
+        step_latency/=count;
+        step_latency_without_step0_avg/=(count-'${skip_step}')
+        printf("average latency (origin result):\n")
+        printf("\tAvg: %.3f epoch/s\n", 1/step_latency)
+        printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency)
+        printf("average latency (skip '${skip_step}' steps):\n")
+        printf("\tAvg: %.3f epoch/s\n", 1/step_latency_without_step0_avg)
+        printf("\tMin: %.3f epoch/s\n", 1/step_latency_without_step0_min)
+        printf("\tMax: %.3f epoch/s\n", 1/step_latency_without_step0_max)
+        printf("\tFPS: %.3f examples/s\n", '${batch_size}'/step_latency_without_step0_avg)
+        printf("\n")
       }
-      step_latency/=count;
-      step_latency_without_step0_avg/=(count-'${skip_step}')
-      printf("average latency (origin result):\n")
-      printf("\tAvg: %.3f epoch/s\n", 1/step_latency)
-      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"/step_latency)
-      printf("average latency (skip '${skip_step}' steps):\n")
-      printf("\tAvg: %.3f epoch/s\n", 1/step_latency_without_step0_avg)
-      printf("\tMin: %.3f epoch/s\n", 1/step_latency_without_step0_min)
-      printf("\tMax: %.3f epoch/s\n", 1/step_latency_without_step0_max)
-      printf("\tFPS: %.3f examples/s\n", '${batch_size}'/step_latency_without_step0_avg)
-      printf("\n")
-    }
-  }' ${log_file}
+    }' ${log_file}
 }
 
 if [ $index = "mem" ]
@@ -114,9 +114,10 @@ else
     hostname=`echo $(hostname)|awk -F '.baidu.com' '{print $1}'`
     monquery -n $hostname -i GPU_AVERAGE_UTILIZATION -s $job_bt -e $job_et > gpu_avg_utilization
     monquery -n $hostname -i CPU_USER -s $job_bt -e $job_et > cpu_use
-    awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_gpu_use=%.2f\n" ,avg)}' gpu_avg_utilization
-    awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_cpu_use=%.2f\n" ,avg)}' cpu_use
-
+    cpu_num=$(cat /proc/cpuinfo | grep processor | wc -l)
+    gpu_num=$(nvidia-smi -L|wc -l)
+    awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_gpu_use=%.2f\n" ,avg*'${gpu_num}')}' gpu_avg_utilization
+    awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_cpu_use=%.2f\n" ,avg*'${cpu_num}')}' cpu_use
     if [ ${task} = "train" ]
     then
       analysis_times 1 10
