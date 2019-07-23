@@ -30,7 +30,7 @@ gpu_devices=($devices_str)
 num_gpu_devices=${#gpu_devices[*]}
 
 train_crop_size=513
-total_step=300
+total_step=240
 if [ $index = "maxbs" ]; then base_batch_size=9; else base_batch_size=2; fi
 batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
 
