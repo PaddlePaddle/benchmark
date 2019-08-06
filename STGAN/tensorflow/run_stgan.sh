@@ -2,76 +2,43 @@
 
 # set -xe
 
-if [ $# -lt 3 ]; then
+if [ $# -lt 2 ]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh itrain|infer speed|mem sp|mp /ssd3/benchmark_results/cwh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh itrain|test speed|mem /ssd3/benchmark_results/cwh/logs"
     exit
 fi
 
-#打开后速度变快
-export FLAGS_cudnn_exhaustive_search=1
-
-#显存占用减少，不影响性能
-export FLAGS_eager_delete_tensor_gb=0.0
-export FLAGS_conv_workspace_size_limit=256
-
 task="$1"
 index="$2"
-run_mode="$3"
-run_log_path=${4:-$(pwd)}
+run_log_path=${3:-$(pwd)}
 model_name="STGAN"
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
 batch_size=32
-log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}_${run_mode}
-log_parse_file=${log_file}
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 
 train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
     
-    train_cmd=" --model_net $model_name \
-        --dataset celeba \
-        --crop_size 170 \
-        --image_size 128 \
-        --train_list ./data/celeba/list_attr_celeba.txt \
-        --gan_mode wgan \
-        --batch_size $batch_size \
-        --print_freq 5 \
-        --num_discriminator_time 5 \
-        --epoch 50"
+    train_cmd=" --experiment_name 128 \
+        --dataroot ./data/celeba \
+        --gpu 2" 
     
-    case ${run_mode} in
-    sp) 
-        train_cmd="python -u train.py "${train_cmd} 
-        ;;
-    mp) 
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES train.py "${train_cmd}
-        log_parse_file="mylog/workerlog.0" 
-        ;;
-    *)  
-        echo "choose run_mode: sp or mp" 
-        exit 1 
-        ;;
-    esac
+    train_cmd="python -u train.py "${train_cmd} 
 
     ${train_cmd} > ${log_file} 2>&1 &
     train_pid=$!
     sleep 900
     kill -9 $train_pid
-
-    if [ $run_mode = "mp" -a -d mylog ]; then
-        rm ${log_file}
-        cp mylog/workerlog.0 ${log_file}
-    fi
 }
 
 analysis_times(){
     skip_step=$1
-    awk 'BEGIN{count=0}/Batch_time_cost:/{
-      count_fields=NF;
+    awk 'BEGIN{count=0}/Time:/{
+      count_fields=NF-1;
       step_times[count]=$count_fields;
       count+=1;
     }END{
@@ -107,7 +74,7 @@ analysis_times(){
         printf("\tFPS: %.3f images/s\n", '${batch_size}'/step_latency_without_step0_avg)
         printf("\n")
       }
-    }' ${log_parse_file}
+    }' ${log_file}
 }
 
 echo "Benchmark for $task"
@@ -138,7 +105,7 @@ else
     then
       analysis_times 30 
     else
-      echo "no infer cmd"
+      echo "no test cmd"
     fi
 fi
 
