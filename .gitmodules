@@ -21,3 +21,6 @@
 [submodule "AttGAN/tensorflow/attgan"]
 	path = AttGAN/tensorflow/attgan
 	url = https://github.com/LynnHo/AttGAN-Tensorflow.git
+[submodule "AttGAN/pytorch/attgan"]
+	path = AttGAN/pytorch/attgan
+	url = https://github.com/elvisyjlin/AttGAN-PyTorch.git
