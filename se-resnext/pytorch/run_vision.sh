@@ -58,7 +58,7 @@ train() {
 }
 
 analysis() {
-  python ${BENCHMARK_ROOT}/tools/analysis.py \
+  python ${BENCHMARK_ROOT}/scripts/analysis.py \
     --filename ${log_file} \
     --keyword "time:" \
     --separator " " \
