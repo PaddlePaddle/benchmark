@@ -18,3 +18,6 @@
   path = se-resnext/pytorch/examples
   url = https://github.com/pytorch/examples.git
   branch = master
+[submodule "seq2seq/tensorflow/nmt"]
+	path = seq2seq/tensorflow/nmt
+	url = https://github.com/tensorflow/nmt.git
