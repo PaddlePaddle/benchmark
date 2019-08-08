@@ -8,16 +8,22 @@ if [ $# -lt 3 ]; then
     exit
 fi
 
-export FLAGS_cudnn_exhaustive_search=1
-
-export FLAGS_eager_delete_tensor_gb=0.0
-export FLAGS_conv_workspace_size_limit=256
+datapath=/tf/data/yt8m/train/train
+train_dir=nextvlad_8g_5l2_5drop_128k_2048_2x80_logistic
+result_folder=results
 
 task="$1"
 index="$2"
 run_mode="$3"
 run_log_path=${4:-$(pwd)}
-model_name="NEXTVLAD"
+model_name=NeXtVLADModel
+parameters="--groups=8 --nextvlad_cluster_size=128 --nextvlad_hidden_size=2048 \
+            --expansion=2 --gating_reduction=8 --drop_rate=0.5 learning_rate_decay_examples 2 \
+            --video_level_classifier_model=LogisticModel --label_loss=CrossEntropyLoss --start_new_model=False \
+            --train_data_pattern=${datapath}/train*.tfrecord --train_dir=${train_dir} --frame_features=True \
+            --feature_names="rgb,audio" --feature_sizes="1024,128" --base_learning_rate=0.0002 \
+            --learning_rate_decay=0.8 --l2_penalty=1e-5"
+
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
@@ -30,12 +36,11 @@ train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
-    train_cmd=" --model_name $model_name \
-        --config ./configs/nextvlad.txt \
-        --valid_interval 1 \
-        --log_interval 10 \
+    train_cmd=" ${parameters} --model=$model_name \
+        --num_readers=8 \
+        --num_gpu=$num_gpu_devices \
         --batch_size=$batch_size \
-        --epoch 4"
+        --max_step=700"
 
     case ${run_mode} in
     sp) 
@@ -62,9 +67,10 @@ train(){
     fi
 }
 
+
 analysis_times(){
     skip_step=$1
-    awk 'BEGIN{count=0}/average time:/{
+    awk 'BEGIN{count=0}/Examples:/{
       count_fields=NF;
       step_times[count]=$count_fields;
       count+=1;
@@ -130,7 +136,7 @@ else
 
     if [ ${task} = "train" ]
     then
-      analysis_times 1 
+      analysis_times 30 
     else
       echo "no infer cmd"
     fi
