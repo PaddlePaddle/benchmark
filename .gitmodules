@@ -18,3 +18,6 @@
   path = se-resnext/pytorch/examples
   url = https://github.com/pytorch/examples.git
   branch = master
+[submodule "nextvlad/tensorflow/youtube-8m"]
+	path = nextvlad/tensorflow/youtube-8m
+	url = https://github.com/linrongc/youtube-8m.git

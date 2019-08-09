@@ -8,9 +8,12 @@ if [ $# -lt 3 ]; then
     exit
 fi
 
-datapath=/tf/data/yt8m/train/train
-train_dir=nextvlad_8g_5l2_5drop_128k_2048_2x80_logistic
-result_folder=results
+export WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
+export BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../.." && pwd )"
+
+datapath=$WORK_ROOT/data/yt8m/train/
+train_dir=$WORK_ROOT/nextvlad_8g_5l2_5drop_128k_2048_2x80_logistic
+result_folder=$WORK_ROOT/results
 
 task="$1"
 index="$2"
@@ -35,12 +38,14 @@ log_parse_file=${log_file}
 train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-
+    cd $WORK_ROOT/youtube-8m
+    rm -rf $result_folder/*
     train_cmd=" ${parameters} --model=$model_name \
         --num_readers=8 \
         --num_gpu=$num_gpu_devices \
         --batch_size=$batch_size \
-        --max_step=700"
+        --max_step=700000 \
+        --num_epochs=4"
 
     case ${run_mode} in
     sp) 
@@ -70,7 +75,7 @@ train(){
 
 analysis_times(){
     skip_step=$1
-    awk 'BEGIN{count=0}/Examples:/{
+    awk 'BEGIN{count=0}/Examples\/sec:/{
       count_fields=NF;
       step_times[count]=$count_fields;
       count+=1;
@@ -97,14 +102,12 @@ analysis_times(){
         }
         step_latency/=count;
         step_latency_without_step0_avg/=(count-'${skip_step}')
-        printf("average latency (origin result):\n")
-        printf("\tAvg: %.3f s/step\n", step_latency)
-        printf("\tFPS: %.3f images/s\n", "'${batch_size}'"/step_latency)
-        printf("average latency (skip '${skip_step}' steps):\n")
-        printf("\tAvg: %.3f s/step\n", step_latency_without_step0_avg)
-        printf("\tMin: %.3f s/step\n", step_latency_without_step0_min)
-        printf("\tMax: %.3f s/step\n", step_latency_without_step0_max)
-        printf("\tFPS: %.3f images/s\n", '${batch_size}'/step_latency_without_step0_avg)
+        printf("average images/sec (origin result):\n")
+        printf("\tAvg: %.3f images/sec\n", step_latency)
+        printf("average images/sec (skip '${skip_step}' steps):\n")
+        printf("\tAvg: %.3f images/s\n", step_latency_without_step0_avg)
+        printf("\tMin: %.3f images/s\n", step_latency_without_step0_min)
+        printf("\tMax: %.3f images/s\n", step_latency_without_step0_max)
         printf("\n")
       }
     }' ${log_parse_file}
