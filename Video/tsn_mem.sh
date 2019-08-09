@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-set +x
+
 # settings
-export CUDA_VISIBLE_DEVICES=3
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 model_path="/Paddle/Models"
 
-
+# flags
 export FLAGS_fraction_of_gpu_memory_to_use=0
+
+# paths
 log_file='tsn.log'
 video_path="${model_path}/PaddleCV/PaddleVideo"
 
@@ -13,15 +15,15 @@ train(){
     dir=$(pwd)
     cd ${video_path}
     train_cmd=" --model_name=TSN \
-	--config=./configs/tsn.txt \
-	--epoch=1 \
+	--config=${video_path}/configs/tsn.txt \
+	--epoch=2 \
 	--valid_interval=1 \
 	--log_interval=10"
     train_cmd="python3 train.py "${train_cmd}
     ${train_cmd} > ${dir}/${log_file} 2>&1 &
-    train_pid=$!
-    sleep 200
-    kill -9 `ps -ef|grep python |awk '{print $2}'`
+    pid=$!
+    sleep 600
+    kill -9 $pid
     cd ${dir}
 }
 
