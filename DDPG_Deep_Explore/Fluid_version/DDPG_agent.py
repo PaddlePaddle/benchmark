@@ -31,7 +31,9 @@ class DDPGAgent(object):
                 build_strategy.remove_unnecessary_lock = True
                 #build_strategy.reduce_strategy = fluid.BuildStrategy.ReduceStrategy.Reduce
                 trainer = fluid.ParallelExecutor(
-                        use_cuda=use_cuda, main_program=self.learn_programs[i],
+                        use_cuda=use_cuda, 
+                        loss_name=self.learn_programs_output[i],
+                        main_program=self.learn_programs[i],
                         exec_strategy=exec_strategy,
                         build_strategy=build_strategy)
                 self.parallel_executors.append(trainer)
