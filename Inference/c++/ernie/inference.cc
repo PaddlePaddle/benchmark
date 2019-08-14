@@ -23,7 +23,11 @@
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <paddle/fluid/inference/paddle_inference_api.h>
+
+#ifdef ENABLE_PADDLE_PROFILER
 #include <paddle/fluid/platform/profiler.h>
+DECLARE_bool(profile);
+#endif
 
 DEFINE_string(model_dir, "", "model directory");
 DEFINE_string(data, "", "input data path");
@@ -32,8 +36,6 @@ DEFINE_int32(warmup_steps, 0, "repeat");
 DEFINE_bool(print_outputs, false, "Whether to output the prediction results.");
 DEFINE_bool(use_gpu, false, "Whether use GPU to infer.");
 DEFINE_bool(use_analysis, false, "Whether use Paddle's AnalysisPredictor.");
-//DEFINE_bool(profile, false, "Whether enable profile.");
-DECLARE_bool(profile);
 
 
 template <typename T>
@@ -67,7 +69,9 @@ void InitFLAGS(int argc, char *argv[]) {
   Print<bool>("print_outputs", FLAGS_print_outputs);
   Print<bool>("use_gpu", FLAGS_use_gpu);
   Print<bool>("use_analysis", FLAGS_use_analysis);
+#ifdef ENABLE_PADDLE_PROFILER
   Print<bool>("profile", FLAGS_profile);
+#endif
 }
 
 template <typename T>
@@ -291,14 +295,15 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
+#ifdef ENABLE_PADDLE_PROFILER
   if (FLAGS_profile) {
     if (!FLAGS_use_gpu) {
       paddle::platform::EnableProfiler(paddle::platform::ProfilerState::kCPU);
     } else {
       paddle::platform::EnableProfiler(paddle::platform::ProfilerState::kAll);
-//      paddle::platform::SetDeviceId(0);
     }
   }
+#endif
 
   std::vector<paddle::PaddleTensor> fetch;
   double total_time{0};
@@ -324,18 +329,22 @@ int main(int argc, char *argv[]) {
           total_time_without_warmup += runtime;
           num_samples_without_warmup += fetch.front().data.length() / (sizeof(float) * 3);
         } else {
+#ifdef ENABLE_PADDLE_PROFILER
           if (FLAGS_profile) {
             paddle::platform::ResetProfiler();
           }
+#endif
         }
       }
     }
   }
 
+#ifdef ENABLE_PADDLE_PROFILER
   if (FLAGS_profile) {
     paddle::platform::DisableProfiler(
         paddle::platform::EventSortingKey::kTotal, "ernie.inference.profile");
   }
+#endif
 
   double per_sample_ms =
       total_time / static_cast<double>(num_samples);
