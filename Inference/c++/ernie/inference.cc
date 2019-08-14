@@ -27,10 +27,44 @@
 DEFINE_string(model_dir, "", "model directory");
 DEFINE_string(data, "", "input data path");
 DEFINE_int32(repeat, 1, "repeat");
+DEFINE_int32(warmup_steps, 0, "repeat");
 DEFINE_bool(print_outputs, false, "Whether to output the prediction results.");
 DEFINE_bool(use_gpu, false, "Whether to output the prediction results.");
 DEFINE_bool(use_analysis, false, "Whether to output the prediction results.");
 
+
+template <typename T>
+void Print(std::string key, T value) {
+  std::cout.flags(std::ios::left);
+  std::cout << std::setw(20) << key << ": " << value << std::endl;
+}
+
+template <>
+void Print<bool>(std::string key, bool value) {
+  std::cout.flags(std::ios::left);
+  if (value) {
+    std::cout << std::setw(20) << key << ": true" << std::endl;
+  } else {
+    std::cout << std::setw(20) << key << ": false" << std::endl;
+  }
+}
+
+void InitFLAGS(int argc, char *argv[]) {
+  google::InitGoogleLogging(*argv);
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
+
+  if (FLAGS_model_dir.empty()) {
+    LOG(ERROR) << "please set model dir";
+  }
+
+  Print<std::string>("model_dir", FLAGS_model_dir);
+  Print<std::string>("data", FLAGS_data);
+  Print<int>("repeat", FLAGS_repeat);
+  Print<int>("warmup_steps", FLAGS_warmup_steps);
+  Print<bool>("print_outputs", FLAGS_print_outputs);
+  Print<bool>("use_gpu", FLAGS_use_gpu);
+  Print<bool>("use_analysis", FLAGS_use_analysis);
+}
 
 template <typename T>
 void GetValueFromStream(std::stringstream *ss, T *t) {
@@ -170,14 +204,15 @@ bool LoadInputData(std::vector<std::vector<paddle::PaddleTensor>> *inputs) {
   return true;
 }
 
-void PrintOutputs(const std::vector<paddle::PaddleTensor> &outputs, int id) {
+void PrintOutputs(const std::vector<paddle::PaddleTensor> &outputs, int id, double time) {
   //LOG(INFO) << "example_id\tcontradiction\tentailment\tneutral";
   for (size_t i = 0; i < outputs.front().data.length() / sizeof(float) / 3; i += 1) {
     std::cout.flags(std::ios::right);
-    std::cout << "example " << std::setw(5) << id << ", "
-              << std::setw(12) << static_cast<float *>(outputs[0].data.data())[3 * i] << ", "
-              << std::setw(12) << static_cast<float *>(outputs[0].data.data())[3 * i + 1] << ", "
-              << std::setw(12) << static_cast<float *>(outputs[0].data.data())[3 * i + 2] << std::endl;
+    std::cout << "example " << std::setw(5) << id
+              << ", [" << std::setw(12) << static_cast<float *>(outputs[0].data.data())[3 * i]
+              << ", " << std::setw(12) << static_cast<float *>(outputs[0].data.data())[3 * i + 1]
+              << ", " << std::setw(12) << static_cast<float *>(outputs[0].data.data())[3 * i + 2]
+              << "], time: " << time << " ms" << std::endl;
   }
 }
 
@@ -223,14 +258,23 @@ std::unique_ptr<paddle::PaddlePredictor> CreatePredictor(
   return paddle::CreatePaddlePredictor<paddle::NativeConfig>(native_config);
 }
 
-int main(int argc, char *argv[]) {
-  google::InitGoogleLogging(*argv);
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
+struct Timer {
+  std::chrono::high_resolution_clock::time_point start;
+  std::chrono::high_resolution_clock::time_point startu;
 
-  if (FLAGS_model_dir.empty()) {
-    LOG(ERROR) << "please set model dir";
-    return -1;
+  void tic() { start = std::chrono::high_resolution_clock::now(); }
+  double toc() {
+    startu = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> time_span =
+      std::chrono::duration_cast<std::chrono::duration<double>>(startu -
+          start);
+    double used_time_ms = static_cast<double>(time_span.count()) * 1000.0;
+    return used_time_ms;
   }
+};
+
+int main(int argc, char *argv[]) {
+  InitFLAGS(argc, argv);
 
   paddle::AnalysisConfig config;
   SetConfig<paddle::AnalysisConfig>(&config, FLAGS_model_dir, FLAGS_use_gpu, false);
@@ -244,35 +288,43 @@ int main(int argc, char *argv[]) {
   }
 
   std::vector<paddle::PaddleTensor> fetch;
-  int total_time{0};
+  double total_time{0};
+  double total_time_without_warmup{0};
   int num_samples{0};
-  for (int i = 0; i < FLAGS_repeat; i++) {
-    int id = 0;
-    for (auto feed : inputs) {
+  int num_samples_without_warmup{0};
+  for (int repeat = 0; repeat < FLAGS_repeat; repeat++) {
+    for (int id = 0; id < inputs.size(); ++id) {
       fetch.clear();
 
-      auto start = std::chrono::system_clock::now();
-      predictor->Run(feed, &fetch);
-      auto end = std::chrono::system_clock::now();
+      Timer timer;
+      timer.tic();
+      predictor->Run(inputs[id], &fetch);
+      double runtime = timer.toc();
 
-      if (FLAGS_print_outputs && i == 0) {
-        PrintOutputs(fetch, id++);
+      if (FLAGS_print_outputs && (repeat == 0)) {
+        PrintOutputs(fetch, id, runtime);
       }
       if (!fetch.empty()) {
-        total_time +=
-            std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
-                .count();
-        //num_samples += fetch.front().data.length() / 2 / sizeof(float);
+        total_time += runtime;
         num_samples += fetch.front().data.length() / (sizeof(float) * 3);
+        if (!((repeat == 0) && (id < FLAGS_warmup_steps))) {
+          total_time_without_warmup += runtime;
+          num_samples_without_warmup += fetch.front().data.length() / (sizeof(float) * 3);
+        }
       }
     }
   }
 
-  auto per_sample_ms =
-      static_cast<float>(total_time) / num_samples;
+  double per_sample_ms =
+      total_time / static_cast<double>(num_samples);
   LOG(INFO) << "Run " << num_samples
             << " samples, average latency: " << per_sample_ms
-            << "ms per sample.";
+            << " ms per sample.";
+  double per_sample_ms_without_warmup =
+      total_time_without_warmup / static_cast<double>(num_samples_without_warmup);
+  LOG(INFO) << "Run " << num_samples_without_warmup
+            << " samples, average latency [exclude " << FLAGS_warmup_steps << " warmup steps]: "
+            << per_sample_ms_without_warmup << " ms per sample.";
 
   return 0;
 }
