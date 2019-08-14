@@ -21,7 +21,12 @@
 [submodule "StarGAN/pytorch/stargan"]
 	path = StarGAN/pytorch/stargan
 	url = https://github.com/yunjey/stargan.git
+[submodule "AttGAN/tensorflow/attgan"]
+	path = AttGAN/tensorflow/attgan
+	url = https://github.com/LynnHo/AttGAN-Tensorflow.git
+[submodule "AttGAN/pytorch/attgan"]
+	path = AttGAN/pytorch/attgan
+	url = https://github.com/elvisyjlin/AttGAN-PyTorch.git
 [submodule "STGAN/tensorflow/stgan"]
 	path = STGAN/tensorflow/stgan
 	url = https://github.com/csmliu/STGAN.git
-
