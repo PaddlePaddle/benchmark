@@ -82,7 +82,6 @@ third_party_include(boost boost/config.hpp ${THIRD_PARTY_ROOT}/boost)
 if(USE_GPU)
   third_party_include(cuda cuda.h ${CUDA_ROOT}/include)
   third_party_include(cudnn cudnn.h ${CUDNN_ROOT}/include)
-  add_definitions(-DPADDLE_WITH_CUDA)
 endif()
 
 message(STATUS "PaddlePaddle need to include these third party directories: ${PADDLE_THIRD_PARTY_INC_DIRS}")

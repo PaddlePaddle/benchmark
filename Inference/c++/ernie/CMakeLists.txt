@@ -4,11 +4,14 @@ project(inference_demo CXX C)
 set(DEMO_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(DEMO_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
+option(USE_GPU "Compile the inference code with the support CUDA GPU" ON)
+
 set(USE_SHARED OFF)
-set(USE_GPU ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-set(PADDLE_ROOT ${DEMO_SOURCE_DIR}/fluid_inference)
+if(NOT PADDLE_ROOT)
+  set(PADDLE_ROOT ${DEMO_SOURCE_DIR}/fluid_inference)
+endif()
 find_package(Fluid)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
