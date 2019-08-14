@@ -22,7 +22,7 @@
 #include <iomanip>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
-#include <paddle/fluid/inference/paddle_inference_api.h>
+#include <paddle_inference_api.h>
 
 #ifdef ENABLE_PADDLE_PROFILER
 #include <paddle/fluid/platform/profiler.h>

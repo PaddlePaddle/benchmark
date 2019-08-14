@@ -23,7 +23,7 @@ if(USE_PROFILER)
 endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-if(PADDLE_FLUID_FOUND)
+if(PADDLE_FOUND)
   add_executable(inference inference.cc)
   target_link_libraries(inference
       ${PADDLE_LIBRARIES}

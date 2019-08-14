@@ -13,7 +13,6 @@
 # limitations under the License
 
 set(PADDLE_FOUND OFF)
-set(PADDLE_FLUID_FOUND OFF)
 
 if(NOT PADDLE_ROOT)
   set(PADDLE_ROOT $ENV{PADDLE_ROOT} CACHE PATH "Paddle Path")
@@ -28,15 +27,27 @@ if(USE_GPU)
   set(CUDNN_ROOT $ENV{CUDNN_ROOT} CACHE PATH "CUDNN root Path")
 endif()
 
-find_path(PADDLE_INC_DIR NAMES paddle/fluid/inference/paddle_inference_api.h PATHS ${PADDLE_ROOT})
+# Support directory orgnizations
+find_path(PADDLE_INC_DIR NAMES paddle_inference_api.h PATHS ${PADDLE_ROOT}/paddle/include)
+if(PADDLE_INC_DIR)
+  set(LIB_PATH "paddle/lib")
+else()
+  find_path(PADDLE_INC_DIR NAMES paddle/fluid/inference/paddle_inference_api.h PATHS ${PADDLE_ROOT})
+  if(PADDLE_INC_DIR)
+    include_directories(${PADDLE_ROOT}/paddle/fluid/inference)
+  endif()
+  set(LIB_PATH "paddle/fluid/inference")
+endif()
+  
+include_directories(${PADDLE_INC_DIR})
+
 find_library(PADDLE_FLUID_SHARED_LIB NAMES "libpaddle_fluid.so" PATHS
-    ${PADDLE_ROOT}/paddle/fluid/inference)
+    ${PADDLE_ROOT}/${LIB_PATH})
 find_library(PADDLE_FLUID_STATIC_LIB NAMES "libpaddle_fluid.a" PATHS
-    ${PADDLE_ROOT}/paddle/fluid/inference)
+    ${PADDLE_ROOT}/${LIB_PATH})
+
 if(USE_SHARED AND PADDLE_INC_DIR AND PADDLE_FLUID_SHARED_LIB)
   set(PADDLE_FOUND ON)
-  set(PADDLE_FLUID_FOUND ON)
-  add_definitions(-DUSE_PADDLE_FLUID)
   add_library(paddle_fluid_shared SHARED IMPORTED)
   set_target_properties(paddle_fluid_shared PROPERTIES IMPORTED_LOCATION
                         ${PADDLE_FLUID_SHARED_LIB})
@@ -45,8 +56,6 @@ if(USE_SHARED AND PADDLE_INC_DIR AND PADDLE_FLUID_SHARED_LIB)
           "library: ${PADDLE_FLUID_SHARED_LIB}")
 elseif(PADDLE_INC_DIR AND PADDLE_FLUID_STATIC_LIB)
   set(PADDLE_FOUND ON)
-  set(PADDLE_FLUID_FOUND ON)
-  add_definitions(-DUSE_PADDLE_FLUID)
   add_library(paddle_fluid_static STATIC IMPORTED)
   set_target_properties(paddle_fluid_static PROPERTIES IMPORTED_LOCATION
                         ${PADDLE_FLUID_STATIC_LIB})
@@ -55,12 +64,10 @@ elseif(PADDLE_INC_DIR AND PADDLE_FLUID_STATIC_LIB)
           "library: ${PADDLE_FLUID_STATIC_LIB}")
 else()
   set(PADDLE_FOUND OFF)
-  set(PADDLE_FLUID_FOUND OFF)
   message(WARNING "Cannot find PaddlePaddle Fluid under ${PADDLE_ROOT}")
   return()
 endif()
 
-include_directories(${PADDLE_INC_DIR})
 
 # including directory of third_party libraries
 set(PADDLE_THIRD_PARTY_INC_DIRS)

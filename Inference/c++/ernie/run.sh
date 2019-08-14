@@ -26,4 +26,5 @@ REPEAT=1
     --warmup_steps=1 \
     --use_gpu=${USE_GPU} \
     --use_analysis=true \
-    --print_outputs=false
+    --print_outputs=false \
+    --profile=false
