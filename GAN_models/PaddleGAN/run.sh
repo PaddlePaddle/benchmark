@@ -60,13 +60,13 @@ train(){
 
     ${train_cmd} > ${log_file} 2>&1 &
     train_pid=$!
-    sleep 20
+    sleep 120
     kill -9 $train_pid
 }
 
 analysis_times(){
     skip_step=$1
-    awk 'BEGIN{count=0}/Batch_time_cost:/{
+    awk -F = 'BEGIN{count=0}/Batch_time_cost=/{
       count_fields=NF;
       step_times[count]=$count_fields;
       count+=1;
