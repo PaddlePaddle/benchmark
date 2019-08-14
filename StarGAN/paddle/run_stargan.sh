@@ -4,7 +4,7 @@
 
 if [ $# -lt 3 ]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh itrain|infer speed|mem sp|mp /ssd3/benchmark_results/cwh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem sp|mp /ssd3/benchmark_results/cwh/logs"
     exit
 fi
 
@@ -39,7 +39,8 @@ train(){
         --train_list ./data/celeba/list_attr_celeba.txt \
         --gan_mode wgan \
         --batch_size $batch_size \
-        --epoch 20"
+        --epoch 20 \
+        --run_test False"
 
     case ${run_mode} in
     sp) 
