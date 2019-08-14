@@ -4,7 +4,7 @@
 
 if [ $# -lt 2 ]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh itrain|test speed|mem /ssd3/benchmark_results/cwh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|test speed|mem /ssd3/benchmark_results/cwh/logs"
     exit
 fi
 
