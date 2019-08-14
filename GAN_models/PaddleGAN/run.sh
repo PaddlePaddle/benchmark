@@ -66,7 +66,7 @@ train(){
 
 analysis_times(){
     skip_step=$1
-    awk 'BEGIN{count=0}/Batch_time_cost:/{
+    awk -F = 'BEGIN{count=0}/Batch_time_cost=/{
       count_fields=NF;
       step_times[count]=$count_fields;
       count+=1;
