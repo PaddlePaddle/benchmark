@@ -21,3 +21,7 @@
 [submodule "StarGAN/pytorch/stargan"]
 	path = StarGAN/pytorch/stargan
 	url = https://github.com/yunjey/stargan.git
+[submodule "STGAN/tensorflow/stgan"]
+	path = STGAN/tensorflow/stgan
+	url = https://github.com/csmliu/STGAN.git
+
