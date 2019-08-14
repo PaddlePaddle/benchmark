@@ -58,7 +58,7 @@ train(){
 
     ${train_cmd} > ${log_file} 2>&1 &
     train_pid=$!
-    sleep 900
+    sleep 300
     kill -9 $train_pid 
 
     if [ $run_mode = "mp" -a -d mylog ]; then
