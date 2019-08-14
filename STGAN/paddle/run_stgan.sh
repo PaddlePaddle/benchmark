@@ -41,7 +41,8 @@ train(){
         --batch_size $batch_size \
         --print_freq 5 \
         --num_discriminator_time 5 \
-        --epoch 50"
+        --epoch 50 \
+        --run_test False"
     
     case ${run_mode} in
     sp) 
