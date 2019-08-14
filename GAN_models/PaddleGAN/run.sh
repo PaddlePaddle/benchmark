@@ -60,7 +60,7 @@ train(){
 
     ${train_cmd} > ${log_file} 2>&1 &
     train_pid=$!
-    sleep 20
+    sleep 120
     kill -9 $train_pid
 }
 
