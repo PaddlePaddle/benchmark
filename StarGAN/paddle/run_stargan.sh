@@ -40,6 +40,7 @@ train(){
         --gan_mode wgan \
         --batch_size $batch_size \
         --epoch 20 \
+        --n_critic 1 \
         --run_test False"
 
     case ${run_mode} in
