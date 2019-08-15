@@ -25,6 +25,7 @@ train(){
     
     train_cmd=" --experiment_name 128 \
         --dataroot ./data/celeba \
+        --n_d 1 \
         --gpu 2" 
     
     train_cmd="python -u train.py "${train_cmd} 
