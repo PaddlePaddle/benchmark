@@ -21,7 +21,7 @@ arr=($device)
 num_gpu_devices=${#arr[*]}
 
 batch_size=0
-log_file=${run_log_path}/${model_name}_GPU_cards_${num_gpu_devices}
+log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}
 log_parse_file=${log_file}
 
 train(){
@@ -66,7 +66,7 @@ train(){
 
 analysis_times(){
     skip_step=$1
-    awk -F = 'BEGIN{count=0}/Batch_time_cost=/{
+    awk 'BEGIN{count=0}/Batch_time_cost:/{
       count_fields=NF;
       step_times[count]=$count_fields;
       count+=1;
