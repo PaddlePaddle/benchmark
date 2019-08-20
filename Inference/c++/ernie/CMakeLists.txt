@@ -28,7 +28,7 @@ if(PADDLE_FOUND)
   target_link_libraries(inference
       ${PADDLE_LIBRARIES}
       ${PADDLE_THIRD_PARTY_LIBRARIES}
-      rt dl pthread gomp)
+      rt dl pthread)
 else()
   message(FATAL_ERROR "Cannot find PaddlePaddle Fluid under ${PADDLE_ROOT}")
 endif()
