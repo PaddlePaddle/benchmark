@@ -50,7 +50,6 @@ train(){
            --gan_mode vanilla \
            --batch_size ${batch_size} \
            --epoch 200 \
-           --image_size 286 \
            --crop_size 256 "
     else
         echo "model: $model_name not support!"
