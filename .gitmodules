@@ -30,3 +30,7 @@
 [submodule "STGAN/tensorflow/stgan"]
 	path = STGAN/tensorflow/stgan
 	url = https://github.com/csmliu/STGAN.git
+[submodule "GAN_models/PytorchGAN/pytorch-CycleGAN-and-pix2pix"]
+	path = GAN_models/PytorchGAN/pytorch-CycleGAN-and-pix2pix
+	url = https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix
+	branch = benchmark
