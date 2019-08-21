@@ -33,6 +33,7 @@ DEFINE_string(model_dir, "", "model directory");
 DEFINE_string(data, "", "input data path");
 DEFINE_int32(repeat, 1, "repeat");
 DEFINE_int32(warmup_steps, 0, "repeat");
+DEFINE_int32(num_threads, 1, "num_threads");
 DEFINE_bool(print_outputs, false, "Whether to output the prediction results.");
 DEFINE_bool(use_gpu, false, "Whether use GPU to infer.");
 DEFINE_bool(use_analysis, false, "Whether use Paddle's AnalysisPredictor.");
@@ -65,6 +66,7 @@ void InitFLAGS(int argc, char *argv[]) {
   Print<std::string>("model_dir", FLAGS_model_dir);
   Print<std::string>("data", FLAGS_data);
   Print<int>("repeat", FLAGS_repeat);
+  Print<int>("num_threads", FLAGS_num_threads);
   Print<int>("warmup_steps", FLAGS_warmup_steps);
   Print<bool>("print_outputs", FLAGS_print_outputs);
   Print<bool>("use_gpu", FLAGS_use_gpu);
@@ -233,7 +235,7 @@ void SetConfig(ConfigType* config, std::string model_dir, bool use_gpu, bool use
     config->fraction_of_gpu_memory = 0.15;
   } else {
     config->use_gpu = false;
-    config->SetCpuMathLibraryNumThreads(10);
+    config->SetCpuMathLibraryNumThreads(FLAGS_num_threads);
   }
 }
 
@@ -246,7 +248,7 @@ void SetConfig<paddle::AnalysisConfig>(paddle::AnalysisConfig* config, std::stri
   } else {
     config->DisableGpu();
     config->EnableMKLDNN();
-    config->SetCpuMathLibraryNumThreads(10);
+    config->SetCpuMathLibraryNumThreads(FLAGS_num_threads);
   }
   config->SwitchIrOptim(true);
   // config.SwitchSpecifyInputNames();
