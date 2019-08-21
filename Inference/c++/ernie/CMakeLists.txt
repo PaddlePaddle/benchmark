@@ -29,6 +29,10 @@ if(PADDLE_FOUND)
       ${PADDLE_LIBRARIES}
       ${PADDLE_THIRD_PARTY_LIBRARIES}
       rt dl pthread)
+  if (mklml_FOUND)
+    target_link_libraries(inference "-L${THIRD_PARTY_ROOT}/install/mklml/lib -liomp5 -Wl,--as-needed")
+  endif()
+
 else()
   message(FATAL_ERROR "Cannot find PaddlePaddle Fluid under ${PADDLE_ROOT}")
 endif()
