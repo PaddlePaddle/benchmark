@@ -21,13 +21,12 @@ train(){
     log_file="${log_file_prefix}${batch_size}.log"
     dir=$(pwd)
     cd ${video_path}
-    train_cmd=" --model_name=NEXTVLAD \
-	--config=${video_path}/configs/nextvlad.txt \
+    train_cmd=" --model_name=NONLOCAL \
+	--config=${video_path}/configs/nonlocal.txt \
 	--epoch=1 \
-	--batch_size=${batch_size} \
 	--valid_interval=1 \
 	--log_interval=10"
-    train_cmd="python3 train.py "${train_cmd}
+    train_cmd="python train.py "${train_cmd}
     ${train_cmd} > ${dir}/${log_file} 2>&1 &
     pid=$!
     wait $pid

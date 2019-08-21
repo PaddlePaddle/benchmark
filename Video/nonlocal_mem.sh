@@ -6,24 +6,22 @@ model_path="/Paddle/Models"
 
 # flags
 #export FLAGS_allocator_strategy=auto_growth
-export FLAGS_fraction_of_gpu_memory_to_use=0
+export FLAGS_fraction_of_gpu_memory_to_use=0.98
 
 # paths
-log_file='nextvlad.log'
+log_file='nonlocal.log'
 video_path="${model_path}/PaddleCV/PaddleVideo"
 
 train(){
     dir=$(pwd)
     cd ${video_path}
-    train_cmd=" --model_name=NEXTVLAD \
-	--config=${video_path}/configs/nextvlad.txt \
+    train_cmd=" --model_name=NONLOCAL \
+	--config=${video_path}/configs/nonlocal.txt \
 	--epoch=1 \
 	--valid_interval=1 \
 	--log_interval=10"
-    train_cmd="python3 train.py "${train_cmd}
-    ${train_cmd} > ${dir}/${log_file} 2>&1 &
-    pid=$!
-    wait $pid
+    train_cmd="python train.py "${train_cmd}
+    ${train_cmd}
     cd ${dir}
 }
 
@@ -70,7 +68,7 @@ analysis_times(){
     }' ${log_parse_file}
 }
 
-echo "Benchmark for nextvlad"
+echo "Benchmark for nonlocal"
 gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
 nvidia-smi --id=${gpu_id} --query-compute-apps=used_memory --format=csv -lms 1 > gpu_use.log 2>&1 &
 nvidia_pid=$!
