@@ -11,15 +11,17 @@ export FLAGS_fraction_of_gpu_memory_to_use=1.0
 
 if [ $# -lt 3 ]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem|maxbs sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem|maxbs sp|mp base|big fp32|fp16 /ssd1/ljh/logs"
     exit
 fi
 
 task="$1"
 index="$2"
 run_mode="$3"
-run_log_path=${4:-$(pwd)}
-model_name="bert"
+model_mode="$4"
+fp_mode=$5
+run_log_path=${6:-$(pwd)}
+model_name="bert_${model_mode}_${fp_mode}"
 
 BERT_BASE_PATH=$(pwd)/chinese_L-12_H-768_A-12
 TASK_NAME='XNLI'
@@ -29,7 +31,7 @@ CKPT_PATH=$(pwd)/save
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
 num_gpu_devices=${#arr[*]}
-if [ $index = "maxbs" ]; then base_batch_size=78; else base_batch_size=32; fi
+if [[ ${index} = "maxbs" ]]; then base_batch_size=78; else base_batch_size=32; fi
 batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
 log_file=${run_log_path}/${model_name}_${task}_${index}_${num_gpu_devices}_${run_mode}
 log_parse_file=${log_file}
@@ -66,6 +68,10 @@ train(){
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
+
+    if [[ ${fp_mode} == "fp16" ]]; then
+        train_cmd=${train_cmd}" --use_fp16=true --loss_scaling=8.0"
+    fi
 
     ${train_cmd} > ${log_file} 2>&1 &
     train_pid=$!
