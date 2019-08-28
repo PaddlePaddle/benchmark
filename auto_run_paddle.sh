@@ -158,39 +158,6 @@ StarGAN(){
 }
 
 
-#run AttGAN
-#AttGAN(){
-#    cur_model_path=${fluid_path}/models/PaddleCV/PaddleGAN/
-#    cd ${cur_model_path}
-#
-#    # Prepare data
-#    rm -r ${cur_model_path}/data
-#    mkdir -p ${cur_model_path}/data/celeba
-#    ln -s ${data_path}/CelebA/Anno/* ${cur_model_path}/data/celeba/
-#    ln -s ${data_path}/CelebA/Eval/* ${cur_model_path}/data/celeba/
-#    ln -s ${data_path}/CelebA/Img/img_align_celeba ${cur_model_path}/data/celeba/
-#
-#    # Install imageio
-#    if python -c "import imageio" >/dev/null 2>&1
-#    then
-#        echo "imageio have already installed"
-#    else
-#        echo "imageio NOT FOUND"
-#        pip install imageio
-#        echo "imageio installed"
-#    fi
-#    # Running ...
-#    cp ${fluid_path}/AttGAN/paddle/run_attgan.sh ./
-#
-#    sed -i 's/set\ -xe/set\ -e/g' run.sh
-#    echo "index is speed, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run_attgan.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
-#    sleep 60
-#    echo "index is mem, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run_attgan.sh train mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
-#}
-
-
 #run STGAN
 STGAN(){
     cur_model_path=${fluid_path}/models/PaddleCV/PaddleGAN/
@@ -222,68 +189,6 @@ STGAN(){
     echo "index is mem, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_stgan.sh train mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
-
-
-##run CGAN
-#CGAN(){
-#    cur_model_path=${fluid_path}/models/PaddleCV/PaddleGAN/
-#    cd ${cur_model_path}
-#
-#    # Prepare data
-#    rm -r ${cur_model_path}/data
-#    mkdir -p ${cur_model_path}/data
-#    ln -s ${data_path}/mnist ${cur_model_path}/data
-#
-#    # Install imageio
-#    if python -c "import imageio" >/dev/null 2>&1
-#    then
-#        echo "imageio have already installed"
-#    else
-#        echo "imageio NOT FOUND"
-#        pip install imageio
-#        echo "imageio installed"
-#    fi
-#    # Running ...
-#    cp ${fluid_path}/GAN_models/PaddleGAN/run.sh ./
-#
-#    sed -i 's/set\ -xe/set\ -e/g' run.sh
-#    echo "index is speed, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed CGAN ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
-#    sleep 60
-#    echo "index is mem, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem CGAN ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
-#}
-
-
-##run DCGAN
-#DCGAN(){
-#    cur_model_path=${fluid_path}/models/PaddleCV/PaddleGAN/
-#    cd ${cur_model_path}
-#
-#    # Prepare data
-#    rm -r ${cur_model_path}/data
-#    mkdir -p ${cur_model_path}/data
-#    ln -s ${data_path}/mnist ${cur_model_path}/data
-#
-#    # Install imageio
-#    if python -c "import imageio" >/dev/null 2>&1
-#    then
-#        echo "imageio have already installed"
-#    else
-#        echo "imageio NOT FOUND"
-#        pip install imageio
-#        echo "imageio installed"
-#    fi
-#    # Running ...
-#    cp ${fluid_path}/GAN_models/PaddleGAN/run.sh ./
-#
-#    sed -i 's/set\ -xe/set\ -e/g' run.sh
-#    echo "index is speed, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed DCGAN ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
-#    sleep 60
-#    echo "index is mem, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem DCGAN ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
-#}
 
 
 #run Pix2pix
