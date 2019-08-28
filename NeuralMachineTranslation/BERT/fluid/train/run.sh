@@ -1,8 +1,6 @@
 #!bin/bash
 set -xe
 
-cd ./LARK_Paddle_BERT/BERT/
-
 export FLAGS_cudnn_deterministic=true
 
 export FLAGS_enable_parallel_graph=0
@@ -23,10 +21,10 @@ run_mode="$3"
 run_log_path=${4:-$(pwd)}
 model_name="bert"
 
-BERT_BASE_PATH=$(pwd)/../../chinese_L-12_H-768_A-12
+BERT_BASE_PATH=$(pwd)/chinese_L-12_H-768_A-12
 TASK_NAME='XNLI'
-DATA_PATH=$(pwd)/../../data
-CKPT_PATH=$(pwd)/../../save
+DATA_PATH=$(pwd)/data
+CKPT_PATH=$(pwd)/save
 
 device=${CUDA_VISIBLE_DEVICES//,/ }
 arr=($device)
