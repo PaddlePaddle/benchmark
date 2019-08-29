@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cur_model_list=(transformer se_resnext50 CycleGAN deeplab mask_rcnn bert ddpg_deep_explore paddingrnn yolov3)
+cur_model_list=(mask_rcnn image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert ddpg_deep_explore yolov3)
 usage () {
   cat <<EOF
   usage: $0 [options]
@@ -16,7 +16,6 @@ usage () {
   -s  implement_type of model static | dynamic
 EOF
 }
-
 if [ $# != 18 ] ; then
   usage
   exit 1;
@@ -87,12 +86,11 @@ prepare(){
         rm ${log_path}/*
         cd ${root_path}
         git pull
-        git submodule update
         echo "prepare had done"
     else
         mkdir /home/crim
         cd ${root_path}
-        git clone --recursive https://github.com/PaddlePaddle/benchmark.git
+        git clone https://github.com/PaddlePaddle/benchmark.git
         cd ${fluid_path}
         git submodule init
         git submodule update
@@ -112,8 +110,9 @@ prepare(){
 CycleGAN(){
     cur_model_path=${fluid_path}/models/PaddleCV/PaddleGAN/cycle_gan
     cd ${cur_model_path}
+
     # Prepare data
-    rm -rf data/horse2zebra
+    rm -rf  data/horse2zebra
     ln -s ${data_path}/horse2zebra/ ${cur_model_path}/data
     # Running ...
     cp ${fluid_path}/CycleGAN/paddle/run.sh ./
@@ -123,6 +122,219 @@ CycleGAN(){
     sleep 60
     echo "index is mem, begin"
     CUDA_VISIBLE_DEVICES=0 bash run.sh train mem ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+}
+
+
+#run StartGAN
+StarGAN(){
+    cur_model_path=${fluid_path}/models/PaddleCV/PaddleGAN/
+    cd ${cur_model_path}
+
+    # Prepare data
+    rm -r ${cur_model_path}/data
+    mkdir -p ${cur_model_path}/data/celeba
+    ln -s ${data_path}/CelebA/Anno/* ${cur_model_path}/data/celeba/
+    ln -s ${data_path}/CelebA/Eval/* ${cur_model_path}/data/celeba/
+    ln -s ${data_path}/CelebA/Img/img_align_celeba ${cur_model_path}/data/celeba/
+
+    # Install imageio
+    if python -c "import imageio" >/dev/null 2>&1
+    then
+        echo "imageio have already installed"
+    else
+        echo "imageio NOT FOUND"
+        pip install imageio
+        echo "imageio installed"
+    fi
+    # Running ...
+    cp ${fluid_path}/StarGAN/paddle/run_stargan.sh ./
+
+    sed -i 's/set\ -xe/set\ -e/g' run.sh
+    echo "index is speed, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_stargan.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
+    echo "index is mem, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_stargan.sh train mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+}
+
+
+run AttGAN
+AttGAN(){
+    cur_model_path=${fluid_path}/models/PaddleCV/PaddleGAN/
+    cd ${cur_model_path}
+
+    # Prepare data
+    rm -r ${cur_model_path}/data
+    mkdir -p ${cur_model_path}/data/celeba
+    ln -s ${data_path}/CelebA/Anno/* ${cur_model_path}/data/celeba/
+    ln -s ${data_path}/CelebA/Eval/* ${cur_model_path}/data/celeba/
+    ln -s ${data_path}/CelebA/Img/img_align_celeba ${cur_model_path}/data/celeba/
+
+    # Install imageio
+    if python -c "import imageio" >/dev/null 2>&1
+    then
+        echo "imageio have already installed"
+    else
+        echo "imageio NOT FOUND"
+        pip install imageio
+        echo "imageio installed"
+    fi
+    # Running ...
+    cp ${fluid_path}/AttGAN/paddle/run_attgan.sh ./
+
+    sed -i 's/set\ -xe/set\ -e/g' run.sh
+    echo "index is speed, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_attgan.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
+    echo "index is mem, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_attgan.sh train mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+}
+
+
+#run STGAN
+STGAN(){
+    cur_model_path=${fluid_path}/models/PaddleCV/PaddleGAN/
+    cd ${cur_model_path}
+
+    # Prepare data
+    rm -r ${cur_model_path}/data
+    mkdir -p ${cur_model_path}/data/celeba
+    ln -s ${data_path}/CelebA/Anno/* ${cur_model_path}/data/celeba/
+    ln -s ${data_path}/CelebA/Eval/* ${cur_model_path}/data/celeba/
+    ln -s ${data_path}/CelebA/Img/img_align_celeba ${cur_model_path}/data/celeba/
+
+    # Install imageio
+    if python -c "import imageio" >/dev/null 2>&1
+    then
+        echo "imageio have already installed"
+    else
+        echo "imageio NOT FOUND"
+        pip install imageio
+        echo "imageio installed"
+    fi
+    # Running ...
+    cp ${fluid_path}/STGAN/paddle/run_stgan.sh ./
+
+    sed -i 's/set\ -xe/set\ -e/g' run.sh
+    echo "index is speed, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_stgan.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
+    echo "index is mem, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_stgan.sh train mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+}
+
+
+#run CGAN
+CGAN(){
+    cur_model_path=${fluid_path}/models/PaddleCV/PaddleGAN/
+    cd ${cur_model_path}
+
+    # Prepare data
+    rm -r ${cur_model_path}/data
+    mkdir -p ${cur_model_path}/data
+    ln -s ${data_path}/mnist ${cur_model_path}/data
+
+    # Install imageio
+    if python -c "import imageio" >/dev/null 2>&1
+    then
+        echo "imageio have already installed"
+    else
+        echo "imageio NOT FOUND"
+        pip install imageio
+        echo "imageio installed"
+    fi
+    # cp run.sh
+    cp ${fluid_path}/GAN_models/PaddleGAN/run.sh ./
+    sed -i 's/set\ -xe/set\ -e/g' run.sh
+
+    # running models cases
+    model_list=(CGAN DCGAN)
+    for model_name in ${model_list[@]}; do
+        echo "index is speed, begin, ${model_name}"
+        CUDA_VISIBLE_DEVICES=0 bash run.sh train speed CGAN ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is mem, begin, ${model_name}"
+        CUDA_VISIBLE_DEVICES=0 bash run.sh train mem CGAN ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        sleep 60
+    done
+}
+
+
+#run Pix2pix
+Pix2pix(){
+    cur_model_path=${fluid_path}/models/PaddleCV/PaddleGAN/
+    cd ${cur_model_path}
+
+    # Prepare data
+    rm -r ${cur_model_path}/data
+    mkdir ${cur_model_path}/data
+    ln -s ${data_path}/Pix2pix/cityscapes ${cur_model_path}/data
+
+    # Install imageio
+    if python -c "import imageio" >/dev/null 2>&1
+    then
+        echo "imageio have already installed"
+    else
+        echo "imageio NOT FOUND"
+        pip install imageio
+        echo "imageio installed"
+    fi
+    # Running ...
+    cp ${fluid_path}/GAN_models/PaddleGAN/run.sh ./
+
+    sed -i 's/set\ -xe/set\ -e/g' run.sh
+    echo "index is speed, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed Pix2pix ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
+    echo "index is mem, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem Pix2pix ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+}
+
+
+#run nextvlad
+nextvlad(){
+    cur_model_path=${fluid_path}/models/PaddleCV/PaddleVideo/
+    cd ${cur_model_path}
+
+    # Prepare data
+    cd dataset/youtube8m/
+    rm -r pkl *.list
+    ln -s ${data_path}/youtube8m_paddle/pkl ./
+      # make train.list
+    cur_path=$(pwd)
+    ls ${cur_path}/pkl/train/* > train.list
+    ls ${cur_path}/pkl/train/* > train.list
+    cd ${cur_model_path}
+
+    # Install imageio
+    if python -c "import imageio" >/dev/null 2>&1
+    then
+        echo "imageio have already installed"
+    else
+        echo "imageio NOT FOUND"
+        pip install imageio
+        echo "imageio installed"
+    fi
+
+    # Install wget
+    if python -c "import wget" >/dev/null 2>&1
+    then
+        echo "wget have already installed"
+    else
+        echo "wget NOT FOUND"
+        pip install wget
+        echo "wget installed"
+    fi
+
+    # Running ...
+    cp ${fluid_path}nextvlad/paddle/run.sh ./
+
+    sed -i 's/set\ -xe/set\ -e/g' run.sh
+    echo "index is speed, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
+    echo "index is mem, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -161,9 +373,10 @@ deeplab(){
 }
 
 
-#run_se-resnext50
-se_resnext50(){
+#run image_classification
+image_classification(){
     cur_model_path=${fluid_path}/models/PaddleCV/image_classification
+    model_list=(SE_ResNeXt50_32x4d ResNet101 ResNet50)
     cd ${cur_model_path}
     # Prepare data
     ln -s ${data_path}/ILSVRC2012/train ${cur_model_path}/data/ILSVRC2012/train
@@ -174,26 +387,156 @@ se_resnext50(){
     cp ${fluid_path}/se-resnext/paddle/run.sh ./run_benchmark.sh
     sed -i '/cd /d' run_benchmark.sh
     sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
-    echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_speed_1gpus 2>&1
+    # running models cases
+    for model_name in ${model_list[@]}; do
+        echo "index is speed, 1gpu, begin, ${model_name}"
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 sp ${model_name} ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is speed, 8gpus, begin, ${model_name}"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 sp ${model_name} ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+        sleep 60
+        echo "index is mem, 1gpus, begin, ${model_name}"
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem 32 sp ${model_name} ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        sleep 60
+        echo "index is mem, 8gpus, begin, ${model_name}"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem 32 sp ${model_name} ${train_log_dir} | tee ${log_path}/${model_name}_mem_8gpus 2>&1
+        sleep 60
+        echo "index is maxbs, 1gpus, begin, ${model_name}"
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs 112 sp ${model_name} ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
+        sleep 60
+        echo "index is maxbs, 8gpus, begin, ${model_name}"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs 112 sp ${model_name} ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
+        sleep 60
+        echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 mp ${model_name} ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+        sleep 60
+    done
+}
+
+
+#run retinanet_rcnn_fpn
+retinanet_rcnn_fpn(){
+    cur_model_path=${fluid_path}/models/PaddleCV/PaddleDetection/
+    cd ${cur_model_path}
+
+    # Prepare data
+    rm -r ${cur_model_path}/dataset
+    mkdir ${cur_model_path}/dataset
+    ln -s ${data_path}/coco ${cur_model_path}/dataset
+
+    # Install imageio
+    if python -c "import imageio" >/dev/null 2>&1
+    then
+        echo "imageio have already installed"
+    else
+        echo "imageio NOT FOUND"
+        pip install imageio
+        echo "imageio installed"
+    fi
+
+    # Install tqdm
+    if python -c "import tqdm" >/dev/null 2>&1
+    then
+        echo "tqdm have already installed"
+    else
+        echo "tqdm NOT FOUND"
+        pip install tqdm
+        echo "tqdm installed"
+    fi
+
+    # Install Cython
+    if python -c "import Cython" >/dev/null 2>&1
+    then
+        echo "Cython have already installed"
+    else
+        echo "Cython NOT FOUND"
+        pip install Cython
+        echo "Cython installed"
+    fi
+
+    # Install imageio
+    if python -c "import pycocotools" >/dev/null 2>&1
+    then
+        echo "pycocotools have already installed"
+    else
+        echo "pycocotools NOT FOUND"
+        pip install pycocotools
+        echo "pycocotools installed"
+    fi
+
+    # Running ...
+    cp -r ${cur_model_path}/ppdet ./tools
+    cp ${fluid_path}/RetinaNet/paddle/run.sh ./
+
+    sed -i 's/set\ -xe/set\ -e/g' run.sh
+    echo "index is speed, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
-    echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_speed_8gpus 2>&1
+    echo "index is mem, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+}
+
+
+#run cascade_rcnn_fpn
+cascade_rcnn_fpn(){
+    cur_model_path=${fluid_path}/models/PaddleCV/PaddleDetection/
+    cd ${cur_model_path}
+
+    # Prepare data
+    rm -r ${cur_model_path}/dataset
+    mkdir ${cur_model_path}/dataset
+    ln -s ${data_path}/coco ${cur_model_path}/dataset
+
+    # Install imageio
+    if python -c "import imageio" >/dev/null 2>&1
+    then
+        echo "imageio have already installed"
+    else
+        echo "imageio NOT FOUND"
+        pip install imageio
+        echo "imageio installed"
+    fi
+
+    # Install tqdm
+    if python -c "import tqdm" >/dev/null 2>&1
+    then
+        echo "tqdm have already installed"
+    else
+        echo "tqdm NOT FOUND"
+        pip install tqdm
+        echo "tqdm installed"
+    fi
+
+    # Install Cython
+    if python -c "import Cython" >/dev/null 2>&1
+    then
+        echo "Cython have already installed"
+    else
+        echo "Cython NOT FOUND"
+        pip install Cython
+        echo "Cython installed"
+    fi
+
+    # Install imageio
+    if python -c "import pycocotools" >/dev/null 2>&1
+    then
+        echo "pycocotools have already installed"
+    else
+        echo "pycocotools NOT FOUND"
+        pip install pycocotools
+        echo "pycocotools installed"
+    fi
+
+    # Running ...
+    cp -r ${cur_model_path}/ppdet ./tools
+    cp ${fluid_path}/Cascade-RCNN-FPN/paddle/run.sh ./
+
+    sed -i 's/set\ -xe/set\ -e/g' run.sh
+    echo "index is speed, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
-    echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem 32 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_mem_1gpus 2>&1
-    sleep 60
-    echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem 32 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_mem_8gpus 2>&1
-    sleep 60
-    echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs 112 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_maxbs_1gpus 2>&1
-    sleep 60
-    echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs 112 sp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_maxbs_8gpus 2>&1
-    sleep 60
-    echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 mp ${train_log_dir} | tee ${log_path}/SE-ResNeXt50_speed_8gpus8p 2>&1
+    echo "index is mem, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -201,6 +544,7 @@ se_resnext50(){
 mask_rcnn(){
     cur_model_path=${fluid_path}/models/PaddleCV/rcnn
     cd ${cur_model_path}
+
     # Install cocoapi
     if python -c "import pycocotools" >/dev/null 2>&1
     then
@@ -216,6 +560,10 @@ mask_rcnn(){
     fi
     # Copy pretrained model
     ln -s ${prepare_path}/mask-rcnn/imagenet_resnet50_fusebn ${cur_model_path}/imagenet_resnet50_fusebn
+    cd ${cur_model_path}
+    #    rm -rf dataset/coco
+    #    ln -s ${data_path}/COCO17 ${cur_model_path}/rcnn/dataset/coco
+    #    sed -i 's/set\ -xe/set\ -e/g' run.sh
     # Prepare data
     ln -s ${data_path}/COCO17/annotations ${cur_model_path}/dataset/coco/annotations
     ln -s ${data_path}/COCO17/train2017 ${cur_model_path}/dataset/coco/train2017
@@ -225,6 +573,7 @@ mask_rcnn(){
     cp ${fluid_path}/Mask-RCNN/paddle/run.sh ./run_benchmark.sh
     sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
+
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
@@ -249,33 +598,44 @@ mask_rcnn(){
 
 #run_bert
 bert(){
-    cur_model_path=${fluid_path}/NeuralMachineTranslation/BERT/fluid/train
+    cur_model_path=${fluid_path}/models/PaddleNLP/language_representations_kit/BERT
     cd ${cur_model_path}
+    rm -rf data
     ln -s ${data_path}/Bert/data ${cur_model_path}/data
     ln -s ${prepare_path}/chinese_L-12_H-768_A-12 ${cur_model_path}/chinese_L-12_H-768_A-12
+    cp ${fluid_path}/NeuralMachineTranslation/BERT/fluid/train/run.sh ./run_benchmark.sh
 
-    sed -i 's/set\ -xe/set\ -e/g' run.sh
-    echo "index is speed, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
-    sleep 60
-    echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
-    sleep 60
-    echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
-    sleep 60
-    echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
-    sleep 60
-    echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh train maxbs sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
-    sleep 60
-    echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train maxbs sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
-    sleep 60
-    echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
+    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
 
+    model_mode_list=(base)
+    fp_mode_list=(fp32 fp16)
+    for model_mode in ${model_mode_list[@]}; do
+        for fp_mode in ${fp_mode_list[@]}; do
+            model_name="${model_mode}_${fp_mode}"
+            echo "index is speed, 1gpus, begin, ${model_name}"
+
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train speed sp ${model_mode} ${fp_mode} ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+            sleep 60
+            echo "index is speed, 8gpus, begin, ${model_name}"
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh train speed sp ${model_mode} ${fp_mode} ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+            sleep 60
+            echo "index is mem, 1gpus, begin, ${model_name}"
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train mem sp ${model_mode} ${fp_mode} ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+            sleep 60
+            echo "index is mem, 8gpus, begin, ${model_name}"
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh train mem sp ${model_mode} ${fp_mode} ${train_log_dir} | tee ${log_path}/${model_name}_mem_8gpus 2>&1
+            sleep 60
+            echo "index is maxbs, 1gpus, begin, ${model_name}"
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train maxbs sp ${model_mode} ${fp_mode} ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
+            sleep 60
+            echo "index is maxbs, 8gpus, begin, ${model_name}"
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh train maxbs sp ${model_mode} ${fp_mode} ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
+            sleep 60
+            echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh train speed mp ${model_mode} ${fp_mode} ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+            sleep 60
+        done
+    done
 }
 
 
@@ -308,7 +668,7 @@ transformer(){
     sleep 60
     echo "model_type is ${model_type}, index is speed, 8gpus, run_mode is multi_process, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed mp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus8p 2>&1
-
+    sleep 60
     model_type="big"
     echo "model_type is ${model_type}, index is speed, 1gpu, begin"
     CUDA_VISIBLE_DEVICES=0 bash run.sh train speed sp ${model_type} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_speed_1gpus 2>&1
@@ -342,7 +702,7 @@ ddpg_deep_explore(){
         echo "parl have already installed"
     else
         echo "parl NOT FOUND"
-        pip install parl
+        pip install parl==1.1
         echo "parl installed"
     fi
     sed -i 's/set\ -xe/set\ -e/g' run.sh
@@ -445,6 +805,7 @@ yolov3(){
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run.sh train speed mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
 }
+
 
 run(){
     if [ $model = "all" ]
