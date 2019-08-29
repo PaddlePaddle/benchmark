@@ -62,7 +62,6 @@ class TimeAnalyzer(object):
             if line.find(self.keyword) == -1:
                 continue
 
-            #print(line)
             line = line.strip().replace("\t", self.separator)
             line = re.sub(r"\s+", self.separator, line)
             items = line.split(self.separator)
@@ -80,7 +79,8 @@ class TimeAnalyzer(object):
                     if item == self.keyword:
                         break
             #print(position)
-            print(clean_items[position].replace("s", ""))
+            #print(clean_items)
+            #print(clean_items[position].replace("s", ""))
             self.records.append(float(clean_items[position].replace("s", "")))
             
         if len(self.records) <= 0:
