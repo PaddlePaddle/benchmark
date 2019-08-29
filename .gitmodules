@@ -3,9 +3,9 @@
   url = https://github.com/PaddlePaddle/models.git
   branch = benchmark
 [submodule "NeuralMachineTranslation/BERT/pytorch/Megatron-LM"]
-	path = NeuralMachineTranslation/BERT/pytorch/Megatron-LM
-	url = https://github.com/chengduoZH/Megatron-LM
-	branch = benchmark
+  path = NeuralMachineTranslation/BERT/pytorch/Megatron-LM
+  url = https://github.com/chengduoZH/Megatron-LM
+  branch = benchmark
 [submodule "se-resnext/pytorch/vision"]
   path = se-resnext/pytorch/vision
   url = https://github.com/pytorch/vision.git
@@ -14,19 +14,22 @@
   path = se-resnext/pytorch/examples
   url = https://github.com/pytorch/examples.git
   branch = master
+[submodule "seq2seq/tensorflow/nmt"]
+  path = seq2seq/tensorflow/nmt
+  url = https://github.com/tensorflow/nmt.git
 [submodule "StarGAN/pytorch/stargan"]
-	path = StarGAN/pytorch/stargan
-	url = https://github.com/yunjey/stargan.git
+  path = StarGAN/pytorch/stargan
+  url = https://github.com/yunjey/stargan.git
 [submodule "AttGAN/tensorflow/attgan"]
-	path = AttGAN/tensorflow/attgan
-	url = https://github.com/LynnHo/AttGAN-Tensorflow.git
+  path = AttGAN/tensorflow/attgan
+  url = https://github.com/LynnHo/AttGAN-Tensorflow.git
 [submodule "AttGAN/pytorch/attgan"]
-	path = AttGAN/pytorch/attgan
-	url = https://github.com/elvisyjlin/AttGAN-PyTorch.git
+  path = AttGAN/pytorch/attgan
+  url = https://github.com/elvisyjlin/AttGAN-PyTorch.git
 [submodule "STGAN/tensorflow/stgan"]
-	path = STGAN/tensorflow/stgan
-	url = https://github.com/csmliu/STGAN.git
+  path = STGAN/tensorflow/stgan
+  url = https://github.com/csmliu/STGAN.git
 [submodule "GAN_models/PytorchGAN/pytorch-CycleGAN-and-pix2pix"]
-	path = GAN_models/PytorchGAN/pytorch-CycleGAN-and-pix2pix
-	url = https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix
-	branch = benchmark
+  path = GAN_models/PytorchGAN/pytorch-CycleGAN-and-pix2pix
+  url = https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix
+  branch = benchmark
