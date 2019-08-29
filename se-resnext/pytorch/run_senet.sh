@@ -70,7 +70,7 @@ train() {
 
 analysis() {
   sed 's/batch\/sec/\ batch\/sec/' ${log_file} > tmp.txt
-  python ${BENCHMARK_ROOT}/tools/analysis.py \
+  python ${BENCHMARK_ROOT}/scripts/analysis.py \
     --filename tmp.txt \
     --keyword "Time:" \
     --separator " " \

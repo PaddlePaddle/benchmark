@@ -79,8 +79,9 @@ class TimeAnalyzer(object):
                     if item == self.keyword:
                         break
             #print(position)
-            #print(clean_items[position])
-            self.records.append(float(clean_items[position]))
+            #print(clean_items)
+            #print(clean_items[position].replace("s", ""))
+            self.records.append(float(clean_items[position].replace("s", "")))
             
         if len(self.records) <= 0:
             raise Exception("No items in %s!" % (self.filename))
