@@ -20,15 +20,19 @@
 [submodule "StarGAN/pytorch/stargan"]
   path = StarGAN/pytorch/stargan
   url = https://github.com/yunjey/stargan.git
+  branch = master
 [submodule "AttGAN/tensorflow/attgan"]
   path = AttGAN/tensorflow/attgan
   url = https://github.com/LynnHo/AttGAN-Tensorflow.git
+  branch = master
 [submodule "AttGAN/pytorch/attgan"]
   path = AttGAN/pytorch/attgan
   url = https://github.com/elvisyjlin/AttGAN-PyTorch.git
+  branch = master
 [submodule "STGAN/tensorflow/stgan"]
   path = STGAN/tensorflow/stgan
   url = https://github.com/csmliu/STGAN.git
+  branch = master
 [submodule "GAN_models/PytorchGAN/pytorch-CycleGAN-and-pix2pix"]
   path = GAN_models/PytorchGAN/pytorch-CycleGAN-and-pix2pix
   url = https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix
