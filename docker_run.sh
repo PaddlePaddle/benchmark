@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cur_model_list=(CycleGAN deeplab se_resnext50 mask_rcnn bert transformer ddpg_deep_explore paddingrnn yolov3)
+cur_model_list=(mask_rcnn ResNet50 ResNet101 SE_ResNeXt50_32x4d deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert ddpg_deep_explore yolov3)
 usage () {
   cat <<EOF
   usage: $0 [options]
@@ -46,7 +46,6 @@ paddle_repo="https://github.com/PaddlePaddle/Paddle.git"
 
 export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
 export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
-EMAIL_ADDRESS="liangjinhua01@baidu.com,liyang109@baidu.com"
 
 #build paddle
 build(){
@@ -73,6 +72,15 @@ build(){
     PADDLE_VERSION=${version}'.post'$(echo $cuda_version|cut -d "." -f1)${cudnn_version}
     image_name=paddlepaddle_gpu-${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
     echo "image_name is: "${image_name}
+
+    #double check1: In some case, docker would hang while compiling paddle, so to avoid re-compilem, need this
+    if [ -e ${all_path}/images/${image_name} ]
+    then
+        echo "image had built, begin running models"
+        return
+    else
+        echo "image not found, begin building"
+    fi
 
     docker pull ${PADDLE_DEV_NAME}
 #    docker run ${CUDA_SO} ${DEVICES} -i --rm -v $PWD:/paddle ${PADDLE_DEV_NAME} \
@@ -122,6 +130,7 @@ build(){
 }
 
 run(){
+    #double check2
     if [ -e ${all_path}/images/${image_name} ]
     then
         echo "build paddle success, begin run !"
@@ -149,6 +158,7 @@ run(){
         -v /ssd1:/ssd1 \
         -v /ssd2:/ssd2 \
         -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
+        -v /usr/bin/monquery:/usr/bin/monquery \
         --net=host \
         --privileged \
         $RUN_IMAGE_NAME \
@@ -165,14 +175,15 @@ run(){
 }
 
 send_email(){
-    if [[ ${job_type} == 2 && -e ${all_path}/logs/log_${PADDLE_VERSION}/mail.html ]]; then
+    # if [[ ${job_type} == 2 && -e ${all_path}/logs/log_${PADDLE_VERSION}/mail.html ]]; then
+    if [[ -e ${all_path}/logs/log_${PADDLE_VERSION}/mail.html ]]; then
         cat ${all_path}/logs/log_${PADDLE_VERSION}/mail.html |sendmail -t ${email_address}
     fi
 }
 
 zip_log(){
     echo $(pwd)
-    if [ -d ${all_path}/logs/log_${PADDLE_VERSION} ]; then
+    if [[ -d ${all_path}/logs/log_${PADDLE_VERSION} ]]; then
         rm -rf output/*
         tar -zcvf output/log_${PADDLE_VERSION}.tar.gz ${all_path}/logs/log_${PADDLE_VERSION}
         cp ${all_path}/images/${image_name}  output/

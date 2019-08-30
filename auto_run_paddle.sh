@@ -611,9 +611,8 @@ bert(){
     fp_mode_list=(fp32 fp16)
     for model_mode in ${model_mode_list[@]}; do
         for fp_mode in ${fp_mode_list[@]}; do
-            model_name="${model_mode}_${fp_mode}"
+            model_name="${FUNCNAME}_${model_mode}_${fp_mode}"
             echo "index is speed, 1gpus, begin, ${model_name}"
-
             CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train speed sp ${model_mode} ${fp_mode} ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
             sleep 60
             echo "index is speed, 8gpus, begin, ${model_name}"
@@ -724,31 +723,20 @@ paddingrnn(){
     # Running ...
     cp ${fluid_path}/PaddingRNN/lstm_paddle/run.sh ./
     sed -i 's/set\ -xe/set\ -e/g' run.sh
-    echo "index is speed, 1gpus, small model, rnn_type=static, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed small static ${batch_size} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_small_static_speed_1gpus 2>&1
-    sleep 60
-    echo "index is mem, 1gpus, small model, rnn_type=static, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem small static ${batch_size} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_small_static_mem_1gpus 2>&1
-    sleep 60
-    echo "index is speed, 1gpus, large model, rnn_type=static, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed large static ${batch_size} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_large_static_speed_1gpus 2>&1
-    sleep 60
-    echo "index is mem, 1gpus, large model, rnn_type=static, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem large static ${batch_size} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_large_static_mem_1gpus 2>&1
-    sleep 60
-    echo "index is speed, 1gpus, small model, rnn_type=padding, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed small padding ${batch_size} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_small_padding_speed_1gpus 2>&1
-    sleep 60
-    echo "index is mem, 1gpus, small model, rnn_type=padding, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem small padding ${batch_size} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_small_padding_mem_1gpus 2>&1
-    sleep 60
-    echo "index is speed, 1gpus, large model, rnn_type=padding, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh speed large padding ${batch_size} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_large_padding_speed_1gpus 2>&1
-    sleep 60
-    echo "index is mem, 1gpus, large model, rnn_type=padding, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run.sh mem large padding ${batch_size} ${train_log_dir} | tee ${log_path}/${FUNCNAME}_large_padding_mem_1gpus 2>&1
+    model_type_list=(small large)
+    rnn_type_list=(static padding)
+    for model_type in ${model_type_list[@]}; do
+        for rnn_type in ${rnn_type_list[@]}; do
+        model_name="${FUNCNAME}_${model_type}_${rnn_type}"
+        echo "index is speed, 1gpus, ${model_name}, begin"
+        CUDA_VISIBLE_DEVICES=0 bash run.sh speed ${model_type} ${rnn_type} ${batch_size} ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is mem, 1gpus, ${model_name}, begin"
+        CUDA_VISIBLE_DEVICES=0 bash run.sh mem ${model_type} ${rnn_type} ${batch_size} ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        sleep 60
+        done
+    done
 }
-
 
 #run_yolov3
 yolov3(){
@@ -860,3 +848,4 @@ save(){
 prepare
 run
 save
+
