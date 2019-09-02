@@ -169,7 +169,7 @@ then
     fi
 else
     $task
-    error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use or FLAGS_initial_gpu_memory_in_mb or FLAGS_reallocate_gpu_memory_in_mbenvironment variable to a lower value"
+    error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use"
     if [ `grep -c "${error_string}" ${log_parse_file}` -eq 0 ]; then
       echo "maxbs is $((${batch_size}*128))"
     else
