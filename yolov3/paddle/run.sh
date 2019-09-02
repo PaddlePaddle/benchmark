@@ -35,7 +35,8 @@ train(){
      --pretrain=./weights/darknet53/ \
      --data_dir=./dataset/coco/ \
      --batch_size=${base_batch_size} \
-     --syncbn=False"
+     --syncbn=True  \
+     --worker_num=16"
 
     case ${run_mode} in
     sp) train_cmd="python -u train.py "${train_cmd} ;;
@@ -129,13 +130,13 @@ then
     job_bt=`date '+%Y%m%d%H%M%S'`
     $task
     job_et=`date '+%Y%m%d%H%M%S'`
-    hostname=`echo $(hostname)|awk -F '.baidu.com' '{print $1}'`
-    monquery -n $hostname -i GPU_AVERAGE_UTILIZATION -s $job_bt -e $job_et -d 60 > gpu_avg_utilization
-    monquery -n $hostname -i CPU_USER -s $job_bt -e $job_et -d 60 > cpu_use
-    cpu_num=$(cat /proc/cpuinfo | grep processor | wc -l)
-    gpu_num=$(nvidia-smi -L|wc -l)
-    awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_gpu_use=%.2f\n" ,avg*'${gpu_num}')}' gpu_avg_utilization
-    awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_cpu_use=%.2f\n" ,avg*'${cpu_num}')}' cpu_use
+#    hostname=`echo $(hostname)|awk -F '.baidu.com' '{print $1}'`
+#    monquery -n $hostname -i GPU_AVERAGE_UTILIZATION -s $job_bt -e $job_et -d 60 > gpu_avg_utilization
+#    monquery -n $hostname -i CPU_USER -s $job_bt -e $job_et -d 60 > cpu_use
+#    cpu_num=$(cat /proc/cpuinfo | grep processor | wc -l)
+#    gpu_num=$(nvidia-smi -L|wc -l)
+#    awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_gpu_use=%.2f\n" ,avg*'${gpu_num}')}' gpu_avg_utilization
+#    awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("avg_cpu_use=%.2f\n" ,avg*'${cpu_num}')}' cpu_use
     if [ ${task} = "train" ]
     then
         analysis_times 5 8 8
@@ -144,7 +145,7 @@ then
     fi
 else
     $task
-    error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use"
+    error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use or FLAGS_initial_gpu_memory_in_mb or FLAGS_reallocate_gpu_memory_in_mbenvironment variable to a lower value"
     if [ `grep -c "${error_string}" ${log_parse_file}` -eq 0 ]; then
       echo "maxbs is ${batch_size}"
     else

@@ -21,10 +21,24 @@ train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
   export MXNET_CUDNN_AUTOTUNE_DEFAULT=0
+#  python train_yolo3.py \
+#      --network darknet53 \
+#      --dataset coco \
+#      --gpus ${CUDA_VISIBLE_DEVICES} \
+#      --batch-size 8 \
+#      --num-workers 8 \
+#      --log-interval 1 \
+#      --lr-decay-epoch 220,250 \
+#      --epochs 2 \
+#      --syncbn \
+#      --warmup-epochs 2 \
+#      --mixup --no-mixup-epochs 20 \
+#      --label-smooth --no-wd
   python train_yolo3.py \
       --dataset=coco --batch-size=${batch_size} \
       --gpus=${CUDA_VISIBLE_DEVICES} \
       --data-shape=608 \
+      --num-work=24 \
       --no-random-shape > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600
@@ -109,4 +123,3 @@ else
       #analysis_times 3 5 5
     fi
 fi
-
