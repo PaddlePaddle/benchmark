@@ -15,7 +15,7 @@ function _set_params(){
     model_name="yolov3"
     skip_steps=5
     keyword="Iter"
-    separator=" "
+    separator='" "'
     position=-1
     model_mode=0
 

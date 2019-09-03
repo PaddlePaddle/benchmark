@@ -75,7 +75,7 @@ prepare(){
     train_log_dir=${save_log_dir}/train_log
     mkdir -p ${train_log_dir}
 
-    export ROOT_PATH=/home/crim/
+    export ROOT_PATH=/home/crim
     export BENCHMARK_ROOT=${ROOT_PATH}/benchmark
     log_path=${BENCHMARK_ROOT}/benchmark/logs
     data_path=${all_path}/dataset
@@ -160,7 +160,7 @@ StarGAN(){
 }
 
 
-run AttGAN
+#run AttGAN
 AttGAN(){
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleGAN/
     cd ${cur_model_path}

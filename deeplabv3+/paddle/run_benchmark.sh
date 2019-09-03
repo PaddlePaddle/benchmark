@@ -15,7 +15,7 @@ function _set_params(){
     model_name="DeepLab_V3+"
     skip_steps=1
     keyword="step_time_cost:"
-    separator=" "
+    separator='" "'
     position=5
     model_mode=0
 

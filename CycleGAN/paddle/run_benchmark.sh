@@ -15,7 +15,7 @@ function _set_params(){
     model_name="CycleGAN"
     skip_steps=3
     keyword="Batch_time_cost:"
-    separator=" "
+    separator='" "'
     position=12
     model_mode=0
 

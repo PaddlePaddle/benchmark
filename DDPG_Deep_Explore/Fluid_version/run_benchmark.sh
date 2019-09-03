@@ -15,7 +15,7 @@ function _set_params(){
     model_name="ddpg_deep_explore"
     skip_steps=1
     keyword="time consuming"
-    separator=" "
+    separator='" "'
     position=9
     model_mode=1
 

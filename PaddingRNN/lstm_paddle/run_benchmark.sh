@@ -17,7 +17,7 @@ function _set_params(){
     model_name="paddingrnn_"${model_type}_${rnn_type}
     skip_steps=0
     keyword="avg_time:"
-    separator=" "
+    separator='" "'
     position=8
     model_mode=1
 

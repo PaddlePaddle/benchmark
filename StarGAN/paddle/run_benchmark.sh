@@ -15,7 +15,7 @@ function _set_params(){
     model_name="StarGAN"
     skip_steps=3
     keyword="Batch_time_cost:"
-    separator=" "
+    separator='" "'
     position=-1
     model_mode=0
 

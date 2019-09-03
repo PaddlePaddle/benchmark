@@ -15,7 +15,7 @@ function _set_params(){
     model_name="mask_rcnn"
     skip_steps=3
     keyword="loss_rpn_bbox"
-    separator=" "
+    separator='" "'
     position=19
     model_mode=0
 

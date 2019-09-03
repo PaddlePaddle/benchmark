@@ -15,7 +15,7 @@ function _set_params(){
     model_name="AttGAN"
     skip_steps=5
     keyword="Batch_time_cost:"
-    separator=" "
+    separator='" "'
     position=-1
     model_mode=0
 

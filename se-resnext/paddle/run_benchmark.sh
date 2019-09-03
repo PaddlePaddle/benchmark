@@ -16,7 +16,7 @@ function _set_params(){
 
     skip_steps=2
     keyword="trainbatch"
-    separator=" "
+    separator='" "'
     position=41
     model_mode=0
 
