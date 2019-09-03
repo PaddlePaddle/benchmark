@@ -1,11 +1,10 @@
 #!/bin/bash
 
-cur_model_list=(mask_rcnn ResNet50 ResNet101 SE_ResNeXt50_32x4d deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert ddpg_deep_explore yolov3)
 usage () {
   cat <<EOF
   usage: $0 [options]
   -h         optional   Print this help message
-  -m  model  ${cur_model_list[@]} | all
+  -m  model  all
   -d  dir of benchmark_work_path
   -c  cuda_version 9.0|10.0
   -n  cudnn_version 7

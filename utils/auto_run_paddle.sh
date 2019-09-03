@@ -77,7 +77,7 @@ prepare(){
 
     export ROOT_PATH=/home/crim
     export BENCHMARK_ROOT=${ROOT_PATH}/benchmark
-    log_path=${BENCHMARK_ROOT}/benchmark/logs
+    log_path=${BENCHMARK_ROOT}/logs
     data_path=${all_path}/dataset
     prepare_path=${all_path}/prepare
 

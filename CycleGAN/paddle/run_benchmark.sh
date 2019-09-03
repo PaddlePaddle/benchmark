@@ -92,6 +92,6 @@ function _run(){
             --gpu_num ${num_gpu_devices}
 }
 
-_set_params
+_set_params $@
 _set_env
 _run
