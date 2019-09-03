@@ -47,7 +47,8 @@ train(){
         --init_weights_path=${INIT_WEIGHTS_PATH} \
         --save_weights_path=${SAVE_WEIGHTS_PATH} \
         --dataset_path=${DATASET_PATH} \
-        --parallel=True"
+        --parallel=True \
+        --use_multiprocessing=True "
 
     case ${run_mode} in
     sp) train_cmd="python -u train.py "${train_cmd} ;;
@@ -135,7 +136,7 @@ then
     analysis_times
 else
     train
-    error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use or FLAGS_initial_gpu_memory_in_mb or FLAGS_reallocate_gpu_memory_in_mbenvironment variable to a lower value"
+    error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use"
     if [ `grep -c "${error_string}" ${log_parse_file}` -eq 0 ]; then
       echo "maxbs is ${batch_size}"
     else

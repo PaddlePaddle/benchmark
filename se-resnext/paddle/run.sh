@@ -10,9 +10,9 @@ export FLAGS_fraction_of_gpu_memory_to_use=0.98
 #export FLAGS_cudnn_deterministic=true
 #export FLAGS_enable_parallel_graph=1
 
-if [ $# -lt 3 ]; then
+if [ $# -lt 4 ]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs 32 sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs 32 sp|mp model_name /ssd1/ljh/logs"
     exit
 fi
 
@@ -20,8 +20,8 @@ task="train"
 index=$1
 base_batchsize=$2
 run_mode="$3"
-run_log_path=${4:-$(pwd)}
-model_name="SE-ResNeXt50"
+model_name=$4 #"SE-ResNeXt50"
+run_log_path=${5:-$(pwd)}
 
 devices_str=${CUDA_VISIBLE_DEVICES//,/ }
 gpu_devices=($devices_str)
@@ -42,20 +42,41 @@ log_parse_file=${log_file}
 train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$cal_batch_size"
     WORK_ROOT=$PWD
-    train_cmd=" --model=SE_ResNeXt50_32x4d \
-       --batch_size=${batch_size} \
-       --total_images=1281167 \
-       --class_dim=1000 \
-       --image_shape=3,224,224 \
-       --model_save_dir=output/ \
-       --pretrained_model=SE_ResNext50_32x4d_pretrained/ \
-       --data_dir=data/ILSVRC2012 \
-       --with_mem_opt=False \
-       --with_inplace=True \
-       --lr_strategy=cosine_decay \
-       --lr=0.1 \
-       --l2_decay=1.2e-4 \
-       --num_epochs=${num_epochs}"
+    echo "${model_name}, batch_size: ${batch_size}"
+
+    if echo {ResNet50 ResNet101} | grep -w $model_name &>/dev/null
+    then
+       train_cmd="  --model=${model_name} \
+           --batch_size=${batch_size} \
+           --total_images=1281167 \
+           --class_dim=1000 \
+           --image_shape=3,224,224 \
+           --model_save_dir=output/ \
+           --with_mem_opt=True \
+           --lr_strategy=piecewise_decay \
+           --num_epochs=${num_epochs} \
+           --lr=0.1 \
+           --l2_decay=1e-4"
+    elif echo {SE_ResNeXt50_32x4d} | grep -w $model_name &>/dev/null
+    then
+        train_cmd=" --model=${model_name} \
+           --batch_size=${batch_size} \
+           --total_images=1281167 \
+           --class_dim=1000 \
+           --image_shape=3,224,224 \
+           --model_save_dir=output/ \
+           --pretrained_model=SE_ResNext50_32x4d_pretrained/ \
+           --data_dir=data/ILSVRC2012 \
+           --with_mem_opt=False \
+           --with_inplace=True \
+           --lr_strategy=cosine_decay \
+           --lr=0.1 \
+           --l2_decay=1.2e-4 \
+           --num_epochs=${num_epochs}"
+    else
+        echo "model: $model_name not support!"
+	exit 
+    fi
 
     case ${run_mode} in
     sp) train_cmd="python -u train.py "${train_cmd} ;;
@@ -145,7 +166,7 @@ then
     analysis_times 2 14
 else
     train
-    error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use or FLAGS_initial_gpu_memory_in_mb or FLAGS_reallocate_gpu_memory_in_mbenvironment variable to a lower value"
+    error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use"
     if [ `grep -c "${error_string}" ${log_parse_file}` -eq 0 ]; then
       echo "maxbs is ${batch_size}"
     else
