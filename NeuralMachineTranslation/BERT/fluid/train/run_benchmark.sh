@@ -17,7 +17,7 @@ function _set_params(){
     model_name="bert_${model_mode}_${fp_mode}"
     skip_steps=1
     keyword="loss_rpn_bbox"
-    separator='" "'
+    separator=" "
     position=13
     model_mode=1
 
@@ -126,7 +126,7 @@ function _run(){
     python ${BENCHMARK_ROOT}/utils/analysis.py \
             --filename ${log_file} \
             --keyword ${keyword} \
-            --separator ${separator} \
+            --separator "${separator}" \
             --position ${position} \
             --base_batch_size ${base_batch_size} \
             --skip_steps ${skip_steps} \

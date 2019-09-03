@@ -15,7 +15,7 @@ function _set_params(){
     model_name="mask_rcnn"
     skip_steps=3
     keyword="loss_rpn_bbox"
-    separator='" "'
+    separator=" "
     position=19
     model_mode=0
 
@@ -103,7 +103,7 @@ function _run(){
     python ${BENCHMARK_ROOT}/utils/analysis.py \
             --filename ${log_file} \
             --keyword ${keyword} \
-            --separator ${separator} \
+            --separator "${separator}" \
             --position ${position} \
             --base_batch_size ${base_batch_size} \
             --skip_steps ${skip_steps} \

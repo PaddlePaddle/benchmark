@@ -15,7 +15,7 @@ function _set_params(){
     model_name="ddpg_deep_explore"
     skip_steps=1
     keyword="time consuming"
-    separator='" "'
+    separator=" "
     position=9
     model_mode=1
 
@@ -85,7 +85,7 @@ function _run(){
     python ${BENCHMARK_ROOT}/utils/analysis.py \
             --filename ${log_file} \
             --keyword ${keyword} \
-            --separator ${separator} \
+            --separator "${separator}" \
             --position ${position} \
             --base_batch_size ${base_batch_size} \
             --skip_steps ${skip_steps} \

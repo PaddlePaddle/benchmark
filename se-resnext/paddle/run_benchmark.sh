@@ -16,7 +16,7 @@ function _set_params(){
 
     skip_steps=2
     keyword="trainbatch"
-    separator='" "'
+    separator=" "
     position=41
     model_mode=0
 
@@ -136,7 +136,7 @@ function _run(){
     python ${BENCHMARK_ROOT}/utils/analysis.py \
             --filename ${log_file} \
             --keyword ${keyword} \
-            --separator ${separator} \
+            --separator "${separator}" \
             --position ${position} \
             --base_batch_size ${base_batch_size} \
             --skip_steps ${skip_steps} \

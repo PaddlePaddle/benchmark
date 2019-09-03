@@ -15,7 +15,7 @@ function _set_params(){
 
     skip_steps=5
     keyword="Batch_time_cost:"
-    separator='" "'
+    separator=" "
     position=5
     model_mode=0
 
@@ -110,7 +110,7 @@ function _run(){
     python ${BENCHMARK_ROOT}/utils/analysis.py \
             --filename ${log_file} \
             --keyword ${keyword} \
-            --separator ${separator} \
+            --separator "${separator}" \
             --position ${position} \
             --base_batch_size ${base_batch_size} \
             --skip_steps ${skip_steps} \

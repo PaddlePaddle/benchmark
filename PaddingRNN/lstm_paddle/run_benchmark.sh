@@ -17,7 +17,7 @@ function _set_params(){
     model_name="paddingrnn_"${model_type}_${rnn_type}
     skip_steps=0
     keyword="avg_time:"
-    separator='" "'
+    separator=" "
     position=8
     model_mode=1
 
@@ -94,7 +94,7 @@ function _run(){
     python ${BENCHMARK_ROOT}/utils/analysis.py \
             --filename ${log_file} \
             --keyword ${keyword} \
-            --separator ${separator} \
+            --separator "${separator}" \
             --position ${position} \
             --base_batch_size ${base_batch_size} \
             --skip_steps ${skip_steps} \
