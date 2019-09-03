@@ -21,6 +21,7 @@ import subprocess
 import numpy as np
 import template
 import socket
+import json
 
 base_path=os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 sys.path.append(base_path)
@@ -83,8 +84,6 @@ parser.add_argument(
     default="staticgraph",
     help="The benchmark model implement method")
 
-# log_server_cuda10 = "http://yq01-gpu-255-125-19-00.epc.baidu.com:8887/"
-# log_server_cuda9 = "http://yq01-gpu-255-125-21-00.epc.baidu.com:8887/"
 
 def load_folder_files(folder_path, recursive=True):
     """
@@ -138,25 +137,16 @@ def get_image_id():
     pi.image_type = args.job_type
     pi.create_time = ct
     pi.save()
-
-    pis = bm.Image.objects.filter(image_commit_id=args.image_commit_id).order_by('-create_time')
-    if pis:
-        return pis[0].image_id
+    return pi.image_id
 
 
 def send_email(title, mailto, cc, content):
     """send email"""
     try:
-        # mailto = "liangjinhua01@baidu.com"
-        # cc = "liangjinhua01@baidu.com"
-        # title = "test for ljh"
-        # content = "Model Cyclegan speed down"
-
         p = subprocess.Popen(['mail', '-s', title, '-c', cc, mailto],
-            stdout=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-            stderr=subprocess.PIPE
-            )
+                             stdout=subprocess.PIPE,
+                             stdin=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
         out, err = p.communicate(input=content.encode('utf8'))
         print out, err
     except Exception as e:
@@ -172,23 +162,9 @@ def check_results(model_name, index, run_machine_type, cur_value):
     :param cur_value:
     :return:
     """
-    # images = bm.Image.objects.filter(image_type=args.job_type,
-    #                                   cuda_version=args.cuda_version,
-    #                                   cudnn_version=args.cudnn_version,
-    #                                   gpu_type=args.gpu_type,
-    #                                   model_implement_type=args.implement_type,
-    #                                   frame_id=0).order_by('-version')
-    # images_list = []
-    # # search top k images
-    # for image in images:
-    #     if len(images_list) == 3:
-    #         break
-    #     images_list.append(str(image.version))
-
-    #print images_list
     results = bm.ViewJobResult.objects.filter(model_name=model_name,
                                               report_index_id=index,
-                                              job_type=args.job_type,
+                                              job_type=2,
                                               cuda_version=args.cuda_version,
                                               cudnn_version=args.cudnn_version,
                                               gpu_type=args.gpu_type,
@@ -201,11 +177,11 @@ def check_results(model_name, index, run_machine_type, cur_value):
         if len(results_list) == 3:
             break
         try:
-            if not float(result.report_result) or result.report_result == '-inf':
+            if result.report_result == '-inf' or not float(result.report_result):
                 continue
             results_list.append(float(result.report_result))
         except Exception as e:
-            print "add hitory data error {}".format(e)
+            print "add history data error {}".format(e)
 
     #如果历史数据一直为空，则不报警
     if not results_list:
@@ -230,16 +206,6 @@ def check_results(model_name, index, run_machine_type, cur_value):
         return 0
 
 
-def get_job_id(cluster_job_id):
-    """
-    :param cluster_job_id:
-    :return:
-    """
-    pjs = bm.Job.objects.filter(cluster_job_id=cluster_job_id)
-    if pjs:
-        return pjs[0].job_id
-
-
 def parse_logs(args):
     """
     parse log files and insert to db
@@ -248,105 +214,116 @@ def parse_logs(args):
     """
     image_id = get_image_id()
     file_list = load_folder_files(os.path.join(args.log_path, "index"))
-    dict_run_machine_type = {
-        '1gpus' : 'ONE_GPU',
-        '4gpus' : 'FOUR_GPU',
-        '8gpus' : 'MULTI_GPU',
-        '8gpus8p' : 'MULTI_GPU_MULTI_PROCESS'
-    }
-    cv_models = ['DeepLab_V3+', 'CycleGAN', 'mask_rcnn', 'SE-ResNeXt50', 'yolov3']
-    # nlp_models = ['bert', 'paddingrnn_large', 'paddingrnn_small', 'transformer']
-    # rl_models = ['ddpg_deep_explore']
-    multi_process_models = ['mask_rcnn', 'yolov3', 'transformer', 'bert', 'SE-ResNeXt50']
+    dict_run_machine_type = {'1': 'ONE_GPU', '4': 'FOUR_GPU', '8': 'MULTI_GPU', '8mp': 'MULTI_GPU_MULTI_PROCESS'}
+    report_index_dict = {'speed': 1, 'mem': 2, 'maxbs': 6}
     html_results = []
-    for file in file_list:
-        # file_name like CycleGAN_mem_1gpus or ddpg_deep_explore_speed_1gpus
+    for job_file in file_list:
         cluster_job_id = uuid.uuid1()
-        file_name = file.split('/')[-1]
-        model_name = '_'.join(file_name.split('_')[:-2])
-        key_word = "FPS:" if model_name in cv_models else 'Avg:'
-        job_name = 'pb_' + model_name
-        task_index = file_name.split('_')[-2]
-        if task_index == 'speed':
-            report_index = 1
-        elif task_index == 'mem':
-            report_index = 2
-        else:
-            report_index = 6
-
-        run_machine_type = dict_run_machine_type[file_name.split('_')[-1]]
-        run_mode = "mp" if file_name.split('_')[-1] == "8gpus8p" else "sp"
-        pj = bm.Job()
-        pj.job_name = job_name
-        pj.cluster_job_id = cluster_job_id
-        pj.cluster_type_id = 0
-        pj.model_name = model_name
-        pj.report_index = report_index
-        pj.code_branch = "master"
-        pj.code_commit_id = args.code_commit_id
-        pj.job_type = args.job_type
-        pj.run_machine_type = run_machine_type
-        pj.frame_id = 0
-        pj.image_id = image_id
-        pj.cuda_version = args.cuda_version
-        pj.cudnn_version = args.cudnn_version
-        pj.gpu_type = args.gpu_type
-        pj.model_implement_type = args.implement_type
-        pj.log_extracted = "yes"
-        pj.save()
-        #log_server = log_server_cuda9 if args.cuda_version == '9.0' else log_server_cuda10
-        log_server = socket.gethostname()
-        #todo config the log_server port
-        log_server = "http://" + log_server + ":8777/"
-        train_log_name = "{}_{}_{}_{}".format(model_name, "train",
-                                               task_index,
-                                               file_name.split('_')[-1][0])
-        if model_name in multi_process_models:
-            train_log_name += "_{}".format(run_mode)
-        train_log_path = os.path.join(os.path.basename(args.log_path),
-                                      "train_log", train_log_name)
-        train_log_path = log_server + train_log_path
-
-        job_id = get_job_id(cluster_job_id)
-
         result = ""
-        with open(file, 'r+') as file_obj:
+        with open(job_file, 'r+') as file_obj:
             file_lines = file_obj.readlines()
+            job_info = json.loads(file_lines[-1])
+            if not job_info:
+                print("file {} parse error".format(job_file))
+                continue
+            #save_job
+            if str(job_info["gpu_num"]) == "8" and job_info["run_mode"] == "mp":
+                run_machine_type = dict_run_machine_type['8mp']
+            else:
+                run_machine_type = dict_run_machine_type[str(job_info["gpu_num"])]
+            report_index = report_index_dict[job_info["index"]]
+            pj = bm.Job()
+            pj.job_name = "pb_{}_{}".format(args.paddle_version, job_info["model_name"])
+            pj.cluster_job_id = cluster_job_id
+            pj.cluster_type_id = "LocalJob"
+            pj.model_name = job_info["model_name"]
+            pj.report_index = report_index
+            pj.code_branch = "master"
+            pj.code_commit_id = args.code_commit_id
+            pj.job_type = args.job_type
+            pj.run_machine_type = run_machine_type
+            pj.frame_id = 0
+            pj.image_id = image_id
+            pj.cuda_version = args.cuda_version
+            pj.cudnn_version = args.cudnn_version
+            pj.gpu_type = args.gpu_type
+            pj.model_implement_type = args.implement_type
+            pj.log_extracted = "yes"
+            pj.save()
+            job_id = pj.job_id
+
+            log_server = socket.gethostname()
+            # todo config the log_server port
+            log_server = "http://" + log_server + ":8777/"
+            log_file = job_info["log_file"]
+            train_log_path = os.path.join(os.path.basename(args.log_path), "train_log", log_file)
+            train_log_path = log_server + train_log_path
+
+            cpu_utilization_result = 0
+            gpu_utilization_result = 0
             try:
                 if report_index == 2:
-                    value = file_lines[-1].split()[-1]
-                    result = int(value) if str.isdigit(value) else 0
+                    for line in file_lines:
+                        if "MAX_GPU_MEMORY_USE" in line:
+                            value = line.strip().split("=")[1]
+                            result = int(value) if str.isdigit(value) else 0
                 elif report_index == 1:
-                    lines = file_lines[-10:-1]
-                    for line in lines:
-                        if key_word in line:
-                            result = line.split(':')[1].split(' ')[1]
+                    for line in file_lines:
+                        if "FINAL_RESULT" in line:
+                            result = line.strip().split("=")[1]
+                        if 'AVG_CPU_USE' in line:
+                            cpu_utilization_result = line.strip().split('=')[1]
+                        if 'AVG_GPU_USE' in line:
+                            gpu_utilization_result = line.strip().split('=')[1]
                 else:
-                    value = file_lines[-1].split()[-1]
-                    result = int(value) if str.isdigit(value) else 0
+                    for line in file_lines:
+                        if "MAX_BATCH_SIZE" in line:
+                            value = line.strip().split("=")[1]
+                            result = int(value) if str.isdigit(value) else 0
 
+                #save_result
                 pjr = bm.JobResults()
                 pjr.job_id = job_id
-                pjr.model_name = model_name
+                pjr.model_name = job_info["model_name"]
                 pjr.report_index_id = report_index
                 pjr.report_result = result
                 pjr.train_log_path = train_log_path
                 pjr.save()
+
+                #save cpu & gpu result
+
+                if report_index == 1:
+                    pjr_cpu = bm.JobResults()
+                    pjr_cpu.job_id = job_id
+                    pjr_cpu.model_name = job_info["model_name"]
+                    pjr_cpu.report_index_id = 7
+                    pjr_cpu.report_result = cpu_utilization_result
+                    pjr_cpu.train_log_path = train_log_path
+                    pjr_cpu.save()
+
+                    pjr_gpu = bm.JobResults()
+                    pjr_gpu.job_id = job_id
+                    pjr_gpu.model_name = job_info["model_name"]
+                    pjr_gpu.report_index_id = 8
+                    pjr_gpu.report_result = gpu_utilization_result
+                    pjr_gpu.train_log_path = train_log_path
+                    pjr_gpu.save()
+
             except Exception as pfe:
                 print pfe
             else:
                 print("models: {}, run_machine_type: {}, index: {}, result: {}".format(
-                    model_name, run_machine_type, task_index, result))
+                    job_info["model_name"], run_machine_type, report_index, result))
 
                 # 如果当前值是空或者inf(speed 会出现)
                 if not result or result == '-inf':
                     result = 0
 
-                value = check_results(model_name, report_index, run_machine_type, result)
+                value = check_results(job_info["model_name"], report_index, run_machine_type, result)
 
                 if value:
-                    current_html_result = [model_name, run_machine_type,
-                                           task_index, value[0], result, value[1]]
+                    current_html_result = [job_info["model_name"], run_machine_type,
+                                           report_index, value[0], result, value[1]]
                     html_results.append(current_html_result)
 
     if html_results:

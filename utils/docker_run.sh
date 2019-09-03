@@ -83,9 +83,6 @@ build(){
     fi
 
     docker pull ${PADDLE_DEV_NAME}
-#    docker run ${CUDA_SO} ${DEVICES} -i --rm -v $PWD:/paddle ${PADDLE_DEV_NAME} \
-#      rm -rf /paddle/third_party /paddle/build /paddle/output /paddle/python/paddle/fluid/core.so
-#    docker run ${CUDA_SO} ${DEVICES} -i --rm -v $PWD:/paddle \
     nvidia-docker run -i --rm -v $PWD:/paddle \
       -w /paddle \
       -e "CMAKE_BUILD_TYPE=Release" \
@@ -138,19 +135,6 @@ run(){
         echo "build paddle failed, exit!"
         exit 1
     fi
-
-#    RUN_IMAGE_NAME=paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
-#    docker run  ${CUDA_SO} ${DEVICES} -i --rm \
-#        -v /home/work:/home/work \
-#        -v /ssd1:/ssd1 \
-#        -v /ssd2:/ssd2 \
-#        -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
-#        --net=host \
-#        --privileged \
-#        --shm-size=30G \
-#        $RUN_IMAGE_NAME \
-#        /bin/bash -c "cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/benchmark;
-#        bash auto_run_paddle.sh -m $model -c ${cuda_version} -n ${all_path}/images/${image_name} -i ${image_commit_id} -v ${PADDLE_VERSION} -p ${all_path}"
 
     RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
     nvidia-docker run -i --rm \
