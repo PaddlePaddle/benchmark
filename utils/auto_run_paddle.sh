@@ -117,7 +117,7 @@ CycleGAN(){
     # Running ...
     rm ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/CycleGAN/paddle/run_benchmark.sh ./
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
@@ -151,12 +151,12 @@ StarGAN(){
     rm ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/StarGAN/paddle/run_benchmark.sh ./
 
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -185,12 +185,12 @@ AttGAN(){
     rm ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/AttGAN/paddle/run_benchmark.sh ./
 
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -219,12 +219,12 @@ STGAN(){
     rm ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/STGAN/paddle/run_benchmark.sh ./
 
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -250,7 +250,7 @@ CGAN(){
     # cp run_benchmark.sh
     rm ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/GAN_models/PaddleGAN/run_benchmark.sh ./
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
 
     # running models cases
     model_list=(CGAN DCGAN)
@@ -287,7 +287,7 @@ Pix2pix(){
     # Running ...
     rm ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/GAN_models/PaddleGAN/run_benchmark.sh ./
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
 
     echo "index is speed, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed Pix2pix sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
@@ -335,12 +335,12 @@ nextvlad(){
     # Running ...
     cp ${BENCHMARK_ROOT}nextvlad/paddle/run_benchmark.sh ./
 
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train mem mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -355,7 +355,7 @@ deeplab(){
     ln -s ${prepare_path}/deeplabv3plus_xception65_initialize ${cur_model_path}/deeplabv3plus_xception65_initialize
     # Running ...
     cp ${BENCHMARK_ROOT}/deeplabv3+/paddle/run_benchmark.sh ./
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
     sleep 60
@@ -392,7 +392,7 @@ image_classification(){
     # Copy run_benchmark.sh and running ...
     cp ${BENCHMARK_ROOT}/se-resnext/paddle/run_benchmark.sh ./run_benchmark.sh
     sed -i '/cd /d' run_benchmark.sh
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     # running models cases
     for model_name in ${model_list[@]}; do
         echo "index is speed, 1gpu, begin, ${model_name}"
@@ -474,12 +474,12 @@ retinanet_rcnn_fpn(){
     cp -r ${cur_model_path}/ppdet ./tools
     cp ${BENCHMARK_ROOT}/RetinaNet/paddle/run_benchmark.sh ./
 
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train mem mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -537,12 +537,12 @@ cascade_rcnn_fpn(){
     cp -r ${cur_model_path}/ppdet ./tools
     cp ${BENCHMARK_ROOT}/Cascade-RCNN-FPN/paddle/run_benchmark.sh ./
 
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh train mem mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -574,7 +574,7 @@ mask_rcnn(){
     ln -s ${data_path}/COCO17/val2017 ${cur_model_path}/dataset/coco/val2017
     # Copy run_benchmark.sh and running ...
     cp ${BENCHMARK_ROOT}/Mask-RCNN/paddle/run_benchmark.sh ./run_benchmark.sh
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
 
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
@@ -608,7 +608,7 @@ bert(){
     ln -s ${prepare_path}/chinese_L-12_H-768_A-12 ${cur_model_path}/chinese_L-12_H-768_A-12
     cp ${BENCHMARK_ROOT}/NeuralMachineTranslation/BERT/fluid/train/run_benchmark.sh ./run_benchmark.sh
 
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
 
     model_mode_list=(base)
     fp_mode_list=(fp32 fp16)
@@ -648,7 +648,7 @@ transformer(){
     ln -s ${data_path}/transformer/data ${cur_model_path}/data
     cp -r ${prepare_path}/transformer/mosesdecoder ${cur_model_path}/mosesdecoder
     cp ${BENCHMARK_ROOT}/NeuralMachineTranslation/Transformer/fluid/train/run_benchmark.sh ./
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     model_type="base"
     echo "model_type is ${model_type}, index is speed, 1gpu, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_type} sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_speed_1gpus 2>&1
@@ -707,7 +707,7 @@ ddpg_deep_explore(){
         pip install parl==1.1
         echo "parl installed"
     fi
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
@@ -724,7 +724,7 @@ paddingrnn(){
     ln -s ${data_path}/simple-examples ${cur_model_path}/data/simple-examples
     # Running ...
     cp ${BENCHMARK_ROOT}/PaddingRNN/lstm_paddle/run_benchmark.sh ./
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     model_type_list=(small large)
     rnn_type_list=(static padding)
     for model_type in ${model_type_list[@]}; do
@@ -774,7 +774,7 @@ yolov3(){
     rm -rf dataset/coco
     ln -s ${data_path}/coco ./dataset/coco
     cp ${BENCHMARK_ROOT}/yolov3/paddle/run_benchmark.sh ./
-    sed -i 's/set\ -xe/set\ -e/g' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60

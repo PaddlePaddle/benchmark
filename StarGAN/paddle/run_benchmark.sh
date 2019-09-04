@@ -37,7 +37,7 @@ function _set_env(){
 
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
-    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=${base_batch_size}"
     train_cmd=" --model_net $model_name \
         --dataset celeba \
         --crop_size 178 \
