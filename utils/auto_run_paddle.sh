@@ -740,7 +740,6 @@ paddingrnn(){
     done
 }
 
-
 #run_yolov3
 yolov3(){
     cur_model_path=${BENCHMARK_ROOT}/yolov3/paddle

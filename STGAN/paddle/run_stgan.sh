@@ -42,6 +42,7 @@ train(){
         --print_freq 5 \
         --num_discriminator_time 1 \
         --epoch 50 \
+        --dis_norm instance_norm \
         --run_test False"
     
     case ${run_mode} in
