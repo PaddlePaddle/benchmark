@@ -9,8 +9,11 @@
 """
 @Desc: template module
 @File: template.py
+@Author: liangjinhua
+@Date: 2019/5/30 19:26
 """
 import os
+
 
 def construct_email_content(results, log_path, args):
     """the list not satify condition"""
@@ -19,7 +22,7 @@ def construct_email_content(results, log_path, args):
 
     content = """
 From:paddle_benchmark@baidu.com
-To:xxx@yy.com
+To:liangjinhua01@baidu.com
 Subject:test_benchmark
 Subject:benchmark运行结果报警，请检查
 content-type:text/html
@@ -44,7 +47,7 @@ content-type:text/html
 place_holder
         </table>
         <HR align=center width="80%" SIZE=1>
-        <h4 align=center>历史详细数据 http://xxxxxx:yyy/</h4> 
+        <h4 align=center>历史详细数据 http://yq01-page-powerbang-table1077.yq01.baidu.com:8988/</h4> 
     </body>
 </html>
 """.format(args.image_commit_id,
@@ -79,12 +82,12 @@ place_holder
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
-    args =parser.parse_args()
+    args = parser.parse_args()
     args.cuda_version = "9.0"
     args.cudnn_version = 7
-    args.image_commit_id = ""
-    args.code_commit_id = ""
+    args.image_commit_id = "ksjdk1o9h2e78y20hhj82ud881"
+    args.code_commit_id = "sidjk1k99999999999999sfsff"
     results = [["CycleGan", "ONE_GPU", "speed", 100, 95, -0.05],
-          ["rcnn", "ONE_GPU", "speed", 100, 95, 0.05],
-          ["test", "ONE_GPU", "speed", 100, 95, -0.05],]
+               ["rcnn", "ONE_GPU", "speed", 100, 95, 0.05],
+               ["test", "ONE_GPU", "speed", 100, 95, -0.05]]
     construct_email_content(results, "./", args)
