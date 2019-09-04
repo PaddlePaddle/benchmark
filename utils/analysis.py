@@ -87,6 +87,7 @@ class TimeAnalyzer(object):
 
         if len(self.records) <= 0:
             print("FINAL_RESULT={:.3f}".format(0.0))
+            print("no records")
             return
 
         sum_of_records = 0

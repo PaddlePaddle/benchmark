@@ -15,7 +15,7 @@ function _set_params(){
 
     model_name="transformer_"${model_type}
     skip_steps=3
-    keyword="loss_rpn_bbox"
+    keyword="speed:"
     separator=" "
     position=-2
     model_mode=1

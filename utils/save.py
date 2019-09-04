@@ -222,8 +222,9 @@ def parse_logs(args):
         result = ""
         with open(job_file, 'r+') as file_obj:
             file_lines = file_obj.readlines()
-            job_info = json.loads(file_lines[-1])
-            if not job_info:
+            try:
+                job_info = json.loads(file_lines[-1])
+            except Exception as exc:
                 print("file {} parse error".format(job_file))
                 continue
             #save_job
@@ -255,7 +256,7 @@ def parse_logs(args):
             log_server = socket.gethostname()
             # todo config the log_server port
             log_server = "http://" + log_server + ":8777/"
-            log_file = job_info["log_file"]
+            log_file = job_info["log_file"].split("/")[-1]
             train_log_path = os.path.join(os.path.basename(args.log_path), "train_log", log_file)
             train_log_path = log_server + train_log_path
 
@@ -265,8 +266,9 @@ def parse_logs(args):
                 if report_index == 2:
                     for line in file_lines:
                         if "MAX_GPU_MEMORY_USE" in line:
-                            value = line.strip().split("=")[1]
+                            value = line.strip().split("=")[1].strip()
                             result = int(value) if str.isdigit(value) else 0
+                            break
                 elif report_index == 1:
                     for line in file_lines:
                         if "FINAL_RESULT" in line:
@@ -278,8 +280,9 @@ def parse_logs(args):
                 else:
                     for line in file_lines:
                         if "MAX_BATCH_SIZE" in line:
-                            value = line.strip().split("=")[1]
+                            value = line.strip().split("=")[1].strip()
                             result = int(value) if str.isdigit(value) else 0
+                            break
 
                 #save_result
                 pjr = bm.JobResults()

@@ -16,7 +16,7 @@ function _set_params(){
     skip_steps=3
     keyword="Batch_time_cost:"
     separator=" "
-    position=12
+    position=-1
     model_mode=0
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -37,7 +37,7 @@ function _set_env(){
 
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
-    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=${base_batch_size}"
     python train.py | tee ${log_file} 2>&1 &
     train_pid=$!
     sleep 120

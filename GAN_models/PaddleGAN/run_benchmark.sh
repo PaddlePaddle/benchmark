@@ -15,8 +15,8 @@ function _set_params(){
 
     skip_steps=5
     keyword="Batch_time_cost:"
-    separator=" "
-    position=5
+    separator=":"
+    position=-1
     model_mode=0
 
     device=${CUDA_VISIBLE_DEVICES//,/ }

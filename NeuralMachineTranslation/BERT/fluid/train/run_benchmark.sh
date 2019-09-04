@@ -16,7 +16,7 @@ function _set_params(){
 
     model_name="bert_${model_mode}_${fp_mode}"
     skip_steps=1
-    keyword="loss_rpn_bbox"
+    keyword="speed:"
     separator=" "
     position=13
     model_mode=1
