@@ -45,10 +45,10 @@ function _train(){
     if [ ${model_type} = 'big' ]; then
         train_cmd=" --do_train True \
         --epoch 30 \
-        --src_vocab_fpath data/wmt16_ende_data_bpe/vocab_all.bpe.32000 \
-        --trg_vocab_fpath data/wmt16_ende_data_bpe/vocab_all.bpe.32000 \
+        --src_vocab_fpath data/vocab.bpe.32000 \
+        --trg_vocab_fpath data/vocab.bpe.32000 \
         --special_token <s> <e> <unk> \
-	--training_file data/wmt16_ende_data_bpe/train.tok.clean.bpe.32000.en-de \
+	--training_file data/train.tok.clean.bpe.32000.en-de \
 	--batch_size ${base_batch_size}
 	--n_head 16 \
         --d_model 1024 \
@@ -57,10 +57,10 @@ function _train(){
     else
         train_cmd=" --do_train True \
         --epoch 30 \
-        --src_vocab_fpath data/wmt16_ende_data_bpe/vocab_all.bpe.32000 \
-        --trg_vocab_fpath data/wmt16_ende_data_bpe/vocab_all.bpe.32000 \
+        --src_vocab_fpath data/vocab.bpe.32000 \
+        --trg_vocab_fpath data/vocab.bpe.32000 \
         --special_token <s> <e> <unk> \
-	--training_file data/wmt16_ende_data_bpe/train.tok.clean.bpe.32000.en-de \
+	--training_file data/train.tok.clean.bpe.32000.en-de \
 	--batch_size ${base_batch_size}"
     fi
 
