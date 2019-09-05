@@ -43,66 +43,29 @@ function _train(){
     #cd ../../../../models/PaddleNLP/neural_machine_translation/transformer/
     # base model
     if [ ${model_type} = 'big' ]; then
-        train_cmd=" --src_vocab_fpath data/vocab.bpe.32000 \
-            --trg_vocab_fpath data/vocab.bpe.32000 \
-            --special_token <s> <e> <unk> \
-            --train_file_pattern data/train.tok.clean.bpe.32000.en-de \
-            --use_token_batch True \
-            --batch_size ${base_batch_size} \
-            --use_token_batch True \
-            --sort_type pool \
-            --pool_size 200000 \
-            --shuffle True \
-            --shuffle_batch True \
-            --use_py_reader True \
-            --use_mem_opt True \
-            --enable_ce False \
-            --fetch_steps 100 \
-            learning_rate 2.0 \
-            warmup_steps 8000 \
-            beta2 0.997 \
-            d_model 1024 \
-            d_inner_hid 4096 \
-            n_head 16 \
-            prepostprocess_dropout 0.3 \
-            attention_dropout 0.1 \
-            relu_dropout 0.1 \
-            weight_sharing True \
-            pass_num 100 \
-            max_length 256"
+        train_cmd=" --do_train True \
+        --epoch 30 \
+        --src_vocab_fpath data/vocab.bpe.32000 \
+        --trg_vocab_fpath data/vocab.bpe.32000 \
+        --special_token <s> <e> <unk> \
+	--training_file data/train.tok.clean.bpe.32000.en-de \
+	--batch_size ${base_batch_size}
+	--n_head 16 \
+        --d_model 1024 \
+        --d_inner_hid 4096 \
+        --prepostprocess_dropout 0.3"
     else
-        train_cmd=" --src_vocab_fpath data/vocab.bpe.32000 \
-            --trg_vocab_fpath data/vocab.bpe.32000 \
-            --special_token <s> <e> <unk> \
-            --train_file_pattern data/train.tok.clean.bpe.32000.en-de \
-            --use_token_batch True \
-            --batch_size ${base_batch_size} \
-            --sort_type pool \
-            --pool_size 200000 \
-            --shuffle False \
-            --enable_ce True \
-            --shuffle_batch False \
-            --use_py_reader True \
-            --use_mem_opt True \
-            --fetch_steps 100  $@ \
-            dropout_seed 10 \
-            learning_rate 2.0 \
-            warmup_steps 8000 \
-            beta2 0.997 \
-            d_model 512 \
-            d_inner_hid 2048 \
-            n_head 8 \
-            prepostprocess_dropout 0.1 \
-            attention_dropout 0.1 \
-            relu_dropout 0.1 \
-            weight_sharing True \
-            pass_num 1 \
-            model_dir tmp_models \
-            ckpt_dir tmp_ckpts"
+        train_cmd=" --do_train True \
+        --epoch 30 \
+        --src_vocab_fpath data/vocab.bpe.32000 \
+        --trg_vocab_fpath data/vocab.bpe.32000 \
+        --special_token <s> <e> <unk> \
+	--training_file data/train.tok.clean.bpe.32000.en-de \
+	--batch_size ${base_batch_size}"
     fi
 
     case ${run_mode} in
-    sp) train_cmd="python -u train.py "${train_cmd} ;;
+    sp) train_cmd="python -u main.py "${train_cmd} ;;
     mp)
         train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0" ;;
