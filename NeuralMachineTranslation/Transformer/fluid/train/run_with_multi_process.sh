@@ -18,7 +18,7 @@ python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISI
         --src_vocab_fpath $gen_data/wmt16_ende_data_bpe/vocab_all.bpe.32000 \
         --trg_vocab_fpath $gen_data/wmt16_ende_data_bpe/vocab_all.bpe.32000 \
         --special_token '<s>' '<e>' '<unk>' \
-	--training_file $gen_data/wmt16_ende_data_bpe/train.tok.clean.bpe.32000.en-de \
+	--training_file $gen_data/wmt16_ende_data_bpe/train.tok.clean.bpe.32000.en-de.tiny \
 	--batch_size 4096
 
 cd -
