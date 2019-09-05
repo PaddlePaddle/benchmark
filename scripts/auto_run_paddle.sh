@@ -390,7 +390,7 @@ image_classification(){
     ln -s ${data_path}/ILSVRC2012/val ${cur_model_path}/data/ILSVRC2012/val
     ln -s ${data_path}/ILSVRC2012/val_list.txt ${cur_model_path}/data/ILSVRC2012/val_list.txt
     # Copy run_benchmark.sh and running ...
-    cp ${BENCHMARK_ROOT}/static_graph/se-resnext/paddle/run_benchmark.sh ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/static_graph/image_classification/paddle/run_benchmark.sh ./run_benchmark.sh
     sed -i '/cd /d' run_benchmark.sh
     sed -i '/set\ -xe/d' run_benchmark.sh
     # running models cases
