@@ -133,7 +133,7 @@ function _run(){
         fi
     fi
 
-    python ${BENCHMARK_ROOT}/utils/analysis.py \
+    python ${BENCHMARK_ROOT}/scripts/analysis.py \
             --filename ${log_file} \
             --keyword ${keyword} \
             --separator "${separator}" \
