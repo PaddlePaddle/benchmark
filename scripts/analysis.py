@@ -15,7 +15,7 @@
 from __future__ import print_function
 
 import argparse
-import re
+import json
 
 
 def parse_args():
@@ -29,17 +29,27 @@ def parse_args():
     parser.add_argument(
         '--position', type=int, default=-1, help='The position of data field')
     parser.add_argument(
-        '--batch_size', type=int, help='batch size')
+        '--range', type=int, default=0, help='The range of data field to intercept')
+    parser.add_argument(
+        '--base_batch_size', type=int, help='base_batch size on gpu')
     parser.add_argument(
         '--skip_steps', type=int, default=0, help='The number of steps to be skipped')
     parser.add_argument(
-        '--mode', type=int, default=0, help='Analysis mode, 0')
+        '--model_mode', type=int, default=0, help='Analysis mode, 0')
+    parser.add_argument(
+        '--model_name', type=str, default=0, help='training model_name, transformer_base')
+    parser.add_argument(
+        '--run_mode', type=str, default="sp", help='multi process or single process')
+    parser.add_argument(
+        '--index', type=str, default="speed", help='speed | maxbs | mem')
+    parser.add_argument(
+        '--gpu_num', type=int, default=1, help='nums of training gpus')
     args = parser.parse_args()
     return args
 
 
 class TimeAnalyzer(object):
-    def __init__(self, filename, keyword=None, separator=" ", position=-1):
+    def __init__(self, filename, keyword=None, separator=" ", position=-1, range=-1):
         if filename is None:
             raise Exception("Please specify the filename!")
 
@@ -50,45 +60,35 @@ class TimeAnalyzer(object):
         self.keyword = keyword
         self.separator = separator
         self.position = position
+        self.range = range
         self.records = None
         self._distil()
 
     def _distil(self):
         self.records = []
+        with open(self.filename, "r") as f_object:
+            lines = f_object.readlines()
+            for line in lines:
+                if self.keyword not in line:
+                    continue
+                try:
+                    line = line.strip()
+                    result = line.split("" if not self.separator else self.separator)[self.position]
+                    result = result[0:] if not self.range else result[0:self.range]
+                    self.records.append(float(result))
+                except Exception as exc:
+                    print("line is: {}; separator={}; position={}".format(line, self.separator, self.position))
 
-        f = open(self.filename, "r")
-        lines = f.readlines()
-        for line in lines:
-            if line.find(self.keyword) == -1:
-                continue
-
-            line = line.strip().replace("\t", self.separator)
-            line = re.sub(r"\s+", self.separator, line)
-            items = line.split(self.separator)
-            clean_items = []
-            for item in items:
-                if item != self.separator:
-                    clean_items.append(item)
-
-            if self.position >= 0 and self.position < len(clean_items):
-                position = self.position
-            else:
-                position = 0
-                for item in clean_items:
-                    position += 1
-                    if item == self.keyword:
-                        break
-            #print(position)
-            #print(clean_items)
-            #print(clean_items[position].replace("s", ""))
-            self.records.append(float(clean_items[position].replace("s", "")))
-            
-        if len(self.records) <= 0:
-            raise Exception("No items in %s!" % (self.filename))
-
-    def analysis(self, batch_size, skip_steps=0, mode=0):
+    def analysis(self, batch_size, gpu_num=1, skip_steps=0, mode=0):
         if batch_size <= 0:
-            raise ValueError("batch_size should larger than 0.")
+            print("FINAL_RESULT={:.3f}".format(0.0))
+            print("base_batch_size should larger than 0.")
+            return
+
+        if len(self.records) <= 0:
+            print("FINAL_RESULT={:.3f}".format(0.0))
+            print("no records")
+            return
 
         sum_of_records = 0
         sum_of_records_skipped = 0
@@ -109,28 +109,40 @@ class TimeAnalyzer(object):
         avg_of_records_skipped = sum_of_records_skipped / float(count - skip_steps)
 
         if mode == 1:
-            avg_of_records = float(1) / avg_of_records
-            avg_of_records_skipped = float(1) / avg_of_records_skipped
-            skip_min = float(1) / skip_min
-            skip_max = float(1) / skip_max
-            
-        print("average latency of %d steps, skip 0 step:" % (count))
-        print("\tAvg: %.3f s/step" % (avg_of_records))
-        print("\tFPS: %.3f samples/s" % (batch_size / avg_of_records))
-        if skip_steps > 0:
-            print("average latency of %d steps, skip %d steps:" % (count, skip_steps))
-            print("\tAvg: %.3f s/step" % (avg_of_records_skipped))
-            print("\tMin: %.3f s/step" % (skip_min))
-            print("\tMax: %.3f s/step" % (skip_max))
-            print("\tFPS: %.3f samples/s" % (batch_size / avg_of_records_skipped))
+            final_result = avg_of_records_skipped
+            print("average latency of %d steps, skip 0 step:" % count)
+            print("\tAvg: %.3f steps/s" % avg_of_records)
+            print("\tFPS: %.3f samples/s" % (batch_size / avg_of_records))
+            if skip_steps > 0:
+                print("average latency of %d steps, skip %d steps:" % (count, skip_steps))
+                print("\tAvg: %.3f steps/s" % avg_of_records_skipped)
+                print("\tMin: %.3f steps/s" % skip_min)
+                print("\tMax: %.3f steps/s" % skip_max)
+                print("\tFPS: %.3f samples/s" % (batch_size * gpu_num * avg_of_records_skipped))
+        else:
+            final_result = (batch_size * gpu_num) / avg_of_records_skipped
+            print("average latency of %d steps, skip 0 step:" % count)
+            print("\tAvg: %.3f s/step" % avg_of_records)
+            print("\tFPS: %.3f samples/s" % (batch_size / avg_of_records))
+            if skip_steps > 0:
+                print("average latency of %d steps, skip %d steps:" % (count, skip_steps))
+                print("\tAvg: %.3f s/step" % avg_of_records_skipped)
+                print("\tMin: %.3f s/step" % skip_min)
+                print("\tMax: %.3f s/step" % skip_max)
+                print("\tFPS: %.3f samples/s" % final_result)
+
+        print("FINAL_RESULT={:.3f}".format(final_result))
 
 
 if __name__ == "__main__":
     args = parse_args()
-    if args.filename is None:
-        # Test the script file
-        analyzer = TimeAnalyzer("log", "time:", " ", -1)
-        analyzer.analysis(32, 10, 0)
-    else:
-        analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position)
-        analyzer.analysis(args.batch_size, args.skip_steps, args.mode)
+    run_info = dict()
+    run_info["log_file"] = args.filename
+    run_info["model_name"] = args.model_name
+    run_info["run_mode"] = args.run_mode
+    run_info["index"] = args.index
+    run_info["gpu_num"] = args.gpu_num
+
+    analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
+    analyzer.analysis(args.base_batch_size, args.gpu_num, args.skip_steps, args.model_mode)
+    print("{}".format(json.dumps(run_info)))  # it's required, for the log file path  insert to the database
