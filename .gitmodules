@@ -37,3 +37,6 @@
   path = GAN_models/PytorchGAN/pytorch-CycleGAN-and-pix2pix
   url = https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix
   branch = benchmark
+[submodule "static_graph/Mask-RCNN/pytorch/maskrcnn-benchmark"]
+	path = static_graph/Mask-RCNN/pytorch/maskrcnn-benchmark
+	url = https://github.com/facebookresearch/maskrcnn-benchmark.git
