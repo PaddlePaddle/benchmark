@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cur_model_list=(mask_rcnn image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
+cur_model_list=(seq2seq mask_rcnn image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
 usage () {
   cat <<EOF
   usage: $0 [options]
@@ -794,6 +794,27 @@ yolov3(){
     sleep 60
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
+}
+
+
+#run seq2seq
+seq2seq(){
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/unarchived/neural_machine_translation/rnn_search
+    cd ${cur_model_path}
+
+    # Prepare data
+    rm -r ${cur_model_path}/data
+    mkdir ${cur_model_path}/data
+    ln -s ${data_path}/seq2seq_paddle/en-vi ${cur_model_path}/data
+
+    # Running ...
+    cp ${BENCHMARK_ROOT}/static_graph/seq2seq/paddle/run_benchmark.sh ./
+
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    echo "index is speed, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    echo "index is mem, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
 }
 
 
