@@ -36,7 +36,7 @@ content-type:text/html
             <tr><td>benchmark_commit_id</td><td>{}</td></tr>
             <tr><td>cuda_version</td><td>{}</td></tr>
             <tr><td>cudnn_version</td><td>{}</td></tr>
-            <tr><td>gpu_type</td><td>{}</td></tr>
+            <tr><td>devices_type</td><td>{}</td></tr>
             <tr><td>implement_type</td><td>{}</td></tr>
             <tr><td>docker_image</td><td>paddlepaddle/paddle:latest-gpu-cuda{}-cudnn{}</td></tr>
         </table>
