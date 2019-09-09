@@ -1,7 +1,7 @@
 #!bin/bash
 set -xe
 
-if [[ $# -lt 4 ]]; then
+if [[ $# -lt 1 ]]; then
     echo "Usage: "
     echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs sp|mp /ssd1/ljh/logs"
     exit
@@ -15,10 +15,10 @@ function _set_params(){
     run_mode=${2:-"sp"}
     run_log_path=${3:-$(pwd)}
 
-    skip_steps=2
-    keyword="trainbatch"
+    skip_steps=0
+    keyword="avg_time:"
     separator=" "
-    position=-1
+    position=-2
     model_mode=1
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -43,7 +43,7 @@ function _train(){
           --hidden_size 512 \
           --src_vocab_size 17191 \
           --tar_vocab_size 7709 \
-          --batch_size ${batch_size} \
+          --batch_size ${base_batch_size} \
           --dropout 0.2 \
           --init_scale  0.1 \
           --max_grad_norm 5.0 \

@@ -112,7 +112,7 @@ class TimeAnalyzer(object):
             final_result = avg_of_records_skipped
             print("average latency of %d steps, skip 0 step:" % count)
             print("\tAvg: %.3f steps/s" % avg_of_records)
-            print("\tFPS: %.3f samples/s" % (batch_size / avg_of_records))
+            print("\tFPS: %.3f samples/s" % (batch_size * gpu_num * avg_of_records))
             if skip_steps > 0:
                 print("average latency of %d steps, skip %d steps:" % (count, skip_steps))
                 print("\tAvg: %.3f steps/s" % avg_of_records_skipped)
@@ -123,7 +123,7 @@ class TimeAnalyzer(object):
             final_result = (batch_size * gpu_num) / avg_of_records_skipped
             print("average latency of %d steps, skip 0 step:" % count)
             print("\tAvg: %.3f s/step" % avg_of_records)
-            print("\tFPS: %.3f samples/s" % (batch_size / avg_of_records))
+            print("\tFPS: %.3f samples/s" % (batch_size * gpu_num / avg_of_records))
             if skip_steps > 0:
                 print("average latency of %d steps, skip %d steps:" % (count, skip_steps))
                 print("\tAvg: %.3f s/step" % avg_of_records_skipped)

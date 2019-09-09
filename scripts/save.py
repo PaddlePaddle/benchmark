@@ -326,7 +326,7 @@ def parse_logs(args):
 
                 if value:
                     current_html_result = [job_info["model_name"], run_machine_type,
-                                           report_index, value[0], result, value[1]]
+                                           job_info["index"], value[0], result, value[1]]
                     html_results.append(current_html_result)
 
     if html_results:
