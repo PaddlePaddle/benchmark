@@ -12,16 +12,16 @@ wget https://paddle-deeplab.bj.bcebos.com/deeplabv3plus_xception65_initialize.tg
 
 ### 执行测试
 
-如果您的数据路径和预训练模型的路径不同于`run.sh`中的默认值，请将`run.sh`中`DATASET_PATH`和`INIT_WEIGHTS_PATH`修改成您本地的路径。然后执行`run.sh`进行速度测试。
+如果您的数据路径和预训练模型的路径不同于`run_benchmark.sh`中的默认值，请将`run_benchmark.sh`中`DATASET_PATH`和`INIT_WEIGHTS_PATH`修改成您本地的路径。然后执行`run_benchmark.sh`进行速度测试。
 
 单卡测试命令：
 
 ```
-$ CUDA_VISIBLE_DEVICES="0" ./run.sh speed
+$ CUDA_VISIBLE_DEVICES="0" ./run_benchmark.sh speed
 ```
 
 四卡测试命令：
 
 ```
-$ CUDA_VISIBLE_DEVICES="0,1,2,3" ./run.sh speed
+$ CUDA_VISIBLE_DEVICES="0,1,2,3" ./run_benchmark.sh speed
 ```

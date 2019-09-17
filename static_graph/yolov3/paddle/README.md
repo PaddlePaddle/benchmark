@@ -72,17 +72,3 @@ dataset/coco/
        --data_dir=${path_to_data}
 
 - 通过设置export CUDA\_VISIBLE\_DEVICES=0,1,2,3,4,5,6,7指定8卡GPU训练。
-
-
-## 模型评估
-
-模型评估是指对训练完毕的模型评估各类性能指标。本示例采用[COCO官方评估](http://cocodataset.org/#detections-eval)
-
-`eval.py`是评估模块的主要执行程序，调用示例如下：
-
-    python eval.py \
-        --dataset=coco2017 \
-        --weights=${path_to_weights} \
-
-- 通过设置export CUDA\_VISIBLE\_DEVICES=0指定单卡GPU评估。
-
