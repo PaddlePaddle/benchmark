@@ -1,15 +1,4 @@
-# lstm lm
-
-以下是本例的简要目录结构及说明：
-
-```text
-.
-├── README.md            # 文档
-├── train.py             # 训练脚本
-├── reader.py            # 数据读取
-└── lm_model.py             # 模型定义文件
-```
-
+# lstm language_model
 
 ## 简介
 
