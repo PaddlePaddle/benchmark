@@ -12,7 +12,7 @@ usage () {
   -v  paddle_version
   -p  all_path contains dir of prepare(pretrained models), dataset, logs, such as /ssd1/ljh
   -t  job_type  benchmark_daliy | models test | pr_test
-  -g  gpu_type  p40 | v100
+  -g  device_type  p40 | v100
   -s  implement_type of model static | dynamic
 EOF
 }
@@ -31,7 +31,7 @@ do
   v) paddle_version="$OPTARG" ;;
   p) all_path="$OPTARG" ;;
   t) job_type="$OPTARG" ;;
-  g) gpu_type="$OPTARG" ;;
+  g) device_type="$OPTARG" ;;
   s) implement_type="$OPTARG" ;;
   \?) usage; exit 1 ;;
   esac
@@ -53,7 +53,7 @@ prepare(){
 
 
 #    this is for image paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
-    if [ '10.0' = ${cuda_version} -o "p40" = ${gpu_type} ] ; then
+    if [ '10.0' = ${cuda_version} -o "p40" = ${device_type} ] ; then
         export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
     fi
 
@@ -854,7 +854,7 @@ save(){
     echo "       cuda_version = ${cuda_version}"
     echo "           log_path = ${save_log_dir}"
     echo "           job_type = ${job_type}"
-    echo "           gpu_type = ${gpu_type}"
+    echo "           device_type = ${device_type}"
 
     mypython save.py --code_commit_id ${benchmark_commit_id} \
                  --image_commit_id ${image_commit_id} \
@@ -862,7 +862,7 @@ save(){
                  --cuda_version ${cuda_version} \
                  --paddle_version ${paddle_version} \
                  --job_type ${job_type} \
-                 --gpu_type ${gpu_type} \
+                 --device_type ${device_type} \
                  --implement_type ${implement_type}
 
     echo "******************** end insert to sql!! *****************"
