@@ -3,7 +3,7 @@ set -xe
 #python -u tools/train.py -c configs/mask_rcnn_r101_fpn_1x.yml
 if [ $# -lt 3 ]; then
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train speed|mem sp|mp /ssd1/ljh/logs"
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train speed|mem sp /ssd1/ljh/logs"
   exit
 fi
 
@@ -25,26 +25,13 @@ train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
-  train_cmd="--cfg configs/12_2017_baselines/e2e_mask_rcnn_R-101-FPN_1x.yaml  \
+  train_cmd="python -u tools/train_net.py --cfg configs/12_2017_baselines/e2e_mask_rcnn_R-101-FPN_1x.yaml  \
        	  OUTPUT_DIR ./output"
-
-  case ${run_mode} in
-  sp) train_cmd="python -u tools/train_net.py "${train_cmd} ;;
-  mp)
-      train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
-      log_parse_file="mylog/workerlog.0" ;;
-  *) echo "choose run_mode(sp or mp)"; exit 1;
-  esac
 
   ${train_cmd} > ${log_file} 2>&1 &
   train_pid=$!
   sleep 600
   kill -9 `ps -ef|grep python |awk '{print $2}'`
-
-  if [ $run_mode = "mp" -a -d mylog ]; then
-      rm ${log_file}
-      cp mylog/workerlog.0 ${log_file}
-  fi
 }
 
 
