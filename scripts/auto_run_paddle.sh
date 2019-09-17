@@ -606,7 +606,7 @@ bert(){
     rm -rf data
     ln -s ${data_path}/Bert/data ${cur_model_path}/data
     ln -s ${prepare_path}/chinese_L-12_H-768_A-12 ${cur_model_path}/chinese_L-12_H-768_A-12
-    cp ${BENCHMARK_ROOT}/static_graph/NeuralMachineTranslation/BERT/fluid/train/run_benchmark.sh ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/static_graph/NeuralMachineTranslation/BERT/fluid/run_benchmark.sh ./run_benchmark.sh
 
     sed -i '/set\ -xe/d' run_benchmark.sh
 
