@@ -647,7 +647,7 @@ transformer(){
     cd ${cur_model_path}
     ln -s ${data_path}/transformer/data ${cur_model_path}/data
     cp -r ${prepare_path}/transformer/mosesdecoder ${cur_model_path}/mosesdecoder
-    cp ${BENCHMARK_ROOT}/static_graph/NeuralMachineTranslation/Transformer/fluid/train/run_benchmark.sh ./
+    cp ${BENCHMARK_ROOT}/static_graph/NeuralMachineTranslation/Transformer/fluid/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     model_type="base"
     echo "model_type is ${model_type}, index is speed, 1gpu, begin"
