@@ -73,7 +73,7 @@ parser.add_argument(
     help="The benchmark job_type")
 
 parser.add_argument(
-    "--gpu_type",
+    "--device_type",
     type=str,
     default='v100',
     help="The benchmark run on v100 or p40")
@@ -167,7 +167,7 @@ def check_results(model_name, index, run_machine_type, cur_value):
                                               job_type=2,
                                               cuda_version=args.cuda_version,
                                               cudnn_version=args.cudnn_version,
-                                              gpu_type=args.gpu_type,
+                                              device_type=args.device_type,
                                               model_implement_type=args.implement_type,
                                               frame_name="paddlepaddle",
                                               run_machine_type=run_machine_type).order_by('-version')
@@ -247,7 +247,7 @@ def parse_logs(args):
             pj.image_id = image_id
             pj.cuda_version = args.cuda_version
             pj.cudnn_version = args.cudnn_version
-            pj.gpu_type = args.gpu_type
+            pj.device_type = args.device_type
             pj.model_implement_type = args.implement_type
             pj.log_extracted = "yes"
             pj.save()

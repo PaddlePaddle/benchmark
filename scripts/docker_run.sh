@@ -11,7 +11,7 @@ usage () {
   -p  all_path contains dir of prepare(pretrained models), dataset, logs, images such as /ssd1/ljh
   -r  run_module  ce or local
   -t  job_type  benchmark_daliy | models test | pr_test
-  -g  gpu_type  p40 | v100
+  -g  device_type  p40 | v100
   -s  implement_type of model static | dynamic
   -e  benchmark alarm email address
 EOF
@@ -31,7 +31,7 @@ do
   p) all_path="$OPTARG" ;;
   r) run_module="$OPTARG" ;;
   t) job_type="$OPTARG" ;;
-  g) gpu_type="$OPTARG" ;;
+  g) device_type="$OPTARG" ;;
   s) implement_type="$OPTARG" ;;
   e) email_address="$OPTARG" ;;
   \?) usage; exit 1 ;;
@@ -153,7 +153,7 @@ run(){
         -v ${PADDLE_VERSION} \
         -p ${all_path} \
         -t ${job_type} \
-        -g ${gpu_type} \
+        -g ${device_type} \
         -s ${implement_type}"
 }
 
@@ -177,6 +177,6 @@ build
 run
 zip_log
 
-if [ ${gpu_type} == "v100" ]; then
+if [ ${device_type} == "v100" ]; then
     send_email
 fi
