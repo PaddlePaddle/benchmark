@@ -40,12 +40,18 @@ function _set_env(){
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+    if [ $run_mode == "sp" && $num_gpu_devices -eq 8 ]; then
+        num_workers=32
+    else
+        num_workers=8
+    fi
 
     train_cmd=" --model_save_dir=output/ \
      --pretrain=./weights/darknet53/ \
      --data_dir=./dataset/coco/ \
      --batch_size=${base_batch_size} \
-     --syncbn=False"
+     --syncbn=True \
+     --worker_num=${num_workers}"
 
     case ${run_mode} in
     sp) train_cmd="python -u train.py "${train_cmd} ;;
