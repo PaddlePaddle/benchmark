@@ -1,7 +1,7 @@
 [submodule "models"]
   path = models
   url = https://github.com/PaddlePaddle/models.git
-  branch = benchmark
+  branch = develop
 [submodule "NeuralMachineTranslation/BERT/pytorch/Megatron-LM"]
   path = NeuralMachineTranslation/BERT/pytorch/Megatron-LM
   url = https://github.com/chengduoZH/Megatron-LM
