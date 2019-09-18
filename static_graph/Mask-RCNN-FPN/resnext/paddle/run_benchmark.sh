@@ -13,7 +13,7 @@ function _set_params(){
   index="$2"
   run_mode="$3"
   run_log_path=${4:-$(pwd)}
-  model_name="cascade_rcnn_fpn"
+  model_name="mask-rcnn-fpn-resnext"
 
   device=${CUDA_VISIBLE_DEVICES//,/ }
   arr=($device)
