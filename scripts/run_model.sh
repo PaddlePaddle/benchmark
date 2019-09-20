@@ -26,7 +26,7 @@ function _run(){
         awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("AVG_CPU_USE=%.2f\n" ,avg*'${cpu_num}')}' ${cpu_log_file}
     else
         _train
-        error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use"
+        error_string="Cannot allocate"
         if [ `grep -c "${error_string}" ${log_parse_file}` -eq 0 ]; then
             echo "MAX_BATCH_SIZE=${batch_size}"
         else
