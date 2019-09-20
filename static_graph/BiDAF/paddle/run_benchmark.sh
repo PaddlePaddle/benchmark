@@ -130,7 +130,7 @@ then
     fi
 else
   $task
-  error_string="Please shrink FLAGS_fraction_of_gpu_memory_to_use"
+  error_string="Cannot allocate"
   if [ `grep -c "${error_string}" ${log_parse_file}` -eq 0 ]; then
     echo "maxbs is ${batch_size}"
   else
