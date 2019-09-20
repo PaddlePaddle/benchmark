@@ -15,9 +15,9 @@ function _set_params(){
     run_log_path=${5:-$(pwd)}        # 训练保存的日志目录（必填）
 
     skip_steps=2                     # 解析日志，有些模型前几个step耗时长，需要跳过(必填)
-    keyword="trainbatch"             # 解析日志，筛选出数据所在行的关键字(必填)
+    keyword="elapse"             # 解析日志，筛选出数据所在行的关键字(必填)
     separator=" "                    # 解析日志，数据所在行的分隔符(必填)
-    position=41                      # 解析日志，按照分隔符分割后形成的数组索引(必填)
+    position=-2                      # 解析日志，按照分隔符分割后形成的数组索引(必填)
     model_mode=0                     # 解析日志，若数据单位是s/step，则为0，若数据单位是step/s,则为1(必填)
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -65,7 +65,6 @@ function _train(){
            --class_dim=1000 \
            --image_shape=3,224,224 \
            --model_save_dir=output/ \
-           --pretrained_model=SE_ResNext50_32x4d_pretrained/ \
            --data_dir=data/ILSVRC2012 \
            --lr_strategy=cosine_decay \
            --lr=0.1 \
