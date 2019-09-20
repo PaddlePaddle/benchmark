@@ -81,13 +81,20 @@ def construct_email_content(results, log_path, args):
     for result in results:
         if isinstance(result, list):
             place_holder += "            <tr>"
+            index_type = ""
             for i in range(len(result)):
-                if i == len(result)-1 and result[i] > 0:
+                if i == len(result)-1 and result[i] > 0 and index_type != "mem":
                     place_holder += "<td bgcolor=green>{}</td>".format(result[i])
-                elif i == len(result)-1 and result[i] < 0:
+                elif i == len(result)-1 and result[i] > 0 and index_type == "mem":
                     place_holder += "<td bgcolor=red>{}</td>".format(result[i])
+                elif i == len(result)-1 and result[i] < 0 and index_type != "mem":
+                    place_holder += "<td bgcolor=red>{}</td>".format(result[i])
+                elif i == len(result)-1 and result[i] < 0 and index_type == "mem":
+                    place_holder += "<td bgcolor=greed>{}</td>".format(result[i])
                 else:
                     place_holder += "<td>{}</td>".format(result[i])
+                    if str(result[i]) in ("mem", 'speed', 'maxbs'):
+                        index_type = str(result[i])
 
             place_holder += "</tr>\n"
 
