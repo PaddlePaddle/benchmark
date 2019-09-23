@@ -605,12 +605,14 @@ bert(){
     cd ${cur_model_path}
     rm -rf data
     ln -s ${data_path}/Bert/data ${cur_model_path}/data
-    ln -s ${prepare_path}/chinese_L-12_H-768_A-12 ${cur_model_path}/chinese_L-12_H-768_A-12
+    ln -s ${data_path}/Bert/MNLI ${cur_model_path}/MNLI
+    ln -s ${prepare_path}/Bert/chinese_L-12_H-768_A-12 ${cur_model_path}/chinese_L-12_H-768_A-12
+    ln -s ${prepare_path}/Bert/uncased_L-24_H-1024_A-16 ${cur_model_path}/uncased_L-24_H-1024_A-16
     cp ${BENCHMARK_ROOT}/static_graph/NeuralMachineTranslation/BERT/fluid/run_benchmark.sh ./run_benchmark.sh
 
     sed -i '/set\ -xe/d' run_benchmark.sh
 
-    model_mode_list=(base)
+    model_mode_list=(base large)
     fp_mode_list=(fp32 fp16)
     for model_mode in ${model_mode_list[@]}; do
         for fp_mode in ${fp_mode_list[@]}; do

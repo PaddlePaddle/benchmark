@@ -3,22 +3,22 @@ set -xe
 
 if [[ $# -lt 3 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs base|big fp32|fp16 sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs base|large fp32|fp16 sp|mp /ssd1/ljh/logs"
     exit
 fi
 
 function _set_params(){
     index="$1"
-    model_mode="$2"
+    model_type="$2"
     fp_mode=$3
     run_mode=${4:-"sp"}
     run_log_path=${5:-$(pwd)}
 
-    model_name="bert_${model_mode}_${fp_mode}"
+    model_name="bert_${model_type}_${fp_mode}"
     skip_steps=1
     keyword="speed:"
     separator=" "
-    position=13
+    position=-2
     model_mode=1
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -40,9 +40,15 @@ function _set_env(){
 }
 
 function _train(){
-    BERT_BASE_PATH=$(pwd)/chinese_L-12_H-768_A-12
-    TASK_NAME='XNLI'
-    DATA_PATH=$(pwd)/data
+    if [[ ${model_type} = "base" ]]; then
+        BERT_BASE_PATH=$(pwd)/chinese_L-12_H-768_A-12
+        TASK_NAME='XNLI'
+        DATA_PATH=$(pwd)/data
+    elif [[ ${model_type} = "large" ]]; then
+        BERT_BASE_PATH=$(pwd)/uncased_L-24_H-1024_A-16
+        TASK_NAME='mnli'
+        DATA_PATH=$(pwd)/MNLI
+    fi
     CKPT_PATH=$(pwd)/save
     train_cmd=" --task_name ${TASK_NAME} \
           --use_cuda true \
@@ -75,7 +81,7 @@ function _train(){
     esac
 
     if [[ ${fp_mode} == "fp16" ]]; then
-        train_cmd=${train_cmd}" --use_fp16=true --loss_scaling=8.0"
+        train_cmd=${train_cmd}" --use_fp16=true "
     fi
 
     ${train_cmd} > ${log_file} 2>&1 &
