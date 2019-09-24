@@ -303,45 +303,61 @@ nextvlad(){
     cd ${cur_model_path}
 
     # Prepare data
-    cd dataset/youtube8m/
-    rm -r pkl *.list
-    ln -s ${data_path}/youtube8m_paddle/pkl ./
+    rm -rf data
+    mkdir data && cd data && mkdir dataset && cd dataset
+    ln -s ${data_path}/youtube8m_paddle ./youtube8m
       # make train.list
+    cd youtube8m
     cur_path=$(pwd)
     ls ${cur_path}/pkl/train/* > train.list
     ls ${cur_path}/pkl/val/* > val.list
+    ls ${cur_path}/pkl/val/* > test.list
+    ls ${cur_path}/pkl/val/* > infer.list
     cd ${cur_model_path}
 
-    # Install imageio
-    if python -c "import imageio" >/dev/null 2>&1
-    then
-        echo "imageio have already installed"
-    else
-        echo "imageio NOT FOUND"
-        pip install imageio
-        echo "imageio installed"
-    fi
+    # Prepare package_list
+    package_check_list=(imageio tqdm Cython pycocotools pandas wget)
+    for package in ${package_check_list[@]}; do
+        if python -c "import ${package}" >/dev/null 2>&1; then
+            echo "${package} have already installed"
+        else
+            echo "${package} NOT FOUND"
+            pip install ${package}
+            echo "${package} installed"
+        fi
+    done
 
-    # Install wget
-    if python -c "import wget" >/dev/null 2>&1
-    then
-        echo "wget have already installed"
-    else
-        echo "wget NOT FOUND"
-        pip install wget
-        echo "wget installed"
-    fi
-
-    # Running ...
-    cp ${BENCHMARK_ROOT}/static_graph/nextvlad/paddle/run_benchmark.sh ./
+    #Running
+    cp ${BENCHMARK_ROOT}/static_graph/NextVlad/paddle/run_benchmark.sh ./
 
     sed -i '/set\ -xe/d' run_benchmark.sh
-    sed -i 's/num_gpus: 4/num_gpus: 1/g' ./configs/nextvlad.yaml
-    echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
-    sleep 60
-    echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+#    sed -i 's/num_gpus: 4/num_gpus: 1/g' ./configs/nextvlad.yaml
+
+    model_list=(nextvlad)
+# run for one GPU
+    for model_name in ${model_list[@]}; do
+        sed -i 's/num_gpus: 4/num_gpus: 1/g' ./configs/nextvlad.yaml
+        echo "index is speed, 1gpu, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is mem, 1gpus, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        sleep 60
+    done
+
+# run for 8 GPU
+    for model_name in ${model_list[@]}; do
+        sed -i 's/num_gpus: 1/num_gpus: 8/g' ./configs/nextvlad.yaml
+        echo "index is speed, 8gpus, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+        sleep 60
+        echo "index is mem, 8gpus, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_8gpus 2>&1
+        sleep 60
+        #echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
+        #PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 2 ${model_name} mp ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+        #sleep 60
+    done
 }
 
 
@@ -374,9 +390,7 @@ deeplab(){
     sleep 60
     echo "index is maxbs, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs sp ${train_log_dir} | tee ${log_path}/DeepLab_V3+_maxbs_8gpus 2>&1
-#    sleep 60
-#    echo "index is speed, 8gpus, run_mode is multi_process, begin"
-#    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed mp ${train_log_dir} | tee ${log_path}/DeepLab_V3+_speed_8gpus8p 2>&1
+
 }
 
 
