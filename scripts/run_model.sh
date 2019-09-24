@@ -46,5 +46,5 @@ function _run(){
             --run_mode ${run_mode} \
             --index ${index} \
             --gpu_num ${num_gpu_devices} \
-	    --range ${range}
+	    --range ${range:-"0"}
 }

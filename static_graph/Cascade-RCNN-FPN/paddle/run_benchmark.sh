@@ -18,7 +18,7 @@ function _set_params(){
     separator=" "                    # 解析日志，数据所在行的分隔符(必填)
     position=25                      # 解析日志，按照分隔符分割后形成的数组索引(必填)
     model_mode=0                     # 解析日志，若数据单位是s/step，则为0，若数据单位是step/s,则为1(必填)
-    range=5
+    range=-1
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}

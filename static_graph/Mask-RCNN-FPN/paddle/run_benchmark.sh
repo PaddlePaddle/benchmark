@@ -18,7 +18,7 @@ function _set_params(){
     separator=" "                    # 解析日志，数据所在行的分隔符(必填)
     position=19                      # 解析日志，按照分隔符分割后形成的数组索引(必填)
     model_mode=0                     # 解析日志，若数据单位是s/step，则为0，若数据单位是step/s,则为1(必填)
-    range=5
+    range=-1
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
@@ -42,8 +42,12 @@ function _set_env(){
 function _train(){
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-
-  train_cmd="-c configs/mask_rcnn_r101_vd_fpn_1x.yml"
+  if [ $model_name = "mask-rcnn-fpn-resnet"];then
+      train_cmd="-c configs/mask_rcnn_r101_vd_fpn_1x.yml"
+  elif[ $model_name = "mask-rcnn-fpn-resnext"];then
+     train_cmd="-c configs/mask_rcnn_x101_vd_64x4d_fpn_1x.yml" 
+  else
+      echo "model_name must be mask-rcnn-fpn-resnext or mask-rcnn-fpn-resnet"
 
   case ${run_mode} in
   sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
