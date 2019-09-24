@@ -336,6 +336,7 @@ nextvlad(){
     cp ${BENCHMARK_ROOT}/static_graph/nextvlad/paddle/run_benchmark.sh ./
 
     sed -i '/set\ -xe/d' run_benchmark.sh
+    sed -i 's/num_gpus: 4/num_gpus: 1/g' ./configs/nextvlad.yaml
     echo "index is speed, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
