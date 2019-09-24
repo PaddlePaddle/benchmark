@@ -25,7 +25,8 @@ function _set_params(){
     arr=($device)
     num_gpu_devices=${#arr[*]}
 
-    if [[ ${index} = "maxbs" ]]; then base_batch_size=78; else base_batch_size=32; fi
+    # if [[ ${index} = "maxbs" ]]; then base_batch_size=78; else base_batch_size=32; fi
+    if [[ ${model_type} = "base" ]]; then base_batch_size=32; else base_batch_size=8; fi
     batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_parse_file=${log_file}

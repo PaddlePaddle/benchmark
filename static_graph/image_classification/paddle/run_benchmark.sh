@@ -15,10 +15,11 @@ function _set_params(){
     run_log_path=${5:-$(pwd)}        # 训练保存的日志目录（必填）
 
     skip_steps=2                     # 解析日志，有些模型前几个step耗时长，需要跳过(必填)
-    keyword="elapse"             # 解析日志，筛选出数据所在行的关键字(必填)
+    keyword="elapse"                 # 解析日志，筛选出数据所在行的关键字(必填)
     separator=" "                    # 解析日志，数据所在行的分隔符(必填)
     position=-2                      # 解析日志，按照分隔符分割后形成的数组索引(必填)
     model_mode=0                     # 解析日志，若数据单位是s/step，则为0，若数据单位是step/s,则为1(必填)
+    #range=-1                        # 解析日志，取得列表索引的值后，切片[0：range], 默认最后一位可以不用填
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
