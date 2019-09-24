@@ -14,10 +14,10 @@ function _set_params(){
     run_mode=${4:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程（必填）
     run_log_path=${5:-$(pwd)}        # 训练保存的日志目录（必填）
 
-    skip_steps=2                     # 解析日志，有些模型前几个step耗时长，需要跳过(必填)
+    skip_steps=1                     # 解析日志，有些模型前几个step耗时长，需要跳过(必填)
     keyword="finished"             # 解析日志，筛选出数据所在行的关键字(必填)
-    separator=":"                    # 解析日志，数据所在行的分隔符(必填)
-    position=1                      # 解析日志，按照分隔符分割后形成的数组索引(必填)
+    separator=" "                    # 解析日志，数据所在行的分隔符(必填)
+    position=-1                      # 解析日志，按照分隔符分割后形成的数组索引(必填)
     model_mode=0                     # 解析日志，若数据单位是s/step，则为0，若数据单位是step/s,则为1(必填)
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
