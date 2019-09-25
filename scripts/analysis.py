@@ -80,6 +80,30 @@ class TimeAnalyzer(object):
                 except Exception as exc:
                     print("line is: {}; separator={}; position={}".format(line, self.separator, self.position))
 
+        print("Extract {} records: separator={}; position={}".format(len(self.records), self.separator, self.position))
+
+    def _get_fps(self, mode, batch_size, gpu_num, avg_of_records):
+        if mode == 0:
+            # s/step -> samples/s
+            fps = (batch_size * gpu_num) / avg_of_records
+            unit = "samples/s"
+        elif mode == 1:
+            # steps/s -> steps/s
+            fps = avg_of_records
+            unit = "steps/s"
+        elif mode == 2:
+            # s/step -> steps/s
+            fps = 1 / avg_of_records
+            unit = "steps/s"
+        elif mode == 3:
+            # steps/s -> samples/s
+            fps = batch_size * gpu_num * avg_of_records
+            unit = "samples/s"
+        else:
+            ValueError("Unsupported analysis mode.")
+        
+        return fps, unit
+
     def analysis(self, batch_size, gpu_num=1, skip_steps=0, mode=0):
         if batch_size <= 0:
             print("FINAL_RESULT={:.3f}".format(0.0))
@@ -109,30 +133,30 @@ class TimeAnalyzer(object):
         avg_of_records = sum_of_records / float(count)
         avg_of_records_skipped = sum_of_records_skipped / float(count - skip_steps)
 
-        if mode == 1:
-            final_result = avg_of_records_skipped
+        fps, fps_unit = self._get_fps(mode, batch_size, gpu_num, avg_of_records)
+        fps_skipped, _ = self._get_fps(mode, batch_size, gpu_num, avg_of_records_skipped)
+        if mode == 1 or mode == 3:
             print("average latency of %d steps, skip 0 step:" % count)
             print("\tAvg: %.3f steps/s" % avg_of_records)
-            print("\tFPS: %.3f samples/s" % (batch_size * gpu_num * avg_of_records))
+            print("\tFPS: %.3f %s" % (fps, fps_unit))
             if skip_steps > 0:
                 print("average latency of %d steps, skip %d steps:" % (count, skip_steps))
                 print("\tAvg: %.3f steps/s" % avg_of_records_skipped)
                 print("\tMin: %.3f steps/s" % skip_min)
                 print("\tMax: %.3f steps/s" % skip_max)
-                print("\tFPS: %.3f samples/s" % (batch_size * gpu_num * avg_of_records_skipped))
-        else:
-            final_result = (batch_size * gpu_num) / avg_of_records_skipped
+                print("\tFPS: %.3f %s" % (fps_skipped, fps_unit))
+        elif mode == 0 or mode == 2:
             print("average latency of %d steps, skip 0 step:" % count)
             print("\tAvg: %.3f s/step" % avg_of_records)
-            print("\tFPS: %.3f samples/s" % (batch_size * gpu_num / avg_of_records))
+            print("\tFPS: %.3f %s" % (fps, fps_unit))
             if skip_steps > 0:
                 print("average latency of %d steps, skip %d steps:" % (count, skip_steps))
                 print("\tAvg: %.3f s/step" % avg_of_records_skipped)
                 print("\tMin: %.3f s/step" % skip_min)
                 print("\tMax: %.3f s/step" % skip_max)
-                print("\tFPS: %.3f samples/s" % final_result)
+                print("\tFPS: %.3f %s" % (fps_skipped, fps_unit))
 
-        print("FINAL_RESULT={:.3f}".format(final_result))
+        print("FINAL_RESULT={:.3f}".format(fps_skipped))
 
 
 if __name__ == "__main__":
