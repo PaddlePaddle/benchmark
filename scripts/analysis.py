@@ -16,6 +16,7 @@ from __future__ import print_function
 
 import argparse
 import json
+import traceback
 
 
 def parse_args():
@@ -144,5 +145,8 @@ if __name__ == "__main__":
     run_info["gpu_num"] = args.gpu_num
 
     analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
-    analyzer.analysis(args.base_batch_size, args.gpu_num, args.skip_steps, args.model_mode)
+    try:
+        analyzer.analysis(args.base_batch_size, args.gpu_num, args.skip_steps, args.model_mode)
+    except Exception:
+        traceback.print_exc()
     print("{}".format(json.dumps(run_info)))  # it's required, for the log file path  insert to the database
