@@ -40,3 +40,6 @@
 [submodule "static_graph/Mask-RCNN/pytorch/maskrcnn-benchmark"]
 	path = static_graph/Mask-RCNN/pytorch/maskrcnn-benchmark
 	url = https://github.com/facebookresearch/maskrcnn-benchmark.git
+[submodule "NextVlad/tensorflow/youtube-8m"]
+	path = NextVlad/tensorflow/youtube-8m
+	url = https://github.com/linrongc/youtube-8m.git
