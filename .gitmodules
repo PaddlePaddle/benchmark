@@ -43,3 +43,6 @@
 [submodule "NextVlad/tensorflow/youtube-8m"]
 	path = NextVlad/tensorflow/youtube-8m
 	url = https://github.com/linrongc/youtube-8m.git
+[submodule "static_graph/Detection/pytorch/Detectron"]
+	path = static_graph/Detection/pytorch/Detectron
+	url = https://github.com/facebookresearch/Detectron.git
