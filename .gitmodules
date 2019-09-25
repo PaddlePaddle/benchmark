@@ -44,3 +44,6 @@
 [submodule "static_graph/image_classification/pytorch/vision"]
   path = static_graph/image_classification/pytorch/vision
   url = https://github.com/pytorch/vision.git
+[submodule "third_party/mxnet/gluon-cv"]
+	path = third_party/mxnet/gluon-cv
+	url = https://github.com/dmlc/gluon-cv.git
