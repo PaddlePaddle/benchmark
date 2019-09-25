@@ -20,7 +20,7 @@ function _set_params(){
     model_mode=0
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
-    arr=($device)
+    arr=(${device})
     num_gpu_devices=${#arr[*]}
 
     if [[ ${index} = "maxbs" ]]; then base_batch_size=14; else base_batch_size=8; fi
@@ -40,7 +40,7 @@ function _set_env(){
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-    if [ $run_mode == "sp" && $num_gpu_devices -eq 8 ]; then
+    if [[ ${run_mode} == "sp" && ${num_gpu_devices} -eq 8 ]]; then
         num_workers=32
     else
         num_workers=8
