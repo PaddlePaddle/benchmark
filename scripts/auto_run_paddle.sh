@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cur_model_list=(seq2seq detection mask_rcnn image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3 nextvlad)
+cur_model_list=(seq2seq nextvlad detection mask_rcnn image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
 usage () {
   cat <<EOF
   usage: $0 [options]
