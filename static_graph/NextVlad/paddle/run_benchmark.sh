@@ -45,7 +45,7 @@ function _train(){
     WORK_ROOT=$PWD
     num_epochs=2
     echo "${model_name}, batch_size: ${batch_size}"
-    sed -i "s/num_gpus: 4/num_gpus: ${num_gpu_devices}/g" ./configs/$model_name.yaml
+    sed -i "s/num_gpus: [1-8]/num_gpus: ${num_gpu_devices}/g" ./configs/$model_name.yaml
 
     train_cmd=" --model_name $model_name \
         --config ./configs/nextvlad.yaml \
