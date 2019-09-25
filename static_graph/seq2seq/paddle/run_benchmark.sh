@@ -3,7 +3,7 @@ set -xe
 
 if [[ $# -lt 1 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs sp|mp /ssd1/ljh/logs"
     exit
 fi
 
@@ -12,22 +12,25 @@ function _set_params(){
     base_batch_size=128
     model_name="seq2seq"
 
-    run_mode=${2:-"sp"}
-    run_log_path=${3:-$(pwd)}
+    run_mode="sp" # Don't support mp
+    run_log_root=${3:-$(pwd)}
 
     skip_steps=0
     keyword="avg_time:"
     separator=" "
     position=-2
-    model_mode=1
+    model_mode=2 # s/step -> steps/s
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
+    if [ ${num_gpu_devices} -gt 1 ]; then
+        echo "Multi-GPU training is not supported yet."
+        exit
+    fi
 
-    log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_file=${run_log_root}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_parse_file=${log_file}
-
 }
 
 function _set_env(){
