@@ -304,16 +304,14 @@ nextvlad(){
 
     # Prepare data
     rm -rf data
-    mkdir data && cd data && mkdir dataset && cd dataset
-    ln -s ${data_path}/youtube8m_paddle ./youtube8m
-      # make train.list
-    cd youtube8m
-    cur_path=$(pwd)
-    ls ${cur_path}/pkl/train/* > train.list
-    ls ${cur_path}/pkl/val/* > val.list
-    ls ${cur_path}/pkl/val/* > test.list
-    ls ${cur_path}/pkl/val/* > infer.list
-    cd ${cur_model_path}
+    mkdir -p data/dataset
+    ln -s ${data_path}/youtube8m_paddle ./data/dataset/youtube8m
+
+    # make train.list
+    ls ${cur_model_path}/data/dataset/youtube8m/pkl/train/* > ./data/dataset/youtube8m/train.list
+    ls ${cur_model_path}/data/dataset/youtube8m/pkl/val/* > ./data/dataset/youtube8m/val.list
+    ls ${cur_model_path}/data/dataset/youtube8m/pkl/val/* > ./data/dataset/youtube8m/test.list
+    ls ${cur_model_path}/data/dataset/youtube8m/pkl/val/* > ./data/dataset/youtube8m/infer.list
 
     # Prepare package_list
     package_check_list=(imageio tqdm Cython pycocotools pandas wget)
@@ -331,32 +329,21 @@ nextvlad(){
     cp ${BENCHMARK_ROOT}/static_graph/NextVlad/paddle/run_benchmark.sh ./
 
     sed -i '/set\ -xe/d' run_benchmark.sh
-#    sed -i 's/num_gpus: 4/num_gpus: 1/g' ./configs/nextvlad.yaml
 
-    model_list=(nextvlad)
-# run for one GPU
+    model_list=(nextvlad ctcn)
     for model_name in ${model_list[@]}; do
-        sed -i 's/num_gpus: 4/num_gpus: 1/g' ./configs/nextvlad.yaml
         echo "index is speed, 1gpu, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is mem, 1gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
         sleep 60
-    done
-
-# run for 8 GPU
-    for model_name in ${model_list[@]}; do
-        sed -i 's/num_gpus: 1/num_gpus: 8/g' ./configs/nextvlad.yaml
         echo "index is speed, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus 2>&1
         sleep 60
         echo "index is mem, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_8gpus 2>&1
         sleep 60
-        #echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-        #PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 2 ${model_name} mp ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
-        #sleep 60
     done
 }
 
