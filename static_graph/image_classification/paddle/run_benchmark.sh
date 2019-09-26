@@ -3,7 +3,7 @@ set -xe
 
 if [[ $# -lt 4 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs 32 model_name sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs 32 model_name sp|mp /ssd1/ljh/logs"
     exit
 fi
 
@@ -12,7 +12,7 @@ function _set_params(){
     base_batch_size=$2               # 单卡的batch_size，如果固定的，可以写死（必填）
     model_name=$3                    # 模型名字如："SE-ResNeXt50"，如果是固定的，可以写死，如果需要其他参数可以参考bert实现（必填）
     run_mode=${4:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程（必填）
-    run_log_path=${5:-$(pwd)}        # 训练保存的日志目录（必填）
+    run_log_root=${5:-$(pwd)}        # 训练保存的日志目录（必填）
 
     skip_steps=2                     # 解析日志，有些模型前几个step耗时长，需要跳过(必填)
     keyword="elapse"                 # 解析日志，筛选出数据所在行的关键字(必填)
@@ -30,9 +30,8 @@ function _set_params(){
     else
         batch_size=$base_batch_size
     fi
-    log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_file=${run_log_root}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_parse_file=${log_file}
-
 }
 
 function _set_env(){

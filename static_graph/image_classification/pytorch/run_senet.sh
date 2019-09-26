@@ -3,9 +3,9 @@
 set -xe
 
 if [ $# -lt 3 ]; then
-  echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run_senet.sh speed|mem|maxbs 32 se_resnext_50|resnet_50|resnet_101 sp|mp /ssd1/ljh/logs"
-  exit
+    echo "Usage: "
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_senet.sh speed|mem|maxbs 32 se_resnext_50|resnet_50|resnet_101 sp|mp /ssd1/ljh/logs"
+    exit
 fi
 
 if [ "${BENCHMAKR_ROOT}" == "" ]; then
@@ -31,7 +31,7 @@ function _set_params() {
     num_gpu_devices=${#arr[*]}
 
     batch_size=`expr $base_batch_size \* $num_gpu_devices`
-    num_workers=`expr 4 \* $num_gpu_devices`
+    num_workers=`expr 8 \* $num_gpu_devices`
 
     if [[ ${index} = "analysis" ]]; then
         log_file=${run_log_root}/log_senet_${model_name}_speed_${num_gpu_devices}_${run_mode}
