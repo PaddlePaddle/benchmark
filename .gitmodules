@@ -38,12 +38,13 @@
 [submodule "static_graph/Detection/pytorch/Detectron"]
   path = static_graph/Detection/pytorch/Detectron
   url = https://github.com/facebookresearch/Detectron.git
-[submodule "static_graph/image_classification/pytorch/examples"]
-  path = static_graph/image_classification/pytorch/examples
-  url = https://github.com/pytorch/examples.git
-[submodule "static_graph/image_classification/pytorch/vision"]
-  path = static_graph/image_classification/pytorch/vision
-  url = https://github.com/pytorch/vision.git
 [submodule "third_party/mxnet/gluon-cv"]
-	path = third_party/mxnet/gluon-cv
-	url = https://github.com/dmlc/gluon-cv.git
+  path = third_party/mxnet/gluon-cv
+  url = https://github.com/dmlc/gluon-cv.git
+[submodule "third_party/pytorch/vision"]
+  path = third_party/pytorch/vision
+  url = https://github.com/pytorch/vision.git
+  branch = v0.4.0
+[submodule "third_party/pytorch/examples"]
+  path = third_party/pytorch/examples
+  url = https://github.com/pytorch/examples.git
