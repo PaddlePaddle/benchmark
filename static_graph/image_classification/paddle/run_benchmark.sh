@@ -38,6 +38,9 @@ function _set_env(){
     #开启gc
     export FLAGS_eager_delete_tensor_gb=0.0
     export FLAGS_fraction_of_gpu_memory_to_use=0.98
+    if [[ ${model_name} == "ResNet50" && ${num_gpu_devices} == 1 ]]; then
+        export FLAGS_cudnn_exhaustive_search=1
+    fi
 }
 
 function _train(){

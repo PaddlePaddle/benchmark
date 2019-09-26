@@ -65,27 +65,6 @@ class TimeAnalyzer(object):
         self.records = None
         self._distil()
 
-    def _get_record(self, line):
-        items = line.split("" if not self.separator else self.separator)
-        if self.position == -1:
-            # The first number after the keyword
-            clean_items = []
-            for item in items:
-                if item != self.separator and item != "":
-                    clean_items.append(item)
-
-            position = 0
-            for item in clean_items:
-                position += 1
-                if item == self.keyword:
-                    break
-
-            result = clean_items[position]
-        else:
-            result = items[self.position]
-
-        return result
-
     def _distil(self):
         self.records = []
         with open(self.filename, "r") as f_object:
@@ -94,8 +73,11 @@ class TimeAnalyzer(object):
                 if self.keyword not in line:
                     continue
                 try:
-                    line = line.strip().replace("\t", self.separator)
-                    result = self._get_record(line)
+                    line = line.strip()
+                    if self.separator:
+                        result = line.split(self.separator)[self.position]
+                    else:
+                        result = line.split()[self.position]
                     result = result[0:] if not self.range else result[0:self.range]
                     self.records.append(float(result))
                 except Exception as exc:

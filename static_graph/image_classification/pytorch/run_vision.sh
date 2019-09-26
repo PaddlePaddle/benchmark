@@ -21,8 +21,8 @@ function _set_params() {
 
     skip_steps=2
     keyword="time:"
-    separator=" "
-    position=-1
+    separator=""
+    position=-6
     model_mode=0 # s/step -> samples/s
 
     device=${CUDA_VISIBLE_DEVICES//,/ }

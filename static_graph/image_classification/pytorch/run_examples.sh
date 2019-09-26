@@ -21,8 +21,8 @@ function _set_params() {
 
     skip_steps=2
     keyword="Time"
-    separator=" "
-    position=-1
+    separator=""
+    position=4
     range=5
     model_mode=0 # s/step -> samples/s
 
