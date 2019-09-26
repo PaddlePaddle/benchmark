@@ -22,7 +22,7 @@ function _set_params() {
     skip_steps=2
     keyword="Time"
     separator=" "
-    position=5
+    position=-1
     range=5
     model_mode=0 # s/step -> samples/s
 
@@ -51,7 +51,6 @@ function _set_env() {
 
 function _train() {
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-    WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
     data_path=/data/ILSVRC2012/
     num_epochs=2
 
