@@ -74,7 +74,10 @@ class TimeAnalyzer(object):
                     continue
                 try:
                     line = line.strip()
-                    result = line.split("" if not self.separator else self.separator)[self.position]
+                    if self.separator:
+                        result = line.split(self.separator)[self.position]
+                    else:
+                        result = line.split()[self.position]
                     result = result[0:] if not self.range else result[0:self.range]
                     self.records.append(float(result))
                 except Exception as exc:
