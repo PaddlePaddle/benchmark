@@ -1,5 +1,23 @@
 #!/usr/bin/env bash
 
+function _collect_occupancy() {
+    if [[ "${BENCHMARK_MONITOR}" = "" ]]; then
+        export BENCHMARK_MONITOR=ON
+    fi
+    if [[ "${BENCHMARK_MONITOR}" = "ON" ]]; then
+        hostname=`echo $(hostname)|awk -F '.baidu.com' '{print $1}'`
+        gpu_log_file=${log_file}_gpu
+        cpu_log_file=${log_file}_cpu
+        monquery -n ${hostname} -i GPU_AVERAGE_UTILIZATION -s $job_bt -e $job_et -d 60 > ${gpu_log_file}
+        monquery -n ${hostname} -i CPU_USER -s $job_bt -e $job_et -d 60 > ${cpu_log_file}
+        cpu_num=$(cat /proc/cpuinfo | grep processor | wc -l)
+        gpu_num=$(nvidia-smi -L|wc -l)
+
+        awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("AVG_GPU_USE=%.2f\n" ,avg*'${gpu_num}')}' ${gpu_log_file}
+        awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("AVG_CPU_USE=%.2f\n" ,avg*'${cpu_num}')}' ${cpu_log_file}
+    fi
+}
+
 function _run(){
     if [[ ${index} = "mem" ]]; then
         #若测试最大batchsize，FLAGS_fraction_of_gpu_memory_to_use=1
@@ -14,17 +32,8 @@ function _run(){
         job_bt=`date '+%Y%m%d%H%M%S'`
         _train
         job_et=`date '+%Y%m%d%H%M%S'`
-        hostname=`echo $(hostname)|awk -F '.baidu.com' '{print $1}'`
-        gpu_log_file=${log_file}_gpu
-        cpu_log_file=${log_file}_cpu
-        monquery -n ${hostname} -i GPU_AVERAGE_UTILIZATION -s $job_bt -e $job_et -d 60 > ${gpu_log_file}
-        monquery -n ${hostname} -i CPU_USER -s $job_bt -e $job_et -d 60 > ${cpu_log_file}
-        cpu_num=$(cat /proc/cpuinfo | grep processor | wc -l)
-        gpu_num=$(nvidia-smi -L|wc -l)
-
-        awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("AVG_GPU_USE=%.2f\n" ,avg*'${gpu_num}')}' ${gpu_log_file}
-        awk '{if(NR>1 && $3 >0){time+=$3;count+=1}} END{if(count>0) avg=time/count; else avg=0; printf("AVG_CPU_USE=%.2f\n" ,avg*'${cpu_num}')}' ${cpu_log_file}
-    else
+        _collect_occupancy
+    elif [[ ${index} = "maxbs" ]]; then
         _train
         error_string="Cannot allocate"
         if [ `grep -c "${error_string}" ${log_parse_file}` -eq 0 ]; then
@@ -32,6 +41,8 @@ function _run(){
         else
             echo "MAX_BATCH_SIZE=0"
         fi
+    else
+        echo "Do nothing"
     fi
 
     python ${BENCHMARK_ROOT}/scripts/analysis.py \
