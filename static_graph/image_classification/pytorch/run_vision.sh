@@ -2,70 +2,74 @@
 
 set -xe
 
-echo ""
-echo "You can use xreki/maskrcnn-benchmark:lastest to test PyTorch 1.1"
-echo "Please run nvidia-docker with --shm-size information."
-echo "For example:"
-echo "  nvidia-docker run --name pytorch_test \\"
-echo "          --shm-size 16G --network=host -it --rm \\"
-echo "          -v $PWD:/work -w /work \\" 
-echo "          xreki/maskrcnn-benchmark:lastest \\"
-echo "          bash"
+if [ $# -lt 3 ]; then
+    echo "Usage: "
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_vision.sh speed|mem|maxbs 32 resnet50|resnet101 sp|mp /ssd1/ljh/logs"
+    exit
+fi
 
-export CUDA_VISIBLE_DEVICES="1"
-export WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
-export BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../.." && pwd )"
+if [ "${BENCHMAKR_ROOT}" == "" ]; then
+    export BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../../.." && pwd )"
+fi
 
-# 1. task
-task=speed
+function _set_params() {
+    index=$1
+    base_batch_size=$2
+    model_name=$3 # resnet50, resnet101
+    run_mode="sp"
+    run_log_root=${5:-$(pwd)}
 
-# 2. batch_size
-base_batchsize=32
-devices_str=${CUDA_VISIBLE_DEVICES//,/ }
-gpu_devices=($devices_str)
-num_gpu_devices=${#gpu_devices[*]}
-batch_size=`expr $base_batchsize \* $num_gpu_devices`
-num_workers=`expr 4 \* $num_gpu_devices`
+    skip_steps=2
+    keyword="time:"
+    separator=" "
+    position=-1
+    model_mode=0 # s/step -> samples/s
 
-# 3. model: resnet50, resnet101
-model=resnet50
+    device=${CUDA_VISIBLE_DEVICES//,/ }
+    arr=($device)
+    num_gpu_devices=${#arr[*]}
 
-# 4. data_path
-data_path=/data/ILSVRC2012/
+    batch_size=`expr $base_batch_size \* $num_gpu_devices`
+    num_workers=`expr 8 \* $num_gpu_devices`
 
-# 5. log_file
-log_file=log_vision_${model}_${task}_bs${batch_size}_${num_gpu_devices}
+    if [[ ${index} = "analysis" ]]; then
+        log_file=${run_log_root}/log_vision_${model_name}_speed_${num_gpu_devices}_${run_mode}
+    else
+        log_file=${run_log_root}/log_vision_${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    fi
+    log_parse_file=${log_file}
+}
 
-train() {
-  echo "Train on ${num_gpu_devices} GPUs"
-  echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  python -c "import torch; print(torch.__version__)"
+function _set_env() {
+    echo "nothing"
+}
 
-  export PYTHONPATH=${WORK_ROOT}/vision
-  stdbuf -oL python ${WORK_ROOT}/vision/references/classification/train.py \
+function _train() {
+    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+    data_path=/data/ILSVRC2012/
+    num_epochs=2
+
+    python -c "import torch; print(torch.__version__)"
+    export PYTHONPATH=${BENCHMARK_ROOT}/third_party/pytorch/vision
+
+    echo "${model_name}, batch_size: ${batch_size}"
+    stdbuf -oL python ${BENCHMARK_ROOT}/third_party/pytorch/vision/references/classification/train.py \
            --data-path ${data_path} \
-           --model ${model} \
+           --model ${model_name} \
            --device cuda \
            --batch-size ${batch_size} \
-           --epochs 1 \
+           --epochs ${num_epochs} \
            --workers ${num_workers} \
            --print-freq 10 \
            --output-dir ./output/vision \
            --cache-dataset > ${log_file} 2>&1 &
-  train_pid=$!
-  sleep 600
-  kill -9 $train_pid
+
+    train_pid=$!
+    sleep 300
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
-analysis() {
-  python ${BENCHMARK_ROOT}/scripts/analysis.py \
-    --filename ${log_file} \
-    --keyword "time:" \
-    --separator " " \
-    --batch_size ${batch_size} \
-    --skip_steps 10 \
-    --mode 0
-}
-
-train
-analysis
+source ${BENCHMARK_ROOT}/scripts/run_model.sh
+_set_params $@
+_set_env
+_run
