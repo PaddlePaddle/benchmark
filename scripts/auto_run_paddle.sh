@@ -427,10 +427,15 @@ detection(){
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleDetection
     cd ${cur_model_path}
     # Prepare data
+    mkdir -p /root/.cache/paddle/weights/
     ln -s ${data_path}/COCO17/annotations ${cur_model_path}/dataset/coco/annotations
     ln -s ${data_path}/COCO17/train2017 ${cur_model_path}/dataset/coco/train2017
     ln -s ${data_path}/COCO17/test2017 ${cur_model_path}/dataset/coco/test2017
     ln -s ${data_path}/COCO17/val2017 ${cur_model_path}/dataset/coco/val2017
+    #prepare pretrain_models
+    ln -s ${prepare_path}/detection/ResNeXt101_vd_64x4d_pretrained /root/.cache/paddle/weights/
+    ln -s ${prepare_path}/detection/ResNet101_vd_pretrained /root/.cache/paddle/weights/
+
 
     # Prepare package_list
     package_check_list=(imageio tqdm Cython pycocotools)
