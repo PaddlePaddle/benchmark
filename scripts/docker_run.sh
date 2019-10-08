@@ -38,8 +38,8 @@ do
   esac
 done
 
-export https_proxy=http://172.19.56.199:3128
-export http_proxy=http://172.19.56.199:3128
+export https_proxy=http://172.19.57.45:3128
+export http_proxy=http://172.19.57.45:3128
 
 paddle_repo="https://github.com/PaddlePaddle/Paddle.git"
 
