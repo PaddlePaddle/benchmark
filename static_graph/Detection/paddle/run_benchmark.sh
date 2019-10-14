@@ -46,7 +46,7 @@ function _train(){
         train_cmd="-c configs/mask_rcnn_r101_vd_fpn_1x.yml --opt LearningRate.base_lr=0.00125 MaskRCNNTrainFeed.batch_size=2"
         position=19
     elif [[ ${model_name} = "mask_rcnn_fpn_resnext" ]];then
-        train_cmd="-c configs/mask_rcnn_x101_vd_64x4d_fpn_1x.yml --opt --opt LearningRate.base_lr=0.00125 MaskRCNNTrainFeed.batch_size=2"
+        train_cmd="-c configs/mask_rcnn_x101_vd_64x4d_fpn_1x.yml --opt LearningRate.base_lr=0.00125 MaskRCNNTrainFeed.batch_size=2"
         position=19
     elif [[ ${model_name} = "retinanet_rcnn_fpn" ]];then
         train_cmd="-c configs/retinanet_r50_fpn_1x.yml --opt LearningRate.base_lr=0.00125"
