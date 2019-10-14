@@ -34,3 +34,43 @@ index b92487e..0115493 100644
          _IM_DIR:
              _DATA_DIR + '/cityscapes/images',
 ```
+
+## 配置文件
+
+- Cascade RCNN-FPN模型，使用配置文件[./configs/e2e_cascade_rcnn_R-50-FPN_1x.yaml](./configs/e2e_cascade_rcnn_R-50-FPN_1x.yaml)。该配置文件是基于
+基于[e2e_cascade_rcnn_R-50-FPN_1x.yaml](https://github.com/zhaoweicai/Detectron-Cascade-RCNN/blob/master/configs/cascade_rcnn_baselines/e2e_cascade_rcnn_R-50-FPN_1x.yaml)，
+做了如下修改：
+
+```diff
+cascade_rcnn_baselines(master) $ git diff
+diff --git a/configs/cascade_rcnn_baselines/e2e_cascade_rcnn_R-50-FPN_1x.yaml b/configs/cascade_rcnn_baselines/e2e_cascade_rcnn_R-50-FPN_1x.yaml
+index ffe9a6b..0c3b4fb 100644
+--- a/configs/cascade_rcnn_baselines/e2e_cascade_rcnn_R-50-FPN_1x.yaml
++++ b/configs/cascade_rcnn_baselines/e2e_cascade_rcnn_R-50-FPN_1x.yaml
+@@ -5,11 +5,11 @@ MODEL:
+   FASTER_RCNN: True
+   CASCADE_ON: True
+   CLS_AGNOSTIC_BBOX_REG: True  # default: False
+-NUM_GPUS: 8
++NUM_GPUS: 1
+ SOLVER:
+   WEIGHT_DECAY: 0.0001
+   LR_POLICY: steps_with_decay
+-  BASE_LR: 0.02
++  BASE_LR: 0.002
+   GAMMA: 0.1
+   MAX_ITER: 90000
+   STEPS: [0, 60000, 80000]
+@@ -28,8 +28,8 @@ CASCADE_RCNN:
+   TEST_STAGE: 3
+   TEST_ENSEMBLE: True
+ TRAIN:
+-  WEIGHTS: https://s3-us-west-2.amazonaws.com/detectron/ImageNetPretrained/MSRA/R-50.pkl
+-  DATASETS: ('coco_2014_train', 'coco_2014_valminusminival')
++  WEIGHTS: https://dl.fbaipublicfiles.com/detectron/ImageNetPretrained/MSRA/R-50.pkl
++  DATASETS: ('coco_2017_train', 'coco_2017_valminusminival')
+   SCALES: (800,)
+   MAX_SIZE: 1333
+   BATCH_SIZE_PER_IM: 512
+```
+
