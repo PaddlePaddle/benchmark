@@ -31,6 +31,10 @@ function _set_params(){
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+
+    WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    cp -f ${WORK_ROOT}/src/dataset_catalog.py ${WORK_ROOT}/Detectron/detectron/datasets/dataset_catalog.py
+
     if [[ ${model_name} = "cascade_fpn_rcnn" ]]; then
         train_cmd="--cfg configs/cascade_rcnn_baselines/e2e_cascade_rcnn_R-50-FPN_1x.yaml \
 		 OUTPUT_DIR ./output"
