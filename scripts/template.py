@@ -47,11 +47,13 @@ ALARM_INFO_HOLDER
 def construct_email_content(results, log_path, args):
     """the list not satify condition"""
     run_env = """
+            <tr><td>paddle_branch</td><td>{}</td></tr>
             <tr><td>paddle_commit_id</td><td>{}</td></tr>
             <tr><td>benchmark_commit_id</td><td>{}</td></tr>
             <tr><td>device_type</td><td>{}</td></tr>
             <tr><td>implement_type</td><td>{}</td></tr>
-             """.format(args.image_commit_id,
+             """.format(args.image_branch,
+                        args.image_commit_id,
                         args.code_commit_id,
                         args.device_type,
                         args.implement_type,)
