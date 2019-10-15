@@ -38,8 +38,8 @@ do
   esac
 done
 
-export https_proxy=http://172.19.56.199:3128
-export http_proxy=http://172.19.56.199:3128
+export https_proxy=http://172.19.57.45:3128
+export http_proxy=http://172.19.57.45:3128
 
 paddle_repo="https://github.com/PaddlePaddle/Paddle.git"
 
@@ -67,7 +67,7 @@ build(){
 
     PADDLE_DEV_NAME=docker.io/paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
     #version=`date '+%Y%m%d%H%M%S'`
-    version=`date -d @$(git log -1 --pretty=format:%ct) "+%Y%m%d%H%M%S"`
+    version=`date -d @$(git log -1 --pretty=format:%ct) "+%Y.%m%d.%H%M%S"`
     PADDLE_VERSION=${version}'.post'$(echo $cuda_version|cut -d "." -f1)${cudnn_version}
     image_name=paddlepaddle_gpu-${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
     echo "image_name is: "${image_name}

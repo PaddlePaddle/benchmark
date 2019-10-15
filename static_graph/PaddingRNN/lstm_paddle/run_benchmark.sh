@@ -53,7 +53,7 @@ function _train(){
       --enable_ce \
       --max_epoch=5 \
       --rnn_model ${rnn_type} \
-      --use_py_reader True \
+      --use_dataloader True \
       --batch_size ${batch_size} > ${log_file} 2>&1
 }
 

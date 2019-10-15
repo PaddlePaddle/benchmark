@@ -43,16 +43,16 @@ function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
     if [[ ${model_name} = "mask_rcnn_fpn_resnet" ]]; then
-        train_cmd="-c configs/mask_rcnn_r101_vd_fpn_1x.yml"
+        train_cmd="-c configs/mask_rcnn_r101_vd_fpn_1x.yml --opt LearningRate.base_lr=0.00125 MaskRCNNTrainFeed.batch_size=2"
         position=19
     elif [[ ${model_name} = "mask_rcnn_fpn_resnext" ]];then
-        train_cmd="-c configs/mask_rcnn_x101_vd_64x4d_fpn_1x.yml"
+        train_cmd="-c configs/mask_rcnn_x101_vd_64x4d_fpn_1x.yml --opt LearningRate.base_lr=0.00125 MaskRCNNTrainFeed.batch_size=2"
         position=19
     elif [[ ${model_name} = "retinanet_rcnn_fpn" ]];then
-        train_cmd="-c configs/retinanet_r50_fpn_1x.yml"
+        train_cmd="-c configs/retinanet_r50_fpn_1x.yml --opt LearningRate.base_lr=0.00125"
         position=13
     elif [[ ${model_name} = "cascade_rcnn_fpn" ]];then
-        train_cmd="-c configs/cascade_rcnn_r50_fpn_1x.yml"
+        train_cmd="-c configs/cascade_rcnn_r50_fpn_1x.yml --opt LearningRate.base_lr=0.0025"
         position=25
     else
         echo "model_name must be mask_rcnn_fpn_resnet | mask_rcnn_fpn_resnext | retinanet_rcnn_fpn | cascade_rcnn_fpn"
