@@ -48,3 +48,6 @@
 [submodule "third_party/pytorch/examples"]
   path = third_party/pytorch/examples
   url = https://github.com/pytorch/examples.git
+[submodule "static_graph/Detection/pytorch/Detectron-Cascade-RCNN"]
+	path = static_graph/Detection/pytorch/Detectron-Cascade-RCNN
+	url = https://github.com/zhaoweicai/Detectron-Cascade-RCNN.git
