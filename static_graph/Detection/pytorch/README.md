@@ -1,6 +1,8 @@
 # PyTorch检测模型
 
 我们使用[facebookresearch/Detectron](https://github.com/facebookresearch/Detectron)测试PyTorch检测模型的性能。
+由于[facebookresearch/Detectron](https://github.com/facebookresearch/Detectron)不支持Cascade-RCNN模型，我们使用
+[zhaoweicai/Detectron-Cascade-RCNN](https://github.com/zhaoweicai/Detectron-Cascade-RCNN)来测试Cascade-RCNN模型。
 
 ## 代码修改
 由于[facebookresearch/Detectron](https://github.com/facebookresearch/Detectron)官方不支持coco2017数据集，我们需要做如下修改：
@@ -33,6 +35,19 @@ index b92487e..0115493 100644
      'cityscapes_fine_instanceonly_seg_train': {
          _IM_DIR:
              _DATA_DIR + '/cityscapes/images',
+```
+
+## 准备数据
+
+数据集默认目录为：Detectron/detectron/datasets/data，可通过以下命令将已有数据集软链接过来：
+```
+$ cd Detectron/detectron/datasets/data
+$ mkdir coco
+$ cd coco
+$ ln -s /data/COCO17/annotations annotations
+$ ln -s /data/COCO17/train2017 train2017
+$ ln -s /data/COCO17/test2017 test2017
+$ ln -s /data/COCO17/val2017 val2017
 ```
 
 ## 配置文件
