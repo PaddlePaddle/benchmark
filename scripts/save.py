@@ -49,6 +49,12 @@ parser.add_argument(
     help="The benchmark repo commit id")
 
 parser.add_argument(
+    "--image_branch",
+    type=str,
+    default='develop',
+    help="The benchmark repo branch")
+
+parser.add_argument(
     "--cuda_version",
     type=str,
     default='9.0',
@@ -134,6 +140,7 @@ def get_image_id():
     pi.cuda_version = args.cuda_version
     pi.cudnn_version = args.cudnn_version
     pi.image_commit_id = args.image_commit_id
+    pi.image_branch = args.image_branch
     pi.image_type = args.job_type
     pi.create_time = ct
     pi.save()
