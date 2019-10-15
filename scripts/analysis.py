@@ -16,6 +16,7 @@ from __future__ import print_function
 
 import argparse
 import json
+import re
 import traceback
 
 
@@ -30,7 +31,7 @@ def parse_args():
     parser.add_argument(
         '--position', type=int, default=-1, help='The position of data field')
     parser.add_argument(
-        '--range', type=int, default=0, help='The range of data field to intercept')
+        '--range', type=str, default="", help='The range of data field to intercept')
     parser.add_argument(
         '--base_batch_size', type=int, help='base_batch size on gpu')
     parser.add_argument(
@@ -49,8 +50,17 @@ def parse_args():
     return args
 
 
+def _is_number(num):
+    pattern = re.compile(r'^[-+]?[-0-9]\d*\.\d*|[-+]?\.?[0-9]\d*$')
+    result = pattern.match(num)
+    if result:
+        return True
+    else:
+        return False
+
+
 class TimeAnalyzer(object):
-    def __init__(self, filename, keyword=None, separator=" ", position=-1, range=-1):
+    def __init__(self, filename, keyword=None, separator=" ", position=-1, range="-1"):
         if filename is None:
             raise Exception("Please specify the filename!")
 
@@ -78,8 +88,12 @@ class TimeAnalyzer(object):
                         result = line.split(self.separator)[self.position]
                     else:
                         result = line.split()[self.position]
-                    result = result.replace("\"", "")
-                    result = result[0:] if not self.range else result[0:self.range]
+                    if not self.range:
+                        result = result[0:]
+                    elif _is_number(self.range):
+                        result = result[0: int(self.range)]
+                    else:
+                        result = result[int(self.range.split(":")[0]): int(self.range.split(":")[1])]
                     self.records.append(float(result))
                 except Exception as exc:
                     print("line is: {}; separator={}; position={}".format(line, self.separator, self.position))
@@ -172,8 +186,8 @@ if __name__ == "__main__":
     run_info["index"] = args.index
     run_info["gpu_num"] = args.gpu_num
 
-    analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
     try:
+        analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
         analyzer.analysis(args.base_batch_size, args.gpu_num, args.skip_steps, args.model_mode)
     except Exception:
         traceback.print_exc()

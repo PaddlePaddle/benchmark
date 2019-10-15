@@ -90,7 +90,7 @@ def construct_email_content(results, log_path, args):
                 elif i == len(result)-1 and result[i] < 0 and index_type != "mem":
                     place_holder += "<td bgcolor=red>{}</td>".format(result[i])
                 elif i == len(result)-1 and result[i] < 0 and index_type == "mem":
-                    place_holder += "<td bgcolor=greed>{}</td>".format(result[i])
+                    place_holder += "<td bgcolor=green>{}</td>".format(result[i])
                 else:
                     place_holder += "<td>{}</td>".format(result[i])
                     if str(result[i]) in ("mem", 'speed', 'maxbs'):
