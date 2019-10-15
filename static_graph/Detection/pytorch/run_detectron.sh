@@ -4,7 +4,7 @@ if [[ $# -lt 3 ]]; then
     echo "Usage: "
     echo "  CUDA_VISIBLE_DEVICES=0 bash $0 speed|mem|maxbs model_name sp /ssd1/ljh/logs"
     echo "model_name can be:"
-    echo "  mask_rcnn_fpn_resnet, mask_rcnn_fpn_resnext, retinanet_rcnn_fpn, cascade_fpn_rcnn"
+    echo "  mask_rcnn_fpn_resnet, mask_rcnn_fpn_resnext, retinanet_rcnn_fpn, cascade_rcnn_fpn"
     exit
 fi
 
@@ -20,7 +20,11 @@ function _set_params(){
     separator=""                    # 解析日志，数据所在行的分隔符(必填)
     model_mode=0                    # 解析日志，s/step -> samples/s (必填)
     position=-1                     # 解析日志，需要提取的数据所在的位置，-1表示是最后一个
-    range=-1
+    if [[ ${model_name} = "cascade_rcnn_fpn" ]]; then
+        range=-1
+    else
+        range=1:9
+    fi
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -40,7 +44,7 @@ function _train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
     WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    if [[ ${model_name} = "cascade_fpn_rcnn" ]]; then
+    if [[ ${model_name} = "cascade_rcnn_fpn" ]]; then
         # Update some files of Detectron-Cascade-RCNN with that of Detectron
         cp -f ${WORK_ROOT}/Detectron/detectron/utils/io.py ${WORK_ROOT}/Detectron-Cascade-RCNN/detectron/utils/io.py
         cp -f ${WORK_ROOT}/Detectron/detectron/utils/env.py ${WORK_ROOT}/Detectron-Cascade-RCNN/detectron/utils/env.py
@@ -56,7 +60,7 @@ function _train(){
         DETECTRON_REPO_NAME=Detectron
         train_cmd="--cfg configs/retinanet_R-50-FPN_1x.yaml OUTPUT_DIR ./output"
     else
-        echo "model_name must be mask_rcnn_fpn_resnet | mask_rcnn_fpn_resnext | retinanet_rcnn_fpn | cascade_fpn_rcnn"
+        echo "model_name must be mask_rcnn_fpn_resnet | mask_rcnn_fpn_resnext | retinanet_rcnn_fpn | cascade_rcnn_fpn"
         exit 1
     fi
 
