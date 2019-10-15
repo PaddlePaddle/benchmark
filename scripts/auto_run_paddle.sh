@@ -17,7 +17,7 @@ usage () {
   -s  implement_type of model static | dynamic
 EOF
 }
-if [ $# != 18 ] ; then
+if [ $# -lt 18 ] ; then
   usage
   exit 1;
 fi
