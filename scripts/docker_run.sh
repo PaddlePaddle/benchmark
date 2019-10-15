@@ -71,7 +71,7 @@ build(){
     #version=`date '+%Y%m%d%H%M%S'`
     version=`date -d @$(git log -1 --pretty=format:%ct) "+%Y.%m%d.%H%M%S"`
     image_branch=$(echo ${image_branch} | rev | cut -d'/' -f 1 | rev)
-    PADDLE_VERSION=${version}'.post'$(echo $cuda_version|cut -d "." -f1)${cudnn_version}".${image_branch}"
+    PADDLE_VERSION=${version}'.post'$(echo $cuda_version|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
     image_name=paddlepaddle_gpu-${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
     echo "image_name is: "${image_name}
 
