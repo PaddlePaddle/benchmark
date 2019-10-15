@@ -9,6 +9,7 @@ usage () {
   -c  cuda_version 9.0|10.0
   -n  image_name
   -i  image_commit_id
+  -a  image_branch develop|1.6|pr_number|v1.6.0
   -v  paddle_version
   -p  all_path contains dir of prepare(pretrained models), dataset, logs, such as /ssd1/ljh
   -t  job_type  benchmark_daliy | models test | pr_test
@@ -20,7 +21,7 @@ if [ $# != 18 ] ; then
   usage
   exit 1;
 fi
-while getopts h:m:c:n:i:v:p:t:g:s: opt
+while getopts h:m:c:n:i:a:v:p:t:g:s: opt
 do
   case $opt in
   h) usage; exit 0 ;;
@@ -28,6 +29,7 @@ do
   c) cuda_version="$OPTARG" ;;
   n) image_name="$OPTARG" ;;
   i) image_commit_id="$OPTARG" ;;
+  a) image_branch="$OPTARG" ;;
   v) paddle_version="$OPTARG" ;;
   p) all_path="$OPTARG" ;;
   t) job_type="$OPTARG" ;;
@@ -775,6 +777,7 @@ save(){
     echo "==================== begin insert to sql ================="
     echo "benchmark_commit_id = ${benchmark_commit_id}"
     echo "   paddle_commit_id = ${image_commit_id}"
+    echo "      paddle_branch = ${image_branch}"
     echo "     implement_type = ${implement_type}"
     echo "     paddle_version = ${paddle_version}"
     echo "       cuda_version = ${cuda_version}"
@@ -784,6 +787,7 @@ save(){
 
     mypython save.py --code_commit_id ${benchmark_commit_id} \
                  --image_commit_id ${image_commit_id} \
+                 --image_branch ${image_branch} \
                  --log_path ${save_log_dir} \
                  --cuda_version ${cuda_version} \
                  --paddle_version ${paddle_version} \

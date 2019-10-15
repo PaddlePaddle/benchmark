@@ -8,6 +8,7 @@ usage () {
   -d  dir of benchmark_work_path
   -c  cuda_version 9.0|10.0
   -n  cudnn_version 7
+  -a  image_branch develop|1.6|pr_number|v1.6.0
   -p  all_path contains dir of prepare(pretrained models), dataset, logs, images such as /ssd1/ljh
   -r  run_module  ce or local
   -t  job_type  benchmark_daliy | models test | pr_test
@@ -20,7 +21,7 @@ if [ $# -lt 18 ] ; then
   usage
   exit 1;
 fi
-while getopts h:m:d:c:n:p:r:t:g:s:e: opt
+while getopts h:m:d:c:n:a:p:r:t:g:s:e: opt
 do
   case $opt in
   h) usage; exit 0 ;;
@@ -28,6 +29,7 @@ do
   d) benchmark_work_path="$OPTARG" ;;
   c) cuda_version="$OPTARG" ;;
   n) cudnn_version="$OPTARG" ;;
+  a) image_branch="$OPTARG" ;;
   p) all_path="$OPTARG" ;;
   r) run_module="$OPTARG" ;;
   t) job_type="$OPTARG" ;;
@@ -68,7 +70,8 @@ build(){
     PADDLE_DEV_NAME=docker.io/paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
     #version=`date '+%Y%m%d%H%M%S'`
     version=`date -d @$(git log -1 --pretty=format:%ct) "+%Y.%m%d.%H%M%S"`
-    PADDLE_VERSION=${version}'.post'$(echo $cuda_version|cut -d "." -f1)${cudnn_version}
+    image_branch=$(echo ${image_branch} | rev | cut -d'/' -f 1 | rev)
+    PADDLE_VERSION=${version}'.post'$(echo $cuda_version|cut -d "." -f1)${cudnn_version}".${image_branch}"
     image_name=paddlepaddle_gpu-${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
     echo "image_name is: "${image_name}
 
@@ -150,6 +153,7 @@ run(){
         -c ${cuda_version} \
         -n ${all_path}/images/${image_name} \
         -i ${image_commit_id} \
+        -a ${image_branch} \
         -v ${PADDLE_VERSION} \
         -p ${all_path} \
         -t ${job_type} \
