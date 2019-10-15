@@ -35,25 +35,38 @@ function _train(){
 
     WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     if [[ ${model_name} = "cascade_fpn_rcnn" ]]; then
-        export PYTHONPATH=${WORK_ROOT}/Detectron-Cascade-RCNN:$PYTHONPATH
-        cp -f ${WORK_ROOT}/src/dataset_catalog.py ${WORK_ROOT}/Detectron-Cascade-RCNN/detectron/datasets/dataset_catalog.py
         # Update some files of Detectron-Cascade-RCNN with that of Detectron
         cp -f ${WORK_ROOT}/Detectron/detectron/utils/io.py ${WORK_ROOT}/Detectron-Cascade-RCNN/detectron/utils/io.py
         cp -f ${WORK_ROOT}/Detectron/detectron/utils/env.py ${WORK_ROOT}/Detectron-Cascade-RCNN/detectron/utils/env.py
-        cd ${WORK_ROOT}/Detectron-Cascade-RCNN
-        python setup.py install --user
-        make
-        cd ${WORK_ROOT}
-        train_cmd="python -u Detectron-Cascade-RCNN/tools/train_net.py \
-                        --cfg configs/e2e_cascade_rcnn_R-50-FPN_1x.yaml \
-		                    OUTPUT_DIR ./output"
+        DETECTRON_REPO_NAME=Detectron-Cascade-RCNN
+        train_cmd="--cfg configs/e2e_cascade_rcnn_R-50-FPN_1x.yaml OUTPUT_DIR ./output"
         position=64
+    elif [[ ${model_name} = "mask_rcnn_fpn_resnet" ]]; then
+        DETECTRON_REPO_NAME=Detectron
+        train_cmd="--cfg configs/e2e_mask_rcnn_R-101-FPN_1x.yaml OUTPUT_DIR ./output"
+        position=42
+    elif [[ ${model_name} = "mask_rcnn_fpn_resnext" ]];then
+        DETECTRON_REPO_NAME=Detectron
+        train_cmd="--cfg configs/12_2017_baselines/e2e_mask_rcnn_X-101-64x4d-FPN_1x.yaml OUTPUT_DIR ./output"
+        position=44
+    elif [[ ${model_name} = "retinanet_rcnn_fpn" ]];then
+        DETECTRON_REPO_NAME=Detectron
+        train_cmd="--cfg configs/12_2017_baselines/retinanet_R-50-FPN_1x.yaml OUTPUT_DIR ./output"
+        position=38
     else
-        echo "model_name must be mask_rcnn_fpn_resnet | mask_rcnn_fpn_resnext | retinanet_rcnn_fpn"
+        echo "model_name must be mask_rcnn_fpn_resnet | mask_rcnn_fpn_resnext | retinanet_rcnn_fpn | cascade_fpn_rcnn"
         exit 1
     fi
 
+    export PYTHONPATH=${WORK_ROOT}/${DETECTRON_REPO_NAME}:$PYTHONPATH
+    cp -f ${WORK_ROOT}/src/dataset_catalog.py ${WORK_ROOT}/${DETECTRON_REPO_NAME}/detectron/datasets/dataset_catalog.py
+    cd ${WORK_ROOT}/${DETECTRON_REPO_NAME}
+    python setup.py install --user
+    make
+    cd ${WORK_ROOT}
+
     python -c 'import torch; print(torch.__version__)'
+    train_cmd="python -u ${DETECTRON_REPO_NAME}/tools/train_net.py "${train_cmd}
     ${train_cmd} > ${log_file} 2>&1 &
     train_pid=$!
     sleep 600
