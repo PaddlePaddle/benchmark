@@ -37,6 +37,7 @@ function _set_env(){
     #开启gc
     export FLAGS_eager_delete_tensor_gb=0.0
     export FLAGS_fraction_of_gpu_memory_to_use=0.98
+    export FLAGS_conv_workspace_size_limit=4096
 }
 
 function _train(){
@@ -94,5 +95,6 @@ function _train(){
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
 _set_params $@
+_set_env
 _run
 
