@@ -131,8 +131,12 @@ def get_image_id():
     """
     cur_time = time.time()
     ct = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(cur_time))
-    # paddle_version = time.strftime('%Y%m%d%H%M%S',
-    #                 time.localtime(cur_time)) + '.post{}7'.format(args.cuda_version.split('`,.')[0])
+    if args.image_branch == "develop":
+        image_branch = "develop"
+    elif args.image_branch.isdigit():
+        image_branch = "pull_requests"
+    else:
+        image_branch = "release"
 
     pi = bm.Image()
     pi.frame_id = 0
@@ -140,7 +144,7 @@ def get_image_id():
     pi.cuda_version = args.cuda_version
     pi.cudnn_version = args.cudnn_version
     pi.image_commit_id = args.image_commit_id
-    pi.image_branch = args.image_branch
+    pi.image_branch = image_branch
     pi.image_type = args.job_type
     pi.create_time = ct
     pi.save()
