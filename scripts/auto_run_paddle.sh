@@ -433,6 +433,10 @@ detection(){
     ln -s ${data_path}/COCO17/train2017 ${cur_model_path}/dataset/coco/train2017
     ln -s ${data_path}/COCO17/test2017 ${cur_model_path}/dataset/coco/test2017
     ln -s ${data_path}/COCO17/val2017 ${cur_model_path}/dataset/coco/val2017
+    #prepare pretrain_models
+    ln -s ${prepare_path}/detection/ResNet101_vd_pretrained ~/.cache/paddle/weights
+    ln -s ${prepare_path}/detection/ResNet50_cos_pretrained ~/.cache/paddle/weights
+    ln -s ${prepare_path}/detection/ResNeXt101_vd_64x4d_pretrained ~/.cache/paddle/weights
 
     # Prepare package_list
     package_check_list=(imageio tqdm Cython pycocotools)
@@ -464,9 +468,6 @@ detection(){
         echo "index is mem, 8gpus, begin, ${model_name}"
         PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_8gpus 2>&1
         sleep 60
-        #echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-        #PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 2 ${model_name} mp ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
-        #sleep 60
     done
 }
 
