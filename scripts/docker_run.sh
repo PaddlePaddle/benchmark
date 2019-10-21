@@ -125,7 +125,7 @@ build(){
         mkdir -p ${all_path}/logs
     fi
 
-    build_link="${CE_SERVER}/viewLog.html?buildId=${BUILD_ID}&buildTypeId=${BUILD_TYPE_DI}&tab=buildLog"
+    build_link="${CE_SERVER}/viewLog.html?buildId=${BUILD_ID}&buildTypeId=${BUILD_TYPE_ID}&tab=buildLog"
     echo "build log link: ${build_link}"
     #double check2
     if [[ -s ./build/python/dist/${image_name} ]]
