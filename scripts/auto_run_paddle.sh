@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cur_model_list=(seq2seq mask_rcnn image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
+cur_model_list=(seq2seq nextvlad detection mask_rcnn image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
 usage () {
   cat <<EOF
   usage: $0 [options]
@@ -9,6 +9,7 @@ usage () {
   -c  cuda_version 9.0|10.0
   -n  image_name
   -i  image_commit_id
+  -a  image_branch develop|1.6|pr_number|v1.6.0
   -v  paddle_version
   -p  all_path contains dir of prepare(pretrained models), dataset, logs, such as /ssd1/ljh
   -t  job_type  benchmark_daliy | models test | pr_test
@@ -16,11 +17,11 @@ usage () {
   -s  implement_type of model static | dynamic
 EOF
 }
-if [ $# != 18 ] ; then
+if [ $# -lt 18 ] ; then
   usage
   exit 1;
 fi
-while getopts h:m:c:n:i:v:p:t:g:s: opt
+while getopts h:m:c:n:i:a:v:p:t:g:s: opt
 do
   case $opt in
   h) usage; exit 0 ;;
@@ -28,6 +29,7 @@ do
   c) cuda_version="$OPTARG" ;;
   n) image_name="$OPTARG" ;;
   i) image_commit_id="$OPTARG" ;;
+  a) image_branch="$OPTARG" ;;
   v) paddle_version="$OPTARG" ;;
   p) all_path="$OPTARG" ;;
   t) job_type="$OPTARG" ;;
@@ -37,8 +39,8 @@ do
   esac
 done
 
-export https_proxy=http://172.19.56.199:3128
-export http_proxy=http://172.19.56.199:3128
+export https_proxy=http://172.19.57.45:3128
+export http_proxy=http://172.19.57.45:3128
 
 origin_path=$(pwd)
 
@@ -303,44 +305,48 @@ nextvlad(){
     cd ${cur_model_path}
 
     # Prepare data
-    cd dataset/youtube8m/
-    rm -r pkl *.list
-    ln -s ${data_path}/youtube8m_paddle/pkl ./
-      # make train.list
-    cur_path=$(pwd)
-    ls ${cur_path}/pkl/train/* > train.list
-    ls ${cur_path}/pkl/train/* > train.list
-    cd ${cur_model_path}
+    rm -rf data
+    mkdir -p data/dataset
+    ln -s ${data_path}/youtube8m_paddle ./data/dataset/youtube8m
 
-    # Install imageio
-    if python -c "import imageio" >/dev/null 2>&1
-    then
-        echo "imageio have already installed"
-    else
-        echo "imageio NOT FOUND"
-        pip install imageio
-        echo "imageio installed"
-    fi
+    # make train.list
+    ls ${cur_model_path}/data/dataset/youtube8m/pkl/train/* > ./data/dataset/youtube8m/train.list
+    ls ${cur_model_path}/data/dataset/youtube8m/pkl/val/* > ./data/dataset/youtube8m/val.list
+    ls ${cur_model_path}/data/dataset/youtube8m/pkl/val/* > ./data/dataset/youtube8m/test.list
+    ls ${cur_model_path}/data/dataset/youtube8m/pkl/val/* > ./data/dataset/youtube8m/infer.list
 
-    # Install wget
-    if python -c "import wget" >/dev/null 2>&1
-    then
-        echo "wget have already installed"
-    else
-        echo "wget NOT FOUND"
-        pip install wget
-        echo "wget installed"
-    fi
+    # Prepare package_list
+    package_check_list=(imageio tqdm Cython pycocotools pandas wget)
+    for package in ${package_check_list[@]}; do
+        if python -c "import ${package}" >/dev/null 2>&1; then
+            echo "${package} have already installed"
+        else
+            echo "${package} NOT FOUND"
+            pip install ${package}
+            echo "${package} installed"
+        fi
+    done
 
-    # Running ...
-    cp ${BENCHMARK_ROOT}/static_graph/nextvlad/paddle/run_benchmark.sh ./
+    #Running
+    cp ${BENCHMARK_ROOT}/static_graph/NextVlad/paddle/run_benchmark.sh ./
 
     sed -i '/set\ -xe/d' run_benchmark.sh
-    echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
-    sleep 60
-    echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+
+    model_list=(nextvlad ctcn)
+    for model_name in ${model_list[@]}; do
+        echo "index is speed, 1gpu, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is mem, 1gpus, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        sleep 60
+        echo "index is speed, 8gpus, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+        sleep 60
+        echo "index is mem, 8gpus, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_8gpus 2>&1
+        sleep 60
+    done
 }
 
 
@@ -373,9 +379,7 @@ deeplab(){
     sleep 60
     echo "index is maxbs, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs sp ${train_log_dir} | tee ${log_path}/DeepLab_V3+_maxbs_8gpus 2>&1
-#    sleep 60
-#    echo "index is speed, 8gpus, run_mode is multi_process, begin"
-#    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed mp ${train_log_dir} | tee ${log_path}/DeepLab_V3+_speed_8gpus8p 2>&1
+
 }
 
 
@@ -420,129 +424,51 @@ image_classification(){
 }
 
 
-#run retinanet_rcnn_fpn
-retinanet_rcnn_fpn(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleDetection/
+#run_detection
+detection(){
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleDetection
     cd ${cur_model_path}
-
     # Prepare data
-    rm -r ${cur_model_path}/dataset
-    mkdir ${cur_model_path}/dataset
-    ln -s ${data_path}/coco ${cur_model_path}/dataset
+    ln -s ${data_path}/COCO17/annotations ${cur_model_path}/dataset/coco/annotations
+    ln -s ${data_path}/COCO17/train2017 ${cur_model_path}/dataset/coco/train2017
+    ln -s ${data_path}/COCO17/test2017 ${cur_model_path}/dataset/coco/test2017
+    ln -s ${data_path}/COCO17/val2017 ${cur_model_path}/dataset/coco/val2017
+    #prepare pretrain_models
+    ln -s ${prepare_path}/detection/ResNet101_vd_pretrained ~/.cache/paddle/weights
+    ln -s ${prepare_path}/detection/ResNet50_cos_pretrained ~/.cache/paddle/weights
+    ln -s ${prepare_path}/detection/ResNeXt101_vd_64x4d_pretrained ~/.cache/paddle/weights
 
-    # Install imageio
-    if python -c "import imageio" >/dev/null 2>&1
-    then
-        echo "imageio have already installed"
-    else
-        echo "imageio NOT FOUND"
-        pip install imageio
-        echo "imageio installed"
-    fi
+    # Prepare package_list
+    package_check_list=(imageio tqdm Cython pycocotools)
+    for package in ${package_check_list[@]}; do
+        if python -c "import ${package}" >/dev/null 2>&1; then
+            echo "${package} have already installed"
+        else
+            echo "${package} NOT FOUND"
+            pip install ${package}
+            echo "${package} installed"
+        fi
+    done
 
-    # Install tqdm
-    if python -c "import tqdm" >/dev/null 2>&1
-    then
-        echo "tqdm have already installed"
-    else
-        echo "tqdm NOT FOUND"
-        pip install tqdm
-        echo "tqdm installed"
-    fi
-
-    # Install Cython
-    if python -c "import Cython" >/dev/null 2>&1
-    then
-        echo "Cython have already installed"
-    else
-        echo "Cython NOT FOUND"
-        pip install Cython
-        echo "Cython installed"
-    fi
-
-    # Install imageio
-    if python -c "import pycocotools" >/dev/null 2>&1
-    then
-        echo "pycocotools have already installed"
-    else
-        echo "pycocotools NOT FOUND"
-        pip install pycocotools
-        echo "pycocotools installed"
-    fi
-
-    # Running ...
-    cp -r ${cur_model_path}/ppdet ./tools
-    cp ${BENCHMARK_ROOT}/static_graph/RetinaNet/paddle/run_benchmark.sh ./
-
+    # Copy run_benchmark.sh and running ...
+    cp ${BENCHMARK_ROOT}/static_graph/Detection/paddle/run_benchmark.sh ./run_benchmark.sh
     sed -i '/set\ -xe/d' run_benchmark.sh
-    echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
-    sleep 60
-    echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
-}
 
-
-#run cascade_rcnn_fpn
-cascade_rcnn_fpn(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleDetection/
-    cd ${cur_model_path}
-
-    # Prepare data
-    rm -r ${cur_model_path}/dataset
-    mkdir ${cur_model_path}/dataset
-    ln -s ${data_path}/coco ${cur_model_path}/dataset
-
-    # Install imageio
-    if python -c "import imageio" >/dev/null 2>&1
-    then
-        echo "imageio have already installed"
-    else
-        echo "imageio NOT FOUND"
-        pip install imageio
-        echo "imageio installed"
-    fi
-
-    # Install tqdm
-    if python -c "import tqdm" >/dev/null 2>&1
-    then
-        echo "tqdm have already installed"
-    else
-        echo "tqdm NOT FOUND"
-        pip install tqdm
-        echo "tqdm installed"
-    fi
-
-    # Install Cython
-    if python -c "import Cython" >/dev/null 2>&1
-    then
-        echo "Cython have already installed"
-    else
-        echo "Cython NOT FOUND"
-        pip install Cython
-        echo "Cython installed"
-    fi
-
-    # Install imageio
-    if python -c "import pycocotools" >/dev/null 2>&1
-    then
-        echo "pycocotools have already installed"
-    else
-        echo "pycocotools NOT FOUND"
-        pip install pycocotools
-        echo "pycocotools installed"
-    fi
-
-    # Running ...
-    cp -r ${cur_model_path}/ppdet ./tools
-    cp ${BENCHMARK_ROOT}/static_graph/Cascade-RCNN-FPN/paddle/run_benchmark.sh ./
-
-    sed -i '/set\ -xe/d' run_benchmark.sh
-    echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
-    sleep 60
-    echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    model_list=(mask_rcnn_fpn_resnet mask_rcnn_fpn_resnext retinanet_rcnn_fpn cascade_rcnn_fpn)
+    for model_name in ${model_list[@]}; do
+        echo "index is speed, 1gpu, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is speed, 8gpus, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+        sleep 60
+        echo "index is mem, 1gpus, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        sleep 60
+        echo "index is mem, 8gpus, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_8gpus 2>&1
+        sleep 60
+    done
 }
 
 
@@ -605,12 +531,14 @@ bert(){
     cd ${cur_model_path}
     rm -rf data
     ln -s ${data_path}/Bert/data ${cur_model_path}/data
-    ln -s ${prepare_path}/chinese_L-12_H-768_A-12 ${cur_model_path}/chinese_L-12_H-768_A-12
+    ln -s ${data_path}/Bert/MNLI ${cur_model_path}/MNLI
+    ln -s ${prepare_path}/Bert/chinese_L-12_H-768_A-12 ${cur_model_path}/chinese_L-12_H-768_A-12
+    ln -s ${prepare_path}/Bert/uncased_L-24_H-1024_A-16 ${cur_model_path}/uncased_L-24_H-1024_A-16
     cp ${BENCHMARK_ROOT}/static_graph/NeuralMachineTranslation/BERT/fluid/run_benchmark.sh ./run_benchmark.sh
 
     sed -i '/set\ -xe/d' run_benchmark.sh
 
-    model_mode_list=(base)
+    model_mode_list=(base large)
     fp_mode_list=(fp32 fp16)
     for model_mode in ${model_mode_list[@]}; do
         for fp_mode in ${fp_mode_list[@]}; do
@@ -627,12 +555,12 @@ bert(){
             echo "index is mem, 8gpus, begin, ${model_name}"
             CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_8gpus 2>&1
             sleep 60
-            echo "index is maxbs, 1gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
-            sleep 60
-            echo "index is maxbs, 8gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
-            sleep 60
+            #echo "index is maxbs, 1gpus, begin, ${model_name}"
+            #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
+            #sleep 60
+            #echo "index is maxbs, 8gpus, begin, ${model_name}"
+            #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
+            #sleep 60
             echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
             CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_mode} ${fp_mode} mp ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
             sleep 60
@@ -739,6 +667,7 @@ paddingrnn(){
         done
     done
 }
+
 
 #run_yolov3
 yolov3(){
@@ -849,6 +778,7 @@ save(){
     echo "==================== begin insert to sql ================="
     echo "benchmark_commit_id = ${benchmark_commit_id}"
     echo "   paddle_commit_id = ${image_commit_id}"
+    echo "      paddle_branch = ${image_branch}"
     echo "     implement_type = ${implement_type}"
     echo "     paddle_version = ${paddle_version}"
     echo "       cuda_version = ${cuda_version}"
@@ -858,6 +788,7 @@ save(){
 
     mypython save.py --code_commit_id ${benchmark_commit_id} \
                  --image_commit_id ${image_commit_id} \
+                 --image_branch ${image_branch} \
                  --log_path ${save_log_dir} \
                  --cuda_version ${cuda_version} \
                  --paddle_version ${paddle_version} \

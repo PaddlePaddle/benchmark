@@ -17,7 +17,6 @@ import os
 MAIL_HEAD_CONTENT = """
 From:paddle_benchmark@baidu.com
 To:liangjinhua01@baidu.com
-Subject:test_benchmark
 Subject:benchmark运行结果报警，请检查
 content-type:text/html
 <html>
@@ -47,11 +46,13 @@ ALARM_INFO_HOLDER
 def construct_email_content(results, log_path, args):
     """the list not satify condition"""
     run_env = """
+            <tr><td>paddle_branch</td><td>{}</td></tr>
             <tr><td>paddle_commit_id</td><td>{}</td></tr>
             <tr><td>benchmark_commit_id</td><td>{}</td></tr>
             <tr><td>device_type</td><td>{}</td></tr>
             <tr><td>implement_type</td><td>{}</td></tr>
-             """.format(args.image_commit_id,
+             """.format(args.image_branch,
+                        args.image_commit_id,
                         args.code_commit_id,
                         args.device_type,
                         args.implement_type,)
@@ -81,16 +82,22 @@ def construct_email_content(results, log_path, args):
     for result in results:
         if isinstance(result, list):
             place_holder += "            <tr>"
+            index_type = ""
             for i in range(len(result)):
-                if i == len(result)-1 and result[i] > 0:
+                if i == len(result)-1 and result[i] > 0 and index_type != "mem":
                     place_holder += "<td bgcolor=green>{}</td>".format(result[i])
-                elif i == len(result)-1 and result[i] < 0:
+                elif i == len(result)-1 and result[i] > 0 and index_type == "mem":
                     place_holder += "<td bgcolor=red>{}</td>".format(result[i])
+                elif i == len(result)-1 and result[i] < 0 and index_type != "mem":
+                    place_holder += "<td bgcolor=red>{}</td>".format(result[i])
+                elif i == len(result)-1 and result[i] < 0 and index_type == "mem":
+                    place_holder += "<td bgcolor=green>{}</td>".format(result[i])
                 else:
                     place_holder += "<td>{}</td>".format(result[i])
+                    if str(result[i]) in ("mem", 'speed', 'maxbs'):
+                        index_type = str(result[i])
 
             place_holder += "</tr>\n"
-
     content = MAIL_HEAD_CONTENT.replace("RUN_ENV_HOLDER", run_env).strip()
     content += MAIL_TAIL_CONTENT.replace("ALARM_INFO_HOLDER", place_holder).strip()
 
