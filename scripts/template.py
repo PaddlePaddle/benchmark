@@ -17,7 +17,6 @@ import os
 MAIL_HEAD_CONTENT = """
 From:paddle_benchmark@baidu.com
 To:liangjinhua01@baidu.com
-Subject:test_benchmark
 Subject:benchmark运行结果报警，请检查
 content-type:text/html
 <html>
@@ -99,7 +98,6 @@ def construct_email_content(results, log_path, args):
                         index_type = str(result[i])
 
             place_holder += "</tr>\n"
-
     content = MAIL_HEAD_CONTENT.replace("RUN_ENV_HOLDER", run_env).strip()
     content += MAIL_TAIL_CONTENT.replace("ALARM_INFO_HOLDER", place_holder).strip()
 
