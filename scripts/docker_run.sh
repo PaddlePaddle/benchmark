@@ -8,6 +8,7 @@ usage () {
   -d  dir of benchmark_work_path
   -c  cuda_version 9.0|10.0
   -n  cudnn_version 7
+  -a  image_branch develop|1.6|pr_number|v1.6.0
   -p  all_path contains dir of prepare(pretrained models), dataset, logs, images such as /ssd1/ljh
   -r  run_module  ce or local
   -t  job_type  benchmark_daliy | models test | pr_test
@@ -20,7 +21,7 @@ if [ $# -lt 18 ] ; then
   usage
   exit 1;
 fi
-while getopts h:m:d:c:n:p:r:t:g:s:e: opt
+while getopts h:m:d:c:n:a:p:r:t:g:s:e: opt
 do
   case $opt in
   h) usage; exit 0 ;;
@@ -28,6 +29,7 @@ do
   d) benchmark_work_path="$OPTARG" ;;
   c) cuda_version="$OPTARG" ;;
   n) cudnn_version="$OPTARG" ;;
+  a) image_branch="$OPTARG" ;;
   p) all_path="$OPTARG" ;;
   r) run_module="$OPTARG" ;;
   t) job_type="$OPTARG" ;;
@@ -68,8 +70,9 @@ build(){
     PADDLE_DEV_NAME=docker.io/paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
     #version=`date '+%Y%m%d%H%M%S'`
     version=`date -d @$(git log -1 --pretty=format:%ct) "+%Y.%m%d.%H%M%S"`
-    PADDLE_VERSION=${version}'.post'$(echo $cuda_version|cut -d "." -f1)${cudnn_version}
-    image_name=paddlepaddle_gpu-${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
+    image_branch=$(echo ${image_branch} | rev | cut -d'/' -f 1 | rev)
+    PADDLE_VERSION=${version}'.post'$(echo $cuda_version|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
+    image_name=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
     echo "image_name is: "${image_name}
 
     #double check1: In some case, docker would hang while compiling paddle, so to avoid re-compilem, need this
@@ -86,7 +89,7 @@ build(){
       -w /paddle \
       -e "CMAKE_BUILD_TYPE=Release" \
       -e "PYTHON_ABI=cp27-cp27mu" \
-      -e "PADDLE_VERSION=${PADDLE_VERSION}" \
+      -e "PADDLE_VERSION=0.0.0.${PADDLE_VERSION}" \
       -e "WITH_DOC=OFF" \
       -e "WITH_AVX=ON" \
       -e "WITH_GPU=ON" \
@@ -110,31 +113,39 @@ build(){
        /bin/bash -c "paddle/scripts/paddle_build.sh build"
     mkdir -p ./output
 
-    if [ -d ${all_path}/images ]; then
+    if [[ -d ${all_path}/images ]]; then
         echo "images dir already exists"
     else
         mkdir -p ${all_path}/images
     fi
 
-    if [ -d ${all_path}/logs ]; then
+    if [[ -d ${all_path}/logs ]]; then
         echo "images dir already exists"
     else
         mkdir -p ${all_path}/logs
     fi
 
-    cp ./build/python/dist/${image_name} ${all_path}/images/
-}
-
-run(){
+    build_link="${CE_SERVER}/viewLog.html?buildId=${BUILD_ID}&buildTypeId=${BUILD_TYPE_ID}&tab=buildLog"
+    echo "build log link: ${build_link}"
     #double check2
-    if [ -e ${all_path}/images/${image_name} ]
+    if [[ -s ./build/python/dist/${image_name} ]]
     then
+        cp ./build/python/dist/${image_name} ${all_path}/images/
         echo "build paddle success, begin run !"
     else
         echo "build paddle failed, exit!"
+        sendmail -t ${email_address} <<EOF
+From:paddle_benchmark@baidu.com
+SUBJECT:benchmark运行结果报警, 请检查
+Content-type: text/plain
+PADDLE BUILD FAILED!!
+详情请点击: ${build_link}
+EOF
         exit 1
     fi
+}
 
+run(){
     RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
     nvidia-docker run -i --rm \
         -v /home/work:/home/work \
@@ -150,6 +161,7 @@ run(){
         -c ${cuda_version} \
         -n ${all_path}/images/${image_name} \
         -i ${image_commit_id} \
+        -a ${image_branch} \
         -v ${PADDLE_VERSION} \
         -p ${all_path} \
         -t ${job_type} \

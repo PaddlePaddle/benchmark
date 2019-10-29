@@ -2,7 +2,7 @@
 set -xe
 if [[ $# -lt 3 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs model_name sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 speed|mem|maxbs model_name sp|mp /ssd1/ljh/logs"
     exit
 fi
 
@@ -37,22 +37,37 @@ function _set_env(){
     #开启gc
     export FLAGS_eager_delete_tensor_gb=0.0
     export FLAGS_fraction_of_gpu_memory_to_use=0.98
+    export FLAGS_conv_workspace_size_limit=4096
 }
 
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+
+    WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    export PYTHONPATH=${WORK_ROOT}:${PYTHONPATH}
+
     if [[ ${model_name} = "mask_rcnn_fpn_resnet" ]]; then
-        train_cmd="-c configs/mask_rcnn_r101_vd_fpn_1x.yml --opt LearningRate.base_lr=0.00125 MaskRCNNTrainFeed.batch_size=2"
+        # The default learning_rate is 0.01, which is used for training with 8 GPUs.
+        learning_rate=$(awk 'BEGIN{ print 0.00125 * '${num_gpu_devices}' }')
+        train_cmd="-c configs/mask_rcnn_r101_vd_fpn_1x.yml \
+                   --opt LearningRate.base_lr=${learning_rate} MaskRCNNTrainFeed.batch_size=${base_batch_size}"
         position=19
     elif [[ ${model_name} = "mask_rcnn_fpn_resnext" ]];then
-        train_cmd="-c configs/mask_rcnn_x101_vd_64x4d_fpn_1x.yml --opt LearningRate.base_lr=0.00125 MaskRCNNTrainFeed.batch_size=2"
+        # The default learning_rate is 0.01, which is used for training with 8 GPUs.
+        learning_rate=$(awk 'BEGIN{ print 0.00125 * '${num_gpu_devices}' }')
+        train_cmd="-c configs/mask_rcnn_x101_vd_64x4d_fpn_1x.yml \
+                   --opt LearningRate.base_lr=${learning_rate} MaskRCNNTrainFeed.batch_size=${base_batch_size}"
         position=19
     elif [[ ${model_name} = "retinanet_rcnn_fpn" ]];then
-        train_cmd="-c configs/retinanet_r50_fpn_1x.yml --opt LearningRate.base_lr=0.00125"
+        # The default learning_rate is 0.01, which is used for training with 8 GPUs.
+        learning_rate=$(awk 'BEGIN{ print 0.00125 * '${num_gpu_devices}' }')
+        train_cmd="-c configs/retinanet_r50_fpn_1x.yml --opt LearningRate.base_lr=${learning_rate}"
         position=13
     elif [[ ${model_name} = "cascade_rcnn_fpn" ]];then
-        train_cmd="-c configs/cascade_rcnn_r50_fpn_1x.yml --opt LearningRate.base_lr=0.0025"
+        # The default learning_rate is 0.02, which is used for training with 8 GPUs.
+        learning_rate=$(awk 'BEGIN{ print 0.0025 * '${num_gpu_devices}' }')
+        train_cmd="-c configs/cascade_rcnn_r50_fpn_1x.yml --opt LearningRate.base_lr=${learning_rate}"
         position=25
     else
         echo "model_name must be mask_rcnn_fpn_resnet | mask_rcnn_fpn_resnext | retinanet_rcnn_fpn | cascade_rcnn_fpn"
@@ -80,5 +95,6 @@ function _train(){
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
 _set_params $@
+_set_env
 _run
 
