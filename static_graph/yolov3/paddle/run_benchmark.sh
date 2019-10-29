@@ -3,14 +3,23 @@ set -xe
 
 if [[ $# -lt 1 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs sp|mp profiler_on|profiler_off /ssd1/ljh/logs profiler_dir"
     exit
 fi
 
 function _set_params(){
     index="$1"
     run_mode=${2:-"sp"}
-    run_log_path=${3:-$(pwd)}
+    ###profiler
+    if [ ${3} == "profiler_on" ];then
+       is_profiler=True
+       profiler_dir=${5}
+    elif [ ${3} == "profiler_off" ];then
+         is_profiler=False
+         profiler_dir=${5:-$(pwd)}
+    fi
+    
+    run_log_path=${4:-$(pwd)}
 
     model_name="yolov3"
     skip_steps=5
@@ -51,7 +60,9 @@ function _train(){
      --data_dir=./dataset/coco/ \
      --batch_size=${base_batch_size} \
      --syncbn=True \
-     --worker_num=${num_workers}"
+     --worker_num=${num_workers} \
+     --is_profiler=${is_profiler} \
+     --profiler_path=${profiler_dir}/profiler_${model_name}"
 
     case ${run_mode} in
     sp) train_cmd="python -u train.py "${train_cmd} ;;
