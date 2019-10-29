@@ -3,23 +3,16 @@ set -xe
 
 if [[ $# -lt 1 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs sp|mp profiler_on|profiler_off /ssd1/ljh/logs profiler_dir"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs sp|mp 1|0(profile switch) /ssd1/ljh/logs profiler_dir"
     exit
 fi
 
 function _set_params(){
     index="$1"
     run_mode=${2:-"sp"}
-    ###profiler
-    if [ ${3} == "profiler_on" ];then
-       is_profiler=True
-       profiler_dir=${5}
-    elif [ ${3} == "profiler_off" ];then
-         is_profiler=False
-         profiler_dir=${5:-$(pwd)}
-    fi
-    
+    is_profiler=${3}
     run_log_path=${4:-$(pwd)}
+    profiler_dir=${5:-$(pwd)}
 
     model_name="yolov3"
     skip_steps=5
@@ -74,8 +67,15 @@ function _train(){
 
     ${train_cmd} > ${log_file} 2>&1 &
     train_pid=$!
-    sleep 600
-    #kill -9 $train_pid
+#    sleep 600
+##############
+    total_sleep=0
+    while [ $total_sleep -le 600 ] && [ `ps -ax | awk '{print $1}' | grep -e "^${train_pid}$"` ] #whether the pid of train.py exists
+    do
+      sleep 5
+      let total_sleep=total_sleep+5 
+    done
+###############
     kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then

@@ -75,6 +75,8 @@ prepare(){
     fi
 
     train_log_dir=${save_log_dir}/train_log
+    profiler_log_dir=${save_log_dir}/profiler_log
+    mkdir -p ${profiler_log_dir}
     mkdir -p ${train_log_dir}
 
     export ROOT_PATH=/home/crim
@@ -686,11 +688,6 @@ yolov3(){
         echo "cocoapi installed"
     fi
 
-#    cd ${cur_model_path}
-#    #yolov3 的模型代码还在models
-#    git clone https://github.com/PaddlePaddle/models.git
-#    cd models/PaddleCV/yolov3/
-
     cd ${BENCHMARK_ROOT}/models/PaddleCV/yolov3/
     #git checkout -b benchmark origin/benchmark
 
@@ -704,25 +701,29 @@ yolov3(){
     cp ${BENCHMARK_ROOT}/static_graph/yolov3/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 0 ${train_log_dir} ${profiler_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed sp 0 ${train_log_dir} ${profiler_log_dir} | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 0 ${train_log_dir} ${profiler_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem sp 0 ${train_log_dir} ${profiler_log_dir} | tee ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs sp 0 ${train_log_dir} ${profiler_log_dir} | tee ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
     sleep 60
     echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs sp 0 ${train_log_dir} ${profiler_log_dir} | tee ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed mp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed mp 0 ${train_log_dir} ${profiler_log_dir} | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
+    sleep 60 
+    echo "index is speed, 1gpu, profiler_on begin"
+    #profiler log and train log all in ${profiler_log_dir}
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 1 ${train_log_dir} ${profiler_log_dir} | tee ${profiler_log_dir}/${FUNCNAME}_speed_1gpus 2>&1
 }
 
 
