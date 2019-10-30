@@ -3,7 +3,7 @@ set -xe
 
 if [[ $# -lt 1 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs sp|mp 1|0(profiler switch) /ssd1/ljh/logs profiler_dir"
     exit
 fi
 
@@ -13,7 +13,10 @@ function _set_params(){
     model_name="seq2seq"
 
     run_mode="sp" # Don't support mp
-    run_log_root=${3:-$(pwd)}
+    is_profiler=${3}
+    run_log_root=${4:-$(pwd)}
+    profiler_dir=${5:-$(pwd)}
+    profiler_path=${profiler_dir}/profiler_${model_name}
 
     skip_steps=0
     keyword="avg_time:"
@@ -39,6 +42,9 @@ function _set_env(){
 }
 
 function _train(){
+   echo "Train on ${num_gpu_devices} GPUs"
+   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, base_batch_size=$base_batch_size, is_profiler=${is_profiler}, profiler_file_path=${profiler_path}"
+ 
    python train.py \
           --src_lang en --tar_lang vi \
           --attention True \
@@ -55,7 +61,18 @@ function _train(){
           --test_data_prefix data/en-vi/tst2013 \
           --vocab_prefix data/en-vi/vocab \
           --use_gpu True \
+          --is_profiler ${is_profiler} \
+          --profiler_path ${profiler_path} \
           --max_epoch 2  > ${log_file} 2>&1
+#   train_pid=$!
+#   total_sleep=0
+#   while [ `ps -ax | awk '{print$1}' | grep -e "^${train_pid}$"` ]
+#   do
+#     sleep 5
+#     #let sleep=sleep+5
+#   done
+#   kill -9 `ps -ef|grep python |awk '{print $2}'`
+     
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh

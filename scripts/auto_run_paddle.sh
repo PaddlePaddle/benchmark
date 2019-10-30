@@ -729,7 +729,8 @@ yolov3(){
 
 #run seq2seq
 seq2seq(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/unarchived/neural_machine_translation/rnn_search
+    #cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/unarchived/neural_machine_translation/rnn_search
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/PaddleTextGEN/seq2seq
     cd ${cur_model_path}
 
     # Prepare data
@@ -742,9 +743,11 @@ seq2seq(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 0 ${train_log_dir} ${profiler_log_dir}| tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 0 ${train_log_dir} ${profiler_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    echo "index is speed, profiler on, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 1 ${train_log_dir} ${profiler_log_dir}| tee ${profiler_log_dir}/${FUNCNAME}_speed_1gpus 2>&1
 }
 
 
