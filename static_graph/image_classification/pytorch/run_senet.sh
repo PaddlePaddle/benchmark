@@ -33,7 +33,7 @@ function _set_params() {
     batch_size=`expr $base_batch_size \* $num_gpu_devices`
     num_workers=`expr 8 \* $num_gpu_devices`
 
-    if [[ ${index} = "analysis" ]]; then
+    if [[ ${index} = "speed" ]]; then
         log_file=${run_log_root}/log_senet_${model_name}_speed_${num_gpu_devices}_${run_mode}
     else
         log_file=${run_log_root}/log_senet_${model_name}_${index}_${num_gpu_devices}_${run_mode}
