@@ -3,7 +3,7 @@ set -xe
 
 if [[ $# -lt 3 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs base|big sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs base|big sp|mp 1|0(profiler switch) /ssd1/ljh/logs profiler_dir"
     exit
 fi
 
@@ -11,7 +11,9 @@ function _set_params(){
     index="$1"
     model_type="$2"
     run_mode=${3:-"sp"}
-    run_log_path=${4:-$(pwd)}
+    is_profiler=${4}
+    run_log_path=${5:-$(pwd)}
+    profiler_dir=${6:-$(pwd)}
 
     model_name="transformer_"${model_type}
     skip_steps=3
@@ -39,7 +41,7 @@ function _set_env(){
 
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
-    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size, is_profiler=${is_profiler}, profiler_path=${profiler_dir}/profiler_${model_name}."
     #cd ../../../../models/PaddleNLP/neural_machine_translation/transformer/
     # base model
     if [ ${model_type} = 'big' ]; then
@@ -53,6 +55,8 @@ function _train(){
 	--n_head 16 \
         --d_model 1024 \
         --d_inner_hid 4096 \
+        --is_profiler ${is_profiler} \
+        --profiler_path ${profiler_dir}/profiler_${model_name} \
         --prepostprocess_dropout 0.3"
     else
         train_cmd=" --do_train True \
@@ -61,6 +65,8 @@ function _train(){
         --trg_vocab_fpath data/vocab.bpe.32000 \
         --special_token <s> <e> <unk> \
 	--training_file data/train.tok.clean.bpe.32000.en-de \
+        --is_profiler ${is_profiler} \
+        --profiler_path ${profiler_dir}/profiler_${model_name} \
 	--batch_size ${base_batch_size}"
     fi
 
@@ -74,7 +80,14 @@ function _train(){
 
     ${train_cmd} > ${log_file} 2>&1 &
     train_pid=$!
-    sleep 600
+#    sleep 600
+    total_sleep=0
+    while [ $total_sleep -le 600 ] && [ `ps -ax | awk '{print$1}' | grep -e "^${train_pid}$"` ]
+    do
+      sleep 5
+      let total_sleep=total_sleep+5
+    done
+
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then
