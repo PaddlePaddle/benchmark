@@ -1,9 +1,9 @@
 #!bin/bash
 set -xe
-
+###
 if [[ $# -lt 3 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs base|large fp32|fp16 sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs base|large fp32|fp16 sp|mp 1|0(the profiler switch) /ssd1/ljh/logs profiler_dir"
     exit
 fi
 
@@ -12,7 +12,10 @@ function _set_params(){
     model_type="$2"
     fp_mode=$3
     run_mode=${4:-"sp"}
-    run_log_path=${5:-$(pwd)}
+    is_profiler=${5}
+    run_log_path=${6:-$(pwd)}
+    profiler_dir=${7:-$(pwd)}
+    
 
     model_name="bert_${model_type}_${fp_mode}"
     skip_steps=1
@@ -71,6 +74,8 @@ function _train(){
           --bert_config_path ${BERT_BASE_PATH}/bert_config.json \
           --learning_rate 5e-5 \
           --skip_steps 100 \
+          --is_profiler ${is_profiler} \
+          --profiler_path ${profiler_dir}/profiler_${model_name} \
           --random_seed 1"
 
     case ${run_mode} in
@@ -87,7 +92,14 @@ function _train(){
 
     ${train_cmd} > ${log_file} 2>&1 &
     train_pid=$!
-    sleep 600
+#    sleep 600
+    total_sleep=0
+    while [ $total_sleep -le 600 ] && [ `ps -ax | awk '{print $1}' | grep -e "^${train_pid}$"` ] #whether the pid of train.py exists
+    do
+      sleep 5
+      let total_sleep=total_sleep+5
+    done
+
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then
