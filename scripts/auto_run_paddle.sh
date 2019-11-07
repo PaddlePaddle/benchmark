@@ -534,7 +534,7 @@ bert(){
     ln -s ${data_path}/Bert/MNLI ${cur_model_path}/MNLI
     ln -s ${prepare_path}/Bert/chinese_L-12_H-768_A-12 ${cur_model_path}/chinese_L-12_H-768_A-12
     ln -s ${prepare_path}/Bert/uncased_L-24_H-1024_A-16 ${cur_model_path}/uncased_L-24_H-1024_A-16
-    cp ${BENCHMARK_ROOT}/static_graph/NeuralMachineTranslation/BERT/fluid/run_benchmark.sh ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/static_graph/BERT/paddle/run_benchmark.sh ./run_benchmark.sh
 
     sed -i '/set\ -xe/d' run_benchmark.sh
 
@@ -575,7 +575,7 @@ transformer(){
     cd ${cur_model_path}
     ln -s ${data_path}/transformer/data ${cur_model_path}/data
     cp -r ${prepare_path}/transformer/mosesdecoder ${cur_model_path}/mosesdecoder
-    cp ${BENCHMARK_ROOT}/static_graph/NeuralMachineTranslation/Transformer/fluid/run_benchmark.sh ./
+    cp ${BENCHMARK_ROOT}/static_graph/Transformer/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     model_type="base"
     echo "model_type is ${model_type}, index is speed, 1gpu, begin"
