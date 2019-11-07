@@ -527,7 +527,7 @@ mask_rcnn(){
 
 #run_bert
 bert(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/language_representations_kit/BERT
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/PaddleLARK/BERT
     cd ${cur_model_path}
     rm -rf data
     ln -s ${data_path}/Bert/data ${cur_model_path}/data
@@ -571,7 +571,7 @@ bert(){
 
 #run_transformer
 transformer(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/neural_machine_translation/transformer
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/PaddleMT/transformer
     cd ${cur_model_path}
     ln -s ${data_path}/transformer/data ${cur_model_path}/data
     cp -r ${prepare_path}/transformer/mosesdecoder ${cur_model_path}/mosesdecoder
@@ -671,8 +671,6 @@ paddingrnn(){
 
 #run_yolov3
 yolov3(){
-    cur_model_path=${BENCHMARK_ROOT}/yolov3/paddle
-    cd ${cur_model_path}
     if python -c "import pycocotools" >/dev/null 2>&1
     then
         echo "cocoapi have already installed"
@@ -686,13 +684,7 @@ yolov3(){
         echo "cocoapi installed"
     fi
 
-#    cd ${cur_model_path}
-#    #yolov3 的模型代码还在models
-#    git clone https://github.com/PaddlePaddle/models.git
-#    cd models/PaddleCV/yolov3/
-
     cd ${BENCHMARK_ROOT}/models/PaddleCV/yolov3/
-    #git checkout -b benchmark origin/benchmark
 
     sed -i 's/build_strategy.memory_optimize/#build_strategy.memory_optimize/g' train.py
     #sh ./weights/download.sh
@@ -726,9 +718,9 @@ yolov3(){
 }
 
 
-#run seq2seq
+# seq2seq
 seq2seq(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/unarchived/neural_machine_translation/rnn_search
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/PaddleTextGEN/seq2seq
     cd ${cur_model_path}
 
     # Prepare data
