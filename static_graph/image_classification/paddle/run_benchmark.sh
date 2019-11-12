@@ -1,9 +1,9 @@
 #!bin/bash
-set -xe
+set -x
 
 if [[ $# -lt 4 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs 32 model_name sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs 32 model_name sp|mp 1000(max_iter) 1|0(is_profiler)"
     exit
 fi
 
@@ -12,9 +12,15 @@ function _set_params(){
     base_batch_size=$2               # 单卡的batch_size，如果固定的，可以写死（必填）
     model_name=$3                    # 模型名字如："SE-ResNeXt50"，如果是固定的，可以写死，如果需要其他参数可以参考bert实现（必填）
     run_mode=${4:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程（必填）
-    run_log_root=${5:-$(pwd)}        # 训练保存的日志目录（必填）
+#    run_log_root=${5:-$(pwd)}        # 训练保存的日志目录（必填）
 
-    skip_steps=2                     # 解析日志，有些模型前几个step耗时长，需要跳过(必填)
+    max_iter=${5}
+    is_profiler=${6:-0}
+
+    run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
+    profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
+
+    skip_steps=10                     # 解析日志，有些模型前几个step耗时长，需要跳过(必填)
     keyword="elapse"                 # 解析日志，筛选出数据所在行的关键字(必填)
     separator=" "                    # 解析日志，数据所在行的分隔符(必填)
     position=-2                      # 解析日志，按照分隔符分割后形成的数组索引(必填)
@@ -30,7 +36,10 @@ function _set_params(){
     else
         batch_size=$base_batch_size
     fi
-    log_file=${run_log_root}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    profiler_path=${profiler_path}/profiler_${model_name}
+    if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 }
 
@@ -59,6 +68,10 @@ function _train(){
            --lr_strategy=piecewise_decay \
            --num_epochs=${num_epochs} \
            --lr=0.1 \
+           --max_iter=${max_iter} \
+           --validate=0 \
+           --is_profiler=${is_profiler} \
+           --profiler_path=${profiler_path} \
            --l2_decay=1e-4"
     elif echo {SE_ResNeXt50_32x4d} | grep -w $model_name &>/dev/null
     then
@@ -72,6 +85,10 @@ function _train(){
            --lr_strategy=cosine_decay \
            --lr=0.1 \
            --l2_decay=1.2e-4 \
+           --max_iter=${max_iter} \
+           --is_profiler=${is_profiler} \
+           --profiler_path=${profiler_path} \
+           --validate=0 \
            --num_epochs=${num_epochs}"
     else
         echo "model: $model_name not support!"
@@ -86,9 +103,7 @@ function _train(){
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    ${train_cmd} > ${log_file} 2>&1 &
-    train_pid=$!
-    sleep 300
+    ${train_cmd} > ${log_file} 2>&1 
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then
