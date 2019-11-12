@@ -1,11 +1,11 @@
 # copyright (c) 2019 PaddlePaddle Authors. All Rights Reserve.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,10 @@ def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--filename", type=str, help="The name of log which need to analysis.")
+    parser.add_argument(
+        "--log_with_profiler", type=str, help="The path of train log with profiler")
+    parser.add_argument(
+        "--profiler_path", type=str, help="The path of profiler timeline log.")
     parser.add_argument(
         "--keyword", type=str, help="Keyword to specify analysis data")
     parser.add_argument(
@@ -119,7 +123,7 @@ class TimeAnalyzer(object):
             unit = "samples/s"
         else:
             ValueError("Unsupported analysis mode.")
-        
+
         return fps, unit
 
     def analysis(self, batch_size, gpu_num=1, skip_steps=0, mode=0):
@@ -181,6 +185,8 @@ if __name__ == "__main__":
     args = parse_args()
     run_info = dict()
     run_info["log_file"] = args.filename
+    run_info["log_with_profiler"] = args.log_with_profiler
+    run_info["profiler_path"] = args.profiler_path
     run_info["model_name"] = args.model_name
     run_info["run_mode"] = args.run_mode
     run_info["index"] = args.index
@@ -192,3 +198,4 @@ if __name__ == "__main__":
     except Exception:
         traceback.print_exc()
     print("{}".format(json.dumps(run_info)))  # it's required, for the log file path  insert to the database
+
