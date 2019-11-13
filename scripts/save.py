@@ -304,6 +304,7 @@ def parse_logs(args):
                 pjr.model_name = job_info["model_name"]
                 pjr.report_index_id = report_index
                 pjr.report_result = result
+                pjr.train_log_path = 1
                 pjr.save()
 
                 # save log path
