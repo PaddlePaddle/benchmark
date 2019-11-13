@@ -76,8 +76,8 @@ prepare(){
    #this for update the log_path coding mat
    export TRAIN_LOG_DIR=${save_log_dir}/train_log
    export PROFILER_LOG_DIR=${save_log_dir}/profiler_log
-   mkdir -p TRAIN_LOG_DIR
-   mkdir -p PROFILER_LOG_DIR
+   mkdir -p ${TRAIN_LOG_DIR}
+   mkdir -p ${PROFILER_LOG_DIR}
 
     train_log_dir=${save_log_dir}/train_log
 #    mkdir -p ${train_log_dir}
