@@ -1,5 +1,5 @@
 #!bin/bash
-set -x
+set -xe
 
 if [[ $# -lt 4 ]]; then
     echo "Usage: "
@@ -12,7 +12,6 @@ function _set_params(){
     base_batch_size=$2               # 单卡的batch_size，如果固定的，可以写死（必填）
     model_name=$3                    # 模型名字如："SE-ResNeXt50"，如果是固定的，可以写死，如果需要其他参数可以参考bert实现（必填）
     run_mode=${4:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程（必填）
-#    run_log_root=${5:-$(pwd)}        # 训练保存的日志目录（必填）
 
     max_iter=${5}
     is_profiler=${6:-0}
