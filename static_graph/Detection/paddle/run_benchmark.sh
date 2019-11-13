@@ -2,7 +2,7 @@
 set -xe
 if [[ $# -lt 3 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 speed|mem|maxbs model_name sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs model_name sp|mp 1000(max_iter) 1|0(is_profiler)"
     exit
 fi
 
@@ -11,8 +11,12 @@ function _set_params(){
     base_batch_size=2              # 单卡的batch_size，如果固定的，可以写死（必填）
     model_name=$2                    # 模型名字如："SE-ResNeXt50"，如果是固定的，可以写死，如果需要其他参数可以参考bert实现（必填）
     run_mode=${3:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程（必填）
-    run_log_path=${4:-$(pwd)}        # 训练保存的日志目录（必填）
+    max_iter=${4}
+    is_profiler=${5:-0}
 
+    run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
+    profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
+    
     skip_steps=2                     # 解析日志，有些模型前几个step耗时长，需要跳过(必填)
     keyword="iter"                   # 解析日志，筛选出数据所在行的关键字(必填)
     separator=" "                    # 解析日志，数据所在行的分隔符(必填)
@@ -29,6 +33,9 @@ function _set_params(){
         batch_size=$base_batch_size
     fi
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    profiler_path=${profiler_path}/profiler_${model_name}
+    if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 
 }
@@ -51,23 +58,31 @@ function _train(){
         # The default learning_rate is 0.01, which is used for training with 8 GPUs.
         learning_rate=$(awk 'BEGIN{ print 0.00125 * '${num_gpu_devices}' }')
         train_cmd="-c configs/mask_rcnn_r101_vd_fpn_1x.yml \
-                   --opt LearningRate.base_lr=${learning_rate} MaskRCNNTrainFeed.batch_size=${base_batch_size}"
+                   --opt LearningRate.base_lr=${learning_rate} MaskRCNNTrainFeed.batch_size=${base_batch_size} max_iters=${max_iter} \
+                   --is_profiler=${is_profiler} \
+                   --profiler_path=${profiler_path}"
         position=19
     elif [[ ${model_name} = "mask_rcnn_fpn_resnext" ]];then
         # The default learning_rate is 0.01, which is used for training with 8 GPUs.
         learning_rate=$(awk 'BEGIN{ print 0.00125 * '${num_gpu_devices}' }')
         train_cmd="-c configs/mask_rcnn_x101_vd_64x4d_fpn_1x.yml \
-                   --opt LearningRate.base_lr=${learning_rate} MaskRCNNTrainFeed.batch_size=${base_batch_size}"
+                   --opt LearningRate.base_lr=${learning_rate} MaskRCNNTrainFeed.batch_size=${base_batch_size} max_iter=${max_iter} \
+                   --is_profiler=${is_profiler} \
+                   --profiler_path=${profiler_path}"
         position=19
     elif [[ ${model_name} = "retinanet_rcnn_fpn" ]];then
         # The default learning_rate is 0.01, which is used for training with 8 GPUs.
         learning_rate=$(awk 'BEGIN{ print 0.00125 * '${num_gpu_devices}' }')
-        train_cmd="-c configs/retinanet_r50_fpn_1x.yml --opt LearningRate.base_lr=${learning_rate}"
+        train_cmd="-c configs/retinanet_r50_fpn_1x.yml --opt LearningRate.base_lr=${learning_rate} max_iter=${max_iter} \
+                   --is_profiler=${is_profiler} \
+                   --profiler_path=${profiler_path}"
         position=13
     elif [[ ${model_name} = "cascade_rcnn_fpn" ]];then
         # The default learning_rate is 0.02, which is used for training with 8 GPUs.
         learning_rate=$(awk 'BEGIN{ print 0.0025 * '${num_gpu_devices}' }')
-        train_cmd="-c configs/cascade_rcnn_r50_fpn_1x.yml --opt LearningRate.base_lr=${learning_rate}"
+        train_cmd="-c configs/cascade_rcnn_r50_fpn_1x.yml --opt LearningRate.base_lr=${learning_rate} max_iter=${max_iter} \
+                   --is_profiler=${is_profiler} \
+                   --profiler_path=${profiler_path}"
         position=25
     else
         echo "model_name must be mask_rcnn_fpn_resnet | mask_rcnn_fpn_resnext | retinanet_rcnn_fpn | cascade_rcnn_fpn"
@@ -81,9 +96,7 @@ function _train(){
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    ${train_cmd} > ${log_file} 2>&1 &
-    train_pid=$!
-    sleep 600
+    ${train_cmd} > ${log_file} 2>&1 
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then

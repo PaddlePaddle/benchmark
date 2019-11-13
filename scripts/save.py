@@ -22,6 +22,7 @@ import numpy as np
 import template
 import socket
 import json
+import commands
 
 base_path=os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 sys.path.append(base_path)
@@ -310,9 +311,13 @@ def parse_logs(args):
                 # save log path
                 pjrl = bm.JobResultsLog()
                 pjrl.result_id = pjr.result_id
-                pjrl.log_path = json.dumps({"train_log_path": train_log_path,
-                                            "profiler_log_path": profiler_log_path,
-                                            "profiler_path": profiler_path})
+                cmd = "curl -I -m 10 -o /dev/null -s -w %{http_code} " + profiler_log_path
+                if commands.getoutput(cmd) != '200':
+                    pjrl.log_path = json.dumps({"train_log_path": train_log_path})
+                else:
+                    pjrl.log_path = json.dumps({"train_log_path": train_log_path,
+                                                "profiler_log_path": profiler_log_path,
+                                                "profiler_path": profiler_path})
                 pjrl.save()
                 # save cpu & gpu result
                 if report_index == 1:
