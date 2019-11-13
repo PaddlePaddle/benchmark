@@ -321,7 +321,7 @@ nextvlad(){
     ls ${cur_model_path}/data/dataset/youtube8m/pkl/val/* > ./data/dataset/youtube8m/infer.list
 
     # Prepare package_list
-    package_check_list=(imageio tqdm Cython pycocotools pandas wget)
+    package_check_list=(imageio tqdm Cython pycocotools pandas wget h5py)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
             echo "${package} have already installed"

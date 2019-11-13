@@ -238,7 +238,7 @@ def parse_logs(args):
             except Exception as exc:
                 print("file {} parse error".format(job_file))
                 continue
-            #save_job
+            # save_job
             if str(job_info["gpu_num"]) == "8" and job_info["run_mode"] == "mp":
                 run_machine_type = dict_run_machine_type['8mp']
             else:
@@ -268,8 +268,11 @@ def parse_logs(args):
             # todo config the log_server port
             log_server = "http://" + log_server + ":8777/"
             log_file = job_info["log_file"].split("/")[-1]
-            train_log_path = os.path.join(os.path.basename(args.log_path), "train_log", log_file)
-            train_log_path = log_server + train_log_path
+            profiler_log = job_info["log_with_profiler"].split("/")[-1]
+            profiler_path = job_info["profiler_path"].split("/")[-1]
+            train_log_path = log_server + os.path.join(os.path.basename(args.log_path), "train_log", log_file)
+            profiler_log_path = log_server + os.path.join(os.path.basename(args.log_path), "profiler_log", profiler_log)
+            profiler_path = log_server + os.path.join(os.path.basename(args.log_path), "profiler_log", profiler_path)
 
             cpu_utilization_result = 0
             gpu_utilization_result = 0
@@ -295,24 +298,28 @@ def parse_logs(args):
                             result = int(value) if str.isdigit(value) else 0
                             break
 
-                #save_result
+                # save_result
                 pjr = bm.JobResults()
                 pjr.job_id = job_id
                 pjr.model_name = job_info["model_name"]
                 pjr.report_index_id = report_index
                 pjr.report_result = result
-                pjr.train_log_path = train_log_path
                 pjr.save()
 
-                #save cpu & gpu result
-
+                # save log path
+                pjrl = bm.JobResultsLog()
+                pjrl.result_id = pjr.result_id
+                pjrl.log_path = json.dumps({"train_log_path": train_log_path,
+                                            "profiler_log_path": profiler_log_path,
+                                            "profiler_path": profiler_path})
+                pjrl.save()
+                # save cpu & gpu result
                 if report_index == 1:
                     pjr_cpu = bm.JobResults()
                     pjr_cpu.job_id = job_id
                     pjr_cpu.model_name = job_info["model_name"]
                     pjr_cpu.report_index_id = 7
                     pjr_cpu.report_result = cpu_utilization_result
-                    pjr_cpu.train_log_path = train_log_path
                     pjr_cpu.save()
 
                     pjr_gpu = bm.JobResults()
@@ -320,7 +327,6 @@ def parse_logs(args):
                     pjr_gpu.model_name = job_info["model_name"]
                     pjr_gpu.report_index_id = 8
                     pjr_gpu.report_result = gpu_utilization_result
-                    pjr_gpu.train_log_path = train_log_path
                     pjr_gpu.save()
 
             except Exception as pfe:
@@ -347,3 +353,4 @@ def parse_logs(args):
 if __name__ == '__main__':
     args = parser.parse_args()
     parse_logs(args)
+

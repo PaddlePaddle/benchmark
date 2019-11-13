@@ -46,16 +46,19 @@ function _run(){
     fi
 
     python ${BENCHMARK_ROOT}/scripts/analysis.py \
-            --filename ${log_file} \
-            --keyword ${keyword} \
+            --filename "${log_file}" \
+            --log_with_profiler ${log_with_profiler:-"not found!"} \
+            --profiler_path ${profiler_path:-"not found!"} \
+            --keyword "${keyword}" \
             --separator "${separator}" \
             --position ${position} \
             --base_batch_size ${base_batch_size} \
             --skip_steps ${skip_steps} \
             --model_mode ${model_mode} \
-            --model_name ${model_name} \
+            --model_name "${model_name}" \
             --run_mode ${run_mode} \
             --index ${index} \
             --gpu_num ${num_gpu_devices} \
             --range ${range:-""}
 }
+
