@@ -66,21 +66,21 @@ function _train(){
         # The default learning_rate is 0.01, which is used for training with 8 GPUs.
         learning_rate=$(awk 'BEGIN{ print 0.00125 * '${num_gpu_devices}' }')
         train_cmd="-c configs/mask_rcnn_x101_vd_64x4d_fpn_1x.yml \
-                   --opt LearningRate.base_lr=${learning_rate} MaskRCNNTrainFeed.batch_size=${base_batch_size} max_iter=${max_iter} \
+                   --opt LearningRate.base_lr=${learning_rate} MaskRCNNTrainFeed.batch_size=${base_batch_size} max_iters=${max_iter} \
                    --is_profiler=${is_profiler} \
                    --profiler_path=${profiler_path}"
         position=19
     elif [[ ${model_name} = "retinanet_rcnn_fpn" ]];then
         # The default learning_rate is 0.01, which is used for training with 8 GPUs.
         learning_rate=$(awk 'BEGIN{ print 0.00125 * '${num_gpu_devices}' }')
-        train_cmd="-c configs/retinanet_r50_fpn_1x.yml --opt LearningRate.base_lr=${learning_rate} max_iter=${max_iter} \
+        train_cmd="-c configs/retinanet_r50_fpn_1x.yml --opt LearningRate.base_lr=${learning_rate} max_iters=${max_iter} \
                    --is_profiler=${is_profiler} \
                    --profiler_path=${profiler_path}"
         position=13
     elif [[ ${model_name} = "cascade_rcnn_fpn" ]];then
         # The default learning_rate is 0.02, which is used for training with 8 GPUs.
         learning_rate=$(awk 'BEGIN{ print 0.0025 * '${num_gpu_devices}' }')
-        train_cmd="-c configs/cascade_rcnn_r50_fpn_1x.yml --opt LearningRate.base_lr=${learning_rate} max_iter=${max_iter} \
+        train_cmd="-c configs/cascade_rcnn_r50_fpn_1x.yml --opt LearningRate.base_lr=${learning_rate} max_iters=${max_iter} \
                    --is_profiler=${is_profiler} \
                    --profiler_path=${profiler_path}"
         position=25
