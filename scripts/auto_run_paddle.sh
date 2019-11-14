@@ -59,6 +59,8 @@ prepare(){
         export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
     fi
 
+    #NOTE: this path is for profiler
+    export LD_LIBRARY_PATH=/home/work/cuda-9.0/extras/CUPTI/lib64/:$LD_LIBRARY_PAlTH
     ln -s /usr/lib/x86_64-linux-gnu/libnccl.so.2 /usr/lib/x86_64-linux-gnu/libnccl.so
     rm /etc/apt/sources.list
     cp ${all_path}/sources.list /etc/apt
