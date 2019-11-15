@@ -3,7 +3,7 @@ set -xe
 
 if [[ $# -lt 1 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs sp|mp 1000(max_epoch) 1|0(is_profiler)"
     exit
 fi
 
@@ -13,7 +13,11 @@ function _set_params(){
     model_name="seq2seq"
 
     run_mode="sp" # Don't support mp
-    run_log_root=${3:-$(pwd)}
+    max_epoch=${3}
+    is_profiler=${4:-0}
+ 
+    run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
+    profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     skip_steps=0
     keyword="avg_time:"
@@ -29,7 +33,10 @@ function _set_params(){
         exit
     fi
 
-    log_file=${run_log_root}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    profiler_path=${profiler_path}/profiler_${model_name}
+    if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 }
 
@@ -55,7 +62,9 @@ function _train(){
           --test_data_prefix data/en-vi/tst2013 \
           --vocab_prefix data/en-vi/vocab \
           --use_gpu True \
-          --max_epoch 2  > ${log_file} 2>&1
+          --is_profiler=${is_profiler} \
+          --profiler_path=${profiler_path} \
+          --max_epoch=${max_epoch}  > ${log_file} 2>&1
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
