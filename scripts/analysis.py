@@ -191,11 +191,12 @@ if __name__ == "__main__":
     run_info["run_mode"] = args.run_mode
     run_info["index"] = args.index
     run_info["gpu_num"] = args.gpu_num
-
-    try:
-        analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
-        analyzer.analysis(args.base_batch_size, args.gpu_num, args.skip_steps, args.model_mode)
-    except Exception:
-        traceback.print_exc()
+   
+    if args.index == "speed":
+        try:
+            analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
+            analyzer.analysis(args.base_batch_size, args.gpu_num, args.skip_steps, args.model_mode)
+        except Exception:
+            traceback.print_exc()
     print("{}".format(json.dumps(run_info)))  # it's required, for the log file path  insert to the database
 
