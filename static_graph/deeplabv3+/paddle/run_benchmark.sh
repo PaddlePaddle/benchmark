@@ -60,11 +60,10 @@ function _train(){
         --init_weights_path=${INIT_WEIGHTS_PATH} \
         --save_weights_path=${SAVE_WEIGHTS_PATH} \
         --dataset_path=${DATASET_PATH} \
-        --parallel=True \
-        --is_profiler=${is_profiler} \
+        --profile=${is_profiler} \
         --profiler_path=${profiler_path} \
+        --parallel=True \
         --use_multiprocessing=True "
-
     case ${run_mode} in
     sp) train_cmd="python -u train.py "${train_cmd} ;;
     mp)

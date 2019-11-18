@@ -374,7 +374,7 @@ deeplab(){
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 100 0 | tee ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 1gpu, profiler is on, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 100 1 | tee ${PROFILER_LOG_DIR}/DeepLab_V3+_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 10 1 | tee ${PROFILER_LOG_DIR}/DeepLab_V3+_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed sp 100 0 | tee ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
