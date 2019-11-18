@@ -371,22 +371,25 @@ deeplab(){
     cp ${BENCHMARK_ROOT}/static_graph/deeplabv3+/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 100 0 | tee ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
+    sleep 60
+    echo "index is speed, 1gpu, profiler is on, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 100 1 | tee ${PROFILER_LOG_DIR}/DeepLab_V3+_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed sp 100 0 | tee ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp ${train_log_dir} | tee ${log_path}/DeepLab_V3+_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 50 0 | tee ${log_path}/DeepLab_V3+_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem sp ${train_log_dir} | tee ${log_path}/DeepLab_V3+_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem sp 50 0 | tee ${log_path}/DeepLab_V3+_mem_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs sp ${train_log_dir} | tee ${log_path}/DeepLab_V3+_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs sp 50 0 | tee ${log_path}/DeepLab_V3+_maxbs_1gpus 2>&1
     sleep 60
     echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs sp ${train_log_dir} | tee ${log_path}/DeepLab_V3+_maxbs_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs sp 50 0 | tee ${log_path}/DeepLab_V3+_maxbs_8gpus 2>&1
 
 }
 
