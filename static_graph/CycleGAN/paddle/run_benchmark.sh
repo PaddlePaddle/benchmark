@@ -3,14 +3,18 @@ set -xe
 
 if [[ $# -lt 1 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem sp|mp 1000(max_iter) 1|0(profiler)"
     exit
 fi
 
 function _set_params(){
     index="$1"
     run_mode=${2:-"sp"}
-    run_log_path=${3:-$(pwd)}
+    max_iter=${3}
+    is_profiler=${4:-0}
+    
+    run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
+    profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     model_name="CycleGAN"
     skip_steps=3
@@ -24,6 +28,9 @@ function _set_params(){
     num_gpu_devices=${#arr[*]}
     base_batch_size=1
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    profiler_path=${profiler_path}/profiler_${model_name}
+    if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 }
 
@@ -38,10 +45,9 @@ function _set_env(){
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=${base_batch_size}"
-    python train.py > ${log_file} 2>&1 &
-    train_pid=$!
-    sleep 120
-    kill -9 ${train_pid}
+    python train.py  --is_profiler=${is_profiler} \
+                --profiler_path=${profiler_path} \
+                --max_iter=${max_iter} > ${log_file} 2>&1
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
