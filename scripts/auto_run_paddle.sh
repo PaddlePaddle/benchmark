@@ -679,10 +679,13 @@ paddingrnn(){
         for rnn_type in ${rnn_type_list[@]}; do
         model_name="${FUNCNAME}_${model_type}_${rnn_type}"
         echo "index is speed, 1gpus, ${model_name}, begin"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_type} ${rnn_type} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_type} ${rnn_type} sp 3 0 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is speed, 1gpus, ${model_name}, profiler is on, begin"
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_type} ${rnn_type} sp 1 1 | tee ${PROFILER_LOG_DIR}/${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is mem, 1gpus, ${model_name}, begin"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem ${model_type} ${rnn_type} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem ${model_type} ${rnn_type} sp 3 0 | tee ${log_path}/${model_name}_mem_1gpus 2>&1
         sleep 60
         done
     done
