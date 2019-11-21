@@ -3,7 +3,7 @@ set -xe
 
 if [[ $# -lt 1 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs sp|mp 1000(max_epoch) 1|0(is_profiler)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs sp|mp 1(max_epoch) 1|0(is_profiler)"
     exit
 fi
 
@@ -46,25 +46,31 @@ function _set_env(){
 }
 
 function _train(){
-   python train.py \
-          --src_lang en --tar_lang vi \
-          --attention True \
-          --num_layers 2 \
-          --hidden_size 512 \
-          --src_vocab_size 17191 \
-          --tar_vocab_size 7709 \
-          --batch_size ${base_batch_size} \
-          --dropout 0.2 \
-          --init_scale  0.1 \
-          --max_grad_norm 5.0 \
-          --train_data_prefix data/en-vi/train \
-          --eval_data_prefix data/en-vi/tst2012 \
-          --test_data_prefix data/en-vi/tst2013 \
-          --vocab_prefix data/en-vi/vocab \
-          --use_gpu True \
-          --is_profiler=${is_profiler} \
-          --profiler_path=${profiler_path} \
-          --max_epoch=${max_epoch}  > ${log_file} 2>&1
+   train_cmd="--src_lang en --tar_lang vi \
+              --attention True \
+              --num_layers 2 \
+              --hidden_size 512 \
+              --src_vocab_size 17191 \
+              --tar_vocab_size 7709 \
+              --batch_size ${base_batch_size} \
+              --dropout 0.2 \
+              --init_scale  0.1 \
+              --max_grad_norm 5.0 \
+              --train_data_prefix data/en-vi/train \
+              --eval_data_prefix data/en-vi/tst2012 \
+              --test_data_prefix data/en-vi/tst2013 \
+              --vocab_prefix data/en-vi/vocab \
+              --use_gpu True \
+              --profiler_path=${profiler_path} \
+              --max_epoch=${max_epoch}"
+    
+    if [[ ${is_profiler} -eq 1 ]]; then
+        python -u train.py \
+               --profile \
+               ${train_cmd} > ${log_file} 2>&1
+    elif [[ ${is_profiler} -eq 0 ]]; then
+        python -u train.py ${train_cmd} > ${log_file} 2>&1
+    fi
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
