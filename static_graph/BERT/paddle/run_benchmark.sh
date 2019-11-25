@@ -3,7 +3,7 @@ set -xe
 
 if [[ $# -lt 3 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs base|large fp32|fp16 sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs base|large fp32|fp16 sp|mp 1000(max_iter) 1|0(is_profiler)"
     exit
 fi
 
@@ -12,7 +12,11 @@ function _set_params(){
     model_type="$2"
     fp_mode=$3
     run_mode=${4:-"sp"}
-    run_log_path=${5:-$(pwd)}
+    max_iter=${5}
+    is_profiler=${6:-0}
+
+    run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
+    profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     model_name="bert_${model_type}_${fp_mode}"
     skip_steps=1
@@ -29,6 +33,9 @@ function _set_params(){
     if [[ ${model_type} = "base" ]]; then base_batch_size=32; else base_batch_size=8; fi
     batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    profiler_path=${profiler_path}/profiler_${model_name}
+    if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 
 }
@@ -67,6 +74,9 @@ function _train(){
           --warmup_proportion 0.1 \
           --validation_steps 1000 \
           --epoch 2 \
+          --is_profiler=${is_profiler} \
+          --profiler_path=${profiler_path} \
+          --max_iter=${max_iter} \
           --max_seq_len 128 \
           --bert_config_path ${BERT_BASE_PATH}/bert_config.json \
           --learning_rate 5e-5 \
@@ -85,10 +95,7 @@ function _train(){
         train_cmd=${train_cmd}" --use_fp16=true "
     fi
 
-    ${train_cmd} > ${log_file} 2>&1 &
-    train_pid=$!
-    sleep 600
-    kill -9 `ps -ef|grep python |awk '{print $2}'`
+    ${train_cmd} > ${log_file} 2>&1
 
     if [ $run_mode = "mp" -a -d mylog ]; then
         rm ${log_file}
