@@ -3,14 +3,33 @@ import json
 import re
 import string
 import pymysql
-import sys
 
-print '-------->> Usage: python api_frequency.py path.'
+def findheader(path):
+    name_2_model=dict()
+    for root in os.listdir(path):
+        if root.find('.py') != -1:
+            with open(os.path.join(path, root)) as f:
+                for line in f.readlines():
+                    if (line.startswith('from') or line.startswith('import')) and "models." in line and not "check" in line:
+                        string = line.split()[1].rsplit('.')[1]
+                        model_path = os.path.join(path, '../models', string)
+                        model_name = os.path.basename(os.path.normpath(path))
+                        name_2_model[model_name]=model_path
+			print(model_name, model_path)
+                    if line.startswith('sys.path.append') and 'models/*' in line:
+                        string = line.split('/')[-2]
+                        model_path = os.path.join(path, '../models', string)
+                        model_name = os.path.basename(os.path.normpath(path))
+                        name_2_model[model_name]=model_path
+                        
+    return name_2_model
+                
 file = open("API.spec")
 cand_api=[]
+
 for line in file.readlines():
     line = line.split()[0]
-    subs=['layers', 'contrib', 'optimizer']
+    subs=['layers', 'contrib', 'optimizer', 'metrics']
     notkeyapi=['data', 'backward', '__init__', 'log', 'input', 'output', 'run', 'ls', 'train', 'shape', 'eval', 'sample', 'decode']
     for sub in subs:
         if sub in line:
@@ -20,10 +39,8 @@ for line in file.readlines():
 
 cand_api=list(set(cand_api))
 # find models with train.py
-path=sys.argv[1]
+path='./'
 model_ops=dict()
-
-print(cand_api)
 
 know_models=[]
 find_op_path=[]
@@ -49,9 +66,13 @@ for tops in os.listdir(path):
                 find_op_path.append(sub_path)
             elif root.find('PaddleSeg') != -1:
                 find_op_path.append(sub_path)
+            if root.find('Research') != -1:
+                find_op_path.append(sub_path)
     elif tops == 'PaddleNLP':
+        real_model_path=[]
         for root in os.listdir(path+tops):
             sub_path = os.path.join(path, tops, root)
+
             if root.find('PaddleDialogue') != -1:
                 find_op_path.append(sub_path)
             if root.find('PaddleLARK') != -1:
@@ -66,15 +87,28 @@ for tops in os.listdir(path):
                 find_op_path.append(sub_path)
             if root.find('dialogue_domain_classification') != -1:
                 find_op_path.append(sub_path)
+            if root.find('Research') != -1:
+                find_op_path.append(sub_path)
             if root.find('emotion_detection') != -1:
+                #this model's path in real model path list
+                name_path = findheader(sub_path)
+                real_model_path.append(name_path)
                 find_op_path.append(sub_path)
             if root.find('language_model') != -1:
+                name_path = findheader(sub_path)
+                real_model_path.append(name_path)
                 find_op_path.append(sub_path)
             if root.find('lexical_analysis') != -1:
+                name_path = findheader(sub_path)
+                real_model_path.append(name_path)
                 find_op_path.append(sub_path)
             if root.find('sentiment_classification') != -1:
+                name_path = findheader(sub_path)
+                real_model_path.append(name_path)
                 find_op_path.append(sub_path)
             if root.find('similarity_net') != -1:
+                name_path = findheader(sub_path)
+                real_model_path.append(name_path)
                 find_op_path.append(sub_path)
     elif tops == 'PaddleRec':
         for root in os.listdir(path+tops):
@@ -112,14 +146,53 @@ for tops in os.listdir(path):
                 find_op_path.append(sub_path)
             if root.find('DeepSpeech') != -1:
                 find_op_path.append(sub_path)
+    elif tops == 'dygraph':
+        for root in os.listdir(path+tops):
+            sub_path = os.path.join(path, tops, root)
+            if root.find('cycle_gan') != -1:
+                find_op_path.append(sub_path)
+            if root.find('mnist') != -1:
+                find_op_path.append(sub_path)
+            if root.find('ocr_recognition') != -1:
+                find_op_path.append(sub_path)
+            if root.find('ptb_lm') != -1:
+                find_op_path.append(sub_path)
+            if root.find('reinforcement_learning') != -1:
+                find_op_path.append(sub_path)
+            if root.find('resnet') != -1:
+                find_op_path.append(sub_path)
+            if root.find('se_resnext') != -1:
+                find_op_path.append(sub_path)
+            if root.find('sentiment') != -1:
+                find_op_path.append(sub_path)
+            if root.find('transformer') != -1:
+                find_op_path.append(sub_path)
+
+# declare alias name
+alias_name=dict()
+alias_name["Adam"]="AdamOptimizer"
+alias_name["SGD"]="SGDOptimizer"
+alias_name["Momentum"]="MomentumOptimizer"
+alias_name["SGD"]="SGDOptimizer"
+alias_name["Ftrl"]="FtrlOptimizer"
+alias_name["DecayedAdagrad"]="DecayedAdagradOptimizer"
+alias_name["Adadelta"]="AdadeltaOptimizer"
+alias_name["Adagrad"]="AdagradOptimizer"
+alias_name["Adamax"]="AdamaxOptimizer"
+alias_name["LarsMomentum"]="LarsMomentumOptimizer"
 
 find_op_path=list(set(find_op_path))
-# find model ops
+
+# find ops used in model path
 for op_path in find_op_path:
     cand_ops=['layers.', 'contrib.', 'optimizer.', 'metrics.']
     #model_name = op_path.split('\/')[-1]
     model_name = os.path.basename(os.path.normpath(op_path))
     model_ops[model_name] = []
+    for name_path in real_model_path:
+        if model_name in name_path.keys():
+            op_path = name_path.values()[0]
+        
     for root, dirs, op_file in os.walk(op_path):
         for sfile in op_file:
             ext_name = os.path.splitext(sfile)[1]
@@ -130,26 +203,28 @@ for op_path in find_op_path:
                         for op in cand_ops:
                             if op in line:
                                 #line = line.split('(')[0].split('.')[-1]
-                                line = line.split('.')[-1]
+                                line = line.split(op)[-1]
 				#op_name = re.sub("[0-9,a-z,A-Z,_].*", "", line)
 				if line.find('('):
 				    line = line.split('(')[0]
                                 op_name = filter(lambda x: x in string.ascii_letters + string.digits + '_', line)
-				#print(model_name, op_name)
 				if op_name != "":
+   				    if op_name in alias_name.keys() and alias_name[op_name]:
+				        op_name = alias_name[op_name]
                                     model_ops[str(model_name)].append(op_name)
 
-print(len(model_ops.values()))
 model_ops_spec=dict()
 all_ops=[]
 
 # sql
-db = pymysql.connect(host='gzbh-qianmo-com-162-69-148.gzbh.baidu.com', port=3306, user='root', passwd='', db='paddle', charset='utf8')
+db = pymysql.connect(host='gzbh-qianmo-com-162-69-149.gzbh.baidu.com', port=3306, user='root', passwd='', db='paddle', charset='utf8')
 cursor = db.cursor()
 table_name='model_op_frequency'
 cursor.execute("select * from %s" % table_name)
+cursor.execute("TRUNCATE TABLE %s" % table_name)
+cursor.execute("select * from %s" % table_name)
 col_name_list = [tuple[0] for tuple in cursor.description]
-print(col_name_list)
+
 sql = "INSERT INTO model_op_frequency (model, op, count) VALUES ( '%s', '%s', %d )"
 # filter op according to API spec
 for key, values in model_ops.items():
@@ -157,7 +232,6 @@ for key, values in model_ops.items():
     # remove duplicated op
     #new_values = set(values)
     model_ops=[]
-    print(key)
     for v in values:
         if v in cand_api:
             model_ops_spec[key].append(v)
@@ -167,13 +241,12 @@ for key, values in model_ops.items():
     for op in model_ops:
 	op_count[op] +=1
     for op_name, counts in op_count.items():
-	#cursor = db.cursor()
-        #data=(key, op_name, counts)
-	#cursor.execute(sql % data)
-	#db.commit()
-        print(' key:', op_name, 'count:', counts)
+        #print(key, op_name, counts)
+	cursor = db.cursor()
+        data=(key, op_name, counts)
+	cursor.execute(sql % data)
+	db.commit()
 
-print(len(all_ops))
 # construct a dict from op name
 c = dict.fromkeys(all_ops, 0)
 for op in all_ops:
