@@ -564,16 +564,19 @@ bert(){
         for fp_mode in ${fp_mode_list[@]}; do
             model_name="${FUNCNAME}_${model_mode}_${fp_mode}"
             echo "index is speed, 1gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_mode} ${fp_mode} sp 1500 0 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+            sleep 60
+            echo "index is speed, 1gpus, profiler is on, begin, ${model_name}"
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_mode} ${fp_mode} sp 1500 1 | tee ${PROFILER_LOG_DIR}/${model_name}_speed_1gpus 2>&1
             sleep 60
             echo "index is speed, 8gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_mode} ${fp_mode} sp 500 0 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
             sleep 60
             echo "index is mem, 1gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem ${model_mode} ${fp_mode} sp 800 0| tee ${log_path}/${model_name}_mem_1gpus 2>&1
             sleep 60
             echo "index is mem, 8gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_8gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem ${model_mode} ${fp_mode} sp 200 0 | tee ${log_path}/${model_name}_mem_8gpus 2>&1
             sleep 60
             #echo "index is maxbs, 1gpus, begin, ${model_name}"
             #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
@@ -582,7 +585,7 @@ bert(){
             #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
             #sleep 60
             echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_mode} ${fp_mode} mp ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_mode} ${fp_mode} mp 800 0 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
             sleep 60
         done
     done
