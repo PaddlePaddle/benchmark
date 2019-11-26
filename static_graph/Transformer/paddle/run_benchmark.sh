@@ -3,7 +3,7 @@ set -xe
 
 if [[ $# -lt 3 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs base|big sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs base|big sp|mp 1000(max_iter) 1|0(is_profiler)"
     exit
 fi
 
@@ -11,8 +11,12 @@ function _set_params(){
     index="$1"
     model_type="$2"
     run_mode=${3:-"sp"}
-    run_log_path=${4:-$(pwd)}
-
+    max_iter=${4}
+    is_profiler=${5}
+   
+    run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
+    profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
+ 
     model_name="transformer_"${model_type}
     skip_steps=3
     keyword="speed:"
@@ -27,6 +31,9 @@ function _set_params(){
     if [[ ${index} = "maxbs" ]]; then base_batch_size=12000; else base_batch_size=4096; fi
     batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    profiler_path=${profiler_path}/profiler_${model_name}
+    if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 
 }
@@ -53,6 +60,9 @@ function _train(){
 	--n_head 16 \
         --d_model 1024 \
         --d_inner_hid 4096 \
+        --is_profiler=${is_profiler} \
+        --profiler_path=${profiler_path} \
+        --max_iter=${max_iter} \
         --prepostprocess_dropout 0.3"
     else
         train_cmd=" --do_train True \
@@ -60,6 +70,9 @@ function _train(){
         --src_vocab_fpath data/vocab.bpe.32000 \
         --trg_vocab_fpath data/vocab.bpe.32000 \
         --special_token <s> <e> <unk> \
+        --is_profiler=${is_profiler} \
+        --profiler_path=${profiler_path} \
+        --max_iter=${max_iter} \
 	--training_file data/train.tok.clean.bpe.32000.en-de \
 	--batch_size ${base_batch_size}"
     fi
@@ -72,9 +85,7 @@ function _train(){
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    ${train_cmd} > ${log_file} 2>&1 &
-    train_pid=$!
-    sleep 600
+    ${train_cmd} > ${log_file} 2>&1 
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then
