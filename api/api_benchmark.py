@@ -16,6 +16,7 @@ from __future__ import print_function
 
 import abc
 import time
+import traceback
 import numpy as np
 import paddle.fluid as fluid
 
@@ -26,48 +27,68 @@ class APIBenchmarkBase(object):
         self.main_program = fluid.Program()
         self.startup_program = fluid.Program()
         self.scope = fluid.Scope()
+        self.place = None
         self.feed_vars = None
         self.fetch_vars = None
+        self.feed_tensors = {}
 
     @abc.abstractmethod
     def build_program(self, backward=False):
         pass
 
-    def run_with_executor(self, use_gpu, feed=None, repeat=1, log_level=0):
-        place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
-        executor = fluid.Executor(place)
+    def run_with_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False):
+        self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
+        executor = fluid.Executor(self.place)
         executor.run(self.startup_program)
 
         if feed is None:
-            feed = self._feed_random_data()
+            feed = self._feed_random_data(as_lodtensor=False)
 
         runtimes = []
+        fetches = []
         for i in xrange(repeat):
             begin = time.time()
-            executor.run(program=self.main_program,
-                         feed=feed,
-                         fetch_list=self.fetch_vars,
-                         use_program_cache=True,
-                         return_numpy=True)
+            output = executor.run(program=self.main_program,
+                                  feed=feed,
+                                  fetch_list=self.fetch_vars,
+                                  use_program_cache=True,
+                                  return_numpy=False)
             end = time.time()
             runtimes.append(end - begin)
+            if check_output:
+                fetches.append(output)
+        if check_output:
+            self._check_consistency(fetches)
         self._print_stat(runtimes, log_level=log_level)
 
-    def run_with_core_executor(self, use_gpu, feed=None, repeat=1):
-        place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
-        executor = fluid.Executor(place)
+    def run_with_core_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False):
+        self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
+        executor = fluid.Executor(self.place)
         executor.run(self.startup_program)
 
         # Use to run main_program
+        place = fluid.core.Place()
+        place.set_place(self.place)
         core_executor = fluid.core.Executor(place)
 
-        fetch_list_str = list(map(_to_name_str, self.fetch_list))
+        fetch_list_str = []
+        for var in self.fetch_vars:
+            fetch_list_str.append(var.name)
         ctx = core_executor.prepare(
                     self.main_program.desc, 0, fetch_list_str, False)
         core_executor.create_variables(self.main_program.desc, self.scope, 0)
  
+        if feed is None:
+            feed = self._feed_random_data(as_lodtensor=False)
+
+        runtimes = []
         for i in xrange(repeat):
+            begin = time.time()
+            self._init_feed_tensor(feed)
             core_executor.run_prepared_ctx(ctx, self.scope, False, False, False)
+            end = time.time()
+            runtimes.append(end - begin)
+        self._print_stat(runtimes, log_level=log_level)
 
     def _print_stat(self, runtimes, log_level=0):
         if not isinstance(runtimes, list):
@@ -127,9 +148,12 @@ class APIBenchmarkBase(object):
         else:
             raise ValueError("Unsupported dtype %s" % dtype)
 
-    def _feed_random_data(self):
+    def _feed_random_data(self, as_lodtensor=False):
         print("feed random data")
         feed = {}
+        place = fluid.CPUPlace()
+        #place = fluid.CUDAPinnedPlace()
+        #place = self.place
         for var in self.feed_vars:
             if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
                 raise TypeError("Feed data of non LoDTensor is not supported.")
@@ -137,8 +161,82 @@ class APIBenchmarkBase(object):
             shape = var.shape
             dtype = self._convert_dtype(var.dtype, to_string=True)
             data = np.random.random(shape).astype(dtype)
-            feed[var.name] = data
+            if as_lodtensor:
+                tensor = fluid.core.LoDTensor()
+                tensor.set(data, place)
+                feed[var.name] = tensor
+            else:
+                feed[var.name] = data
         return feed
+
+    def _check_outputs(self, output1, output2):
+        if not isinstance(output1, np.ndarray) or not isinstance(output2, np.ndarray):
+            raise TypeError("output's type should be numpy.ndarray.")
+       
+        assert len(output1) == len(output2)
+        assert np.allclose(output1, output2, rtol=1.e-6, atol=0)
+        max_diff = np.amax(np.absolute(output1 - output2))
+        return max_diff
+
+    def _check_consistency(self, fetches):
+        def _self_check(output):
+            if isinstance(output, fluid.core.LoDTensor):
+                if output._is_initialized():
+                    output = np.array(output)
+                else:
+                    raise RuntimeError("output tensor is not initialized.")
+
+            if not isinstance(output, np.ndarray):
+                raise TypeError("output's type should be numpy.ndarray.")
+
+            if (np.isnan(output)).any():
+                raise ValueError("NAN in output.")
+
+            if (np.isinf(output)).any():
+                raise ValueError("INF in output.")
+
+            return output
+
+        if not isinstance(fetches, list):
+            raise TypeError("fetches is not a list.")
+
+        if len(fetches) <= 0:
+            raise ValueError("The number of fetched results is {} (<= 0).".format(len(fetches)))
+
+        stable = True
+        repeat = len(fetches)
+        num_outputs = len(fetches[0])
+        max_diff = 0.0
+        for j in xrange(num_outputs):
+            if not stable:
+                break
+            output_0 = None
+            for i in xrange(repeat):
+                try:
+                    output_i = _self_check(fetches[i][j])
+                    if i == 0:
+                        output_0 = output_i
+                    diff = self._check_outputs(output_0, output_i)
+                    max_diff = diff if diff > max_diff else max_diff
+                except (RuntimeError, ValueError, AssertionError) as e:
+                    traceback.print_exc()
+                    stable = False
+                    break
+        print("Maximum Diff:{}".format("%.5f" % max_diff))
+
+    def _init_feed_tensor(self, feed):
+        for var in self.feed_vars:
+            if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
+                raise TypeError("Feed data of non LoDTensor is not supported.")
+
+            assert self.scope.find_var(var.name), "Variable {} is not created.".format(var.name)
+            tensor = self.scope.find_var(var.name).get_tensor()
+
+            cur_feed = feed[var.name]
+            if not isinstance(cur_feed, fluid.core.LoDTensor):
+                tensor.set(cur_feed, self.place)
+            else:
+                raise TypeError("Feed data of non LoDTensor is not supported yet.")
 
     def _fetch_data(self):
         pass

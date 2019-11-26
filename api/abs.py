@@ -33,4 +33,13 @@ if __name__ == '__main__':
     args = parse_args()
     obj = abs()
     obj.build_program(backward=args.backward)
-    obj.run_with_executor(use_gpu=args.use_gpu, repeat=args.repeat, log_level=args.log_level)
+    if args.run_with_executor:
+        obj.run_with_executor(use_gpu=args.use_gpu,
+                              repeat=args.repeat,
+                              log_level=args.log_level,
+                              check_output=args.check_output)
+    else:
+        obj.run_with_core_executor(use_gpu=args.use_gpu,
+                                   repeat=args.repeat,
+                                   log_level=args.log_level,
+                                   check_output=args.check_output)

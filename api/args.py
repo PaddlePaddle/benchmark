@@ -29,6 +29,16 @@ def str2bool(v):
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        '--run_with_executor',
+        type=str2bool,
+        default=True,
+        help='Whether running with executor [True|False]')
+    parser.add_argument(
+        '--check_output',
+        type=str2bool,
+        default=True,
+        help='Whether checking the consistency of outputs [True|False]')
+    parser.add_argument(
         '--backward',
         type=str2bool,
         default=False,
