@@ -61,8 +61,8 @@ function _train(){
     train_cmd=" --task_name ${TASK_NAME} \
           --use_cuda true \
           --do_train true \
-          --do_val true \
-          --do_test true \
+          --do_val False \
+          --do_test False \
           --batch_size ${base_batch_size} \
           --in_tokens False \
           --init_pretraining_params ${BERT_BASE_PATH}/params \
