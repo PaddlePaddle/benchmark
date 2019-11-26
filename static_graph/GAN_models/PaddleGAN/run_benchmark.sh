@@ -53,7 +53,7 @@ function _train(){
            --dataset mnist   \
            --noise_size 100  \
            --batch_size ${base_batch_size}   \
-           --epoch 10
+           --epoch 10 \
            --profile=${is_profiler} \
            --profiler_path=${profiler_path} \
            --max_iter=${max_iter}"
