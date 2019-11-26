@@ -17,8 +17,21 @@ from __future__ import print_function
 import abc
 import time
 import traceback
+import contextlib
 import numpy as np
 import paddle.fluid as fluid
+import paddle.fluid.profiler as profiler
+
+
+@contextlib.contextmanager
+def profile_context(name, use_gpu, profile):
+    if profile:
+        profile_type = "All" if use_gpu else "CPU"
+        with profiler.profiler(profile_type, 'total', name + ".profile"):
+            yield
+    else:
+        yield
+
 
 class APIBenchmarkBase(object):
     __metaclass__ = abc.ABCMeta      
@@ -37,7 +50,7 @@ class APIBenchmarkBase(object):
     def build_program(self, backward=False):
         pass
 
-    def run_with_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False):
+    def run_with_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profile=False):
         self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
         executor = fluid.Executor(self.place)
         executor.run(self.startup_program)
@@ -47,25 +60,27 @@ class APIBenchmarkBase(object):
 
         runtimes = []
         fetches = []
-        for i in xrange(repeat):
-            begin = time.time()
-            output = executor.run(program=self.main_program,
-                                  feed=feed,
-                                  fetch_list=self.fetch_vars,
-                                  use_program_cache=True,
-                                  return_numpy=False)
-            end = time.time()
-            runtimes.append(end - begin)
-            if check_output:
-                fetches.append(output)
+        with profile_context(self.name, use_gpu, profile):
+            for i in xrange(repeat):
+                begin = time.time()
+                output = executor.run(program=self.main_program,
+                                      feed=feed,
+                                      fetch_list=self.fetch_vars,
+                                      use_program_cache=True,
+                                      return_numpy=False)
+                end = time.time()
+                runtimes.append(end - begin)
+                if check_output:
+                    fetches.append(output)
         if check_output:
             stable, max_diff = self._check_consistency(fetches)
             stats = { "total": runtimes, "stable": stable, "diff": max_diff }
         else:
             stats = { "total": runtimes }
+        stats["device"] = "GPU" if use_gpu else "CPU"
         self._print_stat(stats, log_level=log_level)
 
-    def run_with_core_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False):
+    def run_with_core_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profile=False):
         self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
         executor = fluid.Executor(self.place)
         executor.run(self.startup_program)
@@ -90,22 +105,23 @@ class APIBenchmarkBase(object):
         compute_times = []
         runtimes = []
         fetches = []
-        for i in xrange(repeat):
-            begin = time.time()
-            self._init_feed_tensor(feed)
-            feed_end = time.time()
-            core_executor.run_prepared_ctx(ctx, self.scope, False, False, False)
-            compute_end = time.time()
-            output = self._get_fetch_tensor()
-            fetch_end = time.time()
+        with profile_context(self.name, use_gpu, profile):
+            for i in xrange(repeat):
+                begin = time.time()
+                self._init_feed_tensor(feed)
+                feed_end = time.time()
+                core_executor.run_prepared_ctx(ctx, self.scope, False, False, False)
+                compute_end = time.time()
+                output = self._get_fetch_tensor()
+                fetch_end = time.time()
 
-            runtimes.append(fetch_end - begin)
-            feed_times.append(feed_end - begin)
-            compute_times.append(compute_end - feed_end)
-            fetch_times.append(fetch_end - compute_end)
-            
-            if check_output:
-                fetches.append(output)
+                runtimes.append(fetch_end - begin)
+                feed_times.append(feed_end - begin)
+                compute_times.append(compute_end - feed_end)
+                fetch_times.append(fetch_end - compute_end)
+                
+                if check_output:
+                    fetches.append(output)
         if check_output:
             stable, max_diff = self._check_consistency(fetches)
             stats = {"total": runtimes,
@@ -116,6 +132,7 @@ class APIBenchmarkBase(object):
                      "diff": max_diff }
         else:
             stats = { "total": runtimes, "feed": feed_times, "compute": compute_times, "fetch": fetch_times }
+        stats["device"] = "GPU" if use_gpu else "CPU"
         self._print_stat(stats, log_level=log_level)
 
     def _print_stat(self, stats, log_level=0):
@@ -180,6 +197,7 @@ class APIBenchmarkBase(object):
 
         print("{")
         print("  name: \"%s\"," % self.name)
+        print("  device: \"%s\"," % stats["device"])
         if stable is not None and diff is not None:
             print("  precision: { stable: \"%s\", diff: %.5f }," % (str(stable), diff))
         print("  speed: { repeat: %d, start: %d, end: %d, total: %.5f, feed: %.5f, compute: %.5f, fetch: %.5f }"

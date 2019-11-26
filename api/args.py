@@ -39,6 +39,11 @@ def parse_args():
         default=True,
         help='Whether checking the consistency of outputs [True|False]')
     parser.add_argument(
+        '--profile',
+        type=str2bool,
+        default=False,
+        help='Whether doing profile [True|False]')
+    parser.add_argument(
         '--backward',
         type=str2bool,
         default=False,
