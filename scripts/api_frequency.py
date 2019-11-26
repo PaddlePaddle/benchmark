@@ -146,28 +146,6 @@ for tops in os.listdir(path):
                 find_op_path.append(sub_path)
             if root.find('DeepSpeech') != -1:
                 find_op_path.append(sub_path)
-    elif tops == 'dygraph':
-        for root in os.listdir(path+tops):
-            sub_path = os.path.join(path, tops, root)
-            if root.find('cycle_gan') != -1:
-                find_op_path.append(sub_path)
-            if root.find('mnist') != -1:
-                find_op_path.append(sub_path)
-            if root.find('ocr_recognition') != -1:
-                find_op_path.append(sub_path)
-            if root.find('ptb_lm') != -1:
-                find_op_path.append(sub_path)
-            if root.find('reinforcement_learning') != -1:
-                find_op_path.append(sub_path)
-            if root.find('resnet') != -1:
-                find_op_path.append(sub_path)
-            if root.find('se_resnext') != -1:
-                find_op_path.append(sub_path)
-            if root.find('sentiment') != -1:
-                find_op_path.append(sub_path)
-            if root.find('transformer') != -1:
-                find_op_path.append(sub_path)
-
 # declare alias name
 alias_name=dict()
 alias_name["Adam"]="AdamOptimizer"
@@ -221,8 +199,9 @@ db = pymysql.connect(host='gzbh-qianmo-com-162-69-149.gzbh.baidu.com', port=3306
 cursor = db.cursor()
 table_name='model_op_frequency'
 cursor.execute("select * from %s" % table_name)
-cursor.execute("TRUNCATE TABLE %s" % table_name)
-cursor.execute("select * from %s" % table_name)
+db.commit()
+#cursor.execute("TRUNCATE TABLE %s" % table_name)
+#cursor.execute("select * from %s" % table_name)
 col_name_list = [tuple[0] for tuple in cursor.description]
 
 sql = "INSERT INTO model_op_frequency (model, op, count) VALUES ( '%s', '%s', %d )"
