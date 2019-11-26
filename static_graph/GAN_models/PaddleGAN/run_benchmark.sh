@@ -3,7 +3,7 @@ set -xe
 
 if [[ $# -lt 2 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs DCGAN|CGAN|Pix2pix sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs DCGAN|CGAN|Pix2pix sp|mp 1000(max_iter) 1|0(is_profiler)"
     exit
 fi
 
@@ -11,7 +11,11 @@ function _set_params(){
     index="$1"
     model_name="$2"
     run_mode=${3:-"sp"}
-    run_log_path=${4:-$(pwd)}
+    max_iter=${4}
+    is_profiler=${5:-0}
+
+    run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
+    profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     skip_steps=5
     keyword="Batch_time_cost:"
@@ -26,6 +30,9 @@ function _set_params(){
     base_batch_size=0
 
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    profiler_path=${profiler_path}/profiler_${model_name}
+    if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 
 }
@@ -46,7 +53,10 @@ function _train(){
            --dataset mnist   \
            --noise_size 100  \
            --batch_size ${base_batch_size}   \
-           --epoch 10"
+           --epoch 10
+           --profile=${is_profiler} \
+           --profiler_path=${profiler_path} \
+           --max_iter=${max_iter}"
     elif echo {Pix2pix} | grep -w $model_name &>/dev/null
     then
         base_batch_size=1
@@ -60,17 +70,18 @@ function _train(){
            --gan_mode vanilla \
            --batch_size ${base_batch_size} \
            --epoch 200 \
-           --crop_size 256 "
+           --crop_size 256 \
+           --profile=${is_profiler} \
+           --profiler_path=${profiler_path} \
+           --max_iter=${max_iter}"
     else
         echo "model: $model_name not support!"
     fi
 
     train_cmd="python -u train.py "${train_cmd}
 
-    ${train_cmd} > ${log_file} 2>&1 &
-    train_pid=$!
-    sleep 120
-    kill -9 $train_pid
+    ${train_cmd} > ${log_file} 2>&1
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
