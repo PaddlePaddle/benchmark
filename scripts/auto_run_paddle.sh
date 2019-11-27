@@ -129,10 +129,13 @@ CycleGAN(){
     cp ${BENCHMARK_ROOT}/static_graph/CycleGAN/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 300 0 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
+    echo "index is speed, profiler is on, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 300 1 | tee ${PROFILER_LOG_DIR}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 300 0 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -163,10 +166,13 @@ StarGAN(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 300 0 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
+    echo "index is speed, profiler is on,  begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 300 1 | tee ${PROFILER_LOG_DIR}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 300 0 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -231,10 +237,13 @@ STGAN(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 300 0 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
+    echo "index is speed, profiler is on, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 300 1 | tee ${PROFILER_LOG_DIR}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 300 0 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -300,10 +309,13 @@ Pix2pix(){
     sed -i '/set\ -xe/d' run_benchmark.sh
 
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed Pix2pix sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed Pix2pix sp 300 0 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
+    echo "index is speed, profiler is on, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed Pix2pix sp 300 1 | tee ${PROFILER_LOG_DIR}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem Pix2pix sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem Pix2pix sp 300 0 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
