@@ -38,10 +38,10 @@ if __name__ == '__main__':
                               repeat=args.repeat,
                               log_level=args.log_level,
                               check_output=args.check_output,
-                              profile=args.profile)
+                              profiler=args.profiler)
     else:
         obj.run_with_core_executor(use_gpu=args.use_gpu,
                                    repeat=args.repeat,
                                    log_level=args.log_level,
                                    check_output=args.check_output,
-                                   profile=args.profile)
+                                   profiler=args.profiler)

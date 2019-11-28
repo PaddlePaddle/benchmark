@@ -39,10 +39,10 @@ def parse_args():
         default=True,
         help='Whether checking the consistency of outputs [True|False]')
     parser.add_argument(
-        '--profile',
-        type=str2bool,
-        default=False,
-        help='Whether doing profile [True|False]')
+        '--profiler',
+        type=str,
+        default="none",
+        help='Choose which profiler to use [\"none\"|\"native\"|\"nvprof\"]')
     parser.add_argument(
         '--backward',
         type=str2bool,
@@ -70,7 +70,7 @@ def parse_args():
         help='GPU id when benchmarking for GPU')
     args = parser.parse_args()
     gpu_id = args.gpu_id if args.gpu_id > 0 else 0
-    if os.environ.get("CUDA_VISIABLE_DEVICES", None) is None:
-        print("CUDA_VISIABLE_DEVICES is None, set to CUDA_VISIABLE_DEVICES={}".format(gpu_id))
-        os.environ["CUDA_VISIABLE_DEVICES"] = str(gpu_id)
+    if os.environ.get("CUDA_VISIBLE_DEVICES", None) is None:
+        print("CUDA_VISIBLE_DEVICES is None, set to CUDA_VISIBLE_DEVICES={}".format(gpu_id))
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
     return args

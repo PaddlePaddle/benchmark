@@ -19,15 +19,21 @@ import time
 import traceback
 import contextlib
 import numpy as np
+import paddle
 import paddle.fluid as fluid
-import paddle.fluid.profiler as profiler
+import utils
 
 
 @contextlib.contextmanager
-def profile_context(name, use_gpu, profile):
-    if profile:
+def profile_context(name, use_gpu, profiler):
+    if profiler == "native":
         profile_type = "All" if use_gpu else "CPU"
-        with profiler.profiler(profile_type, 'total', name + ".profile"):
+        output_file = name + ".profile"
+        with fluid.profiler.profiler(profile_type, 'total', output_file):
+            yield
+    elif profiler == "nvprof" and use_gpu:
+        output_file = name + ".nvprof"
+        with fluid.profiler.cuda_profiler(output_file, 'kvp'):
             yield
     else:
         yield
@@ -50,37 +56,40 @@ class APIBenchmarkBase(object):
     def build_program(self, backward=False):
         pass
 
-    def run_with_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profile=False):
+    def run_with_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profiler="none"):
         self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
         executor = fluid.Executor(self.place)
         executor.run(self.startup_program)
 
         if feed is None:
-            feed = self._feed_random_data(as_lodtensor=False)
+            feed = self._feed_random_data(use_gpu, as_lodtensor=True)
 
         runtimes = []
         fetches = []
-        with profile_context(self.name, use_gpu, profile):
+        with profile_context(self.name, use_gpu, profiler):
             for i in xrange(repeat):
                 begin = time.time()
-                output = executor.run(program=self.main_program,
+                outputs = executor.run(program=self.main_program,
                                       feed=feed,
                                       fetch_list=self.fetch_vars,
                                       use_program_cache=True,
-                                      return_numpy=False)
+                                      return_numpy=True)
                 end = time.time()
                 runtimes.append(end - begin)
                 if check_output:
-                    fetches.append(output)
+                    fetches.append(outputs)
         if check_output:
             stable, max_diff = self._check_consistency(fetches)
-            stats = { "total": runtimes, "stable": stable, "diff": max_diff }
+            stats = {"total": runtimes, "stable": stable, "diff": max_diff}
         else:
-            stats = { "total": runtimes }
+            stats = {"total": runtimes}
+        stats["framework"] = "paddle"
+        stats["version"] = paddle.__version__
+        stats["name"] = self.name
         stats["device"] = "GPU" if use_gpu else "CPU"
-        self._print_stat(stats, log_level=log_level)
+        utils.print_stat(stats, log_level=log_level)
 
-    def run_with_core_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profile=False):
+    def run_with_core_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profiler="none"):
         self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
         executor = fluid.Executor(self.place)
         executor.run(self.startup_program)
@@ -98,21 +107,21 @@ class APIBenchmarkBase(object):
         core_executor.create_variables(self.main_program.desc, self.scope, 0)
  
         if feed is None:
-            feed = self._feed_random_data(as_lodtensor=False)
+            feed = self._feed_random_data(use_gpu, as_lodtensor=False)
 
         feed_times = []
         fetch_times = []
         compute_times = []
         runtimes = []
         fetches = []
-        with profile_context(self.name, use_gpu, profile):
+        with profile_context(self.name, use_gpu, profiler):
             for i in xrange(repeat):
                 begin = time.time()
                 self._init_feed_tensor(feed)
                 feed_end = time.time()
                 core_executor.run_prepared_ctx(ctx, self.scope, False, False, False)
                 compute_end = time.time()
-                output = self._get_fetch_tensor()
+                outputs = self._get_fetch_tensor()
                 fetch_end = time.time()
 
                 runtimes.append(fetch_end - begin)
@@ -121,7 +130,7 @@ class APIBenchmarkBase(object):
                 fetch_times.append(fetch_end - compute_end)
                 
                 if check_output:
-                    fetches.append(output)
+                    fetches.append(outputs)
         if check_output:
             stable, max_diff = self._check_consistency(fetches)
             stats = {"total": runtimes,
@@ -132,77 +141,11 @@ class APIBenchmarkBase(object):
                      "diff": max_diff }
         else:
             stats = { "total": runtimes, "feed": feed_times, "compute": compute_times, "fetch": fetch_times }
+        stats["framework"] = "paddle"
+        stats["version"] = paddle.__version__
+        stats["name"] = self.name
         stats["device"] = "GPU" if use_gpu else "CPU"
-        self._print_stat(stats, log_level=log_level)
-
-    def _print_stat(self, stats, log_level=0):
-        def _get_stat(stats, key):
-            if stats.get(key, None) is None:
-                value = None
-            else:
-                value = stats[key]
-            return value
-
-        def _calc_avg_time(times, begin, end):
-            if times is not None:
-                if not isinstance(times, list):
-                    raise TypeError("Input times should be a list.")
-                sorted_times = np.sort(times)
-                avg_time = np.average(sorted_times[begin:end])
-            else:
-                avg_time = 0.0
-            return avg_time
-
-        if not isinstance(stats, dict):
-            raise TypeError("Input stats should be a dict.")
-
-        runtimes = stats["total"]
-        feed_times = _get_stat(stats, "feed")
-        fetch_times = _get_stat(stats, "fetch")
-        compute_times = _get_stat(stats, "compute")
-        stable = _get_stat(stats, "stable")
-        diff = _get_stat(stats, "diff")
-
-        for i in xrange(len(runtimes)):
-            runtimes[i] *= 1000
-            if feed_times is not None:
-                feed_times[i] *= 1000
-            if fetch_times is not None:
-                fetch_times[i] *= 1000
-            if compute_times is not None:
-                compute_times[i] *= 1000
-
-        sorted_runtimes = np.sort(runtimes)
-        if len(sorted_runtimes) <= 2:
-            begin = 0
-            end = len(sorted_runtimes)
-        elif len(sorted_runtimes) <= 10:
-            begin = 1
-            end = len(sorted_runtimes) - 1
-        elif len(sorted_runtimes) <= 20:
-            begin = 5
-            end = len(sorted_runtimes) - 5
-        else:
-            begin = 10
-            end = len(sorted_runtimes) - 10
-        avg_runtime = np.average(sorted_runtimes[begin:end])
-
-        avg_feed_time = _calc_avg_time(feed_times, begin, end)
-        avg_fetch_time = _calc_avg_time(fetch_times, begin, end)
-        avg_compute_time = _calc_avg_time(compute_times, begin, end)
-
-        if log_level == 1:
-            for i in xrange(len(runtimes)):
-                print("Iter {0}, Runtime: {1}".format("%4d" % i, "%.5f ms" % runtimes[i]))
-
-        print("{")
-        print("  name: \"%s\"," % self.name)
-        print("  device: \"%s\"," % stats["device"])
-        if stable is not None and diff is not None:
-            print("  precision: { stable: \"%s\", diff: %.5f }," % (str(stable), diff))
-        print("  speed: { repeat: %d, start: %d, end: %d, total: %.5f, feed: %.5f, compute: %.5f, fetch: %.5f }"
-                  % (len(sorted_runtimes), begin, end, avg_runtime, avg_feed_time, avg_compute_time, avg_fetch_time))
-        print("}")
+        utils.print_stat(stats, log_level=log_level)
 
     def _convert_dtype(self, dtype, to_string=True):
         def _trans(to_string, dtype_str, np_dtype):
@@ -234,12 +177,12 @@ class APIBenchmarkBase(object):
         else:
             raise ValueError("Unsupported dtype %s" % dtype)
 
-    def _feed_random_data(self, as_lodtensor=False):
+    def _feed_random_data(self, use_gpu, as_lodtensor=False):
         print("feed random data")
         feed = {}
-        place = fluid.CPUPlace()
-        #place = fluid.CUDAPinnedPlace()
-        #place = self.place
+        if use_gpu and as_lodtensor:
+            #place = fluid.CPUPlace()
+            place = fluid.CUDAPinnedPlace()
         for var in self.feed_vars:
             if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
                 raise TypeError("Feed data of non LoDTensor is not supported.")
@@ -247,13 +190,44 @@ class APIBenchmarkBase(object):
             shape = var.shape
             dtype = self._convert_dtype(var.dtype, to_string=True)
             data = np.random.random(shape).astype(dtype)
-            if as_lodtensor:
+            if use_gpu and as_lodtensor:
                 tensor = fluid.core.LoDTensor()
                 tensor.set(data, place)
                 feed[var.name] = tensor
             else:
                 feed[var.name] = data
         return feed
+
+    def _init_feed_tensor(self, feed):
+        for var in self.feed_vars:
+            if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
+                raise TypeError("Feed data of non LoDTensor is not supported.")
+
+            var_in_scope = self.scope.find_var(var.name)
+            assert var_in_scope, "Variable {} is not created.".format(var.name)
+            tensor = var_in_scope.get_tensor()
+
+            cur_feed = feed[var.name]
+            if not isinstance(cur_feed, fluid.core.LoDTensor):
+                tensor.set(cur_feed, self.place)
+            else:
+                raise TypeError("Feed data of non LoDTensor is not supported yet.")
+
+    def _get_fetch_tensor(self):
+        place = fluid.core.Place()
+        place.set_place(fluid.CPUPlace())
+        output = []
+        for var in self.fetch_vars:
+            if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
+                raise TypeError("Fetch data of non LoDTensor is not supported.")
+
+            var_in_scope = self.scope.find_var(var.name)
+            assert var_in_scope, "Variable {} is not created.".format(var.name)
+            tensor = var_in_scope.get_tensor()
+
+            cpu_tensor = tensor._copy(place)
+            output.append(cpu_tensor)
+        return output
 
     def _check_outputs(self, output1, output2):
         if not isinstance(output1, np.ndarray) or not isinstance(output2, np.ndarray):
@@ -309,34 +283,3 @@ class APIBenchmarkBase(object):
                     stable = False
                     break
         return stable, max_diff
-
-    def _init_feed_tensor(self, feed):
-        for var in self.feed_vars:
-            if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
-                raise TypeError("Feed data of non LoDTensor is not supported.")
-
-            var_in_scope = self.scope.find_var(var.name)
-            assert var_in_scope, "Variable {} is not created.".format(var.name)
-            tensor = var_in_scope.get_tensor()
-
-            cur_feed = feed[var.name]
-            if not isinstance(cur_feed, fluid.core.LoDTensor):
-                tensor.set(cur_feed, self.place)
-            else:
-                raise TypeError("Feed data of non LoDTensor is not supported yet.")
-
-    def _get_fetch_tensor(self):
-        place = fluid.core.Place()
-        place.set_place(fluid.CPUPlace())
-        output = []
-        for var in self.fetch_vars:
-            if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
-                raise TypeError("Fetch data of non LoDTensor is not supported.")
-
-            var_in_scope = self.scope.find_var(var.name)
-            assert var_in_scope, "Variable {} is not created.".format(var.name)
-            tensor = var_in_scope.get_tensor()
-
-            cpu_tensor = tensor._copy(place)
-            output.append(cpu_tensor)
-        return output
