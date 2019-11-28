@@ -71,6 +71,7 @@ function _train(){
     elif [[ ${is_profiler} -eq 0 ]]; then
         python -u train.py ${train_cmd} > ${log_file} 2>&1
     fi
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
