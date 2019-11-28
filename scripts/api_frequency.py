@@ -24,7 +24,8 @@ def findheader(path):
                         
     return name_2_model
                 
-file = open("API.spec")
+path=os.environ.get('MODEL_PATH')
+file = open(path+"/API.spec")
 cand_api=[]
 
 for line in file.readlines():
@@ -39,97 +40,46 @@ for line in file.readlines():
 
 cand_api=list(set(cand_api))
 # find models with train.py
-path='./'
 model_ops=dict()
 
 know_models=[]
 find_op_path=[]
+cv_sub_models=['PaddleDetection', 'face_detection', 'human_pose_estimation',
+'image_classification', 'metric_learning', 'ocr_recognition',
+'PaddleGAN/network', 'PaddleVideo/models', 'PaddleSeg', 'Research']
+
+nlp_sub_models=['PaddleDialogue', 'PaddleLARK', 'PaddleMRC', 'PaddleMT',
+'PaddleTextGEN', 'dialogue_domain_classification', 'Research']
+
+nlp_refer_models=['emotion_detection', 'language_model', 'lexical_analysis',
+'sentiment_classification', 'similarity_net']
+
+rec_sub_models=['ctr', 'din', 'gnn', 'gru4rec', 'multiview_simnet',
+'tagspace', 'ssr', 'text_matching_on_quora', 'word2vec']
+
+speech_sub_models=['DeepASR', 'DeepVoice3', 'DeepSpeech']
+
 for tops in os.listdir(path):
     if tops == "PaddleCV":
         for root in os.listdir(path+tops):
             sub_path = os.path.join(path, tops, root)
-            if root.find('PaddleDetection') != -1:
-                find_op_path.append(sub_path)
-            elif root.find('face_detection') != -1:
-                find_op_path.append(sub_path)
-            elif root.find('human_pose_estimation') != -1:
-                find_op_path.append(sub_path)
-            elif root.find('image_classification') != -1:
-                find_op_path.append(sub_path)
-            elif root.find('metric_learning') != -1:
-                find_op_path.append(sub_path)
-            elif root.find('ocr_recognition') != -1:
-                find_op_path.append(sub_path)
-            elif root.find('PaddleGAN/network') != -1:
-                find_op_path.append(sub_path)
-            elif root.find('PaddleVideo/models') != -1:
-                find_op_path.append(sub_path)
-            elif root.find('PaddleSeg') != -1:
-                find_op_path.append(sub_path)
-            if root.find('Research') != -1:
+            if root in cv_sub_models:
                 find_op_path.append(sub_path)
     elif tops == 'PaddleNLP':
         real_model_path=[]
         for root in os.listdir(path+tops):
             sub_path = os.path.join(path, tops, root)
-
-            if root.find('PaddleDialogue') != -1:
+            if root in nlp_sub_models:
                 find_op_path.append(sub_path)
-            if root.find('PaddleLARK') != -1:
-                find_op_path.append(sub_path)
-            if root.find('PaddleMRC') != -1:
-                find_op_path.append(sub_path)
-            if root.find('PaddleMT') != -1:
-                find_op_path.append(sub_path)
-            if root.find('PaddleTextGEN') != -1:
-                find_op_path.append(sub_path)
-            if root.find('PaddleTextGEN') != -1:
-                find_op_path.append(sub_path)
-            if root.find('dialogue_domain_classification') != -1:
-                find_op_path.append(sub_path)
-            if root.find('Research') != -1:
-                find_op_path.append(sub_path)
-            if root.find('emotion_detection') != -1:
+            elif root in nlp_refer_models:
                 #this model's path in real model path list
-                name_path = findheader(sub_path)
-                real_model_path.append(name_path)
-                find_op_path.append(sub_path)
-            if root.find('language_model') != -1:
-                name_path = findheader(sub_path)
-                real_model_path.append(name_path)
-                find_op_path.append(sub_path)
-            if root.find('lexical_analysis') != -1:
-                name_path = findheader(sub_path)
-                real_model_path.append(name_path)
-                find_op_path.append(sub_path)
-            if root.find('sentiment_classification') != -1:
-                name_path = findheader(sub_path)
-                real_model_path.append(name_path)
-                find_op_path.append(sub_path)
-            if root.find('similarity_net') != -1:
                 name_path = findheader(sub_path)
                 real_model_path.append(name_path)
                 find_op_path.append(sub_path)
     elif tops == 'PaddleRec':
         for root in os.listdir(path+tops):
             sub_path = os.path.join(path, tops, root)
-            if root.find('ctr') != -1:
-                find_op_path.append(sub_path)
-            if root.find('din') != -1:
-                find_op_path.append(sub_path)
-            if root.find('gnn') != -1:
-                find_op_path.append(sub_path)
-            if root.find('gru4rec') != -1:
-                find_op_path.append(sub_path)
-            if root.find('multiview_simnet') != -1:
-                find_op_path.append(sub_path)
-            if root.find('tagspace') != -1:
-                find_op_path.append(sub_path)
-            if root.find('ssr') != -1:
-                find_op_path.append(sub_path)
-            if root.find('text_matching_on_quora') != -1:
-                find_op_path.append(sub_path)
-            if root.find('word2vec') != -1:
+            if root in rec_sub_models:
                 find_op_path.append(sub_path)
     elif tops == 'PaddleSlim':
         sub_path = os.path.join(path, tops)
@@ -140,12 +90,9 @@ for tops in os.listdir(path):
     elif tops == 'PaddleSpeech':
         for root in os.listdir(path+tops):
             sub_path = os.path.join(path, tops, root)
-            if root.find('DeepASR') != -1:
+            if root in speech_sub_models:
                 find_op_path.append(sub_path)
-            if root.find('DeepVoice3') != -1:
-                find_op_path.append(sub_path)
-            if root.find('DeepSpeech') != -1:
-                find_op_path.append(sub_path)
+
 # declare alias name
 alias_name=dict()
 alias_name["Adam"]="AdamOptimizer"
@@ -220,11 +167,11 @@ for key, values in model_ops.items():
     for op in model_ops:
 	op_count[op] +=1
     for op_name, counts in op_count.items():
-        #print(key, op_name, counts)
-	cursor = db.cursor()
-        data=(key, op_name, counts)
-	cursor.execute(sql % data)
-	db.commit()
+        print(key, op_name, counts)
+	#cursor = db.cursor()
+        #data=(key, op_name, counts)
+	#cursor.execute(sql % data)
+	#db.commit()
 
 # construct a dict from op name
 c = dict.fromkeys(all_ops, 0)
