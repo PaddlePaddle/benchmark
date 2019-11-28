@@ -781,8 +781,10 @@ seq2seq(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 1 0 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
     echo "index is speed, profiler is on, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 1 1 | tee ${PROFILER_LOG_DIR}/${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
     echo "index is mem, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 1 0 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }

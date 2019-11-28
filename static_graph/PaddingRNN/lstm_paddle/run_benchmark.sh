@@ -66,6 +66,7 @@ function _train(){
       --profiler_path=${profiler_path} \
       --batch_size ${batch_size}"
      python -u train.py ${train_cmd} > ${log_file} 2>&1
+     kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
