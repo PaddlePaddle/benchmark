@@ -76,6 +76,7 @@ function _train(){
     esac
 
     ${train_cmd} > ${log_file} 2>&1
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then
         rm ${log_file}

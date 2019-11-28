@@ -48,6 +48,7 @@ function _train(){
     python train.py  --profile=${is_profiler} \
                 --profiler_path=${profiler_path} \
                 --max_iter=${max_iter} > ${log_file} 2>&1
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
