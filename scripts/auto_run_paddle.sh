@@ -452,7 +452,7 @@ image_classification(){
 
 #run_detection
 detection(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleDetection
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     # Prepare data
     ln -s ${data_path}/COCO17/annotations ${cur_model_path}/dataset/coco/annotations
