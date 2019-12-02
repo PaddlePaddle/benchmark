@@ -9,5 +9,5 @@ python abs.py \
       --profiler "none" \
       --backward False \
       --use_gpu True \
-      --repeat 100 \
+      --repeat 1000 \
       --log_level 1

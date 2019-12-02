@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from api_benchmark import APIBenchmarkBase
-
 from args import parse_args
 import paddle.fluid as fluid
 
-class abs(APIBenchmarkBase):
+import sys
+sys.path.append("..")
+from common import paddle_api_benchmark as paddle_api
+
+class abs(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(

@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from api_benchmark import APIBenchmarkBase
-
 from args import parse_args
 import tensorflow as tf
 
-class abs(APIBenchmarkBase):
+import sys
+sys.path.append("..")
+from common import tensorflow_api_benchmark as tensorflow_api
+
+class abs(tensorflow_api.TensorflowAPIBenchmarkBase):
     def build_graph(self, backward=False):
         data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
         result = tf.abs(x=data)

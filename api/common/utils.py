@@ -16,6 +16,16 @@ from __future__ import print_function
 
 import numpy as np
 
+
+def compare(self, output1, output2):
+    if not isinstance(output1, np.ndarray) or not isinstance(output2, np.ndarray):
+        raise TypeError("output's type should be numpy.ndarray.")
+   
+    assert len(output1) == len(output2)
+    assert np.allclose(output1, output2, rtol=1.e-6, atol=0)
+    max_diff = np.amax(np.absolute(output1 - output2))
+    return max_diff
+
 def get_stat(stats, key):
     if stats.get(key, None) is None:
         value = None

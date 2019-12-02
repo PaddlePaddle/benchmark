@@ -25,7 +25,7 @@ from tensorflow.python.client import timeline
 import utils
 
 
-class APIBenchmarkBase(object):
+class TensorflowAPIBenchmarkBase(object):
     __metaclass__ = abc.ABCMeta      
 
     def __init__(self):
@@ -36,12 +36,25 @@ class APIBenchmarkBase(object):
         pass
 
     def run(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profile=False):
-        config = tf.ConfigProto()
-        if use_gpu:
-            config.gpu_options.per_process_gpu_memory_fraction = 0.9
-            config.log_device_placement = True
-            #config.gpu_options.allow_growth = True
-        sess = tf.Session(config=config)
+        if tf.__version__ < "1.14.0":
+            config = tf.ConfigProto()
+            if use_gpu:
+                config.gpu_options.per_process_gpu_memory_fraction = 0.9
+                config.log_device_placement = True
+                #config.gpu_options.allow_growth = True
+            sess = tf.Session(config=config)
+            sess.run(tf.global_variables_initializer())
+            sess.run(tf.local_variables_initializer())
+        else:
+            config=tf.compat.v1.ConfigProto()
+            if use_gpu:
+                config.gpu_options.per_process_gpu_memory_fraction = 0.9
+                config.log_device_placement = True
+                #config.gpu_options.allow_growth = True
+            sess = tf.compat.v1.Session(config=config)
+            sess.run(tf.compat.v1.global_variables_initializer())
+            sess.run(tf.compat.v1.local_variables_initializer())
+
         if profile:
             profiler = model_analyzer.Profiler(graph=sess.graph)
             run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
@@ -51,12 +64,6 @@ class APIBenchmarkBase(object):
             run_options = None
             run_metadata = None
         self.timeline_dict = None
-        sess.run(tf.global_variables_initializer())
-        sess.run(tf.local_variables_initializer())
-        # For tf2.0
-        #sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(log_device_placement=True, device_count={'GPU': 1}))
-        #sess.run(tf.compat.v1.global_variables_initializer())
-        #sess.run(tf.compat.v1.local_variables_initializer())
 
         if feed is None:
             feed = self._feed_random_data()
@@ -105,10 +112,6 @@ class APIBenchmarkBase(object):
         stats["device"] = "GPU" if use_gpu else "CPU"
         utils.print_stat(stats, log_level=log_level)
 
-    def load_data(self, name, filename):
-        data = np.load(filename)
-        return data
-
     def _update_timeline(self, chrome_trace):
         # Codes from: https://github.com/ikhlestov/tensorflow_profiling/blob/master/03_merged_timeline_example.py
         # Convert crome trace to python dict
@@ -123,7 +126,7 @@ class APIBenchmarkBase(object):
                 if 'ts' in event:
                     self.timeline_dict['traceEvents'].append(event)
 
-    def _convert_dtype(self, dtype, to_string=True):
+    def convert_dtype(self, dtype, to_string=True):
         def _trans(to_string, dtype_str, np_dtype):
             dtype = dtype_str if to_string else np.dtype(np_dtype)
             return dtype
@@ -183,6 +186,6 @@ class APIBenchmarkBase(object):
         feed = {}
         for var in self.feed_list:
             shape = var.shape
-            dtype = self._convert_dtype(var.dtype, to_string=True)
+            dtype = self.convert_dtype(var.dtype, to_string=True)
             feed[var] = np.random.random(shape).astype(dtype)
         return feed

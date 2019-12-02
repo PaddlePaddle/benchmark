@@ -39,7 +39,7 @@ def profile_context(name, use_gpu, profiler):
         yield
 
 
-class APIBenchmarkBase(object):
+class PaddleAPIBenchmarkBase(object):
     __metaclass__ = abc.ABCMeta      
 
     def __init__(self):
@@ -66,6 +66,7 @@ class APIBenchmarkBase(object):
 
         runtimes = []
         fetches = []
+        outputs = None
         with profile_context(self.name, use_gpu, profiler):
             for i in xrange(repeat):
                 begin = time.time()
@@ -88,6 +89,7 @@ class APIBenchmarkBase(object):
         stats["name"] = self.name
         stats["device"] = "GPU" if use_gpu else "CPU"
         utils.print_stat(stats, log_level=log_level)
+        return outputs
 
     def run_with_core_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profiler="none"):
         self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
@@ -114,6 +116,7 @@ class APIBenchmarkBase(object):
         compute_times = []
         runtimes = []
         fetches = []
+        outputs = None
         with profile_context(self.name, use_gpu, profiler):
             for i in xrange(repeat):
                 begin = time.time()
@@ -146,8 +149,9 @@ class APIBenchmarkBase(object):
         stats["name"] = self.name
         stats["device"] = "GPU" if use_gpu else "CPU"
         utils.print_stat(stats, log_level=log_level)
+        return outputs
 
-    def _convert_dtype(self, dtype, to_string=True):
+    def convert_dtype(self, dtype, to_string=True):
         def _trans(to_string, dtype_str, np_dtype):
             dtype = dtype_str if to_string else np.dtype(np_dtype)
             return dtype
@@ -188,7 +192,7 @@ class APIBenchmarkBase(object):
                 raise TypeError("Feed data of non LoDTensor is not supported.")
                 
             shape = var.shape
-            dtype = self._convert_dtype(var.dtype, to_string=True)
+            dtype = self.convert_dtype(var.dtype, to_string=True)
             data = np.random.random(shape).astype(dtype)
             if use_gpu and as_lodtensor:
                 tensor = fluid.core.LoDTensor()
@@ -229,15 +233,6 @@ class APIBenchmarkBase(object):
             output.append(cpu_tensor)
         return output
 
-    def _check_outputs(self, output1, output2):
-        if not isinstance(output1, np.ndarray) or not isinstance(output2, np.ndarray):
-            raise TypeError("output's type should be numpy.ndarray.")
-       
-        assert len(output1) == len(output2)
-        assert np.allclose(output1, output2, rtol=1.e-6, atol=0)
-        max_diff = np.amax(np.absolute(output1 - output2))
-        return max_diff
-
     def _check_consistency(self, fetches):
         def _self_check(output):
             if isinstance(output, fluid.core.LoDTensor):
@@ -276,7 +271,7 @@ class APIBenchmarkBase(object):
                     output_i = _self_check(fetches[i][j])
                     if i == 0:
                         output_0 = output_i
-                    diff = self._check_outputs(output_0, output_i)
+                    diff = utils.compare(output_0, output_i)
                     max_diff = diff if diff > max_diff else max_diff
                 except (RuntimeError, ValueError, AssertionError) as e:
                     traceback.print_exc()
