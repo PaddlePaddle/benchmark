@@ -30,27 +30,19 @@ class TensorflowAPIBenchmarkBase(object):
 
     def __init__(self):
         self.name = self.__class__.__name__
+        self.allow_growth = False
 
     @abc.abstractmethod
     def build_graph(self, backward=False):
         pass
 
     def run(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profile=False):
+        config = self._set_config(use_gpu)
         if tf.__version__ < "1.14.0":
-            config = tf.ConfigProto()
-            if use_gpu:
-                config.gpu_options.per_process_gpu_memory_fraction = 0.9
-                config.log_device_placement = True
-                #config.gpu_options.allow_growth = True
             sess = tf.Session(config=config)
             sess.run(tf.global_variables_initializer())
             sess.run(tf.local_variables_initializer())
         else:
-            config=tf.compat.v1.ConfigProto()
-            if use_gpu:
-                config.gpu_options.per_process_gpu_memory_fraction = 0.9
-                config.log_device_placement = True
-                #config.gpu_options.allow_growth = True
             sess = tf.compat.v1.Session(config=config)
             sess.run(tf.compat.v1.global_variables_initializer())
             sess.run(tf.compat.v1.local_variables_initializer())
@@ -70,6 +62,7 @@ class TensorflowAPIBenchmarkBase(object):
 
         runtimes = []
         fetches = []
+        outputs = None
         for i in xrange(repeat):
             begin = time.time()
             outputs = sess.run(fetches=self.fetch_list,
@@ -111,6 +104,21 @@ class TensorflowAPIBenchmarkBase(object):
         stats = {"framework": "tensorflow", "version": tf.__version__, "name": self.name, "total": runtimes}
         stats["device"] = "GPU" if use_gpu else "CPU"
         utils.print_stat(stats, log_level=log_level)
+        return outputs
+
+    def _set_config(self, use_gpu):
+        if tf.__version__ < "1.14.0":
+            config = tf.ConfigProto()
+        else:
+            config = tf.compat.v1.ConfigProto()
+
+        if use_gpu:
+            if not self.allow_growth:
+                config.gpu_options.per_process_gpu_memory_fraction = 0.98
+            else:
+                config.gpu_options.allow_growth = True
+            #config.log_device_placement = True
+        return config
 
     def _update_timeline(self, chrome_trace):
         # Codes from: https://github.com/ikhlestov/tensorflow_profiling/blob/master/03_merged_timeline_example.py
