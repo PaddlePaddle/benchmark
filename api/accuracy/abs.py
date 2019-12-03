@@ -29,6 +29,7 @@ from common import utils
       
 class PaddleAbs(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False):
+        self.name = "abs"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
                 name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
@@ -40,6 +41,7 @@ class PaddleAbs(paddle_api.PaddleAPIBenchmarkBase):
 
 class TensorflowAbs(tensorflow_api.TensorflowAPIBenchmarkBase):
     def build_graph(self, backward=False):
+        self.name = "abs"
         self.allow_growth = True
 
         data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
@@ -88,7 +90,7 @@ def main(backward, use_gpu):
     # Run Tensorflow
     tf_outputs = tf_obj.run(use_gpu=use_gpu, feed=tf_feed, check_output=False)
 
-    utils.check_outputs(pd_outputs, tf_outputs)
+    utils.check_outputs(pd_outputs, tf_outputs, name="abs")
 
 if __name__ == '__main__':
     main(backward=False, use_gpu=True)

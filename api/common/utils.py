@@ -27,7 +27,7 @@ def compare(output1, output2):
     max_diff = np.amax(np.absolute(output1 - output2))
     return max_diff
 
-def check_outputs(list1, list2):
+def check_outputs(list1, list2, name=None):
     if not isinstance(list1, list) or not isinstance(list2, list):
         raise TypeError("input argument's type should be list of numpy.ndarray.")
 
@@ -43,7 +43,10 @@ def check_outputs(list1, list2):
     except (AssertionError) as e:
         traceback.print_exc()
         consistent = False
-    print("{consistent: \"%s\", diff: %.5f}" % (str(consistent), max_diff))
+    if name is not None:
+        print("{name: \"%s\", consistent: \"%s\", diff: %.5f}" % (name, str(consistent), max_diff))
+    else:
+        print("{consistent: \"%s\", diff: %.5f}" % (str(consistent), max_diff))
 
 def get_stat(stats, key):
     if stats.get(key, None) is None:
