@@ -30,6 +30,8 @@ class TensorflowAPIBenchmarkBase(object):
 
     def __init__(self):
         self.name = self.__class__.__name__
+        self.feed_list = None
+        self.fetch_list = None
         self.allow_growth = False
 
     @abc.abstractmethod
