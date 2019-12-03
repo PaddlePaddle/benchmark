@@ -113,11 +113,11 @@ class TensorflowAPIBenchmarkBase(object):
         else:
             config = tf.compat.v1.ConfigProto()
 
-        if use_gpu:
-            if not self.allow_growth:
-                config.gpu_options.per_process_gpu_memory_fraction = 0.98
-            else:
-                config.gpu_options.allow_growth = True
+#        if use_gpu:
+#            if not self.allow_growth:
+#                config.gpu_options.per_process_gpu_memory_fraction = 0.9
+#            else:
+#                config.gpu_options.allow_growth = True
             #config.log_device_placement = True
         return config
 

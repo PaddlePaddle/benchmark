@@ -33,6 +33,7 @@ class PaddleAbs(paddle_api.PaddleAPIBenchmarkBase):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
                 name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
+            data.stop_gradient = False
             result = fluid.layers.abs(x=data)
 
             self.feed_vars = [data]
