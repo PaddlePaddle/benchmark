@@ -24,11 +24,14 @@ class abs(paddle_api.PaddleAPIBenchmarkBase):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
                 name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
-            out = fluid.layers.abs(x=data)
+            result = fluid.layers.abs(x=data)
 
             self.feed_vars = [data]
-            self.fetch_vars = [out]
-        #print(self.main_program)
+            if backward:
+                gradients = fluid.backward.calc_gradient(result, [data])
+                self.fetch_vars = [result, gradients]
+            else:
+                self.fetch_vars = [result]
 
 
 if __name__ == '__main__':

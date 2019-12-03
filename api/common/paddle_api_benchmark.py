@@ -14,8 +14,8 @@
 
 from __future__ import print_function
 
-import abc
 import time
+import abc, six
 import traceback
 import contextlib
 import numpy as np
@@ -39,9 +39,8 @@ def profile_context(name, use_gpu, profiler):
         yield
 
 
+@six.add_metaclass(abc.ABCMeta)
 class PaddleAPIBenchmarkBase(object):
-    __metaclass__ = abc.ABCMeta      
-
     def __init__(self):
         self.name = self.__class__.__name__
         self.main_program = fluid.Program()

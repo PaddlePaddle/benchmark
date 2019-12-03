@@ -14,9 +14,9 @@
 
 from __future__ import print_function
 
-import abc
 import json
 import time
+import abc, six
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.profiler import model_analyzer
@@ -25,9 +25,8 @@ from tensorflow.python.client import timeline
 import utils
 
 
+@six.add_metaclass(abc.ABCMeta)
 class TensorflowAPIBenchmarkBase(object):
-    __metaclass__ = abc.ABCMeta      
-
     def __init__(self):
         self.name = self.__class__.__name__
         self.feed_list = None
