@@ -21,7 +21,7 @@ import numpy as np
 def compare(output1, output2):
     if not isinstance(output1, np.ndarray) or not isinstance(output2, np.ndarray):
         raise TypeError("input argument's type should be numpy.ndarray.")
-   
+
     assert len(output1) == len(output2)
     assert np.allclose(output1, output2, rtol=1.e-6, atol=0)
     max_diff = np.amax(np.absolute(output1 - output2))
@@ -33,20 +33,22 @@ def check_outputs(list1, list2, name=None):
 
     consistent = True
     max_diff = 0.0
-    try:
-        assert len(list1) == len(list2)
-        for i in xrange(len(list1)):
-            output1 = list1[i]
-            output2 = list2[i]
+ 
+    assert len(list1) == len(list2)
+    num_outputs = len(list1)
+    for i in xrange(num_outputs):
+        output1 = list1[i]
+        output2 = list2[i]
+        try:
             diff = compare(output1, output2)
             max_diff = diff if diff > max_diff else max_diff
-    except (AssertionError) as e:
-        traceback.print_exc()
-        consistent = False
+        except (AssertionError) as e:
+            print("Meet AssertError for output: %d" % i)
+            consistent = False
     if name is not None:
-        print("{name: \"%s\", consistent: \"%s\", diff: %.5f}" % (name, str(consistent), max_diff))
+        print("{ name: \"%s\", consistent: \"%s\", num_outputs: %d, diff: %.5f }" % (name, str(consistent), num_outputs, max_diff))
     else:
-        print("{consistent: \"%s\", diff: %.5f}" % (str(consistent), max_diff))
+        print("{ consistent: \"%s\", num_outputs: %d, diff: %.5f }" % (str(consistent), num_outputs, max_diff))
 
 def get_stat(stats, key):
     if stats.get(key, None) is None:
