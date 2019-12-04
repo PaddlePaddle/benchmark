@@ -59,6 +59,11 @@ class TensorflowAbs(tensorflow_api.TensorflowAPIBenchmarkBase):
 
 
 def feed_random_data(pd_obj, tf_obj):
+    if pd_obj.feed_vars is None and tf_obj.feed_list is None:
+        return None, None
+    if len(pd_obj.feed_vars) == 0 and len(tf_obj.feed_list) == 0:
+        return None, None
+
     assert len(pd_obj.feed_vars) == len(tf_obj.feed_list)
 
     pd_feed = {}
