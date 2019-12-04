@@ -21,7 +21,8 @@ import paddle.fluid as fluid
 import tensorflow as tf
 import numpy as np
 
-from abs import feed_random_data
+from args import parse_args
+from abs import feed_random_data, run_and_check
 
 import sys
 sys.path.append("..")
@@ -42,11 +43,9 @@ class PaddleDropout(paddle_api.PaddleAPIBenchmarkBase):
                                           dropout_implementation="upscale_in_train")
 
             self.feed_vars = [data]
+            self.fetch_vars = [result]
             if backward:
-                gradients = fluid.backward.calc_gradient(result, [data])
-                self.fetch_vars = [result, gradients[0]]
-            else:
-                self.fetch_vars = [result]
+                self.append_gradients(result, [data])
 
 
 class TensorflowDropout(tensorflow_api.TensorflowAPIBenchmarkBase):
@@ -61,31 +60,16 @@ class TensorflowDropout(tensorflow_api.TensorflowAPIBenchmarkBase):
                                seed=123)
 
         self.feed_list = [data]
+        self.fetch_list = [result]
         if backward:
-            gradients = tf.gradients(result, [data])
-            self.fetch_list = [result, gradients[0]]
-        else:
-            self.fetch_list = [result]
+            self.append_gradients(result, [data])
 
 
 def main(backward, use_gpu):
-    # Define Paddle program
     pd_obj = PaddleDropout()
-    pd_obj.build_program(backward=backward)
-
-    # Define Tensorflow graph
     tf_obj = TensorflowDropout()
-    tf_obj.build_graph(backward=backward)
-
-    pd_feed, tf_feed = feed_random_data(pd_obj, tf_obj)
-
-    # Run Paddle
-    pd_outputs = pd_obj.run_with_executor(use_gpu=use_gpu, feed=pd_feed, check_output=False)
-
-    # Run Tensorflow
-    tf_outputs = tf_obj.run(use_gpu=use_gpu, feed=tf_feed, check_output=False)
-
-    utils.check_outputs(pd_outputs, tf_outputs, name="dropout")
+    run_and_check(pd_obj, tf_obj, backward, use_gpu, name="dropout")
 
 if __name__ == '__main__':
-    main(backward=False, use_gpu=True)
+    args = parse_args()
+    main(backward=args.backward, use_gpu=args.use_gpu)

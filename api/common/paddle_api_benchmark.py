@@ -55,6 +55,20 @@ class PaddleAPIBenchmarkBase(object):
     def build_program(self, backward=False):
         pass
 
+    def append_gradients(self, targets, inputs):
+        if isinstance(inputs, fluid.framework.Variable):
+            inputs = [inputs]
+        if not isinstance(inputs, list):
+            raise TypeError("inputs should be a list.")
+
+        gradients = fluid.backward.calc_gradient(targets, inputs)
+        print(gradients)
+        if isinstance(gradients, list):
+            for grad in gradients:
+                self.fetch_vars.append(grad)
+        else:
+            self.fetch_vars.append(gradients)
+
     def run_with_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profiler="none"):
         self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
         executor = fluid.Executor(self.place)

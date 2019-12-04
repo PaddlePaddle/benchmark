@@ -21,7 +21,8 @@ import paddle.fluid as fluid
 import tensorflow as tf
 import numpy as np
 
-from abs import feed_random_data
+from args import parse_args
+from abs import feed_random_data, run_and_check
 
 import sys
 sys.path.append("..")
@@ -46,11 +47,9 @@ class PaddleMatmul(paddle_api.PaddleAPIBenchmarkBase):
                                          alpha=1.0)
 
             self.feed_vars = [x, y]
+            self.fetch_vars = [result]
             if backward:
-                gradients = fluid.backward.calc_gradient(result, [x, y])
-                self.fetch_vars = [result, gradients[0], gradients[1]]
-            else:
-                self.fetch_vars = [result]
+                self.append_gradients(result, [x, y])
 
 
 class TensorflowMatmul(tensorflow_api.TensorflowAPIBenchmarkBase):
@@ -70,31 +69,16 @@ class TensorflowMatmul(tensorflow_api.TensorflowAPIBenchmarkBase):
                            b_is_sparse=False)
 
         self.feed_list = [x, y]
+        self.fetch_list = [result]
         if backward:
-            gradients = tf.gradients(result, [x, y])
-            self.fetch_list = [result, gradients[0], gradients[1]]
-        else:
-            self.fetch_list = [result]
+            self.append_gradients(result, [x, y])
 
 
 def main(backward, use_gpu):
-    # Define Paddle program
     pd_obj = PaddleMatmul()
-    pd_obj.build_program(backward=backward)
-
-    # Define Tensorflow graph
     tf_obj = TensorflowMatmul()
-    tf_obj.build_graph(backward=backward)
-
-    pd_feed, tf_feed = feed_random_data(pd_obj, tf_obj)
-
-    # Run Paddle
-    pd_outputs = pd_obj.run_with_executor(use_gpu=use_gpu, feed=pd_feed, check_output=False)
-
-    # Run Tensorflow
-    tf_outputs = tf_obj.run(use_gpu=use_gpu, feed=tf_feed, check_output=False)
-
-    utils.check_outputs(pd_outputs, tf_outputs, name="matmul")
+    run_and_check(pd_obj, tf_obj, backward, use_gpu, name="matmul")
 
 if __name__ == '__main__':
-    main(backward=False, use_gpu=True)
+    args = parse_args()
+    main(backward=args.backward, use_gpu=args.use_gpu)

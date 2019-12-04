@@ -21,6 +21,8 @@ import paddle.fluid as fluid
 import tensorflow as tf
 import numpy as np
 
+from args import parse_args
+
 import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
@@ -37,11 +39,9 @@ class PaddleAbs(paddle_api.PaddleAPIBenchmarkBase):
             result = fluid.layers.abs(x=data)
 
             self.feed_vars = [data]
+            self.fetch_vars = [result]
             if backward:
-                gradients = fluid.backward.calc_gradient(result, [data])
-                self.fetch_vars = [result, gradients[0]]
-            else:
-                self.fetch_vars = [result]
+                self.append_gradients(result, [data])
 
 
 class TensorflowAbs(tensorflow_api.TensorflowAPIBenchmarkBase):
@@ -53,11 +53,9 @@ class TensorflowAbs(tensorflow_api.TensorflowAPIBenchmarkBase):
         result = tf.abs(x=data)
 
         self.feed_list = [data]
+        self.fetch_list = [result]
         if backward:
-            gradients = tf.gradients(result, [data])
-            self.fetch_list = [result, gradients[0]]
-        else:
-            self.fetch_list = [result]
+            self.append_gradients(result, [data])
 
 
 def feed_random_data(pd_obj, tf_obj):
@@ -77,13 +75,11 @@ def feed_random_data(pd_obj, tf_obj):
         tf_feed[tf_var] = data
     return pd_feed, tf_feed
 
-def main(backward, use_gpu):
+def run_and_check(pd_obj, tf_obj, backward, use_gpu, name):
     # Define Paddle program
-    pd_obj = PaddleAbs()
     pd_obj.build_program(backward=backward)
 
     # Define Tensorflow graph
-    tf_obj = TensorflowAbs()
     tf_obj.build_graph(backward=backward)
 
     pd_feed, tf_feed = feed_random_data(pd_obj, tf_obj)
@@ -94,7 +90,13 @@ def main(backward, use_gpu):
     # Run Tensorflow
     tf_outputs = tf_obj.run(use_gpu=use_gpu, feed=tf_feed, check_output=False)
 
-    utils.check_outputs(pd_outputs, tf_outputs, name="abs")
+    utils.check_outputs(pd_outputs, tf_outputs, name=name)
+
+def main(backward, use_gpu):
+    pd_obj = PaddleAbs()
+    tf_obj = TensorflowAbs()
+    run_and_check(pd_obj, tf_obj, backward, use_gpu, name="abs")
 
 if __name__ == '__main__':
-    main(backward=False, use_gpu=True)
+    args = parse_args()
+    main(backward=args.backward, use_gpu=args.use_gpu)

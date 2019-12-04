@@ -21,6 +21,8 @@ import paddle.fluid as fluid
 import tensorflow as tf
 import numpy as np
 
+from args import parse_args
+
 import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
@@ -38,11 +40,9 @@ class PaddleEmbedding(paddle_api.PaddleAPIBenchmarkBase):
             result = fluid.embedding(input=data, size=[64, 128], param_attr='table')
 
             self.feed_vars = [data, table]
+            self.fetch_vars = [result]
             if backward:
-                gradients = fluid.backward.calc_gradient(result, [table])
-                self.fetch_vars = [result, gradients[0]]
-            else:
-                self.fetch_vars = [result]
+                self.append_gradients(result, [table])
 
 
 class TensorflowEmbedding(tensorflow_api.TensorflowAPIBenchmarkBase):
@@ -55,11 +55,9 @@ class TensorflowEmbedding(tensorflow_api.TensorflowAPIBenchmarkBase):
         result = tf.nn.embedding_lookup(ids=data, params=table, max_norm=None)
 
         self.feed_list = [data, table]
+        self.fetch_list = [result]
         if backward:
-            gradients = tf.gradients(result, [table])
-            self.fetch_list = [result, gradients[0]]
-        else:
-            self.fetch_list = [result]
+            self.append_gradients(result, [table])
 
 
 def feed_random_data(pd_obj, tf_obj):
@@ -103,4 +101,5 @@ def main(backward, use_gpu):
     utils.check_outputs(pd_outputs, tf_outputs, name="embedding")
 
 if __name__ == '__main__':
-    main(backward=False, use_gpu=True)
+    args = parse_args()
+    main(backward=args.backward, use_gpu=args.use_gpu)

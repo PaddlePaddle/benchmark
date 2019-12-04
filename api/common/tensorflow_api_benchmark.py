@@ -37,6 +37,20 @@ class TensorflowAPIBenchmarkBase(object):
     def build_graph(self, backward=False):
         pass
 
+    def append_gradients(self, targets, inputs):
+        if isinstance(inputs, tf.Tensor):
+            inputs = [inputs]
+        if not isinstance(inputs, list):
+            raise TypeError("inputs should be a list.")
+
+        gradients = tf.gradients(targets, inputs)
+        print(gradients)
+        if isinstance(gradients, list):
+            for grad in gradients:
+                self.fetch_list.append(grad)
+        else:
+            self.fetch_list.append(gradients)
+
     def run(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profile=False):
         config = self._set_config(use_gpu)
         if tf.__version__ < "1.14.0":
