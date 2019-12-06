@@ -29,6 +29,12 @@ function _set_params(){
     else
         batch_size=$base_batch_size
     fi
+
+    config_file_name="nextvlad.yaml"
+    if [ ${model_name} = "CTCN" ]; then
+        config_file_name="ctcn.yaml"
+    fi
+
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_parse_file=${log_file}
 
@@ -48,7 +54,7 @@ function _train(){
     sed -i "s/num_gpus: [1-8]/num_gpus: ${num_gpu_devices}/g" ./configs/$model_name.yaml
 
     train_cmd=" --model_name $model_name \
-        --config ./configs/nextvlad.yaml \
+        --config ./configs/${config_file_name} \
         --valid_interval 1 \
         --log_interval 10 \
         --batch_size=$batch_size \
