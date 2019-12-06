@@ -328,6 +328,7 @@ nextvlad(){
     rm -rf data
     mkdir -p data/dataset
     ln -s ${data_path}/youtube8m_paddle ./data/dataset/youtube8m
+    ln -s ${data_path}/ctcn_paddle/ ./data/dataset/ctcn
 
     # make train.list
     ls ${cur_model_path}/data/dataset/youtube8m/pkl/train/* > ./data/dataset/youtube8m/train.list
@@ -352,7 +353,7 @@ nextvlad(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
 
-    model_list=(nextvlad ctcn)
+    model_list=(nextvlad CTCN)
     for model_name in ${model_list[@]}; do
         echo "index is speed, 1gpu, begin, ${model_name}"
         PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
