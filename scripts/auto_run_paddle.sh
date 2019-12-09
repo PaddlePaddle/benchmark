@@ -356,16 +356,19 @@ nextvlad(){
     model_list=(nextvlad CTCN)
     for model_name in ${model_list[@]}; do
         echo "index is speed, 1gpu, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 ${model_name} sp 2 0 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is speed, 1gpu, prfoiler is on, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 ${model_name} sp 2 1 | tee ${PROFILER_LOG_DIR}/${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is mem, 1gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem 32 ${model_name} sp 2 0| tee ${log_path}/${model_name}_mem_1gpus 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 ${model_name} sp 2 0 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
         sleep 60
         echo "index is mem, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem 32 ${model_name} sp 2 0 | tee ${log_path}/${model_name}_mem_8gpus 2>&1
         sleep 60
     done
 }
