@@ -24,17 +24,13 @@ function _set_params(){
     separator=" "                    # 解析日志，数据所在行的分隔符(必填)
     position=-2                      # 解析日志，按照分隔符分割后形成的数组索引(必填)
     model_mode=0                     # 解析日志，若数据单位是s/step，则为0，若数据单位是step/s,则为1(必填)
-    #range=-1                        # 解析日志，取得列表索引的值后，切片[0：range], 默认最后一位可以不用填
+    #range=-1                        # 解析日志，取得列表索引的值后，切片[0：range], 默认最后一位可以不用填, 或者 3:10格式
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
 
-    if [ $run_mode = "sp" ]; then
-        batch_size=`expr $base_batch_size \* $num_gpu_devices`
-    else
-        batch_size=$base_batch_size
-    fi
+    batch_size=`expr ${base_batch_size} \* ${num_gpu_devices}`
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}
