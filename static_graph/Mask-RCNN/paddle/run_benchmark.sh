@@ -42,6 +42,7 @@ function _set_env(){
    export FLAGS_fraction_of_gpu_memory_to_use=0.98
    export FLAGS_memory_fraction_of_eager_deletion=1.0
    export FLAGS_conv_workspace_size_limit=500
+   export FLAGS_allocator_strategy=naive_best_fit
 }
 
 function _train(){
