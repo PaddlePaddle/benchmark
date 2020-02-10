@@ -103,12 +103,12 @@ python ../python/paddle/fluid/contrib/slim/tests/save_qat_model.py --qat_model_p
 
 |     Model    | FP32 Latency (ms) | INT8 QAT Latency (ms)    | Latency Diff |
 |:------------:|:----------------------:|:-------------------:|:---------:|
-| Ernie        |                        |            95.70    |           |
+| Ernie        |        318.85          |            95.70    |     3.33   |
 
 
 >**III. Ernie QAT MKL-DNN 在 Intel(R) Xeon(R) Gold 6271 20个核上单样本耗时**
 
 |     Model    | FP32 Latency (ms) | INT8 QAT Latency (ms) | Latency Diff |
 |:------------:|:----------------------:|:----------------------:|:---------:|
-| Ernie        |                        |            22.56       |           |
+| Ernie        |       109.60           |            22.56       |     4.85   |
 
