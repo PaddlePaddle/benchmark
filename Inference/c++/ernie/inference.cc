@@ -202,11 +202,7 @@ static int AssessInputNum(std::ifstream& file) {
   file.seekg (0, std::ios::beg);
 
   int colons_num = std::count(line.begin(), line.end(), ':');
-  int inputs_num = -1;
-  if (colons_num == 2)
-    inputs_num = colons_num;
-  else
-    inputs_num = 4;
+  int inputs_num = colons_num == 2 ? colons_num : 4;
 
   return inputs_num;
 }
