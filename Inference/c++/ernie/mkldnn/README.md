@@ -27,7 +27,7 @@ cmake -DFLUID_INFERENCE_INSTALL_DIR=$PADDLE_ROOT \
  make install 
  pip install tmp/opt/paddle/share/wheels/paddlepaddle-0.0.0-cp27-cp27mu-linux_x86_64.whl
 ```
-注：`make install` 后，生成的whl文件目录应该为`/PATH/TO/PADDLE/build/tmp/opt/paddle/share/wheels`，在下一步的`pip install *.whl`中安装这个文件。
+注意：`make install` 后，生成的whl文件目录应该为`/PATH/TO/PADDLE/build/tmp/opt/paddle/share/wheels`，因此，在下一步的`pip install`中安装这个文件。
 
 ## 安装与编译C++性能测试库
 
@@ -75,30 +75,29 @@ OMP_NUM_THREADS=28 FLAGS_use_mkldnn=true python python/paddle/fluid/contrib/slim
 
 * 性能复现
 
-#### 1. 使用PaddlePaddle预测库保存QAT INT8 模型
+#### 1. 使用PaddlePaddle预测库保存QAT INT8模型
 ```bash
 model_dir=/PATH/TO/DOWNLOAD/MODEL/Ernie_qat/float
 save_int8_model_path=/PATH/TO/SAVE/INT8/ERNIE/MODEL
-save_fp32_model_path=/PATH/TO/SAVE/FP32/ERNIE/MODEL
 cd /PATH/TO/PADDLE
 python python/paddle/fluid/contrib/slim/tests/save_qat_model.py --qat_model_path=${model_dir} --int8_model_save_path=${save_int8_model_path} --quantized_ops="fc,reshape2,transpose2"
 ```
 #### 2. Ernie Float32 模型性能复现
 ```bash
-# 下载原始Ernie float32模型
+# 下载Ernie float32模型
 cd /PATH/TO/DOWNLOAD/MODEL/
 wget http://paddle-inference-dist.bj.bcebos.com/int8/QAT_models/fp32/ernie_fp32_model.tar.gz 
-tar -xzvf ernie_fp32_model.tar.gz
-# 解压后的原始Ernie Float32模型在位置：`/PATH/TO/DOWNLOAD/MODEL/ernie_fp32_model`.
+tar -xvf ernie_fp32_model.tar.gz
+# 解压后的Ernie Float32模型在位置：`/PATH/TO/DOWNLOAD/MODEL/ernie_fp32_model`.
 
 cd /PATH/TO/benchmark
 export KMP_AFFINITY=granularity=fine,compact,1,0
 export KMP_BLOCKTIME=1 
 # In the file run.sh, set `MODEL_DIR` to `/PATH/TO/DOWNLOAD/MODEL/ernie_fp32_model`
 # In the file run.sh, set `DATA_FILE` to `/PATH/TO/DOWNLOAD/NLP/DATASET/Ernie_dataset/1.8w.bs1`
-# uncomment for CPU, use 1 core:
+# For 1 thread performance:
 ./run.sh
-# uncomment for CPU, use 20 cores:
+# For 20 threads performance:
 ./run.sh -1 20
 ```
 
@@ -109,10 +108,10 @@ export KMP_AFFINITY=granularity=fine,compact,1,0
 export KMP_BLOCKTIME=1 
 # In the file run.sh, set `MODEL_DIR` to `/PATH/TO/SAVE/INT8/ERNIE/MODEL`
 # In the file run.sh, set `DATA_FILE` to `/PATH/TO/DOWNLOAD/NLP/DATASET/Ernie_dataset/1.8w.bs1`
-# uncomment for CPU, use 1 core:
+# For 1 thread performance:
 ./run.sh
-# uncomment for CPU, use 20 cores:
- ./run.sh -1 20
+# For 20 threads performance:
+./run.sh -1 20
 ```
 
 ## 复现结果参考
