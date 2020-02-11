@@ -8,9 +8,11 @@
 PADDLE_ROOT=/path/of/capi
 git clone https://github.com/PaddlePaddle/Paddle.git
 cd Paddle
+git checkout release/1.7
 mkdir build
 cd build
 cmake -DFLUID_INFERENCE_INSTALL_DIR=$PADDLE_ROOT \
+      -DCMAKE_INSTALL_PREFIX=./tmp \
       -DCMAKE_BUILD_TYPE=Release \
       -DWITH_PYTHON=ON \
       -DWITH_MKL=ON \
@@ -23,7 +25,9 @@ cmake -DFLUID_INFERENCE_INSTALL_DIR=$PADDLE_ROOT \
  make
  make inference_lib_dist
  make install 
+ pip install tmp/opt/paddle/share/wheels/paddlepaddle-0.0.0-cp27-cp27mu-linux_x86_64.whl
 ```
+注：`make install` 后，生成的whl文件目录应该为`/PATH/TO/PADDLE/build/tmp/opt/paddle/share/wheels`，在下一步的`pip install *.whl`中安装这个文件。
 
 ## 安装与编译C++性能测试库
 
@@ -71,21 +75,42 @@ OMP_NUM_THREADS=28 FLAGS_use_mkldnn=true python python/paddle/fluid/contrib/slim
 
 * 性能复现
 
-```
-# 1. 使用PaddlePaddle预测库保存QAT INT8 模型
-
+#### 1. 使用PaddlePaddle预测库保存QAT INT8 模型
+```bash
 model_dir=/PATH/TO/DOWNLOAD/MODEL/Ernie_qat/float
 save_int8_model_path=/PATH/TO/SAVE/INT8/ERNIE/MODEL
 save_fp32_model_path=/PATH/TO/SAVE/FP32/ERNIE/MODEL
-cd /PATH/TO/PADDLE/build
-python ../python/paddle/fluid/contrib/slim/tests/save_qat_model.py --qat_model_path=${model_dir} --int8_model_save_path=${save_int8_model_path} --quantized_ops="fc,reshape2,transpose2"
+cd /PATH/TO/PADDLE
+python python/paddle/fluid/contrib/slim/tests/save_qat_model.py --qat_model_path=${model_dir} --int8_model_save_path=${save_int8_model_path} --quantized_ops="fc,reshape2,transpose2"
+```
+#### 2. Ernie Float32 模型性能复现
+```bash
+# 下载原始Ernie float32模型
+cd /PATH/TO/DOWNLOAD/MODEL/
+wget http://paddle-inference-dist.bj.bcebos.com/int8/QAT_models/fp32/ernie_fp32_model.tar.gz 
+tar -xzvf ernie_fp32_model.tar.gz
+# 解压后的原始Ernie Float32模型在位置：`/PATH/TO/DOWNLOAD/MODEL/ernie_fp32_model`.
 
-# 2. 使用benchmark测试库的run.sh 
+cd /PATH/TO/benchmark
+export KMP_AFFINITY=granularity=fine,compact,1,0
+export KMP_BLOCKTIME=1 
+# In the file run.sh, set `MODEL_DIR` to `/PATH/TO/DOWNLOAD/MODEL/ernie_fp32_model`
+# In the file run.sh, set `DATA_FILE` to `/PATH/TO/DOWNLOAD/NLP/DATASET/Ernie_dataset/1.8w.bs1`
+# uncomment for CPU, use 1 core:
+./run.sh
+# uncomment for CPU, use 20 cores:
+./run.sh -1 20
+```
 
+#### 3. Ernie QAT INT8 模型性能复现
+```bash
+cd /PATH/TO/benchmark
+export KMP_AFFINITY=granularity=fine,compact,1,0
+export KMP_BLOCKTIME=1 
 # In the file run.sh, set `MODEL_DIR` to `/PATH/TO/SAVE/INT8/ERNIE/MODEL`
 # In the file run.sh, set `DATA_FILE` to `/PATH/TO/DOWNLOAD/NLP/DATASET/Ernie_dataset/1.8w.bs1`
 # uncomment for CPU, use 1 core:
- ./run.sh
+./run.sh
 # uncomment for CPU, use 20 cores:
  ./run.sh -1 20
 ```
@@ -94,21 +119,15 @@ python ../python/paddle/fluid/contrib/slim/tests/save_qat_model.py --qat_model_p
 
 >**I. Ernie QAT MKL-DNN 在 Intel(R) Xeon(R) Gold 6271 的精度结果**
 
-|     Model    |  FP32 Accuracy | INT8 QAT Accuracy | Accuracy Diff |
+|     Model    |  FP32 Accuracy | QAT INT8 Accuracy | Accuracy Diff |
 |:------------:|:----------------------:|:----------------------:|:---------:|
 |   Ernie      |      0.80              |         0.82           |     +0.02 |               
 
 
->**II. Ernie QAT MKL-DNN 在 Intel(R) Xeon(R) Gold 6271 单核上单样本耗时**
+>**II. Ernie QAT MKL-DNN 在 Intel(R) Xeon(R) Gold 6271 上单样本耗时**
 
-|     Model    | FP32 Latency (ms) | INT8 QAT Latency (ms)    | Latency Diff |
+|     Threads  | FP32 Latency (ms) | QAT INT8 Latency (ms)    | Latency Diff |
 |:------------:|:----------------------:|:-------------------:|:---------:|
-| Ernie        |        318.85          |            95.70    |     3.33   |
-
-
->**III. Ernie QAT MKL-DNN 在 Intel(R) Xeon(R) Gold 6271 20个核上单样本耗时**
-
-|     Model    | FP32 Latency (ms) | INT8 QAT Latency (ms) | Latency Diff |
-|:------------:|:----------------------:|:----------------------:|:---------:|
-| Ernie        |       109.60           |            22.56       |     4.85   |
+| 1 thread     |        253.86          |            93.89    |     2.70x   |
+| 20 threads   |        30.79           |            17.22    |     1.79x   |
 
