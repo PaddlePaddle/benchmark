@@ -43,6 +43,7 @@ function _set_params(){
 function _set_env(){
    export FLAGS_eager_delete_tensor_gb=0.0
    export FLAGS_fast_eager_deletion_mode=1
+   export FLAGS_allocator_strategy=naive_best_fit
 }
 
 function _train(){

@@ -42,6 +42,7 @@ function _set_env(){
     export FLAGS_fraction_of_gpu_memory_to_use=1.0
     export FLAGS_eager_delete_tensor_gb=0.0
     export FLAGS_memory_fraction_of_eager_deletion=0.99999
+    export FLAGS_allocator_strategy=naive_best_fit
 }
 
 function _train(){

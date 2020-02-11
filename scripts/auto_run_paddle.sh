@@ -328,6 +328,7 @@ nextvlad(){
     rm -rf data
     mkdir -p data/dataset
     ln -s ${data_path}/youtube8m_paddle ./data/dataset/youtube8m
+    ln -s ${data_path}/ctcn_paddle/ ./data/dataset/ctcn
 
     # make train.list
     ls ${cur_model_path}/data/dataset/youtube8m/pkl/train/* > ./data/dataset/youtube8m/train.list
@@ -352,19 +353,22 @@ nextvlad(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
 
-    model_list=(nextvlad ctcn)
+    model_list=(nextvlad CTCN)
     for model_name in ${model_list[@]}; do
         echo "index is speed, 1gpu, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 ${model_name} sp 2 0 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is speed, 1gpu, prfoiler is on, begin, ${model_name}"
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 ${model_name} sp 2 1 | tee ${PROFILER_LOG_DIR}/${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is mem, 1gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem 32 ${model_name} sp 2 0| tee ${log_path}/${model_name}_mem_1gpus 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 ${model_name} sp 2 0 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
         sleep 60
         echo "index is mem, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem 32 ${model_name} sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem 32 ${model_name} sp 2 0 | tee ${log_path}/${model_name}_mem_8gpus 2>&1
         sleep 60
     done
 }
@@ -444,7 +448,7 @@ image_classification(){
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs 112 ${model_name} sp 500 0 | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
         sleep 60
         echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 ${model_name} mp 800 0| tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 ${model_name} mp 1000 0| tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
         sleep 60
     done
 }
