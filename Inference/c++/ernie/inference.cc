@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -153,14 +154,15 @@ bool ParseTensor(const std::string &field, paddle::PaddleTensor *tensor) {
 
 // Parse input tensors from string
 bool ParseLine(const std::string &line,
-               std::vector<paddle::PaddleTensor> *tensors) {
+               std::vector<paddle::PaddleTensor> *tensors,
+               int inputs_num) {
   std::vector<std::string> fields;
   Split(line, ';', &fields);
 
   // if (fields.size() != 7) return false;
 
   tensors->clear();
-  tensors->reserve(4);
+  tensors->reserve(inputs_num);
 
   int i = 0;
   // src_ids
@@ -175,19 +177,34 @@ bool ParseLine(const std::string &line,
   pos_ids.name = "placeholder_1";
   tensors->push_back(pos_ids);
 
-  // sent_ids
-  paddle::PaddleTensor sent_ids;
-  ParseTensor<int64_t>(fields[i++], &sent_ids);
-  sent_ids.name = "placeholder_2";
-  tensors->push_back(sent_ids);
+  if (inputs_num > 2) {
+    // sent_ids
+    paddle::PaddleTensor sent_ids;
+    ParseTensor<int64_t>(fields[i++], &sent_ids);
+    sent_ids.name = "placeholder_2";
+    tensors->push_back(sent_ids);
 
-  // input_mask
-  paddle::PaddleTensor input_mask;
-  ParseTensor<float>(fields[i++], &input_mask);
-  input_mask.name = "placeholder_3";
-  tensors->push_back(input_mask);
+    // input_mask
+    paddle::PaddleTensor input_mask;
+    ParseTensor<float>(fields[i++], &input_mask);
+    input_mask.name = "placeholder_3";
+    tensors->push_back(input_mask);
+  }
 
   return true;
+}
+
+static int AssessInputNum(std::ifstream& file) {
+  // Assess number of inptus based on number of colons
+  // present in the first line of the input data.
+  std::string line;
+  std::getline(file, line);
+  file.seekg (0, std::ios::beg);
+
+  int colons_num = std::count(line.begin(), line.end(), ':');
+  int inputs_num = colons_num == 2 ? colons_num : 4;
+
+  return inputs_num;
 }
 
 bool LoadInputData(std::vector<std::vector<paddle::PaddleTensor>> *inputs) {
@@ -199,10 +216,12 @@ bool LoadInputData(std::vector<std::vector<paddle::PaddleTensor>> *inputs) {
   std::ifstream fin(FLAGS_data);
   std::string line;
 
+  const int inputs_num = AssessInputNum(fin);
+
   int lineno = 0;
   while (std::getline(fin, line)) {
     std::vector<paddle::PaddleTensor> feed_data;
-    if (!ParseLine(line, &feed_data)) {
+    if (!ParseLine(line, &feed_data, inputs_num)) {
       LOG(ERROR) << "Parse line[" << lineno << "] error!";
     } else {
       inputs->push_back(std::move(feed_data));
@@ -327,6 +346,7 @@ int main(int argc, char *argv[]) {
       if (!fetch.empty()) {
         total_time += runtime;
         num_samples += fetch.front().data.length() / (sizeof(float) * 3);
+        LOG(INFO) << "--- iteration " << id;
         if (!((repeat == 0) && (id < FLAGS_warmup_steps))) {
           total_time_without_warmup += runtime;
           num_samples_without_warmup += fetch.front().data.length() / (sizeof(float) * 3);
