@@ -55,6 +55,7 @@ function _set_env(){
 
 function _train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+    python -c "import paddle; print(paddle.__version__)"
     train_cmd="--data_path data/simple-examples/data/ \
       --model_type $model_type \
       --use_gpu True \
@@ -62,6 +63,7 @@ function _train(){
       --max_epoch=${max_epoch} \
       --rnn_model ${rnn_type} \
       --use_dataloader True \
+      --enable_auto_fusion True \
       --profile ${is_profiler} \
       --profiler_path=${profiler_path} \
       --batch_size ${batch_size}"
