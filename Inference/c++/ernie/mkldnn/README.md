@@ -22,7 +22,7 @@ cmake -DFLUID_INFERENCE_INSTALL_DIR=$PADDLE_ROOT \
       -DWITH_INFERENCE_API_TEST=ON \
       -DWITH_TESTING=ON \
       ..
- make
+ make -j$(nproc)
  make inference_lib_dist
  make install 
  pip install tmp/opt/paddle/share/wheels/paddlepaddle-0.0.0-cp27-cp27mu-linux_x86_64.whl
