@@ -24,10 +24,7 @@ cmake -DFLUID_INFERENCE_INSTALL_DIR=$PADDLE_ROOT \
       ..
  make -j$(nproc)
  make inference_lib_dist
- make install 
- pip install tmp/opt/paddle/share/wheels/paddlepaddle-0.0.0-cp27-cp27mu-linux_x86_64.whl
 ```
-注意：`make install` 后，生成的whl文件目录应该为`/PATH/TO/PADDLE/build/tmp/opt/paddle/share/wheels`，因此，在下一步的`pip install`中安装这个文件。
 
 ## 安装与编译C++性能测试库
 
@@ -127,6 +124,6 @@ export KMP_BLOCKTIME=1
 
 |     Threads  | FP32 Latency (ms) | QAT INT8 Latency (ms)    | Latency Diff |
 |:------------:|:----------------------:|:-------------------:|:---------:|
-| 1 thread     |        253.86          |            93.89    |     2.70x   |
-| 20 threads   |        30.79           |            17.22    |     1.79x   |
+| 1 thread     |        252.13          |            93.80    |     2.69x   |
+| 20 threads   |        29.19           |            17.38    |     1.68x   |
 
