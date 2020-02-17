@@ -90,7 +90,7 @@ wget http://paddle-inference-dist.bj.bcebos.com/int8/QAT_models/fp32/ernie_fp32_
 tar -xvf ernie_fp32_model.tar.gz
 # 解压后的Ernie Float32模型在位置：`/PATH/TO/DOWNLOAD/MODEL/ernie_fp32_model`.
 
-cd /PATH/TO/benchmark
+cd /PATH/TO/benchmark/Inference/c++/ernie
 export KMP_AFFINITY=granularity=fine,compact,1,0
 export KMP_BLOCKTIME=1 
 # In the file run.sh, set `MODEL_DIR` to `/PATH/TO/DOWNLOAD/MODEL/ernie_fp32_model`
@@ -103,7 +103,7 @@ export KMP_BLOCKTIME=1
 
 #### 3. Ernie QAT INT8 模型性能复现
 ```bash
-cd /PATH/TO/benchmark
+cd /PATH/TO/benchmark/Inference/c++/ernie
 export KMP_AFFINITY=granularity=fine,compact,1,0
 export KMP_BLOCKTIME=1 
 # In the file run.sh, set `MODEL_DIR` to `/PATH/TO/SAVE/INT8/ERNIE/MODEL`
