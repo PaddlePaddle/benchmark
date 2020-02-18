@@ -67,7 +67,7 @@ tar -xzvf Ernie_dataset.tar.gz
 model_dir=/PATH/TO/DOWNLOAD/MODEL/Ernie_qat/float
 dataset_dir=/PATH/TO/DOWNLOAD/NLP/DATASET/Ernie_dataset
 cd /PATH/TO/PADDLE
-OMP_NUM_THREADS=28 FLAGS_use_mkldnn=true python python/paddle/fluid/contrib/slim/tests/qat_int8_nlp_comparison.py --qat_model=${model_dir} --infer_data=${dataset_dir}/1.8w.bs1 --labels=${dataset_dir}/label.xnli.dev --batch_size=50  --acc_diff_threshold=0.01
+OMP_NUM_THREADS=28 FLAGS_use_mkldnn=true python python/paddle/fluid/contrib/slim/tests/qat_int8_nlp_comparison.py --qat_model=${model_dir} --infer_data=${dataset_dir}/1.8w.bs1 --labels=${dataset_dir}/label.xnli.dev --batch_size=50 --batch_num=0 --acc_diff_threshold=0.01
 ```
 
 * 性能复现
@@ -117,7 +117,7 @@ export KMP_BLOCKTIME=1
 
 |     Model    |  FP32 Accuracy | QAT INT8 Accuracy | Accuracy Diff |
 |:------------:|:----------------------:|:----------------------:|:---------:|
-|   Ernie      |      0.80              |         0.82           |     +0.02 |               
+|   Ernie      |          79.76%        |         79.28%         |   -0.48%  |               
 
 
 >**II. Ernie QAT MKL-DNN 在 Intel(R) Xeon(R) Gold 6271 上单样本耗时**
