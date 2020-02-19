@@ -63,7 +63,7 @@ function _train(){
       --max_epoch=${max_epoch} \
       --rnn_model ${rnn_type} \
       --use_dataloader True \
-      --enable_auto_fusion True \
+      --enable_auto_fusion False \
       --profile ${is_profiler} \
       --profiler_path=${profiler_path} \
       --batch_size ${batch_size}"
