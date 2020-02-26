@@ -20,7 +20,7 @@ function _set_params(){
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     model_name="paddingrnn_"${model_type}_${rnn_type}
-    skip_steps=0
+    skip_steps=1
     keyword="avg_time:"
     separator=" "
     position=8
@@ -63,7 +63,7 @@ function _train(){
       --max_epoch=${max_epoch} \
       --rnn_model ${rnn_type} \
       --use_dataloader True \
-      --enable_auto_fusion False \
+      --enable_auto_fusion True \
       --profile ${is_profiler} \
       --profiler_path=${profiler_path} \
       --batch_size ${batch_size}"
