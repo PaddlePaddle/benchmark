@@ -47,21 +47,21 @@ origin_path=$(pwd)
 prepare(){
     echo "*******prepare benchmark***********"
 
-#    this is for image paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
-#    export LD_LIBRARY_PATH=/opt/_internal/cpython-2.7.11-ucs4/lib:${LD_LIBRARY_PATH#/opt/_internal/cpython-2.7.11-ucs2/lib:}
-#    export PATH=/opt/python/cp27-cp27mu/bin/:${PATH}
-#    yum install mysql-devel -y
-#    pip install MySQL-python
-
-
-#    this is for image paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
+    # this is for image paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
+    # export LD_LIBRARY_PATH=/opt/_internal/cpython-2.7.11-ucs4/lib:${LD_LIBRARY_PATH#/opt/_internal/cpython-2.7.11-ucs2/lib:}
+    # export PATH=/opt/python/cp27-cp27mu/bin/:${PATH}
+    # yum install mysql-devel -y
+    # pip install MySQL-python
+    
+    
+    # this is for image paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
     if [ '10.0' = ${cuda_version} -o "p40" = ${device_type} ] ; then
         export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
     fi
 
-    #NOTE: this path is for profiler
-    export LD_LIBRARY_PATH=/home/work/cuda-9.0/extras/CUPTI/lib64/:$LD_LIBRARY_PATH
-    ln -s /usr/lib/x86_64-linux-gnu/libnccl.so.2 /usr/lib/x86_64-linux-gnu/libnccl.so
+    # NOTE: this path is for profiler
+    # export LD_LIBRARY_PATH=/home/work/cuda-9.0/extras/CUPTI/lib64/:$LD_LIBRARY_PATH
+    # ln -s /usr/lib/x86_64-linux-gnu/libnccl.so.2 /usr/lib/x86_64-linux-gnu/libnccl.so
     rm /etc/apt/sources.list
     cp ${all_path}/sources.list /etc/apt
     apt-get update
@@ -76,14 +76,14 @@ prepare(){
     if [[ -d ${save_log_dir} ]]; then
         rm -rf ${save_log_dir}
     fi
-   #this for update the log_path coding mat
-   export TRAIN_LOG_DIR=${save_log_dir}/train_log
-   export PROFILER_LOG_DIR=${save_log_dir}/profiler_log
-   mkdir -p ${TRAIN_LOG_DIR}
-   mkdir -p ${PROFILER_LOG_DIR}
+    # this for update the log_path coding mat
+    export TRAIN_LOG_DIR=${save_log_dir}/train_log
+    export PROFILER_LOG_DIR=${save_log_dir}/profiler_log
+    mkdir -p ${TRAIN_LOG_DIR}
+    mkdir -p ${PROFILER_LOG_DIR}
 
     train_log_dir=${save_log_dir}/train_log
-#    mkdir -p ${train_log_dir}
+    # mkdir -p ${train_log_dir}
 
     export ROOT_PATH=/home/crim
     export BENCHMARK_ROOT=${ROOT_PATH}/benchmark
