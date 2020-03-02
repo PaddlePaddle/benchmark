@@ -95,7 +95,7 @@ def connet_sql(model_name, op_whole, server):
        elif  line_k == 'db':
            db_name=line_v
 
-print("save to database: case_from_model")
+    print("save to database: case_from_model")
     db = pymysql.connect(host=host_name, port=port_name, user=user_name, 
                          passwd=password, db=db_name, charset='utf8')
     sql = "INSERT INTO case_from_model (case_name, op, param_info, model, update_time) \
