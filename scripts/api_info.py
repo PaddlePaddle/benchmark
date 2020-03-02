@@ -38,7 +38,6 @@ def process_api_log(path):
     with open(path, 'r') as f:
         data = json.load(f)
         for i in range(0,len(data)):
-            print(i)
             for key, value in data[i].items():
                 param=""
                 if key == "model":
@@ -55,28 +54,50 @@ def process_api_log(path):
                              if v_k == "dtype":
                                  v_dtype = 1
                          if v_type == 1 and v_dtype ==1:
-                             param += '--' + "variable" + '|'+ p_value["dtype"]+'|'
+                             param += '--' + "variable" + '| '+ p_value["dtype"]+'| '
                          elif v_type == 0 and v_dtype ==1:
-                             param += '--' + p_value["dtype"]+'|'
+                             param += '--' + p_value["dtype"]+'| '
                          for param_key, param_value in p_value.items():
                              if param_key =="value":
-                                 param += param_value + '|'
+                                 param += param_value + '| '
                              elif param_key != "type" and param_key != "dtype":
-                                 param += param_key +' : ' + param_value + '|'
-                    param = param[:-1]
-                    param += '\n'
-                print(param)
-                op_param = API(op, param)
-                op_whole.append(op_param)
-                   # print(op_param.op)
-                print(op_param.param)
-    for i in op_whole:
-        print(i.op)
-        print(i.param)
-    return op_whole
+                                 param += param_key +' : ' + param_value + '| '
+                         param = param[:-2]
+                         param +='\n '
+                    op_param = API(op, param)
+                    op_whole.append(op_param)
+    return model_name, op_whole
 
-def connet_sql(op_whole, server):
-    print("save to database: case_from_model")
+def connet_sql(model_name, op_whole, server):
+    try:
+        log_file = open(server)
+    except Exception, e:
+        print('File path not given or file not exists, please use "--=server_file" to set right server file')
+        print('program exit\n')
+        exit(0)
+
+    host_name=''
+    port_name=0
+    user_name=''
+    password=''
+    db_name=''
+    for line in log_file.readlines():
+       line_k=line.split('=')[0]
+       line_v=line.split('=')[1].replace("\n", "")
+       if  line_k == 'host':
+           host_name=line_v
+       elif  line_k == 'port':
+           port_name=int(line_v)
+       elif  line_k == 'user':
+           user_name=line_v
+       elif  line_k == 'passwd':
+           password=line_v
+       elif  line_k == 'db':
+           db_name=line_v
+
+print("save to database: case_from_model")
+    db = pymysql.connect(host=host_name, port=port_name, user=user_name, 
+                         passwd=password, db=db_name, charset='utf8')
     sql = "INSERT INTO case_from_model (case_name, op, param_info, model, update_time) \
            VALUES ('%s', '%s', '%s', '%s', '%d') ON DUPLICATE KEY UPDATE update_time=update_time"
 
@@ -84,8 +105,6 @@ def connet_sql(op_whole, server):
     case_names=[]
 
     for i in op_whole:
-        #print(op_name[i])
-        #print(op_parameter[i])
         case_name = hashlib.sha224(str(i.op + i.param)).hexdigest()
         if case_name not in case_names:
             t = int(time.time())
@@ -98,8 +117,8 @@ def connet_sql(op_whole, server):
 
 if __name__=='__main__':
     path, server = arg_parse()
-    op = process_api_log(path)
-    connet_sql(op, server)
+    model_name, op = process_api_log(path)
+    connet_sql(model_name, op, server)
     print("process finished!!")
 
 
