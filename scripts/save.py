@@ -168,7 +168,7 @@ def send_email(title, mailto, cc, content):
         print e
 
 
-def check_results(job_info, run_machine_type, cur_value, html_result, check_key=None):
+def check_results(job_info, run_machine_type, cur_value, html_results, check_key=None):
     """
     check current results in range[-0.05, 0.05]
     :param job_info
@@ -193,12 +193,12 @@ def check_results(job_info, run_machine_type, cur_value, html_result, check_key=
         if len(results_list) == 3:
             break
         try:
-            if result:
+            if result: # json.loads("") is bug
                 result = json.loads(result.report_result)
-                result = result if isinstance(result, dict) else float(result)          
-                results_list.append(result)
-            else:
-                continue
+                result = result if isinstance(result, dict) else float(result)
+                if result: #check if not zero         
+                    results_list.append(result)
+
         except Exception as e:
             print "add history data error {}".format(e)
 
@@ -207,17 +207,18 @@ def check_results(job_info, run_machine_type, cur_value, html_result, check_key=
         return
 
     try:
-        if isinstance(result_list[0], dict) and check_key:
+        if isinstance(results_list[0], dict) and check_key:
             results_list = [float(x[check_key]) for x in results_list]
+            cur_value = float(json.loads(cur_value)[check_key])
         avg_values = round(np.array(results_list).mean(), 4)
         ranges = round((float(cur_value) - avg_values) / avg_values, 4)
-    except RuntimeWarning as rw:
+    except Exception as rw:
         print "range solve error {}".format(rw)
         ranges = -1
     if ranges > 0.05 or ranges < -0.05:
         current_html_result = [job_info["model_name"], run_machine_type,
-                               check_key if check_key else job_info["index"], 
-                               avg_values, result, ranges]
+                               check_key if check_key else DICT_INDEX[job_info["index"]], 
+                               avg_values, cur_value, ranges]
         html_results.append(current_html_result)
 
 
@@ -267,7 +268,7 @@ def parse_logs(args):
     file_list = load_folder_files(os.path.join(args.log_path, "index"))  
     html_results = []
     for job_file in file_list:
-        result = ""
+        result = 0
         with open(job_file, 'r+') as file_obj:
             file_lines = file_obj.readlines()
             try:
@@ -275,16 +276,16 @@ def parse_logs(args):
             except Exception as exc:
                 print("file {} parse error".format(job_file))
                 continue
-            # save_job
-            
+
+            # save_job         
             if str(job_info["gpu_num"]) == "8" and job_info["run_mode"] == "mp":
                 run_machine_type = DICT_RUN_MACHINE_TYPE['8mp']
             else:
                 run_machine_type = DICT_RUN_MACHINE_TYPE[str(job_info["gpu_num"])]
-            job_id = insert_job(image_id, run_machine_type, job_info, args)
-            
-            log_server = socket.gethostname()
+            job_id = insert_job(image_id, run_machine_type, job_info, args).job_id
+
             # todo config the log_server port
+            log_server = socket.gethostname()
             log_server = "http://" + log_server + ":8777/"
             log_file = job_info["log_file"].split("/")[-1]
             profiler_log = job_info["log_with_profiler"].split("/")[-1]
@@ -323,17 +324,17 @@ def parse_logs(args):
                 if job_info["index"] == 1:
                     insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result)
                     insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result)
-                # save log path
-                pjrl = bm.JobResultsLog()
-                pjrl.result_id = pjr.result_id
-                cmd = "curl -I -m 10 -o /dev/null -s -w %{http_code} " + profiler_log_path
-                if commands.getoutput(cmd) != '200':
-                    pjrl.log_path = json.dumps({"train_log_path": train_log_path})
-                else:
-                    pjrl.log_path = json.dumps({"train_log_path": train_log_path,
-                                                "profiler_log_path": profiler_log_path,
-                                                "profiler_path": profiler_path})
-                pjrl.save()
+                    # save log path
+                    pjrl = bm.JobResultsLog()
+                    pjrl.result_id = pjr.result_id
+                    cmd = "curl -I -m 10 -o /dev/null -s -w %{http_code} " + profiler_log_path
+                    if commands.getoutput(cmd) != '200':
+                        pjrl.log_path = json.dumps({"train_log_path": train_log_path})
+                    else:
+                        pjrl.log_path = json.dumps({"train_log_path": train_log_path,
+                                                    "profiler_log_path": profiler_log_path,
+                                                    "profiler_path": profiler_path})
+                    pjrl.save()
 
             except Exception as pfe:
                 print pfe

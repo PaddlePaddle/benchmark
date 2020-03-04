@@ -183,8 +183,6 @@ if __name__ == "__main__":
     args = parse_args()
     run_info = dict()
     run_info["log_file"] = args.filename
-    run_info["log_with_profiler"] = args.log_with_profiler
-    run_info["profiler_path"] = args.profiler_path
     run_info["model_name"] = args.model_name
     run_info["run_mode"] = args.run_mode
     run_info["index"] = args.index
@@ -193,6 +191,8 @@ if __name__ == "__main__":
 
     try:
         if args.index == 1:
+            run_info["log_with_profiler"] = args.log_with_profiler
+            run_info["profiler_path"] = args.profiler_path
             analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
             run_info["FINAL_RESULT"] = analyzer.analysis(args.base_batch_size, args.gpu_num, args.skip_steps, args.model_mode)
         elif args.index == 3:
