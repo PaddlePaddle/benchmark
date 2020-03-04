@@ -168,17 +168,18 @@ def send_email(title, mailto, cc, content):
         print e
 
 
-def check_results(model_name, index, run_machine_type, cur_value):
+def check_results(job_info, run_machine_type, cur_value, html_result, check_key=None):
     """
-    check current results in range[-0.03, 0.03]
-    :param model_name:
-    :param index:
+    check current results in range[-0.05, 0.05]
+    :param job_info
     :param run_machine_type:
     :param cur_value:
+    :param html_result:
+    :param check_key:
     :return:
     """
-    results = bm.ViewJobResult.objects.filter(model_name=model_name,
-                                              report_index_id=index,
+    results = bm.ViewJobResult.objects.filter(model_name=job_info["model_name"], 
+                                              report_index_id=job_info["index"],
                                               job_type=2,
                                               cuda_version=args.cuda_version,
                                               cudnn_version=args.cudnn_version,
@@ -203,23 +204,21 @@ def check_results(model_name, index, run_machine_type, cur_value):
 
     #如果历史数据一直为空，则不报警
     if not results_list:
-        return 0
+        return
 
     try:
+        if isinstance(result_list[0], dict) and check_key:
+            results_list = [float(x[check_key]) for x in results_list]
         avg_values = round(np.array(results_list).mean(), 4)
-        try:
-            ranges = round((float(cur_value) - avg_values) / avg_values, 4)
-        except RuntimeWarning as rw:
-            print "range solve error {}".format(rw)
-            ranges = -1
-        if ranges > 0.05 or ranges < -0.05:
-            return avg_values, ranges
-        else:
-            return 0
-
-    except Exception as e:
-        print cur_value, e
-        return 0
+        ranges = round((float(cur_value) - avg_values) / avg_values, 4)
+    except RuntimeWarning as rw:
+        print "range solve error {}".format(rw)
+        ranges = -1
+    if ranges > 0.05 or ranges < -0.05:
+        current_html_result = [job_info["model_name"], run_machine_type,
+                               check_key if check_key else job_info["index"], 
+                               avg_values, result, ranges]
+        html_results.append(current_html_result)
 
 
 def insert_results(job_id, model_name, report_index_id, result, log_path=0):
@@ -342,11 +341,11 @@ def parse_logs(args):
                 print("models: {}, run_machine_type: {}, index: {}, result: {}".format(
                     job_info["model_name"], run_machine_type, job_info["index"], result))
 
-                value = check_results(job_info["model_name"], job_info["index"], run_machine_type, result)
-                if value:
-                    current_html_result = [job_info["model_name"], run_machine_type,
-                                           job_info["index"], value[0], result, value[1]]
-                    html_results.append(current_html_result)
+                if job_info["index"] != 3:
+                    check_results(job_info, run_machine_type, result, html_results)            
+                elif job_info["index"] == 3:
+                    check_results(job_info, run_machine_type, result, html_results, "Framework_Total")
+                    check_results(job_info, run_machine_type, result, html_results, "GpuMemcpy_Total")
 
     if html_results:
         template.construct_email_content(html_results, args.log_path, args)
