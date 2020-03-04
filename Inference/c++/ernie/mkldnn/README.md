@@ -55,7 +55,7 @@ cd /PATH/TO/DOWNLOAD/MODEL/
 wget http://paddle-inference-dist.bj.bcebos.com/int8/QAT_models/fp32/ernie_fp32_model.tar.gz 
 tar -xvf ernie_fp32_model.tar.gz
 ```
-# 解压后的Ernie Float32模型在位置：`/PATH/TO/DOWNLOAD/MODEL/ernie_fp32_model`.
+解压后的Ernie Float32模型在位置：`/PATH/TO/DOWNLOAD/MODEL/ernie_fp32_model`.
 
 * 下载 NLP 数据
 ```bash
