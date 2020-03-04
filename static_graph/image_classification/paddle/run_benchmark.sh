@@ -2,8 +2,9 @@
 set -xe
 
 if [[ $# -lt 4 ]]; then
+    echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs 32 model_name sp|mp 1000(max_iter) 1|0(is_profiler)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3|6 32 model_name sp|mp 1000(max_iter)"
     exit
 fi
 
@@ -14,7 +15,7 @@ function _set_params(){
     run_mode=${4:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程（必填）
 
     max_iter=${5}
-    is_profiler=${6:-0}
+    if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}

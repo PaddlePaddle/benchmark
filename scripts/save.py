@@ -91,6 +91,9 @@ parser.add_argument(
     default="staticgraph",
     help="The benchmark model implement method")
 
+DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU', '4': 'FOUR_GPU', 
+                            '8': 'MULTI_GPU', '8mp': 'MULTI_GPU_MULTI_PROCESS'}
+DICT_INDEX = {1: "Speed", 2: "Memory", 3: "Profiler_info", 6: "Max_bs"}
 
 def load_folder_files(folder_path, recursive=True):
     """
@@ -189,9 +192,12 @@ def check_results(model_name, index, run_machine_type, cur_value):
         if len(results_list) == 3:
             break
         try:
-            if result.report_result == '-inf' or not float(result.report_result):
+            if result:
+                result = json.loads(result.report_result)
+                result = result if isinstance(result, dict) else float(result)          
+                results_list.append(result)
+            else:
                 continue
-            results_list.append(float(result.report_result))
         except Exception as e:
             print "add history data error {}".format(e)
 
@@ -201,13 +207,11 @@ def check_results(model_name, index, run_machine_type, cur_value):
 
     try:
         avg_values = round(np.array(results_list).mean(), 4)
-
         try:
             ranges = round((float(cur_value) - avg_values) / avg_values, 4)
         except RuntimeWarning as rw:
             print "range solve error {}".format(rw)
             ranges = -1
-
         if ranges > 0.05 or ranges < -0.05:
             return avg_values, ranges
         else:
@@ -218,6 +222,42 @@ def check_results(model_name, index, run_machine_type, cur_value):
         return 0
 
 
+def insert_results(job_id, model_name, report_index_id, result, log_path=0):
+    """insert job results to db"""
+    pjr = bm.JobResults()
+    pjr.job_id = job_id
+    pjr.model_name = model_name
+    pjr.report_index_id = report_index_id
+    pjr.report_result = result
+    pjr.train_log_path = log_path
+    pjr.save()
+    return pjr
+
+
+def insert_job(image_id, run_machine_type, job_info, args):
+    """ insert job to db"""
+    cluster_job_id = uuid.uuid1()
+    pj = bm.Job()
+    pj.job_name = "pb_{}_{}".format(args.paddle_version, job_info["model_name"])
+    pj.cluster_job_id = cluster_job_id
+    pj.cluster_type_id = "LocalJob"
+    pj.model_name = job_info["model_name"]
+    pj.report_index = job_info["index"]
+    pj.code_branch = "master"
+    pj.code_commit_id = args.code_commit_id
+    pj.job_type = args.job_type
+    pj.run_machine_type = run_machine_type
+    pj.frame_id = 0
+    pj.image_id = image_id
+    pj.cuda_version = args.cuda_version
+    pj.cudnn_version = args.cudnn_version
+    pj.device_type = args.device_type
+    pj.model_implement_type = args.implement_type
+    pj.log_extracted = "yes"
+    pj.save()
+    return pj
+
+
 def parse_logs(args):
     """
     parse log files and insert to db
@@ -225,12 +265,9 @@ def parse_logs(args):
     :return:
     """
     image_id = get_image_id()
-    file_list = load_folder_files(os.path.join(args.log_path, "index"))
-    dict_run_machine_type = {'1': 'ONE_GPU', '4': 'FOUR_GPU', '8': 'MULTI_GPU', '8mp': 'MULTI_GPU_MULTI_PROCESS'}
-    report_index_dict = {'speed': 1, 'mem': 2, 'maxbs': 6}
+    file_list = load_folder_files(os.path.join(args.log_path, "index"))  
     html_results = []
     for job_file in file_list:
-        cluster_job_id = uuid.uuid1()
         result = ""
         with open(job_file, 'r+') as file_obj:
             file_lines = file_obj.readlines()
@@ -240,31 +277,13 @@ def parse_logs(args):
                 print("file {} parse error".format(job_file))
                 continue
             # save_job
+            
             if str(job_info["gpu_num"]) == "8" and job_info["run_mode"] == "mp":
-                run_machine_type = dict_run_machine_type['8mp']
+                run_machine_type = DICT_RUN_MACHINE_TYPE['8mp']
             else:
-                run_machine_type = dict_run_machine_type[str(job_info["gpu_num"])]
-            report_index = report_index_dict[job_info["index"]]
-            pj = bm.Job()
-            pj.job_name = "pb_{}_{}".format(args.paddle_version, job_info["model_name"])
-            pj.cluster_job_id = cluster_job_id
-            pj.cluster_type_id = "LocalJob"
-            pj.model_name = job_info["model_name"]
-            pj.report_index = report_index
-            pj.code_branch = "master"
-            pj.code_commit_id = args.code_commit_id
-            pj.job_type = args.job_type
-            pj.run_machine_type = run_machine_type
-            pj.frame_id = 0
-            pj.image_id = image_id
-            pj.cuda_version = args.cuda_version
-            pj.cudnn_version = args.cudnn_version
-            pj.device_type = args.device_type
-            pj.model_implement_type = args.implement_type
-            pj.log_extracted = "yes"
-            pj.save()
-            job_id = pj.job_id
-
+                run_machine_type = DICT_RUN_MACHINE_TYPE[str(job_info["gpu_num"])]
+            job_id = insert_job(image_id, run_machine_type, job_info, args)
+            
             log_server = socket.gethostname()
             # todo config the log_server port
             log_server = "http://" + log_server + ":8777/"
@@ -278,20 +297,21 @@ def parse_logs(args):
             cpu_utilization_result = 0
             gpu_utilization_result = 0
             try:
-                if report_index == 2:
+                if job_info["index"] == 1:
+                    result = job_info['FINAL_RESULT']
+                    for line in file_lines:
+                        if 'AVG_CPU_USE' in line:
+                            cpu_utilization_result = line.strip().split('=')[1]
+                        if 'AVG_GPU_USE' in line:
+                            gpu_utilization_result = line.strip().split('=')[1]
+                elif job_info["index"] == 2:
                     for line in file_lines:
                         if "MAX_GPU_MEMORY_USE" in line:
                             value = line.strip().split("=")[1].strip()
                             result = int(value) if str.isdigit(value) else 0
                             break
-                elif report_index == 1:
-                    for line in file_lines:
-                        if "FINAL_RESULT" in line:
-                            result = line.strip().split("=")[1]
-                        if 'AVG_CPU_USE' in line:
-                            cpu_utilization_result = line.strip().split('=')[1]
-                        if 'AVG_GPU_USE' in line:
-                            gpu_utilization_result = line.strip().split('=')[1]
+                elif job_info["index"] == 3:
+                    result = json.dumps(job_info['FINAL_RESULT'])
                 else:
                     for line in file_lines:
                         if "MAX_BATCH_SIZE" in line:
@@ -300,14 +320,10 @@ def parse_logs(args):
                             break
 
                 # save_result
-                pjr = bm.JobResults()
-                pjr.job_id = job_id
-                pjr.model_name = job_info["model_name"]
-                pjr.report_index_id = report_index
-                pjr.report_result = result
-                pjr.train_log_path = 1
-                pjr.save()
-
+                pjr = insert_results(job_id, job_info["model_name"], job_info["index"], result, 1)
+                if job_info["index"] == 1:
+                    insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result)
+                    insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result)
                 # save log path
                 pjrl = bm.JobResultsLog()
                 pjrl.result_id = pjr.result_id
@@ -319,34 +335,14 @@ def parse_logs(args):
                                                 "profiler_log_path": profiler_log_path,
                                                 "profiler_path": profiler_path})
                 pjrl.save()
-                # save cpu & gpu result
-                if report_index == 1:
-                    pjr_cpu = bm.JobResults()
-                    pjr_cpu.job_id = job_id
-                    pjr_cpu.model_name = job_info["model_name"]
-                    pjr_cpu.report_index_id = 7
-                    pjr_cpu.report_result = cpu_utilization_result
-                    pjr_cpu.save()
-
-                    pjr_gpu = bm.JobResults()
-                    pjr_gpu.job_id = job_id
-                    pjr_gpu.model_name = job_info["model_name"]
-                    pjr_gpu.report_index_id = 8
-                    pjr_gpu.report_result = gpu_utilization_result
-                    pjr_gpu.save()
 
             except Exception as pfe:
                 print pfe
             else:
                 print("models: {}, run_machine_type: {}, index: {}, result: {}".format(
-                    job_info["model_name"], run_machine_type, report_index, result))
+                    job_info["model_name"], run_machine_type, job_info["index"], result))
 
-                # 如果当前值是空或者inf(speed 会出现)
-                if not result or result == '-inf':
-                    result = 0
-
-                value = check_results(job_info["model_name"], report_index, run_machine_type, result)
-
+                value = check_results(job_info["model_name"], job_info["index"], run_machine_type, result)
                 if value:
                     current_html_result = [job_info["model_name"], run_machine_type,
                                            job_info["index"], value[0], result, value[1]]
@@ -359,4 +355,3 @@ def parse_logs(args):
 if __name__ == '__main__':
     args = parser.parse_args()
     parse_logs(args)
-

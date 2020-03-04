@@ -2,8 +2,9 @@
 set -xe
 
 if [[ $# -lt 1 ]]; then
+    echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs sp|mp 1(max_epoch) 1|0(is_profiler)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 1(max_epoch)"
     exit
 fi
 
@@ -14,7 +15,7 @@ function _set_params(){
 
     run_mode="sp" # Don't support mp
     max_epoch=${3}
-    is_profiler=${4:-0}
+    if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}

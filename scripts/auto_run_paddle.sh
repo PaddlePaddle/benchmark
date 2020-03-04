@@ -129,13 +129,13 @@ CycleGAN(){
     cp ${BENCHMARK_ROOT}/static_graph/CycleGAN/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 300 0 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, profiler is on, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 300 1 | tee ${PROFILER_LOG_DIR}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 300 0 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 sp 300 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -166,13 +166,13 @@ StarGAN(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 300 0 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, profiler is on,  begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 300 1 | tee ${PROFILER_LOG_DIR}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 300 0 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 sp 300 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -203,10 +203,10 @@ AttGAN(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -237,13 +237,13 @@ STGAN(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 300 0 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, profiler is on, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 300 1 | tee ${PROFILER_LOG_DIR}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 300 0 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 sp 300 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -275,10 +275,10 @@ CGAN(){
     model_list=(CGAN DCGAN)
     for model_name in ${model_list[@]}; do
         echo "index is speed, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed CGAN sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 CGAN sp ${train_log_dir} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is mem, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem CGAN sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 CGAN sp ${train_log_dir} | tee ${log_path}/${model_name}_mem_1gpus 2>&1
         sleep 60
     done
 }
@@ -309,13 +309,13 @@ Pix2pix(){
     sed -i '/set\ -xe/d' run_benchmark.sh
 
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed Pix2pix sp 300 0 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 Pix2pix sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, profiler is on, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed Pix2pix sp 300 1 | tee ${PROFILER_LOG_DIR}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 Pix2pix sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem Pix2pix sp 300 0 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 Pix2pix sp 300 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -356,19 +356,19 @@ nextvlad(){
     model_list=(nextvlad CTCN)
     for model_name in ${model_list[@]}; do
         echo "index is speed, 1gpu, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 ${model_name} sp 2 0 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, 1gpu, prfoiler is on, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 ${model_name} sp 2 1 | tee ${PROFILER_LOG_DIR}/${model_name}_speed_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 32 ${model_name} sp 2 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
         sleep 60
         echo "index is mem, 1gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem 32 ${model_name} sp 2 0| tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_mem_1gpus 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 ${model_name} sp 2 0 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
         sleep 60
         echo "index is mem, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem 32 ${model_name} sp 2 0 | tee ${log_path}/${model_name}_mem_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_mem_8gpus 2>&1
         sleep 60
     done
 }
@@ -387,25 +387,25 @@ deeplab(){
     cp ${BENCHMARK_ROOT}/static_graph/deeplabv3+/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 100 0 | tee ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 100 | tee ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 1gpu, profiler is on, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 10 1 | tee ${PROFILER_LOG_DIR}/DeepLab_V3+_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 10 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed sp 100 0 | tee ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 100 | tee ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 50 0 | tee ${log_path}/DeepLab_V3+_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 sp 50 | tee ${log_path}/DeepLab_V3+_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem sp 50 0 | tee ${log_path}/DeepLab_V3+_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 sp 50 | tee ${log_path}/DeepLab_V3+_mem_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs sp 50 0 | tee ${log_path}/DeepLab_V3+_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 50 | tee ${log_path}/DeepLab_V3+_maxbs_1gpus 2>&1
     sleep 60
     echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs sp 50 0 | tee ${log_path}/DeepLab_V3+_maxbs_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 sp 50 | tee ${log_path}/DeepLab_V3+_maxbs_8gpus 2>&1
 
 }
 
@@ -427,28 +427,28 @@ image_classification(){
     # running models cases
     for model_name in ${model_list[@]}; do
         echo "index is speed, 1gpu, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 ${model_name} sp 800 0 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 32 ${model_name} sp 800 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
         sleep 60
-        echo "index is speed, 1gpu, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed 32 ${model_name} sp 800 1 | tee ${PROFILER_LOG_DIR}/${model_name}_speed_1gpus 2>&1
+        echo "index is speed, 1gpu, begin, profile is on, ${model_name}"
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 32 ${model_name} sp 800 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 ${model_name} sp 500 0 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 32 ${model_name} sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
         sleep 60
         echo "index is mem, 1gpus, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem 32 ${model_name} sp 500 0 | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 32 ${model_name} sp 500 | tee ${log_path}/${model_name}_mem_1gpus 2>&1
         sleep 60
         echo "index is mem, 8gpus, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem 32 ${model_name} sp 30 0 | tee ${log_path}/${model_name}_mem_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 32 ${model_name} sp 30 | tee ${log_path}/${model_name}_mem_8gpus 2>&1
         sleep 60
         echo "index is maxbs, 1gpus, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs 112 ${model_name} sp 500 0 | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 112 ${model_name} sp 500 | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
         sleep 60
         echo "index is maxbs, 8gpus, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs 112 ${model_name} sp 500 0 | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 112 ${model_name} sp 500 | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
         sleep 60
         echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed 32 ${model_name} mp 1000 0| tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 32 ${model_name} mp 1000 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
         sleep 60
     done
 }
@@ -487,19 +487,19 @@ detection(){
     model_list=(mask_rcnn_fpn_resnet mask_rcnn_fpn_resnext retinanet_rcnn_fpn cascade_rcnn_fpn)
     for model_name in ${model_list[@]}; do
         echo "index is speed, 1gpu, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_name} sp 600 0 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_name} sp 600 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, 1gpu, profiler is on  begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_name} sp 600 1 | tee ${PROFILER_LOG_DIR}/${model_name}_speed_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_name} sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_name} sp 600 0 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_name} sp 600 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
         sleep 60
         echo "index is mem, 1gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem ${model_name} sp 500 0 | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 ${model_name} sp 500 | tee ${log_path}/${model_name}_mem_1gpus 2>&1
         sleep 60
         echo "index is mem, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem ${model_name} sp 30 0 | tee ${log_path}/${model_name}_mem_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 ${model_name} sp 30 | tee ${log_path}/${model_name}_mem_8gpus 2>&1
         sleep 60
     done
 }
@@ -536,28 +536,28 @@ mask_rcnn(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
 
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 600 0 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 1gpu, profiler is on begin"
 
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 600 1 | tee ${PROFILER_LOG_DIR}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed sp 600 0 | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 500 0 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 sp 500 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem sp 30 0 | tee ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 sp 30 | tee ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs sp 200 0 | tee ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 200 | tee ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
     sleep 60
     echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs sp 200 0 | tee ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 sp 200 | tee ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed mp 600 0 | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
 }
 
 
@@ -580,28 +580,28 @@ bert(){
         for fp_mode in ${fp_mode_list[@]}; do
             model_name="${FUNCNAME}_${model_mode}_${fp_mode}"
             echo "index is speed, 1gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_mode} ${fp_mode} sp 1500 0 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 1500 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
             sleep 60
             echo "index is speed, 1gpus, profiler is on, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_mode} ${fp_mode} sp 1500 1 | tee ${PROFILER_LOG_DIR}/${model_name}_speed_1gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_mode} ${fp_mode} sp 1500 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
             sleep 60
             echo "index is speed, 8gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_mode} ${fp_mode} sp 500 0 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
             sleep 60
             echo "index is mem, 1gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem ${model_mode} ${fp_mode} sp 800 0| tee ${log_path}/${model_name}_mem_1gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 ${model_mode} ${fp_mode} sp 800 | tee ${log_path}/${model_name}_mem_1gpus 2>&1
             sleep 60
             echo "index is mem, 8gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem ${model_mode} ${fp_mode} sp 200 0 | tee ${log_path}/${model_name}_mem_8gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 ${model_mode} ${fp_mode} sp 200 | tee ${log_path}/${model_name}_mem_8gpus 2>&1
             sleep 60
             #echo "index is maxbs, 1gpus, begin, ${model_name}"
-            #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
+            #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
             #sleep 60
             #echo "index is maxbs, 8gpus, begin, ${model_name}"
-            #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
+            #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
             #sleep 60
             echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_mode} ${fp_mode} mp 800 0 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp 800 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
             sleep 60
         done
     done
@@ -618,53 +618,53 @@ transformer(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     model_type="base"
     echo "model_type is ${model_type}, index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_type} sp 600 0| tee ${log_path}/${FUNCNAME}_${model_type}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_1gpus 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is speed,profiler is on, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_type} sp 600 1| tee ${PROFILER_LOG_DIR}/${FUNCNAME}_${model_type}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_type} sp 600 0 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem ${model_type} sp 400 0 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_1gpus 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem ${model_type} sp 100 0 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 ${model_type} sp 100 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_8gpus 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs ${model_type} sp 400 0| tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_1gpus 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs ${model_type} sp 400 0 | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_8gpus 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_type} mp 600 0 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus8p 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_type} mp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus8p 2>&1
     sleep 60
     model_type="big"
     echo "model_type is ${model_type}, index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_type} sp 600 0 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_1gpus 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is speed, profiler is on, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_type} sp 600 1 | tee ${PROFILE_LOG_DIR}/${FUNCNAME}_${model_type}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_type} sp 600 0 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem ${model_type} sp 400 0 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_1gpus 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem ${model_type} sp 100 0 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 ${model_type} sp 100 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_8gpus 2>&1
     sleep 60
 #    echo "model_type is ${model_type}, index is maxbs, 1gpus, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs ${model_type} sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_1gpus 2>&1
+#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 ${model_type} sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_1gpus 2>&1
 #    sleep 60
 #    echo "model_type is ${model_type}, index is maxbs, 8gpus, begin"
-#    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs ${model_type} sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_8gpus 2>&1
+#    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 ${model_type} sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_8gpus 2>&1
 #    sleep 60
     echo "model_type is ${model_type}, index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed ${model_type} mp 600 0 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus8p 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_type} mp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus8p 2>&1
 }
 
 
@@ -682,10 +682,10 @@ ddpg_deep_explore(){
     fi
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 
@@ -704,13 +704,13 @@ paddingrnn(){
         for rnn_type in ${rnn_type_list[@]}; do
         model_name="${FUNCNAME}_${model_type}_${rnn_type}"
         echo "index is speed, 1gpus, ${model_name}, begin"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_type} ${rnn_type} sp 3 0 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_type} ${rnn_type} sp 3 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, 1gpus, ${model_name}, profiler is on, begin"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed ${model_type} ${rnn_type} sp 1 1 | tee ${PROFILER_LOG_DIR}/${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_type} ${rnn_type} sp 1 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
         sleep 60
         echo "index is mem, 1gpus, ${model_name}, begin"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem ${model_type} ${rnn_type} sp 3 0 | tee ${log_path}/${model_name}_mem_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 ${model_type} ${rnn_type} sp 3 | tee ${log_path}/${model_name}_mem_1gpus 2>&1
         sleep 60
         done
     done
@@ -744,28 +744,28 @@ yolov3(){
     cp ${BENCHMARK_ROOT}/static_graph/yolov3/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 600 0 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 1gpu, profiler on, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 600 1 | tee ${PROFILER_LOG_DIR}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed sp 600 0 | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 1000 0 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 sp 1000 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mem sp 100 0 | tee ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 sp 100 | tee ${log_path}/${FUNCNAME}_mem_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh maxbs sp 600 0 | tee ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 600 | tee ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
     sleep 60
     echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh maxbs sp 600 0 | tee ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 sp 600 | tee ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh speed mp 600 0 | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
 }
 
 
@@ -784,13 +784,13 @@ seq2seq(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 1 0 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 1 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, profiler is on, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed sp 1 1 | tee ${PROFILER_LOG_DIR}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 1 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
     sleep 60
     echo "index is mem, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh mem sp 1 0 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 sp 1 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
 
 

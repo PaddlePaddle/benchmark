@@ -2,8 +2,9 @@
 set -xe
 
 if [[ $# -lt 3 ]]; then
+    echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem large|medium|small static|padding sp|mp 3(max_epoch) 1|0(profiler)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2 large|medium|small static|padding sp|mp 3(max_epoch)"
     exit
 fi
 
@@ -14,7 +15,7 @@ function _set_params(){
     run_mode=${4:-"sp"}
     #run_log_path=${5:-$(pwd)}
     max_epoch=${5}
-    is_profiler=${6:-0}
+    if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
@@ -30,7 +31,7 @@ function _set_params(){
     arr=($device)
     num_gpu_devices=${#arr[*]}
 
-    if [[ ${index} = "maxbs" ]]; then base_batch_size=12000; else base_batch_size=20; fi
+    if [[ ${index} -eq 6 ]]; then base_batch_size=12000; else base_batch_size=20; fi
     batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
