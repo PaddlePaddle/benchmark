@@ -94,6 +94,9 @@ parser.add_argument(
 DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU', '4': 'FOUR_GPU', 
                             '8': 'MULTI_GPU', '8mp': 'MULTI_GPU_MULTI_PROCESS'}
 DICT_INDEX = {1: "Speed", 2: "Memory", 3: "Profiler_info", 6: "Max_bs"}
+# todo config the log_server port
+LOG_SERVER = "http://" + socket.gethostname()+ ":8777/"
+
 
 def load_folder_files(folder_path, recursive=True):
     """
@@ -277,23 +280,14 @@ def parse_logs(args):
                 print("file {} parse error".format(job_file))
                 continue
 
-            # save_job         
+            # save job         
             if str(job_info["gpu_num"]) == "8" and job_info["run_mode"] == "mp":
                 run_machine_type = DICT_RUN_MACHINE_TYPE['8mp']
             else:
                 run_machine_type = DICT_RUN_MACHINE_TYPE[str(job_info["gpu_num"])]
             job_id = insert_job(image_id, run_machine_type, job_info, args).job_id
 
-            # todo config the log_server port
-            log_server = socket.gethostname()
-            log_server = "http://" + log_server + ":8777/"
-            log_file = job_info["log_file"].split("/")[-1]
-            profiler_log = job_info["log_with_profiler"].split("/")[-1]
-            profiler_path = job_info["profiler_path"].split("/")[-1]
-            train_log_path = log_server + os.path.join(os.path.basename(args.log_path), "train_log", log_file)
-            profiler_log_path = log_server + os.path.join(os.path.basename(args.log_path), "profiler_log", profiler_log)
-            profiler_path = log_server + os.path.join(os.path.basename(args.log_path), "profiler_log", profiler_path)
-
+            # parse job results
             cpu_utilization_result = 0
             gpu_utilization_result = 0
             try:
@@ -319,22 +313,28 @@ def parse_logs(args):
                             result = int(value) if str.isdigit(value) else 0
                             break
 
-                # save_result
+                # save job results
                 pjr = insert_results(job_id, job_info["model_name"], job_info["index"], result, 1)
+                log_file = job_info["log_file"].split("/")[-1]
+                train_log_path = LOG_SERVER + os.path.join(os.path.basename(args.log_path), "train_log", log_file)
+                log_save_dict = {"train_log_path": train_log_path}
                 if job_info["index"] == 1:
                     insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result)
                     insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result)
-                    # save log path
-                    pjrl = bm.JobResultsLog()
-                    pjrl.result_id = pjr.result_id
-                    cmd = "curl -I -m 10 -o /dev/null -s -w %{http_code} " + profiler_log_path
-                    if commands.getoutput(cmd) != '200':
-                        pjrl.log_path = json.dumps({"train_log_path": train_log_path})
-                    else:
-                        pjrl.log_path = json.dumps({"train_log_path": train_log_path,
-                                                    "profiler_log_path": profiler_log_path,
-                                                    "profiler_path": profiler_path})
-                    pjrl.save()
+                    if int(job_info["gpu_num"]) == 1:
+                        profiler_log = job_info["log_with_profiler"].split("/")[-1]
+                        profiler_path = job_info["profiler_path"].split("/")[-1]               
+                        profiler_log_path = LOG_SERVER + os.path.join(os.path.basename(args.log_path), "profiler_log", profiler_log)
+                        profiler_path = LOG_SERVER + os.path.join(os.path.basename(args.log_path), "profiler_log", profiler_path)
+                        log_save_dict["profiler_log_path"] = profiler_log_path
+                        log_save_dict["profiler_path"] = profiler_path
+                
+                pjrl = bm.JobResultsLog()
+                pjrl.result_id = pjr.result_id
+                pjrl.log_path = json.dumps(log_save_dict)
+                pjrl.save()
+                # cmd = "curl -I -m 10 -o /dev/null -s -w %{http_code} " + profiler_log_path
+                #if commands.getoutput(cmd) != '200':
 
             except Exception as pfe:
                 print pfe

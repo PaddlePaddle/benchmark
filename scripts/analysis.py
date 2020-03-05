@@ -190,7 +190,7 @@ if __name__ == "__main__":
     run_info["FINAL_RESULT"] = 0
 
     try:
-        if args.index == 1:
+        if args.index == 1 and args.gpu_num == 1:
             run_info["log_with_profiler"] = args.log_with_profiler
             run_info["profiler_path"] = args.profiler_path
             analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
