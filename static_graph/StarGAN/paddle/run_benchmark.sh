@@ -29,7 +29,7 @@ function _set_params(){
     num_gpu_devices=${#arr[*]}
     base_batch_size=16
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
-    log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
