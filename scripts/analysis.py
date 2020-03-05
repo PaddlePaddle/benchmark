@@ -190,9 +190,10 @@ if __name__ == "__main__":
     run_info["FINAL_RESULT"] = 0
 
     try:
-        if args.index == 1 and args.gpu_num == 1:
-            run_info["log_with_profiler"] = args.log_with_profiler
-            run_info["profiler_path"] = args.profiler_path
+        if args.index == 1:
+            if args.gpu_num == 1:
+                run_info["log_with_profiler"] = args.log_with_profiler
+                run_info["profiler_path"] = args.profiler_path
             analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
             run_info["FINAL_RESULT"] = analyzer.analysis(args.base_batch_size, args.gpu_num, args.skip_steps, args.model_mode)
         elif args.index == 3:

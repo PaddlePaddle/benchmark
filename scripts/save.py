@@ -23,6 +23,7 @@ import template
 import socket
 import json
 import commands
+import traceback
 
 base_path=os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 sys.path.append(base_path)
@@ -217,6 +218,7 @@ def check_results(job_info, run_machine_type, cur_value, html_results, check_key
         ranges = round((float(cur_value) - avg_values) / avg_values, 4)
     except Exception as rw:
         print "range solve error {}".format(rw)
+        traceback.print_exc()
         ranges = -1
     if ranges > 0.05 or ranges < -0.05:
         current_html_result = [job_info["model_name"], run_machine_type,
