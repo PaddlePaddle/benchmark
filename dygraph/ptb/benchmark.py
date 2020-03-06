@@ -1,17 +1,6 @@
 #!/bin/env python
 # -*- coding: utf-8 -*-
 # encoding=utf-8 vi:ts=4:sw=4:expandtab:ft=python
-"""
-/***************************************************************************
-  *
-  * Copyright (c) 2019 Baidu.com, Inc. All Rights Reserved
-  * @file benchmark.py
-  * @author zhengtianyu
-  * @date 2019/5/15 2:19 PM
-  * @brief benchmark
-  *
-  **************************************************************************/
-"""
 import time
 
 
@@ -26,25 +15,6 @@ class Tools(object):
         :return:
         """
         return time.time()
-
-    @staticmethod
-    def get_max_memory(file):
-        """
-        获取显存占用最大值
-        :param file: 文件路径
-        :return:
-        """
-        used_memory = set()
-        # 舍弃前几行
-        drop_line = 2
-        with open(file, "r") as f:
-            for i in range(drop_line):
-                f.readline()
-
-            for line in f.readlines():
-                used = line.split()
-                used_memory.add(int(used[2]))
-        return max(list(used_memory))
 
 
 class AverageMeter(object):
