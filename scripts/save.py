@@ -215,6 +215,8 @@ def check_results(job_info, run_machine_type, cur_value, html_results, check_key
             results_list = [float(x[check_key]) for x in results_list]
             cur_value = float(json.loads(cur_value)[check_key])
         avg_values = round(np.array(results_list).mean(), 4)
+        if not avg_values:
+            return
         ranges = round((float(cur_value) - avg_values) / avg_values, 4)
     except Exception as rw:
         print "range solve error {}".format(rw)
@@ -326,8 +328,10 @@ def parse_logs(args):
                     if int(job_info["gpu_num"]) == 1:
                         profiler_log = job_info["log_with_profiler"].split("/")[-1]
                         profiler_path = job_info["profiler_path"].split("/")[-1]               
-                        profiler_log_path = LOG_SERVER + os.path.join(os.path.basename(args.log_path), "profiler_log", profiler_log)
-                        profiler_path = LOG_SERVER + os.path.join(os.path.basename(args.log_path), "profiler_log", profiler_path)
+                        profiler_log_path = LOG_SERVER + os.path.join(
+                                    os.path.basename(args.log_path), "profiler_log", profiler_log)
+                        profiler_path = LOG_SERVER + os.path.join(
+                                    os.path.basename(args.log_path), "profiler_log", profiler_path)
                         log_save_dict["profiler_log_path"] = profiler_log_path
                         log_save_dict["profiler_path"] = profiler_path
                 
