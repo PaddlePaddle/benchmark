@@ -22,7 +22,7 @@ from paddle.fluid.dygraph.nn import Conv2D, Pool2D, BatchNorm, Linear
 from paddle.fluid.dygraph.base import to_variable
 
 from paddle.fluid import framework
-
+import time
 import math
 import sys
 
