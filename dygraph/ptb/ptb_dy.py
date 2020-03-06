@@ -382,6 +382,7 @@ def train_ptb_lm():
             init_hidden = to_variable(init_hidden_data)
             init_cell = to_variable(init_cell_data)
             start_time = time.time()
+            start = time.time()
             for batch_id, batch in enumerate(train_data_iter):
                 x_data, y_data = batch
 
@@ -410,6 +411,8 @@ def train_ptb_lm():
                           (epoch_id, batch_id, ppl[0],
                            sgd._global_learning_rate().numpy(), out_loss))
 
+            end = time.time()
+            print("One epoch cost {}".format(end - start))
             print("one epoch finished", epoch_id)
             print("time cost ", time.time() - start_time)
             ppl = np.exp(total_loss / iters)
@@ -432,7 +435,4 @@ def train_ptb_lm():
             eval(ptb_model, valid_data)
 
         eval(ptb_model, test_data)
-start = time.time()
 train_ptb_lm()
-end = time.time()
-print("One epoch cost {}".format(end - start))
