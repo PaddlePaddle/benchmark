@@ -47,7 +47,7 @@ def parse_args():
     parser.add_argument(
         '--run_mode', type=str, default="sp", help='multi process or single process')
     parser.add_argument(
-        '--index', type=str, default="speed", help='speed | maxbs | mem')
+        '--index', type=int, default=1, help='{1: speed, 2:mem, 3:profiler, 6:max_batch_size}')
     parser.add_argument(
         '--gpu_num', type=int, default=1, help='nums of training gpus')
     args = parser.parse_args()
@@ -128,14 +128,12 @@ class TimeAnalyzer(object):
 
     def analysis(self, batch_size, gpu_num=1, skip_steps=0, mode=0):
         if batch_size <= 0:
-            print("FINAL_RESULT={:.3f}".format(0.0))
             print("base_batch_size should larger than 0.")
-            return
+            return 0
 
         if len(self.records) <= 0:
-            print("FINAL_RESULT={:.3f}".format(0.0))
             print("no records")
-            return
+            return 0
 
         sum_of_records = 0
         sum_of_records_skipped = 0
@@ -178,25 +176,45 @@ class TimeAnalyzer(object):
                 print("\tMax: %.3f s/step" % skip_max)
                 print("\tFPS: %.3f %s" % (fps_skipped, fps_unit))
 
-        print("FINAL_RESULT={:.3f}".format(fps_skipped))
+        return round(fps_skipped, 3)
 
 
 if __name__ == "__main__":
     args = parse_args()
     run_info = dict()
     run_info["log_file"] = args.filename
-    run_info["log_with_profiler"] = args.log_with_profiler
-    run_info["profiler_path"] = args.profiler_path
     run_info["model_name"] = args.model_name
     run_info["run_mode"] = args.run_mode
     run_info["index"] = args.index
     run_info["gpu_num"] = args.gpu_num
-   
-    if args.index == "speed":
-        try:
+    run_info["FINAL_RESULT"] = 0
+
+    try:
+        if args.index == 1:
+            if args.gpu_num == 1:
+                run_info["log_with_profiler"] = args.log_with_profiler
+                run_info["profiler_path"] = args.profiler_path
             analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
-            analyzer.analysis(args.base_batch_size, args.gpu_num, args.skip_steps, args.model_mode)
-        except Exception:
+            run_info["FINAL_RESULT"] = analyzer.analysis(args.base_batch_size, args.gpu_num, 
+                                                         args.skip_steps, args.model_mode)
+        elif args.index == 3:
+            run_info["FINAL_RESULT"] = {}
+            records_fo_total = TimeAnalyzer(args.filename, 'Framework overhead', None, 3).records
+            records_fo_ratio = TimeAnalyzer(args.filename, 'Framework overhead', None, 5).records
+            records_ct_total = TimeAnalyzer(args.filename, 'Computation time', None, 3).records
+            records_gm_total = TimeAnalyzer(args.filename, 'GpuMemcpy                Calls', None, 4).records
+            records_gm_ratio = TimeAnalyzer(args.filename, 'GpuMemcpy                Calls', None, 6).records
+            records_gmas_total = TimeAnalyzer(args.filename, 'GpuMemcpyAsync         Calls', None, 4).records
+            records_gms_total = TimeAnalyzer(args.filename, 'GpuMemcpySync          Calls', None, 4).records
+            run_info["FINAL_RESULT"]["Framework_Total"] = records_fo_total[0] if records_fo_total else 0
+            run_info["FINAL_RESULT"]["Framework_Ratio"] = records_fo_ratio[0] if records_fo_ratio else 0
+            run_info["FINAL_RESULT"]["ComputationTime_Total"] = records_ct_total[0] if records_ct_total else 0
+            run_info["FINAL_RESULT"]["GpuMemcpy_Total"] = records_gm_total[0] if records_gm_total else 0
+            run_info["FINAL_RESULT"]["GpuMemcpy_Ratio"] = records_gm_ratio[0] if records_gm_ratio else 0
+            run_info["FINAL_RESULT"]["GpuMemcpyAsync_Total"] = records_gmas_total[0] if records_gmas_total else 0
+            run_info["FINAL_RESULT"]["GpuMemcpySync_Total"] = records_gms_total[0] if records_gms_total else 0
+        else:
+            print("Not support!")
+    except Exception:
             traceback.print_exc()
     print("{}".format(json.dumps(run_info)))  # it's required, for the log file path  insert to the database
-

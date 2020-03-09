@@ -1,8 +1,9 @@
 #!bin/bash
 set -xe
 if [[ $# -lt 3 ]]; then
+    echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs model_name sp|mp 1000(max_iter) 1|0(is_profiler)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3|6 model_name sp|mp 1000(max_iter)"
     exit
 fi
 
@@ -12,7 +13,7 @@ function _set_params(){
     model_name=$2                    # 模型名字如："SE-ResNeXt50"，如果是固定的，可以写死，如果需要其他参数可以参考bert实现（必填）
     run_mode=${3:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程（必填）
     max_iter=${4}
-    is_profiler=${5:-0}
+    if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
@@ -33,7 +34,7 @@ function _set_params(){
         batch_size=$base_batch_size
     fi
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
-    log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
