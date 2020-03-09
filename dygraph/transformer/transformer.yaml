@@ -105,4 +105,4 @@ preprocess_cmd: "n"  # layer normalization
 postprocess_cmd: "da"  # dropout + residual connection
 # the flag indicating whether to share embedding and softmax weights.
 # vocabularies in source and target should be same for weight sharing.
-weight_sharing: True
+weight_sharing: False

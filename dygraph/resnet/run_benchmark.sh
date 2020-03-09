@@ -1,2 +1,2 @@
 #!/bin/bash
-python3.6 train.py
+python3.6 -u train.py
