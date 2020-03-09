@@ -310,7 +310,7 @@ def train_resnet():
         #file_name = './model/epoch_0.npz'
         #model_data = np.load( file_name )
 
-        for eop in range(epoch):
+        for eop in range(1):
 
             resnet.train()
             total_loss = 0.0
