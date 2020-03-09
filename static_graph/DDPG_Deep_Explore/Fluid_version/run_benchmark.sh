@@ -2,6 +2,7 @@
 set -xe
 
 if [[ $# -lt 1 ]]; then
+    echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
     echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem sp|mp /ssd1/ljh/logs"
     exit

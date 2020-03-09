@@ -19,7 +19,13 @@ function _collect_occupancy() {
 }
 
 function _run(){
-    if [[ ${index} = "mem" ]]; then
+    # running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}
+    if [[ ${index} -eq 1 ]]; then
+        job_bt=`date '+%Y%m%d%H%M%S'`
+        _train
+        job_et=`date '+%Y%m%d%H%M%S'`
+        _collect_occupancy
+    elif [[ ${index} -eq 2 ]]; then
         #若测试最大batchsize，FLAGS_fraction_of_gpu_memory_to_use=1
         export FLAGS_fraction_of_gpu_memory_to_use=0.001
         gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
@@ -28,12 +34,11 @@ function _run(){
         _train
         kill ${gpu_memory_pid}
         awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "MAX_GPU_MEMORY_USE=", max}' gpu_use.log
-    elif [[ ${index} = "speed" ]]; then
+    elif [[ ${index} -eq 3 ]]; then
         job_bt=`date '+%Y%m%d%H%M%S'`
         _train
         job_et=`date '+%Y%m%d%H%M%S'`
-        _collect_occupancy
-    elif [[ ${index} = "maxbs" ]]; then
+    elif [[ ${index} -eq 6 ]]; then
         _train
         error_string="Cannot allocate"
         if [ `grep -c "${error_string}" ${log_parse_file}` -eq 0 ]; then

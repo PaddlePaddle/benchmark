@@ -33,7 +33,7 @@ MAIL_TAIL_CONTENT = """
         <HR align=center width="80%" SIZE=1>
         <table border="1" align=center>
         <caption>报警结果</caption>
-            <tr bgcolor="#989898" ><td>模型</td><td>运行环境</td><td>指标</td><td>标准值</td><td>当前值</td><td>波动范围</td></tr>
+            <tr bgcolor="#989898" ><td>模型</td><td>运行环境</td><td>指标</td><td>标准值</td><td>当前值</td><td>波动范围</td>JOB_LINK_HOLDER</tr>
 ALARM_INFO_HOLDER
         </table>
         <HR align=center width="80%" SIZE=1>
@@ -80,26 +80,26 @@ def construct_email_content(results, log_path, args):
 
     place_holder = ""
     for result in results:
+        range_index = len(result)-1 if args.job_type == 2 else len(result)-2
         if isinstance(result, list):
             place_holder += "            <tr>"
-            index_type = ""
+            index_type = result[2]
             for i in range(len(result)):
-                if i == len(result)-1 and result[i] > 0 and index_type != "mem":
+                if i == range_index and result[i] > 0 and index_type != "Memory":
                     place_holder += "<td bgcolor=green>{}</td>".format(result[i])
-                elif i == len(result)-1 and result[i] > 0 and index_type == "mem":
+                elif i == range_index and result[i] > 0 and index_type == "Memory":
                     place_holder += "<td bgcolor=red>{}</td>".format(result[i])
-                elif i == len(result)-1 and result[i] < 0 and index_type != "mem":
+                elif i == range_index and result[i] < 0 and index_type != "Memory":
                     place_holder += "<td bgcolor=red>{}</td>".format(result[i])
-                elif i == len(result)-1 and result[i] < 0 and index_type == "mem":
+                elif i == range_index and result[i] < 0 and index_type == "Memory":
                     place_holder += "<td bgcolor=green>{}</td>".format(result[i])
                 else:
                     place_holder += "<td>{}</td>".format(result[i])
-                    if str(result[i]) in ("mem", 'speed', 'maxbs'):
-                        index_type = str(result[i])
-
+                        
             place_holder += "</tr>\n"
+    job_link = "" if args.job_type == 2 else "<td>job_link</td>"
     content = MAIL_HEAD_CONTENT.replace("RUN_ENV_HOLDER", run_env).strip()
-    content += MAIL_TAIL_CONTENT.replace("ALARM_INFO_HOLDER", place_holder).strip()
+    content += MAIL_TAIL_CONTENT.replace("JOB_LINK_HOLDER", job_link).replace("ALARM_INFO_HOLDER", place_holder).strip()
 
     with open(os.path.join(log_path, "mail.html"), "w") as f_object:
         f_object.write(content)
