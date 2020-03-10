@@ -61,7 +61,7 @@ def process_api_log(path):
                              if param_key =="value":
                                  param += param_value + '| '
                              elif param_key != "type" and param_key != "dtype":
-                                 param += param_key +' : ' + param_value + '| '
+                                 param += param_key +':' + param_value + '| '
                          param = param[:-2]
                          param +='\n '
                     op_param = API(op, param)
@@ -103,14 +103,17 @@ def connet_sql(model_name, op_whole, server):
 
     cursor = db.cursor()
     case_names=[]
+    t = int(time.time())
 
     for i in op_whole:
         case_name = hashlib.sha224(str(i.op + i.param)).hexdigest()
         if case_name not in case_names:
-            t = int(time.time())
             data=(case_name, i.op, i.param, model_name, t)
             case_names.append(case_name)
             cursor.execute(sql % data)
+    
+    sql_time="UPDATE case_from_model SET update_time=(%s)"
+    cursor.execute(sql_time,(t))
 
     db.commit()
 
@@ -118,6 +121,7 @@ def connet_sql(model_name, op_whole, server):
 if __name__=='__main__':
     path, server = arg_parse()
     model_name, op = process_api_log(path)
+    print(model_name)
     connet_sql(model_name, op, server)
     print("process finished!!")
 
