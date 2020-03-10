@@ -396,6 +396,8 @@ def train_ptb_lm():
                                                             init_cell)
                 init_hidden = last_hidden
                 init_cell = last_cell
+                init_hidden.stop_gradient = True
+                init_cell.stop_gradient = True
                 out_loss = dy_loss.numpy()
 
                 dy_loss.backward()
