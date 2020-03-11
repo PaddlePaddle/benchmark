@@ -75,7 +75,7 @@ class PaddleAPIBenchmarkBase(object):
         executor.run(self.startup_program)
 
         if feed is None:
-            feed = self._feed_random_data(use_gpu, as_lodtensor=True)
+            feed = self._feed_random_data(use_gpu, as_lodtensor=False)
 
         runtimes = []
         fetches = []
@@ -198,8 +198,8 @@ class PaddleAPIBenchmarkBase(object):
         print("feed random data")
         feed = {}
         if use_gpu and as_lodtensor:
-            #place = fluid.CPUPlace()
-            place = fluid.CUDAPinnedPlace()
+            place = fluid.CPUPlace()
+            #place = fluid.CUDAPinnedPlace()
         for var in self.feed_vars:
             if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
                 raise TypeError("Feed data of non LoDTensor is not supported.")

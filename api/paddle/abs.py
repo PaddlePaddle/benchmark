@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from args import parse_args
+from main import parse_args, test_speed_main
 import paddle.fluid as fluid
 
 import sys
@@ -28,26 +28,10 @@ class abs(paddle_api.PaddleAPIBenchmarkBase):
             result = fluid.layers.abs(x=data)
 
             self.feed_vars = [data]
+            self.fetch_vars = [result]
             if backward:
-                gradients = fluid.backward.calc_gradient(result, [data])
-                self.fetch_vars = [result, gradients]
-            else:
-                self.fetch_vars = [result]
+                self.append_gradients(result, [data])
 
 
 if __name__ == '__main__':
-    args = parse_args()
-    obj = abs()
-    obj.build_program(backward=args.backward)
-    if args.run_with_executor:
-        obj.run_with_executor(use_gpu=args.use_gpu,
-                              repeat=args.repeat,
-                              log_level=args.log_level,
-                              check_output=args.check_output,
-                              profiler=args.profiler)
-    else:
-        obj.run_with_core_executor(use_gpu=args.use_gpu,
-                                   repeat=args.repeat,
-                                   log_level=args.log_level,
-                                   check_output=args.check_output,
-                                   profiler=args.profiler)
+    test_speed_main(abs())
