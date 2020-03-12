@@ -5,7 +5,7 @@ export CUDA_VISIBLE_DEVICES="1"
 
 name=${1:-"abs"}
 
-nvprof python ${name}.py \
+python ${name}.py \
       --run_with_executor True \
       --check_output False \
       --profiler "none" \

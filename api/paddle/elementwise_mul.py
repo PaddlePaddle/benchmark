@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import parse_args, test_speed_main
+from main import test_speed_main
 import paddle.fluid as fluid
 
 import sys
@@ -25,7 +25,7 @@ class elementwise_mul(paddle_api.PaddleAPIBenchmarkBase):
             x = fluid.data(
                 name='x', shape=[50, 128, 1000], dtype='float32', lod_level=0)
             y = fluid.data(
-                name='y', shape=[128, 1000], dtype='float32', lod_level=0)
+                name='y', shape=[1, 128, 1000], dtype='float32', lod_level=0)
             x.stop_gradient = False
             y.stop_gradient = False
             result = fluid.layers.elementwise_mul(x, y)

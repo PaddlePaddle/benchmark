@@ -13,25 +13,23 @@
 # limitations under the License.
 
 from main import test_speed_main
-import paddle.fluid as fluid
+import tensorflow as tf
 
 import sys
 sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
+from common import tensorflow_api_benchmark as tensorflow_api
 
-class abs(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.abs(x=data)
+class elementwise_mul(tensorflow_api.TensorflowAPIBenchmarkBase):
+    def build_graph(self, backward=False):
+        x = tf.placeholder(name='x', shape=[50, 128, 1000], dtype=tf.float32)
+        y = tf.placeholder(name='y', shape=[1, 128, 1000], dtype=tf.float32)
+        result = tf.multiply(x, y)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
-            if backward:
-                self.append_gradients(result, [data])
+        self.feed_list = [x, y]
+        self.fetch_list = [result]
+        if backward:
+            self.append_gradients(result, [x, y])
 
 
 if __name__ == '__main__':
-    test_speed_main(abs())
+    test_speed_main(elementwise_mul())
