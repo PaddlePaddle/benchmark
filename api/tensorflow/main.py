@@ -69,3 +69,12 @@ def parse_args():
         print("CUDA_VISIABLE_DEVICES is None, set to CUDA_VISIABLE_DEVICES={}".format(gpu_id))
         os.environ["CUDA_VISIABLE_DEVICES"] = str(gpu_id)
     return args
+
+def test_speed_main(obj):
+    args = parse_args()
+    obj.build_graph(backward=args.backward)
+    obj.run(use_gpu=args.use_gpu,
+            repeat=args.repeat,
+            log_level=args.log_level,
+            check_output=args.check_output,
+            profile=args.profile)

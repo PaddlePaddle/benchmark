@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from args import parse_args
+from main import test_speed_main
 import tensorflow as tf
 
 import sys
@@ -25,20 +25,10 @@ class abs(tensorflow_api.TensorflowAPIBenchmarkBase):
         result = tf.abs(x=data)
 
         self.feed_list = [data]
+        self.fetch_list = [result]
         if backward:
-            gradients = tf.gradients(result, [data])
-            self.fetch_list = [result, gradients[0]]
-        else:
-            self.fetch_list = [result]
+            self.append_gradients(result, [data])
 
 
 if __name__ == '__main__':
-    args = parse_args()
-    obj = abs()
-    obj.build_graph(backward=args.backward)
-    obj.run(use_gpu=args.use_gpu,
-            repeat=args.repeat,
-            log_level=args.log_level,
-            check_output=args.check_output,
-            profile=args.profile)
-    
+    test_speed_main(abs())
