@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,19 +19,22 @@ import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 
-class abs(paddle_api.PaddleAPIBenchmarkBase):
+class elementwise_mul(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False):
         with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.abs(x=data)
+            x = fluid.data(
+                name='x', shape=[50, 128, 1000], dtype='float32', lod_level=0)
+            y = fluid.data(
+                name='y', shape=[1, 128, 1000], dtype='float32', lod_level=0)
+            x.stop_gradient = False
+            y.stop_gradient = False
+            result = fluid.layers.elementwise_mul(x, y)
 
-            self.feed_vars = [data]
+            self.feed_vars = [x, y]
             self.fetch_vars = [result]
             if backward:
-                self.append_gradients(result, [data])
+                self.append_gradients(result, [x, y])
 
 
 if __name__ == '__main__':
-    test_speed_main(abs())
+    test_speed_main(elementwise_mul())
