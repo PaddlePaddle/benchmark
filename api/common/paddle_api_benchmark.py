@@ -26,10 +26,10 @@ import utils
 
 @contextlib.contextmanager
 def profile_context(name, use_gpu, profiler):
-    if profiler == "native":
+    if profiler in ["Default", "OpDetail", "AllOpDetail"]:
         profile_type = "All" if use_gpu else "CPU"
         output_file = name + ".profile"
-        with fluid.profiler.profiler(profile_type, 'total', output_file):
+        with fluid.profiler.profiler(profile_type, 'total', output_file, tracer_option=profiler):
             yield
     elif profiler == "nvprof" and use_gpu:
         output_file = name + ".nvprof"
@@ -52,7 +52,7 @@ class PaddleAPIBenchmarkBase(object):
         self.feed_tensors = {}
 
     @abc.abstractmethod
-    def build_program(self, backward=False):
+    def build_program(self, backward=False, dtype=None):
         pass
 
     def append_gradients(self, targets, inputs):
