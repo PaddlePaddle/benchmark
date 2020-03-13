@@ -29,6 +29,11 @@ def str2bool(v):
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        '--dtype',
+        type=str,
+        default="float32",
+        help='Specify the data type of api')
+    parser.add_argument(
         '--run_with_executor',
         type=str2bool,
         default=True,
@@ -42,7 +47,7 @@ def parse_args():
         '--profiler',
         type=str,
         default="none",
-        help='Choose which profiler to use [\"none\"|\"native\"|\"nvprof\"]')
+        help='Choose which profiler to use [\"none\"|\"Default\"|\"OpDetail\"|\"AllOpDetail\"|\"nvprof\"]')
     parser.add_argument(
         '--backward',
         type=str2bool,
@@ -73,11 +78,13 @@ def parse_args():
     if os.environ.get("CUDA_VISIBLE_DEVICES", None) is None:
         print("CUDA_VISIBLE_DEVICES is None, set to CUDA_VISIBLE_DEVICES={}".format(gpu_id))
         os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+    if args.dtype not in ["float32", "float16"]:
+        raise ValueError("dtype should be float32, float16")
     return args
 
 def test_speed_main(obj):
     args = parse_args()
-    obj.build_program(backward=args.backward)
+    obj.build_program(backward=args.backward, dtype=args.dtype)
     if args.run_with_executor:
         obj.run_with_executor(use_gpu=args.use_gpu,
                               repeat=args.repeat,

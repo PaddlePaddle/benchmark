@@ -20,7 +20,7 @@ sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 
 class abs(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False):
+    def build_program(self, backward=False, dtype=None):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
                 name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
