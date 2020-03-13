@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -xe
+set -x
 
 if [[ $# -lt 1 ]]; then
     echo "Usage: "
@@ -32,6 +32,8 @@ function _set_params() {
     fi
 
     log_file=${run_log_root}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+
+
 }
 
 function _set_env(){
@@ -39,8 +41,15 @@ function _set_env(){
 }
 
 function _train() {
+    if [ $index = "speed" ]; then
+        sed -i '145c \  config_proto.gpu_options.allow_growth = False' nmt/nmt/utils/misc_utils.py
+    elif [ $index = "mem" ]; then
+        echo "this index is: "$index
+        sed -i '145c \  config_proto.gpu_options.allow_growth = True' nmt/nmt/utils/misc_utils.py
+    fi
+
     WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
-    data_path=${WORK_ROOT}/nmt/data
+    data_path=${WORK_ROOT}/nmt/data/en-vi
     cd $WORK_ROOT/nmt
     rm -rf ./outputs/*
     python -m nmt.nmt \
@@ -61,12 +70,12 @@ function _train() {
         --dropout=0.2 \
         --metrics=bleu \
         --num_buckets=5 > ${log_file} 2>&1 &
+     seq2seq_train_pid=$!
+     sleep 300
+     kill $seq2seq_train_pid
 }
 
-if [ "${BENCHMAKR_ROOT}" == "" ]; then
-    export BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../../.." && pwd )"
-fi
-source ${BENCHMARK_ROOT}/scripts/run_model.sh
+source ${BENCHMARK_ROOT}/competitive_products/common_scripts/run_model.sh
 _set_params $@
 _set_env
 _run

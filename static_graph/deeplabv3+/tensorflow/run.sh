@@ -1,26 +1,48 @@
 #!/bin/bash
 
-set -xe
+set -x
+echo " CUDA_VISIBLE_DEVICES=7 bash run_deeplabv3.sh speed sp /log/file"
+#export CUDA_VISIBLE_DEVICES="0,1,2,3"
+#export CUDA_VISIBLE_DEVICES="0"
 
-export CUDA_VISIBLE_DEVICES="0,1,2,3"
-#export CUDA_VISIBLE_DEVICES="1"
+function _set_params(){
+    export TF_MODELS_ROOT=/ssd3/heya/tensorflow/tensorflow_models/models/research # NOTE: this is in 19 local
+    
+    device=${CUDA_VISIBLE_DEVICES//,/ }
+    arr=($device)
+    num_gpu_devices=${#arr[*]}
+    
+    train_crop_size=513
+    total_step=80
+    base_batch_size=2
+    batch_size=`expr ${base_batch_size} \* ${num_gpu_devices}`
+    
+    index=${1}
+    run_mode=${2}
+    run_log_path=${3:-$(pwd)}
+    model_name=deeplabv3
+    
+    log_file=${run_log_path}/log_${model_name}_${index}_${num_gpu_devices}
+    skip_steps=3
+    keyword="learning.py:507"
+    separator=" "
+    position=10
+    range=2:6
+    model_mode=0
+    run_mode=sp
+}
 
-export TF_MODELS_ROOT=/work/tensorflow/models
-
-gpu_devices=(`echo ${CUDA_VISIBLE_DEVICES} | tr "," " "`)
-num_gpu_devices=${#gpu_devices[@]}
-
-train_crop_size=513
-total_step=80
-batch_size=$((2 * num_gpu_devices))
-
-task=speed
-log_file=log_${task}_bs${batch_size}_${num_gpu_devices}
-
-train(){
+function _train(){
   echo "Train on ${num_gpu_devices} GPUs"
-  export PYTHONPATH=${TF_MODELS_ROOT}/research:${TF_MODELS_ROOT}/research/slim
-  python ${TF_MODELS_ROOT}/research/deeplab/train.py  \
+  export PYTHONPATH=${TF_MODELS_ROOT}:${TF_MODELS_ROOT}/slim
+  if [ ${index} = "mem" ]; then
+      sed -i '369c \    session_config.gpu_options.allow_growth = True' ${TF_MODELS_ROOT}/deeplab/train.py
+  elif [ ${index} = "speed" ]; then
+      sed -i '369c \    session_config.gpu_options.allow_growth = False' ${TF_MODELS_ROOT}/deeplab/train.py
+  fi
+  rm -rf ./train_logs
+
+  python ${TF_MODELS_ROOT}/deeplab/train.py  \
            --logtostderr  \
            --training_number_of_steps=${total_step}  \
            --train_split=train  \
@@ -35,52 +57,14 @@ train(){
            --train_batch_size=${batch_size}  \
            --dataset=cityscapes  \
            --train_logdir=./train_logs  \
-           --dataset_dir=${TF_MODELS_ROOT}/research/deeplab/datasets/cityscapes/tfrecord/  \
-           --tf_initial_checkpoint=./deeplabv3_cityscapes_train/model.ckpt.index  \
-           --num_clones ${num_gpu_devices} > ${log_file} 2>&1
+           --dataset_dir=/ssd1/ljh/dataset/tf_cityscapes/tfrecord/  \
+           --tf_initial_checkpoint=${TF_MODELS_ROOT}/deeplab/deeplabv3_cityscapes_train/model.ckpt.index  \
+           --num_clones ${num_gpu_devices} > ${log_file} 2>&1 &
+  train_pid=$!
+  sleep 400
+  kill =9 $train_pid
 }
 
-analysis_times(){
-  awk 'BEGIN{count=0}/global_step\/sec:/{
-    step_times[count]=1/$2;
-    count+=1;
-  }END{
-    print "\n================ Benchmark Result ================"
-    print "total_step:", "'${total_step}'"
-    print "batch_size:", "'${batch_size}'"
-    print "train_crop_size:", "'${train_crop_size}'"
-    if(count>1){
-      step_latency=0
-      step_latency_without_step0_avg=0
-      step_latency_without_step0_min=step_times[1]
-      step_latency_without_step0_max=step_times[1]
-      for(i=0;i<count;++i){
-        step_latency+=step_times[i];
-        if(i>0){
-          step_latency_without_step0_avg+=step_times[i];
-          if(step_times[i]<step_latency_without_step0_min){
-            step_latency_without_step0_min=step_times[i];
-          }
-          if(step_times[i]>step_latency_without_step0_max){
-            step_latency_without_step0_max=step_times[i];
-          }
-        }
-      }
-      step_latency/=count;
-      step_latency_without_step0_avg/=(count-1)
-      printf("average latency (including data reading):\n")
-      printf("\tAvg: %.3f s/step\n", step_latency)
-      printf("\tFPS: %.3f images/s\n", "'${batch_size}'"/step_latency)
-      printf("average latency (including data reading, without step 0):\n")
-      printf("\tAvg: %.3f s/step\n", step_latency_without_step0_avg)
-      printf("\tMin: %.3f s/step\n", step_latency_without_step0_min)
-      printf("\tMax: %.3f s/step\n", step_latency_without_step0_max)
-      printf("\tFPS: %.3f images/s\n", "'${batch_size}'"/step_latency_without_step0_avg)
-      printf("\n")
-    }
-  }' ${log_file} 
-}
-
-echo "test for $1"
-train
-analysis_times
+source ${BENCHMARK_ROOT}/competitive_products/common_scripts/run_model.sh
+_set_params $@
+_run

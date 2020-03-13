@@ -1,26 +1,42 @@
 #!/bin/bash
 
+set -x
 #nvprof -o timeline_output_medium -f --cpu-profiling off  --profile-from-start off  python  train.py \
-#export CUDA_VISIBLE_DEVICES=1
-if [ $# -ne 3 ]; then
+#export CUDA_VISIBLE_DEVICES=7
   echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem large|medium|small static|padding"
-  exit
-fi
+  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem large|medium|small static|padding /path/to/log"
 
-task=$1
-model_type=$2
-rnn_type=$3
-batch_size=20
+function _set_params(){
+    index=$1
+    model_type=$2
+    rnn_type=$3
+    base_batch_size=20
+    run_log_path=${4:-$(pwd)}
 
-devices_str=${CUDA_VISIBLE_DEVICES//,/ }
-gpu_devices=($devices_str)
-num_gpu_devices=${#gpu_devices[*]}
+    skip_steps=3
+    keyword="-- Epoch:"
+    separator=" "
+    position=4
+    model_mode=2
+    run_mode=sp
 
-log_file=log_${model_type}_${task}_${num_gpu_devices}
+    devices_str=${CUDA_VISIBLE_DEVICES//,/ }
+    gpu_devices=($devices_str)
+    num_gpu_devices=${#gpu_devices[*]}
+    batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
+    
+    model_name=padding_${model_type}_${rnn_type}
+    log_file=${run_log_path}/log_${index}_${model_name}_${num_gpu_devices}
+}
 
-train(){
+function _train(){
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices"
+  if [ ${index} = "speed" ]; then
+      sed -i '93c \    config.gpu_options.allow_growth = False' train.py
+  elif [ ${index} = "mem" ]; then
+      echo "this index is: "$index
+      sed -i '93c \    config.gpu_options.allow_growth = True' train.py
+  fi
   python -u train.py \
     --model_type $model_type \
     --rnn_type $rnn_type > ${log_file} 2>&1 &
@@ -29,59 +45,7 @@ train(){
   kill -9 $train_pid
 }
 
-analysis_times(){
-  skip_step=$1
-  count_fields=$2
-  awk 'BEGIN{count=0}/avg_time:/{
-    step_times[count]=$'${count_fields}';
-    count+=1;
-  }END{
-    print "\n================ Benchmark Result ================"
-    print "model:", "'${model_type}'"
-    if(count>'${skip_step}'){
-      step_latency=0
-      step_latency_without_step0_avg=0
-      step_latency_without_step0_min=step_times['${skip_step}']
-      step_latency_without_step0_max=step_times['${skip_step}']
-      for(i=0;i<count;++i){
-        step_latency+=step_times[i];
-        if(i>='${skip_step}'){
-          step_latency_without_step0_avg+=step_times[i];
-          if(step_times[i]<step_latency_without_step0_min){
-            step_latency_without_step0_min=step_times[i];
-          }
-          if(step_times[i]>step_latency_without_step0_max){
-            step_latency_without_step0_max=step_times[i];
-          }
-        }
-      }
-      step_latency/=count;
-      step_latency_without_step0_avg/=(count-'${skip_step}')
-      printf("average latency (including data reading):\n")
-      printf("\tAvg: %.3f steps/s\n", step_latency)
-      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"*step_latency)
-      printf("average latency (skip '${skip_step}' steps):\n")
-      printf("\tAvg: %.3f steps/s\n", step_latency_without_step0_avg)
-      printf("\tMin: %.3f steps/s\n", step_latency_without_step0_min)
-      printf("\tMax: %.3f steps/s\n", step_latency_without_step0_max)
-      printf("\tFPS: %.3f examples/s\n", "'${batch_size}'"*step_latency_without_step0_avg)
-      printf("\n")
-    }
-  }' ${log_file}
-}
+source ${BENCHMARK_ROOT}/competitive_products/common_scripts/run_model.sh
+_set_params $@
+_run
 
-if [ $1 = 'mem' ]
-then
-  echo "test for $task"
-  export FLAGS_fraction_of_gpu_memory_to_use=0.001
-  gpu_id=`echo $CUDA_VISIBLE_DEVICES |cut -c1`
-  nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
-  gpu_memory_pid=$!
-  train
-  kill $gpu_memory_pid
-  awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
-else
-  echo "test for $task"
-  train
-  analysis_times 0 9
-fi
