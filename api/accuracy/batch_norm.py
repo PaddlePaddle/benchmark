@@ -35,11 +35,11 @@ class PaddleBatchNorm(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "batch_norm"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
-                name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
+                name='data', shape=[10, 100, 100, 10], dtype='float32', lod_level=0)
             param_attr = fluid.ParamAttr(name='batch_norm_w', initializer=fluid.initializer.Constant(value=1.0))
             bias_attr = fluid.ParamAttr(name='batch_norm_b', initializer=fluid.initializer.Constant(value=0.0))
             data.stop_gradient = False
-            result = fluid.layers.batch_norm(input=data, param_attr = param_attr, bias_attr = bias_attr, epsilon=0.001)
+            result = fluid.layers.batch_norm(input=data, param_attr = param_attr, bias_attr = bias_attr, epsilon=0.001, data_layout="NHWC")
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -52,9 +52,9 @@ class TensorflowBatchNorm(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "batch_norm"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
-        img_shape = [10, 10, 100, 100]
-        size = 100
+        data = tf.placeholder(name='data', shape=[10, 100, 100, 10], dtype=tf.float32)
+        img_shape = [10, 100, 100, 10]
+        size = 10
         axis = list(range(len(img_shape) - 1))
         mean, var = tf.nn.moments(data, axis)
         scale = tf.Variable(tf.ones([size]))
