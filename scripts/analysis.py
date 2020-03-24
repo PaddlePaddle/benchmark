@@ -199,13 +199,13 @@ if __name__ == "__main__":
                                                          args.skip_steps, args.model_mode)
         elif args.index == 3:
             run_info["FINAL_RESULT"] = {}
-            records_fo_total = TimeAnalyzer(args.filename, 'Framework overhead', None, 3).records
+            records_fo_total = TimeAnalyzer(args.filename, 'Framework overhead', None, 3, '').records
             records_fo_ratio = TimeAnalyzer(args.filename, 'Framework overhead', None, 5).records
-            records_ct_total = TimeAnalyzer(args.filename, 'Computation time', None, 3).records
-            records_gm_total = TimeAnalyzer(args.filename, 'GpuMemcpy                Calls', None, 4).records
+            records_ct_total = TimeAnalyzer(args.filename, 'Computation time', None, 3, '').records
+            records_gm_total = TimeAnalyzer(args.filename, 'GpuMemcpy                Calls', None, 4, '').records
             records_gm_ratio = TimeAnalyzer(args.filename, 'GpuMemcpy                Calls', None, 6).records
-            records_gmas_total = TimeAnalyzer(args.filename, 'GpuMemcpyAsync         Calls', None, 4).records
-            records_gms_total = TimeAnalyzer(args.filename, 'GpuMemcpySync          Calls', None, 4).records
+            records_gmas_total = TimeAnalyzer(args.filename, 'GpuMemcpyAsync         Calls', None, 4, '').records
+            records_gms_total = TimeAnalyzer(args.filename, 'GpuMemcpySync          Calls', None, 4, '').records
             run_info["FINAL_RESULT"]["Framework_Total"] = records_fo_total[0] if records_fo_total else 0
             run_info["FINAL_RESULT"]["Framework_Ratio"] = records_fo_ratio[0] if records_fo_ratio else 0
             run_info["FINAL_RESULT"]["ComputationTime_Total"] = records_ct_total[0] if records_ct_total else 0
