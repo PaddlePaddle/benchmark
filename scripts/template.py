@@ -100,7 +100,7 @@ def construct_email_content(results, log_path, args):
     job_link = "" if args.job_type == 2 else "<td>job_link</td>"
     content = MAIL_HEAD_CONTENT.replace("RUN_ENV_HOLDER", run_env).strip()
     content += MAIL_TAIL_CONTENT.replace("JOB_LINK_HOLDER", job_link).replace("ALARM_INFO_HOLDER", 
-               place_holder).replace("BENCHMARK_WEBSITE", os.getenv("BENCHMARK_WEBSITE"))strip()
+               place_holder).replace("BENCHMARK_WEBSITE", os.getenv("BENCHMARK_WEBSITE")).strip()
 
     with open(os.path.join(log_path, "mail.html"), "w") as f_object:
         f_object.write(content)
