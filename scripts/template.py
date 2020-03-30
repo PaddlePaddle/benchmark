@@ -16,7 +16,7 @@ import os
 
 MAIL_HEAD_CONTENT = """
 From:paddle_benchmark@baidu.com
-To:liangjinhua01@baidu.com
+To:test@benchmark.com
 Subject:benchmark运行结果报警，请检查
 content-type:text/html
 <html>
@@ -37,7 +37,7 @@ MAIL_TAIL_CONTENT = """
 ALARM_INFO_HOLDER
         </table>
         <HR align=center width="80%" SIZE=1>
-        <h4 align=center>历史详细数据 http://yq01-page-powerbang-table1077.yq01.baidu.com:8988/</h4> 
+        <h4 align=center>历史详细数据 BENCHMARK_WEBSITE</h4> 
     </body>
 </html>
 """
@@ -99,7 +99,8 @@ def construct_email_content(results, log_path, args):
             place_holder += "</tr>\n"
     job_link = "" if args.job_type == 2 else "<td>job_link</td>"
     content = MAIL_HEAD_CONTENT.replace("RUN_ENV_HOLDER", run_env).strip()
-    content += MAIL_TAIL_CONTENT.replace("JOB_LINK_HOLDER", job_link).replace("ALARM_INFO_HOLDER", place_holder).strip()
+    content += MAIL_TAIL_CONTENT.replace("JOB_LINK_HOLDER", job_link).replace("ALARM_INFO_HOLDER", 
+               place_holder).replace("BENCHMARK_WEBSITE", os.getenv("BENCHMARK_WEBSITE"))strip()
 
     with open(os.path.join(log_path, "mail.html"), "w") as f_object:
         f_object.write(content)

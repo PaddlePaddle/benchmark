@@ -40,9 +40,6 @@ do
   esac
 done
 
-export https_proxy=http://172.19.57.45:3128
-export http_proxy=http://172.19.57.45:3128
-
 paddle_repo="https://github.com/PaddlePaddle/Paddle.git"
 
 export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
@@ -107,8 +104,8 @@ build(){
       -e "WITH_DISTRIBUTE=ON" \
       -e "WITH_FLUID_ONLY=OFF" \
       -e "CMAKE_VERBOSE_MAKEFILE=OFF" \
-      -e "http_proxy=${http_proxy}" \
-      -e "https_proxy=${https_proxy}" \
+      -e "http_proxy=${HTTP_PORXY}" \
+      -e "https_proxy=${HTTP_PORXY}" \
       ${PADDLE_DEV_NAME} \
        /bin/bash -c "paddle/scripts/paddle_build.sh build"
     mkdir -p ./output
@@ -135,7 +132,7 @@ build(){
     else
         echo "build paddle failed, exit!"
         sendmail -t ${email_address} <<EOF
-From:paddle_benchmark@baidu.com
+From:paddle_benchmark@test.com
 SUBJECT:benchmark运行结果报警, 请检查
 Content-type: text/plain
 PADDLE BUILD FAILED!!
@@ -153,6 +150,9 @@ run(){
         -v /ssd2:/ssd2 \
         -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
         -v /usr/bin/monquery:/usr/bin/monquery \
+        -e "BENCHMARK_WEBSITE=${BENCHMARK_WEBSITE}" \
+        -e "http_proxy=${HTTP_PORXY}" \
+        -e "https_proxy=${HTTP_PORXY}" \
         --net=host \
         --privileged \
         $RUN_IMAGE_NAME \
