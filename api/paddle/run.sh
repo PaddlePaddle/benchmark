@@ -7,11 +7,13 @@ export CUDA_VISIBLE_DEVICES="1"
 name=${1:-"abs"}
 
 python ${name}.py \
+      --task "speed" \
+      --framework "both" \
       --dtype "float32" \
       --run_with_executor True \
       --check_output False \
       --profiler "none" \
       --backward False \
       --use_gpu True \
-      --repeat 100 \
+      --repeat 1000 \
       --log_level 0

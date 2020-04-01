@@ -29,6 +29,16 @@ def str2bool(v):
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        '--task',
+        type=str,
+        default="speed",
+        help='Specify the task: [speed|accuracy]')
+    parser.add_argument(
+        '--framework',
+        type=str,
+        default="paddle",
+        help='Specify the framework: [paddle|tensorflow|tf|both]')
+    parser.add_argument(
         '--dtype',
         type=str,
         default="float32",
@@ -78,22 +88,76 @@ def parse_args():
     if os.environ.get("CUDA_VISIBLE_DEVICES", None) is None:
         print("CUDA_VISIBLE_DEVICES is None, set to CUDA_VISIBLE_DEVICES={}".format(gpu_id))
         os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+    if args.task not in ["speed", "accuracy"]:
+        raise ValueError("task should be speed, accuracy")
+    if args.framework not in ["paddle", "tensorflow", "tf", "both"]:
+        raise ValueError("task should be paddle, tensorflow, tf, both")
     if args.dtype not in ["float32", "float16"]:
         raise ValueError("dtype should be float32, float16")
     return args
 
+
+def test_paddle(task, obj, args, feed=None):
+    if task == "speed":
+        if args.run_with_executor:
+            obj.run_with_executor(use_gpu=args.use_gpu,
+                                  repeat=args.repeat,
+                                  log_level=args.log_level,
+                                  check_output=args.check_output,
+                                  profiler=args.profiler)
+        else:
+            obj.run_with_core_executor(use_gpu=args.use_gpu,
+                                       repeat=args.repeat,
+                                       log_level=args.log_level,
+                                       check_output=args.check_output,
+                                       profiler=args.profiler)
+        return None
+    elif task == "accuracy":
+        if feed is None:
+            raise ValueError("feed should not be None when checking accuracy.")
+        outputs = obj.run_with_executor(use_gpu=args.use_gpu,
+                                        feed=feed,
+                                        check_output=False)
+        return outputs
+
+
+def test_tensorflow(task, obj, args, feed=None):
+    if task == "speed":
+        profile = True if args.profiler != "none" else False
+        obj.run(use_gpu=args.use_gpu,
+                repeat=args.repeat,
+                log_level=args.log_level,
+                check_output=args.check_output,
+                profile=profile)
+        return None
+    elif task == "accuracy":
+        if feed is None:
+            raise ValueError("feed should not be None when checking accuracy.")
+        outputs = obj.run(use_gpu=args.use_gpu,
+                          feed=feed,
+                          check_output=False)
+        return outputs
+
+
 def test_speed_main(obj):
     args = parse_args()
     obj.build_program(backward=args.backward, dtype=args.dtype)
-    if args.run_with_executor:
-        obj.run_with_executor(use_gpu=args.use_gpu,
-                              repeat=args.repeat,
-                              log_level=args.log_level,
-                              check_output=args.check_output,
-                              profiler=args.profiler)
-    else:
-        obj.run_with_core_executor(use_gpu=args.use_gpu,
-                                   repeat=args.repeat,
-                                   log_level=args.log_level,
-                                   check_output=args.check_output,
-                                   profiler=args.profiler)
+    test_paddle("speed", obj, args)
+
+
+def test_main(pd_obj=None, tf_obj=None):
+    args = parse_args()
+
+    if args.framework in ["paddle", "both"]:
+        if pd_obj is None:
+            raise ValueError("Paddle object is None.")
+        pd_obj.build_program(backward=args.backward, dtype=args.dtype)
+        # feed
+        test_paddle(args.task, pd_obj, args)
+
+    if args.framework in ["tensorflow", "tf", "both"]:
+        if tf_obj is None:
+            raise ValueError("TensorFlow object is None.")
+        tf_obj.build_graph(backward=args.backward)
+        # feed
+        test_tensorflow(args.task, tf_obj, args)
