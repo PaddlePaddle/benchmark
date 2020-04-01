@@ -1,4 +1,4 @@
-# copyright (c) 2019 PaddlePaddle Authors. All Rights Reserve.
+# copyright (c) 2020 PaddlePaddle Authors. All Rights Reserve.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,11 @@ from __future__ import print_function
 
 import argparse
 import os
+import feed
+
+import sys
+sys.path.append("..")
+from common import utils
 
 
 def str2bool(v):
@@ -97,16 +102,26 @@ def parse_args():
     return args
 
 
-def test_paddle(task, obj, args, feed=None):
+def test_paddle(task, obj, args, feed_list=None):
+    feed = None
+    if feed_list is not None:
+        assert len(feed_list) == len(obj.feed_vars)
+
+        feed = {}
+        for i in range(len(obj.feed_vars)):
+            feed[obj.feed_vars[i].name] = feed_list[i]
+
     if task == "speed":
         if args.run_with_executor:
             obj.run_with_executor(use_gpu=args.use_gpu,
+                                  feed=feed,
                                   repeat=args.repeat,
                                   log_level=args.log_level,
                                   check_output=args.check_output,
                                   profiler=args.profiler)
         else:
             obj.run_with_core_executor(use_gpu=args.use_gpu,
+                                       feed=feed,
                                        repeat=args.repeat,
                                        log_level=args.log_level,
                                        check_output=args.check_output,
@@ -121,10 +136,19 @@ def test_paddle(task, obj, args, feed=None):
         return outputs
 
 
-def test_tensorflow(task, obj, args, feed=None):
+def test_tensorflow(task, obj, args, feed_list=None):
+    feed = None
+    if feed_list is not None:
+        assert len(feed_list) == len(obj.feed_list)
+
+        feed = {}
+        for i in range(len(obj.feed_list)):
+            feed[obj.feed_list[i]] = feed_list[i]
+
     if task == "speed":
         profile = True if args.profiler != "none" else False
         obj.run(use_gpu=args.use_gpu,
+                feed=feed,
                 repeat=args.repeat,
                 log_level=args.log_level,
                 check_output=args.check_output,
@@ -145,19 +169,23 @@ def test_speed_main(obj):
     test_paddle("speed", obj, args)
 
 
-def test_main(pd_obj=None, tf_obj=None):
+def test_main(pd_obj=None, tf_obj=None, feed_spec=None):
     args = parse_args()
 
+    feed_list = None
     if args.framework in ["paddle", "both"]:
         if pd_obj is None:
             raise ValueError("Paddle object is None.")
         pd_obj.build_program(backward=args.backward, dtype=args.dtype)
-        # feed
-        test_paddle(args.task, pd_obj, args)
+        feed_list = feed.feed_paddle(pd_obj, feed_spec)
+        pd_outputs = test_paddle(args.task, pd_obj, args, feed_list)
 
     if args.framework in ["tensorflow", "tf", "both"]:
         if tf_obj is None:
             raise ValueError("TensorFlow object is None.")
         tf_obj.build_graph(backward=args.backward)
-        # feed
-        test_tensorflow(args.task, tf_obj, args)
+        feed_list = feed.feed_tensorflow(tf_obj, feed_list, feed_spec)
+        tf_outputs = test_tensorflow(args.task, tf_obj, args, feed_list)
+
+    if args.task == "accuracy":
+        utils.check_outputs(pd_outputs, tf_outputs, name=pd_obj.name)

@@ -12,15 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_speed_main
-import paddle.fluid as fluid
+from main import test_main
 
 import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 
-class conv2d(paddle_api.PaddleAPIBenchmarkBase):
+
+class PDConv2d(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False, dtype=None):
+        import paddle.fluid as fluid
+
+        self.name = "conv2d"
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
                 name='input', shape=[1, 1, 80, 1008], dtype=dtype, lod_level=0)
@@ -44,4 +47,4 @@ class conv2d(paddle_api.PaddleAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_speed_main(conv2d())
+    test_main(PDConv2d(), feed_spec=None)

@@ -12,15 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_speed_main
-import paddle.fluid as fluid
+from main import test_main
 
 import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 
-class elementwise_mul(paddle_api.PaddleAPIBenchmarkBase):
+
+class PDElementwiseMul(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False, dtype=None):
+        import paddle.fluid as fluid
+
+        self.name = "elementwise_mul"
         with fluid.program_guard(self.main_program, self.startup_program):
             x = fluid.data(
                 name='x', shape=[50, 128, 1000], dtype='float32', lod_level=0)
@@ -37,4 +40,4 @@ class elementwise_mul(paddle_api.PaddleAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_speed_main(elementwise_mul())
+    test_main(PDElementwiseMul(), feed_spec=None)
