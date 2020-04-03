@@ -173,14 +173,16 @@ def test_main(pd_obj=None, tf_obj=None, feed_spec=None):
     args = parse_args()
 
     feed_list = None
-    if args.framework in ["paddle", "both"]:
+    if args.task == "accuracy" or args.framework in ["paddle", "both"]:
         if pd_obj is None:
             raise ValueError("Paddle object is None.")
         pd_obj.build_program(backward=args.backward, dtype=args.dtype)
         feed_list = feed.feed_paddle(pd_obj, feed_spec)
+        print(feed_list)
         pd_outputs = test_paddle(args.task, pd_obj, args, feed_list)
+        print(pd_outputs)
 
-    if args.framework in ["tensorflow", "tf", "both"]:
+    if args.task == "accuracy" or args.framework in ["tensorflow", "tf", "both"]:
         if tf_obj is None:
             raise ValueError("TensorFlow object is None.")
         tf_obj.build_graph(backward=args.backward)

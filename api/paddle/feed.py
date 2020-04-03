@@ -39,13 +39,16 @@ def feed_var(spec):
             TypeError("Expected range a tuple or a list, received a ", type(range))
         assert len(range) == 2
 
-    if dtype == "int64" or dtype == "int32":
-        assert range is not None
-        data = np.random.randint(range[0], range[1], shape).astype(dtype)
+    if spec.get("data", None) is not None:
+        data = spec["data"]
     else:
-        data = np.random.random(shape).astype(dtype)
-        if range is not None:
-            data = range[0] + (range[1] - range[0]) * data
+        if dtype == "int64" or dtype == "int32":
+            assert range is not None
+            data = np.random.randint(range[0], range[1], shape).astype(dtype)
+        else:
+            data = np.random.random(shape).astype(dtype)
+            if range is not None:
+                data = range[0] + (range[1] - range[0]) * data
     return data
 
 
@@ -64,9 +67,12 @@ def feed_paddle(obj, feed_spec=None):
         if feed_spec is not None:
             spec = feed_spec[i]
         else:
-            spec = { "shape": var.shape,
-                     "dtype": paddle_api.convert_dtype(var.dtype)
-            }
+            spec = {}
+            
+        if spec.get("shape", None) is None:
+            spec["shape"] = var.shape
+        if spec.get("dtype", None) is None:
+            spec["dtype"] = paddle_api.convert_dtype(var.dtype)
 
         data = feed_var(spec)
         feed_list.append(data)
@@ -90,9 +96,12 @@ def feed_tensorflow(obj, feed_list=None, feed_spec=None):
             if feed_spec is not None:
                 spec = feed_spec[i]
             else:
-                spec = { "shape": var.shape,
-                         "dtype": tensorflow_api.convert_dtype(var.dtype)
-                }
+                spec = {}
+        
+            if spec.get("shape", None) is None:
+                spec["shape"] = var.shape
+            if spec.get("dtype", None) is None:
+                spec["dtype"] = tensorflow_api.convert_dtype(var.dtype)
 
             data = feed_var(spec)
             feed_list.append(data)

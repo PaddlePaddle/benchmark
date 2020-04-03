@@ -54,4 +54,5 @@ class TFAbs(tensorflow_api.TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDAbs(), TFAbs(), feed_spec=None)
+    feed_spec = { "range": [-1, 1] }
+    test_main(PDAbs(), TFAbs(), feed_spec=feed_spec)
