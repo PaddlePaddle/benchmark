@@ -18,20 +18,25 @@ import traceback
 import numpy as np
 
 
-def compare(output1, output2, max_diff):
+def compare(output1, output2):
     if not isinstance(output1, np.ndarray) or not isinstance(output2, np.ndarray):
         raise TypeError("input argument's type should be numpy.ndarray.")
 
     assert len(output1) == len(output2)
-    max_diff[0] = np.amax(np.absolute(output1 - output2))
-    assert np.allclose(output1, output2, rtol=1.e-6, atol=0)
+    max_diff = np.amax(np.absolute(output1 - output2))
+    try:
+        assert np.allclose(output1, output2, rtol=1.e-6, atol=0)
+    except (AssertionError) as e:
+        pass
+    return max_diff
+
 
 def check_outputs(list1, list2, name=None):
     if not isinstance(list1, list) or not isinstance(list2, list):
         raise TypeError("input argument's type should be list of numpy.ndarray.")
 
     consistent = True
-    max_diff = [0.0]
+    max_diff = 0.0
  
     assert len(list1) == len(list2)
     num_outputs = len(list1)
@@ -39,14 +44,16 @@ def check_outputs(list1, list2, name=None):
         output1 = list1[i]
         output2 = list2[i]
         try:
-            compare(output1, output2, max_diff)
+            diff = compare(output1, output2)
+            max_diff = diff if diff > max_diff else max_diff
         except (AssertionError) as e:
             print("Meet AssertError for output: %d" % i)
             consistent = False
     if name is not None:
-        print("{ name: \"%s\", consistent: \"%s\", num_outputs: %d, diff: %.5f }" % (name, str(consistent), num_outputs, max_diff[0]))
+        print("{ name: \"%s\", consistent: \"%s\", num_outputs: %d, diff: %.5f }" % (name, str(consistent), num_outputs, max_diff))
     else:
-        print("{ consistent: \"%s\", num_outputs: %d, diff: %.5f }" % (str(consistent), num_outputs, max_diff[0]))
+        print("{ consistent: \"%s\", num_outputs: %d, diff: %.5f }" % (str(consistent), num_outputs, max_diff))
+
 
 def get_stat(stats, key):
     if stats.get(key, None) is None:
@@ -54,6 +61,7 @@ def get_stat(stats, key):
     else:
         value = stats[key]
     return value
+
 
 def calc_avg_time(times, begin, end):
     if times is not None:
@@ -64,6 +72,7 @@ def calc_avg_time(times, begin, end):
     else:
         avg_time = 0.0
     return avg_time
+
 
 def print_stat(stats, log_level=0):
     if not isinstance(stats, dict):

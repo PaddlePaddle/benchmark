@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,44 +18,41 @@ import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 from common import tensorflow_api_benchmark as tensorflow_api
-
-
-class PDElementwiseMul(paddle_api.PaddleAPIBenchmarkBase):
+      
+class PDOneHot(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False, dtype=None):
         import paddle.fluid as fluid
 
-        self.name = "elementwise_mul"
+        self.name = "one_hot"
         with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x', shape=[50, 128, 1000], dtype='float32', lod_level=0)
-            y = fluid.data(
-                name='y', shape=[1, 128, 1000], dtype='float32', lod_level=0)
-            x.stop_gradient = False
-            y.stop_gradient = False
-            result = fluid.layers.elementwise_mul(x=x, y=y, act=None)
+            data = fluid.data(
+                name='data', shape=[32, 128], dtype='int32', lod_level=0)
+            data.stop_gradient = False
+            result = fluid.one_hot(input=data, depth=10)
 
-            self.feed_vars = [x, y]
+            self.feed_vars = [data]
             self.fetch_vars = [result]
-            if backward:
-                self.append_gradients(result, [x, y])
 
 
-class TFElementwiseMul(tensorflow_api.TensorflowAPIBenchmarkBase):
+class TFOneHot(tensorflow_api.TensorflowAPIBenchmarkBase):
     def build_graph(self, backward=False, dtype=None):
         import tensorflow as tf
 
-        self.name = "elementwise_mul"
+        self.name = "one_hot"
         self.allow_growth = True
 
-        x = tf.placeholder(name='x', shape=[50, 128, 1000], dtype=tf.float32)
-        y = tf.placeholder(name='y', shape=[1, 128, 1000], dtype=tf.float32)
-        result = tf.multiply(x=x, y=y)
+        data = tf.placeholder(name='data', shape=[32, 128], dtype=tf.int32)
+        result = tf.one_hot(indices=data,
+                            depth=10,
+                            on_value=None,
+                            off_value=None,
+                            axis=None,
+                            dtype=None)
 
-        self.feed_list = [x, y]
+        self.feed_list = [data]
         self.fetch_list = [result]
-        if backward:
-            self.append_gradients(result, [x, y])
 
 
 if __name__ == '__main__':
-    test_main(PDElementwiseMul(), TFElementwiseMul(), feed_spec=None)
+    feed_spec = { "range": [0, 10] }
+    test_main(PDOneHot(), TFOneHot(), feed_spec=feed_spec)
