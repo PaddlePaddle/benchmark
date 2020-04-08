@@ -55,3 +55,7 @@
 	path = PaddleSeg
 	url = https://github.com/PaddlePaddle/PaddleSeg.git
 	branch = develop
+[submodule "PaddleDetection"]
+	path = PaddleDetection 
+	url = https://github.com/PaddlePaddle/PaddleDetection.git 
+	branch = master
