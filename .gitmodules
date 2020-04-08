@@ -53,5 +53,5 @@
 	url = https://github.com/zhaoweicai/Detectron-Cascade-RCNN.git
 [submodule "PaddleSeg"]
 	path = PaddleSeg
-	url = https://github.com/PaddlePaddle/PaddleSeg/
+	url = https://github.com/PaddlePaddle/PaddleSeg.git
 	branch = develop
