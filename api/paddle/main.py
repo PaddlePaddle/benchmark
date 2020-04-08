@@ -16,7 +16,7 @@ from __future__ import print_function
 
 import argparse
 import os
-import feed
+import feeder
 
 import sys
 sys.path.append("..")
@@ -177,16 +177,14 @@ def test_main(pd_obj=None, tf_obj=None, feed_spec=None):
         if pd_obj is None:
             raise ValueError("Paddle object is None.")
         pd_obj.build_program(backward=args.backward, dtype=args.dtype)
-        feed_list = feed.feed_paddle(pd_obj, feed_spec)
-        print(feed_list)
+        feed_list = feeder.feed_paddle(pd_obj, feed_spec)
         pd_outputs = test_paddle(args.task, pd_obj, args, feed_list)
-        print(pd_outputs)
 
     if args.task == "accuracy" or args.framework in ["tensorflow", "tf", "both"]:
         if tf_obj is None:
             raise ValueError("TensorFlow object is None.")
         tf_obj.build_graph(backward=args.backward)
-        feed_list = feed.feed_tensorflow(tf_obj, feed_list, feed_spec)
+        feed_list = feeder.feed_tensorflow(tf_obj, feed_list, feed_spec)
         tf_outputs = test_tensorflow(args.task, tf_obj, args, feed_list)
 
     if args.task == "accuracy":

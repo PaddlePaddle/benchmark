@@ -12,26 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
-import os
-os.environ["FLAGS_fraction_of_gpu_memory_to_use"] = "0.01"
-
-import paddle.fluid as fluid
-import tensorflow as tf
-import numpy as np
-
-from args import parse_args
+from main import test_main
 
 import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 from common import tensorflow_api_benchmark as tensorflow_api
-from common import utils
-from abs import run_and_check, feed_random_data 
-      
-class PaddleStack(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False):
+
+
+class PDStack(paddle_api.PaddleAPIBenchmarkBase):
+    def build_program(self, backward=False, dtype=None):
+        import paddle.fluid as fluid
+
         self.name = "stack"
         with fluid.program_guard(self.main_program, self.startup_program):
             data1 = fluid.data(
@@ -48,8 +40,10 @@ class PaddleStack(paddle_api.PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data1, data2])
 
 
-class TensorflowStack(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False):
+class TFStack(tensorflow_api.TensorflowAPIBenchmarkBase):
+    def build_graph(self, backward=False, dtype=None):
+        import tensorflow as tf
+
         self.name = "stack"
         self.allow_growth = True
 
@@ -62,11 +56,6 @@ class TensorflowStack(tensorflow_api.TensorflowAPIBenchmarkBase):
         if backward:
             self.append_gradients(result, [data1, data2])
 
-def main(backward, use_gpu):
-    pd_obj = PaddleStack()
-    tf_obj = TensorflowStack()
-    run_and_check(pd_obj, tf_obj, backward, use_gpu, name="stack")
 
 if __name__ == '__main__':
-    args = parse_args()
-    main(backward=args.backward, use_gpu=args.use_gpu)
+    test_main(PDStack(), TFStack(), feed_spec=None)

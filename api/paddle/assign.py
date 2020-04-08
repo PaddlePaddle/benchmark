@@ -12,26 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
-import os
-os.environ["FLAGS_fraction_of_gpu_memory_to_use"] = "0.01"
-
-import paddle.fluid as fluid
-import tensorflow as tf
-import numpy as np
-
-from args import parse_args
-from abs import feed_random_data, run_and_check
+from main import test_main
 
 import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 from common import tensorflow_api_benchmark as tensorflow_api
-from common import utils
-      
-class PaddleAssign(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False):
+
+
+class PDAssign(paddle_api.PaddleAPIBenchmarkBase):
+    def build_program(self, backward=False, dtype=None):
+        import paddle.fluid as fluid
+
         self.name = "assign"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
@@ -45,25 +37,22 @@ class PaddleAssign(paddle_api.PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data])
 
 
-class TensorflowAssign(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False):
+class TFAssign(tensorflow_api.TensorflowAPIBenchmarkBase):
+    def build_graph(self, backward=False, dtype=None):
+        import tensorflow as tf
+
         self.name = "assign"
         self.allow_growth = True
 
         data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
         ref = tf.Variable(tf.zeros([10, 10,100,100]), name='target', dtype=tf.float32)
-        assigns=tf.assign(ref, data)
+        assigns = tf.assign(ref, data)
 
         self.feed_list = [data]
         self.fetch_list = [assigns]
         if backward:
             self.append_gradients(assigns, [data])
 
-def main(backward, use_gpu):
-    pd_obj = PaddleAssign()
-    tf_obj = TensorflowAssign()
-    run_and_check(pd_obj, tf_obj, backward, use_gpu, name="assign")
 
 if __name__ == '__main__':
-    args = parse_args()
-    main(backward=args.backward, use_gpu=args.use_gpu)
+    test_main(PDAssign(), TFAssign(), feed_spec=None)

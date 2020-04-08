@@ -28,7 +28,7 @@ import utils
 def profile_context(name, use_gpu, profiler):
     if profiler in ["Default", "OpDetail", "AllOpDetail"]:
         profile_type = "All" if use_gpu else "CPU"
-        output_file = name + ".profile"
+        output_file = "./outputs/" + name + ".profile"
         with fluid.profiler.profiler(profile_type, 'total', output_file, tracer_option=profiler):
             yield
     elif profiler == "nvprof" and use_gpu:

@@ -12,32 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
-import os
-os.environ["FLAGS_fraction_of_gpu_memory_to_use"] = "0.01"
-
-import paddle.fluid as fluid
-import tensorflow as tf
-import numpy as np
-
-from args import parse_args
-from abs import feed_random_data, run_and_check
+from main import test_main
 
 import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 from common import tensorflow_api_benchmark as tensorflow_api
-from common import utils
-      
-class PaddleSoftmax(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False):
-        self.name = "softmax"
+
+
+class PDSqueeze(paddle_api.PaddleAPIBenchmarkBase):
+    def build_program(self, backward=False, dtype=None):
+        import paddle.fluid as fluid
+
+        self.name = "squeeze"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
-                name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
+                name='data', shape=[1, 10, 100, 1, 100], dtype='float32', lod_level=0)
             data.stop_gradient = False
-            result = fluid.layers.softmax(data)
+            result = fluid.layers.squeeze(data, axes=[])
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -45,24 +37,21 @@ class PaddleSoftmax(paddle_api.PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data])
 
 
-class TensorflowSoftmax(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False):
-        self.name = "softmax"
+class TFSqueeze(tensorflow_api.TensorflowAPIBenchmarkBase):
+    def build_graph(self, backward=False, dtype=None):
+        import tensorflow as tf
+
+        self.name = "squeeze"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
-        result = tf.nn.softmax(data)
+        data = tf.placeholder(name='data', shape=[1, 10, 100, 1, 100], dtype=tf.float32)
+        result = tf.squeeze(data)
 
         self.feed_list = [data]
         self.fetch_list = [result]
         if backward:
             self.append_gradients(result, [data])
 
-def main(backward, use_gpu):
-    pd_obj = PaddleSoftmax()
-    tf_obj = TensorflowSoftmax()
-    run_and_check(pd_obj, tf_obj, backward, use_gpu, name="softmax")
 
 if __name__ == '__main__':
-    args = parse_args()
-    main(backward=args.backward, use_gpu=args.use_gpu)
+    test_main(PDSqueeze(), TFSqueeze(), feed_spec=None)

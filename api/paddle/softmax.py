@@ -12,35 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
-import os
-os.environ["FLAGS_fraction_of_gpu_memory_to_use"] = "0.01"
-
-import paddle.fluid as fluid
-import tensorflow as tf
-import numpy as np
-
-from args import parse_args
+from main import test_main
 
 import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 from common import tensorflow_api_benchmark as tensorflow_api
-from common import utils
-from abs import feed_random_data, run_and_check 
-      
-class PaddleSlice(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False):
-        self.name = "slice"
+
+
+class PDSoftmax(paddle_api.PaddleAPIBenchmarkBase):
+    def build_program(self, backward=False, dtype=None):
+        import paddle.fluid as fluid
+
+        self.name = "softmax"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
-                name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
+                name='data', shape=[16, 10, 100], dtype='float32', lod_level=0)
             data.stop_gradient = False
-            axes = [0, 1, 2, 3]
-            starts = [0, 1, 1, 0]
-            ends = [3, 8, 50, 30]
-            result = fluid.layers.slice(data, axes=axes, starts=starts, ends=ends)
+            result = fluid.layers.softmax(input=data, use_cudnn=False, axis=-1)
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -48,26 +37,21 @@ class PaddleSlice(paddle_api.PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data])
 
 
-class TensorflowSlice(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False):
-        self.name = "slice"
+class TFSoftmax(tensorflow_api.TensorflowAPIBenchmarkBase):
+    def build_graph(self, backward=False, dtype=None):
+        import tensorflow as tf
+
+        self.name = "softmax"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
-        begin = [0, 1, 1, 0]
-        size = [3, 7, 49, 30]
-        result = tf.slice(data, begin, size)
+        data = tf.placeholder(name='data', shape=[16, 10, 100], dtype=tf.float32)
+        result = tf.nn.softmax(logits=data, axis=-1)
 
         self.feed_list = [data]
         self.fetch_list = [result]
         if backward:
             self.append_gradients(result, [data])
 
-def main(backward, use_gpu):
-    pd_obj = PaddleSlice()
-    tf_obj = TensorflowSlice()
-    run_and_check(pd_obj, tf_obj, backward, use_gpu, name="slice")
 
 if __name__ == '__main__':
-    args = parse_args()
-    main(backward=args.backward, use_gpu=args.use_gpu)
+    test_main(PDSoftmax(), TFSoftmax(), feed_spec=None)
