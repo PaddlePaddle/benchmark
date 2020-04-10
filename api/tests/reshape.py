@@ -12,33 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
-import os
-os.environ["FLAGS_fraction_of_gpu_memory_to_use"] = "0.01"
-
-import paddle.fluid as fluid
-import tensorflow as tf
-import numpy as np
-
-from args import parse_args
+from main import test_main
 
 import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 from common import tensorflow_api_benchmark as tensorflow_api
-from common import utils
-from abs import feed_random_data, run_and_check 
-      
-class PaddleGather(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False):
-        self.name = "gather"
+
+
+class ReshapeConfig(object):
+    def __init__(self, x_shape, shape, shape_is_tensor=False, shape_is_tensor_list=False):
+        self.x_shape = x_shape
+        self.shape = shape
+        self.shape_is_variable = shape_is_tensor
+        self.shape_is_tensor_list = shape_is_tensor_list
+
+
+config = ReshapeConfig(x_shape=[10, 32, 8, 1024],
+                       shape=[10, 32, 32, 256])
+
+
+class PDReshape(paddle_api.PaddleAPIBenchmarkBase):
+    def build_program(self, backward=False, dtype=None):
+        import paddle.fluid as fluid
+
+        self.name = "reshape"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
-                name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
+                name='data', shape=config.x_shape, dtype='float32', lod_level=0)
             data.stop_gradient = False
-            indices = fluid.layers.assign(np.array([3, 8, 18, 68], dtype='int32'))
-            result = fluid.layers.gather(data, indices)
+            result = fluid.layers.reshape(x=data, shape=config.shape)
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -46,25 +49,21 @@ class PaddleGather(paddle_api.PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data])
 
 
-class TensorflowGather(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False):
-        self.name = "gather"
+class TFReshape(tensorflow_api.TensorflowAPIBenchmarkBase):
+    def build_graph(self, backward=False, dtype=None):
+        import tensorflow as tf
+
+        self.name = "reshape"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
-        indices =  tf.Variable([3,8,18,68])
-        result = tf.gather(data, indices)
+        data = tf.placeholder(name='data', shape=config.x_shape, dtype=tf.float32)
+        result = tf.reshape(tensor=data, shape=config.shape)
 
         self.feed_list = [data]
         self.fetch_list = [result]
         if backward:
             self.append_gradients(result, [data])
 
-def main(backward, use_gpu):
-    pd_obj = PaddleGather()
-    tf_obj = TensorflowGather()
-    run_and_check(pd_obj, tf_obj, backward, use_gpu, name="gather")
 
 if __name__ == '__main__':
-    args = parse_args()
-    main(backward=args.backward, use_gpu=args.use_gpu)
+    test_main(PDReshape(), TFReshape(), feed_spec=None)

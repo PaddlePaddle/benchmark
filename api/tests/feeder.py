@@ -97,7 +97,9 @@ def feed_tensorflow(obj, feed_list=None, feed_spec=None):
                     feed_list[i] = np.transpose(feed_list[i], spec["permute"]) 
 
             assert var.shape == feed_list[i].shape
-            assert tensorflow_api.convert_dtype(var.dtype, to_string=False) == feed_list[i].dtype
+            dtype = tensorflow_api.convert_dtype(var.dtype, to_string=False)
+            if dtype != feed_list[i].dtype:
+                feed_list[i] = feed_list[i].astype(dtype)
     else:
         feed_list = []
         for i in range(len(obj.feed_list)):
