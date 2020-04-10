@@ -20,32 +20,54 @@ from common import paddle_api_benchmark as paddle_api
 from common import tensorflow_api_benchmark as tensorflow_api
       
 
+class BatchNormConfig(object):
+    def __init__(self, input_shape):
+        self.input_shape = input_shape
+        self.data_format = "NHWC"
+        self.epsilon = 0.001
+
+    @property
+    def num_channels(self):
+        if self.data_format == "NHWC":
+            return self.input_shape[3]
+        else:
+            return self.input_shape[1]
+
+    @property
+    def axes(self):
+        if self.data_format == "NHWC":
+            return [0, 1, 2]
+
+
+config = BatchNormConfig(input_shape=[10, 100, 100, 32])
+
+
 class PDBatchNorm(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False, dtype=None):
         import paddle.fluid as fluid
 
         self.name = "batch_norm"
         with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data', shape=[10, 100, 100, 32], dtype='float32', lod_level=0)
+            input = fluid.data(
+                name='input', shape=config.input_shape, dtype='float32', lod_level=0)
             scale = fluid.layers.create_parameter(
-                name='scale', shape=[32], dtype="float32")
+                name='scale', shape=[config.num_channels], dtype="float32")
             bias = fluid.layers.create_parameter(
-                name='bias', shape=[32], dtype="float32")
-            data.stop_gradient = False
-            result = fluid.layers.batch_norm(input=data,
+                name='bias', shape=[config.num_channels], dtype="float32")
+            input.stop_gradient = False
+            result = fluid.layers.batch_norm(input=input,
                                              act=None,
                                              is_test=False,
                                              momentum=0.9,
-                                             epsilon=0.001,
+                                             epsilon=config.epsilon,
                                              param_attr="scale",
                                              bias_attr="bias",
-                                             data_layout="NHWC")
+                                             data_layout=config.data_format)
 
-            self.feed_vars = [data, scale, bias]
+            self.feed_vars = [input, scale, bias]
             self.fetch_vars = [result]
             if backward:
-                self.append_gradients(result, [data, scale, bias])
+                self.append_gradients(result, [input, scale, bias])
 
 
 class TFBatchNorm(tensorflow_api.TensorflowAPIBenchmarkBase):
@@ -55,21 +77,25 @@ class TFBatchNorm(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "batch_norm"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[10, 100, 100, 32], dtype=tf.float32)
-        scale = tf.placeholder(name='scale', shape=[32], dtype=tf.float32)
-        bias = tf.placeholder(name='bias', shape=[32], dtype=tf.float32)
-        mean, var = tf.nn.moments(x=data, axes=[0, 1, 2], shift=None, keepdims=False)
-        result = tf.nn.batch_normalization(x=data,
+        input = tf.placeholder(
+            name='input', shape=config.input_shape, dtype=tf.float32)
+        scale = tf.placeholder(
+            name='scale', shape=[config.num_channels], dtype=tf.float32)
+        bias = tf.placeholder(
+            name='bias', shape=[config.num_channels], dtype=tf.float32)
+        mean, var = tf.nn.moments(
+            x=input, axes=config.axes, shift=None, keepdims=False)
+        result = tf.nn.batch_normalization(x=input,
                                            mean=mean,
                                            variance=var,
                                            offset=bias,
                                            scale=scale,
-                                           variance_epsilon=0.001)
+                                           variance_epsilon=config.epsilon)
 
-        self.feed_list = [data, scale, bias]
+        self.feed_list = [input, scale, bias]
         self.fetch_list = [result]
         if backward:
-            self.append_gradients(result, [data, scale, bias])
+            self.append_gradients(result, [input, scale, bias])
 
 
 if __name__ == '__main__':

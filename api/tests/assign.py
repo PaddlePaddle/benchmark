@@ -20,21 +20,29 @@ from common import paddle_api_benchmark as paddle_api
 from common import tensorflow_api_benchmark as tensorflow_api
 
 
+class AssignConfig(object):
+    def __init__(self, input_shape):
+        self.input_shape = input_shape
+
+
+config = AssignConfig(input_shape=[10, 10, 100, 100])
+
+
 class PDAssign(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False, dtype=None):
         import paddle.fluid as fluid
 
         self.name = "assign"
         with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.assign(data)
+            input = fluid.data(
+                name='input', shape=config.input_shape, dtype='float32', lod_level=0)
+            input.stop_gradient = False
+            result = fluid.layers.assign(input)
 
-            self.feed_vars = [data]
+            self.feed_vars = [input]
             self.fetch_vars = [result]
             if backward:
-                self.append_gradients(result, [data])
+                self.append_gradients(result, [input])
 
 
 class TFAssign(tensorflow_api.TensorflowAPIBenchmarkBase):
@@ -44,14 +52,16 @@ class TFAssign(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "assign"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
-        ref = tf.Variable(tf.zeros([10, 10,100,100]), name='target', dtype=tf.float32)
-        assigns = tf.assign(ref, data)
+        input = tf.placeholder(
+            name='input', shape=config.input_shape, dtype=tf.float32)
+        ref = tf.Variable(
+            tf.zeros(config.input_shape), name='target', dtype=tf.float32)
+        assigns = tf.assign(ref=ref, value=input)
 
-        self.feed_list = [data]
+        self.feed_list = [input]
         self.fetch_list = [assigns]
         if backward:
-            self.append_gradients(assigns, [data])
+            self.append_gradients(assigns, [input])
 
 
 if __name__ == '__main__':
