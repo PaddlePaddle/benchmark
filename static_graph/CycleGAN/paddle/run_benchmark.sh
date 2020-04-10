@@ -46,9 +46,25 @@ function _set_env(){
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=${base_batch_size}"
-    python train.py  --profile=${is_profiler} \
-                --profiler_path=${profiler_path} \
-                --max_iter=${max_iter} > ${log_file} 2>&1
+    python train.py --model_net ${model_name} \
+                    --dataset cityscapes \
+                    --batch_size ${base_batch_size} \
+                    --net_G resnet_9block \
+                    --g_base_dim 32 \
+                    --net_D basic \
+                    --epoch 3 \
+                    --run_test False \
+                    --image_size 286 \
+                    --crop_size 256 \
+                    --crop_type Random \
+                    --profile=${is_profiler} \
+                    --profiler_path=${profiler_path} \
+                    --max_iter=${max_iter} \
+                    --output ./output/cyclegan/ > ${log_file} 2>&1
+
+#    python train.py  --profile=${is_profiler} \
+#                --profiler_path=${profiler_path} \
+#                --max_iter=${max_iter} > ${log_file} 2>&1
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
