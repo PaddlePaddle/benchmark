@@ -25,6 +25,62 @@ from tensorflow.python.client import timeline
 import utils
 
 
+def convert_dtype(dtype, to_string=True):
+    def _trans(to_string, dtype_str, np_dtype):
+        dtype = dtype_str if to_string else np.dtype(np_dtype)
+        return dtype
+
+    if dtype == tf.float16:
+        # tf.float16: 16-bit half-precision floating-point.
+        return _trans(to_string, "float16", np.float16)
+    elif dtype == tf.float32:
+        # tf.float32: 32-bit single-precision floating-point.
+        return _trans(to_string, "float32", np.float32)
+    elif dtype == tf.float64:
+        # tf.float64: 64-bit double-precision floating-point.
+        return _trans(to_string, "float64", np.float64)
+    elif dtype == tf.int8:
+        # tf.int8: 8-bit signed integer.
+        return _trans(to_string, "int8", np.int8)
+    elif dtype == tf.uint8:
+        # tf.uint8: 8-bit unsigned integer.
+        return _trans(to_string, "uint8", np.uint8)
+    elif dtype == tf.uint16:
+        # tf.uint16: 16-bit unsigned integer.
+        return _trans(to_string, "uint16", np.uint16)
+    elif dtype == tf.uint32:
+        # tf.uint32: 32-bit unsigned integer.
+        return _trans(to_string, "uint32", np.uint32)
+    elif dtype == tf.uint64:
+        # tf.uint64: 64-bit unsigned integer.
+        return _trans(to_string, "uint64", np.uint64)
+    elif dtype == tf.int16:
+        # tf.int16: 16-bit signed integer.
+        return _trans(to_string, "int16", np.int16)
+    elif dtype == tf.int32:
+        # tf.int32: 32-bit signed integer.
+        return _trans(to_string, "int32", np.int32)
+    elif dtype == tf.int64:
+        # tf.int64: 64-bit signed integer.
+        return _trans(to_string, "int64", np.int64)
+    elif dtype == tf.bool:
+        # tf.bool: Boolean.
+        return _trans(to_string, "bool", np.bool)
+    else:
+        # tf.bfloat16: 16-bit truncated floating-point.
+        # tf.complex64: 64-bit single-precision complex.
+        # tf.complex128: 128-bit double-precision complex.
+        # tf.string: String.
+        # tf.qint8: Quantized 8-bit signed integer.
+        # tf.quint8: Quantized 8-bit unsigned integer.
+        # tf.qint16: Quantized 16-bit signed integer.
+        # tf.quint16: Quantized 16-bit unsigned integer.
+        # tf.qint32: Quantized 32-bit signed integer.
+        # tf.resource: Handle to a mutable resource.
+        # tf.variant: Values of arbitrary types.
+        raise ValueError("Unsupported dtype %s" % dtype)
+
+
 @six.add_metaclass(abc.ABCMeta)
 class TensorflowAPIBenchmarkBase(object):
     def __init__(self):
@@ -148,61 +204,6 @@ class TensorflowAPIBenchmarkBase(object):
                 # Events time consumption started with 'ts' prefix
                 if 'ts' in event:
                     self.timeline_dict['traceEvents'].append(event)
-
-    def convert_dtype(self, dtype, to_string=True):
-        def _trans(to_string, dtype_str, np_dtype):
-            dtype = dtype_str if to_string else np.dtype(np_dtype)
-            return dtype
-
-        if dtype == tf.float16:
-            # tf.float16: 16-bit half-precision floating-point.
-            return _trans(to_string, "float16", np.float16)
-        elif dtype == tf.float32:
-            # tf.float32: 32-bit single-precision floating-point.
-            return _trans(to_string, "float32", np.float32)
-        elif dtype == tf.float64:
-            # tf.float64: 64-bit double-precision floating-point.
-            return _trans(to_string, "float64", np.float64)
-        elif dtype == tf.int8:
-            # tf.int8: 8-bit signed integer.
-            return _trans(to_string, "int8", np.int8)
-        elif dtype == tf.uint8:
-            # tf.uint8: 8-bit unsigned integer.
-            return _trans(to_string, "uint8", np.uint8)
-        elif dtype == tf.uint16:
-            # tf.uint16: 16-bit unsigned integer.
-            return _trans(to_string, "uint16", np.uint16)
-        elif dtype == tf.uint32:
-            # tf.uint32: 32-bit unsigned integer.
-            return _trans(to_string, "uint32", np.uint32)
-        elif dtype == tf.uint64:
-            # tf.uint64: 64-bit unsigned integer.
-            return _trans(to_string, "uint64", np.uint64)
-        elif dtype == tf.int16:
-            # tf.int16: 16-bit signed integer.
-            return _trans(to_string, "int16", np.int16)
-        elif dtype == tf.int32:
-            # tf.int32: 32-bit signed integer.
-            return _trans(to_string, "int32", np.int32)
-        elif dtype == tf.int64:
-            # tf.int64: 64-bit signed integer.
-            return _trans(to_string, "int64", np.int64)
-        elif dtype == tf.bool:
-            # tf.bool: Boolean.
-            return _trans(to_string, "bool", np.bool)
-        else:
-            # tf.bfloat16: 16-bit truncated floating-point.
-            # tf.complex64: 64-bit single-precision complex.
-            # tf.complex128: 128-bit double-precision complex.
-            # tf.string: String.
-            # tf.qint8: Quantized 8-bit signed integer.
-            # tf.quint8: Quantized 8-bit unsigned integer.
-            # tf.qint16: Quantized 16-bit signed integer.
-            # tf.quint16: Quantized 16-bit unsigned integer.
-            # tf.qint32: Quantized 32-bit signed integer.
-            # tf.resource: Handle to a mutable resource.
-            # tf.variant: Values of arbitrary types.
-            raise ValueError("Unsupported dtype %s" % dtype)
 
     def _feed_random_data(self):
         print("feed random data")
