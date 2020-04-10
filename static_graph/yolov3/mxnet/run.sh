@@ -1,23 +1,33 @@
 #!bin/bash
-set -xe
+set -x
 
-if [ $# -ne 2 ]; then
-  echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem"
-  exit
-fi
+echo "CUDA_VISIBLE_DEVICES=0 bash run_yolo.sh train|infer 1(speed)|2(mem) /run/log/path"
 
-task="$1"
-index="$2"
+function _set_params(){
+    task="$1"
+    index="$2"
+    run_log_path=${3:-$(pwd)}
+    model_name="yolov3"
 
-device=${CUDA_VISIBLE_DEVICES//,/ }
-arr=($device)
-num_gpu_devices=${#arr[*]}
-base_batchsize=8
-batch_size=`expr ${base_batchsize} \* $num_gpu_devices`
-log_file=log_${task}_${index}_${num_gpu_devices}
+    skip_steps=2
+    keyword="samples/sec"
+    separator=" "
+    position=6
+    model_mode=1
+    run_mode="sp"
+    
+    device=${CUDA_VISIBLE_DEVICES//,/ }
+    arr=($device)
+    echo $arr
+    num_gpu_devices=${#arr[*]}
+    #base_batchsize=14 # for max bs
+    base_batch_size=8 #origion
+    batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
+    log_file=${run_log_path}/log_${model_name}_${index}_${num_gpu_devices}
+}
 
-train(){
+function _train(){
+  rm *.json
   echo "Train on ${num_gpu_devices} GPUs"
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
   export MXNET_CUDNN_AUTOTUNE_DEFAULT=0
@@ -27,7 +37,14 @@ train(){
       --data-shape=608 \
       --no-random-shape > ${log_file} 2>&1 &
   train_pid=$!
-  sleep 600
+ if [ ${num_gpu_devices} = 1 ]; then
+     sleep 600
+ elif [ ${num_gpu_devices} = 8 ]; then
+     sleep 1000
+ else
+     sleep 800
+ fi
+
   kill -9 $train_pid
   kill -9 `ps -ef|grep 'train_yolo3'|awk '{print $2}'`
 }
@@ -44,69 +61,6 @@ infer(){
 #  kill -9 $infer_pid
 }
 
-analysis_times(){
-  skip_step=$1
-  count_fields=$2
-  awk 'BEGIN{count=0}/samples\/sec/{
-    step_times[count]=$'${count_fields}';
-    count+=1;
-  }END{
-    print "\n================ Benchmark Result ================"
-    print "total_step:", count
-    print "batch_size:", "'${batch_size}'"
-    if(count>1){
-      step_latency=0
-      step_latency_without_step0_avg=0
-      step_latency_without_step0_min=step_times['${skip_step}']
-      step_latency_without_step0_max=step_times['${skip_step}']
-      for(i=0;i<count;++i){
-        step_latency+=step_times[i];
-        if(i>='${skip_step}'){
-          step_latency_without_step0_avg+=step_times[i];
-          if(step_times[i]<step_latency_without_step0_min){
-            step_latency_without_step0_min=step_times[i];
-          }
-          if(step_times[i]>step_latency_without_step0_max){
-            step_latency_without_step0_max=step_times[i];
-          }
-        }
-      }
-      step_latency/=count;
-      step_latency_without_step0_avg/=(count-'${skip_step}')
-      printf("average latency (origin result):\n")
-      printf("\tAvg: %.3f examples/s\n", step_latency)
-      printf("\tFPS: %.3f s/step\n", "'${batch_size}'"/step_latency)
-      printf("average latency (skip '${skip_step}' steps):\n")
-      printf("\tAvg: %.3f examples/s\n", step_latency_without_step0_avg)
-      printf("\tMin: %.3f examples/s\n", step_latency_without_step0_min)
-      printf("\tMax: %.3f examples/s\n", step_latency_without_step0_max)
-      printf("\tFPS: %.3f s/step\n", '${batch_size}'/step_latency_without_step0_avg)
-      printf("\n")
-    }
-  }' ${log_file}
-}
-
-if [ $index = "mem" ]
-then
-    echo "Benchmark for $task"
-    #若测试最大batchsize，FLAGS_fraction_of_gpu_memory_to_use=1
-    export FLAGS_fraction_of_gpu_memory_to_use=0.001
-    gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
-    nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
-    gpu_memory_pid=$!
-    $task
-    kill $gpu_memory_pid
-    awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "Max=", max}' gpu_use.log
-else
-    echo "Benchmark for $task"
-
-    if [ ${task} = "train" ]
-    then
-      train
-      analysis_times 3 7
-    else
-      echo "no infer cmd"
-      #analysis_times 3 5 5
-    fi
-fi
-
+source ${BENCHMARK_ROOT}/competitive_products/common_scripts/run_model.sh
+_set_params $@
+_run
