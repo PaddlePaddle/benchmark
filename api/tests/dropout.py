@@ -60,4 +60,5 @@ class TFDropout(tensorflow_api.TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
+    # Not consitent!!!
     test_main(PDDropout(), TFDropout(), feed_spec=None)

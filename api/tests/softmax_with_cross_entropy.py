@@ -80,4 +80,5 @@ class TFSoftmaxWithCrossEntropy(tensorflow_api.TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
+    # Not consistent!!!
     test_main(PDSoftmaxWithCrossEntropy(), TFSoftmaxWithCrossEntropy(), feed_spec=config.feed_spec)

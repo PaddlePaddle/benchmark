@@ -79,6 +79,14 @@ def feed_paddle(obj, feed_spec=None):
     return feed_list
 
 
+def check_shape(shape, shape_ref):
+    if shape == shape_ref:
+        return True
+    if shape + [1] == shape_ref or shape == shape_ref + [1]:
+        return True
+    return False
+        
+
 def feed_tensorflow(obj, feed_list=None, feed_spec=None):
     if feed_spec is not None:
         if not isinstance(feed_spec, list):
@@ -96,7 +104,9 @@ def feed_tensorflow(obj, feed_list=None, feed_spec=None):
                 if spec.get("permute", None) is not None:
                     feed_list[i] = np.transpose(feed_list[i], spec["permute"]) 
 
-            assert var.shape == feed_list[i].shape
+            assert check_shape(var.shape, feed_list[i].shape)
+            feed_list[i] = feed_list[i].reshape(var.shape)
+
             dtype = tensorflow_api.convert_dtype(var.dtype, to_string=False)
             if dtype != feed_list[i].dtype:
                 feed_list[i] = feed_list[i].astype(dtype)
