@@ -80,6 +80,11 @@ def feed_paddle(obj, feed_spec=None):
 
 
 def feed_tensorflow(obj, feed_list=None, feed_spec=None):
+    if feed_spec is not None:
+        if not isinstance(feed_spec, list):
+            feed_spec = [feed_spec]
+        assert len(obj.feed_list) == len(feed_spec)
+
     if feed_list is not None:
         assert len(obj.feed_list) == len(feed_list)
 

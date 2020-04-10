@@ -18,19 +18,30 @@ import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 from common import tensorflow_api_benchmark as tensorflow_api
-      
+
+
+class OneHotConfig(object):
+    def __init__(self, input_shape, depth):
+        self.input_shape = input_shape
+        self.depth = depth
+        self.feed_spec = { "range": [0, depth] }
+
+
+config = OneHotConfig(input_shape=[32, 128], depth=10)
+
+
 class PDOneHot(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False, dtype=None):
         import paddle.fluid as fluid
 
         self.name = "one_hot"
         with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data', shape=[32, 128], dtype='int32', lod_level=0)
-            data.stop_gradient = False
-            result = fluid.one_hot(input=data, depth=10)
+            input = fluid.data(
+                name='input', shape=config.input_shape, dtype='int32', lod_level=0)
+            input.stop_gradient = False
+            result = fluid.one_hot(input=input, depth=config.depth)
 
-            self.feed_vars = [data]
+            self.feed_vars = [input]
             self.fetch_vars = [result]
 
 
@@ -41,18 +52,17 @@ class TFOneHot(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "one_hot"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[32, 128], dtype=tf.int32)
-        result = tf.one_hot(indices=data,
-                            depth=10,
+        input = tf.placeholder(name='input', shape=config.input_shape, dtype=tf.int32)
+        result = tf.one_hot(indices=input,
+                            depth=config.depth,
                             on_value=None,
                             off_value=None,
                             axis=None,
                             dtype=None)
 
-        self.feed_list = [data]
+        self.feed_list = [input]
         self.fetch_list = [result]
 
 
 if __name__ == '__main__':
-    feed_spec = { "range": [0, 10] }
-    test_main(PDOneHot(), TFOneHot(), feed_spec=feed_spec)
+    test_main(PDOneHot(), TFOneHot(), feed_spec=config.feed_spec)
