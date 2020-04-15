@@ -115,7 +115,7 @@ prepare(){
 
 #run_cycle_gan
 CycleGAN(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/gan
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/
     cd ${cur_model_path}
 
     # Prepare data
