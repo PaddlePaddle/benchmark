@@ -119,8 +119,8 @@ CycleGAN(){
     cd ${cur_model_path}
 
     # Prepare data
-    rm -rf  data/horse2zebra
-    ln -s ${data_path}/horse2zebra/ ${cur_model_path}/data
+    mkdir -p ${cur_model_path}/data
+    ln -s ${data_path}/horse2zebra/ ${cur_model_path}/data/cityscapes
     # Running ...
     rm ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/static_graph/CycleGAN/paddle/run_benchmark.sh ./
