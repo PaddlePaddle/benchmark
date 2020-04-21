@@ -21,7 +21,7 @@ from common import tensorflow_api_benchmark as tensorflow_api
 
 
 class FCConfig(object):
-    def __init__(self, input_shape=[16384, 4], size=4, num_flatten_dims=-1, act=None):
+    def __init__(self, input_shape=[1,256,6,6], size=1, num_flatten_dims=-1, act=None):
         row = 1
         col = 1
         if num_flatten_dims < 0:
@@ -38,20 +38,31 @@ class FCConfig(object):
 
 
     def dy_param(self, name, type, value):
-        if type == "float64" or type == "float32":
-            value=float(value)
-        elif type == "int64" or type == "int32":
-            value=int(value)
+        if type == "float":
+            value_t=float(value)
+            setattr(self, name, value_t);
+        elif type == "int":
+            value_t=int(value)
+            setattr(self, name, value_t);
         elif type == "bool":
-            value=bool(value)
-        setattr(self, name, value);
+            value_t=bool(value)
+            setattr(self, name, value_t);
 
+    def dy_input_param(self, dtype, shape, lod_level ):
+        self.dtype=dtype
+        #self.input_shape=shape
 
 class PDFC(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False, dtype=None):
         import paddle.fluid as fluid
 
         self.name = "fc"
+        print(config.num_flatten_dims)
+        print(type(config.num_flatten_dims))
+        print(config.size)
+        print(type(config.size))
+        print(config.act)
+        print(type(config.act))
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
                 name='input', shape=config.input_shape, dtype=dtype, lod_level=0)
@@ -94,5 +105,5 @@ class TFFC(tensorflow_api.TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    dynamic_pb_config(FCConfig())
+    config = dynamic_pb_config(FCConfig())
     test_main(PDFC(), TFFC(), feed_spec=None)

@@ -22,52 +22,6 @@ import sys
 sys.path.append("..")
 from common import utils
 
-
-class BaseParamInfo(object):
-    def __init__(self, name, type, value):
-        self.name = name
-        self.type = type
-        self.value = value
-
-class VarParamInfo(object):
-    def __init__(self, name, type, dtype, shape, lod_level=0):
-        self.name = name
-        self.type = type
-        self.dtype = dtype
-        self.shape = shape
-        self.lod_level = lod_level
-
-class APIParam(object):
-    def __init__(self):
-        self.name = ""
-        self.params = ""
-        self.input_list = []
-        self.params_list = []
-
-    def _convert_params_list(self):
-        with open("api_params.json", 'r') as f:
-            data = json.load(f)
-            self.name = data[1]["op"]
-            self.params = data[1]["param_info"]
-        for p_key, p_value in self.params.items():
-            param_name=p_key
-            dtype=p_value["dtype"]
-            type=""
-            v_type = 0
-            for v_k in p_value.keys():
-                if v_k == "type":
-                    v_type = 1
-            if v_type ==1:
-                type=p_value["type"]
-                shape=p_value["shape"]
-                var_ = VarParamInfo(param_name, type, dtype, shape)
-                self.input_list.append(var_)
-            else:
-                value=p_value["value"] 
-                var_ = BaseParamInfo(param_name, dtype, value)
-                self.params_list.append(var_)
-        return self
-
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
         return True
@@ -156,14 +110,63 @@ def parse_args():
         raise ValueError("dtype should be float32, float16, float64, int32, int64, bool")
     return args
 
+class BaseParamInfo(object):
+    def __init__(self, name, type, value):
+        self.name = name
+        self.type = type
+        self.value = value
+
+class VarParamInfo(object):
+    def __init__(self, name, type, dtype, shape, lod_level=0):
+        self.name = name
+        self.type = type
+        self.dtype = dtype
+        self.shape = shape
+        self.lod_level = lod_level
+
+class APIParam(object):
+    def __init__(self):
+        self.name = ""
+        self.params = ""
+        self.input_list = []
+        self.params_list = []
+
+    def _convert_params_list(self):
+        with open("api_params.json", 'r') as f:
+            data = json.load(f)
+            self.name = data[1]["op"]
+            self.params = data[1]["param_info"]
+        for p_key, p_value in self.params.items():
+            param_name=p_key
+            dtype=p_value["dtype"]
+            type=""
+            v_type = 0
+            for v_k in p_value.keys():
+                if v_k == "type":
+                    v_type = 1
+            if v_type ==1:
+                type=p_value["type"]
+                shape=p_value["shape"]
+                var_ = VarParamInfo(param_name, type, dtype, shape)
+                self.input_list.append(var_)
+            else:
+                value=p_value["value"] 
+                var_ = BaseParamInfo(param_name, dtype, value)
+                self.params_list.append(var_)
+        return self
+
 def dynamic_pb_config(pb_config=None):
+    args = parse_args()
     if pb_config is None:
         raise ValueError("Paddle config is None.")  
     if args.dynamic_params == True:
         api = APIParam()
         api._convert_params_list()
         for params in api.params_list:
-            pb_config.dy_param(params.name, params.type, params.value);
+            pb_config.dy_param(params.name.encode('utf-8'), params.type.encode('utf-8'), params.value.encode('utf-8'));
+        for input_p in api.input_list:
+            pb_config.dy_input_param(input_p.dtype.encode('utf-8'), input_p.shape.encode('utf-8'),input_p.lod_level)
+    return pb_config
 
 def test_paddle(task, obj, args, feed_list=None):
     feed = None
