@@ -17,11 +17,10 @@ from __future__ import print_function
 import argparse
 import os
 import feeder
-
+import json
 import sys
 sys.path.append("..")
 from common import utils
-
 
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
@@ -48,6 +47,16 @@ def parse_args():
         type=str,
         default="float32",
         help='Specify the data type of api')
+    parser.add_argument(
+        '--json_file',
+        type=str,
+        default="api_params.json",
+        help='The file of API params')
+    parser.add_argument(
+        '--dynamic_params',
+        type=bool,
+        default=False,
+        help='Whether using dynamic import params of API [True|False]')
     parser.add_argument(
         '--run_with_executor',
         type=str2bool,
@@ -97,10 +106,63 @@ def parse_args():
         raise ValueError("task should be speed, accuracy")
     if args.framework not in ["paddle", "tensorflow", "tf", "both"]:
         raise ValueError("task should be paddle, tensorflow, tf, both")
-    if args.dtype not in ["float32", "float16"]:
-        raise ValueError("dtype should be float32, float16")
+    if args.dtype not in ["float32", "float16", "float64", "int32", "int64", "bool"]:
+        raise ValueError("dtype should be float32, float16, float64, int32, int64, bool")
     return args
 
+class BaseParamInfo(object):
+    def __init__(self, name, type, value):
+        self.name = name
+        self.type = type
+        self.value = value
+
+class VarParamInfo(object):
+    def __init__(self, name, type, dtype, shape, lod_level=0):
+        self.name = name
+        self.type = type
+        self.dtype = dtype
+        self.shape = shape
+        self.lod_level = lod_level
+
+class APIParam(object):
+    def __init__(self):
+        self.name = ""
+        self.params = ""
+        self.input_list = []
+        self.params_list = []
+
+    def _convert_params_list(self):
+        with open("api_params.json", 'r') as f:
+            data = json.load(f)
+            self.name = data[1]["op"]
+            self.params = data[1]["param_info"]
+        for p_key, p_value in self.params.items():
+            param_name=p_key
+            dtype=p_value["dtype"]
+            type=""
+            v_type = 0
+            for v_k in p_value.keys():
+                if v_k == "type":
+                    v_type = 1
+            if v_type ==1:
+                type=p_value["type"]
+                shape=p_value["shape"]
+                var_ = VarParamInfo(param_name, type, dtype, shape)
+                self.input_list.append(var_)
+            else:
+                value=p_value["value"] 
+                var_ = BaseParamInfo(param_name, dtype, value)
+                self.params_list.append(var_)
+        return self
+
+def dynamic_pb_config(pb_config=None):
+    if pb_config is None:
+        raise ValueError("Paddle config is None.")  
+    if args.dynamic_params == True:
+        api = APIParam()
+        api._convert_params_list()
+        for params in api.params_list:
+            pb_config.dy_param(params.name, params.type, params.value);
 
 def test_paddle(task, obj, args, feed_list=None):
     feed = None
@@ -183,7 +245,7 @@ def test_main(pd_obj=None, tf_obj=None, feed_spec=None):
     if args.task == "accuracy" or args.framework in ["tensorflow", "tf", "both"]:
         if tf_obj is None:
             raise ValueError("TensorFlow object is None.")
-        tf_obj.build_graph(backward=args.backward)
+        tf_obj.build_graph(backward=args.backward, dtype=args.dtype)
         feed_list = feeder.feed_tensorflow(tf_obj, feed_list, feed_spec)
         tf_outputs = test_tensorflow(args.task, tf_obj, args, feed_list)
 
