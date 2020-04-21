@@ -43,8 +43,11 @@ def feed_var(spec):
         data = spec["data"]
     else:
         if dtype == "int64" or dtype == "int32":
-            assert range is not None
-            data = np.random.randint(range[0], range[1], shape).astype(dtype)
+            data = np.random.randint(100, size=shape, dtype=dtype)
+            if range is not None:
+                data = np.random.randint(range[0],range[1], size=shape, dtype=dtype)
+        if dtype == "bool":
+            data = np.random.randint(2, size=shape, dtype=bool)
         else:
             data = np.random.random(shape).astype(dtype)
             if range is not None:
