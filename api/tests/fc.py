@@ -50,8 +50,6 @@ class PDFC(paddle_api.PaddleAPIBenchmarkBase):
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
                 name=FCconfig.input_name, shape=FCconfig.input_shape, dtype=FCconfig.input_dtype, lod_level=0)
-            print(FCconfig.input_name)
-            print(FCconfig.input_shape)
             input.stop_gradient = False
             result = fluid.layers.fc(
                 input=input,

@@ -1,8 +1,8 @@
 import json
 
 class BaseParamInfo(object):
-    def __init__(self, op_type, type, value):
-        self.name = op_type
+    def __init__(self, name, type, value):
+        self.name = name
         self.type = type
         self.value = value
 
@@ -23,8 +23,8 @@ class VarParamInfo(object):
          return param
 
 class APIConfig(object):
-    def __init__(self,name,params):
-        self.name = name
+    def __init__(self, op_type, params):
+        self.name = op_type
         self.params = params
         self.input_list = []
         self.params_list = []
