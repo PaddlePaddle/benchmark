@@ -17,11 +17,12 @@ from __future__ import print_function
 import argparse
 import os
 import feeder
-
+import json
 import sys
+import re
 sys.path.append("..")
 from common import utils
-
+from common import api_param
 
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
@@ -48,6 +49,16 @@ def parse_args():
         type=str,
         default="float32",
         help='Specify the data type of api')
+    parser.add_argument(
+        '--json_file',
+        type=str,
+        default="api_params.json",
+        help='The file of API params')
+    parser.add_argument(
+        '--dynamic_params',
+        type=bool,
+        default=False,
+        help='Whether using dynamic import params of API [True|False]')
     parser.add_argument(
         '--run_with_executor',
         type=str2bool,
@@ -97,10 +108,9 @@ def parse_args():
         raise ValueError("task should be speed, accuracy")
     if args.framework not in ["paddle", "tensorflow", "tf", "both"]:
         raise ValueError("task should be paddle, tensorflow, tf, both")
-    if args.dtype not in ["float32", "float16"]:
-        raise ValueError("dtype should be float32, float16")
+    if args.dtype not in ["float32", "float16", "float64", "int32", "int64", "bool"]:
+        raise ValueError("dtype should be float32, float16, float64, int32, int64, bool")
     return args
-
 
 def test_paddle(task, obj, args, feed_list=None):
     feed = None
@@ -169,9 +179,21 @@ def test_speed_main(obj):
     test_paddle("speed", obj, args)
 
 
-def test_main(pd_obj=None, tf_obj=None, feed_spec=None):
+def test_main(pd_obj=None, tf_obj=None, config=None, feed_spec=None):
     args = parse_args()
-
+    if config is None:
+        raise ValueError("Paddle config is None.")  
+    if args.dynamic_params == True:
+        with open(args.json_file, 'r') as f:
+            data = json.load(f) 
+            for i in range(0, len(data)):
+                config.dynamic_pb_config(args.json_file, i)
+                test_run(pd_obj, tf_obj, feed_spec)
+    else:
+        test_run(pd_obj, tf_obj, feed_spec)
+ 
+def test_run(pd_obj=None, tf_obj=None, feed_spec=None):
+    args = parse_args()
     feed_list = None
     if args.task == "accuracy" or args.framework in ["paddle", "both"]:
         if pd_obj is None:
@@ -183,7 +205,7 @@ def test_main(pd_obj=None, tf_obj=None, feed_spec=None):
     if args.task == "accuracy" or args.framework in ["tensorflow", "tf", "both"]:
         if tf_obj is None:
             raise ValueError("TensorFlow object is None.")
-        tf_obj.build_graph(backward=args.backward)
+        tf_obj.build_graph(backward=args.backward, dtype=args.dtype)
         feed_list = feeder.feed_tensorflow(tf_obj, feed_list, feed_spec)
         tf_outputs = test_tensorflow(args.task, tf_obj, args, feed_list)
 
