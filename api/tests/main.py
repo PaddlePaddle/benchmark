@@ -191,6 +191,7 @@ def test_run(pd_obj=None, tf_obj=None, feed_spec=None):
     if args.task == "accuracy" or args.framework in ["paddle", "both"]:
         if pd_obj is None:
             raise ValueError("Paddle object is None.")
+        pd_obj.create_progrom()
         pd_obj.build_program(backward=args.backward)
         feed_list = feeder.feed_paddle(pd_obj, feed_spec)
         pd_outputs = test_paddle(args.task, pd_obj, args, feed_list)

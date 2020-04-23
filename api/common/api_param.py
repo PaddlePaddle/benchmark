@@ -29,6 +29,13 @@ class APIConfig(object):
         self.input_list = []
         self.params_list = []
 
+
+    def list_all_member(self):
+        print('\nAPI params:')
+        for name,value in vars(self).items():
+            if name not in ['name', 'params', 'input_list', 'params_list']:
+                print('%s=%s'%(name,value))
+
     def init_from_json(self, filename, pos=0):
         with open(filename, 'r') as f:
             data = json.load(f) 
@@ -81,19 +88,26 @@ class APIConfig(object):
     def dy_param(self, name, type, value):
         if type == "float":
             value_t=float(value)
-            setattr(self, name, value_t);
+            setattr(self, name, value_t)
         elif type == "int":
             value_t=int(value)
-            setattr(self, name, value_t);
+            setattr(self, name, value_t)
         elif type == "bool":
             value_t=bool(value)
-            setattr(self, name, value_t);
+            setattr(self, name, value_t)
+        elif type == "string":
+            if value=="None":
+                value_t=None
+               
+            else:
+                value_t=value
+            setattr(self, name, value_t)
         return self
 
     def dy_input_param(self, pos, name, dtype, shape, lod_level ):
-        setattr(self, name + '_shape', map(int, shape) );
-        setattr(self, name + '_dtype', dtype );
-        setattr(self, name + '_name', name + str(pos) );
+        setattr(self, name + '_shape', map(int, shape) )
+        setattr(self, name + '_dtype', dtype )
+        setattr(self, name + '_name', name + str(pos) )
         return self
 
     def dynamic_pb_config(self, filename, pos):

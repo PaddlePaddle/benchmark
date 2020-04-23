@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import paddle.fluid as fluid
+import tensorflow as tf
 from main import test_main
 
 import sys
@@ -23,30 +24,15 @@ from common import api_param
 
 
 class FCConfig(api_param.APIConfig):
-    def __init__(self, input_shape=[1,256,6,6], size=1, num_flatten_dims=-1, act=None, dtype='float32'):
+    def __init__(self):
         super(FCConfig, self).__init__('fc','')
-        row = 1
-        col = 1
-        if num_flatten_dims < 0:
-            num_flatten_dims = num_flatten_dims + len(input_shape)
-        for i in range(len(input_shape)):
-            if i < num_flatten_dims:
-                row = row * input_shape[i]
-            else:
-                col = col * input_shape[i]
-        self.input_shape = [row, col]
-        self.size = size
-        self.num_flatten_dims = num_flatten_dims
-        self.act=act
-        self.input_dtype=dtype
 
 class PDFC(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False):
-        import paddle.fluid as fluid
+
+        FCconfig.list_all_member()
 
         self.name = "fc"
-        self.main_program=fluid.Program()
-        self.startup_program=fluid.Program()
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
                 name=FCconfig.input_name, shape=FCconfig.input_shape, dtype=FCconfig.input_dtype, lod_level=0)
@@ -69,7 +55,6 @@ class PDFC(paddle_api.PaddleAPIBenchmarkBase):
 
 class TFFC(tensorflow_api.TensorflowAPIBenchmarkBase):
     def build_graph(self, backward=False):
-        import tensorflow as tf
 
         self.name = "fc"
         self.allow_growth = True
@@ -80,7 +65,7 @@ class TFFC(tensorflow_api.TensorflowAPIBenchmarkBase):
             num_outputs=FCconfig.size,
             weights_initializer=tf.constant_initializer(0.5),
             biases_initializer=tf.constant_initializer(0.1),
-            activation_fn=FCconfig.act)
+            activation_fn=None)
 
         self.feed_list = [input]
         self.fetch_list = [result]
