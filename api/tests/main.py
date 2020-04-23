@@ -45,11 +45,6 @@ def parse_args():
         default="paddle",
         help='Specify the framework: [paddle|tensorflow|tf|both]')
     parser.add_argument(
-        '--dtype',
-        type=str,
-        default="float32",
-        help='Specify the data type of api')
-    parser.add_argument(
         '--json_file',
         type=str,
         default="api_params.json",
@@ -108,8 +103,6 @@ def parse_args():
         raise ValueError("task should be speed, accuracy")
     if args.framework not in ["paddle", "tensorflow", "tf", "both"]:
         raise ValueError("task should be paddle, tensorflow, tf, both")
-    if args.dtype not in ["float32", "float16", "float64", "int32", "int64", "bool"]:
-        raise ValueError("dtype should be float32, float16, float64, int32, int64, bool")
     return args
 
 def test_paddle(task, obj, args, feed_list=None):
@@ -175,7 +168,7 @@ def test_tensorflow(task, obj, args, feed_list=None):
 
 def test_speed_main(obj):
     args = parse_args()
-    obj.build_program(backward=args.backward, dtype=args.dtype)
+    obj.build_program(backward=args.backward)
     test_paddle("speed", obj, args)
 
 
@@ -198,14 +191,14 @@ def test_run(pd_obj=None, tf_obj=None, feed_spec=None):
     if args.task == "accuracy" or args.framework in ["paddle", "both"]:
         if pd_obj is None:
             raise ValueError("Paddle object is None.")
-        pd_obj.build_program(backward=args.backward, dtype=args.dtype)
+        pd_obj.build_program(backward=args.backward)
         feed_list = feeder.feed_paddle(pd_obj, feed_spec)
         pd_outputs = test_paddle(args.task, pd_obj, args, feed_list)
 
     if args.task == "accuracy" or args.framework in ["tensorflow", "tf", "both"]:
         if tf_obj is None:
             raise ValueError("TensorFlow object is None.")
-        tf_obj.build_graph(backward=args.backward, dtype=args.dtype)
+        tf_obj.build_graph(backward=args.backward)
         feed_list = feeder.feed_tensorflow(tf_obj, feed_list, feed_spec)
         tf_outputs = test_tensorflow(args.task, tf_obj, args, feed_list)
 

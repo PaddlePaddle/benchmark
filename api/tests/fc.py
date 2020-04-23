@@ -41,7 +41,7 @@ class FCConfig(api_param.APIConfig):
         self.input_dtype=dtype
 
 class PDFC(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False, dtype=None):
+    def build_program(self, backward=False):
         import paddle.fluid as fluid
 
         self.name = "fc"
@@ -68,7 +68,7 @@ class PDFC(paddle_api.PaddleAPIBenchmarkBase):
 
 
 class TFFC(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False, dtype=None):
+    def build_graph(self, backward=False):
         import tensorflow as tf
 
         self.name = "fc"
