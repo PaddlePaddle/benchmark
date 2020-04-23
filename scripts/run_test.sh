@@ -37,7 +37,7 @@ function run_api(){
     python abs.py
 }
 
-
+echo "test-bot"
 function main(){
     local CMD=$1
     prepare_tf_env
