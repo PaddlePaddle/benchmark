@@ -51,9 +51,7 @@ class TFAbs(tensorflow_api.TensorflowAPIBenchmarkBase):
         import tensorflow as tf
 
         self.name = "abs"
-        self.allow_growth = True
-
-        data = tf.placeholder(name='data', shape=config.input_shape, dtype=tf.float32)
+        data = self.placeholder(name='data', shape=config.input_shape, dtype=tf.float32)
         result = tf.abs(x=data)
 
         self.feed_list = [data]

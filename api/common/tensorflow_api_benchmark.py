@@ -85,13 +85,42 @@ def convert_dtype(dtype, to_string=True):
 class TensorflowAPIBenchmarkBase(object):
     def __init__(self):
         self.name = self.__class__.__name__
+        self.graph = tf.Graph()
         self.feed_list = None
         self.fetch_list = None
-        self.allow_growth = False
+        self.allow_growth = True
+        if tf.__version__ > "1.15.0":
+            tf.compat.v1.disable_eager_execution()
 
     @abc.abstractmethod
     def build_graph(self, backward=False):
         pass
+
+    def placeholder(self, name, shape, dtype):
+        if isinstance(dtype, str):
+            all_supported_tf_dtypes = [tf.float16,
+                                       tf.float32,
+                                       tf.float64,
+                                       tf.int8,
+                                       tf.uint8,
+                                       tf.uint16,
+                                       tf.uint32,
+                                       tf.uint64,
+                                       tf.int16,
+                                       tf.int32,
+                                       tf.int64,
+                                       tf.bool]
+            for tf_dtype in all_supported_tf_dtypes:
+                if convert_dtype(tf_dtype) == dtype:
+                    break
+        else:
+            tf_dtype = dtype
+
+        if tf.__version__ >= "1.15.0":
+            var = tf.compat.v1.placeholder(name=name, shape=shape, dtype=tf_dtype)
+        else:
+            var = tf.placeholder(name=name, shape=shape, dtype=tf_dtype)
+        return var
 
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, tf.Tensor):
@@ -108,22 +137,14 @@ class TensorflowAPIBenchmarkBase(object):
             self.fetch_list.append(gradients)
 
     def run(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profile=False):
-        config = self._set_config(use_gpu)
-        if tf.__version__ < "1.14.0":
-            sess = tf.Session(config=config)
-            sess.run(tf.global_variables_initializer())
-            sess.run(tf.local_variables_initializer())
-        else:
-            sess = tf.compat.v1.Session(config=config)
-            sess.run(tf.compat.v1.global_variables_initializer())
-            sess.run(tf.compat.v1.local_variables_initializer())
+        sess = self._init_session(use_gpu)
 
         if profile:
             profiler = model_analyzer.Profiler(graph=sess.graph)
             run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
             run_metadata = tf.RunMetadata()
         else:
-            log_writer = None
+            profiler = None
             run_options = None
             run_metadata = None
         self.timeline_dict = None
@@ -134,7 +155,7 @@ class TensorflowAPIBenchmarkBase(object):
         runtimes = []
         fetches = []
         outputs = None
-        for i in xrange(repeat):
+        for i in range(repeat):
             begin = time.time()
             outputs = sess.run(fetches=self.fetch_list,
                                feed_dict=feed,
@@ -177,11 +198,11 @@ class TensorflowAPIBenchmarkBase(object):
         utils.print_stat(stats, log_level=log_level)
         return outputs
 
-    def _set_config(self, use_gpu):
-        if tf.__version__ < "1.14.0":
-            config = tf.ConfigProto()
-        else:
+    def _init_session(self, use_gpu):
+        if tf.__version__ >= "1.15.0":
             config = tf.compat.v1.ConfigProto()
+        else:
+            config = tf.ConfigProto()
 
 #        if use_gpu:
 #            if not self.allow_growth:
@@ -189,7 +210,17 @@ class TensorflowAPIBenchmarkBase(object):
 #            else:
 #                config.gpu_options.allow_growth = True
             #config.log_device_placement = True
-        return config
+
+        if tf.__version__ >= "1.15.0":
+            sess = tf.compat.v1.Session(config=config)
+            sess.run(tf.compat.v1.global_variables_initializer())
+            sess.run(tf.compat.v1.local_variables_initializer())
+        else:
+            sess = tf.Session(config=config)
+            sess.run(tf.global_variables_initializer())
+            sess.run(tf.local_variables_initializer())
+
+        return sess
 
     def _update_timeline(self, chrome_trace):
         # Codes from: https://github.com/ikhlestov/tensorflow_profiling/blob/master/03_merged_timeline_example.py
