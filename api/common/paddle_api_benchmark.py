@@ -83,7 +83,7 @@ class PaddleAPIBenchmarkBase(object):
         self.feed_tensors = {}
 
     @abc.abstractmethod
-    def build_program(self, backward=False, dtype=None):
+    def build_program(self, config=None):
         pass
 
     def create_progrom(self):

@@ -41,6 +41,13 @@ class APIConfig(object):
             data = json.load(f) 
             self.name = data[pos]["op"]
             self.params = data[pos]["param_info"]
+            self.convert_params_list()
+            for params in self.params_list:
+                self.dy_param(params.name.encode('utf-8'), params.type.encode('utf-8'), params.value.encode('utf-8'));
+            for input_p in self.input_list:
+                shape=input_p.shape.encode('utf-8')
+                shape=shape.replace("L","").replace("[","").replace("]","").split(',')
+                self.dy_input_param(pos, input_p.name.encode('utf-8'), input_p.dtype.encode('utf-8'), shape,input_p.lod_level)
         return self
 
     def _convert_params_to_str(self):
@@ -98,7 +105,6 @@ class APIConfig(object):
         elif type == "string":
             if value=="None":
                 value_t=None
-               
             else:
                 value_t=value
             setattr(self, name, value_t)
@@ -108,15 +114,4 @@ class APIConfig(object):
         setattr(self, name + '_shape', map(int, shape) )
         setattr(self, name + '_dtype', dtype )
         setattr(self, name + '_name', name + str(pos) )
-        return self
-
-    def dynamic_pb_config(self, filename, pos):
-        self.init_from_json(filename, pos)
-        self.convert_params_list()
-        for params in self.params_list:
-            self.dy_param(params.name.encode('utf-8'), params.type.encode('utf-8'), params.value.encode('utf-8'));
-        for input_p in self.input_list:
-            shape=input_p.shape.encode('utf-8')
-            shape=shape.replace("L","").replace("[","").replace("]","").split(',')
-            self.dy_input_param(pos, input_p.name.encode('utf-8'), input_p.dtype.encode('utf-8'), shape,input_p.lod_level)
         return self
