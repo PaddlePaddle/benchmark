@@ -196,39 +196,15 @@ class TensorflowAPIBenchmarkBase(object):
     def _init_session(self, use_gpu):
         if tf.__version__ >= "1.15.0":
             config = tf.compat.v1.ConfigProto()
-        else:
-            config = tf.ConfigProto()
-
-#        if use_gpu:
-#            if not self.allow_growth:
-#                config.gpu_options.per_process_gpu_memory_fraction = 0.9
-#            else:
-#                config.gpu_options.allow_growth = True
-
-        if tf.__version__ >= "1.15.0":
             sess = tf.compat.v1.Session(config=config)
             sess.run(tf.compat.v1.global_variables_initializer())
             sess.run(tf.compat.v1.local_variables_initializer())
         else:
+            config = tf.ConfigProto()
             sess = tf.Session(config=config)
             sess.run(tf.global_variables_initializer())
             sess.run(tf.local_variables_initializer())
-
         return sess
-
-    def _update_timeline(self, chrome_trace):
-        # Codes from: https://github.com/ikhlestov/tensorflow_profiling/blob/master/03_merged_timeline_example.py
-        # Convert crome trace to python dict
-        chrome_trace_dict = json.loads(chrome_trace)
-        if self.timeline_dict is None:
-            # For first run store full trace
-            self.timeline_dict = chrome_trace_dict
-        else:
-            # For other - update only time consumption, not definitions
-            for event in chrome_trace_dict['traceEvents']:
-                # Events time consumption started with 'ts' prefix
-                if 'ts' in event:
-                    self.timeline_dict['traceEvents'].append(event)
 
     def _feed_random_data(self):
         print("feed random data")

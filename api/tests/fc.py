@@ -79,16 +79,23 @@ class TFFC(tensorflow_api.TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         import tensorflow as tf
 
-        input = tf.placeholder(
-            name="input",
-            shape=config.input_shape,
-            dtype=tf.as_dtype(config.input_dtype))
-        result = tf.contrib.layers.fully_connected(
-            inputs=input,
-            num_outputs=config.size,
-            weights_initializer=tf.constant_initializer(0.5),
-            biases_initializer=tf.constant_initializer(0.1),
-            activation_fn=config.act)
+        input = self.placeholder(
+            name="input", shape=config.input_shape, dtype=config.input_dtype)
+        if tf.__version__ <= "1.15.0":
+            result = tf.contrib.layers.fully_connected(
+                inputs=input,
+                num_outputs=config.size,
+                weights_initializer=tf.constant_initializer(0.5),
+                biases_initializer=tf.constant_initializer(0.1),
+                activation_fn=config.act)
+        else:
+            result = tf.compat.v1.layers.dense(
+                inputs=input,
+                units=config.size,
+                activation=config.act,
+                use_bias=True,
+                kernel_initializer=tf.constant_initializer(0.5),
+                bias_initializer=tf.constant_initializer(0.1))
 
         self.feed_list = [input]
         self.fetch_list = [result]
