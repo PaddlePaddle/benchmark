@@ -2,8 +2,9 @@
 set -xe
 
 if [[ $# -lt 4 ]]; then
+    echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs 32 model_name sp|mp 1000(max_iter) 1|0(is_profiler)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3|6 32 model_name sp|mp 1000(max_iter)"
     exit
 fi
 
@@ -14,29 +15,26 @@ function _set_params(){
     run_mode=${4:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程（必填）
 
     max_iter=${5}
-    is_profiler=${6:-0}
+    if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     skip_steps=8                     # 解析日志，有些模型前几个step耗时长，需要跳过(必填)
+    if [ ${run_mode} = "mp" ]; then skip_steps=31; fi
     keyword="elapse"                 # 解析日志，筛选出数据所在行的关键字(必填)
     separator=" "                    # 解析日志，数据所在行的分隔符(必填)
     position=-2                      # 解析日志，按照分隔符分割后形成的数组索引(必填)
     model_mode=0                     # 解析日志，若数据单位是s/step，则为0，若数据单位是step/s,则为1(必填)
-    #range=-1                        # 解析日志，取得列表索引的值后，切片[0：range], 默认最后一位可以不用填
+    #range=-1                        # 解析日志，取得列表索引的值后，切片[0：range], 默认最后一位可以不用填, 或者 3:10格式
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
 
-    if [ $run_mode = "sp" ]; then
-        batch_size=`expr $base_batch_size \* $num_gpu_devices`
-    else
-        batch_size=$base_batch_size
-    fi
+    batch_size=`expr ${base_batch_size} \* ${num_gpu_devices}`
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
-    log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}

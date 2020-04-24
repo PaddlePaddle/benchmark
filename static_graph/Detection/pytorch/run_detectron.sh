@@ -1,5 +1,5 @@
 #!bin/bash
-set -xe
+set -x
 if [[ $# -lt 3 ]]; then
     echo "Usage: "
     echo "  CUDA_VISIBLE_DEVICES=0 bash $0 speed|mem|maxbs model_name sp /ssd1/ljh/logs"
@@ -75,13 +75,14 @@ function _train(){
     train_cmd="python -u ${DETECTRON_REPO_NAME}/tools/train_net.py "${train_cmd}
     ${train_cmd} > ${log_file} 2>&1 &
     train_pid=$!
-    sleep 600
+    if [[ ${model_name} = "mask_rcnn_fpn_resnext" ]];then
+        sleep 900
+    else
+        sleep 600
+    fi
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
-if [ "${BENCHMAKR_ROOT}" == "" ]; then
-    export BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../../.." && pwd )"
-fi
-source ${BENCHMARK_ROOT}/scripts/run_model.sh
+source ${BENCHMARK_ROOT}/competitive_products/common_scripts/run_model.sh
 _set_params $@
 _run

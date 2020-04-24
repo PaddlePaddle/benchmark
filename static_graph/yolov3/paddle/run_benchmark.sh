@@ -2,8 +2,9 @@
 set -xe
 
 if [[ $# -lt 1 ]]; then
+    echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs sp|mp 1000(max_iter) 1|0(is_profiler)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh 1|2|3|6 sp|mp 1000(max_iter)"
     exit
 fi
 
@@ -11,7 +12,7 @@ function _set_params(){
     index="$1"
     run_mode=${2:-"sp"}
     max_iter=${3}
-    is_profiler=${4:-0}
+    if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
 #    run_log_path=${5:-$(pwd)}
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -19,20 +20,21 @@ function _set_params(){
 
     model_name="yolov3"
     skip_steps=5
-    keyword="Iter"
+    keyword="iter:"
     separator=" "
-    position=-1
+    position=-3
+    range=0:4
     model_mode=0
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
 
-    if [[ ${index} = "maxbs" ]]; then base_batch_size=14; else base_batch_size=8; fi
+    if [[ ${index} -eq 6 ]]; then base_batch_size=14; else base_batch_size=8; fi
     batch_size=`expr ${base_batch_size} \* ${num_gpu_devices}`
 
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
-    log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
@@ -54,20 +56,20 @@ function _train(){
         num_workers=8
     fi
 
-    train_cmd=" --model_save_dir=output/ \
-     --pretrain=./weights/darknet53/ \
-     --data_dir=./dataset/coco/ \
-     --batch_size=${base_batch_size} \
-     --syncbn=True \
-     --max_iter=${max_iter} \
-     --is_profiler=${is_profiler} \
-     --profiler_path=${profiler_path} \
-     --worker_num=${num_workers}"
+    WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    export PYTHONPATH=${WORK_ROOT}:${PYTHONPATH}
 
+    train_cmd="-c configs/yolov3_darknet.yml \
+     --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} TrainReader.worker_num=${num_workers} \
+     --use_tb=True \
+     --tb_log_dir=tb_fruit_dir/scalar \
+     --is_profiler=${is_profiler} \
+     --profiler_path=${profiler_path}"
+#     --batch_size=${base_batch_size} \
     case ${run_mode} in
-    sp) train_cmd="python -u train.py "${train_cmd} ;;
+    sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES train.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac

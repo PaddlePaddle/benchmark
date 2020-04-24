@@ -26,10 +26,11 @@ import utils
 
 @contextlib.contextmanager
 def profile_context(name, use_gpu, profiler):
-    if profiler == "native":
+    if profiler in ["Default", "OpDetail", "AllOpDetail"]:
         profile_type = "All" if use_gpu else "CPU"
-        output_file = name + ".profile"
-        with fluid.profiler.profiler(profile_type, 'total', output_file):
+        output_file = "./outputs/" + name + ".profile"
+        with fluid.profiler.profiler(
+                profile_type, 'total', output_file, tracer_option=profiler):
             yield
     elif profiler == "nvprof" and use_gpu:
         output_file = name + ".nvprof"
@@ -39,12 +40,41 @@ def profile_context(name, use_gpu, profiler):
         yield
 
 
+def convert_dtype(dtype, to_string=True):
+    def _trans(to_string, dtype_str, np_dtype):
+        dtype = dtype_str if to_string else np.dtype(np_dtype)
+        return dtype
+
+    if not isinstance(dtype, fluid.core.VarDesc.VarType):
+        raise TypeError("dtype is not of type fluid.core.VarDesc.VarType")
+    if dtype == fluid.core.VarDesc.VarType.FP32:
+        return _trans(to_string, "float32", np.float32)
+    elif dtype == fluid.core.VarDesc.VarType.FP64:
+        return _trans(to_string, "float64", np.float64)
+    elif dtype == fluid.core.VarDesc.VarType.FP16:
+        return _trans(to_string, "float16", np.float16)
+    elif dtype == fluid.core.VarDesc.VarType.INT32:
+        return _trans(to_string, "int32", np.int32)
+    elif dtype == fluid.core.VarDesc.VarType.INT16:
+        return _trans(to_string, "int16", np.int16)
+    elif dtype == fluid.core.VarDesc.VarType.INT64:
+        return _trans(to_string, "int64", np.int64)
+    elif dtype == fluid.core.VarDesc.VarType.BOOL:
+        return _trans(to_string, "bool", np.bool)
+    elif dtype == fluid.core.VarDesc.VarType.INT16:
+        return _trans(to_string, "uint16", np.uint16)
+    elif dtype == fluid.core.VarDesc.VarType.UINT8:
+        return _trans(to_string, "uint8", np.uint8)
+    elif dtype == fluid.core.VarDesc.VarType.INT8:
+        return _trans(to_string, "int8", np.int8)
+    else:
+        raise ValueError("Unsupported dtype %s" % dtype)
+
+
 @six.add_metaclass(abc.ABCMeta)
 class PaddleAPIBenchmarkBase(object):
     def __init__(self):
         self.name = self.__class__.__name__
-        self.main_program = fluid.Program()
-        self.startup_program = fluid.Program()
         self.scope = fluid.Scope()
         self.place = None
         self.feed_vars = None
@@ -52,8 +82,12 @@ class PaddleAPIBenchmarkBase(object):
         self.feed_tensors = {}
 
     @abc.abstractmethod
-    def build_program(self, backward=False):
+    def build_program(self, config=None):
         pass
+
+    def create_program(self):
+        self.main_program = fluid.Program()
+        self.startup_program = fluid.Program()
 
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, fluid.framework.Variable):
@@ -69,13 +103,19 @@ class PaddleAPIBenchmarkBase(object):
         else:
             self.fetch_vars.append(gradients)
 
-    def run_with_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profiler="none"):
+    def run_with_executor(self,
+                          use_gpu,
+                          feed=None,
+                          repeat=1,
+                          log_level=0,
+                          check_output=False,
+                          profiler="none"):
         self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
         executor = fluid.Executor(self.place)
         executor.run(self.startup_program)
 
         if feed is None:
-            feed = self._feed_random_data(use_gpu, as_lodtensor=True)
+            feed = self._feed_random_data(use_gpu, as_lodtensor=False)
 
         runtimes = []
         fetches = []
@@ -84,10 +124,10 @@ class PaddleAPIBenchmarkBase(object):
             for i in xrange(repeat):
                 begin = time.time()
                 outputs = executor.run(program=self.main_program,
-                                      feed=feed,
-                                      fetch_list=self.fetch_vars,
-                                      use_program_cache=True,
-                                      return_numpy=True)
+                                       feed=feed,
+                                       fetch_list=self.fetch_vars,
+                                       use_program_cache=True,
+                                       return_numpy=True)
                 end = time.time()
                 runtimes.append(end - begin)
                 if check_output:
@@ -104,7 +144,13 @@ class PaddleAPIBenchmarkBase(object):
         utils.print_stat(stats, log_level=log_level)
         return outputs
 
-    def run_with_core_executor(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profiler="none"):
+    def run_with_core_executor(self,
+                               use_gpu,
+                               feed=None,
+                               repeat=1,
+                               log_level=0,
+                               check_output=False,
+                               profiler="none"):
         self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
         executor = fluid.Executor(self.place)
         executor.run(self.startup_program)
@@ -117,10 +163,10 @@ class PaddleAPIBenchmarkBase(object):
         fetch_list_str = []
         for var in self.fetch_vars:
             fetch_list_str.append(var.name)
-        ctx = core_executor.prepare(
-                    self.main_program.desc, 0, fetch_list_str, False)
+        ctx = core_executor.prepare(self.main_program.desc, 0, fetch_list_str,
+                                    False)
         core_executor.create_variables(self.main_program.desc, self.scope, 0)
- 
+
         if feed is None:
             feed = self._feed_random_data(use_gpu, as_lodtensor=False)
 
@@ -135,7 +181,8 @@ class PaddleAPIBenchmarkBase(object):
                 begin = time.time()
                 self._init_feed_tensor(feed)
                 feed_end = time.time()
-                core_executor.run_prepared_ctx(ctx, self.scope, False, False, False)
+                core_executor.run_prepared_ctx(ctx, self.scope, False, False,
+                                               False)
                 compute_end = time.time()
                 outputs = self._get_fetch_tensor()
                 fetch_end = time.time()
@@ -144,19 +191,26 @@ class PaddleAPIBenchmarkBase(object):
                 feed_times.append(feed_end - begin)
                 compute_times.append(compute_end - feed_end)
                 fetch_times.append(fetch_end - compute_end)
-                
+
                 if check_output:
                     fetches.append(outputs)
         if check_output:
             stable, max_diff = self._check_consistency(fetches)
-            stats = {"total": runtimes,
-                     "feed": feed_times,
-                     "compute": compute_times,
-                     "fetch": fetch_times,
-                     "stable": stable,
-                     "diff": max_diff }
+            stats = {
+                "total": runtimes,
+                "feed": feed_times,
+                "compute": compute_times,
+                "fetch": fetch_times,
+                "stable": stable,
+                "diff": max_diff
+            }
         else:
-            stats = { "total": runtimes, "feed": feed_times, "compute": compute_times, "fetch": fetch_times }
+            stats = {
+                "total": runtimes,
+                "feed": feed_times,
+                "compute": compute_times,
+                "fetch": fetch_times
+            }
         stats["framework"] = "paddle"
         stats["version"] = paddle.__version__
         stats["name"] = self.name
@@ -164,48 +218,18 @@ class PaddleAPIBenchmarkBase(object):
         utils.print_stat(stats, log_level=log_level)
         return outputs
 
-    def convert_dtype(self, dtype, to_string=True):
-        def _trans(to_string, dtype_str, np_dtype):
-            dtype = dtype_str if to_string else np.dtype(np_dtype)
-            return dtype
-
-        if not isinstance(dtype, fluid.core.VarDesc.VarType):
-            raise TypeError("dtype is not of type fluid.core.VarDesc.VarType")
-        if dtype == fluid.core.VarDesc.VarType.FP32:
-            return _trans(to_string, "float32", np.float32)
-        elif dtype == fluid.core.VarDesc.VarType.FP64:
-            return _trans(to_string, "float64", np.float64)
-        elif dtype == fluid.core.VarDesc.VarType.FP16:
-            return _trans(to_string, "float16", np.float16)
-        elif dtype == fluid.core.VarDesc.VarType.INT32:
-            return _trans(to_string, "int32", np.int32)
-        elif dtype == fluid.core.VarDesc.VarType.INT16:
-            return _trans(to_string, "int16", np.int16)
-        elif dtype == fluid.core.VarDesc.VarType.INT64:
-            return _trans(to_string, "int64", np.int64)
-        elif dtype == fluid.core.VarDesc.VarType.BOOL:
-            return _trans(to_string, "bool", np.bool)
-        elif dtype == fluid.core.VarDesc.VarType.INT16:
-            return _trans(to_string, "uint16", np.uint16)
-        elif dtype == fluid.core.VarDesc.VarType.UINT8:
-            return _trans(to_string, "uint8", np.uint8)
-        elif dtype == fluid.core.VarDesc.VarType.INT8:
-            return _trans(to_string, "int8", np.int8)
-        else:
-            raise ValueError("Unsupported dtype %s" % dtype)
-
     def _feed_random_data(self, use_gpu, as_lodtensor=False):
         print("feed random data")
         feed = {}
         if use_gpu and as_lodtensor:
-            #place = fluid.CPUPlace()
-            place = fluid.CUDAPinnedPlace()
+            place = fluid.CPUPlace()
+            #place = fluid.CUDAPinnedPlace()
         for var in self.feed_vars:
             if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
                 raise TypeError("Feed data of non LoDTensor is not supported.")
-                
+
             shape = var.shape
-            dtype = self.convert_dtype(var.dtype, to_string=True)
+            dtype = convert_dtype(var.dtype, to_string=True)
             data = np.random.random(shape).astype(dtype)
             if use_gpu and as_lodtensor:
                 tensor = fluid.core.LoDTensor()
@@ -228,7 +252,8 @@ class PaddleAPIBenchmarkBase(object):
             if not isinstance(cur_feed, fluid.core.LoDTensor):
                 tensor.set(cur_feed, self.place)
             else:
-                raise TypeError("Feed data of non LoDTensor is not supported yet.")
+                raise TypeError(
+                    "Feed data of non LoDTensor is not supported yet.")
 
     def _get_fetch_tensor(self):
         place = fluid.core.Place()
@@ -236,7 +261,8 @@ class PaddleAPIBenchmarkBase(object):
         output = []
         for var in self.fetch_vars:
             if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
-                raise TypeError("Fetch data of non LoDTensor is not supported.")
+                raise TypeError(
+                    "Fetch data of non LoDTensor is not supported.")
 
             var_in_scope = self.scope.find_var(var.name)
             assert var_in_scope, "Variable {} is not created.".format(var.name)
@@ -269,7 +295,8 @@ class PaddleAPIBenchmarkBase(object):
             raise TypeError("fetches is not a list.")
 
         if len(fetches) <= 0:
-            raise ValueError("The number of fetched results is {} (<= 0).".format(len(fetches)))
+            raise ValueError("The number of fetched results is {} (<= 0).".
+                             format(len(fetches)))
 
         stable = True
         repeat = len(fetches)

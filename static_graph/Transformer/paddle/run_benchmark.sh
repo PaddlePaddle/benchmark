@@ -2,8 +2,9 @@
 set -xe
 
 if [[ $# -lt 3 ]]; then
+    echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs base|big sp|mp 1000(max_iter) 1|0(is_profiler)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3|6 base|big sp|mp 1000(max_iter)"
     exit
 fi
 
@@ -12,7 +13,7 @@ function _set_params(){
     model_type="$2"
     run_mode=${3:-"sp"}
     max_iter=${4}
-    is_profiler=${5}
+    if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
    
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
@@ -28,10 +29,10 @@ function _set_params(){
     arr=($device)
     num_gpu_devices=${#arr[*]}
 
-    if [[ ${index} = "maxbs" ]]; then base_batch_size=12000; else base_batch_size=4096; fi
+    if [[ ${index} -eq 6 ]]; then base_batch_size=12000; else base_batch_size=4096; fi
     batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
-    log_with_profiler=${profiler_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
@@ -42,6 +43,7 @@ function _set_env(){
     export FLAGS_fraction_of_gpu_memory_to_use=1.0
     export FLAGS_eager_delete_tensor_gb=0.0
     export FLAGS_memory_fraction_of_eager_deletion=0.99999
+    export FLAGS_allocator_strategy=naive_best_fit
 }
 
 function _train(){

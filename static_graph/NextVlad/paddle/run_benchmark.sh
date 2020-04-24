@@ -2,8 +2,9 @@
 set -xe
 
 if [[ $# -lt 4 ]]; then
+    echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem|maxbs 32 model_name sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3|6 32 model_name sp|mp 2(max_epoch)"
     exit
 fi
 
@@ -12,7 +13,11 @@ function _set_params(){
     base_batch_size=$2               # 单卡的batch_size，如果固定的，可以写死（必填）
     model_name=$3                    # 模型名字如："SE-ResNeXt50"，如果是固定的，可以写死，如果需要其他参数可以参考bert实现（必填）
     run_mode=${4:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程（必填）
-    run_log_path=${5:-$(pwd)}        # 训练保存的日志目录（必填）
+    max_epoch=${5}
+    if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
+ 
+    run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
+    profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     skip_steps=1                     # 解析日志，有些模型前几个step耗时长，需要跳过(必填)
     keyword="finished"             # 解析日志，筛选出数据所在行的关键字(必填)
@@ -29,7 +34,16 @@ function _set_params(){
     else
         batch_size=$base_batch_size
     fi
+
+    config_file_name="nextvlad.yaml"
+    if [ ${model_name} = "CTCN" ]; then
+        config_file_name="ctcn.yaml"
+    fi
+
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
+    profiler_path=${profiler_path}/profiler_${model_name}
+    if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 
 }
@@ -43,16 +57,17 @@ function _set_env(){
 function _train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
     WORK_ROOT=$PWD
-    num_epochs=2
     echo "${model_name}, batch_size: ${batch_size}"
-    sed -i "s/num_gpus: [1-8]/num_gpus: ${num_gpu_devices}/g" ./configs/$model_name.yaml
+    sed -i "s/num_gpus: [1-8]/num_gpus: ${num_gpu_devices}/g" ./configs/${config_file_name}
 
     train_cmd=" --model_name $model_name \
-        --config ./configs/nextvlad.yaml \
+        --config ./configs/${config_file_name} \
         --valid_interval 1 \
         --log_interval 10 \
         --batch_size=$batch_size \
-        --epoch=$num_epochs"
+        --is_profiler=${is_profiler} \
+        --profiler_path=${profiler_path} \
+        --epoch=${max_epoch}"
 
     case ${run_mode} in
     sp) train_cmd="python -u train.py "${train_cmd} ;;
@@ -62,9 +77,7 @@ function _train(){
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    ${train_cmd} > ${log_file} 2>&1 &
-    train_pid=$!
-    sleep 300
+    ${train_cmd} > ${log_file} 2>&1
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then

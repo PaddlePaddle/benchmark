@@ -1,15 +1,11 @@
 #!/bin/bash
 
-set -xe
+set -x
 
 if [ $# -lt 3 ]; then
     echo "Usage: "
     echo "  CUDA_VISIBLE_DEVICES=0 bash run_senet.sh speed|mem|maxbs 32 se_resnext_50|resnet_50|resnet_101 sp|mp /ssd1/ljh/logs"
     exit
-fi
-
-if [ "${BENCHMAKR_ROOT}" == "" ]; then
-    export BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../../.." && pwd )"
 fi
 
 function _set_params() {
@@ -69,7 +65,7 @@ function _train() {
     cd ${WORK_ROOT}
 }
 
-source ${BENCHMARK_ROOT}/scripts/run_model.sh
+source ${BENCHMARK_ROOT}/competitive_products/common_scripts/run_model.sh
 _set_params $@
 _set_env
 _run

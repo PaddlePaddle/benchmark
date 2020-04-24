@@ -1,15 +1,11 @@
 #!bin/bash
 
-# set -xe
+ set -x
 
 if [ $# -lt 2 ]; then
     echo "Usage: "
     echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|test speed|mem /ssd2/liyang/logs"
     exit
-fi
-
-if [ "${BENCHMARK_ROOT}" == "" ]; then
-   export BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../../../../" && pwd )"
 fi
 
 function _set_params() {
@@ -23,6 +19,7 @@ function _set_params() {
   position=17
   range=6
   base_batch_size=16
+# the pytorch batch_size is defined in stargan/main.py, and the defalt value is 16
   model_name="StarGAN"
   model_mode=3
   device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -55,7 +52,6 @@ function _train() {
       kill -9 $train_pid
 }
 
-source ${BENCHMARK_ROOT}/scripts/run_model.sh
+source ${BENCHMARK_ROOT}/competitive_products/common_scripts/run_model.sh
 _set_params $@
-_set_env
 _run

@@ -1,0 +1,20 @@
+[
+  {
+    "op":"fc",
+    "param_info":{
+      "act": {"dtype": "string", "value": "relu"},
+      "input": {"type": "Variable", "dtype": "float32", "shape": "[16L, 256L, 6L, 6L]"},
+      "num_flatten_dims": {"dtype": "int", "value": "1"},
+      "size": {"dtype": "int", "value": "4096"}
+    }
+  },
+  {
+    "op":"fc",
+    "param_info":{
+      "act": {"dtype": "string", "value": "None"},
+      "input": {"type": "Variable", "dtype": "float32", "shape": "[16L, 256L, 5L, 5L]"},
+      "num_flatten_dims": {"dtype": "int", "value": "1"},
+      "size": {"dtype": "int", "value": "4096"}
+    }
+  }
+]

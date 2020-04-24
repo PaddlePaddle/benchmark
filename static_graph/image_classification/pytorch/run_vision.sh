@@ -1,15 +1,11 @@
 #!/bin/bash
 
-set -xe
+set -x
 
 if [ $# -lt 3 ]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_vision.sh speed|mem|maxbs 32 resnet50|resnet101 sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_image_resnet.sh speed|mem|maxbs 32 resnet50|resnet101 sp|mp /ssd1/ljh/logs"
     exit
-fi
-
-if [ "${BENCHMAKR_ROOT}" == "" ]; then
-    export BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../../.." && pwd )"
 fi
 
 function _set_params() {
@@ -19,10 +15,16 @@ function _set_params() {
     run_mode="sp"
     run_log_root=${5:-$(pwd)}
 
+#    skip_steps=2
+#    keyword="img/s:"
+#    separator=" "
+#    position=14
+#    model_mode=1 # s/step -> samples/s
+
     skip_steps=2
     keyword="time:"
-    separator=""
-    position=-6
+    separator=" "
+    position=29
     model_mode=0 # s/step -> samples/s
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -46,7 +48,9 @@ function _set_env() {
 
 function _train() {
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-    data_path=/data/ILSVRC2012/
+    WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
+#    data_path=/ssd1/ljh/dataset/pytorch_image_classification
+    data_path="/ssd2/liyang/benchmark/benchmark/static_graph/image_classification/pytorch/ILSVRC2012/" 
     num_epochs=2
 
     python -c "import torch; print(torch.__version__)"
@@ -65,11 +69,11 @@ function _train() {
            --cache-dataset > ${log_file} 2>&1 &
 
     train_pid=$!
-    sleep 300
+    sleep 500
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
-source ${BENCHMARK_ROOT}/scripts/run_model.sh
+source ${BENCHMARK_ROOT}/competitive_products/common_scripts/run_model.sh
 _set_params $@
 _set_env
 _run
