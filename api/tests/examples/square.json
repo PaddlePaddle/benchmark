@@ -1,0 +1,8 @@
+[
+  {
+    "op": "square",
+    "param_info": {
+      "x": {"type": "Variable", "dtype": "float32", "shape": "[32L, 32L, 128L]"}
+    }
+  }
+]

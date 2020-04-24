@@ -25,7 +25,6 @@ class PDFillConstant(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, config):
         import paddle.fluid as fluid
 
-        self.name = "fill_constant"
         with fluid.program_guard(self.main_program, self.startup_program):
             result = fluid.layers.fill_constant(
                 shape=config.shape, dtype=config.dtype, value=config.value)
@@ -37,9 +36,6 @@ class PDFillConstant(paddle_api.PaddleAPIBenchmarkBase):
 class TFFillConstant(tensorflow_api.TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         import tensorflow as tf
-
-        self.name = "fill_constant"
-        self.allow_growth = True
 
         result = tf.constant(
             shape=config.shape,
@@ -54,4 +50,4 @@ if __name__ == '__main__':
     test_main(
         PDFillConstant(),
         TFFillConstant(),
-        config=api_param.APIConfig("fill_constant", ""))
+        config=api_param.APIConfig("fill_constant"))

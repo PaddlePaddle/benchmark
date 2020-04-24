@@ -40,7 +40,7 @@ class VarParamInfo(object):
 
 
 class APIConfig(object):
-    def __init__(self, op_type, params):
+    def __init__(self, op_type, params=None):
         self.name = op_type
         self.params = params
         self.variable_list = []

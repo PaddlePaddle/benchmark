@@ -25,7 +25,6 @@ class PDExpand(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, config):
         import paddle.fluid as fluid
 
-        self.name = "expand"
         with fluid.program_guard(self.main_program, self.startup_program):
             x = fluid.data(
                 name='x',
@@ -45,9 +44,6 @@ class TFExpand(tensorflow_api.TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         import tensorflow as tf
 
-        self.name = "expand"
-        self.allow_growth = True
-
         x = tf.placeholder(
             name='x', shape=config.x_shape, dtype=tf.as_dtype(config.x_dtype))
         result = tf.tile(input=x, multiples=config.expand_times)
@@ -59,4 +55,4 @@ class TFExpand(tensorflow_api.TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDExpand(), TFExpand(), config=api_param.APIConfig("expand", ""))
+    test_main(PDExpand(), TFExpand(), config=api_param.APIConfig("expand"))

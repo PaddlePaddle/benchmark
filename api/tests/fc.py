@@ -23,7 +23,7 @@ from common import api_param
 
 class FCConfig(api_param.APIConfig):
     def __init__(self):
-        super(FCConfig, self).__init__('fc', '')
+        super(FCConfig, self).__init__('fc')
 
     def init_from_json(self, filename, config_id=0):
         super(FCConfig, self).init_from_json(filename, config_id)
@@ -52,7 +52,6 @@ class PDFC(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, config):
         import paddle.fluid as fluid
 
-        self.name = "fc"
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
                 name="input",
@@ -79,9 +78,6 @@ class PDFC(paddle_api.PaddleAPIBenchmarkBase):
 class TFFC(tensorflow_api.TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         import tensorflow as tf
-
-        self.name = "fc"
-        self.allow_growth = True
 
         input = tf.placeholder(
             name="input",
