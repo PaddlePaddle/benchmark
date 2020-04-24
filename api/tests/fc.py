@@ -25,8 +25,8 @@ class FCConfig(api_param.APIConfig):
     def __init__(self):
         super(FCConfig, self).__init__('fc', '')
 
-    def init_from_json(self, filename, pos=0):
-        super(FCConfig, self).init_from_json(filename, pos)
+    def init_from_json(self, filename, config_id=0):
+        super(FCConfig, self).init_from_json(filename, config_id)
         num_flatten_dims = self.num_flatten_dims
         if num_flatten_dims < 0:
             num_flatten_dims = num_flatten_dims + len(self.input_shape)

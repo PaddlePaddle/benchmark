@@ -59,24 +59,24 @@ class APIConfig(object):
         debug_str = debug_str + '}'
         return debug_str
 
-    def init_from_json(self, filename, pos=0):
+    def init_from_json(self, filename, config_id=0):
         with open(filename, 'r') as f:
             data = json.load(f)
-            self.name = data[pos]["op"]
-            self.params = data[pos]["param_info"]
-            self.convert_params_list()
-            for params in self.params_list:
-                self.dy_param(
-                    params.name.encode('utf-8'),
-                    params.type.encode('utf-8'), params.value.encode('utf-8'))
-            for input_p in self.input_list:
-                shape = input_p.shape.encode('utf-8')
-                shape = shape.replace("L", "").replace("[", "").replace(
-                    "]", "").split(',')
-                self.dy_input_param(pos,
-                                    input_p.name.encode('utf-8'),
-                                    input_p.dtype.encode('utf-8'), shape,
-                                    input_p.lod_level)
+            self.name = data[config_id]["op"]
+            self.params = data[config_id]["param_info"]
+
+        self._convert_params_list()
+        for params in self.params_list:
+            self._dy_param(
+                params.name.encode('utf-8'),
+                params.type.encode('utf-8'), params.value.encode('utf-8'))
+        for input_p in self.input_list:
+            shape = input_p.shape.encode('utf-8')
+            shape = shape.replace("L", "").replace("[", "").replace(
+                "]", "").split(',')
+            self._dy_input_param(
+                input_p.name.encode('utf-8'),
+                input_p.dtype.encode('utf-8'), shape, input_p.lod_level)
         return self
 
     def to_tensorflow(self):
@@ -104,7 +104,7 @@ class APIConfig(object):
             params = params + params_str
         return params
 
-    def convert_params_list(self):
+    def _convert_params_list(self):
         for p_key, p_value in self.params.items():
             param_name = p_key
             dtype = p_value["dtype"]
@@ -122,9 +122,8 @@ class APIConfig(object):
                 value = p_value["value"]
                 var_ = BaseParamInfo(param_name, dtype, value)
                 self.params_list.append(var_)
-        return self
 
-    def dy_param(self, name, type, value):
+    def _dy_param(self, name, type, value):
         if type == "float":
             value_t = float(value)
             setattr(self, name, value_t)
@@ -140,9 +139,7 @@ class APIConfig(object):
             else:
                 value_t = value
             setattr(self, name, value_t)
-        return self
 
-    def dy_input_param(self, pos, name, dtype, shape, lod_level):
+    def _dy_input_param(self, name, dtype, shape, lod_level):
         setattr(self, name + '_shape', map(int, shape))
         setattr(self, name + '_dtype', dtype)
-        return self

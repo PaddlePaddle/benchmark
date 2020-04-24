@@ -49,7 +49,7 @@ def parse_args():
     parser.add_argument(
         '--json_file', type=str, default=None, help='The file of API params')
     parser.add_argument(
-        '--pos',
+        '--config_id',
         type=int,
         default=None,
         help='Only import params of API from json file in the specified position [0|1|...]'
@@ -171,8 +171,8 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
     if args.json_file is not None:
         with open(args.json_file, 'r') as f:
             data = json.load(f)
-            if args.pos is not None:
-                config.init_from_json(args.json_file, args.pos)
+            if args.config_id is not None:
+                config.init_from_json(args.json_file, args.config_id)
                 test_run(pd_obj, tf_obj, config)
             else:
                 for i in range(0, len(data)):
