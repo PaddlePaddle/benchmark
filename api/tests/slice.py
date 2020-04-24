@@ -27,12 +27,16 @@ class PDSlice(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "slice"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
-                name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
+                name='data',
+                shape=[10, 10, 100, 100],
+                dtype='float32',
+                lod_level=0)
             data.stop_gradient = False
             axes = [0, 1, 2, 3]
             starts = [0, 1, 1, 0]
             ends = [3, 8, 50, 30]
-            result = fluid.layers.slice(data, axes=axes, starts=starts, ends=ends)
+            result = fluid.layers.slice(
+                data, axes=axes, starts=starts, ends=ends)
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -47,7 +51,8 @@ class TFSlice(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "slice"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
+        data = tf.placeholder(
+            name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
         begin = [0, 1, 1, 0]
         size = [3, 7, 49, 30]
         result = tf.slice(data, begin, size)

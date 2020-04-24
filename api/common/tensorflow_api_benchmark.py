@@ -107,7 +107,13 @@ class TensorflowAPIBenchmarkBase(object):
         else:
             self.fetch_list.append(gradients)
 
-    def run(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profile=False):
+    def run(self,
+            use_gpu,
+            feed=None,
+            repeat=1,
+            log_level=0,
+            check_output=False,
+            profile=False):
         config = self._set_config(use_gpu)
         if tf.__version__ < "1.14.0":
             sess = tf.Session(config=config)
@@ -158,21 +164,26 @@ class TensorflowAPIBenchmarkBase(object):
         if profile:
             # Generate profiling result
             profile_op_builder = option_builder.ProfileOptionBuilder()
-            profile_op_builder.select(['micros','occurrence'])
+            profile_op_builder.select(['micros', 'occurrence'])
             profile_op_builder.order_by('micros')
             profile_op_builder.with_max_depth(10)
             profiler.profile_operations(profile_op_builder.build())
             # Generate timeline
-#            profile_graph_builder = option_builder.ProfileOptionBuilder(
-#                                    option_builder.ProfileOptionBuilder.time_and_memory())
-#            profile_graph_builder.with_timeline_output(timeline_file=self.name + '_tf.timeline')
-#            profile_graph_builder.with_step(10)
-#            profiler.profile_graph(profile_graph_builder.build())
-            #tl_output_file = self.name + "_tf.timeline"
-            #with open(tl_output_file, 'w') as f:
-            #    json.dump(self.timeline_dict, f)
+        #            profile_graph_builder = option_builder.ProfileOptionBuilder(
+        #                                    option_builder.ProfileOptionBuilder.time_and_memory())
+        #            profile_graph_builder.with_timeline_output(timeline_file=self.name + '_tf.timeline')
+        #            profile_graph_builder.with_step(10)
+        #            profiler.profile_graph(profile_graph_builder.build())
+        #tl_output_file = self.name + "_tf.timeline"
+        #with open(tl_output_file, 'w') as f:
+        #    json.dump(self.timeline_dict, f)
 
-        stats = {"framework": "tensorflow", "version": tf.__version__, "name": self.name, "total": runtimes}
+        stats = {
+            "framework": "tensorflow",
+            "version": tf.__version__,
+            "name": self.name,
+            "total": runtimes
+        }
         stats["device"] = "GPU" if use_gpu else "CPU"
         utils.print_stat(stats, log_level=log_level)
         return outputs
@@ -188,7 +199,7 @@ class TensorflowAPIBenchmarkBase(object):
 #                config.gpu_options.per_process_gpu_memory_fraction = 0.9
 #            else:
 #                config.gpu_options.allow_growth = True
-            #config.log_device_placement = True
+#config.log_device_placement = True
         return config
 
     def _update_timeline(self, chrome_trace):
