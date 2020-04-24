@@ -40,10 +40,10 @@ class VarParamInfo(object):
 
 
 class APIConfig(object):
-    def __init__(self, op_type, params):
+    def __init__(self, op_type, params=None):
         self.name = op_type
         self.params = params
-        self.input_list = []
+        self.variable_list = []
         self.params_list = []
         self.backward = False
         self.feed_spec = None
@@ -52,8 +52,8 @@ class APIConfig(object):
         debug_str = ('API params of <%s> {\n') % (self.name)
         for name, value in vars(self).items():
             if name not in [
-                    'name', 'params', 'input_list', 'params_list', 'backward',
-                    'feed_spec'
+                    'name', 'params', 'variable_list', 'params_list',
+                    'backward', 'feed_spec'
             ]:
                 debug_str = debug_str + ('  %s: %s\n') % (name, value)
         debug_str = debug_str + '}'
@@ -65,18 +65,16 @@ class APIConfig(object):
             self.name = data[config_id]["op"]
             self.params = data[config_id]["param_info"]
 
-        self._convert_params_list()
+        self._parse_params()
         for params in self.params_list:
             self._dy_param(
                 params.name.encode('utf-8'),
                 params.type.encode('utf-8'), params.value.encode('utf-8'))
-        for input_p in self.input_list:
-            shape = input_p.shape.encode('utf-8')
-            shape = shape.replace("L", "").replace("[", "").replace(
-                "]", "").split(',')
+        for input_p in self.variable_list:
             self._dy_input_param(
                 input_p.name.encode('utf-8'),
-                input_p.dtype.encode('utf-8'), shape, input_p.lod_level)
+                input_p.dtype.encode('utf-8'),
+                input_p.shape.encode('utf-8'), input_p.lod_level)
         return self
 
     def to_tensorflow(self):
@@ -85,61 +83,60 @@ class APIConfig(object):
     def _convert_params_to_str(self):
         params = ""
         for p_key, p_value in self.params.items():
-            params_str = ""
             param_name = p_key
             dtype = p_value["dtype"]
-            type = ""
-            v_type = 0
-            for v_k in p_value.keys():
-                if v_k == "type":
-                    v_type = 1
-            if v_type == 1:
+            if self._is_variable(p_value):
                 type = p_value["type"]
                 shape = p_value["shape"]
                 var_ = VarParamInfo(param_name, type, dtype, shape)
             else:
                 value = p_value["value"]
                 var_ = BaseParamInfo(param_name, dtype, value)
-            params_str = var_.convert_params_to_str()
-            params = params + params_str
+            params = params + var_.convert_params_to_str()
         return params
 
-    def _convert_params_list(self):
+    def _parse_params(self):
         for p_key, p_value in self.params.items():
             param_name = p_key
             dtype = p_value["dtype"]
-            type = ""
-            v_type = 0
-            for v_k in p_value.keys():
-                if v_k == "type":
-                    v_type = 1
-            if v_type == 1:
+            if self._is_variable(p_value):
                 type = p_value["type"]
                 shape = p_value["shape"]
                 var_ = VarParamInfo(param_name, type, dtype, shape)
-                self.input_list.append(var_)
+                self.variable_list.append(var_)
             else:
                 value = p_value["value"]
                 var_ = BaseParamInfo(param_name, dtype, value)
                 self.params_list.append(var_)
 
+    def _parse_list(self, shape_str):
+        shape_str = shape_str.replace("L", "").replace("[", "").replace(
+            "]", "").split(',')
+        # TODO: check and support list of other data type.
+        return map(int, shape_str)
+
+    def _is_variable(self, value):
+        if value.get("type", None) is not None and value["type"] == "Variable":
+            return True
+        return False
+
     def _dy_param(self, name, type, value):
-        if type == "float":
+        value_t = None
+        if type in ["float", "float32", "float64"]:
             value_t = float(value)
-            setattr(self, name, value_t)
-        elif type == "int":
+        elif type in ["int", "int32", "int64"]:
             value_t = int(value)
-            setattr(self, name, value_t)
         elif type == "bool":
             value_t = bool(value)
-            setattr(self, name, value_t)
         elif type == "string":
             if value == "None":
                 value_t = None
             else:
                 value_t = value
-            setattr(self, name, value_t)
+        elif type == "list":
+            value_t = self._parse_list(value)
+        setattr(self, name, value_t)
 
     def _dy_input_param(self, name, dtype, shape, lod_level):
-        setattr(self, name + '_shape', map(int, shape))
+        setattr(self, name + '_shape', self._parse_list(shape))
         setattr(self, name + '_dtype', dtype)

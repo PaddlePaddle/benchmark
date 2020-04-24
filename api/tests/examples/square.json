@@ -1,10 +1,10 @@
 [{
-    "op": "sigmoid",
+    "op": "square",
     "param_info": {
         "x": {
             "type": "Variable",
             "dtype": "float32",
-            "shape": "[16L, 10L, 100L, 100L]"
+            "shape": "[32L, 32L, 128L]"
         }
     }
 }]
