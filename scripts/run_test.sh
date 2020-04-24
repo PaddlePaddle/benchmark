@@ -38,6 +38,13 @@ function run_api(){
 }
 
 
+function abort(){
+    echo "Your change doesn't follow benchmark's code style." 1>&2
+    echo "Please use pre-commit to check what is wrong." 1>&2
+    exit 1
+}
+
+
 function check_style(){
 	trap 'abort' 0
 	pre-commit install
