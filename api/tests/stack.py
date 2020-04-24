@@ -27,10 +27,16 @@ class PDStack(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "stack"
         with fluid.program_guard(self.main_program, self.startup_program):
             data1 = fluid.data(
-                name='data1', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
+                name='data1',
+                shape=[10, 10, 100, 100],
+                dtype='float32',
+                lod_level=0)
             data1.stop_gradient = False
             data2 = fluid.data(
-                name='data2', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
+                name='data2',
+                shape=[10, 10, 100, 100],
+                dtype='float32',
+                lod_level=0)
             data2.stop_gradient = False
             result = fluid.layers.stack([data1, data2], axis=1)
 
@@ -47,8 +53,10 @@ class TFStack(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "stack"
         self.allow_growth = True
 
-        data1 = tf.placeholder(name='data1', shape=[10, 10, 100, 100], dtype=tf.float32)
-        data2 = tf.placeholder(name='data2', shape=[10, 10, 100, 100], dtype=tf.float32)
+        data1 = tf.placeholder(
+            name='data1', shape=[10, 10, 100, 100], dtype=tf.float32)
+        data2 = tf.placeholder(
+            name='data2', shape=[10, 10, 100, 100], dtype=tf.float32)
         result = tf.stack([data1, data2], axis=1)
 
         self.feed_list = [data1, data2]

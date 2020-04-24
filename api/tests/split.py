@@ -18,7 +18,8 @@ import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 from common import tensorflow_api_benchmark as tensorflow_api
-      
+
+
 class PDSplit(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False, dtype=None):
         import paddle.fluid as fluid
@@ -26,11 +27,13 @@ class PDSplit(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "split"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
-                name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
+                name='data',
+                shape=[10, 10, 100, 100],
+                dtype='float32',
+                lod_level=0)
             data.stop_gradient = True
-            result1, result2, result3 = fluid.layers.split(data,
-                                                           num_or_sections=[1, 2, 7],
-                                                           dim=1)
+            result1, result2, result3 = fluid.layers.split(
+                data, num_or_sections=[1, 2, 7], dim=1)
 
             self.feed_vars = [data]
             self.fetch_vars = [result1, result2, result3]
@@ -45,10 +48,10 @@ class TFSplit(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "split"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
-        result1, result2, result3 = tf.split(value=data,
-                                             num_or_size_splits=[1, 2, 7],
-                                             axis=1)
+        data = tf.placeholder(
+            name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
+        result1, result2, result3 = tf.split(
+            value=data, num_or_size_splits=[1, 2, 7], axis=1)
 
         self.feed_list = [data]
         self.fetch_list = [result1, result2, result3]

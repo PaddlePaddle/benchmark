@@ -47,8 +47,10 @@ class TFConcat(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "concat"
         self.allow_growth = True
 
-        data1 = tf.placeholder(name='data1', shape=[100, 200], dtype=tf.float32)
-        data2 = tf.placeholder(name='data2', shape=[100, 200], dtype=tf.float32)
+        data1 = tf.placeholder(
+            name='data1', shape=[100, 200], dtype=tf.float32)
+        data2 = tf.placeholder(
+            name='data2', shape=[100, 200], dtype=tf.float32)
         result = tf.concat([data1, data2], 0)
 
         self.feed_list = [data1, data2]

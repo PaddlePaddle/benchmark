@@ -27,7 +27,10 @@ class PDTranspose(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "transpose"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
-                name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
+                name='data',
+                shape=[10, 10, 100, 100],
+                dtype='float32',
+                lod_level=0)
             data.stop_gradient = False
             result = fluid.layers.transpose(x=data, perm=[2, 3, 0, 1])
 
@@ -44,7 +47,8 @@ class TFTranspose(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "transpose"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
+        data = tf.placeholder(
+            name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
         result = tf.transpose(a=data, perm=[2, 3, 0, 1], conjugate=False)
 
         self.feed_list = [data]

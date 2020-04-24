@@ -93,31 +93,14 @@ class TensorflowAPIBenchmarkBase(object):
             tf.compat.v1.disable_eager_execution()
 
     @abc.abstractmethod
-    def build_graph(self, backward=False):
+    def build_graph(self, config=None):
         pass
 
     def placeholder(self, name, shape, dtype):
-        if isinstance(dtype, str):
-            all_supported_tf_dtypes = [tf.float16,
-                                       tf.float32,
-                                       tf.float64,
-                                       tf.int8,
-                                       tf.uint8,
-                                       tf.uint16,
-                                       tf.uint32,
-                                       tf.uint64,
-                                       tf.int16,
-                                       tf.int32,
-                                       tf.int64,
-                                       tf.bool]
-            for tf_dtype in all_supported_tf_dtypes:
-                if convert_dtype(tf_dtype) == dtype:
-                    break
-        else:
-            tf_dtype = dtype
-
+        tf_dtype = tf.as_dtype(dtype)
         if tf.__version__ >= "1.15.0":
-            var = tf.compat.v1.placeholder(name=name, shape=shape, dtype=tf_dtype)
+            var = tf.compat.v1.placeholder(
+                name=name, shape=shape, dtype=tf_dtype)
         else:
             var = tf.placeholder(name=name, shape=shape, dtype=tf_dtype)
         return var
@@ -136,8 +119,15 @@ class TensorflowAPIBenchmarkBase(object):
         else:
             self.fetch_list.append(gradients)
 
-    def run(self, use_gpu, feed=None, repeat=1, log_level=0, check_output=False, profile=False):
+    def run(self,
+            use_gpu,
+            feed=None,
+            repeat=1,
+            log_level=0,
+            check_output=False,
+            profile=False):
         sess = self._init_session(use_gpu)
+        #tf.debugging.set_log_device_placement(True)
 
         if profile:
             profiler = model_analyzer.Profiler(graph=sess.graph)
@@ -179,21 +169,26 @@ class TensorflowAPIBenchmarkBase(object):
         if profile:
             # Generate profiling result
             profile_op_builder = option_builder.ProfileOptionBuilder()
-            profile_op_builder.select(['micros','occurrence'])
+            profile_op_builder.select(['micros', 'occurrence'])
             profile_op_builder.order_by('micros')
             profile_op_builder.with_max_depth(10)
             profiler.profile_operations(profile_op_builder.build())
             # Generate timeline
-#            profile_graph_builder = option_builder.ProfileOptionBuilder(
-#                                    option_builder.ProfileOptionBuilder.time_and_memory())
-#            profile_graph_builder.with_timeline_output(timeline_file=self.name + '_tf.timeline')
-#            profile_graph_builder.with_step(10)
-#            profiler.profile_graph(profile_graph_builder.build())
-            #tl_output_file = self.name + "_tf.timeline"
-            #with open(tl_output_file, 'w') as f:
-            #    json.dump(self.timeline_dict, f)
+        #            profile_graph_builder = option_builder.ProfileOptionBuilder(
+        #                                    option_builder.ProfileOptionBuilder.time_and_memory())
+        #            profile_graph_builder.with_timeline_output(timeline_file=self.name + '_tf.timeline')
+        #            profile_graph_builder.with_step(10)
+        #            profiler.profile_graph(profile_graph_builder.build())
+        #tl_output_file = self.name + "_tf.timeline"
+        #with open(tl_output_file, 'w') as f:
+        #    json.dump(self.timeline_dict, f)
 
-        stats = {"framework": "tensorflow", "version": tf.__version__, "name": self.name, "total": runtimes}
+        stats = {
+            "framework": "tensorflow",
+            "version": tf.__version__,
+            "name": self.name,
+            "total": runtimes
+        }
         stats["device"] = "GPU" if use_gpu else "CPU"
         utils.print_stat(stats, log_level=log_level)
         return outputs
@@ -209,7 +204,6 @@ class TensorflowAPIBenchmarkBase(object):
 #                config.gpu_options.per_process_gpu_memory_fraction = 0.9
 #            else:
 #                config.gpu_options.allow_growth = True
-            #config.log_device_placement = True
 
         if tf.__version__ >= "1.15.0":
             sess = tf.compat.v1.Session(config=config)
