@@ -46,12 +46,14 @@ class APIConfig(object):
         self.input_list = []
         self.params_list = []
         self.backward = False
+        self.feed_spec = None
 
     def __str__(self):
         debug_str = ('API params of <%s> {\n') % (self.name)
         for name, value in vars(self).items():
             if name not in [
-                    'name', 'params', 'input_list', 'params_list', 'backward'
+                    'name', 'params', 'input_list', 'params_list', 'backward',
+                    'feed_spec'
             ]:
                 debug_str = debug_str + ('  %s: %s\n') % (name, value)
         debug_str = debug_str + '}'
@@ -78,7 +80,7 @@ class APIConfig(object):
         return self
 
     def to_tensorflow(self):
-        pass
+        return self
 
     def _convert_params_to_str(self):
         params = ""

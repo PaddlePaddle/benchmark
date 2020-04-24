@@ -191,7 +191,7 @@ def test_run(pd_obj=None, tf_obj=None, config=None):
         print(config)
         pd_obj.create_program()
         pd_obj.build_program(config)
-        feed_list = feeder.feed_paddle(pd_obj)
+        feed_list = feeder.feed_paddle(pd_obj, feed_spec=config.feed_spec)
         pd_outputs = test_paddle(args.task, pd_obj, args, feed_list)
 
     if args.task == "accuracy" or args.framework in [
@@ -202,7 +202,8 @@ def test_run(pd_obj=None, tf_obj=None, config=None):
         tf_config = config.to_tensorflow()
         print(tf_config)
         tf_obj.build_graph(tf_config)
-        feed_list = feeder.feed_tensorflow(tf_obj, feed_list)
+        feed_list = feeder.feed_tensorflow(
+            tf_obj, feed_list, feed_spec=tf_config.feed_spec)
         tf_outputs = test_tensorflow(args.task, tf_obj, args, feed_list)
 
     if args.task == "accuracy":

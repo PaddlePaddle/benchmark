@@ -101,4 +101,4 @@ class TFFC(tensorflow_api.TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDFC(), TFFC(), FCConfig())
+    test_main(PDFC(), TFFC(), config=FCConfig())
