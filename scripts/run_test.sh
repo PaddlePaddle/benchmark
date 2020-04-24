@@ -28,7 +28,7 @@ BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/.." && pwd )"
 echo ${BENCHMARK_ROOT}
 
 function prepare_tf_env(){
-    pip install tensorflow-gpu==1.15 cpplint==1.4.5 pylint==1.9.5 pytest==4.6.9 astroid==1.6.6 isort==4.3.21 
+    pip install tensorflow-gpu==1.15 pre-commit==1.21 cpplint==1.4.5 pylint==1.9.5 pytest==4.6.9 astroid==1.6.6 isort==4.3.21 
 }
 
 
