@@ -83,8 +83,12 @@ class PaddleAPIBenchmarkBase(object):
         self.feed_tensors = {}
 
     @abc.abstractmethod
-    def build_program(self, backward=False, dtype=None):
+    def build_program(self, config=None):
         pass
+
+    def create_progrom(self):
+        self.main_program = fluid.Program()
+        self.startup_program = fluid.Program()
 
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, fluid.framework.Variable):
