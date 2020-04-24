@@ -38,6 +38,25 @@ function run_api(){
 }
 
 
+function check_style(){
+	trap 'abort' 0
+	pip install cpplint pylint pytest astroid isort
+	pre-commit install
+	commit_files=on
+    	for file_name in `git diff --numstat | awk '{print $NF}'`;do
+        	if [ ! pre-commit run --files $file_name ]; then
+            		git diff
+            		commit_files=off
+        	fi
+    	done
+    	if [ $commit_files == 'off' ];then
+        	echo "code format error"
+        	exit 1
+    	fi
+    	trap 0
+}
+
+
 function main(){
     local CMD=$1
     prepare_tf_env
@@ -45,7 +64,10 @@ function main(){
       run_api_test)
         run_api 
         ;;
-      *)
+      check_style)
+	check_style
+	;;
+	*)
         echo "Sorry, $CMD not recognized."
         exit 1
         ;;
