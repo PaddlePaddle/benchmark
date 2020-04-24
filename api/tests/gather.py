@@ -25,13 +25,17 @@ class GatherConfig(object):
     def __init__(self, input_shape, index_shape):
         self.input_shape = input_shape
         self.index_shape = index_shape
-        self.feed_spec = [ { "range": [-1, 1] },  # input
-                           { "range": [0, input_shape[0]] } # index
-                         ]
+        self.feed_spec = [
+            {
+                "range": [-1, 1]
+            },  # input
+            {
+                "range": [0, input_shape[0]]
+            }  # index
+        ]
 
 
-config = GatherConfig(input_shape=[10, 10, 100, 100],
-                      index_shape=[4])
+config = GatherConfig(input_shape=[10, 10, 100, 100], index_shape=[4])
 
 
 class PDGather(paddle_api.PaddleAPIBenchmarkBase):
@@ -41,9 +45,15 @@ class PDGather(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "gather"
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
-                name='input', shape=config.input_shape, dtype='float32', lod_level=0)
+                name='input',
+                shape=config.input_shape,
+                dtype='float32',
+                lod_level=0)
             index = fluid.data(
-                name='index', shape=config.index_shape, dtype='int32', lod_level=0)
+                name='index',
+                shape=config.index_shape,
+                dtype='int32',
+                lod_level=0)
             input.stop_gradient = False
             result = fluid.layers.gather(input=input, index=index)
 
@@ -60,8 +70,10 @@ class TFGather(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "gather"
         self.allow_growth = True
 
-        input = tf.placeholder(name='input', shape=config.input_shape, dtype=tf.float32)
-        index = tf.placeholder(name='index', shape=config.index_shape, dtype=tf.int32)
+        input = tf.placeholder(
+            name='input', shape=config.input_shape, dtype=tf.float32)
+        index = tf.placeholder(
+            name='index', shape=config.index_shape, dtype=tf.int32)
         result = tf.gather(params=input, indices=index)
 
         self.feed_list = [input, index]

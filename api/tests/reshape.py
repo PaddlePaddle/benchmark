@@ -21,15 +21,18 @@ from common import tensorflow_api_benchmark as tensorflow_api
 
 
 class ReshapeConfig(object):
-    def __init__(self, x_shape, shape, shape_is_tensor=False, shape_is_tensor_list=False):
+    def __init__(self,
+                 x_shape,
+                 shape,
+                 shape_is_tensor=False,
+                 shape_is_tensor_list=False):
         self.x_shape = x_shape
         self.shape = shape
         self.shape_is_variable = shape_is_tensor
         self.shape_is_tensor_list = shape_is_tensor_list
 
 
-config = ReshapeConfig(x_shape=[10, 32, 8, 1024],
-                       shape=[10, 32, 32, 256])
+config = ReshapeConfig(x_shape=[10, 32, 8, 1024], shape=[10, 32, 32, 256])
 
 
 class PDReshape(paddle_api.PaddleAPIBenchmarkBase):
@@ -39,7 +42,10 @@ class PDReshape(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "reshape"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
-                name='data', shape=config.x_shape, dtype='float32', lod_level=0)
+                name='data',
+                shape=config.x_shape,
+                dtype='float32',
+                lod_level=0)
             data.stop_gradient = False
             result = fluid.layers.reshape(x=data, shape=config.shape)
 
@@ -56,7 +62,8 @@ class TFReshape(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "reshape"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=config.x_shape, dtype=tf.float32)
+        data = tf.placeholder(
+            name='data', shape=config.x_shape, dtype=tf.float32)
         result = tf.reshape(tensor=data, shape=config.shape)
 
         self.feed_list = [data]

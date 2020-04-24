@@ -29,9 +29,8 @@ class PDReduceSum(paddle_api.PaddleAPIBenchmarkBase):
             data = fluid.data(
                 name='data', shape=[32, 768], dtype='float32', lod_level=0)
             data.stop_gradient = False
-            result = fluid.layers.reduce_sum(input=data,
-                                             dim=-1,
-                                             keep_dim=False)
+            result = fluid.layers.reduce_sum(
+                input=data, dim=-1, keep_dim=False)
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -47,9 +46,7 @@ class TFReduceSum(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.allow_growth = True
 
         data = tf.placeholder(name='data', shape=[32, 768], dtype=tf.float32)
-        result = tf.reduce_sum(input_tensor=data,
-                               axis=-1,
-                               keepdims=False)
+        result = tf.reduce_sum(input_tensor=data, axis=-1, keepdims=False)
 
         self.feed_list = [data]
         self.fetch_list = [result]

@@ -44,7 +44,8 @@ class TFSoftmax(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "softmax"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[16, 10, 100], dtype=tf.float32)
+        data = tf.placeholder(
+            name='data', shape=[16, 10, 100], dtype=tf.float32)
         result = tf.nn.softmax(logits=data, axis=-1)
 
         self.feed_list = [data]

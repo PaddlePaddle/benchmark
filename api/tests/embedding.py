@@ -24,13 +24,17 @@ class EmbeddingConfig(object):
     def __init__(self, input_shape, table_shape):
         self.input_shape = input_shape
         self.table_shape = table_shape
-        self.feed_spec = [{ "range": [0, table_shape[0]] }, # input
-                          { "range": [0, 1] }  # table
-                         ]
-        
+        self.feed_spec = [
+            {
+                "range": [0, table_shape[0]]
+            },  # input
+            {
+                "range": [0, 1]
+            }  # table
+        ]
 
-config = EmbeddingConfig(input_shape=[10, 10],
-                         table_shape=[64, 128])
+
+config = EmbeddingConfig(input_shape=[10, 10], table_shape=[64, 128])
 
 
 class PDEmbedding(paddle_api.PaddleAPIBenchmarkBase):
@@ -40,12 +44,14 @@ class PDEmbedding(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "embedding"
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
-                name='input', shape=config.input_shape, dtype='int64', lod_level=0)
+                name='input',
+                shape=config.input_shape,
+                dtype='int64',
+                lod_level=0)
             table = fluid.layers.create_parameter(
                 shape=config.table_shape, dtype='float32', name='table')
-            result = fluid.embedding(input=input,
-                                     size=config.table_shape,
-                                     param_attr='table')
+            result = fluid.embedding(
+                input=input, size=config.table_shape, param_attr='table')
 
             self.feed_vars = [input, table]
             self.fetch_vars = [result]
@@ -60,8 +66,10 @@ class TFEmbedding(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "embedding"
         self.allow_growth = True
 
-        input = tf.placeholder(name='input', shape=config.input_shape, dtype=tf.int64)
-        table = tf.placeholder(name='table', shape=config.table_shape, dtype=tf.float32)
+        input = tf.placeholder(
+            name='input', shape=config.input_shape, dtype=tf.int64)
+        table = tf.placeholder(
+            name='table', shape=config.table_shape, dtype=tf.float32)
         result = tf.nn.embedding_lookup(ids=input, params=table, max_norm=None)
 
         self.feed_list = [input, table]
