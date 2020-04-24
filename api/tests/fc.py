@@ -25,16 +25,27 @@ class FCConfig(api_param.APIConfig):
     def __init__(self):
         super(FCConfig, self).__init__('fc', '')
 
-    # row = 1	        
-    # col = 1	
-    # if num_flatten_dims < 0:	
-    #     num_flatten_dims = num_flatten_dims + len(input_shape)	
-    # for i in range(len(input_shape)):	
-    #     if i < num_flatten_dims:	
-    #         row = row * input_shape[i]	
-    #     else:	
-    #         col = col * input_shape[i]	
-    # self.input_shape = [row, col]	
+    def init_from_json(self, filename, config_id=0):
+        super(FCConfig, self).init_from_json(filename, config_id)
+        num_flatten_dims = self.num_flatten_dims
+        if num_flatten_dims < 0:
+            num_flatten_dims = num_flatten_dims + len(self.input_shape)
+        row = 1
+        col = 1
+        for i in range(len(self.input_shape)):
+            if i < self.num_flatten_dims:
+                row = row * self.input_shape[i]
+            else:
+                col = col * self.input_shape[i]
+        self.input_shape = [row, col]
+        self.num_flatten_dims = -1
+
+    def to_tensorflow(self):
+        import tensorflow as tf
+        tf_config = self
+        if self.act == "relu":
+            tf_config.act = tf.nn.relu
+        return tf_config
 
 
 class PDFC(paddle_api.PaddleAPIBenchmarkBase):
@@ -44,7 +55,7 @@ class PDFC(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "fc"
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
-                name=config.input_name,
+                name="input",
                 shape=config.input_shape,
                 dtype=config.input_dtype,
                 lod_level=0)
@@ -52,7 +63,7 @@ class PDFC(paddle_api.PaddleAPIBenchmarkBase):
             result = fluid.layers.fc(
                 input=input,
                 size=config.size,
-                num_flatten_dims=config.num_flatten_dims,
+                num_flatten_dims=-1,
                 param_attr=fluid.ParamAttr(
                     initializer=fluid.initializer.ConstantInitializer(0.5)),
                 bias_attr=fluid.ParamAttr(
@@ -73,7 +84,7 @@ class TFFC(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.allow_growth = True
 
         input = tf.placeholder(
-            name=config.input_name,
+            name="input",
             shape=config.input_shape,
             dtype=tf.as_dtype(config.input_dtype))
         result = tf.contrib.layers.fully_connected(
@@ -81,7 +92,7 @@ class TFFC(tensorflow_api.TensorflowAPIBenchmarkBase):
             num_outputs=config.size,
             weights_initializer=tf.constant_initializer(0.5),
             biases_initializer=tf.constant_initializer(0.1),
-            activation_fn=None)
+            activation_fn=config.act)
 
         self.feed_list = [input]
         self.fetch_list = [result]
@@ -90,4 +101,4 @@ class TFFC(tensorflow_api.TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDFC(), TFFC(), FCConfig())
+    test_main(PDFC(), TFFC(), config=FCConfig())

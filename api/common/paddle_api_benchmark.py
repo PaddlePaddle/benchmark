@@ -75,8 +75,6 @@ def convert_dtype(dtype, to_string=True):
 class PaddleAPIBenchmarkBase(object):
     def __init__(self):
         self.name = self.__class__.__name__
-        self.main_program = fluid.Program()
-        self.startup_program = fluid.Program()
         self.scope = fluid.Scope()
         self.place = None
         self.feed_vars = None
@@ -87,7 +85,7 @@ class PaddleAPIBenchmarkBase(object):
     def build_program(self, config=None):
         pass
 
-    def create_progrom(self):
+    def create_program(self):
         self.main_program = fluid.Program()
         self.startup_program = fluid.Program()
 
