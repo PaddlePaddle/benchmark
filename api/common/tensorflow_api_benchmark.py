@@ -90,7 +90,7 @@ class TensorflowAPIBenchmarkBase(object):
         self.allow_growth = False
 
     @abc.abstractmethod
-    def build_graph(self, backward=False):
+    def build_graph(self, config=None):
         pass
 
     def append_gradients(self, targets, inputs):
