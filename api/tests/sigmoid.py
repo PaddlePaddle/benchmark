@@ -18,7 +18,8 @@ import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 from common import tensorflow_api_benchmark as tensorflow_api
- 
+
+
 class PDSigmoid(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False, dtype=None):
         import paddle.fluid as fluid
@@ -26,7 +27,10 @@ class PDSigmoid(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "sigmoid"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
-                name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
+                name='data',
+                shape=[10, 10, 100, 100],
+                dtype='float32',
+                lod_level=0)
             data.stop_gradient = False
             result = fluid.layers.sigmoid(data)
 
@@ -43,7 +47,8 @@ class TFSigmoid(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "sigmoid"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
+        data = tf.placeholder(
+            name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
         result = tf.math.sigmoid(data)
 
         self.feed_list = [data]

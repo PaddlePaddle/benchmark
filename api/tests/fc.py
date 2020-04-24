@@ -23,17 +23,19 @@ from common import api_param
 
 class FCConfig(api_param.APIConfig):
     def __init__(self):
-        super(FCConfig, self).__init__('fc','')
-       # row = 1	        
-       # col = 1	
-       # if num_flatten_dims < 0:	
-       #     num_flatten_dims = num_flatten_dims + len(input_shape)	
-       # for i in range(len(input_shape)):	
-       #     if i < num_flatten_dims:	
-       #         row = row * input_shape[i]	
-       #     else:	
-       #         col = col * input_shape[i]	
-       # self.input_shape = [row, col]	
+        super(FCConfig, self).__init__('fc', '')
+
+    # row = 1	        
+    # col = 1	
+    # if num_flatten_dims < 0:	
+    #     num_flatten_dims = num_flatten_dims + len(input_shape)	
+    # for i in range(len(input_shape)):	
+    #     if i < num_flatten_dims:	
+    #         row = row * input_shape[i]	
+    #     else:	
+    #         col = col * input_shape[i]	
+    # self.input_shape = [row, col]	
+
 
 class PDFC(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, config):
@@ -42,7 +44,10 @@ class PDFC(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "fc"
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
-                name=config.input_name, shape=config.input_shape, dtype=config.input_dtype, lod_level=0)
+                name=config.input_name,
+                shape=config.input_shape,
+                dtype=config.input_dtype,
+                lod_level=0)
             input.stop_gradient = False
             result = fluid.layers.fc(
                 input=input,
@@ -67,7 +72,10 @@ class TFFC(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "fc"
         self.allow_growth = True
 
-        input = tf.placeholder(name=config.input_name, shape=config.input_shape, dtype=tf.as_dtype(config.input_dtype))
+        input = tf.placeholder(
+            name=config.input_name,
+            shape=config.input_shape,
+            dtype=tf.as_dtype(config.input_dtype))
         result = tf.contrib.layers.fully_connected(
             inputs=input,
             num_outputs=config.size,

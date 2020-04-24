@@ -18,7 +18,7 @@ import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 from common import tensorflow_api_benchmark as tensorflow_api
-      
+
 
 class BatchNormConfig(object):
     def __init__(self, input_shape):
@@ -49,20 +49,24 @@ class PDBatchNorm(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "batch_norm"
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
-                name='input', shape=config.input_shape, dtype='float32', lod_level=0)
+                name='input',
+                shape=config.input_shape,
+                dtype='float32',
+                lod_level=0)
             scale = fluid.layers.create_parameter(
                 name='scale', shape=[config.num_channels], dtype="float32")
             bias = fluid.layers.create_parameter(
                 name='bias', shape=[config.num_channels], dtype="float32")
             input.stop_gradient = False
-            result = fluid.layers.batch_norm(input=input,
-                                             act=None,
-                                             is_test=False,
-                                             momentum=0.9,
-                                             epsilon=config.epsilon,
-                                             param_attr="scale",
-                                             bias_attr="bias",
-                                             data_layout=config.data_format)
+            result = fluid.layers.batch_norm(
+                input=input,
+                act=None,
+                is_test=False,
+                momentum=0.9,
+                epsilon=config.epsilon,
+                param_attr="scale",
+                bias_attr="bias",
+                data_layout=config.data_format)
 
             self.feed_vars = [input, scale, bias]
             self.fetch_vars = [result]
@@ -85,12 +89,13 @@ class TFBatchNorm(tensorflow_api.TensorflowAPIBenchmarkBase):
             name='bias', shape=[config.num_channels], dtype=tf.float32)
         mean, var = tf.nn.moments(
             x=input, axes=config.axes, shift=None, keepdims=False)
-        result = tf.nn.batch_normalization(x=input,
-                                           mean=mean,
-                                           variance=var,
-                                           offset=bias,
-                                           scale=scale,
-                                           variance_epsilon=config.epsilon)
+        result = tf.nn.batch_normalization(
+            x=input,
+            mean=mean,
+            variance=var,
+            offset=bias,
+            scale=scale,
+            variance_epsilon=config.epsilon)
 
         self.feed_list = [input, scale, bias]
         self.fetch_list = [result]
