@@ -162,29 +162,24 @@ def test_tensorflow(task, obj, args, feed_list=None):
         return outputs
 
 
-def test_speed_main(obj):
+def test_main(pd_obj=None, tf_obj=None, config=None):
     args = parse_args()
-    obj.build_program()
-    test_paddle("speed", obj, args)
-
-
-def test_main(pd_obj=None, tf_obj=None, config_obj=None):
-    args = parse_args()
-    config_obj.backward = args.backward
-    if config_obj is None:
+    config.backward = args.backward
+    if config is None:
         raise ValueError("Paddle config is None.")
+
     if args.json_file is not None:
         with open(args.json_file, 'r') as f:
             data = json.load(f)
             if args.pos is not None:
-                config_obj.init_from_json(args.json_file, args.pos)
-                test_run(pd_obj, tf_obj, config_obj)
+                config.init_from_json(args.json_file, args.pos)
+                test_run(pd_obj, tf_obj, config)
             else:
                 for i in range(0, len(data)):
-                    config_obj.init_from_json(args.json_file, i)
-                    test_run(pd_obj, tf_obj, config_obj)
+                    config.init_from_json(args.json_file, i)
+                    test_run(pd_obj, tf_obj, config)
     else:
-        test_run(pd_obj, tf_obj, config_obj)
+        test_run(pd_obj, tf_obj, config)
 
 
 def test_run(pd_obj=None, tf_obj=None, config=None):
@@ -193,7 +188,8 @@ def test_run(pd_obj=None, tf_obj=None, config=None):
     if args.task == "accuracy" or args.framework in ["paddle", "both"]:
         if pd_obj is None:
             raise ValueError("Paddle object is None.")
-        pd_obj.create_progrom()
+        print(config)
+        pd_obj.create_program()
         pd_obj.build_program(config)
         feed_list = feeder.feed_paddle(pd_obj)
         pd_outputs = test_paddle(args.task, pd_obj, args, feed_list)
@@ -203,7 +199,9 @@ def test_run(pd_obj=None, tf_obj=None, config=None):
     ]:
         if tf_obj is None:
             raise ValueError("TensorFlow object is None.")
-        tf_obj.build_graph(config)
+        tf_config = config.to_tensorflow()
+        print(tf_config)
+        tf_obj.build_graph(tf_config)
         feed_list = feeder.feed_tensorflow(tf_obj, feed_list)
         tf_outputs = test_tensorflow(args.task, tf_obj, args, feed_list)
 

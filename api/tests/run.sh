@@ -9,7 +9,8 @@ name=${1:-"abs"}
 python ${name}.py \
       --task "accuracy" \
       --framework "paddle" \
-      --dtype "float32" \
+      --json_file "fc_param.json" \
+      --pos 0 \
       --run_with_executor True \
       --check_output False \
       --profiler "none" \

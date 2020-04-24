@@ -45,12 +45,17 @@ class APIConfig(object):
         self.params = params
         self.input_list = []
         self.params_list = []
+        self.backward = False
 
-    def list_all_member(self):
-        print('\nAPI params:')
+    def __str__(self):
+        debug_str = ('API params of <%s> {\n') % (self.name)
         for name, value in vars(self).items():
-            if name not in ['name', 'params', 'input_list', 'params_list']:
-                print('%s=%s' % (name, value))
+            if name not in [
+                    'name', 'params', 'input_list', 'params_list', 'backward'
+            ]:
+                debug_str = debug_str + ('  %s: %s\n') % (name, value)
+        debug_str = debug_str + '}'
+        return debug_str
 
     def init_from_json(self, filename, pos=0):
         with open(filename, 'r') as f:
@@ -71,6 +76,9 @@ class APIConfig(object):
                                     input_p.dtype.encode('utf-8'), shape,
                                     input_p.lod_level)
         return self
+
+    def to_tensorflow(self):
+        pass
 
     def _convert_params_to_str(self):
         params = ""
@@ -135,5 +143,4 @@ class APIConfig(object):
     def dy_input_param(self, pos, name, dtype, shape, lod_level):
         setattr(self, name + '_shape', map(int, shape))
         setattr(self, name + '_dtype', dtype)
-        setattr(self, name + '_name', name + str(pos))
         return self
