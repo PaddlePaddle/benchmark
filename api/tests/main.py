@@ -17,11 +17,12 @@ from __future__ import print_function
 import argparse
 import os
 import feeder
-
+import json
 import sys
+import re
 sys.path.append("..")
 from common import utils
-
+from common import api_param
 
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
@@ -44,10 +45,15 @@ def parse_args():
         default="paddle",
         help='Specify the framework: [paddle|tensorflow|tf|both]')
     parser.add_argument(
-        '--dtype',
+        '--json_file',
         type=str,
-        default="float32",
-        help='Specify the data type of api')
+        default=None,
+        help='The file of API params')
+    parser.add_argument(
+        '--pos',
+        type=int,
+        default=None,
+        help='Only import params of API from json file in the specified position [0|1|...]')
     parser.add_argument(
         '--run_with_executor',
         type=str2bool,
@@ -97,10 +103,7 @@ def parse_args():
         raise ValueError("task should be speed, accuracy")
     if args.framework not in ["paddle", "tensorflow", "tf", "both"]:
         raise ValueError("task should be paddle, tensorflow, tf, both")
-    if args.dtype not in ["float32", "float16"]:
-        raise ValueError("dtype should be float32, float16")
     return args
-
 
 def test_paddle(task, obj, args, feed_list=None):
     feed = None
@@ -165,26 +168,44 @@ def test_tensorflow(task, obj, args, feed_list=None):
 
 def test_speed_main(obj):
     args = parse_args()
-    obj.build_program(backward=args.backward, dtype=args.dtype)
+    obj.build_program()
     test_paddle("speed", obj, args)
 
 
-def test_main(pd_obj=None, tf_obj=None, feed_spec=None):
+def test_main(pd_obj=None, tf_obj=None, config_obj=None):
     args = parse_args()
-
+    config_obj.backward=args.backward
+    if config_obj is None:
+        raise ValueError("Paddle config is None.")  
+    if args.json_file is not None:
+        with open(args.json_file, 'r') as f:
+            data = json.load(f)
+            if args.pos is not None:
+                config_obj.init_from_json(args.json_file, args.pos)
+                test_run(pd_obj, tf_obj, config_obj) 
+            else:
+                for i in range(0, len(data)):
+                    config_obj.init_from_json(args.json_file, i)
+                    test_run(pd_obj, tf_obj, config_obj)
+    else:
+        test_run(pd_obj, tf_obj, config_obj)
+ 
+def test_run(pd_obj=None, tf_obj=None, config=None):
+    args = parse_args()
     feed_list = None
     if args.task == "accuracy" or args.framework in ["paddle", "both"]:
         if pd_obj is None:
             raise ValueError("Paddle object is None.")
-        pd_obj.build_program(backward=args.backward, dtype=args.dtype)
-        feed_list = feeder.feed_paddle(pd_obj, feed_spec)
+        pd_obj.create_progrom()
+        pd_obj.build_program(config)
+        feed_list = feeder.feed_paddle(pd_obj)
         pd_outputs = test_paddle(args.task, pd_obj, args, feed_list)
 
     if args.task == "accuracy" or args.framework in ["tensorflow", "tf", "both"]:
         if tf_obj is None:
             raise ValueError("TensorFlow object is None.")
-        tf_obj.build_graph(backward=args.backward)
-        feed_list = feeder.feed_tensorflow(tf_obj, feed_list, feed_spec)
+        tf_obj.build_graph(config)
+        feed_list = feeder.feed_tensorflow(tf_obj, feed_list)
         tf_outputs = test_tensorflow(args.task, tf_obj, args, feed_list)
 
     if args.task == "accuracy":
