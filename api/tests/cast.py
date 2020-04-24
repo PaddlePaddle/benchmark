@@ -24,11 +24,10 @@ class CastConfig(object):
     def __init__(self, input_shape, dtype):
         self.input_shape = input_shape
         self.dtype = dtype
-        self.feed_spec = { "range": [-10, 10] }
+        self.feed_spec = {"range": [-10, 10]}
 
 
-config = CastConfig(input_shape=[10, 10, 100, 100],
-                    dtype="float16")
+config = CastConfig(input_shape=[10, 10, 100, 100], dtype="float16")
 
 
 class PDCast(paddle_api.PaddleAPIBenchmarkBase):
@@ -38,7 +37,10 @@ class PDCast(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "cast"
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
-                name='input', shape=config.input_shape, dtype='float32', lod_level=0)
+                name='input',
+                shape=config.input_shape,
+                dtype='float32',
+                lod_level=0)
             input.stop_gradient = False
             result = fluid.layers.cast(input, dtype=config.dtype)
 
@@ -55,7 +57,8 @@ class TFCast(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "cast"
         self.allow_growth = True
 
-        input = tf.placeholder(name='input', shape=config.input_shape, dtype=tf.float32)
+        input = tf.placeholder(
+            name='input', shape=config.input_shape, dtype=tf.float32)
         result = tf.cast(input, dtype=config.dtype)
 
         self.feed_list = [input]

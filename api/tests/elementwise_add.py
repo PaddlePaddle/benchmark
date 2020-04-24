@@ -26,8 +26,7 @@ class ElementwiseAddConfig(object):
         self.y_shape = y_shape
 
 
-config = ElementwiseAddConfig(x_shape=[1, 32, 1, 768],
-                              y_shape=[32, 1, 768, 1])
+config = ElementwiseAddConfig(x_shape=[1, 32, 1, 768], y_shape=[32, 1, 768, 1])
 
 
 class PDElementwiseAdd(paddle_api.PaddleAPIBenchmarkBase):

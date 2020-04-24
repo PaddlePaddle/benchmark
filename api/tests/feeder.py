@@ -36,15 +36,20 @@ def feed_var(spec):
     if spec.get("range", None) is not None:
         range = spec["range"]
         if not isinstance(range, tuple) and not isinstance(range, list):
-            TypeError("Expected range a tuple or a list, received a ", type(range))
+            TypeError("Expected range a tuple or a list, received a ",
+                      type(range))
         assert len(range) == 2
 
     if spec.get("data", None) is not None:
         data = spec["data"]
     else:
         if dtype == "int64" or dtype == "int32":
-            assert range is not None
-            data = np.random.randint(range[0], range[1], shape).astype(dtype)
+            data = np.random.randint(100, size=shape, dtype=dtype)
+            if range is not None:
+                data = np.random.randint(
+                    range[0], range[1], size=shape, dtype=dtype)
+        if dtype == "bool":
+            data = np.random.randint(2, size=shape, dtype=bool)
         else:
             data = np.random.random(shape).astype(dtype)
             if range is not None:
@@ -68,7 +73,7 @@ def feed_paddle(obj, feed_spec=None):
             spec = feed_spec[i]
         else:
             spec = {}
-            
+
         if spec.get("shape", None) is None:
             spec["shape"] = var.shape
         if spec.get("dtype", None) is None:
@@ -85,7 +90,7 @@ def check_shape(shape, shape_ref):
     if shape + [1] == shape_ref or shape == shape_ref + [1]:
         return True
     return False
-        
+
 
 def feed_tensorflow(obj, feed_list=None, feed_spec=None):
     if feed_spec is not None:
@@ -102,7 +107,7 @@ def feed_tensorflow(obj, feed_list=None, feed_spec=None):
             if feed_spec is not None:
                 spec = feed_spec[i]
                 if spec.get("permute", None) is not None:
-                    feed_list[i] = np.transpose(feed_list[i], spec["permute"]) 
+                    feed_list[i] = np.transpose(feed_list[i], spec["permute"])
 
             assert check_shape(var.shape, feed_list[i].shape)
             feed_list[i] = feed_list[i].reshape(var.shape)
@@ -119,7 +124,7 @@ def feed_tensorflow(obj, feed_list=None, feed_spec=None):
                 spec = feed_spec[i]
             else:
                 spec = {}
-        
+
             if spec.get("shape", None) is None:
                 spec["shape"] = var.shape
             if spec.get("dtype", None) is None:

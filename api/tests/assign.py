@@ -35,7 +35,10 @@ class PDAssign(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "assign"
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
-                name='input', shape=config.input_shape, dtype='float32', lod_level=0)
+                name='input',
+                shape=config.input_shape,
+                dtype='float32',
+                lod_level=0)
             input.stop_gradient = False
             result = fluid.layers.assign(input)
 
