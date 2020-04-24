@@ -12,54 +12,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
-import os
-os.environ["FLAGS_fraction_of_gpu_memory_to_use"] = "0.01"
-
-import paddle.fluid as fluid
-import tensorflow as tf
-import numpy as np
-
-from args import parse_args
-from abs import feed_random_data, run_and_check
+from main import test_main
 
 import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 from common import tensorflow_api_benchmark as tensorflow_api
-from common import utils
-      
-class PaddleFillConstant(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False):
+from common import api_param
+
+
+class PDFillConstant(paddle_api.PaddleAPIBenchmarkBase):
+    def build_program(self, config):
+        import paddle.fluid as fluid
+
         self.name = "fill_constant"
         with fluid.program_guard(self.main_program, self.startup_program):
-            result = fluid.layers.fill_constant(shape=[10, 10, 100, 100],
-                                                dtype='int64',
-                                                value=3)
+            result = fluid.layers.fill_constant(
+                shape=config.shape, dtype=config.dtype, value=config.value)
 
             self.feed_vars = []
             self.fetch_vars = [result]
 
 
-class TensorflowFillConstant(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False):
+class TFFillConstant(tensorflow_api.TensorflowAPIBenchmarkBase):
+    def build_graph(self, config):
+        import tensorflow as tf
+
         self.name = "fill_constant"
         self.allow_growth = True
 
-        result = tf.constant(shape=[10, 10, 100, 100],
-                             dtype=tf.int64,
-                             value=3)
+        result = tf.constant(
+            shape=config.shape,
+            dtype=tf.as_dtype(config.dtype),
+            value=config.value)
 
         self.feed_list = []
         self.fetch_list = [result]
 
 
-def main(backward, use_gpu):
-    pd_obj = PaddleFillConstant()
-    tf_obj = TensorflowFillConstant()
-    run_and_check(pd_obj, tf_obj, backward, use_gpu, name="fill_constant")
-
 if __name__ == '__main__':
-    args = parse_args()
-    main(backward=args.backward, use_gpu=args.use_gpu)
+    test_main(
+        PDFillConstant(),
+        TFFillConstant(),
+        config=api_param.APIConfig("fill_constant", ""))
