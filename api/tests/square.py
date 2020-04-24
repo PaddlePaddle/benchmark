@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ from common import tensorflow_api_benchmark as tensorflow_api
 from common import api_param
 
 
-class PDExpand(paddle_api.PaddleAPIBenchmarkBase):
+class PDSquare(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, config):
         import paddle.fluid as fluid
 
@@ -32,7 +32,7 @@ class PDExpand(paddle_api.PaddleAPIBenchmarkBase):
                 dtype=config.x_dtype,
                 lod_level=0)
             x.stop_gradient = False
-            result = fluid.layers.expand(x=x, expand_times=config.expand_times)
+            result = fluid.layers.square(x=x)
 
             self.feed_vars = [x]
             self.fetch_vars = [result]
@@ -40,13 +40,13 @@ class PDExpand(paddle_api.PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [x])
 
 
-class TFExpand(tensorflow_api.TensorflowAPIBenchmarkBase):
+class TFSquare(tensorflow_api.TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         import tensorflow as tf
 
         x = tf.placeholder(
             name='x', shape=config.x_shape, dtype=tf.as_dtype(config.x_dtype))
-        result = tf.tile(input=x, multiples=config.expand_times)
+        result = tf.square(x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -55,4 +55,4 @@ class TFExpand(tensorflow_api.TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDExpand(), TFExpand(), config=api_param.APIConfig("expand"))
+    test_main(PDSquare(), TFSquare(), config=api_param.APIConfig("square"))

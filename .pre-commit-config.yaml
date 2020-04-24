@@ -3,7 +3,7 @@ repos:
     sha: 0d79c0c469bab64f7229c9aca2b1186ef47f0e37
     hooks:
     -   id: yapf
-        files: (api).*\.py$
+        files: (api).*\.(py|json)$
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     sha: a11d9314b22d8f8c7556443875b731ef05965464
     hooks:
@@ -16,6 +16,8 @@ repos:
         files: (api).*\.md$
     -   id: trailing-whitespace
         files: (api).*\.md$
+    -   id: check-json
+        files: (api).*\.json$
 -   repo: https://github.com/Lucas-C/pre-commit-hooks.git
     sha: v1.0.1
     hooks:
