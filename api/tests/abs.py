@@ -23,7 +23,7 @@ from common import api_param
 
 class AbsConfig(api_param.APIConfig):
     def __init__(self):
-        super(AbsConfig, self).__init__('abs', '')
+        super(AbsConfig, self).__init__('abs')
         self.feed_spec = {"range": [-1, 1]}
 
 
@@ -31,7 +31,6 @@ class PDAbs(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, config):
         import paddle.fluid as fluid
 
-        self.name = "abs"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
                 name='data',
@@ -50,9 +49,6 @@ class PDAbs(paddle_api.PaddleAPIBenchmarkBase):
 class TFAbs(tensorflow_api.TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         import tensorflow as tf
-
-        self.name = "abs"
-        self.allow_growth = True
 
         data = self.placeholder(
             name='data', shape=config.x_shape, dtype=config.x_dtype)

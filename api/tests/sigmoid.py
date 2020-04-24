@@ -25,7 +25,6 @@ class PDSigmoid(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, config):
         import paddle.fluid as fluid
 
-        self.name = "sigmoid"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
                 name='data',
@@ -45,9 +44,6 @@ class TFSigmoid(tensorflow_api.TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         import tensorflow as tf
 
-        self.name = "sigmoid"
-        self.allow_growth = True
-
         data = tf.placeholder(
             name='data',
             shape=config.x_shape,
@@ -61,5 +57,4 @@ class TFSigmoid(tensorflow_api.TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(
-        PDSigmoid(), TFSigmoid(), config=api_param.APIConfig("sigmoid", ""))
+    test_main(PDSigmoid(), TFSigmoid(), config=api_param.APIConfig("sigmoid"))

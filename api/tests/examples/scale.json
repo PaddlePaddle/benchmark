@@ -1,0 +1,14 @@
+[{
+    "op": "scale",
+    "param_info": {
+        "x": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[32L, 128L]"
+        },
+        "scale": {
+            "dtype": "float",
+            "value": "2.0"
+        }
+    }
+}]

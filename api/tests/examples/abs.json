@@ -1,8 +1,10 @@
-[
-  {
+[{
     "op": "abs",
     "param_info": {
-      "x": {"type": "Variable", "dtype": "float32", "shape": "[16L, 10L, 100L, 100L]"}
+        "x": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[16L, 10L, 100L, 100L]"
+        }
     }
-  }
-]
+}]

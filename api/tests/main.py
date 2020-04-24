@@ -189,6 +189,7 @@ def test_run(pd_obj=None, tf_obj=None, config=None):
         if pd_obj is None:
             raise ValueError("Paddle object is None.")
         print(config)
+        pd_obj.name = config.name
         pd_obj.create_program()
         pd_obj.build_program(config)
         feed_list = feeder.feed_paddle(pd_obj, feed_spec=config.feed_spec)
@@ -201,6 +202,7 @@ def test_run(pd_obj=None, tf_obj=None, config=None):
             raise ValueError("TensorFlow object is None.")
         tf_config = config.to_tensorflow()
         print(tf_config)
+        tf_obj.name = tf_config.name
         tf_obj.build_graph(tf_config)
         feed_list = feeder.feed_tensorflow(
             tf_obj, feed_list, feed_spec=tf_config.feed_spec)
