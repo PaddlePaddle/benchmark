@@ -27,12 +27,16 @@ class PDDropout(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "dropout"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
-                name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
+                name='data',
+                shape=[10, 10, 100, 100],
+                dtype='float32',
+                lod_level=0)
             data.stop_gradient = False
-            result = fluid.layers.dropout(x=data,
-                                          dropout_prob=0.2,
-                                          seed=123,
-                                          dropout_implementation="upscale_in_train")
+            result = fluid.layers.dropout(
+                x=data,
+                dropout_prob=0.2,
+                seed=123,
+                dropout_implementation="upscale_in_train")
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -47,11 +51,9 @@ class TFDropout(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "dropout"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
-        result = tf.nn.dropout(x=data,
-                               rate=0.2,
-                               noise_shape=None,
-                               seed=123)
+        data = tf.placeholder(
+            name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
+        result = tf.nn.dropout(x=data, rate=0.2, noise_shape=None, seed=123)
 
         self.feed_list = [data]
         self.fetch_list = [result]

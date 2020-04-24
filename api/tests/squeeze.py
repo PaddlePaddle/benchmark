@@ -27,7 +27,10 @@ class PDSqueeze(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "squeeze"
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
-                name='data', shape=[1, 10, 100, 1, 100], dtype='float32', lod_level=0)
+                name='data',
+                shape=[1, 10, 100, 1, 100],
+                dtype='float32',
+                lod_level=0)
             data.stop_gradient = False
             result = fluid.layers.squeeze(data, axes=[])
 
@@ -44,7 +47,8 @@ class TFSqueeze(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "squeeze"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=[1, 10, 100, 1, 100], dtype=tf.float32)
+        data = tf.placeholder(
+            name='data', shape=[1, 10, 100, 1, 100], dtype=tf.float32)
         result = tf.squeeze(data)
 
         self.feed_list = [data]

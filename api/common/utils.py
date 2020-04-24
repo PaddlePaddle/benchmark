@@ -19,7 +19,8 @@ import numpy as np
 
 
 def compare(output1, output2):
-    if not isinstance(output1, np.ndarray) or not isinstance(output2, np.ndarray):
+    if not isinstance(output1, np.ndarray) or not isinstance(output2,
+                                                             np.ndarray):
         raise TypeError("input argument's type should be numpy.ndarray.")
 
     max_diff = -0.0
@@ -34,25 +35,29 @@ def compare(output1, output2):
 
 def check_outputs(list1, list2, name=None):
     if not isinstance(list1, list) or not isinstance(list2, list):
-        raise TypeError("input argument's type should be list of numpy.ndarray.")
+        raise TypeError(
+            "input argument's type should be list of numpy.ndarray.")
 
     consistent = True
     max_diff = 0.0
- 
+
     assert len(list1) == len(list2)
     num_outputs = len(list1)
     for i in xrange(num_outputs):
         output1 = list1[i]
         output2 = list2[i]
-            
+
         diff = compare(output1, output2)
         max_diff = diff if diff > max_diff else max_diff
         if max_diff > 1.e-6:
             consistent = False
     if name is not None:
-        print("{ name: \"%s\", consistent: \"%s\", num_outputs: %d, diff: %.5f }" % (name, str(consistent), num_outputs, max_diff))
+        print(
+            "{ name: \"%s\", consistent: \"%s\", num_outputs: %d, diff: %.5f }"
+            % (name, str(consistent), num_outputs, max_diff))
     else:
-        print("{ consistent: \"%s\", num_outputs: %d, diff: %.5f }" % (str(consistent), num_outputs, max_diff))
+        print("{ consistent: \"%s\", num_outputs: %d, diff: %.5f }" %
+              (str(consistent), num_outputs, max_diff))
 
 
 def get_stat(stats, key):
@@ -125,7 +130,8 @@ def print_stat(stats, log_level=0):
         seg_1 = 0
     for i in xrange(len(runtimes)):
         if i < seg_0 or i >= seg_1:
-            print("Iter {0}, Runtime: {1}".format("%4d" % i, "%.5f ms" % runtimes[i]))
+            print("Iter {0}, Runtime: {1}".format("%4d" % i, "%.5f ms" %
+                                                  runtimes[i]))
 
     print("{")
     print("  framework: \"%s\"," % stats["framework"])
@@ -133,7 +139,10 @@ def print_stat(stats, log_level=0):
     print("  name: \"%s\"," % stats["name"])
     print("  device: \"%s\"," % stats["device"])
     if stable is not None and diff is not None:
-        print("  precision: { stable: \"%s\", diff: %.5f }," % (str(stable), diff))
-    print("  speed: { repeat: %d, start: %d, end: %d, total: %.5f, feed: %.5f, compute: %.5f, fetch: %.5f }"
-              % (len(sorted_runtimes), begin, end, avg_runtime, avg_feed_time, avg_compute_time, avg_fetch_time))
+        print("  precision: { stable: \"%s\", diff: %.5f }," %
+              (str(stable), diff))
+    print(
+        "  speed: { repeat: %d, start: %d, end: %d, total: %.5f, feed: %.5f, compute: %.5f, fetch: %.5f }"
+        % (len(sorted_runtimes), begin, end, avg_runtime, avg_feed_time,
+           avg_compute_time, avg_fetch_time))
     print("}")

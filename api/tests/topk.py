@@ -29,7 +29,7 @@ class PDTopK(paddle_api.PaddleAPIBenchmarkBase):
             data = fluid.data(
                 name='data', shape=[16, 1000], dtype='float32', lod_level=0)
             data.stop_gradient = False
-            
+
             value, indices = fluid.layers.topk(input=data, k=5)
 
             self.feed_vars = [data]

@@ -26,9 +26,7 @@ class ExpandConfig(object):
         self.expand_times = expand_times
 
 
-config = ExpandConfig(x_shape=[32, 807, 1],
-                      expand_times=[4, 1, 807])
-
+config = ExpandConfig(x_shape=[32, 807, 1], expand_times=[4, 1, 807])
 
 #config = ExpandConfig(x_shape=[32, 807, 807],
 #                      expand_times=[4, 1, 1])
@@ -58,7 +56,8 @@ class TFExpand(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "expand"
         self.allow_growth = True
 
-        data = tf.placeholder(name='data', shape=config.x_shape, dtype=tf.float32)
+        data = tf.placeholder(
+            name='data', shape=config.x_shape, dtype=tf.float32)
         result = tf.tile(input=data, multiples=config.expand_times)
 
         self.feed_list = [data]

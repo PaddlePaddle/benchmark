@@ -21,7 +21,12 @@ from common import tensorflow_api_benchmark as tensorflow_api
 
 
 class Conv2dConfig(object):
-    def __init__(self, input_shape, num_filters, filter_size, stride=[1, 1], padding=[0, 0]):
+    def __init__(self,
+                 input_shape,
+                 num_filters,
+                 filter_size,
+                 stride=[1, 1],
+                 padding=[0, 0]):
         self.input_shape = input_shape
         self.num_filters = num_filters
         self.filter_size = filter_size
@@ -30,10 +35,15 @@ class Conv2dConfig(object):
         self.dilation = [1, 1]
         self.groups = 1
         self.data_format = "NCHW"
-        self.use_cudnn = True 
-        self.feed_spec = [{ "range": [0, 1] }, # input
-                          { "permute": [2, 3, 1, 0] } # filters
-                         ]
+        self.use_cudnn = True
+        self.feed_spec = [
+            {
+                "range": [0, 1]
+            },  # input
+            {
+                "permute": [2, 3, 1, 0]
+            }  # filters
+        ]
 
     def filter_shape(self, for_tensorflow=False):
         if self.data_format == "NCHW":
@@ -41,24 +51,36 @@ class Conv2dConfig(object):
         elif self.data_format == "NHWC":
             num_channels = self.input_shape[4]
         if not for_tensorflow:
-            return [self.num_filters, num_channels, self.filter_size[0], self.filter_size[1]]
+            return [
+                self.num_filters, num_channels, self.filter_size[0],
+                self.filter_size[1]
+            ]
         else:
-            return [self.filter_size[0], self.filter_size[1], num_channels, self.num_filters]
+            return [
+                self.filter_size[0], self.filter_size[1], num_channels,
+                self.num_filters
+            ]
 
     def padding(self, for_tensorflow=False):
         if not for_tensorflow or isinstance(self._padding, str):
             return self._padding
 
         assert isinstance(self._padding, list)
-        pad_top = self._padding[0] if len(self._padding) == 2 else self._padding[0]
-        pad_bottom = self._padding[0] if len(self._padding) == 2 else self._padding[1]
-        pad_left = self._padding[1] if len(self._padding) == 2 else self._padding[2]
-        pad_right = self._padding[1] if len(self._padding) == 2 else self._padding[3]
+        pad_top = self._padding[0] if len(
+            self._padding) == 2 else self._padding[0]
+        pad_bottom = self._padding[0] if len(
+            self._padding) == 2 else self._padding[1]
+        pad_left = self._padding[1] if len(
+            self._padding) == 2 else self._padding[2]
+        pad_right = self._padding[1] if len(
+            self._padding) == 2 else self._padding[3]
 
         if self.data_format == "NCHW":
-            return [[0, 0], [0, 0], [pad_top, pad_bottom], [pad_left, pad_right]]
+            return [[0, 0], [0, 0], [pad_top, pad_bottom],
+                    [pad_left, pad_right]]
         elif self.data_format == "NHWC":
-            return [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]]
+            return [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right],
+                    [0, 0]]
 
 
 #config = Conv2dConfig(input_shape=[32, 3, 224, 224],
@@ -67,11 +89,13 @@ class Conv2dConfig(object):
 #                      stride=[2, 2],
 #                      padding="SAME")
 
-config = Conv2dConfig(input_shape=[1, 1, 80, 1008],
-                      num_filters=1,
-                      filter_size=[3, 32],
-                      stride=[1, 16],
-                      padding=[1, 8])
+config = Conv2dConfig(
+    input_shape=[1, 1, 80, 1008],
+    num_filters=1,
+    filter_size=[3, 32],
+    stride=[1, 16],
+    padding=[1, 8])
+
 
 class PDConv2d(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False, dtype=None):
@@ -80,7 +104,10 @@ class PDConv2d(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "conv2d"
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
-                name='input', shape=config.input_shape, dtype=dtype, lod_level=0)
+                name='input',
+                shape=config.input_shape,
+                dtype=dtype,
+                lod_level=0)
             filter = fluid.layers.create_parameter(
                 name='filter', shape=config.filter_shape(), dtype=dtype)
             input.stop_gradient = False
@@ -114,7 +141,9 @@ class TFConv2d(tensorflow_api.TensorflowAPIBenchmarkBase):
         input = tf.placeholder(
             name='input', shape=config.input_shape, dtype=tf.float32)
         filter = tf.placeholder(
-            name='filter', shape=config.filter_shape(for_tensorflow=True), dtype=tf.float32)
+            name='filter',
+            shape=config.filter_shape(for_tensorflow=True),
+            dtype=tf.float32)
         result = tf.nn.conv2d(
             input=input,
             filter=filter,
