@@ -28,7 +28,7 @@ BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/.." && pwd )"
 echo ${BENCHMARK_ROOT}
 
 function prepare_tf_env(){
-    pip install tensorflow-gpu==1.15 
+    pip install tensorflow-gpu==1.15 pre-commit==1.21 cpplint==1.4.5 pylint==1.9.5 pytest==4.6.9 astroid==1.6.6 isort==4.3.21 
 }
 
 
@@ -38,14 +38,40 @@ function run_api(){
 }
 
 
+function abort(){
+    echo "Your change doesn't follow benchmark's code style." 1>&2
+    echo "Please use pre-commit to check what is wrong." 1>&2
+    exit 1
+}
+
+
+function check_style(){
+	trap 'abort' 0
+	pre-commit install
+	commit_files=on
+    	for file_name in `git diff --numstat | awk '{print $NF}'`;do
+        	if [ ! pre-commit run --files $file_name ]; then
+            		git diff
+            		commit_files=off
+        	fi
+    	done
+    	if [ $commit_files == 'off' ];then
+        	echo "code format error"
+        	exit 1
+    	fi
+    	trap 0
+}
+
+
 function main(){
     local CMD=$1
     prepare_tf_env
+    check_style
     case $CMD in
       run_api_test)
         run_api 
         ;;
-      *)
+	*)
         echo "Sorry, $CMD not recognized."
         exit 1
         ;;
