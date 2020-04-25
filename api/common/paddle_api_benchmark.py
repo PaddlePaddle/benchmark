@@ -95,7 +95,7 @@ class PaddleAPIBenchmarkBase(object):
         if not isinstance(inputs, list):
             raise TypeError("inputs should be a list.")
 
-        gradients = fluid.backward.calc_gradient(targets, inputs)
+        gradients = fluid.backward.gradients(targets, inputs)
         print(gradients)
         if isinstance(gradients, list):
             for grad in gradients:
