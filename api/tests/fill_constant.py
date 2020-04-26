@@ -12,19 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
-from common import api_param
+from common_import import *
 
 
-class PDFillConstant(paddle_api.PaddleAPIBenchmarkBase):
+class PDFillConstant(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        import paddle.fluid as fluid
-
         with fluid.program_guard(self.main_program, self.startup_program):
             result = fluid.layers.fill_constant(
                 shape=config.shape, dtype=config.dtype, value=config.value)
@@ -33,10 +25,8 @@ class PDFillConstant(paddle_api.PaddleAPIBenchmarkBase):
             self.fetch_vars = [result]
 
 
-class TFFillConstant(tensorflow_api.TensorflowAPIBenchmarkBase):
+class TFFillConstant(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        import tensorflow as tf
-
         result = tf.constant(
             shape=config.shape,
             dtype=tf.as_dtype(config.dtype),
@@ -48,6 +38,4 @@ class TFFillConstant(tensorflow_api.TensorflowAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        PDFillConstant(),
-        TFFillConstant(),
-        config=api_param.APIConfig("fill_constant"))
+        PDFillConstant(), TFFillConstant(), config=APIConfig("fill_constant"))

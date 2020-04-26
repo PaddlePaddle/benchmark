@@ -7,7 +7,7 @@
             "shape": "[32L, 128L, 256L]"
         },
         "axes": {
-            "dtype": "int",
+            "type": "int",
             "value": "1"
         }
     }

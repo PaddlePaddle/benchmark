@@ -14,15 +14,21 @@
 
 from __future__ import print_function
 
+import sys
 import json
 import time
 import abc, six
 import numpy as np
-import tensorflow as tf
-from tensorflow.python.profiler import model_analyzer
-from tensorflow.python.profiler import option_builder
-from tensorflow.python.client import timeline
 import utils
+
+try:
+    import tensorflow as tf
+    from tensorflow.python.profiler import model_analyzer
+    from tensorflow.python.profiler import option_builder
+    from tensorflow.python.client import timeline
+except Exception as e:
+    sys.stderr.write(
+        "Cannot import tensorflow, maybe tensorflow is not installed.\n")
 
 
 def convert_dtype(dtype, to_string=True):
@@ -87,11 +93,29 @@ class TensorflowAPIBenchmarkBase(object):
         self.name = self.__class__.__name__
         self.feed_list = None
         self.fetch_list = None
-        self.allow_growth = False
+        self.allow_growth = True
+        try:
+            import tensorflow as tf
+            self.graph = tf.Graph()
+            if tf.__version__ > "1.15.0":
+                tf.compat.v1.disable_eager_execution()
+        except Exception as e:
+            sys.stderr.write(
+                "Cannot import tensorflow, maybe tensorflow is not installed.\n"
+            )
 
     @abc.abstractmethod
     def build_graph(self, config=None):
         pass
+
+    def placeholder(self, name, shape, dtype):
+        tf_dtype = tf.as_dtype(dtype)
+        if tf.__version__ >= "1.15.0":
+            var = tf.compat.v1.placeholder(
+                name=name, shape=shape, dtype=tf_dtype)
+        else:
+            var = tf.placeholder(name=name, shape=shape, dtype=tf_dtype)
+        return var
 
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, tf.Tensor):
@@ -114,22 +138,15 @@ class TensorflowAPIBenchmarkBase(object):
             log_level=0,
             check_output=False,
             profile=False):
-        config = self._set_config(use_gpu)
-        if tf.__version__ < "1.14.0":
-            sess = tf.Session(config=config)
-            sess.run(tf.global_variables_initializer())
-            sess.run(tf.local_variables_initializer())
-        else:
-            sess = tf.compat.v1.Session(config=config)
-            sess.run(tf.compat.v1.global_variables_initializer())
-            sess.run(tf.compat.v1.local_variables_initializer())
+        sess = self._init_session(use_gpu)
+        #tf.debugging.set_log_device_placement(True)
 
         if profile:
             profiler = model_analyzer.Profiler(graph=sess.graph)
             run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
             run_metadata = tf.RunMetadata()
         else:
-            log_writer = None
+            profiler = None
             run_options = None
             run_metadata = None
         self.timeline_dict = None
@@ -140,7 +157,7 @@ class TensorflowAPIBenchmarkBase(object):
         runtimes = []
         fetches = []
         outputs = None
-        for i in xrange(repeat):
+        for i in range(repeat):
             begin = time.time()
             outputs = sess.run(fetches=self.fetch_list,
                                feed_dict=feed,
@@ -188,33 +205,18 @@ class TensorflowAPIBenchmarkBase(object):
         utils.print_stat(stats, log_level=log_level)
         return outputs
 
-    def _set_config(self, use_gpu):
-        if tf.__version__ < "1.14.0":
-            config = tf.ConfigProto()
-        else:
+    def _init_session(self, use_gpu):
+        if tf.__version__ >= "1.15.0":
             config = tf.compat.v1.ConfigProto()
-
-#        if use_gpu:
-#            if not self.allow_growth:
-#                config.gpu_options.per_process_gpu_memory_fraction = 0.9
-#            else:
-#                config.gpu_options.allow_growth = True
-#config.log_device_placement = True
-        return config
-
-    def _update_timeline(self, chrome_trace):
-        # Codes from: https://github.com/ikhlestov/tensorflow_profiling/blob/master/03_merged_timeline_example.py
-        # Convert crome trace to python dict
-        chrome_trace_dict = json.loads(chrome_trace)
-        if self.timeline_dict is None:
-            # For first run store full trace
-            self.timeline_dict = chrome_trace_dict
+            sess = tf.compat.v1.Session(config=config)
+            sess.run(tf.compat.v1.global_variables_initializer())
+            sess.run(tf.compat.v1.local_variables_initializer())
         else:
-            # For other - update only time consumption, not definitions
-            for event in chrome_trace_dict['traceEvents']:
-                # Events time consumption started with 'ts' prefix
-                if 'ts' in event:
-                    self.timeline_dict['traceEvents'].append(event)
+            config = tf.ConfigProto()
+            sess = tf.Session(config=config)
+            sess.run(tf.global_variables_initializer())
+            sess.run(tf.local_variables_initializer())
+        return sess
 
     def _feed_random_data(self):
         print("feed random data")

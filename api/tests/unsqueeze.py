@@ -12,19 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
-from common import api_param
+from common_import import *
 
 
-class PDUnsqueeze(paddle_api.PaddleAPIBenchmarkBase):
+class PDUnsqueeze(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        import paddle.fluid as fluid
-
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
                 name='input',
@@ -40,14 +32,10 @@ class PDUnsqueeze(paddle_api.PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [input])
 
 
-class TFUnsqueeze(tensorflow_api.TensorflowAPIBenchmarkBase):
+class TFUnsqueeze(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        import tensorflow as tf
-
-        input = tf.placeholder(
-            name='input',
-            shape=config.input_shape,
-            dtype=tf.as_dtype(config.input_dtype))
+        input = self.placeholder(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
         result = tf.expand_dims(input=input, axis=config.axes)
 
         self.feed_list = [input]
@@ -57,5 +45,4 @@ class TFUnsqueeze(tensorflow_api.TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(
-        PDUnsqueeze(), TFUnsqueeze(), config=api_param.APIConfig("unsqueeze"))
+    test_main(PDUnsqueeze(), TFUnsqueeze(), config=APIConfig("unsqueeze"))

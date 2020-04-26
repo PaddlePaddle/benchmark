@@ -1,43 +1,43 @@
 [{
     "op": "fc",
     "param_info": {
-        "act": {
-            "dtype": "string",
-            "value": "relu"
-        },
         "input": {
             "type": "Variable",
             "dtype": "float32",
             "shape": "[16L, 256L, 6L, 6L]"
         },
+        "size": {
+            "type": "int",
+            "value": "4096"
+        },
         "num_flatten_dims": {
-            "dtype": "int",
+            "type": "int",
             "value": "1"
         },
-        "size": {
-            "dtype": "int",
-            "value": "4096"
+        "act": {
+            "type": "string",
+            "value": "relu"
         }
     }
 }, {
     "op": "fc",
     "param_info": {
-        "act": {
-            "dtype": "string",
-            "value": "None"
-        },
         "input": {
             "type": "Variable",
             "dtype": "float32",
             "shape": "[16L, 256L, 5L, 5L]"
         },
+        "size": {
+            "type": "int",
+            "value": "4096"
+        },
         "num_flatten_dims": {
-            "dtype": "int",
+            "type": "int",
             "value": "1"
         },
-        "size": {
-            "dtype": "int",
-            "value": "4096"
+        "act": {
+            "type": "string",
+            "value": "None"
         }
     }
 }]

@@ -12,19 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
-from common import api_param
+from common_import import *
 
 
-class PDSquare(paddle_api.PaddleAPIBenchmarkBase):
+class PDSquare(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        import paddle.fluid as fluid
-
         with fluid.program_guard(self.main_program, self.startup_program):
             x = fluid.data(
                 name='x',
@@ -40,12 +32,10 @@ class PDSquare(paddle_api.PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [x])
 
 
-class TFSquare(tensorflow_api.TensorflowAPIBenchmarkBase):
+class TFSquare(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        import tensorflow as tf
-
-        x = tf.placeholder(
-            name='x', shape=config.x_shape, dtype=tf.as_dtype(config.x_dtype))
+        x = self.placeholder(
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.square(x=x)
 
         self.feed_list = [x]
@@ -55,4 +45,4 @@ class TFSquare(tensorflow_api.TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDSquare(), TFSquare(), config=api_param.APIConfig("square"))
+    test_main(PDSquare(), TFSquare(), config=APIConfig("square"))
