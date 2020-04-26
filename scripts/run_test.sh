@@ -33,10 +33,45 @@ function prepare_tf_env(){
     apt-get install -y git
 }
 
+function fetch_upstream_master_if_not_exist() {
+    UPSTREAM_URL='https://github.com/PaddlePaddle/benchmark'
+    origin_upstream_url=`git remote -v | awk '{print $1, $2}' | uniq | grep upstream | awk '{print $2}'` 
+    if [ "$origin_upstream_url" == "" ]; then
+        git remote add upstream $UPSTREAM_URL.git
+    elif [ "$origin_upstream_url" != "$UPSTREAM_URL" ] \
+            && [ "$origin_upstream_url" != "$UPSTREAM_URL.git" ]; then
+        git remote remove upstream
+        git remote add upstream $UPSTREAM_URL.git
+    fi
+    
+    if [ ! -e "$PADDLE_ROOT/.git/refs/remotes/upstream/$BRANCH" ]; then 
+        git fetch upstream 
+    fi
+}
 
 function run_api(){
-    cd ${BENCHMARK_ROOT}/api/tests/
-    python abs.py
+    fetch_upstream_master_if_not_exist
+    cd ${BENCHMARK_ROOT}/api/tests
+    HAS_MODIFIED_API_TEST=`git diff --name-only upstream/$BRANCH | grep "api/tests" || true`
+    fail_name=()
+    if [ "${HAS_MODIFIED_API_TEST}" != "" ] ; then
+        for api in ${HAS_MODIFIED_API_TEST}
+        do
+            name=`echo $api |awk -F "/" '{print $NF}' |awk -F "." '{print $NR}'`
+            sh run.sh $name
+            if [ $? -ne 0 ]; then
+                fail_name[${#fail_name[@]}]="$name.py"
+            fi
+        done
+        len=${#fail_name[@]}
+        if [ $len -ne 0 ]; then
+            echo "Failed API TESTS: ${fail_name[@]}"
+            exit 1
+        fi
+    else
+        echo "OP tests have no changed."
+        exit 0
+    fi
 }
 
 
@@ -71,7 +106,7 @@ function main(){
     check_style
     case $CMD in
       run_api_test)
-        run_api 
+        run_api
         ;;
 	*)
         echo "Sorry, $CMD not recognized."
@@ -82,3 +117,4 @@ function main(){
 }
 
 main $@
+
