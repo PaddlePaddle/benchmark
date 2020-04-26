@@ -12,25 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
-from common import api_param
+from common_import import *
 
 
-class AbsConfig(api_param.APIConfig):
+class AbsConfig(APIConfig):
     def __init__(self):
         super(AbsConfig, self).__init__('abs')
         self.feed_spec = {"range": [-1, 1]}
 
 
-class PDAbs(paddle_api.PaddleAPIBenchmarkBase):
+class PDAbs(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        import paddle.fluid as fluid
-
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
                 name='data',
@@ -46,10 +38,8 @@ class PDAbs(paddle_api.PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data])
 
 
-class TFAbs(tensorflow_api.TensorflowAPIBenchmarkBase):
+class TFAbs(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        import tensorflow as tf
-
         data = self.placeholder(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.abs(x=data)

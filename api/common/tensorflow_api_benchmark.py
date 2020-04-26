@@ -14,15 +14,21 @@
 
 from __future__ import print_function
 
+import sys
 import json
 import time
 import abc, six
 import numpy as np
-import tensorflow as tf
-from tensorflow.python.profiler import model_analyzer
-from tensorflow.python.profiler import option_builder
-from tensorflow.python.client import timeline
 import utils
+
+try:
+    import tensorflow as tf
+    from tensorflow.python.profiler import model_analyzer
+    from tensorflow.python.profiler import option_builder
+    from tensorflow.python.client import timeline
+except Exception as e:
+    sys.stderr.write(
+        "Cannot import tensorflow, maybe tensorflow is not installed.\n")
 
 
 def convert_dtype(dtype, to_string=True):
@@ -85,12 +91,18 @@ def convert_dtype(dtype, to_string=True):
 class TensorflowAPIBenchmarkBase(object):
     def __init__(self):
         self.name = self.__class__.__name__
-        self.graph = tf.Graph()
         self.feed_list = None
         self.fetch_list = None
         self.allow_growth = True
-        if tf.__version__ > "1.15.0":
-            tf.compat.v1.disable_eager_execution()
+        try:
+            import tensorflow as tf
+            self.graph = tf.Graph()
+            if tf.__version__ > "1.15.0":
+                tf.compat.v1.disable_eager_execution()
+        except Exception as e:
+            sys.stderr.write(
+                "Cannot import tensorflow, maybe tensorflow is not installed.\n"
+            )
 
     @abc.abstractmethod
     def build_graph(self, config=None):

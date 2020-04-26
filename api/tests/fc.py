@@ -12,16 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
-from common import api_param
+from common_import import *
 
 
-class FCConfig(api_param.APIConfig):
+class FCConfig(APIConfig):
     def __init__(self):
         super(FCConfig, self).__init__('fc')
 
@@ -48,10 +42,8 @@ class FCConfig(api_param.APIConfig):
         return tf_config
 
 
-class PDFC(paddle_api.PaddleAPIBenchmarkBase):
+class PDFC(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        import paddle.fluid as fluid
-
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
                 name="input",
@@ -75,10 +67,8 @@ class PDFC(paddle_api.PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [input])
 
 
-class TFFC(tensorflow_api.TensorflowAPIBenchmarkBase):
+class TFFC(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        import tensorflow as tf
-
         input = self.placeholder(
             name="input", shape=config.input_shape, dtype=config.input_dtype)
         if tf.__version__ <= "1.15.0":
