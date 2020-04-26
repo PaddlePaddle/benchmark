@@ -28,13 +28,49 @@ BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/.." && pwd )"
 echo ${BENCHMARK_ROOT}
 
 function prepare_tf_env(){
+    apt-get update
+    apt-get -y install git
     pip install tensorflow-gpu==1.15 
 }
 
+function fetch_upstream_develop_if_not_exist() {
+    UPSTREAM_URL='https://github.com/PaddlePaddle/benchmark'
+    origin_upstream_url=`git remote -v | awk '{print $1, $2}' | uniq | grep upstream | awk '{print $2}'` 
+    if [ "$origin_upstream_url" == "" ]; then
+        git remote add upstream $UPSTREAM_URL.git
+    elif [ "$origin_upstream_url" != "$UPSTREAM_URL" ] \
+            && [ "$origin_upstream_url" != "$UPSTREAM_URL.git" ]; then
+        git remote remove upstream
+        git remote add upstream $UPSTREAM_URL.git
+    fi
+    
+    if [ ! -e "$PADDLE_ROOT/.git/refs/remotes/upstream/$BRANCH" ]; then 
+        git fetch upstream 
+    fi
+}
+
+function generate_upstream_master_api_spec() {
+    fetch_upstream_develop_if_not_exist
+    cur_branch=`git branch | grep \* | cut -d ' ' -f2`
+    git checkout -b master_base_pr upstream/$BRANCH
+    generate_api_spec "DEV"
+    git branch -D master_base_pr
+}
+
+function generate_api_spec() {
+    spec_kind=$1
+    if [ "$spec_kind" != "PR" ] && [ "$spec_kind" != "DEV" ]; then
+        echo "Not supported $2"
+        exit 1
+    fi
+    spec_path=${BENCHMARK_ROOT}/scripts/API_${spec_kind}.spec
+    cd ${BENCHMARK_ROOT}
+    python scripts/print_signature.py api/tests > $spec_path
+}
 
 function run_api(){
-    cd ${BENCHMARK_ROOT}/api/tests/
-    python abs.py
+    cd ${BENCHMARK_ROOT}
+    python scripts/diff_api.py
 }
 
 
@@ -43,7 +79,9 @@ function main(){
     prepare_tf_env
     case $CMD in
       run_api_test)
-        run_api 
+        generate_upstream_master_api_spec
+        generate_api_spec "PR"
+        run_api
         ;;
       *)
         echo "Sorry, $CMD not recognized."
