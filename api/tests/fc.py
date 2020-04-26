@@ -12,16 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
-from common import api_param
+from common_import import *
 
 
-class FCConfig(api_param.APIConfig):
+class FCConfig(APIConfig):
     def __init__(self):
         super(FCConfig, self).__init__('fc')
 
@@ -41,17 +35,14 @@ class FCConfig(api_param.APIConfig):
         self.num_flatten_dims = -1
 
     def to_tensorflow(self):
-        import tensorflow as tf
         tf_config = self
         if self.act == "relu":
             tf_config.act = tf.nn.relu
         return tf_config
 
 
-class PDFC(paddle_api.PaddleAPIBenchmarkBase):
+class PDFC(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        import paddle.fluid as fluid
-
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
                 name="input",
@@ -75,20 +66,25 @@ class PDFC(paddle_api.PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [input])
 
 
-class TFFC(tensorflow_api.TensorflowAPIBenchmarkBase):
+class TFFC(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        import tensorflow as tf
-
-        input = tf.placeholder(
-            name="input",
-            shape=config.input_shape,
-            dtype=tf.as_dtype(config.input_dtype))
-        result = tf.contrib.layers.fully_connected(
-            inputs=input,
-            num_outputs=config.size,
-            weights_initializer=tf.constant_initializer(0.5),
-            biases_initializer=tf.constant_initializer(0.1),
-            activation_fn=config.act)
+        input = self.placeholder(
+            name="input", shape=config.input_shape, dtype=config.input_dtype)
+        if tf.__version__ <= "1.15.0":
+            result = tf.contrib.layers.fully_connected(
+                inputs=input,
+                num_outputs=config.size,
+                weights_initializer=tf.constant_initializer(0.5),
+                biases_initializer=tf.constant_initializer(0.1),
+                activation_fn=config.act)
+        else:
+            result = tf.compat.v1.layers.dense(
+                inputs=input,
+                units=config.size,
+                activation=config.act,
+                use_bias=True,
+                kernel_initializer=tf.constant_initializer(0.5),
+                bias_initializer=tf.constant_initializer(0.1))
 
         self.feed_list = [input]
         self.fetch_list = [result]

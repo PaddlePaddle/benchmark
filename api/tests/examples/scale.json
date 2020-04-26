@@ -7,7 +7,7 @@
             "shape": "[32L, 128L]"
         },
         "scale": {
-            "dtype": "float",
+            "type": "float",
             "value": "2.0"
         }
     }

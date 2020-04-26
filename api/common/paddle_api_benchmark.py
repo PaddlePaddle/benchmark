@@ -19,9 +19,14 @@ import abc, six
 import traceback
 import contextlib
 import numpy as np
-import paddle
-import paddle.fluid as fluid
 import utils
+
+try:
+    import paddle
+    import paddle.fluid as fluid
+except Exception as e:
+    sys.stderr.write(
+        "Cannot import paddle.fluid, maybe paddle is not installed.\n")
 
 
 @contextlib.contextmanager
