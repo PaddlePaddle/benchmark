@@ -28,7 +28,9 @@ BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/.." && pwd )"
 echo ${BENCHMARK_ROOT}
 
 function prepare_tf_env(){
-    pip install tensorflow-gpu==1.15 pre-commit==1.21 cpplint==1.4.5 pylint==1.9.5 pytest==4.6.9 astroid==1.6.6 isort==4.3.21 
+    pip install tensorflow-gpu==1.15 pre-commit==1.21 pylint==1.9.5 pytest==4.6.9
+    apt-get update
+    apt-get install -y git
 }
 
 
@@ -47,7 +49,7 @@ function abort(){
 
 function check_style(){
 	trap 'abort' 0
-	pre-commit install
+	pre-commit run --all-files
 	commit_files=on
     	for file_name in `git diff --numstat | awk '{print $NF}'`;do
         	if [ ! pre-commit run --files $file_name ]; then
