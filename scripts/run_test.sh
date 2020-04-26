@@ -49,7 +49,7 @@ function abort(){
 
 function check_style(){
 	trap 'abort' 0
-	pre-commit run --all-files
+	pre-commit install
 	commit_files=on
     	for file_name in `git diff --numstat | awk '{print $NF}'`;do
         	if [ ! pre-commit run --files $file_name ]; then
