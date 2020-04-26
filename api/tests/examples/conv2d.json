@@ -7,39 +7,39 @@
             "shape": "[32L, 3L, 224L, 224L]"
         },
         "num_filters": {
-            "dtype": "int",
+            "type": "int",
             "value": "64"
         },
         "filter_size": {
-            "dtype": "list",
+            "type": "list",
             "value": "[11, 11]"
         },
         "stride": {
-            "dtype": "list",
+            "type": "list",
             "value": "[4, 4]"
         },
         "padding": {
-            "dtype": "list",
+            "type": "list",
             "value": "[2, 2]"
         },
         "dilation": {
-            "dtype": "list",
+            "type": "list",
             "value": "[1, 1]"
         },
         "groups": {
-            "dtype": "int",
+            "type": "int",
             "value": "1"
         },
         "use_cudnn": {
-            "dtype": "bool",
+            "type": "bool",
             "value": "True"
         },
         "act": {
-            "dtype": "string",
+            "type": "string",
             "value": "None"
         },
         "data_format": {
-            "dtype": "string",
+            "type": "string",
             "value": "NCHW"
         }
     }
@@ -52,39 +52,39 @@
             "shape": "[1L, 1L, 80L, 1008L]"
         },
         "num_filters": {
-            "dtype": "int",
+            "type": "int",
             "value": "1"
         },
         "filter_size": {
-            "dtype": "list",
+            "type": "list",
             "value": "[3, 32]"
         },
         "stride": {
-            "dtype": "list",
+            "type": "list",
             "value": "[1, 16]"
         },
         "padding": {
-            "dtype": "list",
+            "type": "list",
             "value": "[1, 8]"
         },
         "dilation": {
-            "dtype": "list",
+            "type": "list",
             "value": "[1, 1]"
         },
         "groups": {
-            "dtype": "int",
+            "type": "int",
             "value": "1"
         },
         "use_cudnn": {
-            "dtype": "bool",
+            "type": "bool",
             "value": "True"
         },
         "act": {
-            "dtype": "string",
+            "type": "string",
             "value": "None"
         },
         "data_format": {
-            "dtype": "string",
+            "type": "string",
             "value": "NCHW"
         }
     }

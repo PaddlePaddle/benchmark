@@ -7,11 +7,11 @@
             "shape": "[32L, 128L]"
         },
         "dim": {
-            "dtype": "int",
+            "type": "int",
             "value": "0"
         },
         "keep_dim": {
-            "dtype": "bool",
+            "type": "bool",
             "value": "False"
         }
     }

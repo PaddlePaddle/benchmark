@@ -67,14 +67,16 @@ class APIConfig(object):
 
         self._parse_params()
         for params in self.params_list:
-            self._dy_param(
-                params.name.encode('utf-8'),
-                params.type.encode('utf-8'), params.value.encode('utf-8'))
+            self._translate_param(
+                name=params.name.encode('utf-8'),
+                type=params.type.encode('utf-8'),
+                value=params.value.encode('utf-8'))
         for input_p in self.variable_list:
-            self._dy_input_param(
-                input_p.name.encode('utf-8'),
-                input_p.dtype.encode('utf-8'),
-                input_p.shape.encode('utf-8'), input_p.lod_level)
+            self._translate_variable(
+                name=input_p.name.encode('utf-8'),
+                dtype=input_p.dtype.encode('utf-8'),
+                shape=input_p.shape.encode('utf-8'),
+                lod_level=input_p.lod_level)
         return self
 
     def to_tensorflow(self):
@@ -82,45 +84,41 @@ class APIConfig(object):
 
     def _convert_params_to_str(self):
         params = ""
-        for p_key, p_value in self.params.items():
-            param_name = p_key
-            dtype = p_value["dtype"]
-            if self._is_variable(p_value):
-                type = p_value["type"]
-                shape = p_value["shape"]
-                var_ = VarParamInfo(param_name, type, dtype, shape)
+        for name, value in self.params.items():
+            if self._is_variable(value):
+                info = VarParamInfo(name, value["type"], value["dtype"],
+                                    value["shape"])
             else:
-                value = p_value["value"]
-                var_ = BaseParamInfo(param_name, dtype, value)
-            params = params + var_.convert_params_to_str()
+                info = BaseParamInfo(name, value["type"], value["value"])
+            params = params + info.convert_params_to_str()
         return params
 
     def _parse_params(self):
-        for p_key, p_value in self.params.items():
-            param_name = p_key
-            dtype = p_value["dtype"]
-            if self._is_variable(p_value):
-                type = p_value["type"]
-                shape = p_value["shape"]
-                var_ = VarParamInfo(param_name, type, dtype, shape)
-                self.variable_list.append(var_)
+        for name, value in self.params.items():
+            if self._is_variable(value):
+                info = VarParamInfo(name, value["type"], value["dtype"],
+                                    value["shape"])
+                self.variable_list.append(info)
             else:
-                value = p_value["value"]
-                var_ = BaseParamInfo(param_name, dtype, value)
-                self.params_list.append(var_)
+                info = BaseParamInfo(name, value["type"], value["value"])
+                self.params_list.append(info)
 
-    def _parse_list(self, shape_str):
-        shape_str = shape_str.replace("L", "").replace("[", "").replace(
+    def _parse_list(self, value_str, dtype):
+        value_str = value_str.replace("L", "").replace("[", "").replace(
             "]", "").split(',')
         # TODO: check and support list of other data type.
-        return map(int, shape_str)
+        if dtype == "int":
+            return map(int, value_str)
+        else:
+            raise ValueError(
+                "Do not support parsing list of non-int data type.")
 
     def _is_variable(self, value):
         if value.get("type", None) is not None and value["type"] == "Variable":
             return True
         return False
 
-    def _dy_param(self, name, type, value):
+    def _translate_param(self, name, type, value):
         value_t = None
         if type in ["float", "float32", "float64"]:
             value_t = float(value)
@@ -134,9 +132,9 @@ class APIConfig(object):
             else:
                 value_t = value
         elif type == "list":
-            value_t = self._parse_list(value)
+            value_t = self._parse_list(value, dtype="int")
         setattr(self, name, value_t)
 
-    def _dy_input_param(self, name, dtype, shape, lod_level):
-        setattr(self, name + '_shape', self._parse_list(shape))
+    def _translate_variable(self, name, dtype, shape, lod_level):
+        setattr(self, name + '_shape', self._parse_list(shape, dtype="int"))
         setattr(self, name + '_dtype', dtype)
