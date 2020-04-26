@@ -35,7 +35,6 @@ class FCConfig(APIConfig):
         self.num_flatten_dims = -1
 
     def to_tensorflow(self):
-        import tensorflow as tf
         tf_config = self
         if self.act == "relu":
             tf_config.act = tf.nn.relu
