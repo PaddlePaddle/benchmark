@@ -32,7 +32,7 @@ class BaseParamInfo(object):
         self.value = self._translate_value(self._encode_item(value))
 
     def _encode_item(self, item):
-        return item.encode("utf-8") if isinstance(item, str) else item
+        return item.encode("utf-8") if isinstance(item, unicode) else item
 
     def to_string(self):
         return self.name + '--' + self.type + '| ' + str(self.value) + '\n '
@@ -55,11 +55,12 @@ class VarParamInfo(BaseParamInfo):
         self.name = self._encode_item(name)
         self.type = self._encode_item(type)
         self.dtype = self._encode_item(dtype)
-        if isinstance(shape, str):
-            self.shape = parse_list(self._encode_item(shape))
+        shape_str = self._encode_item(shape)
+        if isinstance(shape_str, str):
+            self.shape = parse_list(shape_str)
         else:
-            assert isinstance(shape, list)
-            self.shape = shape
+            assert isinstance(shape_str, list)
+            self.shape = shape_str
         self.lod_level = self._encode_item(lod_level)
 
     def to_string(self):
