@@ -1,0 +1,27 @@
+[{
+    "op": "expand",
+    "param_info": {
+        "x": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[32L, 807L, 1L]"
+        },
+        "expand_times": {
+            "type": "list",
+            "value": "[4, 1, 807]"
+        }
+    }
+}, {
+    "op": "expand",
+    "param_info": {
+        "x": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[32L, 807L, 807L]"
+        },
+        "expand_times": {
+            "type": "list",
+            "value": "[4, 1, 1]"
+        }
+    }
+}]

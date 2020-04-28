@@ -4,7 +4,7 @@ set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3|6 sp|mp 1000(max_iter)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3|6 sp|mp 1(max_epoch)"
     exit
 fi
 
@@ -12,7 +12,7 @@ function _set_params(){
     index="$1"
     run_mode=${2:-"sp"}
 
-    max_iter=${3}
+    max_epoch=${3}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -20,10 +20,11 @@ function _set_params(){
 
     model_name="DeepLab_V3+"
     skip_steps=1
-    keyword="step_time_cost:"
+    keyword="step/sec"
     separator=" "
-    position=5
-    model_mode=0
+    position=4
+    range=9:13
+    model_mode=3
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -48,28 +49,31 @@ function _set_env(){
 }
 
 function _train(){
-    DATASET_PATH=${PWD}/data/cityscape/
-    INIT_WEIGHTS_PATH=${PWD}/deeplabv3plus_xception65_initialize
-    SAVE_WEIGHTS_PATH=${PWD}/output/model
-    train_crop_size=513
+    PRETRAINED_MODEL_DIR="pretrained_model/deeplabv3p_xception65_bn_cityscapes"
 #    total_step=240
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
-    train_cmd=" --batch_size=${batch_size} \
-        --train_crop_size=${train_crop_size} \
-        --total_step=${max_iter} \
-        --init_weights_path=${INIT_WEIGHTS_PATH} \
-        --save_weights_path=${SAVE_WEIGHTS_PATH} \
-        --dataset_path=${DATASET_PATH} \
-        --profile=${is_profiler} \
-        --profiler_path=${profiler_path} \
-        --parallel=True \
-        --use_multiprocessing=True "
+    train_cmd=" --use_gpu \
+                --use_mpio \
+                --cfg ./configs/deeplabv3p_xception65_cityscapes.yaml \
+                --is_profiler=${is_profiler} \
+                --profiler_path=${profiler_path} \
+                BATCH_SIZE ${batch_size} \
+                TRAIN.PRETRAINED_MODEL_DIR ${PRETRAINED_MODEL_DIR} \
+                SOLVER.LR 0.001 \
+                TRAIN_CROP_SIZE (513,513) \
+                SOLVER.NUM_EPOCHS ${max_epoch} \
+                AUG.AUG_METHOD unpadding \
+                AUG.FIX_RESIZE_SIZE (513,513) \
+                AUG.MIRROR False \
+                TRAIN.SNAPSHOT_EPOCH ${max_epoch}
+               "
+#                TRAIN.PRETRAINED_MODEL_DIR u"${PRETRAINED_MODEL_DIR}" \
     case ${run_mode} in
-    sp) train_cmd="python -u train.py "${train_cmd} ;;
+    sp) train_cmd="python -u pdseg/train.py "${train_cmd} ;;
     mp)
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=${CUDA_VISIBLE_DEVICES} train.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=${CUDA_VISIBLE_DEVICES} pdseg/train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
@@ -78,7 +82,7 @@ function _train(){
     # Python multi-processing is used to read images, so need to
     # kill those processes if the main train process is aborted.
     #ps -aux | grep "$PWD/train.py" | awk '{print $2}' | xargs kill -9
-    kill -9 `ps -ef|grep 'deeplabv3+'|awk '{print $2}'`
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then
         rm ${log_file}
