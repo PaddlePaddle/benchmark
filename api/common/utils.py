@@ -18,6 +18,7 @@ import traceback
 import numpy as np
 import json
 import collections
+import white_list
 
 
 def compare(output1, output2, atol):
@@ -25,7 +26,7 @@ def compare(output1, output2, atol):
                                                              np.ndarray):
         raise TypeError("input argument's type should be numpy.ndarray.")
 
-    max_diff = -0.0
+    max_diff = np.float32(-0.0)
     offset = -1
     try:
         assert len(output1) == len(output2)
@@ -44,7 +45,7 @@ def check_outputs(list1, list2, name=None):
             "input argument's type should be list of numpy.ndarray.")
 
     consistent = True
-    max_diff = 0.0
+    max_diff = np.float32(0.0)
     atol = 1e-6
 
     assert len(list1) == len(list2)
@@ -55,9 +56,9 @@ def check_outputs(list1, list2, name=None):
 
         max_diff_i, offset_i = compare(output1, output2, atol)
         if max_diff_i > atol:
-            print(
-                "---- The %d-th output (shape: %s, data type: %s) has diff. The maximum diff is %e, offset is %d: %e vs %e."
-                % (i, str(output1.shape), str(output1.dtype), max_diff_i,
+            print("---- The %d-th output (shape: %s, data type: %s) has diff. "
+                  "The maximum diff is %e, offset is %d: %e vs %e." %
+                  (i, str(output1.shape), str(output1.dtype), max_diff_i,
                    offset_i, output1.flatten()[offset_i],
                    output2.flatten()[offset_i]))
 
@@ -71,10 +72,18 @@ def check_outputs(list1, list2, name=None):
     status["consistent"] = consistent
     status["num_outputs"] = num_outputs
     status["diff"] = max_diff.astype("float")
-    print(json.dumps(status))
 
     if not consistent:
-        assert consistent == True, "The output is not consistent."
+        if name is not None and name in white_list.RANDOM_OP_LIST:
+            print(
+                "---- The output is not consistent, but %s is in the white list."
+                % name)
+            print(json.dumps(status))
+        else:
+            print(json.dumps(status))
+            assert consistent == True, "The output is not consistent."
+    else:
+        print(json.dumps(status))
 
 
 def get_stat(stats, key):
