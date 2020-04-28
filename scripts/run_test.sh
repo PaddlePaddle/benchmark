@@ -55,7 +55,7 @@ function run_api(){
     HAS_MODIFIED_API_TEST=`git diff --name-only upstream/$BRANCH | grep "api/tests" || true`
     fail_name=()
     if [ "${HAS_MODIFIED_API_TEST}" != "" ] ; then
-        for api in ${HAS_MODIFIED_API_TEST}
+        for api in ${HAS_MODIFIED_API_TEST[@]}
         do
             name=`echo $api |awk -F "/" '{print $NF}' |awk -F "." '{print $NR}'`
             sh run.sh $name
