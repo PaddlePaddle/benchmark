@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright (c) 2018 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ function run_api(){
         for api in ${HAS_MODIFIED_API_TEST[@]}
         do
             name=`echo $api |awk -F "/" '{print $NF}' |awk -F "." '{print $NR}'`
-            sh run.sh $name
+            sh run.sh $name -1
             if [ $? -ne 0 ]; then
                 fail_name[${#fail_name[@]}]="$name.py"
             fi

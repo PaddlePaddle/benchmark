@@ -102,7 +102,7 @@ def parse_args():
     return args
 
 
-def test_paddle(task, obj, args, feed_list=None):
+def run_paddle(task, obj, args, feed_list=None):
     feed = None
     if feed_list is not None:
         assert len(feed_list) == len(obj.feed_vars)
@@ -137,7 +137,7 @@ def test_paddle(task, obj, args, feed_list=None):
         return outputs
 
 
-def test_tensorflow(task, obj, args, feed_list=None):
+def run_tensorflow(task, obj, args, feed_list=None):
     feed = None
     if feed_list is not None:
         assert len(feed_list) == len(obj.feed_list)
@@ -162,28 +162,45 @@ def test_tensorflow(task, obj, args, feed_list=None):
         return outputs
 
 
+def copy_feed_spec(config=None):
+    if config is None:
+        return None
+    feed_spec = []
+    for feed_item in config.feed_spec:
+        item = {}
+        for key, value in feed_item.items():
+            item[key] = value
+        feed_spec.append(item)
+    return feed_spec
+
+
 def test_main(pd_obj=None, tf_obj=None, config=None):
+    if config is None:
+        raise ValueError("API config must be set.")
+
+    args = parse_args()
+    if args.json_file is not None:
+        if args.config_id is not None and args.config_id >= 0:
+            config.init_from_json(args.json_file, args.config_id)
+            test_main_without_json(pd_obj, tf_obj, config)
+        else:
+            num_configs = 0
+            with open(args.json_file, 'r') as f:
+                num_configs = len(json.load(f))
+            for config_id in range(0, num_configs):
+                config.init_from_json(args.json_file, config_id)
+                test_main_without_json(pd_obj, tf_obj, config)
+    else:
+        test_main_without_json(pd_obj, tf_obj, config)
+
+
+def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
+    if config is None:
+        raise ValueError("API config must be set.")
+
     args = parse_args()
     config.backward = args.backward
-    if config is None:
-        raise ValueError("Paddle config is None.")
-
-    if args.json_file is not None:
-        with open(args.json_file, 'r') as f:
-            data = json.load(f)
-            if args.config_id is not None:
-                config.init_from_json(args.json_file, args.config_id)
-                test_run(pd_obj, tf_obj, config)
-            else:
-                for i in range(0, len(data)):
-                    config.init_from_json(args.json_file, i)
-                    test_run(pd_obj, tf_obj, config)
-    else:
-        test_run(pd_obj, tf_obj, config)
-
-
-def test_run(pd_obj=None, tf_obj=None, config=None):
-    args = parse_args()
+    feed_spec = copy_feed_spec(config)
     feed_list = None
     if args.task == "accuracy" or args.framework in ["paddle", "both"]:
         if pd_obj is None:
@@ -191,9 +208,9 @@ def test_run(pd_obj=None, tf_obj=None, config=None):
         print(config)
         pd_obj.name = config.name
         pd_obj.create_program()
-        pd_obj.build_program(config)
-        feed_list = feeder.feed_paddle(pd_obj, feed_spec=config.feed_spec)
-        pd_outputs = test_paddle(args.task, pd_obj, args, feed_list)
+        pd_obj.build_program(config=config)
+        feed_list = feeder.feed_paddle(pd_obj, feed_spec=feed_spec)
+        pd_outputs = run_paddle(args.task, pd_obj, args, feed_list)
 
     if args.task == "accuracy" or args.framework in [
             "tensorflow", "tf", "both"
@@ -203,10 +220,10 @@ def test_run(pd_obj=None, tf_obj=None, config=None):
         tf_config = config.to_tensorflow()
         print(tf_config)
         tf_obj.name = tf_config.name
-        tf_obj.build_graph(tf_config)
+        tf_obj.build_graph(config=tf_config)
         feed_list = feeder.feed_tensorflow(
-            tf_obj, feed_list, feed_spec=tf_config.feed_spec)
-        tf_outputs = test_tensorflow(args.task, tf_obj, args, feed_list)
+            tf_obj, feed_list, feed_spec=feed_spec)
+        tf_outputs = run_tensorflow(args.task, tf_obj, args, feed_list)
 
     if args.task == "accuracy":
         utils.check_outputs(pd_outputs, tf_outputs, name=pd_obj.name)
