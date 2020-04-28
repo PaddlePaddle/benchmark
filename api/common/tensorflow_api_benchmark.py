@@ -185,15 +185,6 @@ class TensorflowAPIBenchmarkBase(object):
             profile_op_builder.order_by('micros')
             profile_op_builder.with_max_depth(10)
             profiler.profile_operations(profile_op_builder.build())
-            # Generate timeline
-        #            profile_graph_builder = option_builder.ProfileOptionBuilder(
-        #                                    option_builder.ProfileOptionBuilder.time_and_memory())
-        #            profile_graph_builder.with_timeline_output(timeline_file=self.name + '_tf.timeline')
-        #            profile_graph_builder.with_step(10)
-        #            profiler.profile_graph(profile_graph_builder.build())
-        #tl_output_file = self.name + "_tf.timeline"
-        #with open(tl_output_file, 'w') as f:
-        #    json.dump(self.timeline_dict, f)
 
         stats = {
             "framework": "tensorflow",
