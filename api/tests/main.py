@@ -165,6 +165,9 @@ def run_tensorflow(task, obj, args, feed_list=None):
 def copy_feed_spec(config=None):
     if config is None or config.feed_spec is None:
         return None
+    if not isinstance(config.feed_spec, list):
+        config.feed_spec = [config.feed_spec]
+
     feed_spec = []
     for feed_item in config.feed_spec:
         item = {}
