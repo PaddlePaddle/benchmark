@@ -56,20 +56,20 @@
             "value": "1"
         },
         "filter_size": {
-            "type": "list",
-            "value": "[3, 32]"
+            "type": "tuple",
+            "value": "(3, 32)"
         },
         "stride": {
-            "type": "list",
-            "value": "[1, 16]"
+            "type": "tuple",
+            "value": "(1, 16)"
         },
         "padding": {
-            "type": "list",
-            "value": "[1, 8]"
+            "type": "tuple",
+            "value": "(1, 8)"
         },
         "dilation": {
-            "type": "list",
-            "value": "[1, 1]"
+            "type": "tuple",
+            "value": "(1, 1)"
         },
         "groups": {
             "type": "int",

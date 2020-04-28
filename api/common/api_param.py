@@ -25,6 +25,16 @@ def parse_list(value_str, sub_dtype="int"):
         raise ValueError("Do not support parsing list of non-int data type.")
 
 
+def parse_tuple(value_str, sub_dtype="int"):
+    if sub_dtype in ["int", "int64"]:
+        value_str = value_str.replace("L", "").replace("(", "").replace(
+            ")", "").split(',')
+        return map(int, value_str)
+    else:
+        # TODO: check and support list of other data type.
+        raise ValueError("Do not support parsing list of non-int data type.")
+
+
 class BaseParamInfo(object):
     def __init__(self, name, type, value):
         self.name = self._encode_item(name)
@@ -37,17 +47,22 @@ class BaseParamInfo(object):
     def to_string(self):
         return self.name + '--' + self.type + '| ' + str(self.value) + '\n '
 
-    def _translate_value(self, value):
+    def _translate_value(self, value_str):
         if self.type in ["float", "float32", "float64"]:
-            return float(value)
+            return float(value_str)
         elif self.type in ["int", "int32", "int64"]:
-            return int(value)
+            return int(value_str)
         elif self.type == "bool":
-            return bool(value)
+            return bool(value_str)
         elif self.type == "string":
-            return None if value == "None" else value
+            return None if value_str == "None" else value_str
         elif self.type == "list":
-            return parse_list(value, sub_dtype="int")
+            return parse_list(value_str, sub_dtype="int")
+        elif self.type == "tuple":
+            return parse_tuple(value_str, sub_dtype="int")
+        else:
+            raise ValueError("Unsupported type \"%s\" for %s, value is %s." %
+                             (self.type, self.name, value_str))
 
 
 class VarParamInfo(BaseParamInfo):
@@ -78,6 +93,8 @@ class APIConfig(object):
         self.feed_spec = None
 
     def init_from_json(self, filename, config_id=0):
+        print("---- Initialize APIConfig from %s, config_id = %d.\n" %
+              (filename, config_id))
         with open(filename, 'r') as f:
             data = json.load(f)
             self.name = data[config_id]["op"]
