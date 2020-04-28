@@ -22,10 +22,6 @@ import white_list
 
 
 def compare(output1, output2, atol):
-    if not isinstance(output1, np.ndarray) or not isinstance(output2,
-                                                             np.ndarray):
-        raise TypeError("input argument's type should be numpy.ndarray.")
-
     max_diff = np.float32(-0.0)
     offset = -1
     try:
@@ -53,6 +49,20 @@ def check_outputs(list1, list2, name=None):
     for i in xrange(num_outputs):
         output1 = list1[i]
         output2 = list2[i]
+
+        if not isinstance(output1, np.ndarray) or not isinstance(output2,
+                                                                 np.ndarray):
+            raise TypeError(
+                "Output argument's type should be numpy.ndarray, but recieved: %s and %s."
+                % (str(type(output1)), str(type(output2))))
+
+        if output1.shape != output2.shape:
+            print("---- The %d-the output's shape is different, %s vs %s." %
+                  (i, str(output1.shape), str(output2.shape)))
+
+        if output1.dtype != output2.dtype:
+            print("---- The %d-the output's data type is different, %s vs %s."
+                  % (i, str(output1.dtype), str(output2.dtype)))
 
         max_diff_i, offset_i = compare(output1, output2, atol)
         if max_diff_i > atol:
