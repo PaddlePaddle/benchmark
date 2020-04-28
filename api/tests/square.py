@@ -15,34 +15,34 @@
 from common_import import *
 
 
-class PDSigmoid(PaddleAPIBenchmarkBase):
+class PDSquare(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
+            x = fluid.data(
+                name='x',
                 shape=config.x_shape,
                 dtype=config.x_dtype,
                 lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.sigmoid(x=data)
+            x.stop_gradient = False
+            result = fluid.layers.square(x=x)
 
-            self.feed_vars = [data]
+            self.feed_vars = [x]
             self.fetch_vars = [result]
             if config.backward:
-                self.append_gradients(result, [data])
+                self.append_gradients(result, [x])
 
 
-class TFSigmoid(TensorflowAPIBenchmarkBase):
+class TFSquare(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.sigmoid(x=data)
+        x = self.placeholder(
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.square(x=x)
 
-        self.feed_list = [data]
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [data])
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(PDSigmoid(), TFSigmoid(), config=APIConfig("sigmoid"))
+    test_main(PDSquare(), TFSquare(), config=APIConfig("square"))

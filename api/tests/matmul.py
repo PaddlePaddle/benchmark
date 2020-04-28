@@ -28,8 +28,7 @@ class MatmulConfig(object):
         self.transpose_y = transpose_y
 
 
-config = MatmulConfig(x_shape=[32, 128, 768],
-                      y_shape=[32, 768, 256])
+config = MatmulConfig(x_shape=[32, 128, 768], y_shape=[32, 768, 256])
 
 
 class PDMatmul(paddle_api.PaddleAPIBenchmarkBase):
@@ -44,11 +43,12 @@ class PDMatmul(paddle_api.PaddleAPIBenchmarkBase):
                 name='y', shape=config.y_shape, dtype='float32', lod_level=0)
             x.stop_gradient = False
             y.stop_gradient = False
-            result = fluid.layers.matmul(x=x,
-                                         y=y,
-                                         transpose_x=config.transpose_x,
-                                         transpose_y=config.transpose_y,
-                                         alpha=1.0)
+            result = fluid.layers.matmul(
+                x=x,
+                y=y,
+                transpose_x=config.transpose_x,
+                transpose_y=config.transpose_y,
+                alpha=1.0)
 
             self.feed_vars = [x, y]
             self.fetch_vars = [result]
@@ -65,14 +65,15 @@ class TFMatmul(tensorflow_api.TensorflowAPIBenchmarkBase):
 
         x = tf.placeholder(name='x', shape=config.x_shape, dtype=tf.float32)
         y = tf.placeholder(name='y', shape=config.y_shape, dtype=tf.float32)
-        result = tf.matmul(a=x,
-                           b=y,
-                           transpose_a=config.transpose_x,
-                           transpose_b=config.transpose_y,
-                           adjoint_a=False,
-                           adjoint_b=False,
-                           a_is_sparse=False,
-                           b_is_sparse=False)
+        result = tf.matmul(
+            a=x,
+            b=y,
+            transpose_a=config.transpose_x,
+            transpose_b=config.transpose_y,
+            adjoint_a=False,
+            adjoint_b=False,
+            a_is_sparse=False,
+            b_is_sparse=False)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]

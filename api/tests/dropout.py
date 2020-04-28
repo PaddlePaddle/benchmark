@@ -12,53 +12,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
+from common_import import *
 
 
-class PDDropout(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False, dtype=None):
-        import paddle.fluid as fluid
-
-        self.name = "dropout"
+class PDDropout(PaddleAPIBenchmarkBase):
+    def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data', shape=[10, 10, 100, 100], dtype='float32', lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.dropout(x=data,
-                                          dropout_prob=0.2,
-                                          seed=123,
-                                          dropout_implementation="upscale_in_train")
+            x = fluid.data(
+                name='x',
+                shape=config.x_shape,
+                dtype=config.x_dtype,
+                lod_level=0)
+            x.stop_gradient = False
+            result = fluid.layers.dropout(
+                x=x,
+                dropout_prob=config.dropout_prob,
+                seed=123,
+                dropout_implementation=config.dropout_implementation)
 
-            self.feed_vars = [data]
+            self.feed_vars = [x]
             self.fetch_vars = [result]
-            if backward:
-                self.append_gradients(result, [data])
+            if config.backward:
+                self.append_gradients(result, [x])
 
 
-class TFDropout(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False, dtype=None):
-        import tensorflow as tf
+class TFDropout(TensorflowAPIBenchmarkBase):
+    def build_graph(self, config):
+        x = self.placeholder(
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.nn.dropout(
+            x=x, rate=config.dropout_prob, noise_shape=None, seed=123)
 
-        self.name = "dropout"
-        self.allow_growth = True
-
-        data = tf.placeholder(name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
-        result = tf.nn.dropout(x=data,
-                               rate=0.2,
-                               noise_shape=None,
-                               seed=123)
-
-        self.feed_list = [data]
+        self.feed_list = [x]
         self.fetch_list = [result]
-        if backward:
-            self.append_gradients(result, [data])
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    # Not consitent!!!
-    test_main(PDDropout(), TFDropout(), feed_spec=None)
+    test_main(PDDropout(), TFDropout(), config=APIConfig("dropout"))

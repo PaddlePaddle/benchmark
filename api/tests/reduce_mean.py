@@ -15,34 +15,36 @@
 from common_import import *
 
 
-class PDSigmoid(PaddleAPIBenchmarkBase):
+class PDReduceMean(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
+            input = fluid.data(
+                name='input',
+                shape=config.input_shape,
+                dtype=config.input_dtype,
                 lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.sigmoid(x=data)
+            input.stop_gradient = False
+            result = fluid.layers.reduce_mean(
+                input=input, dim=config.dim, keep_dim=config.keep_dim)
 
-            self.feed_vars = [data]
+            self.feed_vars = [input]
             self.fetch_vars = [result]
             if config.backward:
-                self.append_gradients(result, [data])
+                self.append_gradients(result, [input])
 
 
-class TFSigmoid(TensorflowAPIBenchmarkBase):
+class TFReduceMean(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.sigmoid(x=data)
+        input = self.placeholder(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = tf.reduce_mean(
+            input_tensor=input, axis=config.dim, keepdims=config.keep_dim)
 
-        self.feed_list = [data]
+        self.feed_list = [input]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [data])
+            self.append_gradients(result, [input])
 
 
 if __name__ == '__main__':
-    test_main(PDSigmoid(), TFSigmoid(), config=APIConfig("sigmoid"))
+    test_main(PDReduceMean(), TFReduceMean(), config=APIConfig("reduce_mean"))

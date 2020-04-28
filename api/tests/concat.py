@@ -12,50 +12,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
+from common_import import *
 
 
-class PDConcat(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False, dtype=None):
-        import paddle.fluid as fluid
-
-        self.name = "concat"
+class PDConcat(PaddleAPIBenchmarkBase):
+    def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            data1 = fluid.data(
-                name='data1', shape=[100, 200], dtype='float32', lod_level=0)
-            data2 = fluid.data(
-                name='data2', shape=[100, 200], dtype='float32', lod_level=0)
-            data1.stop_gradient = False
-            data2.stop_gradient = False
-            result = fluid.layers.concat([data1, data2], axis=0)
+            inputs = []
+            for i in range(len(config.input_shape)):
+                input_i = fluid.data(
+                    name='input_' + str(i),
+                    shape=config.input_shape[i],
+                    dtype=config.input_dtype[i],
+                    lod_level=0)
+                input_i.stop_gradient = False
+                inputs.append(input_i)
+            result = fluid.layers.concat(input=inputs, axis=config.axis)
 
-            self.feed_vars = [data1, data2]
+            self.feed_vars = inputs
             self.fetch_vars = [result]
-            if backward:
-                self.append_gradients(result, [data1, data2])
+            if config.backward:
+                self.append_gradients(result, inputs)
 
 
-class TFConcat(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False):
-        import tensorflow as tf
+class TFConcat(TensorflowAPIBenchmarkBase):
+    def build_graph(self, config):
+        inputs = []
+        for i in range(len(config.input_shape)):
+            input_i = self.placeholder(
+                name='input_' + str(i),
+                shape=config.input_shape[i],
+                dtype=config.input_dtype[i])
+            inputs.append(input_i)
+        result = tf.concat(values=inputs, axis=config.axis)
 
-        self.name = "concat"
-        self.allow_growth = True
-
-        data1 = tf.placeholder(name='data1', shape=[100, 200], dtype=tf.float32)
-        data2 = tf.placeholder(name='data2', shape=[100, 200], dtype=tf.float32)
-        result = tf.concat([data1, data2], 0)
-
-        self.feed_list = [data1, data2]
+        self.feed_list = inputs
         self.fetch_list = [result]
-        if backward:
-            self.append_gradients(result, [data1, data2])
+        if config.backward:
+            self.append_gradients(result, inputs)
 
 
 if __name__ == '__main__':
-    test_main(PDConcat(), TFConcat(), feed_spec=None)
+    test_main(PDConcat(), TFConcat(), config=APIConfig("concat"))

@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,34 +15,34 @@
 from common_import import *
 
 
-class PDSigmoid(PaddleAPIBenchmarkBase):
+class PDExpand(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
+            x = fluid.data(
+                name='x',
                 shape=config.x_shape,
                 dtype=config.x_dtype,
                 lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.sigmoid(x=data)
+            x.stop_gradient = False
+            result = fluid.layers.expand(x=x, expand_times=config.expand_times)
 
-            self.feed_vars = [data]
+            self.feed_vars = [x]
             self.fetch_vars = [result]
             if config.backward:
-                self.append_gradients(result, [data])
+                self.append_gradients(result, [x])
 
 
-class TFSigmoid(TensorflowAPIBenchmarkBase):
+class TFExpand(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.sigmoid(x=data)
+        x = self.placeholder(
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.tile(input=x, multiples=config.expand_times)
 
-        self.feed_list = [data]
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [data])
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(PDSigmoid(), TFSigmoid(), config=APIConfig("sigmoid"))
+    test_main(PDExpand(), TFExpand(), config=APIConfig("expand"))

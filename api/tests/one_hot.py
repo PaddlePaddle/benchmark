@@ -24,7 +24,7 @@ class OneHotConfig(object):
     def __init__(self, input_shape, depth):
         self.input_shape = input_shape
         self.depth = depth
-        self.feed_spec = { "range": [0, depth] }
+        self.feed_spec = {"range": [0, depth]}
 
 
 config = OneHotConfig(input_shape=[32, 128], depth=10)
@@ -37,7 +37,10 @@ class PDOneHot(paddle_api.PaddleAPIBenchmarkBase):
         self.name = "one_hot"
         with fluid.program_guard(self.main_program, self.startup_program):
             input = fluid.data(
-                name='input', shape=config.input_shape, dtype='int32', lod_level=0)
+                name='input',
+                shape=config.input_shape,
+                dtype='int32',
+                lod_level=0)
             input.stop_gradient = False
             result = fluid.one_hot(input=input, depth=config.depth)
 
@@ -52,13 +55,15 @@ class TFOneHot(tensorflow_api.TensorflowAPIBenchmarkBase):
         self.name = "one_hot"
         self.allow_growth = True
 
-        input = tf.placeholder(name='input', shape=config.input_shape, dtype=tf.int32)
-        result = tf.one_hot(indices=input,
-                            depth=config.depth,
-                            on_value=None,
-                            off_value=None,
-                            axis=None,
-                            dtype=None)
+        input = tf.placeholder(
+            name='input', shape=config.input_shape, dtype=tf.int32)
+        result = tf.one_hot(
+            indices=input,
+            depth=config.depth,
+            on_value=None,
+            off_value=None,
+            axis=None,
+            dtype=None)
 
         self.feed_list = [input]
         self.fetch_list = [result]

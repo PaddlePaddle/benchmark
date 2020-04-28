@@ -18,6 +18,7 @@ import sys
 sys.path.append("..")
 from common import paddle_api_benchmark as paddle_api
 
+
 class PDConv2dTranspose(paddle_api.PaddleAPIBenchmarkBase):
     def build_program(self, backward=False, dtype=None):
         import paddle.fluid as fluid

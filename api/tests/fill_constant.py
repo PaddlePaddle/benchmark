@@ -15,34 +15,27 @@
 from common_import import *
 
 
-class PDSigmoid(PaddleAPIBenchmarkBase):
+class PDFillConstant(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.sigmoid(x=data)
+            result = fluid.layers.fill_constant(
+                shape=config.shape, dtype=config.dtype, value=config.value)
 
-            self.feed_vars = [data]
+            self.feed_vars = []
             self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [data])
 
 
-class TFSigmoid(TensorflowAPIBenchmarkBase):
+class TFFillConstant(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.sigmoid(x=data)
+        result = tf.constant(
+            shape=config.shape,
+            dtype=tf.as_dtype(config.dtype),
+            value=config.value)
 
-        self.feed_list = [data]
+        self.feed_list = []
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [data])
 
 
 if __name__ == '__main__':
-    test_main(PDSigmoid(), TFSigmoid(), config=APIConfig("sigmoid"))
+    test_main(
+        PDFillConstant(), TFFillConstant(), config=APIConfig("fill_constant"))

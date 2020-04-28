@@ -115,12 +115,12 @@ prepare(){
 
 #run_cycle_gan
 CycleGAN(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleGAN/cycle_gan
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/
     cd ${cur_model_path}
 
     # Prepare data
-    rm -rf  data/horse2zebra
-    ln -s ${data_path}/horse2zebra/ ${cur_model_path}/data
+    mkdir -p ${cur_model_path}/data
+    ln -s ${data_path}/horse2zebra/ ${cur_model_path}/data/cityscapes
     # Running ...
     rm ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/static_graph/CycleGAN/paddle/run_benchmark.sh ./
@@ -138,7 +138,7 @@ CycleGAN(){
 
 #run StartGAN
 StarGAN(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleGAN/
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/
     cd ${cur_model_path}
 
     # Prepare data
@@ -175,7 +175,7 @@ StarGAN(){
 
 #run AttGAN
 AttGAN(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleGAN/
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/
     cd ${cur_model_path}
 
     # Prepare data
@@ -209,7 +209,7 @@ AttGAN(){
 
 #run STGAN
 STGAN(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleGAN/
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/
     cd ${cur_model_path}
 
     # Prepare data
@@ -246,7 +246,7 @@ STGAN(){
 
 #run CGAN
 CGAN(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleGAN/
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/
     cd ${cur_model_path}
 
     # Prepare data
@@ -283,7 +283,7 @@ CGAN(){
 
 #run Pix2pix
 Pix2pix(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleGAN/
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/
     cd ${cur_model_path}
 
     # Prepare data
@@ -318,7 +318,7 @@ Pix2pix(){
 
 #run nextvlad
 nextvlad(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleVideo/
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/video/
     cd ${cur_model_path}
 
     # Prepare data
@@ -373,36 +373,34 @@ nextvlad(){
 
 #run_deeplabv3+
 deeplab(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/deeplabv3+
+    cur_model_path=${BENCHMARK_ROOT}/PaddleSeg
     cd ${cur_model_path}
     # Prepare data and pretrained parameters.
-    mkdir data
-    mkdir -p ./output/model
-    ln -s ${data_path}/cityscape ${cur_model_path}/data/cityscape
-    ln -s ${prepare_path}/deeplabv3plus_xception65_initialize ${cur_model_path}/deeplabv3plus_xception65_initialize
+    ln -s ${data_path}/cityscape ${cur_model_path}/dataset/cityscapes
+    ln -s ${prepare_path}/deeplabv3p_xception65_bn_cityscapes ${cur_model_path}/pretrained_model/
     # Running ...
     cp ${BENCHMARK_ROOT}/static_graph/deeplabv3+/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 100 | tee ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 2 | tee ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 1gpu, profiler is on, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 10 | tee ${log_path}/DeepLab_V3+_speed_1gpus_profiler 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 1 | tee ${log_path}/DeepLab_V3+_speed_1gpus_profiler 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 100 | tee ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 1 | tee ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
     sleep 60
     echo "index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 sp 50 | tee ${log_path}/DeepLab_V3+_mem_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 sp 1 | tee ${log_path}/DeepLab_V3+_mem_1gpus 2>&1
     sleep 60
     echo "index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 sp 50 | tee ${log_path}/DeepLab_V3+_mem_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 sp 1 | tee ${log_path}/DeepLab_V3+_mem_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 50 | tee ${log_path}/DeepLab_V3+_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 1 | tee ${log_path}/DeepLab_V3+_maxbs_1gpus 2>&1
     sleep 60
     echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 sp 50 | tee ${log_path}/DeepLab_V3+_maxbs_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 sp 1 | tee ${log_path}/DeepLab_V3+_maxbs_8gpus 2>&1
 
 }
 
@@ -453,7 +451,7 @@ image_classification(){
 
 #run_detection
 detection(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/PaddleDetection
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     # Prepare data
     ln -s ${data_path}/COCO17/annotations ${cur_model_path}/dataset/coco/annotations
@@ -466,7 +464,7 @@ detection(){
     ln -s ${prepare_path}/detection/ResNeXt101_vd_64x4d_pretrained ~/.cache/paddle/weights
 
     # Prepare package_list
-    package_check_list=(imageio tqdm Cython pycocotools)
+    package_check_list=(imageio tqdm Cython pycocotools tb_paddle)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
             echo "${package} have already installed"
@@ -504,7 +502,7 @@ detection(){
 
 #run_mask-rcnn
 mask_rcnn(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/rcnn
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
 
     # Install cocoapi
@@ -520,10 +518,20 @@ mask_rcnn(){
         python2 setup.py install --user
         echo "cocoapi installed"
     fi
+    if python -c "import tb_paddle" >/dev/null 2>&1;
+    then
+        echo "tb_paddle have already installed"
+    else
+        echo "tb_paddle NOT FOUND"
+        pip install tb_paddle
+        echo "tb_paddle installed"
+    fi
     # Copy pretrained model
-    ln -s ${prepare_path}/mask-rcnn/imagenet_resnet50_fusebn ${cur_model_path}/imagenet_resnet50_fusebn
+    ln -s ${prepare_path}/mask-rcnn/ResNet50_cos_pretrained  ~/.cache/paddle/weights
     cd ${cur_model_path}
     # Prepare data
+    rm -rf dataset/coco/
+    mkdir -p dataset/coco/
     ln -s ${data_path}/COCO17/annotations ${cur_model_path}/dataset/coco/annotations
     ln -s ${data_path}/COCO17/train2017 ${cur_model_path}/dataset/coco/train2017
     ln -s ${data_path}/COCO17/test2017 ${cur_model_path}/dataset/coco/test2017
@@ -560,7 +568,7 @@ mask_rcnn(){
 
 #run_bert
 bert(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/PaddleLARK/BERT
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/pretrain_language_models/BERT/
     cd ${cur_model_path}
     rm -rf data
     ln -s ${data_path}/Bert/data ${cur_model_path}/data
@@ -607,7 +615,7 @@ bert(){
 
 #run_transformer
 transformer(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/PaddleMT/transformer
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/machine_translation/transformer/
     cd ${cur_model_path}
     ln -s ${data_path}/transformer/data ${cur_model_path}/data
     cp -r ${prepare_path}/transformer/mosesdecoder ${cur_model_path}/mosesdecoder
@@ -728,14 +736,19 @@ yolov3(){
         python2 setup.py install --user
         echo "cocoapi installed"
     fi
+    if python -c "import tb_paddle" >/dev/null 2>&1;
+    then
+        echo "tb_paddle have already installed"
+    else
+        echo "tb_paddle NOT FOUND"
+        pip install tb_paddle
+        echo "tb_paddle installed"
+    fi
 
-    cd ${BENCHMARK_ROOT}/models/PaddleCV/yolov3/
+    cd ${BENCHMARK_ROOT}/PaddleDetection
 
-    sed -i 's/build_strategy.memory_optimize/#build_strategy.memory_optimize/g' train.py
     #sh ./weights/download.sh
-    ln -s ${prepare_path}/yolov3/yolov3 ./weights/yolov3
-    ln -s ${prepare_path}/yolov3/darknet53 ./weights/darknet53
-
+    ln -s ${prepare_path}/yolov3/DarkNet53_pretrained ~/.cache/paddle/weights
     rm -rf dataset/coco
     ln -s ${data_path}/coco ./dataset/coco
     cp ${BENCHMARK_ROOT}/static_graph/yolov3/paddle/run_benchmark.sh ./
@@ -768,7 +781,7 @@ yolov3(){
 
 # seq2seq
 seq2seq(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/PaddleTextGEN/seq2seq
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/seq2seq/seq2seq/
     cd ${cur_model_path}
 
     # Prepare data

@@ -1,0 +1,18 @@
+[{
+    "op": "reduce_mean",
+    "param_info": {
+        "input": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[32L, 128L]"
+        },
+        "dim": {
+            "type": "int",
+            "value": "0"
+        },
+        "keep_dim": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}]

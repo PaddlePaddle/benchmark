@@ -19,9 +19,10 @@ function _set_params(){
 
     model_name="mask_rcnn"
     skip_steps=3
-    keyword="loss_rpn_bbox"
+    keyword="iter:"
     separator=" "
-    position=19
+    position=-3
+    range=0:4
     model_mode=0
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -49,20 +50,18 @@ function _set_env(){
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+    WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    export PYTHONPATH=${WORK_ROOT}:${PYTHONPATH}
 
-    train_cmd=" --model_save_dir=output/ \
-     --pretrained_model=./imagenet_resnet50_fusebn/ \
-     --data_dir=./dataset/coco \
-     --im_per_batch=${base_batch_size} \
-     --max_iter=${max_iter} \
+    train_cmd=" -c configs/mask_rcnn_r50_1x.yml \
+     --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} \
      --is_profiler=${is_profiler} \
-     --profiler_path=${profiler_path} \
-     --MASK_ON=True"
+     --profiler_path=${profiler_path}" 
 
     case ${run_mode} in
-    sp) train_cmd="python -u train.py "${train_cmd} ;;
+    sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES train.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac

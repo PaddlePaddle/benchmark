@@ -16,43 +16,74 @@ from __future__ import print_function
 
 import traceback
 import numpy as np
+import json
+import collections
+import white_list
 
 
-def compare(output1, output2):
-    if not isinstance(output1, np.ndarray) or not isinstance(output2, np.ndarray):
+def compare(output1, output2, atol):
+    if not isinstance(output1, np.ndarray) or not isinstance(output2,
+                                                             np.ndarray):
         raise TypeError("input argument's type should be numpy.ndarray.")
 
-    max_diff = -0.0
+    max_diff = np.float32(-0.0)
+    offset = -1
     try:
         assert len(output1) == len(output2)
-        max_diff = np.amax(np.absolute(output1 - output2))
-        assert np.allclose(output1, output2, rtol=1.e-6, atol=0)
+        diff = np.abs(output1 - output2)
+        max_diff = np.max(diff)
+        offset = np.argmax(diff)
+        assert np.allclose(output1, output2, atol=atol)
     except (AssertionError) as e:
-        print("Meet AssertError!!!")
-    return max_diff
+        pass
+    return max_diff, offset
 
 
 def check_outputs(list1, list2, name=None):
     if not isinstance(list1, list) or not isinstance(list2, list):
-        raise TypeError("input argument's type should be list of numpy.ndarray.")
+        raise TypeError(
+            "input argument's type should be list of numpy.ndarray.")
 
     consistent = True
-    max_diff = 0.0
- 
+    max_diff = np.float32(0.0)
+    atol = 1e-6
+
     assert len(list1) == len(list2)
     num_outputs = len(list1)
     for i in xrange(num_outputs):
         output1 = list1[i]
         output2 = list2[i]
-            
-        diff = compare(output1, output2)
-        max_diff = diff if diff > max_diff else max_diff
-        if max_diff > 1.e-6:
+
+        max_diff_i, offset_i = compare(output1, output2, atol)
+        if max_diff_i > atol:
+            print("---- The %d-th output (shape: %s, data type: %s) has diff. "
+                  "The maximum diff is %e, offset is %d: %e vs %e." %
+                  (i, str(output1.shape), str(output1.dtype), max_diff_i,
+                   offset_i, output1.flatten()[offset_i],
+                   output2.flatten()[offset_i]))
+
+        max_diff = max_diff_i if max_diff_i > max_diff else max_diff
+        if max_diff > atol:
             consistent = False
+
+    status = collections.OrderedDict()
     if name is not None:
-        print("{ name: \"%s\", consistent: \"%s\", num_outputs: %d, diff: %.5f }" % (name, str(consistent), num_outputs, max_diff))
+        status["name"] = name
+    status["consistent"] = consistent
+    status["num_outputs"] = num_outputs
+    status["diff"] = max_diff.astype("float")
+
+    if not consistent:
+        if name is not None and name in white_list.RANDOM_OP_LIST:
+            print(
+                "---- The output is not consistent, but %s is in the white list."
+                % name)
+            print(json.dumps(status))
+        else:
+            print(json.dumps(status))
+            assert consistent == True, "The output is not consistent."
     else:
-        print("{ consistent: \"%s\", num_outputs: %d, diff: %.5f }" % (str(consistent), num_outputs, max_diff))
+        print(json.dumps(status))
 
 
 def get_stat(stats, key):
@@ -123,9 +154,10 @@ def print_stat(stats, log_level=0):
         # print all times
         seg_0 = 0
         seg_1 = 0
-    for i in xrange(len(runtimes)):
+    for i in range(len(runtimes)):
         if i < seg_0 or i >= seg_1:
-            print("Iter {0}, Runtime: {1}".format("%4d" % i, "%.5f ms" % runtimes[i]))
+            print("Iter {0}, Runtime: {1}".format("%4d" % i, "%.5f ms" %
+                                                  runtimes[i]))
 
     print("{")
     print("  framework: \"%s\"," % stats["framework"])
@@ -133,7 +165,10 @@ def print_stat(stats, log_level=0):
     print("  name: \"%s\"," % stats["name"])
     print("  device: \"%s\"," % stats["device"])
     if stable is not None and diff is not None:
-        print("  precision: { stable: \"%s\", diff: %.5f }," % (str(stable), diff))
-    print("  speed: { repeat: %d, start: %d, end: %d, total: %.5f, feed: %.5f, compute: %.5f, fetch: %.5f }"
-              % (len(sorted_runtimes), begin, end, avg_runtime, avg_feed_time, avg_compute_time, avg_fetch_time))
+        print("  precision: { stable: \"%s\", diff: %.5f }," %
+              (str(stable), diff))
+    print(
+        "  speed: { repeat: %d, start: %d, end: %d, total: %.5f, feed: %.5f, compute: %.5f, fetch: %.5f }"
+        % (len(sorted_runtimes), begin, end, avg_runtime, avg_feed_time,
+           avg_compute_time, avg_fetch_time))
     print("}")

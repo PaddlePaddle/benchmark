@@ -17,10 +17,12 @@ from __future__ import print_function
 import argparse
 import os
 import feeder
-
+import json
 import sys
+import re
 sys.path.append("..")
 from common import utils
+from common import api_param
 
 
 def str2bool(v):
@@ -30,6 +32,7 @@ def str2bool(v):
         return False
     else:
         raise argparse.ArgumentTypeError('Unsupported value encountered.')
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -44,10 +47,13 @@ def parse_args():
         default="paddle",
         help='Specify the framework: [paddle|tensorflow|tf|both]')
     parser.add_argument(
-        '--dtype',
-        type=str,
-        default="float32",
-        help='Specify the data type of api')
+        '--json_file', type=str, default=None, help='The file of API params')
+    parser.add_argument(
+        '--config_id',
+        type=int,
+        default=None,
+        help='Only import params of API from json file in the specified position [0|1|...]'
+    )
     parser.add_argument(
         '--run_with_executor',
         type=str2bool,
@@ -62,7 +68,8 @@ def parse_args():
         '--profiler',
         type=str,
         default="none",
-        help='Choose which profiler to use [\"none\"|\"Default\"|\"OpDetail\"|\"AllOpDetail\"|\"nvprof\"]')
+        help='Choose which profiler to use [\"none\"|\"Default\"|\"OpDetail\"|\"AllOpDetail\"|\"nvprof\"]'
+    )
     parser.add_argument(
         '--backward',
         type=str2bool,
@@ -74,15 +81,9 @@ def parse_args():
         default=False,
         help='Whether using gpu [True|False]')
     parser.add_argument(
-        '--repeat',
-        type=int,
-        default=1,
-        help='Iterations of Repeat running')
+        '--repeat', type=int, default=1, help='Iterations of Repeat running')
     parser.add_argument(
-        '--log_level',
-        type=int,
-        default=0,
-        help='level of logging')
+        '--log_level', type=int, default=0, help='level of logging')
     parser.add_argument(
         '--gpu_id',
         type=int,
@@ -91,18 +92,17 @@ def parse_args():
     args = parser.parse_args()
     gpu_id = args.gpu_id if args.gpu_id > 0 else 0
     if os.environ.get("CUDA_VISIBLE_DEVICES", None) is None:
-        print("CUDA_VISIBLE_DEVICES is None, set to CUDA_VISIBLE_DEVICES={}".format(gpu_id))
+        print("CUDA_VISIBLE_DEVICES is None, set to CUDA_VISIBLE_DEVICES={}".
+              format(gpu_id))
         os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
     if args.task not in ["speed", "accuracy"]:
         raise ValueError("task should be speed, accuracy")
     if args.framework not in ["paddle", "tensorflow", "tf", "both"]:
         raise ValueError("task should be paddle, tensorflow, tf, both")
-    if args.dtype not in ["float32", "float16"]:
-        raise ValueError("dtype should be float32, float16")
     return args
 
 
-def test_paddle(task, obj, args, feed_list=None):
+def run_paddle(task, obj, args, feed_list=None):
     feed = None
     if feed_list is not None:
         assert len(feed_list) == len(obj.feed_vars)
@@ -113,30 +113,31 @@ def test_paddle(task, obj, args, feed_list=None):
 
     if task == "speed":
         if args.run_with_executor:
-            obj.run_with_executor(use_gpu=args.use_gpu,
-                                  feed=feed,
-                                  repeat=args.repeat,
-                                  log_level=args.log_level,
-                                  check_output=args.check_output,
-                                  profiler=args.profiler)
+            obj.run_with_executor(
+                use_gpu=args.use_gpu,
+                feed=feed,
+                repeat=args.repeat,
+                log_level=args.log_level,
+                check_output=args.check_output,
+                profiler=args.profiler)
         else:
-            obj.run_with_core_executor(use_gpu=args.use_gpu,
-                                       feed=feed,
-                                       repeat=args.repeat,
-                                       log_level=args.log_level,
-                                       check_output=args.check_output,
-                                       profiler=args.profiler)
+            obj.run_with_core_executor(
+                use_gpu=args.use_gpu,
+                feed=feed,
+                repeat=args.repeat,
+                log_level=args.log_level,
+                check_output=args.check_output,
+                profiler=args.profiler)
         return None
     elif task == "accuracy":
         if feed is None:
             raise ValueError("feed should not be None when checking accuracy.")
-        outputs = obj.run_with_executor(use_gpu=args.use_gpu,
-                                        feed=feed,
-                                        check_output=False)
+        outputs = obj.run_with_executor(
+            use_gpu=args.use_gpu, feed=feed, check_output=False)
         return outputs
 
 
-def test_tensorflow(task, obj, args, feed_list=None):
+def run_tensorflow(task, obj, args, feed_list=None):
     feed = None
     if feed_list is not None:
         assert len(feed_list) == len(obj.feed_list)
@@ -157,35 +158,75 @@ def test_tensorflow(task, obj, args, feed_list=None):
     elif task == "accuracy":
         if feed is None:
             raise ValueError("feed should not be None when checking accuracy.")
-        outputs = obj.run(use_gpu=args.use_gpu,
-                          feed=feed,
-                          check_output=False)
+        outputs = obj.run(use_gpu=args.use_gpu, feed=feed, check_output=False)
         return outputs
 
 
-def test_speed_main(obj):
+def copy_feed_spec(config=None):
+    if config is None or config.feed_spec is None:
+        return None
+    if not isinstance(config.feed_spec, list):
+        config.feed_spec = [config.feed_spec]
+
+    feed_spec = []
+    for feed_item in config.feed_spec:
+        item = {}
+        for key, value in feed_item.items():
+            item[key] = value
+        feed_spec.append(item)
+    return feed_spec
+
+
+def test_main(pd_obj=None, tf_obj=None, config=None):
+    if config is None:
+        raise ValueError("API config must be set.")
+
     args = parse_args()
-    obj.build_program(backward=args.backward, dtype=args.dtype)
-    test_paddle("speed", obj, args)
+    if args.json_file is not None:
+        if args.config_id is not None and args.config_id >= 0:
+            config.init_from_json(args.json_file, args.config_id)
+            test_main_without_json(pd_obj, tf_obj, config)
+        else:
+            num_configs = 0
+            with open(args.json_file, 'r') as f:
+                num_configs = len(json.load(f))
+            for config_id in range(0, num_configs):
+                config.init_from_json(args.json_file, config_id)
+                test_main_without_json(pd_obj, tf_obj, config)
+    else:
+        test_main_without_json(pd_obj, tf_obj, config)
 
 
-def test_main(pd_obj=None, tf_obj=None, feed_spec=None):
+def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
+    if config is None:
+        raise ValueError("API config must be set.")
+
     args = parse_args()
-
+    config.backward = args.backward
+    feed_spec = copy_feed_spec(config)
     feed_list = None
     if args.task == "accuracy" or args.framework in ["paddle", "both"]:
         if pd_obj is None:
             raise ValueError("Paddle object is None.")
-        pd_obj.build_program(backward=args.backward, dtype=args.dtype)
-        feed_list = feeder.feed_paddle(pd_obj, feed_spec)
-        pd_outputs = test_paddle(args.task, pd_obj, args, feed_list)
+        print(config)
+        pd_obj.name = config.name
+        pd_obj.create_program()
+        pd_obj.build_program(config=config)
+        feed_list = feeder.feed_paddle(pd_obj, feed_spec=feed_spec)
+        pd_outputs = run_paddle(args.task, pd_obj, args, feed_list)
 
-    if args.task == "accuracy" or args.framework in ["tensorflow", "tf", "both"]:
+    if args.task == "accuracy" or args.framework in [
+            "tensorflow", "tf", "both"
+    ]:
         if tf_obj is None:
             raise ValueError("TensorFlow object is None.")
-        tf_obj.build_graph(backward=args.backward)
-        feed_list = feeder.feed_tensorflow(tf_obj, feed_list, feed_spec)
-        tf_outputs = test_tensorflow(args.task, tf_obj, args, feed_list)
+        tf_config = config.to_tensorflow()
+        print(tf_config)
+        tf_obj.name = tf_config.name
+        tf_obj.build_graph(config=tf_config)
+        feed_list = feeder.feed_tensorflow(
+            tf_obj, feed_list, feed_spec=feed_spec)
+        tf_outputs = run_tensorflow(args.task, tf_obj, args, feed_list)
 
     if args.task == "accuracy":
         utils.check_outputs(pd_outputs, tf_outputs, name=pd_obj.name)
