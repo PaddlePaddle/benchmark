@@ -21,6 +21,11 @@ params_l = []
 result_json = []
 op_dict = {}
 op_fre_file = 'op_frequency.txt'
+control_op = [
+    'while', 'switch', 'less_than', 'less_equal', 'greater_than',
+    'greater_equal', 'equal', 'not_equal', 'cond', 'ifelse', 'dynamic_rnn',
+    'static_rnn', 'case', 'switch_case', 'while_loop'
+]
 
 
 def get_index(lst=None, item=''):
@@ -35,7 +40,7 @@ def parse():
         default=None,
         help='The json file name or direction')
     parser.add_argument(
-        '--output_direction',
+        '--output_dir',
         type=str,
         default=None,
         help='The direction of output json file')
@@ -73,29 +78,33 @@ def dup(args):
                 for i in range(0, len(data)):
                     op = data[i]["op"]
                     pa = data[i]["param_info"]
-                    op_file_dict[op] = op_file_dict.get(op, 0) + 1
-                    op_dict[op] = op_dict.get(op, 0) + 1
-                    if op not in name_l:
-                        name_l.append(op)
-                        params_l.append(pa)
-                        result_json.append(data[i])
-                    else:
-                        dup_index = get_index(name_l, op)
-                        dup_is = 0
-                        for d_i in dup_index:
-                            if params_l[d_i] == pa:
-                                dup_is = 1
-                        if dup_is == 0:
+                    if pa != '' and pa != {} or op in control_op:
+                        op_file_dict[op] = op_file_dict.get(op, 0) + 1
+                        op_dict[op] = op_dict.get(op, 0) + 1
+                    if pa != '' and pa != {}:
+                        if op not in name_l:
                             name_l.append(op)
                             params_l.append(pa)
                             result_json.append(data[i])
+                        else:
+                            dup_index = get_index(name_l, op)
+                            dup_is = 0
+                            for d_i in dup_index:
+                                if params_l[d_i] == pa:
+                                    dup_is = 1
+                            if dup_is == 0:
+                                name_l.append(op)
+                                params_l.append(pa)
+                                result_json.append(data[i])
 
-            write_dict(op_fre_file, op_file_dict, file)
-    write_dict(op_fre_file, op_dict, 'Summary')
+            op_file = os.path.join(os.getcwd(), args.output_dir, op_fre_file)
+            print(op_file)
+            write_dict(op_file, op_file_dict, file)
+    write_dict(op_file, op_dict, 'Summary')
 
 
 def fwrite_json(args):
-    dir = os.path.join(os.getcwd(), args.output_direction)
+    dir = os.path.join(os.getcwd(), args.output_dir)
     if not os.path.exists(dir):
         os.makedirs(dir)
     else:
@@ -110,6 +119,7 @@ def fwrite_json(args):
                 json.dumps(
                     result_json[i], sort_keys=True, indent=4) + ',\n')
     file = os.listdir(dir)
+    print('The json files will be rewrite: ')
     for i in file:
         with open(os.path.join(dir, i), 'r+') as f:
             print('The json file after processing: ' + os.path.join(dir, i))
@@ -121,6 +131,9 @@ def fwrite_json(args):
             f.seek(0, 2)
             f.truncate()
             f.write('\n]\n')
+        with open(os.path.join(dir, i), 'r') as fs:
+            data = json.load(fs)
+            print('The number of params: ' + str(len(data)))
 
 
 if __name__ == '__main__':
