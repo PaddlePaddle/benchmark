@@ -20,3 +20,19 @@ CONTROL_FLOW_OPS = [
     "conditional_block", "switch", "static_rnn", "while", "while_loop", "cond",
     "case", "ifelse", "dynamic_rnn", "switch_case"
 ]
+
+EXCLUDE_OPS = [
+    "create_tensor", "create_parameter", "create_global_var",
+    "autoincreased_step_counter"
+]
+
+ALIAS_OP_MAP = {
+    "arg_max": "argmax",
+    "arg_min": "argmin",
+    "nearest_interp": "resize_nearest",
+    "bilinear_interp": "resize_bilinear",
+    "depthwise_conv2d": "conv2d",
+    "sum": "sums",
+    "hierarchical_sigmoid": "hsigmoid",
+    "sample_logits": "sampled_softmax_with_cross_entropy"
+}
