@@ -97,7 +97,10 @@ class APIConfig(object):
               (filename, config_id))
         with open(filename, 'r') as f:
             data = json.load(f)
-            self.name = data[config_id]["op"]
+            assert data[config_id][
+                "op"] == self.name, "The op type (%s) in json file is different from the name (%s). " \
+                "The filename: %s, config_id: %d." % (
+                    data[config_id]["op"], self.name, filename, config_id)
             self.params = data[config_id]["param_info"]
 
         self._parse_params()
