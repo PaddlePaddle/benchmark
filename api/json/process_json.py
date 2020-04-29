@@ -16,10 +16,15 @@ import json
 import os
 import argparse
 
+import sys
+sys.path.append("..")
+from clear_params import check_and_clear_params
+
 name_l = []
 params_l = []
 result_json = []
 op_dict = {}
+op_file_whole = {}
 op_fre_file = 'op_frequency.txt'
 control_op = [
     'while', 'switch', 'less_than', 'less_equal', 'greater_than',
@@ -48,16 +53,6 @@ def parse():
     return args
 
 
-def write_dict(file, op_dict, model=None):
-    with open(file, 'a') as fo:
-        if model is not None:
-            fo.writelines(model + ' frequency: \n')
-        op_list = sorted(op_dict.items(), key=lambda d: d[1], reverse=True)
-        for op in op_list:
-            fo.writelines(str(op[0]) + ' : ' + str(op[1]) + '\n')
-        fo.writelines('\n')
-
-
 def dup(args):
     json_path = args.json_path
     filenames = []
@@ -75,6 +70,9 @@ def dup(args):
             op_file_dict = {}
             with open(file, 'r') as f:
                 data = json.load(f)
+                #for i in range(0, len(data)):
+                #    check_and_clear_params(
+                #         data[i]["op"], data[i]["param_info"], print_detail=True)
                 for i in range(0, len(data)):
                     op = data[i]["op"]
                     pa = data[i]["param_info"]
@@ -96,11 +94,8 @@ def dup(args):
                                 name_l.append(op)
                                 params_l.append(pa)
                                 result_json.append(data[i])
-
-            op_file = os.path.join(os.getcwd(), args.output_dir, op_fre_file)
-            print(op_file)
-            write_dict(op_file, op_file_dict, file)
-    write_dict(op_file, op_dict, 'Summary')
+            f.close()
+            op_file_whole[file] = op_file_dict
 
 
 def fwrite_json(args):
@@ -118,6 +113,7 @@ def fwrite_json(args):
             fw.writelines(
                 json.dumps(
                     result_json[i], sort_keys=True, indent=4) + ',\n')
+        fw.close()
     file = os.listdir(dir)
     print('The json files will be rewrite: ')
     for i in file:
@@ -131,12 +127,33 @@ def fwrite_json(args):
             f.seek(0, 2)
             f.truncate()
             f.write('\n]\n')
+        f.close()
         with open(os.path.join(dir, i), 'r') as fs:
             data = json.load(fs)
-            print('The number of params: ' + str(len(data)))
+        fs.close()
+        print('The number of params: ' + str(len(data)))
+
+
+def write_dict(args):
+    dir = os.path.join(os.getcwd(), args.output_dir)
+    with open(os.path.join(dir, op_fre_file), 'w') as fre:
+        for file_n, op_dicts in op_file_whole.items():
+            if file_n is not None:
+                fre.writelines(file_n + ' frequency: \n')
+            op_list = sorted(op_dict.items(), key=lambda d: d[1], reverse=True)
+            for op in op_list:
+                fre.writelines(str(op[0]) + ' : ' + str(op[1]) + '\n')
+        fre.writelines('\nSummary frequency: \n')
+        op_list = sorted(op_dict.items(), key=lambda d: d[1], reverse=True)
+        for op in op_list:
+            fre.writelines(str(op[0]) + ' : ' + str(op[1]) + '\n')
+        fre.writelines('\n')
+    fre.close()
+    print('The op frequency file: ' + os.path.join(dir, op_fre_file))
 
 
 if __name__ == '__main__':
     args = parse()
     dup(args)
     fwrite_json(args)
+    write_dict(args)

@@ -60,7 +60,7 @@ def check_and_clear_params(api_name, params, print_detail=False):
             if name not in argspec.args or name in no_need_args:
                 if print_detail:
                     print("   Remove %s (type: %s, value: %s)." %
-                          (name, content["dtype"], content["value"]))
+                          (name, content["type"], content["value"]))
                 params.pop(name)
 
         no_need_args.remove("name")
