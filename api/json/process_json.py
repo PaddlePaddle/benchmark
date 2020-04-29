@@ -30,7 +30,7 @@ def get_index(lst=None, item=''):
 def parse():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        '--json_file',
+        '--json_path',
         type=str,
         default=None,
         help='The json file name or direction')
@@ -54,15 +54,18 @@ def write_dict(file, op_dict, model=None):
 
 
 def dup(args):
-    json_file = args.json_file
-    filename = []
-    if json_file.find('.json') == -1:
-        dir = os.path.join(os.getcwd(), json_file)
+    json_path = args.json_path
+    filenames = []
+    if os.path.isdir(json_path):
+        dir = os.path.join(os.getcwd(), json_path)
         file = os.listdir(dir)
         for f in file:
-            filename.append(os.path.join(dir, f))
+            filenames.append(os.path.join(dir, f))
+    else:
+        filenames = [json_path]
 
-    for file in filename:
+    for file in filenames:
+        print('Read API info from json file: ' + file)
         if not os.path.isdir(file):
             op_file_dict = {}
             with open(file, 'r') as f:
@@ -95,6 +98,11 @@ def fwrite_json(args):
     dir = os.path.join(os.getcwd(), args.output_direction)
     if not os.path.exists(dir):
         os.makedirs(dir)
+    else:
+        file = os.listdir(dir)
+        for fi in file:
+            if os.path.getsize(os.path.join(dir, fi)):
+                os.remove(os.path.join(dir, fi))
     for i in range(len(name_l)):
         op = (name_l[i] + '.json').encode("utf-8")
         with open(os.path.join(dir, op), 'a') as fw:
@@ -104,6 +112,7 @@ def fwrite_json(args):
     file = os.listdir(dir)
     for i in file:
         with open(os.path.join(dir, i), 'r+') as f:
+            print('The json file after processing: ' + os.path.join(dir, i))
             content = f.read()
             f.seek(0, 0)
             f.write('[\n' + content)
