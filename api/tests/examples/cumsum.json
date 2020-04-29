@@ -17,10 +17,7 @@
         "reverse": {
             "type": "bool",
             "value": "False"
-        },
-        "atol": {
-            "type": "float",
-            "value": "0.05"
         }
-    }
+    },
+    "atol": 0.05
 }]
