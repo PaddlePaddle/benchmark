@@ -21,7 +21,7 @@ import paddle.fluid as fluid
 
 import sys
 sys.path.append("..")
-from common.no_need_args import *
+from common import special_op_list
 
 
 def import_module(api_name):
@@ -45,8 +45,8 @@ def check_and_clear_params(api_name, params, print_detail=False):
             print("API:", api_name, ",", argspec)
 
         no_need_args = []
-        if api_name in NO_NEED_ARGS.keys():
-            no_need_args = NO_NEED_ARGS[api_name]
+        if api_name in special_op_list.NO_NEED_ARGS.keys():
+            no_need_args = special_op_list.NO_NEED_ARGS[api_name]
             print(no_need_args)
             print(type(no_need_args))
         no_need_args.append("name")

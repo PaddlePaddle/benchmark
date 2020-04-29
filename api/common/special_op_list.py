@@ -13,3 +13,10 @@
 # limitations under the License.
 
 RANDOM_OP_LIST = ["dropout"]
+
+NO_NEED_ARGS = {"batch_norm": ["moving_mean_name", "moving_variance_name"]}
+
+CONTROL_FLOW_OPS = [
+    "conditional_block", "switch", "static_rnn", "while", "while_loop", "cond",
+    "case", "ifelse", "dynamic_rnn", "switch_case"
+]

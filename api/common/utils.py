@@ -18,7 +18,7 @@ import traceback
 import numpy as np
 import json
 import collections
-import white_list
+import special_op_list
 
 
 def compare(output1, output2, atol):
@@ -74,7 +74,7 @@ def check_outputs(list1, list2, name=None):
     status["diff"] = max_diff.astype("float")
 
     if not consistent:
-        if name is not None and name in white_list.RANDOM_OP_LIST:
+        if name is not None and name in special_op_list.RANDOM_OP_LIST:
             print(
                 "---- The output is not consistent, but %s is in the white list."
                 % name)
