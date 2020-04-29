@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright (c) 2018 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -53,24 +53,36 @@ function run_api(){
     fetch_upstream_master_if_not_exist
     cd ${BENCHMARK_ROOT}/api/tests
     HAS_MODIFIED_API_TEST=`git diff --name-only upstream/$BRANCH | grep "api/tests" || true`
-    fail_name=()
+    API_NAMES=(abs fc)
     if [ "${HAS_MODIFIED_API_TEST}" != "" ] ; then
-        for api in ${HAS_MODIFIED_API_TEST}
-        do
-            name=`echo $api |awk -F "/" '{print $NF}' |awk -F "." '{print $NR}'`
-            sh run.sh $name
-            if [ $? -ne 0 ]; then
-                fail_name[${#fail_name[@]}]="$name.py"
+        for api in ${HAS_MODIFIED_API_TEST[@]}; do
+            new_name=`echo $api |awk -F "/" '{print $NF}' |awk -F "." '{print $NR}'`
+            if [[ "$new_name" != "main" && "$new_name" != "feeder" && "$new_name" != "common_ops" ]]; then
+                need_append="yes"
+                for name in ${API_NAMES[@]}; do
+                    if [ "${name}" == "${new_name}" ]; then
+                        need_append="no"
+                        break
+                    fi
+                done
+                if [ "$need_append" == "yes" ]; then
+                    API_NAMES[${#API_NAMES[@]}]=${new_name}
+                fi
             fi
         done
-        len=${#fail_name[@]}
-        if [ $len -ne 0 ]; then
-            echo "Failed API TESTS: ${fail_name[@]}"
-            exit 1
+    fi
+
+    fail_name=()
+    for name in ${API_NAMES[@]}; do
+        sh run.sh $name -1
+        if [ $? -ne 0 ]; then
+            fail_name[${#fail_name[@]}]="$name.py"
         fi
-    else
-        echo "OP tests have no changed."
-        exit 0
+    done
+    len=${#fail_name[@]}
+    if [ $len -ne 0 ]; then
+        echo "Failed API TESTS: ${fail_name[@]}"
+        exit 1
     fi
 }
 

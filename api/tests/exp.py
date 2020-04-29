@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,39 +15,34 @@
 from common_import import *
 
 
-class PDDropout(PaddleAPIBenchmarkBase):
+class PDExp(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x',
+            data = fluid.data(
+                name='data',
                 shape=config.x_shape,
                 dtype=config.x_dtype,
                 lod_level=0)
-            x.stop_gradient = False
-            result = fluid.layers.dropout(
-                x=x,
-                dropout_prob=config.dropout_prob,
-                seed=123,
-                dropout_implementation=config.dropout_implementation)
+            data.stop_gradient = False
+            result = fluid.layers.exp(x=data)
 
-            self.feed_vars = [x]
+            self.feed_vars = [data]
             self.fetch_vars = [result]
             if config.backward:
-                self.append_gradients(result, [x])
+                self.append_gradients(result, [data])
 
 
-class TFDropout(TensorflowAPIBenchmarkBase):
+class TFExp(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.nn.dropout(
-            x=x, rate=config.dropout_prob, noise_shape=None, seed=123)
+        data = self.placeholder(
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.exp(x=data)
 
-        self.feed_list = [x]
+        self.feed_list = [data]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(result, [data])
 
 
 if __name__ == '__main__':
-    test_main(PDDropout(), TFDropout(), config=APIConfig("dropout"))
+    test_main(PDExp(), TFExp(), config=APIConfig("exp"))
