@@ -127,7 +127,7 @@ class TFConv2d(TensorflowAPIBenchmarkBase):
         else:
             result = tf.nn.conv2d(
                 input=input,
-                filter=filter,
+                filters=filter,
                 strides=config.stride,
                 padding=config.padding,
                 data_format=config.data_format,
