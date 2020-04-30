@@ -1,0 +1,10 @@
+[{
+    "op": "exp",
+    "param_info": {
+        "x": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[16L, 10L, 100L, 100L]"
+        }
+    }
+}]
