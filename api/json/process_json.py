@@ -18,7 +18,7 @@ import argparse
 
 import sys
 sys.path.append("..")
-from clear_params import check_and_clear_params
+from clear_params import *
 
 name_l = []
 params_l = []
@@ -70,9 +70,6 @@ def dup(args):
             op_file_dict = {}
             with open(file, 'r') as f:
                 data = json.load(f)
-                #for i in range(0, len(data)):
-                #    check_and_clear_params(
-                #         data[i]["op"], data[i]["param_info"], print_detail=True)
                 for i in range(0, len(data)):
                     op = data[i]["op"]
                     pa = data[i]["param_info"]
@@ -80,6 +77,7 @@ def dup(args):
                         op_file_dict[op] = op_file_dict.get(op, 0) + 1
                         op_dict[op] = op_dict.get(op, 0) + 1
                     if pa != '' and pa != {}:
+                        check_and_clear_params(op, pa)
                         if op not in name_l:
                             name_l.append(op)
                             params_l.append(pa)
@@ -140,7 +138,8 @@ def write_dict(args):
         for file_n, op_dicts in op_file_whole.items():
             if file_n is not None:
                 fre.writelines(file_n + ' frequency: \n')
-            op_list = sorted(op_dict.items(), key=lambda d: d[1], reverse=True)
+            op_list = sorted(
+                op_dicts.items(), key=lambda d: d[1], reverse=True)
             for op in op_list:
                 fre.writelines(str(op[0]) + ' : ' + str(op[1]) + '\n')
         fre.writelines('\nSummary frequency: \n')

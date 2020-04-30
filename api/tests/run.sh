@@ -17,6 +17,6 @@ python ${name}.py \
       --check_output False \
       --profiler "none" \
       --backward False \
-      --use_gpu False \
+      --use_gpu True \
       --repeat 1 \
       --log_level 0
