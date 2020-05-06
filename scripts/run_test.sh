@@ -111,14 +111,31 @@ function check_style(){
     	trap 0
 }
 
+function build_and_test(){
+    apt_mirror='s#http://archive.ubuntu.com/ubuntu#mirror://mirrors.ubuntu.com/mirrors.txt#g'
+    PADDLE_DEV_NAME='hub.baidubce.com/paddlepaddle/paddle:latest-gpu-cuda10.0-cudnn7'
+    docker pull ${PADDLE_DEV_NAME}
+    nvidia-docker run --net=host $SHM -i --rm -v $PWD:/benchmark -w /benchmark \
+        -v ${GIT_PATH}:${GIT_PATH} \
+        -e "APT_MIRROR=${apt_mirror}" \
+        -e "http_proxy=${http_proxy}" \
+        -e "https_proxy=${https_proxy}" \
+        -e "GITHUB_API_TOKEN=${github_api_token}" \
+        -e "BRANCH=${branch}" \
+        ${PADDLE_DEV_NAME} \
+        bash scripts/run_test.sh run_api_test
+}
 
 function main(){
     local CMD=$1
-    prepare_tf_env
-    check_style
     case $CMD in
       run_api_test)
+        prepare_tf_env
+        check_style
         run_api
+        ;;
+      build_test)
+        build_and_test
         ;;
 	*)
         echo "Sorry, $CMD not recognized."
