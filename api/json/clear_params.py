@@ -65,6 +65,16 @@ def check_removable(api_name, params):
     return False
 
 
+def check_frequency(api_name, params):
+    if api_name in special_op_list.CONTROL_FLOW_OPS:
+        return True
+    if not isinstance(params, dict) or not params:
+        return False
+    if api_name in special_op_list.EXCLUDE_OPS:
+        return False
+    return True
+
+
 def check_and_clear_params(api_name, params, print_detail=False):
     func = import_fluid_module(api_name)
     if func is None:

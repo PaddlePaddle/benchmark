@@ -19,18 +19,14 @@ import argparse
 import sys
 sys.path.append("..")
 from clear_params import *
+from common import special_op_list
 
-name_l = []
-params_l = []
+op_list = []
+params_list = []
 result_json = []
-op_dict = {}
-op_file_whole = {}
-op_fre_file = 'op_frequency.txt'
-control_op = [
-    'while', 'switch', 'less_than', 'less_equal', 'greater_than',
-    'greater_equal', 'equal', 'not_equal', 'cond', 'ifelse', 'dynamic_rnn',
-    'static_rnn', 'case', 'switch_case', 'while_loop'
-]
+op_dicts_sum = {}
+op_frequncy_each = {}
+op_frequncy_file = 'op_frequency.txt'
 
 
 def get_index(lst=None, item=''):
@@ -53,7 +49,7 @@ def parse():
     return args
 
 
-def dup(args):
+def remove_duplicates(args):
     json_path = args.json_path
     filenames = []
     if os.path.isdir(json_path):
@@ -72,28 +68,28 @@ def dup(args):
                 data = json.load(f)
                 for i in range(0, len(data)):
                     op = data[i]["op"]
-                    pa = data[i]["param_info"]
-                    if pa != '' and pa != {} or op in control_op:
+                    param = data[i]["param_info"]
+                    if check_frequency(op, param):
                         op_file_dict[op] = op_file_dict.get(op, 0) + 1
-                        op_dict[op] = op_dict.get(op, 0) + 1
-                    if pa != '' and pa != {}:
-                        check_and_clear_params(op, pa)
-                        if op not in name_l:
-                            name_l.append(op)
-                            params_l.append(pa)
+                        op_dicts_sum[op] = op_dicts_sum.get(op, 0) + 1
+                    if not check_removable(op, param):
+                        check_and_clear_params(op, param)
+                        if op not in op_list:
+                            op_list.append(op)
+                            params_list.append(param)
                             result_json.append(data[i])
                         else:
-                            dup_index = get_index(name_l, op)
+                            dup_index = get_index(op_list, op)
                             dup_is = 0
                             for d_i in dup_index:
-                                if params_l[d_i] == pa:
+                                if params_list[d_i] == param:
                                     dup_is = 1
                             if dup_is == 0:
-                                name_l.append(op)
-                                params_l.append(pa)
+                                op_list.append(op)
+                                params_list.append(param)
                                 result_json.append(data[i])
             f.close()
-            op_file_whole[file] = op_file_dict
+            op_frequncy_each[file] = op_file_dict
 
 
 def fwrite_json(args):
@@ -105,8 +101,8 @@ def fwrite_json(args):
         for fi in file:
             if os.path.getsize(os.path.join(dir, fi)):
                 os.remove(os.path.join(dir, fi))
-    for i in range(len(name_l)):
-        op = (name_l[i] + '.json').encode("utf-8")
+    for i in range(len(op_list)):
+        op = (op_list[i] + '.json').encode("utf-8")
         with open(os.path.join(dir, op), 'a') as fw:
             fw.writelines(
                 json.dumps(
@@ -134,25 +130,27 @@ def fwrite_json(args):
 
 def write_dict(args):
     dir = os.path.join(os.getcwd(), args.output_dir)
-    with open(os.path.join(dir, op_fre_file), 'w') as fre:
-        for file_n, op_dicts in op_file_whole.items():
-            if file_n is not None:
-                fre.writelines(file_n + ' frequency: \n')
-            op_list = sorted(
+    with open(os.path.join(dir, op_frequncy_file), 'w') as fre:
+        for file, op_dicts in op_frequncy_each.items():
+            if file is not None:
+                fre.writelines(file + ' frequency: \n')
+            op_dicts_sorted = sorted(
                 op_dicts.items(), key=lambda d: d[1], reverse=True)
-            for op in op_list:
+            for op in op_dicts_sorted:
                 fre.writelines(str(op[0]) + ' : ' + str(op[1]) + '\n')
-        fre.writelines('\nSummary frequency: \n')
-        op_list = sorted(op_dict.items(), key=lambda d: d[1], reverse=True)
-        for op in op_list:
+            fre.writelines('\n\n')
+        fre.writelines('Summary frequency: \n')
+        op_dicts_sum_sorted = sorted(
+            op_dicts_sum.items(), key=lambda d: d[1], reverse=True)
+        for op in op_dicts_sum_sorted:
             fre.writelines(str(op[0]) + ' : ' + str(op[1]) + '\n')
         fre.writelines('\n')
     fre.close()
-    print('The op frequency file: ' + os.path.join(dir, op_fre_file))
+    print('The op frequency file: ' + os.path.join(dir, op_frequncy_file))
 
 
 if __name__ == '__main__':
     args = parse()
-    dup(args)
+    remove_duplicates(args)
     fwrite_json(args)
     write_dict(args)
