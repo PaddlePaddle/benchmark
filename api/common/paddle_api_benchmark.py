@@ -33,7 +33,7 @@ except Exception as e:
 def profile_context(name, use_gpu, profiler):
     if profiler in ["Default", "OpDetail", "AllOpDetail"]:
         profile_type = "All" if use_gpu else "CPU"
-        output_file = "./outputs/" + name + ".profile"
+        output_file = "./outputs/" + name + ".pd.profile"
         with fluid.profiler.profiler(
                 profile_type, 'total', output_file, tracer_option=profiler):
             yield

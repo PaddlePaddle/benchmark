@@ -31,6 +31,51 @@ except Exception as e:
         "Cannot import tensorflow, maybe tensorflow is not installed.\n")
 
 
+class Profiler(object):
+    def __init__(self, name, sess, profile):
+        self.name = name
+        self.sess = sess
+        self.profile = profile
+        self.profiler = None
+        self.run_options = None
+        self.run_metadata = None
+        self.generate_timeline = False
+
+    def __enter__(self):
+        if self.profile:
+            self.profiler = model_analyzer.Profiler(graph=self.sess.graph)
+            if tf.__version__ < "1.15.0":
+                self.run_options = tf.RunOptions(
+                    trace_level=tf.RunOptions.FULL_TRACE)
+                self.run_metadata = tf.RunMetadata()
+            else:
+                self.run_options = tf.compat.v1.RunOptions(
+                    trace_level=tf.compat.v1.RunOptions.FULL_TRACE)
+                self.run_metadata = tf.compat.v1.RunMetadata()
+        return self
+
+    def add_step(self, step):
+        if self.profile:
+            # Update profiler
+            self.profiler.add_step(step=step, run_meta=self.run_metadata)
+            if self.generate_timeline:
+                # For timeline
+                tl = timeline.Timeline(self.un_metadata.step_stats)
+                chrome_trace = tl.generate_chrome_trace_format()
+                trace_file = open(self.name + '.tf.timeline', 'w')
+                trace_file.write(chrome_trace)
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        if self.profile:
+            # Generate profiling result
+            profile_op_builder = option_builder.ProfileOptionBuilder()
+            profile_op_builder.select(['micros', 'occurrence'])
+            profile_op_builder.order_by('micros')
+            profile_op_builder.with_max_depth(10)
+            self.profiler.profile_operations(profile_op_builder.build())
+        return self
+
+
 def convert_dtype(dtype, to_string=True):
     def _trans(to_string, dtype_str, np_dtype):
         dtype = dtype_str if to_string else np.dtype(np_dtype)
@@ -141,50 +186,25 @@ class TensorflowAPIBenchmarkBase(object):
         sess = self._init_session(use_gpu)
         #tf.debugging.set_log_device_placement(True)
 
-        if profile:
-            profiler = model_analyzer.Profiler(graph=sess.graph)
-            run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-            run_metadata = tf.RunMetadata()
-        else:
-            profiler = None
-            run_options = None
-            run_metadata = None
-        self.timeline_dict = None
-
         if feed is None:
             feed = self._feed_random_data()
 
         runtimes = []
         fetches = []
         outputs = None
-        for i in range(repeat):
-            begin = time.time()
-            outputs = sess.run(fetches=self.fetch_list,
-                               feed_dict=feed,
-                               options=run_options,
-                               run_metadata=run_metadata)
-            end = time.time()
-            runtimes.append(end - begin)
+        with Profiler(self.name, sess, profile) as prof:
+            for i in range(repeat):
+                begin = time.time()
+                outputs = sess.run(fetches=self.fetch_list,
+                                   feed_dict=feed,
+                                   options=prof.run_options,
+                                   run_metadata=prof.run_metadata)
+                end = time.time()
+                runtimes.append(end - begin)
+                prof.add_step(step=i)
 
-            if profile:
-                # Update profiler
-                profiler.add_step(step=i, run_meta=run_metadata)
-                # For timeline
-                tl = timeline.Timeline(run_metadata.step_stats)
-                chrome_trace = tl.generate_chrome_trace_format()
-                trace_file = open(self.name + '_tf.timeline', 'w')
-                trace_file.write(chrome_trace)
-                #self._update_timeline(chrome_trace)
-
-            if check_output:
-                fetches.append(outputs)
-        if profile:
-            # Generate profiling result
-            profile_op_builder = option_builder.ProfileOptionBuilder()
-            profile_op_builder.select(['micros', 'occurrence'])
-            profile_op_builder.order_by('micros')
-            profile_op_builder.with_max_depth(10)
-            profiler.profile_operations(profile_op_builder.build())
+                if check_output:
+                    fetches.append(outputs)
 
         stats = {
             "framework": "tensorflow",
