@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#======================================================================
+# ======================================================================
 #
 # Copyright (c) 2017 Baidu.com, Inc. All Rights Reserved
 #
-#======================================================================
+# ======================================================================
 
 """
 @Desc: db module
@@ -25,7 +25,7 @@ import json
 import commands
 import traceback
 
-base_path=os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 sys.path.append(base_path)
 print sys.path
 import models.benchmark_server.helper as helper
@@ -92,11 +92,11 @@ parser.add_argument(
     default="staticgraph",
     help="The benchmark model implement method")
 
-DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU', '4': 'FOUR_GPU', 
-                            '8': 'MULTI_GPU', '8mp': 'MULTI_GPU_MULTI_PROCESS'}
+DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU', '4': 'FOUR_GPU',
+                         '8': 'MULTI_GPU', '8mp': 'MULTI_GPU_MULTI_PROCESS'}
 DICT_INDEX = {1: "Speed", 2: "Memory", 3: "Profiler_info", 6: "Max_bs"}
 # todo config the log_server port
-LOG_SERVER = "http://" + socket.gethostname()+ ":8777/"
+LOG_SERVER = "http://" + socket.gethostname() + ":8777/"
 
 
 def load_folder_files(folder_path, recursive=True):
@@ -138,7 +138,7 @@ def get_image_id():
     :return:
     """
     cur_time = time.time()
-    ct = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(cur_time))
+    ct = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(cur_time))
     if args.image_branch == "develop":
         image_branch = "develop"
     elif args.image_branch.isdigit():
@@ -182,7 +182,7 @@ def check_results(job_info, run_machine_type, cur_value, html_results, check_key
     :param check_key:
     :return:
     """
-    results = bm.ViewJobResult.objects.filter(model_name=job_info["model_name"], 
+    results = bm.ViewJobResult.objects.filter(model_name=job_info["model_name"],
                                               report_index_id=job_info["index"],
                                               job_type=2,
                                               cuda_version=args.cuda_version,
@@ -197,16 +197,17 @@ def check_results(job_info, run_machine_type, cur_value, html_results, check_key
         if len(results_list) == 3:
             break
         try:
-            if result: # json.loads("") is bug
+            if result:  # json.loads("") throws excetion
                 result = json.loads(result.report_result)
                 result = result if isinstance(result, dict) else float(result)
-                if result: #check if not zero         
+                if isinstance(result, dict) and result and result[check_key]:  # check if not zero
                     results_list.append(result)
-
+                elif not isinstance(result, dict) and result:
+                    results_list.append(result)
         except Exception as e:
             print "add history data error {}".format(e)
 
-    #如果历史数据一直为空，则不报警
+    # 如果历史数据一直为空，则不报警
     if not results_list:
         return
 
@@ -224,18 +225,19 @@ def check_results(job_info, run_machine_type, cur_value, html_results, check_key
         ranges = -1
     if ranges > 0.05 or ranges < -0.05:
         current_html_result = [job_info["model_name"], run_machine_type,
-                               check_key if check_key else DICT_INDEX[job_info["index"]], 
+                               check_key if check_key else DICT_INDEX[job_info["index"]],
                                avg_values, cur_value, ranges]
         html_results.append(current_html_result)
 
 
-def insert_results(job_id, model_name, report_index_id, result, log_path=0):
+def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0):
     """insert job results to db"""
     pjr = bm.JobResults()
     pjr.job_id = job_id
     pjr.model_name = model_name
     pjr.report_index_id = report_index_id
     pjr.report_result = result
+    pjr.unit = unit
     pjr.train_log_path = log_path
     pjr.save()
     return pjr
@@ -272,7 +274,7 @@ def parse_logs(args):
     :return:
     """
     image_id = get_image_id()
-    file_list = load_folder_files(os.path.join(args.log_path, "index"))  
+    file_list = load_folder_files(os.path.join(args.log_path, "index"))
     html_results = []
     for job_file in file_list:
         result = 0
@@ -284,7 +286,7 @@ def parse_logs(args):
                 print("file {} parse error".format(job_file))
                 continue
 
-            # save job         
+            # save job
             if str(job_info["gpu_num"]) == "8" and job_info["run_mode"] == "mp":
                 run_machine_type = DICT_RUN_MACHINE_TYPE['8mp']
             else:
@@ -294,9 +296,11 @@ def parse_logs(args):
             # parse job results
             cpu_utilization_result = 0
             gpu_utilization_result = 0
+            unit = ''
             try:
                 if job_info["index"] == 1:
                     result = job_info['FINAL_RESULT']
+                    unit = job_info['UNIT']
                     for line in file_lines:
                         if 'AVG_CPU_USE' in line:
                             cpu_utilization_result = line.strip().split('=')[1]
@@ -307,6 +311,7 @@ def parse_logs(args):
                         if "MAX_GPU_MEMORY_USE" in line:
                             value = line.strip().split("=")[1].strip()
                             result = int(value) if str.isdigit(value) else 0
+                            unit = 'MiB'
                             break
                 elif job_info["index"] == 3:
                     result = json.dumps(job_info['FINAL_RESULT'])
@@ -318,29 +323,29 @@ def parse_logs(args):
                             break
 
                 # save job results
-                pjr = insert_results(job_id, job_info["model_name"], job_info["index"], result, 1)
+                pjr = insert_results(job_id, job_info["model_name"], job_info["index"], result, unit, 1)
                 log_file = job_info["log_file"].split("/")[-1]
                 train_log_path = LOG_SERVER + os.path.join(os.path.basename(args.log_path), "train_log", log_file)
                 log_save_dict = {"train_log_path": train_log_path}
                 if job_info["index"] == 1:
-                    insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result)
-                    insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result)
+                    insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result, '%')
+                    insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%')
                     if int(job_info["gpu_num"]) == 1:
                         profiler_log = job_info["log_with_profiler"].split("/")[-1]
-                        profiler_path = job_info["profiler_path"].split("/")[-1]               
+                        profiler_path = job_info["profiler_path"].split("/")[-1]
                         profiler_log_path = LOG_SERVER + os.path.join(
-                                    os.path.basename(args.log_path), "profiler_log", profiler_log)
+                            os.path.basename(args.log_path), "profiler_log", profiler_log)
                         profiler_path = LOG_SERVER + os.path.join(
-                                    os.path.basename(args.log_path), "profiler_log", profiler_path)
+                            os.path.basename(args.log_path), "profiler_log", profiler_path)
                         log_save_dict["profiler_log_path"] = profiler_log_path
                         log_save_dict["profiler_path"] = profiler_path
-                
+
                 pjrl = bm.JobResultsLog()
                 pjrl.result_id = pjr.result_id
                 pjrl.log_path = json.dumps(log_save_dict)
                 pjrl.save()
                 # cmd = "curl -I -m 10 -o /dev/null -s -w %{http_code} " + profiler_log_path
-                #if commands.getoutput(cmd) != '200':
+                # if commands.getoutput(cmd) != '200':
 
             except Exception as pfe:
                 print pfe
@@ -349,7 +354,7 @@ def parse_logs(args):
                     job_info["model_name"], run_machine_type, job_info["index"], result))
 
                 if job_info["index"] != 3:
-                    check_results(job_info, run_machine_type, result, html_results)            
+                    check_results(job_info, run_machine_type, result, html_results)
                 elif job_info["index"] == 3:
                     check_results(job_info, run_machine_type, result, html_results, "Framework_Total")
                     check_results(job_info, run_machine_type, result, html_results, "GpuMemcpy_Total")

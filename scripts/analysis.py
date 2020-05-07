@@ -129,11 +129,11 @@ class TimeAnalyzer(object):
     def analysis(self, batch_size, gpu_num=1, skip_steps=0, mode=0):
         if batch_size <= 0:
             print("base_batch_size should larger than 0.")
-            return 0
+            return 0, ''
 
         if len(self.records) <= 0:
             print("no records")
-            return 0
+            return 0, ''
 
         sum_of_records = 0
         sum_of_records_skipped = 0
@@ -176,7 +176,7 @@ class TimeAnalyzer(object):
                 print("\tMax: %.3f s/step" % skip_max)
                 print("\tFPS: %.3f %s" % (fps_skipped, fps_unit))
 
-        return round(fps_skipped, 3)
+        return round(fps_skipped, 3), fps_unit
 
 
 if __name__ == "__main__":
@@ -195,7 +195,7 @@ if __name__ == "__main__":
                 run_info["log_with_profiler"] = args.log_with_profiler
                 run_info["profiler_path"] = args.profiler_path
             analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
-            run_info["FINAL_RESULT"] = analyzer.analysis(args.base_batch_size, args.gpu_num, 
+            run_info["FINAL_RESULT"], run_info["UNIT"] = analyzer.analysis(args.base_batch_size, args.gpu_num,
                                                          args.skip_steps, args.model_mode)
         elif args.index == 3:
             run_info["FINAL_RESULT"] = {}
