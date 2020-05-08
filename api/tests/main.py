@@ -182,16 +182,28 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
         raise ValueError("API config must be set.")
 
     args = parse_args()
-    if args.json_file is not None:
+
+    if config.alias_config != '':
+        json_file = 'examples/' + config.alias_config.name + '.json'
+    else:
+        json_file = args.json_file
+
+    if json_file is not None:
         if args.config_id is not None and args.config_id >= 0:
-            config.init_from_json(args.json_file, args.config_id)
+            if config.alias_config != '':
+                config.alias_config.init_from_json(json_file, args.config_id)
+            else:
+                config.init_from_json(json_file, args.config_id)
             test_main_without_json(pd_obj, tf_obj, config)
         else:
             num_configs = 0
-            with open(args.json_file, 'r') as f:
+            with open(json_file, 'r') as f:
                 num_configs = len(json.load(f))
             for config_id in range(0, num_configs):
-                config.init_from_json(args.json_file, config_id)
+                if config.alias_config != '':
+                    config.alias_config.init_from_json(json_file, config_id)
+                else:
+                    config.init_from_json(json_file, config_id)
                 test_main_without_json(pd_obj, tf_obj, config)
     else:
         test_main_without_json(pd_obj, tf_obj, config)
@@ -220,7 +232,10 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
     ]:
         if tf_obj is None:
             raise ValueError("TensorFlow object is None.")
-        tf_config = config.to_tensorflow()
+        if config.alias_config != '':
+            tf_config = config.alias_config.to_tensorflow()
+        else:
+            tf_config = config.to_tensorflow()
         print(tf_config)
         tf_obj.name = tf_config.name
         tf_obj.build_graph(config=tf_config)

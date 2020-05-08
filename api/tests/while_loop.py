@@ -13,32 +13,13 @@
 # limitations under the License.
 
 from common_import import *
+from fc import FCConfig
 
 
 class WhileLoopConfig(APIConfig):
     def __init__(self):
         super(WhileLoopConfig, self).__init__('while_loop')
-
-    def init_from_json(self, filename, config_id=0):
-        super(WhileLoopConfig, self).init_from_json(filename, config_id)
-        num_flatten_dims = self.num_flatten_dims
-        if num_flatten_dims < 0:
-            num_flatten_dims = num_flatten_dims + len(self.input_shape)
-        row = 1
-        col = 1
-        for i in range(len(self.input_shape)):
-            if i < self.num_flatten_dims:
-                row = row * self.input_shape[i]
-            else:
-                col = col * self.input_shape[i]
-        self.input_shape = [row, col]
-        self.num_flatten_dims = -1
-
-    def to_tensorflow(self):
-        tf_config = self
-        if self.act == "relu":
-            tf_config.act = tf.nn.relu
-        return tf_config
+        self.alias_config = FCConfig()
 
 
 class PDWhileLoop(PaddleAPIBenchmarkBase):
@@ -51,7 +32,7 @@ class PDWhileLoop(PaddleAPIBenchmarkBase):
             def body(i, loop_len, input, result):
                 result = fluid.layers.fc(
                     input=input,
-                    size=config.size,
+                    size=config.alias_config.size,
                     num_flatten_dims=-1,
                     param_attr=fluid.ParamAttr(
                         initializer=fluid.initializer.ConstantInitializer(
@@ -59,26 +40,29 @@ class PDWhileLoop(PaddleAPIBenchmarkBase):
                     bias_attr=fluid.ParamAttr(
                         initializer=fluid.initializer.ConstantInitializer(
                             0.1)),
-                    act=config.act)
+                    act=config.alias_config.act)
                 fluid.layers.increment(i)
                 return [i, loop_len, input, result]
 
             input = fluid.data(
                 name="input",
-                shape=config.input_shape,
-                dtype=config.input_dtype,
+                shape=config.alias_config.input_shape,
+                dtype=config.alias_config.input_dtype,
                 lod_level=0)
             input.stop_gradient = False
             i = fluid.layers.zeros(shape=[1], dtype='int64')
             loop_len = fluid.layers.ones(shape=[1], dtype='int64')
             result = fluid.layers.zeros(
-                shape=[config.input_shape[0], config.size],
-                dtype=config.input_dtype)
+                shape=[
+                    config.alias_config.input_shape[0],
+                    config.alias_config.size
+                ],
+                dtype=config.alias_config.input_dtype)
             _, _, _, results = fluid.layers.while_loop(
                 cond, body, [i, loop_len, input, result])
             self.feed_vars = [input]
             self.fetch_vars = [results]
-            if config.backward:
+            if config.alias_config.backward:
                 self.append_gradients(results, [input])
 
 
