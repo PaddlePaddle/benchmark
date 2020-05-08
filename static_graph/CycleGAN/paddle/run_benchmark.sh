@@ -18,11 +18,13 @@ function _set_params(){
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     model_name="CycleGAN"
-    skip_steps=3
-    keyword="Batch_time_cost:"
-    separator=" "
-    position=-1
-    model_mode=0
+    mission_name="图像生成"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
+    direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
+    skip_steps=3                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
+    keyword="Batch_time_cost:"       # 解析日志，筛选出数据所在行的关键字                                             (必填)
+    separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
+    position=-1                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
+    model_mode=0                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
