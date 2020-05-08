@@ -243,6 +243,28 @@ def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0
     return pjr
 
 
+def get_or_insert_model(model_name, mission_name, direction_id):
+    """
+    根据model_name, 获取mission_id, 如果不存在就创建一个。
+    """
+    models = bm.BenchmarkModel.objects.filter(model_name=model_name)
+    if models:
+        return
+    missions = bm.Mission.objects.filter(mission_name=mission_name)
+    if missions:
+        mission_id = missions[0].mission_id
+    else:
+        ms = bm.Mission()
+        ms.mission_name = mission_name
+        ms.direction_id = direction_id
+        ms.save()
+        mission_id = ms.mission_id
+    bms = bm.BenchmarkModel()
+    bms.model_name = model_name
+    bms.mission_id = mission_id
+    bms.save()
+
+
 def insert_job(image_id, run_machine_type, job_info, args):
     """ insert job to db"""
     cluster_job_id = uuid.uuid1()
@@ -285,6 +307,9 @@ def parse_logs(args):
             except Exception as exc:
                 print("file {} parse error".format(job_file))
                 continue
+
+            # check model if exist in db
+            get_or_insert_model(job_info["model_name"], job_info["mission_name"], job_info["direction_id"])
 
             # save job
             if str(job_info["gpu_num"]) == "8" and job_info["run_mode"] == "mp":
@@ -355,7 +380,7 @@ def parse_logs(args):
 
                 if job_info["index"] != 3:
                     check_results(job_info, run_machine_type, result, html_results)
-                elif job_info["index"] == 3:
+                else:
                     check_results(job_info, run_machine_type, result, html_results, "Framework_Total")
                     check_results(job_info, run_machine_type, result, html_results, "GpuMemcpy_Total")
 
