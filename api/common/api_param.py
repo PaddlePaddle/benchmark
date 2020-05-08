@@ -92,6 +92,7 @@ class APIConfig(object):
         self.backward = False
         self.feed_spec = None
         self.alias_config = ''
+        self.atol = 1e-6
 
     def init_from_json(self, filename, config_id=0):
         print("---- Initialize APIConfig from %s, config_id = %d.\n" %
@@ -103,6 +104,11 @@ class APIConfig(object):
                 "The filename: %s, config_id: %d." % (
                     data[config_id]["op"], self.name, filename, config_id)
             self.params = data[config_id]["param_info"]
+            if data[config_id].get("atol", None) is not None:
+                if isinstance(data[config_id]["atol"], str):
+                    self.atol = float(data[config_id]["atol"])
+                elif isinstance(data[config_id]["atol"], float):
+                    self.atol = data[config_id]["atol"]
 
         self._parse_params()
         for param in self.params_list:

@@ -45,6 +45,10 @@ def parse_args():
     parser.add_argument(
         '--model_name', type=str, default=0, help='training model_name, transformer_base')
     parser.add_argument(
+        '--mission_name', type=str, default=0, help='training mission name')
+    parser.add_argument(
+        '--direction_id', type=int, default=0, help='training direction_id')
+    parser.add_argument(
         '--run_mode', type=str, default="sp", help='multi process or single process')
     parser.add_argument(
         '--index', type=int, default=1, help='{1: speed, 2:mem, 3:profiler, 6:max_batch_size}')
@@ -121,6 +125,10 @@ class TimeAnalyzer(object):
             # steps/s -> samples/s
             fps = batch_size * gpu_num * avg_of_records
             unit = "samples/s"
+        elif mode == 4:
+            # s/epoch -> s/epoch
+            fps = avg_of_records
+            unit = "s/epoch"
         else:
             ValueError("Unsupported analysis mode.")
 
@@ -129,11 +137,11 @@ class TimeAnalyzer(object):
     def analysis(self, batch_size, gpu_num=1, skip_steps=0, mode=0):
         if batch_size <= 0:
             print("base_batch_size should larger than 0.")
-            return 0
+            return 0, ''
 
         if len(self.records) <= 0:
             print("no records")
-            return 0
+            return 0, ''
 
         sum_of_records = 0
         sum_of_records_skipped = 0
@@ -176,7 +184,7 @@ class TimeAnalyzer(object):
                 print("\tMax: %.3f s/step" % skip_max)
                 print("\tFPS: %.3f %s" % (fps_skipped, fps_unit))
 
-        return round(fps_skipped, 3)
+        return round(fps_skipped, 3), fps_unit
 
 
 if __name__ == "__main__":
@@ -184,6 +192,8 @@ if __name__ == "__main__":
     run_info = dict()
     run_info["log_file"] = args.filename
     run_info["model_name"] = args.model_name
+    run_info["mission_name"] = args.mission_name
+    run_info["direction_id"] = args.direction_id
     run_info["run_mode"] = args.run_mode
     run_info["index"] = args.index
     run_info["gpu_num"] = args.gpu_num
@@ -195,7 +205,7 @@ if __name__ == "__main__":
                 run_info["log_with_profiler"] = args.log_with_profiler
                 run_info["profiler_path"] = args.profiler_path
             analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
-            run_info["FINAL_RESULT"] = analyzer.analysis(args.base_batch_size, args.gpu_num, 
+            run_info["FINAL_RESULT"], run_info["UNIT"] = analyzer.analysis(args.base_batch_size, args.gpu_num,
                                                          args.skip_steps, args.model_mode)
         elif args.index == 3:
             run_info["FINAL_RESULT"] = {}

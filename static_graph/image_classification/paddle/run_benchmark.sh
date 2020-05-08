@@ -9,10 +9,12 @@ if [[ $# -lt 4 ]]; then
 fi
 
 function _set_params(){
-    index=$1                         # 速度(speed)|显存占用(mem)|单卡最大支持batch_size(maxbs)(必填)
-    base_batch_size=$2               # 单卡的batch_size，如果固定的，可以写死（必填）
+    index=$1                         # 速度(speed)|显存占用(mem)|单卡最大支持batch_size(maxbs)                       (必填)
+    base_batch_size=$2               # 单卡的batch_size，如果固定的，可以写死。                                       (必填）
     model_name=$3                    # 模型名字如："SE-ResNeXt50"，如果是固定的，可以写死，如果需要其他参数可以参考bert实现（必填）
-    run_mode=${4:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程（必填）
+    run_mode=${4:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程                                            （必填）
+    mission_name="图像分类"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
+    direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
 
     max_iter=${5}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
@@ -20,12 +22,12 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
-    skip_steps=8                     # 解析日志，有些模型前几个step耗时长，需要跳过(必填)
+    skip_steps=8                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
     if [ ${run_mode} = "mp" ]; then skip_steps=31; fi
-    keyword="elapse"                 # 解析日志，筛选出数据所在行的关键字(必填)
-    separator=" "                    # 解析日志，数据所在行的分隔符(必填)
-    position=-2                      # 解析日志，按照分隔符分割后形成的数组索引(必填)
-    model_mode=0                     # 解析日志，若数据单位是s/step，则为0，若数据单位是step/s,则为1(必填)
+    keyword="elapse"                 # 解析日志，筛选出数据所在行的关键字                                             (必填)
+    separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
+    position=-2                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
+    model_mode=0                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
     #range=-1                        # 解析日志，取得列表索引的值后，切片[0：range], 默认最后一位可以不用填, 或者 3:10格式
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
