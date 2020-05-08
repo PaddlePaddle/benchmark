@@ -45,6 +45,10 @@ def parse_args():
     parser.add_argument(
         '--model_name', type=str, default=0, help='training model_name, transformer_base')
     parser.add_argument(
+        '--mission_name', type=str, default=0, help='training mission name')
+    parser.add_argument(
+        '--direction_id', type=int, default=0, help='training direction_id')
+    parser.add_argument(
         '--run_mode', type=str, default="sp", help='multi process or single process')
     parser.add_argument(
         '--index', type=int, default=1, help='{1: speed, 2:mem, 3:profiler, 6:max_batch_size}')
@@ -121,6 +125,10 @@ class TimeAnalyzer(object):
             # steps/s -> samples/s
             fps = batch_size * gpu_num * avg_of_records
             unit = "samples/s"
+        elif mode == 4:
+            # s/epoch -> s/epoch
+            fps = avg_of_records
+            unit = "s/epoch"
         else:
             ValueError("Unsupported analysis mode.")
 
@@ -184,6 +192,8 @@ if __name__ == "__main__":
     run_info = dict()
     run_info["log_file"] = args.filename
     run_info["model_name"] = args.model_name
+    run_info["mission_name"] = args.mission_name
+    run_info["direction_id"] = args.direction_id
     run_info["run_mode"] = args.run_mode
     run_info["index"] = args.index
     run_info["gpu_num"] = args.gpu_num

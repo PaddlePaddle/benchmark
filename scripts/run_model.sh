@@ -61,6 +61,8 @@ function _run(){
             --skip_steps ${skip_steps} \
             --model_mode ${model_mode} \
             --model_name "${model_name}" \
+            --mission_name "${mission_name}" \
+            --direction_id "${direction_id}" \
             --run_mode ${run_mode} \
             --index ${index} \
             --gpu_num ${num_gpu_devices} \
