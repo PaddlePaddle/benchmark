@@ -8,7 +8,7 @@
 PADDLE_ROOT=/path/of/capi
 git clone https://github.com/PaddlePaddle/Paddle.git
 cd Paddle
-git checkout release/1.8
+git checkout develop
 mkdir build
 cd build
 cmake -DFLUID_INFERENCE_INSTALL_DIR=$PADDLE_ROOT \
@@ -74,7 +74,7 @@ qat_model_dir=/PATH/TO/DOWNLOAD/MODEL/Ernie_qat/float
 dataset_dir=/PATH/TO/DOWNLOAD/NLP/DATASET/Ernie_dataset
 fp32_model_dir=/PATH/TO/DOWNLOAD/MODEL/ernie_fp32_model
 cd /PATH/TO/PADDLE
-OMP_NUM_THREADS=28 FLAGS_use_mkldnn=true python python/paddle/fluid/contrib/slim/tests/qat2_int8_nlp_comparison.py --qat_model=${qat_model_dir} --fp32_model=${fp32_model_dir} --infer_data=${dataset_dir}/1.8w.bs1 --labels=${dataset_dir}/label.xnli.dev --batch_size=50 --batch_num=0 --quantized_ops="fc,reshape2,transpose2,matmul" --acc_diff_threshold=0.01 
+OMP_NUM_THREADS=28 FLAGS_use_mkldnn=true python python/paddle/fluid/contrib/slim/tests/qat2_int8_nlp_comparison.py --qat_model=${qat_model_dir} --fp32_model=${fp32_model_dir} --infer_data=${dataset_dir}/1.8w.bs1 --labels=${dataset_dir}/label.xnli.dev --batch_size=50 --batch_num=0 --ops_to_quantize="fc,reshape2,transpose2,matmul" --acc_diff_threshold=0.01 
 ```
 
 * 性能复现
@@ -84,7 +84,7 @@ OMP_NUM_THREADS=28 FLAGS_use_mkldnn=true python python/paddle/fluid/contrib/slim
 qat_model_dir=/PATH/TO/DOWNLOAD/MODEL/Ernie_qat/float
 save_int8_model_path=/PATH/TO/SAVE/INT8/ERNIE/MODEL
 cd /PATH/TO/PADDLE
-python python/paddle/fluid/contrib/slim/tests/save_qat_model.py --qat_model_path=${qat_model_dir} --int8_model_save_path=${save_int8_model_path} --quantized_ops="fc,reshape2,transpose2,matmul"
+python python/paddle/fluid/contrib/slim/tests/save_qat_model.py --qat_model_path=${qat_model_dir} --int8_model_save_path=${save_int8_model_path} --ops_to_quantize="fc,reshape2,transpose2,matmul"
 ```
 #### 2. Ernie Float32 模型性能复现
 ```bash
@@ -118,13 +118,13 @@ export KMP_BLOCKTIME=1
 
 |     Model    |  FP32 Accuracy | QAT INT8 Accuracy | Accuracy Diff |
 |:------------:|:----------------------:|:----------------------:|:---------:|
-|   Ernie      |          80.20%        |         79.64%   |     -0.56%      |               
+|   Ernie      |          80.20%        |         79.87%   |     -0.32%      |               
 
 
 >**II. Ernie QAT MKL-DNN 在 Intel(R) Xeon(R) Gold 6271 上单样本耗时**
 
 |     Threads  | FP32 Latency (ms) | QAT INT8 Latency (ms)    | Ratio (FP32/INT8) |
 |:------------:|:----------------------:|:-------------------:|:-----------------:|
-| 1 thread     |        236.72          |             83.20    |      2.85x       |
-| 20 threads   |        27.40           |            14.99     |      1.83x       |
+| 1 thread     |       229.043          |      81.014           |    2.827X       |
+| 20 threads   |       21.391           |      13.624           |    1.57X        |
 
