@@ -73,7 +73,4 @@ class TFElementwise(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    config = ElementwiseConfig()
-    for i in range(len(config.api_list)):
-        test_main(PDElementwise(), TFElementwise(), config)
-        config.id = config.id + 1
+    test_main(PDElementwise(), TFElementwise(), ElementwiseConfig())

@@ -49,6 +49,8 @@ def parse_args():
     parser.add_argument(
         '--json_file', type=str, default=None, help='The file of API params')
     parser.add_argument(
+        '--series_API', type=str, default=None, help='The series of API')
+    parser.add_argument(
         '--config_id',
         type=int,
         default=None,
@@ -183,27 +185,58 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
 
     args = parse_args()
 
-    if config.alias_config != '':
-        json_file = 'examples/' + config.alias_config.name + '.json'
+    if config.alias_config != None:
+        json_file = args.json_file
+        dir = ''
+        if json_file.find('/'):
+            dir = json_file.split('/')
+        end = json_file.split('.')
+        json_file = dir[0] + '/' + config.alias_config.name + '.' + end[1]
     else:
         json_file = args.json_file
 
     if json_file is not None:
         if args.config_id is not None and args.config_id >= 0:
-            if config.alias_config != '':
+            if config.alias_config != None:
                 config.alias_config.init_from_json(json_file, args.config_id)
             else:
                 config.init_from_json(json_file, args.config_id)
-            test_main_without_json(pd_obj, tf_obj, config)
+            if args.series_API != None:
+                if args.series_API == 'all':
+                    for i in range(len(config.api_list)):
+                        config.id = i
+                        test_main_without_json(pd_obj, tf_obj, config)
+                else:
+                    API_s = args.series_API.split(',')
+                    for api in API_s:
+                        for i in range(len(config.api_list)):
+                            if api == config.api_list[i]:
+                                config.id = i
+                        test_main_without_json(pd_obj, tf_obj, config)
+            else:
+                test_main_without_json(pd_obj, tf_obj, config)
         else:
             num_configs = 0
             with open(json_file, 'r') as f:
                 num_configs = len(json.load(f))
             for config_id in range(0, num_configs):
-                if config.alias_config != '':
+                if config.alias_config != None:
                     config.alias_config.init_from_json(json_file, config_id)
                 else:
                     config.init_from_json(json_file, config_id)
+            if args.series_API != None:
+                if args.series_API == 'all':
+                    for i in range(len(config.api_list)):
+                        config.id = i
+                        test_main_without_json(pd_obj, tf_obj, config)
+                else:
+                    API_s = args.series_API.split(',')
+                    for api in API_s:
+                        for i in range(len(config.api_list)):
+                            if api == config.api_list[i]:
+                                config.id = i
+                        test_main_without_json(pd_obj, tf_obj, config)
+            else:
                 test_main_without_json(pd_obj, tf_obj, config)
     else:
         test_main_without_json(pd_obj, tf_obj, config)
@@ -232,7 +265,7 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
     ]:
         if tf_obj is None:
             raise ValueError("TensorFlow object is None.")
-        if config.alias_config != '':
+        if config.alias_config != None:
             tf_config = config.alias_config.to_tensorflow()
         else:
             tf_config = config.to_tensorflow()

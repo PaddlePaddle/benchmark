@@ -91,7 +91,7 @@ class APIConfig(object):
         self.params_list = []
         self.backward = False
         self.feed_spec = None
-        self.alias_config = ''
+        self.alias_config = None
         self.atol = 1e-6
 
     def init_from_json(self, filename, config_id=0):
