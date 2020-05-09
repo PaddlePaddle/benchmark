@@ -119,24 +119,31 @@ class PaddleAPIBenchmarkBase(object):
         executor = fluid.Executor(self.place)
         executor.run(self.startup_program)
 
+        def _run_main_iter(feed=None):
+            outputs = executor.run(program=self.main_program,
+                                   feed=feed,
+                                   fetch_list=self.fetch_vars,
+                                   use_program_cache=True,
+                                   return_numpy=True)
+            return outputs
+
         if feed is None:
             feed = self._feed_random_data(use_gpu, as_lodtensor=False)
+
+        # warmup, filling the feeding data.
+        _run_main_iter(feed=feed)
 
         runtimes = []
         fetches = []
         outputs = None
         with profile_context(self.name, use_gpu, profiler):
-            for i in xrange(repeat):
+            for i in range(repeat):
                 begin = time.time()
-                outputs = executor.run(program=self.main_program,
-                                       feed=feed,
-                                       fetch_list=self.fetch_vars,
-                                       use_program_cache=True,
-                                       return_numpy=True)
-                end = time.time()
-                runtimes.append(end - begin)
+                outputs = _run_main_iter(feed=feed)
+                runtimes.append(time.time() - begin)
                 if check_output:
                     fetches.append(outputs)
+
         if check_output:
             stable, max_diff = self._check_consistency(fetches)
             stats = {"total": runtimes, "stable": stable, "diff": max_diff}

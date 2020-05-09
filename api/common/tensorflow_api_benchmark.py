@@ -60,7 +60,7 @@ class Profiler(object):
             self.profiler.add_step(step=step, run_meta=self.run_metadata)
             if self.generate_timeline:
                 # For timeline
-                tl = timeline.Timeline(self.un_metadata.step_stats)
+                tl = timeline.Timeline(self.run_metadata.step_stats)
                 chrome_trace = tl.generate_chrome_trace_format()
                 trace_file = open(self.name + '.tf.timeline', 'w')
                 trace_file.write(chrome_trace)
@@ -68,10 +68,8 @@ class Profiler(object):
     def __exit__(self, exception_type, exception_value, traceback):
         if self.profile:
             # Generate profiling result
-            profile_op_builder = option_builder.ProfileOptionBuilder()
-            profile_op_builder.select(['micros', 'occurrence'])
-            profile_op_builder.order_by('micros')
-            profile_op_builder.with_max_depth(10)
+            profile_op_builder = option_builder.ProfileOptionBuilder().select(
+                ['micros', 'occurrence']).order_by('micros').with_max_depth(5)
             self.profiler.profile_operations(profile_op_builder.build())
         return self
 
@@ -169,7 +167,6 @@ class TensorflowAPIBenchmarkBase(object):
             raise TypeError("inputs should be a list.")
 
         gradients = tf.gradients(targets, inputs)
-        print(gradients)
         if isinstance(gradients, list):
             for grad in gradients:
                 self.fetch_list.append(grad)
@@ -184,10 +181,19 @@ class TensorflowAPIBenchmarkBase(object):
             check_output=False,
             profile=False):
         sess = self._init_session(use_gpu)
-        #tf.debugging.set_log_device_placement(True)
+        tf.debugging.set_log_device_placement(True)
 
         if feed is None:
             feed = self._feed_random_data()
+
+        def _run_main_iter(feed=feed, run_options=None, run_metadata=None):
+            outputs = sess.run(fetches=self.fetch_list,
+                               feed_dict=feed,
+                               options=run_options,
+                               run_metadata=run_metadata)
+            return outputs
+
+        _run_main_iter(feed=feed, run_options=None, run_metadata=None)
 
         runtimes = []
         fetches = []
@@ -195,12 +201,11 @@ class TensorflowAPIBenchmarkBase(object):
         with Profiler(self.name, sess, profile) as prof:
             for i in range(repeat):
                 begin = time.time()
-                outputs = sess.run(fetches=self.fetch_list,
-                                   feed_dict=feed,
-                                   options=prof.run_options,
-                                   run_metadata=prof.run_metadata)
-                end = time.time()
-                runtimes.append(end - begin)
+                outputs = _run_main_iter(
+                    feed=feed,
+                    run_options=prof.run_options,
+                    run_metadata=prof.run_metadata)
+                runtimes.append(time.time() - begin)
                 prof.add_step(step=i)
 
                 if check_output:
