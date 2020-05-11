@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+cur_model_list=(seq2seq nextvlad detection mask_rcnn image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
 
 function _collect_occupancy() {
     if [[ "${BENCHMARK_MONITOR}" = "" ]]; then
@@ -22,7 +23,16 @@ function _run(){
     # running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}
     if [[ ${index} -eq 1 ]]; then
         job_bt=`date '+%Y%m%d%H%M%S'`
-        _train
+        if [ ${implement_type} != "static_graph" ]; then
+            gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
+            nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
+            gpu_memory_pid=$!
+            _train
+            kill ${gpu_memory_pid}
+            awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "MAX_GPU_MEMORY_USE=", max}' gpu_use.log
+        else
+            _train
+        fi   
         job_et=`date '+%Y%m%d%H%M%S'`
         _collect_occupancy
     elif [[ ${index} -eq 2 ]]; then
