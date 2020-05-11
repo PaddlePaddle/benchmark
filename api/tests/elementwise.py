@@ -17,15 +17,18 @@ from common_import import *
 class ElementwiseConfig(APIConfig):
     def __init__(self):
         super(ElementwiseConfig, self).__init__('elementwise')
-        self.api_list = ['add', 'sub', 'mul', 'pow', 'div']
-        self.tf_api_list = ['add', 'subtract', 'multiply', 'pow', 'divide']
-        self.id = 0
+        self.api = 'add'
+        self.api_list = {
+            'add': 'add',
+            'sub': 'subtract',
+            'mul': 'multiply',
+            'pow': 'pow',
+            'div': 'pow'
+        }
 
     def to_tensorflow(self):
-        tf_config = self
-        if self.act == "relu":
-            tf_config.act = tf.nn.relu
-        return tf_config
+        self.tf_api = self.api_list[self.api]
+        return self
 
 
 class PDElementwise(PaddleAPIBenchmarkBase):
@@ -43,11 +46,13 @@ class PDElementwise(PaddleAPIBenchmarkBase):
                 lod_level=0)
             x.stop_gradient = False
             y.stop_gradient = False
-            self.name = 'elementwise_' + config.api_list[config.id]
-            module = importlib.import_module("paddle.fluid.layers")
-            api_paddle = getattr(module,
-                                 'elementwise_' + config.api_list[config.id])
-            result = api_paddle(x=x, y=y, axis=config.axis, act=config.act)
+            self.name = 'elementwise_' + config.api
+            result = self.layers(
+                "elementwise_" + config.api,
+                x=x,
+                y=y,
+                axis=config.axis,
+                act=config.act)
 
             self.feed_vars = [x, y]
             self.fetch_vars = [result]
@@ -61,10 +66,8 @@ class TFElementwise(TensorflowAPIBenchmarkBase):
             name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.placeholder(
             name='y', shape=config.y_shape, dtype=config.y_dtype)
-        self.name = config.tf_api_list[config.id]
-        module = importlib.import_module("tensorflow")
-        api_tf = getattr(module, config.tf_api_list[config.id])
-        result = api_tf(x=x, y=y)
+        self.name = config.tf_api
+        result = self.layers(config.tf_api, x=x, y=y)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]

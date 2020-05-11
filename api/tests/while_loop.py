@@ -75,27 +75,31 @@ class TFWhileLoop(TensorflowAPIBenchmarkBase):
             if tf.__version__ <= "1.15.0":
                 result = tf.contrib.layers.fully_connected(
                     inputs=input,
-                    num_outputs=config.size,
+                    num_outputs=config.alias_config.size,
                     weights_initializer=tf.constant_initializer(0.5),
                     biases_initializer=tf.constant_initializer(0.1),
-                    activation_fn=config.act)
+                    activation_fn=config.alias_config.act)
             else:
                 result = tf.compat.v1.layers.dense(
                     inputs=input,
-                    units=config.size,
-                    activation=config.act,
+                    units=config.alias_config.size,
+                    activation=config.alias_config.act,
                     use_bias=True,
                     kernel_initializer=tf.constant_initializer(0.5),
                     bias_initializer=tf.constant_initializer(0.1))
             return [i + 1, loop_len, input, result]
 
         input = self.placeholder(
-            name="input", shape=config.input_shape, dtype=config.input_dtype)
+            name="input",
+            shape=config.alias_config.input_shape,
+            dtype=config.alias_config.input_dtype)
         i = tf.constant(0)
         loop_len = tf.constant(1)
         result = tf.zeros(
-            shape=[config.input_shape[0], config.size],
-            dtype=config.input_dtype)
+            shape=[
+                config.alias_config.input_shape[0], config.alias_config.size
+            ],
+            dtype=config.alias_config.input_dtype)
         if tf.__version__ <= "1.15.0":
             _, _, _, results = tf.while_loop(cond, body,
                                              [i, loop_len, input, result])
@@ -104,7 +108,7 @@ class TFWhileLoop(TensorflowAPIBenchmarkBase):
                 cond, body, [i, loop_len, input, result])
         self.feed_list = [input]
         self.fetch_list = [results]
-        if config.backward:
+        if config.alias_config.backward:
             self.append_gradients(results, [input])
 
 

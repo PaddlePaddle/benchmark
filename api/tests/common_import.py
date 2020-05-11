@@ -14,7 +14,6 @@
 
 from main import test_main, test_main_without_json
 
-import importlib
 import sys
 sys.path.append("..")
 from common.paddle_api_benchmark import PaddleAPIBenchmarkBase
