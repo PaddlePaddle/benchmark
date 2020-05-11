@@ -1,6 +1,15 @@
 #!/bin/bash
+run_type=${1}
+if [ ${run_type} == "dygraph" ]; then
+    cur_model_list=(dy_mobilenet)
+    #cur_model_list=(dy_resnet dy_ptb_lm dy_transformer dy_seq2seq dy_mobilenet)
+elif [ ${run_type} == "static" ]; then
+    cur_model_list=(seq2seq nextvlad detection mask_rcnn image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
+else
+    echo "############# please set a proper  run_type ! It can be dygraph or static !###############"
 
-cur_model_list=(seq2seq nextvlad detection mask_rcnn image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
+fi
+
 usage () {
   cat <<EOF
   usage: $0 [options]
@@ -802,8 +811,36 @@ seq2seq(){
     echo "index is mem, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 sp 1 | tee ${log_path}/${FUNCNAME}_mem_1gpus 2>&1
 }
+############################################dygraph
+dy_mobilenet(){
+    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/mobilenet/
+    cd ${cur_model_path}
 
-
+    # Prepare data
+    mkdir -p data
+    ln -s ${data_path}/ILSVRC2012  ${cur_model_path}/data
+    # Running ...
+    rm ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/mobilenet/paddle/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    modle_list=(MobileNetV2 MobileNetV1)
+    for model_item in ${modle_list[@]}
+    do
+        echo "------------> begin to run ${model_item}"
+        echo "index is speed, begin"
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 1000 ${model_item} | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is speed, 8gpus, begin"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 1000 ${model_item} | tee ${log_path}/dynamic_${model_item}_mem_1gpus 2>&1
+        sleep 60
+        echo "index is mem, 1gpus, begin"
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 2 sp 800 ${model_item} | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is mem, 8gpus, begin"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 sp 1000 ${model_item} | tee ${log_path}/dynamic_${model_item}_mem_1gpus 2>&1
+    done
+}
+##########################################main logic
 run(){
     if [ $model = "all" ]
     then
