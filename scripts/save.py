@@ -172,19 +172,22 @@ def send_email(title, mailto, cc, content):
         print e
 
 
-def check_results(job_info, run_machine_type, cur_value, html_results, check_key=None):
+def check_results(model_name, index, run_machine_type, cur_value, html_results, check_key=None):
     """
     check current results in range[-0.05, 0.05]
     :param job_info
+    :param index
     :param run_machine_type:
     :param cur_value:
     :param html_result:
     :param check_key:
     :return:
     """
-    results = bm.ViewJobResult.objects.filter(model_name=job_info["model_name"],
-                                              report_index_id=job_info["index"],
-                                              job_type=2,
+    # 包括pr需要对比的job_type
+    check_job_type = 2 if args.job_type in [1, 2] else 3
+    results = bm.ViewJobResult.objects.filter(model_name=model_name,
+                                              report_index_id=index,
+                                              job_type=check_job_type,
                                               cuda_version=args.cuda_version,
                                               cudnn_version=args.cudnn_version,
                                               device_type=args.device_type,
@@ -224,8 +227,8 @@ def check_results(job_info, run_machine_type, cur_value, html_results, check_key
         traceback.print_exc()
         ranges = -1
     if ranges > 0.05 or ranges < -0.05:
-        current_html_result = [job_info["model_name"], run_machine_type,
-                               check_key if check_key else DICT_INDEX[job_info["index"]],
+        current_html_result = [model_name, run_machine_type,
+                               check_key if check_key else DICT_INDEX[index],
                                avg_values, cur_value, ranges]
         html_results.append(current_html_result)
 
@@ -322,6 +325,7 @@ def parse_logs(args):
             cpu_utilization_result = 0
             gpu_utilization_result = 0
             unit = ''
+            mem_result = 0
             try:
                 if job_info["index"] == 1:
                     result = job_info['FINAL_RESULT']
@@ -331,6 +335,11 @@ def parse_logs(args):
                             cpu_utilization_result = line.strip().split('=')[1]
                         if 'AVG_GPU_USE' in line:
                             gpu_utilization_result = line.strip().split('=')[1]
+                        # TODO: 动态图吞吐和显存占用是一个任务，后续静态图也改成一个任务，删除这个判断和删除 elif job_info["index"] == 2:
+                        if "MAX_GPU_MEMORY_USE" in line and args.implement_type != 'static_graph':
+                            value = line.strip().split("=")[1].strip()
+                            mem_result = int(value) if str.isdigit(value) else 0
+                            break
                 elif job_info["index"] == 2:
                     for line in file_lines:
                         if "MAX_GPU_MEMORY_USE" in line:
@@ -354,7 +363,7 @@ def parse_logs(args):
                 log_save_dict = {"train_log_path": train_log_path}
                 if job_info["index"] == 1:
                     insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result, '%')
-                    insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%')
+                    insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%') 
                     if int(job_info["gpu_num"]) == 1:
                         profiler_log = job_info["log_with_profiler"].split("/")[-1]
                         profiler_path = job_info["profiler_path"].split("/")[-1]
@@ -368,9 +377,10 @@ def parse_logs(args):
                 pjrl = bm.JobResultsLog()
                 pjrl.result_id = pjr.result_id
                 pjrl.log_path = json.dumps(log_save_dict)
-                pjrl.save()
-                # cmd = "curl -I -m 10 -o /dev/null -s -w %{http_code} " + profiler_log_path
-                # if commands.getoutput(cmd) != '200':
+                pjrl.save()  
+                # TODO: 动态图吞吐和显存占用是一个任务，后续静态图也改成一个任务，即可删除这个判断
+                if args.implement_type != 'static_graph':
+                    pjr = insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 0)
 
             except Exception as pfe:
                 print pfe
@@ -379,10 +389,17 @@ def parse_logs(args):
                     job_info["model_name"], run_machine_type, job_info["index"], result))
 
                 if job_info["index"] != 3:
-                    check_results(job_info, run_machine_type, result, html_results)
+                    check_results(job_info["model_name"], job_info["index"], 
+                                        run_machine_type, result, html_results)
+                    # TODO: 动态图吞吐和显存占用是一个任务，后续静态图也改成一个任务，即可删除这个判断
+                    if args.implement_type != 'static_graph':
+                        check_results(job_info["model_name"], 2, run_machine_type, 
+                                      mem_result, html_results)
                 else:
-                    check_results(job_info, run_machine_type, result, html_results, "Framework_Total")
-                    check_results(job_info, run_machine_type, result, html_results, "GpuMemcpy_Total")
+                    check_results(job_info["model_name"], job_info["index"], run_machine_type, 
+                                    result, html_results, "Framework_Total")
+                    check_results(job_info["model_name"], job_info["index"], 
+                                    run_machine_type, result, html_results, "GpuMemcpy_Total")
 
     if html_results:
         template.construct_email_content(html_results, args.log_path, args)
