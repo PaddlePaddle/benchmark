@@ -74,15 +74,15 @@ def select_configs(args, forward_logs, backward_logs):
             j += 1
         i += 1
 
-    with open(args.json_file, 'r') as f:
+    with open(args.input_json_file, 'r') as f:
         all_configs = json.load(f)
-    out_dir = os.path.dirname(args.output_file)
+    out_dir = os.path.dirname(args.output_json_file)
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     configs = []
     for index in all_selected_ids:
         configs.append(all_configs[index])
-    with open(args.output_file, 'w') as f:
+    with open(args.output_json_file, 'w') as f:
         json.dump(configs, f, indent=4, sort_keys=True)
 
 
@@ -301,17 +301,17 @@ def parse_args():
         required=True,
         help='Specify the path of log file.')
     parser.add_argument(
-        '--json_file',
+        '--input_json_file',
         type=str,
         default=None,
         required=True,
-        help='Specify the path of json file.')
+        help='Specify the path of input json file.')
     parser.add_argument(
-        '--output_file',
+        '--output_json_file',
         type=str,
         default=None,
         required=True,
-        help='Specify the path of json file.')
+        help='Specify the path of output json file.')
     parser.add_argument(
         '--input_shape',
         nargs='*',
