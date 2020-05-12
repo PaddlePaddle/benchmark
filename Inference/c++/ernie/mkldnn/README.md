@@ -118,13 +118,13 @@ export KMP_BLOCKTIME=1
 
 |     Model    |  FP32 Accuracy | QAT INT8 Accuracy | Accuracy Diff |
 |:------------:|:----------------------:|:----------------------:|:---------:|
-|   Ernie      |          80.20%        |         79.87%   |     -0.32%      |               
+|   Ernie      |          80.20%        |         79.44%   |     -0.76%      |               
 
 
 >**II. Ernie QAT MKL-DNN 在 Intel(R) Xeon(R) Gold 6271 上单样本耗时**
 
 |     Threads  | FP32 Latency (ms) | QAT INT8 Latency (ms)    | Ratio (FP32/INT8) |
 |:------------:|:----------------------:|:-------------------:|:-----------------:|
-| 1 thread     |       229.043          |      81.014           |    2.827X       |
-| 20 threads   |       21.391           |      13.624           |    1.57X        |
+| 1 thread     |       237.21          |      79.26           |    2.99X       |
+| 20 threads   |       22.08           |      12.57           |    1.76X       |
 
