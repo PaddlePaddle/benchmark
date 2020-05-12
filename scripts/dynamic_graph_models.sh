@@ -37,11 +37,5 @@ dy_mobilenet(){
         sleep 60
         echo "index is speed, 8gpus, begin"
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 1000 ${model_item} | tee ${log_path}/dynamic_${model_item}_mem_1gpus 2>&1
-        sleep 60
-        echo "index is mem, 1gpus, begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 2 sp 800 ${model_item} | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
-        sleep 60
-        echo "index is mem, 8gpus, begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 sp 1000 ${model_item} | tee ${log_path}/dynamic_${model_item}_mem_1gpus 2>&1
     done
 }
