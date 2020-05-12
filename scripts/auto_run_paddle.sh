@@ -75,6 +75,8 @@ function prepare(){
     # this for update the log_path coding mat
     export TRAIN_LOG_DIR=${save_log_dir}/train_log
     export PROFILER_LOG_DIR=${save_log_dir}/profiler_log
+    export IMPLEMENT_TYPE=${implement_type}
+    
     mkdir -p ${TRAIN_LOG_DIR}
     mkdir -p ${PROFILER_LOG_DIR}
 
