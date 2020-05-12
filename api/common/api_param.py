@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import json
+import numpy as np
 
 
 def parse_list(value_str, sub_dtype="int"):
@@ -109,6 +110,8 @@ class APIConfig(object):
         for var in self.variable_list:
             setattr(self, var.name + '_shape', var.shape)
             setattr(self, var.name + '_dtype', var.dtype)
+            setattr(self, var.name + '_data',
+                    np.random.random(var.shape).astype(var.dtype))
         return self
 
     def to_tensorflow(self):
@@ -130,7 +133,12 @@ class APIConfig(object):
                     'name', 'params', 'variable_list', 'params_list',
                     'backward', 'feed_spec'
             ]:
-                debug_str = debug_str + ('  %s: %s\n') % (name, value)
+                if isinstance(value, np.ndarray):
+                    debug_str = debug_str + (
+                        '  %s: np.ndarray(shape=%s, dtype=%s)\n') % (
+                            name, str(value.shape), value.dtype)
+                else:
+                    debug_str = debug_str + ('  %s: %s\n') % (name, value)
         debug_str = debug_str + '}'
         return debug_str
 
