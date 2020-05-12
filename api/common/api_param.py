@@ -110,8 +110,6 @@ class APIConfig(object):
         for var in self.variable_list:
             setattr(self, var.name + '_shape', var.shape)
             setattr(self, var.name + '_dtype', var.dtype)
-            setattr(self, var.name + '_data',
-                    np.random.random(var.shape).astype(var.dtype))
         return self
 
     def to_tensorflow(self):

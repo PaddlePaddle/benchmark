@@ -23,29 +23,25 @@ class AbsConfig(APIConfig):
 
 class PDAbs(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.abs(x=data)
+        data = self.variable(
+            name="data", shape=config.x_shape, dtype=config.x_dtype)
+        result = fluid.layers.abs(x=data)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [data])
+        self.feed_vars = [data]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [data])
 
 
 class TFAbs(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        #        data = self.placeholder(
+        #            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        data = tf.Variable(config.x_data)
         result = tf.abs(x=data)
 
-        self.feed_list = [data]
-        self.fetch_list = [result]
+        self.feed_list = []
+        self.fetch_list = [result.op]
         if config.backward:
             self.append_gradients(result, [data])
 

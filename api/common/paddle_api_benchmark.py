@@ -21,6 +21,9 @@ import contextlib
 import numpy as np
 import utils
 
+import api_param
+import feeder
+
 try:
     import paddle
     import paddle.fluid as fluid
@@ -84,15 +87,16 @@ class PaddleAPIBenchmarkBase(object):
         self.place = None
         self.feed_vars = None
         self.fetch_vars = None
-        self.feed_tensors = {}
 
     @abc.abstractmethod
     def build_program(self, config=None):
         pass
 
-    def create_program(self):
-        self.main_program = fluid.Program()
-        self.startup_program = fluid.Program()
+    def variable(self, name, shape, dtype, stop_gradient=False):
+        data = fluid.data(name=name, shape=shape, dtype=dtype, lod_level=0)
+        data.persistable = True
+        data.stop_gradient = stop_gradient
+        return data
 
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, fluid.framework.Variable):
@@ -107,21 +111,25 @@ class PaddleAPIBenchmarkBase(object):
         else:
             self.fetch_vars.append(gradients)
 
-    def run(self,
-            use_gpu,
-            feed=None,
-            repeat=1,
-            log_level=0,
-            check_output=False,
-            profiler="none"):
+    def run_impl(self,
+                 use_gpu,
+                 feed=None,
+                 repeat=1,
+                 log_level=0,
+                 check_output=False,
+                 profiler="none"):
         self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
         executor = fluid.Executor(self.place)
         executor.run(self.startup_program)
 
         def _run_main_iter(feed=None):
+            if self._use_feed_fetch:
+                fetch_vars = self.fetch_vars
+            else:
+                fetch_vars = None
             outputs = executor.run(program=self.main_program,
                                    feed=feed,
-                                   fetch_list=self.fetch_vars,
+                                   fetch_list=fetch_vars,
                                    use_program_cache=True,
                                    return_numpy=True)
             return outputs
@@ -150,6 +158,52 @@ class PaddleAPIBenchmarkBase(object):
         stats["name"] = self.name
         stats["device"] = "GPU" if use_gpu else "CPU"
         utils.print_stat(stats, log_level=log_level)
+        return outputs
+
+    def generate_feed_list(self, config):
+        self.main_program = fluid.Program()
+        self.startup_program = fluid.Program()
+        with fluid.program_guard(self.main_program, self.startup_program):
+            self.build_program(config=config)
+
+        feed_list = feeder.feed_paddle(self, feed_spec=config.feed_spec)
+        return feed_list
+
+    def run(self, config, args, use_feed_fetch=True, feed_list=None):
+        if config is None or not isinstance(config, api_param.APIConfig):
+            raise ValueError(
+                "Argument \"config\" must be set to an instance of APIConfig.")
+
+        self.name = config.name
+        self._use_feed_fetch = use_feed_fetch
+        if feed_list is None:
+            feed_list = self.generate_feed_list(config)
+        if use_feed_fetch:
+            assert len(feed_list) == len(self.feed_vars)
+
+            feed = {}
+            for i in range(len(obj.feed_vars)):
+                feed[obj.feed_vars[i].name] = feed_list[i]
+        else:
+            with fluid.program_guard(self.startup_program):
+                # Append initialiar operator to startup program.
+                for i in range(len(self.feed_vars)):
+                    var = fluid.data(
+                        name=self.feed_vars[i].name,
+                        shape=self.feed_vars[i].shape,
+                        dtype=self.feed_vars[i].dtype)
+                    var.persistable = True
+                    fluid.layers.assign(input=feed_list[i], output=var)
+            feed = None
+
+        print(config)
+        outputs = self.run_impl(
+            use_gpu=args.use_gpu,
+            feed=feed,
+            repeat=args.repeat,
+            log_level=args.log_level,
+            check_output=args.check_output,
+            profiler=args.profiler)
         return outputs
 
     def _check_consistency(self, fetches):

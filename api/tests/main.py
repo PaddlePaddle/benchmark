@@ -16,10 +16,9 @@ from __future__ import print_function
 
 import argparse
 import os
-import feeder
 import json
+
 import sys
-import re
 sys.path.append("..")
 from common import utils
 from common import api_param
@@ -94,31 +93,13 @@ def parse_args():
         raise ValueError("task should be speed, accuracy")
     if args.framework not in ["paddle", "tensorflow", "tf", "both"]:
         raise ValueError("task should be paddle, tensorflow, tf, both")
+
+    if args.task == "accuracy":
+        args.repeat = 1
+        args.log_level = 0
+        args.check_output = False
+        args.profiler = False
     return args
-
-
-def run_paddle(task, obj, args, feed_list=None):
-    feed = None
-    if feed_list is not None:
-        assert len(feed_list) == len(obj.feed_vars)
-
-        feed = {}
-        for i in range(len(obj.feed_vars)):
-            feed[obj.feed_vars[i].name] = feed_list[i]
-
-    if task == "speed":
-        obj.run(use_gpu=args.use_gpu,
-                feed=feed,
-                repeat=args.repeat,
-                log_level=args.log_level,
-                check_output=args.check_output,
-                profiler=args.profiler)
-        return None
-    elif task == "accuracy":
-        if feed is None:
-            raise ValueError("feed should not be None when checking accuracy.")
-        outputs = obj.run(use_gpu=args.use_gpu, feed=feed, check_output=False)
-        return outputs
 
 
 def run_tensorflow(task, obj, args, feed_list=None):
@@ -146,21 +127,6 @@ def run_tensorflow(task, obj, args, feed_list=None):
         return outputs
 
 
-def copy_feed_spec(config=None):
-    if config is None or config.feed_spec is None:
-        return None
-    if not isinstance(config.feed_spec, list):
-        config.feed_spec = [config.feed_spec]
-
-    feed_spec = []
-    for feed_item in config.feed_spec:
-        item = {}
-        for key, value in feed_item.items():
-            item[key] = value
-        feed_spec.append(item)
-    return feed_spec
-
-
 def test_main(pd_obj=None, tf_obj=None, config=None):
     if config is None:
         raise ValueError("API config must be set.")
@@ -181,24 +147,17 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
         test_main_without_json(pd_obj, tf_obj, config)
 
 
-def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
+def test_main_without_json(pd_obj, tf_obj=None, config=None):
     if config is None:
         raise ValueError("API config must be set.")
 
     args = parse_args()
     config.backward = args.backward
-    feed_spec = copy_feed_spec(config)
-    feed_list = None
+    use_feed_fetch = False if args.task == "speed" else False
+
+    feed_list = pd_obj.generate_feed_list(config)
     if args.task == "accuracy" or args.framework in ["paddle", "both"]:
-        if pd_obj is None:
-            raise ValueError("Paddle object is None.")
-        print(config)
-        pd_obj.name = config.name
-        pd_obj.create_program()
-        pd_obj.build_program(config=config)
-        #        feed_list = feeder.feed_paddle(pd_obj, feed_spec=feed_spec)
-        #        pd_outputs = run_paddle(args.task, pd_obj, args, feed_list)
-        pd_outputs = run_paddle(args.task, pd_obj, args)
+        pd_outputs = pd_obj.run(config, args, use_feed_fetch, feed_list)
 
     if args.task == "accuracy" or args.framework in [
             "tensorflow", "tf", "both"

@@ -1,4 +1,4 @@
-# copyright (c) 2019 PaddlePaddle Authors. All Rights Reserve.
+# copyright (c) 2020 PaddlePaddle Authors. All Rights Reserve.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,10 +17,23 @@ from __future__ import print_function
 import numpy as np
 import paddle.fluid as fluid
 
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
+import paddle_api_benchmark as paddle_api
+import tensorflow_api_benchmark as tensorflow_api
+
+
+def copy_feed_spec(feed_spec):
+    if feed_spec is None:
+        return None
+    if not isinstance(feed_spec, list):
+        feed_spec = [feed_spec]
+
+    copy = []
+    for feed_item in feed_spec:
+        item = {}
+        for key, value in feed_item.items():
+            item[key] = value
+        copy.append(item)
+    return copy
 
 
 def feed_var(spec):
@@ -58,10 +71,12 @@ def feed_var(spec):
 
 
 def feed_paddle(obj, feed_spec=None):
-    if feed_spec is not None:
-        if not isinstance(feed_spec, list):
-            feed_spec = [feed_spec]
-        assert len(obj.feed_vars) == len(feed_spec)
+    feed_spec = copy_feed_spec(feed_spec)
+    assert isinstance(feed_spec, list)
+    assert len(obj.feed_vars) == len(
+        feed_spec
+    ), "Expected the number of feeding vars ({}) to be equal to the length of feed_spec ({}).".format(
+        len(obj.feed_vars), len(feed_spec))
 
     feed_list = []
     for i in range(len(obj.feed_vars)):
