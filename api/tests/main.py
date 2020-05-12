@@ -55,11 +55,6 @@ def parse_args():
         help='Only import params of API from json file in the specified position [0|1|...]'
     )
     parser.add_argument(
-        '--run_with_executor',
-        type=str2bool,
-        default=True,
-        help='Whether running with executor [True|False]')
-    parser.add_argument(
         '--check_output',
         type=str2bool,
         default=True,
@@ -112,17 +107,7 @@ def run_paddle(task, obj, args, feed_list=None):
             feed[obj.feed_vars[i].name] = feed_list[i]
 
     if task == "speed":
-        if args.run_with_executor:
-            obj.run_with_executor(
-                use_gpu=args.use_gpu,
-                feed=feed,
-                repeat=args.repeat,
-                log_level=args.log_level,
-                check_output=args.check_output,
-                profiler=args.profiler)
-        else:
-            obj.run_with_core_executor(
-                use_gpu=args.use_gpu,
+        obj.run(use_gpu=args.use_gpu,
                 feed=feed,
                 repeat=args.repeat,
                 log_level=args.log_level,
@@ -132,8 +117,7 @@ def run_paddle(task, obj, args, feed_list=None):
     elif task == "accuracy":
         if feed is None:
             raise ValueError("feed should not be None when checking accuracy.")
-        outputs = obj.run_with_executor(
-            use_gpu=args.use_gpu, feed=feed, check_output=False)
+        outputs = obj.run(use_gpu=args.use_gpu, feed=feed, check_output=False)
         return outputs
 
 
@@ -212,8 +196,9 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
         pd_obj.name = config.name
         pd_obj.create_program()
         pd_obj.build_program(config=config)
-        feed_list = feeder.feed_paddle(pd_obj, feed_spec=feed_spec)
-        pd_outputs = run_paddle(args.task, pd_obj, args, feed_list)
+        #        feed_list = feeder.feed_paddle(pd_obj, feed_spec=feed_spec)
+        #        pd_outputs = run_paddle(args.task, pd_obj, args, feed_list)
+        pd_outputs = run_paddle(args.task, pd_obj, args)
 
     if args.task == "accuracy" or args.framework in [
             "tensorflow", "tf", "both"
@@ -224,9 +209,10 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
         print(tf_config)
         tf_obj.name = tf_config.name
         tf_obj.build_graph(config=tf_config)
-        feed_list = feeder.feed_tensorflow(
-            tf_obj, feed_list, feed_spec=feed_spec)
-        tf_outputs = run_tensorflow(args.task, tf_obj, args, feed_list)
+        #        feed_list = feeder.feed_tensorflow(
+        #            tf_obj, feed_list, feed_spec=feed_spec)
+        #        tf_outputs = run_tensorflow(args.task, tf_obj, args, feed_list)
+        tf_outputs = run_tensorflow(args.task, tf_obj, args)
 
     if args.task == "accuracy":
         utils.check_outputs(pd_outputs, tf_outputs, name=pd_obj.name)

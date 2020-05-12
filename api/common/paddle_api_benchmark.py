@@ -101,20 +101,19 @@ class PaddleAPIBenchmarkBase(object):
             raise TypeError("inputs should be a list.")
 
         gradients = fluid.backward.gradients(targets, inputs)
-        print(gradients)
         if isinstance(gradients, list):
             for grad in gradients:
                 self.fetch_vars.append(grad)
         else:
             self.fetch_vars.append(gradients)
 
-    def run_with_executor(self,
-                          use_gpu,
-                          feed=None,
-                          repeat=1,
-                          log_level=0,
-                          check_output=False,
-                          profiler="none"):
+    def run(self,
+            use_gpu,
+            feed=None,
+            repeat=1,
+            log_level=0,
+            check_output=False,
+            profiler="none"):
         self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
         executor = fluid.Executor(self.place)
         executor.run(self.startup_program)
@@ -127,11 +126,8 @@ class PaddleAPIBenchmarkBase(object):
                                    return_numpy=True)
             return outputs
 
-        if feed is None:
-            feed = self._feed_random_data(use_gpu, as_lodtensor=False)
-
         # warmup, filling the feeding data.
-        _run_main_iter(feed=feed)
+        outputs = _run_main_iter(feed=feed)
 
         runtimes = []
         fetches = []
@@ -155,134 +151,6 @@ class PaddleAPIBenchmarkBase(object):
         stats["device"] = "GPU" if use_gpu else "CPU"
         utils.print_stat(stats, log_level=log_level)
         return outputs
-
-    def run_with_core_executor(self,
-                               use_gpu,
-                               feed=None,
-                               repeat=1,
-                               log_level=0,
-                               check_output=False,
-                               profiler="none"):
-        self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
-        executor = fluid.Executor(self.place)
-        executor.run(self.startup_program)
-
-        # Use to run main_program
-        place = fluid.core.Place()
-        place.set_place(self.place)
-        core_executor = fluid.core.Executor(place)
-
-        fetch_list_str = []
-        for var in self.fetch_vars:
-            fetch_list_str.append(var.name)
-        ctx = core_executor.prepare(self.main_program.desc, 0, fetch_list_str,
-                                    False)
-        core_executor.create_variables(self.main_program.desc, self.scope, 0)
-
-        if feed is None:
-            feed = self._feed_random_data(use_gpu, as_lodtensor=False)
-
-        feed_times = []
-        fetch_times = []
-        compute_times = []
-        runtimes = []
-        fetches = []
-        outputs = None
-        with profile_context(self.name, use_gpu, profiler):
-            for i in xrange(repeat):
-                begin = time.time()
-                self._init_feed_tensor(feed)
-                feed_end = time.time()
-                core_executor.run_prepared_ctx(ctx, self.scope, False, False,
-                                               False)
-                compute_end = time.time()
-                outputs = self._get_fetch_tensor()
-                fetch_end = time.time()
-
-                runtimes.append(fetch_end - begin)
-                feed_times.append(feed_end - begin)
-                compute_times.append(compute_end - feed_end)
-                fetch_times.append(fetch_end - compute_end)
-
-                if check_output:
-                    fetches.append(outputs)
-        if check_output:
-            stable, max_diff = self._check_consistency(fetches)
-            stats = {
-                "total": runtimes,
-                "feed": feed_times,
-                "compute": compute_times,
-                "fetch": fetch_times,
-                "stable": stable,
-                "diff": max_diff
-            }
-        else:
-            stats = {
-                "total": runtimes,
-                "feed": feed_times,
-                "compute": compute_times,
-                "fetch": fetch_times
-            }
-        stats["framework"] = "paddle"
-        stats["version"] = paddle.__version__
-        stats["name"] = self.name
-        stats["device"] = "GPU" if use_gpu else "CPU"
-        utils.print_stat(stats, log_level=log_level)
-        return outputs
-
-    def _feed_random_data(self, use_gpu, as_lodtensor=False):
-        print("feed random data")
-        feed = {}
-        if use_gpu and as_lodtensor:
-            place = fluid.CPUPlace()
-            #place = fluid.CUDAPinnedPlace()
-        for var in self.feed_vars:
-            if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
-                raise TypeError("Feed data of non LoDTensor is not supported.")
-
-            shape = var.shape
-            dtype = convert_dtype(var.dtype, to_string=True)
-            data = np.random.random(shape).astype(dtype)
-            if use_gpu and as_lodtensor:
-                tensor = fluid.core.LoDTensor()
-                tensor.set(data, place)
-                feed[var.name] = tensor
-            else:
-                feed[var.name] = data
-        return feed
-
-    def _init_feed_tensor(self, feed):
-        for var in self.feed_vars:
-            if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
-                raise TypeError("Feed data of non LoDTensor is not supported.")
-
-            var_in_scope = self.scope.find_var(var.name)
-            assert var_in_scope, "Variable {} is not created.".format(var.name)
-            tensor = var_in_scope.get_tensor()
-
-            cur_feed = feed[var.name]
-            if not isinstance(cur_feed, fluid.core.LoDTensor):
-                tensor.set(cur_feed, self.place)
-            else:
-                raise TypeError(
-                    "Feed data of non LoDTensor is not supported yet.")
-
-    def _get_fetch_tensor(self):
-        place = fluid.core.Place()
-        place.set_place(fluid.CPUPlace())
-        output = []
-        for var in self.fetch_vars:
-            if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
-                raise TypeError(
-                    "Fetch data of non LoDTensor is not supported.")
-
-            var_in_scope = self.scope.find_var(var.name)
-            assert var_in_scope, "Variable {} is not created.".format(var.name)
-            tensor = var_in_scope.get_tensor()
-
-            cpu_tensor = tensor._copy(place)
-            output.append(cpu_tensor)
-        return output
 
     def _check_consistency(self, fetches):
         def _self_check(output):
