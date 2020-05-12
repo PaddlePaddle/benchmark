@@ -92,6 +92,7 @@ class APIConfig(object):
         self.backward = False
         self.feed_spec = None
         self.atol = 1e-6
+        self.run_tf = True
 
     def init_from_json(self, filename, config_id=0):
         print("---- Initialize APIConfig from %s, config_id = %d.\n" %
