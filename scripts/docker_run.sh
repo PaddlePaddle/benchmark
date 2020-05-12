@@ -177,8 +177,8 @@ function run_models(){
         -v ${all_path}:${all_path} \
         -v /usr/bin/monquery:/usr/bin/monquery \
         -e "BENCHMARK_WEBSITE=${BENCHMARK_WEBSITE}" \
-        -e "http_proxy=${HTTP_PORXY}" \
-        -e "https_proxy=${HTTP_PORXY}" \
+        -e "http_proxy=${HTTP_PROXY}" \
+        -e "https_proxy=${HTTP_PROXY}" \
         --net=host \
         --privileged \
         ${RUN_IMAGE_NAME} \
@@ -191,8 +191,8 @@ function run_models(){
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
             -v /usr/bin/monquery:/usr/bin/monquery \
             -e "BENCHMARK_WEBSITE=${BENCHMARK_WEBSITE}" \
-            -e "http_proxy=${HTTP_PORXY}" \
-            -e "https_proxy=${HTTP_PORXY}" \
+            -e "http_proxy=${HTTP_PROXY}" \
+            -e "https_proxy=${HTTP_PROXY}" \
             --net=host \
             --privileged \
             ${RUN_IMAGE_NAME} \
