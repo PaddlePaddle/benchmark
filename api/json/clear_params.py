@@ -51,7 +51,7 @@ def import_paddle_module(api_name):
         module = importlib.import_module("paddle")
         return getattr(module, act_api_name)
     except Exception:
-        print("Cannot immport %s.%s." % (module_name, act_api_name))
+        print("Cannot immport paddle.%s." % act_api_name)
         module = None
 
 
@@ -79,7 +79,9 @@ def check_and_clear_params(api_name, params, print_detail=False):
     func = import_fluid_module(api_name)
     if func is None:
         func = import_paddle_module(api_name)
-    assert func is not None, "Cannot import %s from paddle.fluid.layers and paddle" % api_name
+    if func is None:
+        print("Cannot import %s from paddle.fluid.layers and paddle" %
+              api_name)
 
     if func is not None:
         argspec = inspect.getargspec(func)
