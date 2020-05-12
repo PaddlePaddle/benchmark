@@ -82,8 +82,8 @@ function build_paddle(){
     if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
         docker run -i --rm -v $PWD:/paddle \
           -w /paddle \
-          -e "http_proxy=${http_proxy}" \
-          -e "https_proxy=${https_proxy}" \
+          -e "http_proxy=${HTTP_PROXY}" \
+          -e "https_proxy=${HTTP_PROXY}" \
           ${PADDLE_DEV_NAME} \
            /bin/bash -c "mkdir -p /paddle/build && cd /paddle/build; pip install protobuf; \
                          cmake .. -DPY_VERSION=2.7 -DWITH_GPU=OFF -DWITH_TESTING=OFF -DCMAKE_BUILD_TYPE=Release;\
@@ -184,7 +184,7 @@ function run_models(){
         ${RUN_IMAGE_NAME} \
         /bin/bash -c "${run_cmd}"
     else
-        RUN_IMAGE_NAME=hub.baidubce.com/paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
+        RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
         nvidia-docker run -i --rm \
             -v /home/work:/home/work \
             -v ${all_path}:${all_path} \
