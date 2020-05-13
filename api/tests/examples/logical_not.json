@@ -1,0 +1,14 @@
+[{
+    "op": "logical_not",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "bool",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}]

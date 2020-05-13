@@ -15,34 +15,42 @@
 from common_import import *
 
 
-class PDSqueeze(PaddleAPIBenchmarkBase):
+class PDLessThan(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
+            x = fluid.data(
+                name='x',
+                shape=config.x_shape,
+                dtype=config.x_dtype,
                 lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.squeeze(input=data, axes=config.axes)
+            y = fluid.data(
+                name='y',
+                shape=config.y_shape,
+                dtype=config.y_dtype,
+                lod_level=0)
+            x.stop_gradient = False
+            y.stop_gradient = False
+            result = fluid.layers.less_than(x=x, y=y)
 
-            self.feed_vars = [data]
+            self.feed_vars = [x, y]
             self.fetch_vars = [result]
             if config.backward:
-                self.append_gradients(result, [data])
+                self.append_gradients(result, [x, y])
 
 
-class TFSqueeze(TensorflowAPIBenchmarkBase):
+class TFLessThan(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
-            name='data', shape=config.input_shape, dtype=config.input_dtype)
-        result = tf.squeeze(input=data, axis=config.axes)
+        x = self.placeholder(
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.placeholder(
+            name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = tf.less(x=x, y=y)
 
-        self.feed_list = [data]
+        self.feed_list = [x, y]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [data])
+            self.append_gradients(result, [x, y])
 
 
 if __name__ == '__main__':
-    test_main(PDSqueeze(), TFSqueeze(), config=APIConfig("squeeze"))
+    test_main(PDLessThan(), TFLessThan(), config=APIConfig("less_than"))

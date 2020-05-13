@@ -15,7 +15,7 @@
 from common_import import *
 
 
-class PDSqueeze(PaddleAPIBenchmarkBase):
+class PDShape(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
@@ -24,7 +24,7 @@ class PDSqueeze(PaddleAPIBenchmarkBase):
                 dtype=config.input_dtype,
                 lod_level=0)
             data.stop_gradient = False
-            result = fluid.layers.squeeze(input=data, axes=config.axes)
+            result = fluid.layers.shape(input=data)
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -32,11 +32,11 @@ class PDSqueeze(PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data])
 
 
-class TFSqueeze(TensorflowAPIBenchmarkBase):
+class TFShape(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.placeholder(
             name='data', shape=config.input_shape, dtype=config.input_dtype)
-        result = tf.squeeze(input=data, axis=config.axes)
+        result = tf.shape(input=data)
 
         self.feed_list = [data]
         self.fetch_list = [result]
@@ -45,4 +45,4 @@ class TFSqueeze(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDSqueeze(), TFSqueeze(), config=APIConfig("squeeze"))
+    test_main(PDShape(), TFShape(), config=APIConfig("shape"))

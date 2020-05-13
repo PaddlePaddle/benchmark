@@ -14,18 +14,13 @@
 from common_import import *
 
 
-class ElementwiseConfig(APIConfig):
+class ArgConfig(APIConfig):
     def __init__(self):
-        super(ElementwiseConfig, self).__init__('elementwise')
-        self.api = 'add'
+        super(ArgConfig, self).__init__('arg')
+        self.api = 'max'
         self.api_list = {
-            'add': 'add',
-            'div': 'divide',
-            'max': 'maximum',
-            'min': 'minimum',
-            'sub': 'subtract',
-            'mul': 'multiply',
-            'pow': 'pow'
+            'max': 'argmax',
+            'min': 'argmin',
         }
 
     def to_tensorflow(self):
@@ -33,7 +28,7 @@ class ElementwiseConfig(APIConfig):
         return self
 
 
-class PDElementwise(PaddleAPIBenchmarkBase):
+class PDArg(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             x = fluid.data(
@@ -41,41 +36,31 @@ class PDElementwise(PaddleAPIBenchmarkBase):
                 shape=config.x_shape,
                 dtype=config.x_dtype,
                 lod_level=0)
-            y = fluid.data(
-                name='y',
-                shape=config.y_shape,
-                dtype=config.y_dtype,
-                lod_level=0)
             x.stop_gradient = False
-            y.stop_gradient = False
-            self.name = 'elementwise_' + config.api
+            self.name = 'arg' + config.api
             result = self.layers(
-                "elementwise_" + config.api,
+                "arg" + config.api,
                 x=x,
-                y=y,
-                axis=config.axis,
-                act=config.act)
+                axis=config.axis, )
 
-            self.feed_vars = [x, y]
+            self.feed_vars = [x]
             self.fetch_vars = [result]
             if config.backward:
-                self.append_gradients(result, [x, y])
+                self.append_gradients(result, [x])
 
 
-class TFElementwise(TensorflowAPIBenchmarkBase):
+class TFArg(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.placeholder(
             name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.placeholder(
-            name='y', shape=config.y_shape, dtype=config.y_dtype)
         self.name = config.tf_api
-        result = self.layers(config.tf_api, x=x, y=y)
+        result = self.layers(config.tf_api, input=x, axis=config.axis)
 
-        self.feed_list = [x, y]
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, y])
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(PDElementwise(), TFElementwise(), ElementwiseConfig())
+    test_main(PDArg(), TFArg(), ArgConfig())
