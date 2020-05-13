@@ -140,4 +140,4 @@ def test_main_without_json(pd_obj, tf_obj=None, config=None):
         tf_outputs = tf_obj.run(tf_config, args, use_feed_fetch, feed_dict)
 
     if args.task == "accuracy":
-        utils.check_outputs(pd_outputs, tf_outputs, name=pd_obj.name)
+        utils.check_outputs(pd_outputs, tf_outputs, name=config.name)

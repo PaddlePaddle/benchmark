@@ -17,25 +17,23 @@ from common_import import *
 
 class PDFeed(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
 
-            self.feed_vars = [data]
-            self.fetch_vars = None
+        self.feed_vars = [x]
+        self.fetch_vars = None
 
 
 class TFFeed(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        no_op = tf.identity(data).op
+        x = self.variable(
+            name='x',
+            shape=config.x_shape,
+            dtype=config.x_dtype,
+            value=config.x_data)
+        result = tf.identity(x)
 
-        self.feed_list = [data]
-        self.fetch_list = [no_op]
+        self.feed_list = [x]
+        self.fetch_list = [result]
 
 
 if __name__ == '__main__':

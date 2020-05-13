@@ -123,7 +123,7 @@ class PaddleAPIBenchmarkBase(object):
         executor.run(self.startup_program)
 
         def _run_main_iter(feed=None):
-            if self._use_feed_fetch:
+            if self._use_feed_fetch or self.name == "fetch":
                 fetch_vars = self.fetch_vars
             else:
                 fetch_vars = None
@@ -213,7 +213,7 @@ class PaddleAPIBenchmarkBase(object):
 
         if feed_dict is None:
             feed_dict = self.generate_feed_list(config)
-        if use_feed_fetch:
+        if use_feed_fetch or self.name == "feed":
             feed = feed_dict
         else:
             with fluid.program_guard(self.startup_program):

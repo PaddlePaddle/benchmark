@@ -17,24 +17,22 @@ from common_import import *
 
 class PDFetch(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.layers.create_parameter(
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                attr=fluid.ParamAttr(
-                    initializer=fluid.initializer.NumpyArrayInitializer(
-                        config.x_data)))
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
 
-            self.feed_vars = []
-            self.fetch_vars = [data]
+        self.feed_vars = [x]
+        self.fetch_vars = [x]
 
 
 class TFFetch(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = tf.Variable(config.x_data)
+        x = self.variable(
+            name='x',
+            shape=config.x_shape,
+            dtype=config.x_dtype,
+            value=config.x_data)
 
-        self.feed_list = []
-        self.fetch_list = [data]
+        self.feed_list = [x]
+        self.fetch_list = [x]
 
 
 if __name__ == '__main__':

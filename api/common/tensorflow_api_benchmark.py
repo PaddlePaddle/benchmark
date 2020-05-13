@@ -164,7 +164,7 @@ class TensorflowAPIBenchmarkBase(object):
 
     def variable(self, name, shape, dtype, value=None):
         assert shape is not None
-        if self._use_feed_fetch:
+        if self._use_feed_fetch or self.name == "feed":
             data = self.placeholder(name=name, shape=shape, dtype=dtype)
         else:
             assert value is not None
@@ -198,7 +198,7 @@ class TensorflowAPIBenchmarkBase(object):
         tf.debugging.set_log_device_placement(True)
 
         def _run_main_iter(feed=feed, run_options=None, run_metadata=None):
-            if self._use_feed_fetch:
+            if self._use_feed_fetch or self.name == "fetch":
                 fetches = self.fetch_list
             else:
                 fetches = []
@@ -246,7 +246,7 @@ class TensorflowAPIBenchmarkBase(object):
 
         self.name = config.name
         self._use_feed_fetch = use_feed_fetch
-        if not use_feed_fetch:
+        if not use_feed_fetch and self.name != "feed":
             # For a test without feed and fetch, feeding data must be ready
             # before building graph and recorded in config.
             assert feed_dict is not None
@@ -262,7 +262,7 @@ class TensorflowAPIBenchmarkBase(object):
 
         print(config)
         self.build_graph(config=config)
-        if use_feed_fetch:
+        if use_feed_fetch or self.name == "feed":
             feed_dict = feeder.feed_tensorflow(
                 self.feed_list,
                 feed_dict_paddle=feed_dict,

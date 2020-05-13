@@ -39,7 +39,7 @@ def compare(output1, output2, atol):
     return max_diff, offset
 
 
-def check_outputs(list1, list2, name=None):
+def check_outputs(list1, list2, name):
     if not isinstance(list1, list) or not isinstance(list2, list):
         raise TypeError(
             "input argument's type should be list of numpy.ndarray.")
@@ -47,28 +47,30 @@ def check_outputs(list1, list2, name=None):
     consistent = True
     max_diff = np.float32(0.0)
     atol = 1e-6
+    num_outputs = 0
 
-    assert len(list1) == len(list2)
-    num_outputs = len(list1)
-    for i in range(num_outputs):
-        output1 = list1[i]
-        output2 = list2[i]
+    if name != "feed":
+        assert len(list1) == len(list2)
+        num_outputs = len(list1)
+        for i in range(num_outputs):
+            output1 = list1[i]
+            output2 = list2[i]
 
-        max_diff_i, offset_i = compare(output1, output2, atol)
-        if max_diff_i > atol:
-            print("---- The %d-th output (shape: %s, data type: %s) has diff. "
-                  "The maximum diff is %e, offset is %d: %e vs %e." %
-                  (i, str(output1.shape), str(output1.dtype), max_diff_i,
-                   offset_i, output1.flatten()[offset_i],
-                   output2.flatten()[offset_i]))
+            max_diff_i, offset_i = compare(output1, output2, atol)
+            if max_diff_i > atol:
+                print(
+                    "---- The %d-th output (shape: %s, data type: %s) has diff. "
+                    "The maximum diff is %e, offset is %d: %e vs %e." %
+                    (i, str(output1.shape), str(output1.dtype), max_diff_i,
+                     offset_i, output1.flatten()[offset_i],
+                     output2.flatten()[offset_i]))
 
-        max_diff = max_diff_i if max_diff_i > max_diff else max_diff
-        if max_diff > atol:
-            consistent = False
+            max_diff = max_diff_i if max_diff_i > max_diff else max_diff
+            if max_diff > atol:
+                consistent = False
 
     status = collections.OrderedDict()
-    if name is not None:
-        status["name"] = name
+    status["name"] = name
     status["consistent"] = consistent
     status["num_outputs"] = num_outputs
     status["diff"] = max_diff.astype("float")
