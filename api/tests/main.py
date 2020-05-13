@@ -20,6 +20,8 @@ import feeder
 import json
 import sys
 import re
+import warnings
+
 sys.path.append("..")
 from common import utils
 from common import api_param
@@ -222,12 +224,17 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
             raise ValueError("TensorFlow object is None.")
         tf_config = config.to_tensorflow()
         print(tf_config)
-        tf_obj.name = tf_config.name
-        tf_obj.build_graph(config=tf_config)
-        feed_list = feeder.feed_tensorflow(
-            tf_obj, feed_list, feed_spec=feed_spec)
-        tf_outputs = run_tensorflow(args.task, tf_obj, args, feed_list)
+        warnings.simplefilter('always', UserWarning)
+        if tf_config.run_tf:
+            tf_obj.name = tf_config.name
+            tf_obj.build_graph(config=tf_config)
+            feed_list = feeder.feed_tensorflow(
+                tf_obj, feed_list, feed_spec=feed_spec)
+            tf_outputs = run_tensorflow(args.task, tf_obj, args, feed_list)
+        else:
+            warnings.warn("This config is not supported by TensorFlow.")
 
     if args.task == "accuracy":
-        utils.check_outputs(
-            pd_outputs, tf_outputs, name=pd_obj.name, atol=config.atol)
+        if tf_config.run_tf:
+            utils.check_outputs(
+                pd_outputs, tf_outputs, name=pd_obj.name, atol=config.atol)
