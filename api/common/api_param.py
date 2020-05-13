@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import json
 
 
@@ -95,6 +96,15 @@ class APIConfig(object):
         self.run_tf = True
 
     def init_from_json(self, filename, config_id=0):
+        if hasattr(self, "alias_config"):
+            json_file = filename
+            dir = os.path.dirname(json_file)
+            file_name = os.path.basename(json_file)
+            end = file_name.split('.')
+            filename = dir + '/' + self.alias_config.name + '.' + end[1]
+            self.alias_config.init_from_json(filename, config_id)
+            return self
+
         print("---- Initialize APIConfig from %s, config_id = %d.\n" %
               (filename, config_id))
         with open(filename, 'r') as f:
@@ -119,6 +129,8 @@ class APIConfig(object):
         return self
 
     def to_tensorflow(self):
+        if hasattr(self, "alias_config"):
+            self.alias_config.to_tensorflow()
         return self
 
     def to_string(self):

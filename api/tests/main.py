@@ -51,6 +51,8 @@ def parse_args():
     parser.add_argument(
         '--json_file', type=str, default=None, help='The file of API params')
     parser.add_argument(
+        '--api_name', type=str, default=None, help='The series of API')
+    parser.add_argument(
         '--config_id',
         type=int,
         default=None,
@@ -187,14 +189,34 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
     if args.json_file is not None:
         if args.config_id is not None and args.config_id >= 0:
             config.init_from_json(args.json_file, args.config_id)
-            test_main_without_json(pd_obj, tf_obj, config)
+            if args.api_name != None:
+                API_s = args.api_name.split(',')
+                for api in API_s:
+                    config.api = api
+                    test_main_without_json(pd_obj, tf_obj, config)
+            else:
+                test_main_without_json(pd_obj, tf_obj, config)
         else:
             num_configs = 0
-            with open(args.json_file, 'r') as f:
+            if hasattr(config, "alias_config"):
+                json_file = args.json_file
+                dir = os.path.dirname(json_file)
+                file_name = os.path.basename(json_file)
+                end = file_name.split('.')
+                filename = dir + '/' + config.alias_config.name + '.' + end[1]
+            else:
+                filename = args.json_file
+            with open(filename, 'r') as f:
                 num_configs = len(json.load(f))
             for config_id in range(0, num_configs):
                 config.init_from_json(args.json_file, config_id)
-                test_main_without_json(pd_obj, tf_obj, config)
+                if args.api_name != None:
+                    API_s = args.api_name.split(',')
+                    for api in API_s:
+                        config.api = api
+                        test_main_without_json(pd_obj, tf_obj, config)
+                else:
+                    test_main_without_json(pd_obj, tf_obj, config)
     else:
         test_main_without_json(pd_obj, tf_obj, config)
 

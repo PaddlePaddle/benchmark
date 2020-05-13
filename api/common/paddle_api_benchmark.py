@@ -18,6 +18,7 @@ import time
 import abc, six
 import traceback
 import contextlib
+import importlib
 import numpy as np
 import utils
 
@@ -222,6 +223,12 @@ class PaddleAPIBenchmarkBase(object):
         stats["device"] = "GPU" if use_gpu else "CPU"
         utils.print_stat(stats, log_level=log_level)
         return outputs
+
+    def layers(self, api, **kwargs):
+        module = importlib.import_module("paddle.fluid.layers")
+        api_paddle = getattr(module, api)
+        result = api_paddle(**kwargs)
+        return result
 
     def _feed_random_data(self, use_gpu, as_lodtensor=False):
         print("feed random data")
