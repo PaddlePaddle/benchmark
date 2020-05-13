@@ -67,7 +67,7 @@ function prepare(){
     pip install MySQL-python
 
 
-    save_log_dir=${all_path}/logs/log_${paddle_version}/${implement_type}
+    save_log_dir=${all_path}/logs/${paddle_version}/${implement_type}
 
     if [[ -d ${save_log_dir} ]]; then
         rm -rf ${save_log_dir}
