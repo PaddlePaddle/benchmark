@@ -247,8 +247,7 @@ def rearrange_ids(sizes, ids):
 
 def get_logs(op_name, log_file):
     """
-    Given the name of the OP and the path of the log, extract key information from forward and 
-    backward logs.
+    Given the name of the OP and the path of the log, split forward and backward logs.
 
     Args: 
         op_name(str): The OP's name that is used to extract key logs.
@@ -264,12 +263,10 @@ def get_logs(op_name, log_file):
         for line in f.readlines():
             line = line.strip()
             if backward_name in line:
-                index = line.index(backward_name)
-                line = line[index:].replace(', ', ',').split(' ')
+                line = line.replace(', ', ',').split(' ')
                 backward_logs.append(line)
             elif forward_name in line:
-                index = line.index(forward_name)
-                line = line[index:].replace(', ', ',').split(' ')
+                line = line.replace(', ', ',').split(' ')
                 forward_logs.append(line)
     if not forward_logs:
         raise ValueError("Could not find {0} in {1}.".format(forward_name,
