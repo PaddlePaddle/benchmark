@@ -53,7 +53,7 @@ class BaseParamInfo(object):
         elif self.type in ["int", "int32", "int64"]:
             return int(value_str)
         elif self.type == "bool":
-            return bool(value_str)
+            return eval(value_str)
         elif self.type == "string":
             return None if value_str == "None" else value_str
         elif self.type == "list":
