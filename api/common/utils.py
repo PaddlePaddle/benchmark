@@ -50,7 +50,7 @@ def check_outputs(list1, list2, name=None):
 
     assert len(list1) == len(list2)
     num_outputs = len(list1)
-    for i in xrange(num_outputs):
+    for i in range(num_outputs):
         output1 = list1[i]
         output2 = list2[i]
 

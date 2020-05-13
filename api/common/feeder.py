@@ -14,6 +14,7 @@
 
 from __future__ import print_function
 
+import collections
 import numpy as np
 import paddle.fluid as fluid
 
@@ -36,7 +37,7 @@ def copy_feed_spec(feed_spec):
     return copy
 
 
-def feed_var(spec):
+def generate_numpy_data(spec):
     if not isinstance(spec, dict):
         raise TypeError("Expected spec a dict, received a ", type(spec))
 
@@ -70,17 +71,19 @@ def feed_var(spec):
     return data
 
 
-def feed_paddle(obj, feed_spec=None):
-    feed_spec = copy_feed_spec(feed_spec)
-    assert isinstance(feed_spec, list)
-    assert len(obj.feed_vars) == len(
-        feed_spec
-    ), "Expected the number of feeding vars ({}) to be equal to the length of feed_spec ({}).".format(
-        len(obj.feed_vars), len(feed_spec))
+def feed_paddle(feed_vars, feed_spec=None):
+    assert isinstance(feed_vars, list)
+    if feed_spec is not None:
+        if not isinstance(feed_spec, list):
+            feed_spec = [feed_spec]
+        assert len(feed_vars) == len(
+            feed_spec
+        ), "Expected the number of feeding vars (%d) to be equal to the length of feed_spec (%d)." % (
+            len(feed_vars), len(feed_spec))
 
-    feed_list = []
-    for i in range(len(obj.feed_vars)):
-        var = obj.feed_vars[i]
+    feed_dict = collections.OrderedDict()
+    for i in range(len(feed_vars)):
+        var = feed_vars[i]
         if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
             raise TypeError("Feed data of non LoDTensor is not supported.")
 
@@ -94,46 +97,49 @@ def feed_paddle(obj, feed_spec=None):
         if spec.get("dtype", None) is None:
             spec["dtype"] = paddle_api.convert_dtype(var.dtype)
 
-        data = feed_var(spec)
-        feed_list.append(data)
-    return feed_list
+        feed_dict[var.name] = generate_numpy_data(spec)
+    return feed_dict
 
 
-def check_shape(shape, shape_ref):
-    if shape == shape_ref:
-        return True
-    if shape + [1] == shape_ref or shape == shape_ref + [1]:
-        return True
-    return False
+def check_shape_and_dtype(shape, dtype, value):
+    assert list(shape) == list(value.shape) or list(shape) + [
+        1
+    ] == list(value.shape) or list(shape) == list(value.shape) + [1]
+    value = value.reshape(shape)
+
+    # Allow different data type
+    dtype = tensorflow_api.convert_dtype(dtype, to_string=False)
+    if dtype != value.dtype:
+        value = value.astype(dtype)
+
+    return value
 
 
-def feed_tensorflow(obj, feed_list=None, feed_spec=None):
-    if feed_spec is not None:
-        if not isinstance(feed_spec, list):
-            feed_spec = [feed_spec]
-        assert len(obj.feed_list) == len(feed_spec)
+def feed_tensorflow(feed_list, feed_dict_paddle=None, feed_spec=None):
+    feed_spec = copy_feed_spec(feed_spec)
 
-    if feed_list is not None:
-        assert len(obj.feed_list) == len(feed_list)
-
-        for i in range(len(obj.feed_list)):
-            var = obj.feed_list[i]
+    feed_dict_tensorflow = collections.OrderedDict()
+    if feed_dict_paddle is not None:
+        for i in range(len(feed_dict_paddle)):
+            item = feed_dict_paddle.items()[i]
+            name = item[0]
+            value = item[1]
 
             if feed_spec is not None:
                 spec = feed_spec[i]
                 if spec.get("permute", None) is not None:
-                    feed_list[i] = np.transpose(feed_list[i], spec["permute"])
+                    value = np.transpose(value, spec["permute"])
 
-            assert check_shape(var.shape, feed_list[i].shape)
-            feed_list[i] = feed_list[i].reshape(var.shape)
-
-            dtype = tensorflow_api.convert_dtype(var.dtype, to_string=False)
-            if dtype != feed_list[i].dtype:
-                feed_list[i] = feed_list[i].astype(dtype)
+            if feed_list is not None:
+                var = feed_list[i]
+                value = check_shape_and_dtype(var.shape, var.dtype, value)
+                feed_dict_tensorflow[var.name] = value
+            else:
+                feed_dict_tensorflow[name] = value
     else:
-        feed_list = []
-        for i in range(len(obj.feed_list)):
-            var = obj.feed_list[i]
+        assert feed_list is not None
+        for i in range(len(feed_list)):
+            var = feed_list[i]
 
             if feed_spec is not None:
                 spec = feed_spec[i]
@@ -145,6 +151,5 @@ def feed_tensorflow(obj, feed_list=None, feed_spec=None):
             if spec.get("dtype", None) is None:
                 spec["dtype"] = tensorflow_api.convert_dtype(var.dtype)
 
-            data = feed_var(spec)
-            feed_list.append(data)
-    return feed_list
+            feed_dict_tensorflow[var.name] = generate_numpy_data(spec)
+    return feed_dict_tensorflow

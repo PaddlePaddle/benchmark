@@ -134,7 +134,7 @@ class PaddleAPIBenchmarkBase(object):
                                    return_numpy=True)
             return outputs
 
-        # warmup, filling the feeding data.
+        # warmup run
         outputs = _run_main_iter(feed=feed)
 
         runtimes = []
@@ -160,43 +160,68 @@ class PaddleAPIBenchmarkBase(object):
         utils.print_benchmark_result(stats, log_level=log_level)
         return outputs
 
-    def generate_feed_list(self, config):
+    def generate_feed_dict(self, config):
         self.main_program = fluid.Program()
         self.startup_program = fluid.Program()
         with fluid.program_guard(self.main_program, self.startup_program):
             self.build_program(config=config)
 
-        feed_list = feeder.feed_paddle(self, feed_spec=config.feed_spec)
-        return feed_list
+        feed_dict = feeder.feed_paddle(
+            self.feed_vars, feed_spec=config.feed_spec)
+        return feed_dict
 
-    def run(self, config, args, use_feed_fetch=True, feed_list=None):
+    def _assign(self, feed_var, value):
+        out = fluid.data(
+            name=feed_var.name, shape=feed_var.shape, dtype=feed_var.dtype)
+        out.persistable = True
+
+        dtype_str = convert_dtype(feed_var.dtype)
+        if dtype_str == "bool":
+            value_name = "bool_values"
+            value = [bool(v) for v in value.flat]
+        elif dtype_str == "float32":
+            value_name = "fp32_values"
+            value = [float(v) for v in value.flat]
+        elif dtype_str == "int32":
+            value_name = "int32_values"
+            value = [int(v) for v in value.flat]
+        elif dtype == "int64":
+            value_name = "int64_values"
+            value = [int(v) for v in value.flat]
+        else:
+            raise TypeError(
+                "The data type of 'value' must be bool, float32, int32 or int64, but "
+                "received %s." % dtype_str)
+
+        fluid.default_main_program().global_block().append_op(
+            type='assign_value',
+            outputs={'Out': [out]},
+            attrs={
+                'dtype': feed_var.dtype,
+                'shape': list(feed_var.shape),
+                value_name: value
+            })
+
+    def run(self, config, args, use_feed_fetch=True, feed_dict=None):
         if config is None or not isinstance(config, api_param.APIConfig):
             raise ValueError(
                 "Argument \"config\" must be set to an instance of APIConfig.")
 
         self.name = config.name
         self._use_feed_fetch = use_feed_fetch
-        if feed_list is None:
-            feed_list = self.generate_feed_list(config)
-        if use_feed_fetch:
-            assert len(feed_list) == len(self.feed_vars)
+        print(config)
 
-            feed = {}
-            for i in range(len(obj.feed_vars)):
-                feed[obj.feed_vars[i].name] = feed_list[i]
+        if feed_dict is None:
+            feed_dict = self.generate_feed_list(config)
+        if use_feed_fetch:
+            feed = feed_dict
         else:
             with fluid.program_guard(self.startup_program):
                 # Append initialiar operator to startup program.
-                for i in range(len(self.feed_vars)):
-                    var = fluid.data(
-                        name=self.feed_vars[i].name,
-                        shape=self.feed_vars[i].shape,
-                        dtype=self.feed_vars[i].dtype)
-                    var.persistable = True
-                    fluid.layers.assign(input=feed_list[i], output=var)
+                for feed_var in self.feed_vars:
+                    self._assign(feed_var, value=feed_dict[feed_var.name])
             feed = None
 
-        print(config)
         outputs = self.run_impl(
             use_gpu=args.use_gpu,
             feed=feed,

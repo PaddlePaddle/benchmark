@@ -20,6 +20,8 @@ import time
 import abc, six
 import numpy as np
 import utils
+import api_param
+import feeder
 
 try:
     import tensorflow as tf
@@ -160,6 +162,18 @@ class TensorflowAPIBenchmarkBase(object):
             var = tf.placeholder(name=name, shape=shape, dtype=tf_dtype)
         return var
 
+    def variable(self, name, shape, dtype, value=None):
+        assert shape is not None
+        if self._use_feed_fetch:
+            data = self.placeholder(name=name, shape=shape, dtype=dtype)
+        else:
+            assert value is not None
+            assert isinstance(value, np.ndarray)
+            value = feeder.check_shape_and_dtype(shape, dtype, value)
+            data = tf.Variable(value, name=name)
+        self.data = data
+        return data
+
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, tf.Tensor):
             inputs = [inputs]
@@ -173,26 +187,30 @@ class TensorflowAPIBenchmarkBase(object):
         else:
             self.fetch_list.append(gradients)
 
-    def run(self,
-            use_gpu,
-            feed=None,
-            repeat=1,
-            log_level=0,
-            check_output=False,
-            profile=False):
+    def run_impl(self,
+                 use_gpu,
+                 feed=None,
+                 repeat=1,
+                 log_level=0,
+                 check_output=False,
+                 profile=False):
         sess = self._init_session(use_gpu)
         tf.debugging.set_log_device_placement(True)
 
-        if feed is None:
-            feed = self._feed_random_data()
-
         def _run_main_iter(feed=feed, run_options=None, run_metadata=None):
-            outputs = sess.run(fetches=self.fetch_list,
+            if self._use_feed_fetch:
+                fetches = self.fetch_list
+            else:
+                fetches = []
+                for var in self.fetch_list:
+                    fetches.append(var.op)
+            outputs = sess.run(fetches=fetches,
                                feed_dict=feed,
                                options=run_options,
                                run_metadata=run_metadata)
             return outputs
 
+        # warmup run
         _run_main_iter(feed=feed, run_options=None, run_metadata=None)
 
         runtimes = []
@@ -218,7 +236,53 @@ class TensorflowAPIBenchmarkBase(object):
             "total": runtimes
         }
         stats["device"] = "GPU" if use_gpu else "CPU"
-        utils.print_stat(stats, log_level=log_level)
+        utils.print_benchmark_result(stats, log_level=log_level)
+        return outputs
+
+    def run(self, config, args, use_feed_fetch=True, feed_dict=None):
+        if config is None or not isinstance(config, api_param.APIConfig):
+            raise ValueError(
+                "Argument \"config\" must be set to an instance of APIConfig.")
+
+        self.name = config.name
+        self._use_feed_fetch = use_feed_fetch
+        if not use_feed_fetch:
+            # For a test without feed and fetch, feeding data must be ready
+            # before building graph and recorded in config.
+            assert feed_dict is not None
+            feed_dict = feeder.feed_tensorflow(
+                feed_list=None,
+                feed_dict_paddle=feed_dict,
+                feed_spec=config.feed_spec)
+            for name, value in feed_dict.items():
+                setattr(config, name + "_data", value)
+        else:
+            for name, value in feed_dict.items():
+                setattr(config, name + "_data", None)
+
+        print(config)
+        self.build_graph(config=config)
+        if use_feed_fetch:
+            feed_dict = feeder.feed_tensorflow(
+                self.feed_list,
+                feed_dict_paddle=feed_dict,
+                feed_spec=config.feed_spec)
+            assert len(feed_dict) == len(self.feed_list)
+
+            feed = {}
+            for var in self.feed_list:
+                feed[var] = feed_dict[var.name]
+        else:
+            feed = None
+
+        profile = True if args.profiler != "none" else False
+        outputs = self.run_impl(
+            use_gpu=args.use_gpu,
+            feed=feed,
+            repeat=args.repeat,
+            log_level=args.log_level,
+            check_output=args.check_output,
+            profile=profile)
         return outputs
 
     def _init_session(self, use_gpu):
@@ -233,12 +297,3 @@ class TensorflowAPIBenchmarkBase(object):
             sess.run(tf.global_variables_initializer())
             sess.run(tf.local_variables_initializer())
         return sess
-
-    def _feed_random_data(self):
-        print("feed random data")
-        feed = {}
-        for var in self.feed_list:
-            shape = var.shape
-            dtype = self.convert_dtype(var.dtype, to_string=True)
-            feed[var] = np.random.random(shape).astype(dtype)
-        return feed

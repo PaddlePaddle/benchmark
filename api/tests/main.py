@@ -98,38 +98,12 @@ def parse_args():
         args.repeat = 1
         args.log_level = 0
         args.check_output = False
-        args.profiler = False
+        args.profiler = "none"
     return args
 
 
-def run_tensorflow(task, obj, args, feed_list=None):
-    feed = None
-    if feed_list is not None:
-        assert len(feed_list) == len(obj.feed_list)
-
-        feed = {}
-        for i in range(len(obj.feed_list)):
-            feed[obj.feed_list[i]] = feed_list[i]
-
-    if task == "speed":
-        profile = True if args.profiler != "none" else False
-        obj.run(use_gpu=args.use_gpu,
-                feed=feed,
-                repeat=args.repeat,
-                log_level=args.log_level,
-                check_output=args.check_output,
-                profile=profile)
-        return None
-    elif task == "accuracy":
-        if feed is None:
-            raise ValueError("feed should not be None when checking accuracy.")
-        outputs = obj.run(use_gpu=args.use_gpu, feed=feed, check_output=False)
-        return outputs
-
-
 def test_main(pd_obj=None, tf_obj=None, config=None):
-    if config is None:
-        raise ValueError("API config must be set.")
+    assert config is not None, "API config must be set."
 
     args = parse_args()
     if args.json_file is not None:
@@ -148,30 +122,22 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
 
 
 def test_main_without_json(pd_obj, tf_obj=None, config=None):
-    if config is None:
-        raise ValueError("API config must be set.")
+    assert config is not None, "API config must be set."
 
     args = parse_args()
     config.backward = args.backward
-    use_feed_fetch = False if args.task == "speed" else False
+    use_feed_fetch = False if args.task == "speed" else True
 
-    feed_list = pd_obj.generate_feed_list(config)
+    feed_dict = pd_obj.generate_feed_dict(config)
     if args.task == "accuracy" or args.framework in ["paddle", "both"]:
-        pd_outputs = pd_obj.run(config, args, use_feed_fetch, feed_list)
+        pd_outputs = pd_obj.run(config, args, use_feed_fetch, feed_dict)
 
     if args.task == "accuracy" or args.framework in [
             "tensorflow", "tf", "both"
     ]:
-        if tf_obj is None:
-            raise ValueError("TensorFlow object is None.")
+        assert tf_obj is not None, "TensorFlow object is None."
         tf_config = config.to_tensorflow()
-        print(tf_config)
-        tf_obj.name = tf_config.name
-        tf_obj.build_graph(config=tf_config)
-        #        feed_list = feeder.feed_tensorflow(
-        #            tf_obj, feed_list, feed_spec=feed_spec)
-        #        tf_outputs = run_tensorflow(args.task, tf_obj, args, feed_list)
-        tf_outputs = run_tensorflow(args.task, tf_obj, args)
+        tf_outputs = tf_obj.run(tf_config, args, use_feed_fetch, feed_dict)
 
     if args.task == "accuracy":
         utils.check_outputs(pd_outputs, tf_outputs, name=pd_obj.name)

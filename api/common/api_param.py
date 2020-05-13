@@ -88,8 +88,8 @@ class APIConfig(object):
     def __init__(self, op_type, params=None):
         self.name = op_type
         self.params = params
-        self.variable_list = []
-        self.params_list = []
+        self.variable_list = None
+        self.params_list = None
         self.backward = False
         self.feed_spec = None
 
@@ -124,6 +124,11 @@ class APIConfig(object):
             params = params + info.to_string()
         return params
 
+    def clear(self):
+        for name in vars(self).keys():
+            if name not in ['name', 'backward', 'feed_spec']:
+                setattr(self, name, None)
+
     def __str__(self):
         debug_str = ('API params of <%s> {\n') % (self.name)
         for name, value in vars(self).items():
@@ -141,6 +146,8 @@ class APIConfig(object):
         return debug_str
 
     def _parse_params(self):
+        self.variable_list = []
+        self.params_list = []
         for name, value in self.params.items():
             assert value.get("type", None) is not None
             if value["type"] == "Variable":
