@@ -18,6 +18,7 @@ import sys
 import json
 import time
 import abc, six
+import importlib
 import numpy as np
 import utils
 
@@ -204,6 +205,12 @@ class TensorflowAPIBenchmarkBase(object):
         stats["device"] = "GPU" if use_gpu else "CPU"
         utils.print_stat(stats, log_level=log_level)
         return outputs
+
+    def layers(self, api, **kwargs):
+        module = importlib.import_module("tensorflow")
+        api_tf = getattr(module, api)
+        result = api_tf(**kwargs)
+        return result
 
     def _init_session(self, use_gpu):
         if tf.__version__ >= "1.15.0":
