@@ -43,7 +43,7 @@ ALARM_INFO_HOLDER
 """
 
 
-def construct_email_content(results, log_path, args):
+def construct_email_content(results, log_path, args, single=True):
     """the list not satify condition"""
     run_env = """
             <tr><td>paddle_branch</td><td>{}</td></tr>
@@ -57,30 +57,30 @@ def construct_email_content(results, log_path, args):
                         args.device_type,
                         args.implement_type,)
 
-    if str(args.device_type).upper() in ("P40", "V100") and args.job_type == 2:
+    if single and str(args.device_type).upper() in ("P40", "V100"):
         run_env += """          
             <tr><td>cuda_version</td><td>{0}</td></tr>
             <tr><td>cudnn_version</td><td>{1}</td></tr>         
             <tr><td>docker_image</td><td>paddlepaddle/paddle:latest-gpu-cuda{0}-cudnn{1}</td></tr>     
             """.format(args.cuda_version, args.cudnn_version)
-    elif str(args.device_type).upper() == "CPU" and args.job_type == 2:
+    elif single and str(args.device_type).upper() == "CPU":
         run_env += """                
             <tr><td>docker_image</td><td>paddlepaddle/paddle:latest</td></tr>     
             """
-    elif str(args.device_type).upper() in ("P40", "V100") and args.job_type == 5:
+    elif not single and str(args.device_type).upper() in ("P40", "V100"):
         run_env += """          
             <tr><td>cuda_version</td><td>{0}</td></tr>
             <tr><td>cudnn_version</td><td>{1}</td></tr>         
             <tr><td>paddle_cloud_cluster</td><td>dltp-0-yq01-k8s-gpu-v100-8</td></tr>     
             """.format(args.cuda_version, args.cudnn_version)
-    elif str(args.device_type).upper() == "CPU" and args.job_type == 5:
+    elif not single and str(args.device_type).upper() == "CPU":
         run_env += """                
             <tr><td>paddle_cloud_cluster</td><td>paddle_benchmark</td></tr>
             """
 
     place_holder = ""
     for result in results:
-        range_index = len(result)-1 if args.job_type == 2 else len(result)-2
+        range_index = len(result)-1 if single else len(result)-2
         if isinstance(result, list):
             place_holder += "            <tr>"
             index_type = result[2]
@@ -97,7 +97,7 @@ def construct_email_content(results, log_path, args):
                     place_holder += "<td>{}</td>".format(result[i])
                         
             place_holder += "</tr>\n"
-    job_link = "" if args.job_type == 2 else "<td>job_link</td>"
+    job_link = "" if single else "<td>job_link</td>"
     content = MAIL_HEAD_CONTENT.replace("RUN_ENV_HOLDER", run_env).strip()
     content += MAIL_TAIL_CONTENT.replace("JOB_LINK_HOLDER", job_link).replace("ALARM_INFO_HOLDER", 
                place_holder).replace("BENCHMARK_WEBSITE", os.getenv("BENCHMARK_WEBSITE")).strip()

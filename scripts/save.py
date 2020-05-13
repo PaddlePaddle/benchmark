@@ -89,8 +89,8 @@ parser.add_argument(
 parser.add_argument(
     "--implement_type",
     type=str,
-    default="staticgraph",
-    help="The benchmark model implement method")
+    default="static_graph",
+    help="The benchmark model implement method, static_graph | dynamic_graph")
 
 DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU', '4': 'FOUR_GPU',
                          '8': 'MULTI_GPU', '8mp': 'MULTI_GPU_MULTI_PROCESS'}
@@ -359,7 +359,8 @@ def parse_logs(args):
                 # save job results
                 pjr = insert_results(job_id, job_info["model_name"], job_info["index"], result, unit, 1)
                 log_file = job_info["log_file"].split("/")[-1]
-                train_log_path = LOG_SERVER + os.path.join(os.path.basename(args.log_path), "train_log", log_file)
+                log_base = args.paddle_version + "/" + args.implement_type
+                train_log_path = LOG_SERVER + os.path.join(log_base, "train_log", log_file)
                 log_save_dict = {"train_log_path": train_log_path}
                 if job_info["index"] == 1:
                     insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result, '%')
@@ -367,10 +368,8 @@ def parse_logs(args):
                     if int(job_info["gpu_num"]) == 1:
                         profiler_log = job_info["log_with_profiler"].split("/")[-1]
                         profiler_path = job_info["profiler_path"].split("/")[-1]
-                        profiler_log_path = LOG_SERVER + os.path.join(
-                            os.path.basename(args.log_path), "profiler_log", profiler_log)
-                        profiler_path = LOG_SERVER + os.path.join(
-                            os.path.basename(args.log_path), "profiler_log", profiler_path)
+                        profiler_log_path = LOG_SERVER + os.path.join(log_base, "profiler_log", profiler_log)
+                        profiler_path = LOG_SERVER + os.path.join(log_base, "profiler_log", profiler_path)
                         log_save_dict["profiler_log_path"] = profiler_log_path
                         log_save_dict["profiler_path"] = profiler_path
 
