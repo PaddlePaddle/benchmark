@@ -86,44 +86,16 @@ def check_outputs(list1, list2, name=None):
         print(json.dumps(status))
 
 
-def get_stat(stats, key):
-    if stats.get(key, None) is None:
-        value = None
-    else:
-        value = stats[key]
-    return value
-
-
-def calc_avg_time(times, begin, end):
-    if times is not None:
-        if not isinstance(times, list):
-            raise TypeError("Input times should be a list.")
-        sorted_times = np.sort(times)
-        avg_time = np.average(sorted_times[begin:end])
-    else:
-        avg_time = 0.0
-    return avg_time
-
-
-def print_stat(stats, log_level=0):
-    if not isinstance(stats, dict):
+def print_benchmark_result(result, log_level=0):
+    if not isinstance(result, dict):
         raise TypeError("Input stats should be a dict.")
 
-    runtimes = stats["total"]
-    feed_times = get_stat(stats, "feed")
-    fetch_times = get_stat(stats, "fetch")
-    compute_times = get_stat(stats, "compute")
-    stable = get_stat(stats, "stable")
-    diff = get_stat(stats, "diff")
+    runtimes = result.get("total", None)
+    stable = result.get("stable", None)
+    diff = result.get("diff", None)
 
-    for i in xrange(len(runtimes)):
+    for i in range(len(runtimes)):
         runtimes[i] *= 1000
-        if feed_times is not None:
-            feed_times[i] *= 1000
-        if fetch_times is not None:
-            fetch_times[i] *= 1000
-        if compute_times is not None:
-            compute_times[i] *= 1000
 
     sorted_runtimes = np.sort(runtimes)
     if len(sorted_runtimes) <= 2:
@@ -140,10 +112,6 @@ def print_stat(stats, log_level=0):
         end = len(sorted_runtimes) - 10
     avg_runtime = np.average(sorted_runtimes[begin:end])
 
-    avg_feed_time = calc_avg_time(feed_times, begin, end)
-    avg_fetch_time = calc_avg_time(fetch_times, begin, end)
-    avg_compute_time = calc_avg_time(compute_times, begin, end)
-
     if log_level == 0:
         seg_0 = 0
         seg_1 = len(runtimes)
@@ -159,16 +127,18 @@ def print_stat(stats, log_level=0):
             print("Iter {0}, Runtime: {1}".format("%4d" % i, "%.5f ms" %
                                                   runtimes[i]))
 
-    print("{")
-    print("  framework: \"%s\"," % stats["framework"])
-    print("  version: \"%s\"," % stats["version"])
-    print("  name: \"%s\"," % stats["name"])
-    print("  device: \"%s\"," % stats["device"])
+    status = collections.OrderedDict()
+    status["framework"] = result["framework"]
+    status["version"] = result["version"]
+    status["name"] = result["name"]
+    status["device"] = result["device"]
     if stable is not None and diff is not None:
-        print("  precision: { stable: \"%s\", diff: %.5f }," %
-              (str(stable), diff))
-    print(
-        "  speed: { repeat: %d, start: %d, end: %d, total: %.5f, feed: %.5f, compute: %.5f, fetch: %.5f }"
-        % (len(sorted_runtimes), begin, end, avg_runtime, avg_feed_time,
-           avg_compute_time, avg_fetch_time))
-    print("}")
+        status["precision"] = collections.OrderedDict()
+        status["precision"]["stable"] = stable
+        status["precision"]["diff"] = diff
+    status["speed"] = collections.OrderedDict()
+    status["speed"]["repeat"] = len(sorted_runtimes)
+    status["speed"]["begin"] = begin
+    status["speed"]["end"] = end
+    status["speed"]["total"] = avg_runtime
+    print(json.dumps(status))

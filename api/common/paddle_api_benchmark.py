@@ -157,7 +157,7 @@ class PaddleAPIBenchmarkBase(object):
         stats["version"] = paddle.__version__
         stats["name"] = self.name
         stats["device"] = "GPU" if use_gpu else "CPU"
-        utils.print_stat(stats, log_level=log_level)
+        utils.print_benchmark_result(stats, log_level=log_level)
         return outputs
 
     def generate_feed_list(self, config):
