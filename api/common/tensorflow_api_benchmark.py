@@ -26,6 +26,7 @@ try:
     import tensorflow as tf
     from tensorflow.python.profiler import model_analyzer
     from tensorflow.python.profiler import option_builder
+    from tensorflow.core.protobuf import config_pb2
     from tensorflow.python.client import timeline
 except Exception as e:
     sys.stderr.write(
@@ -110,6 +111,7 @@ class TensorflowAPIBenchmarkBase(object):
         pass
 
     def placeholder(self, name, shape, dtype):
+        import tensorflow as tf
         tf_dtype = tf.as_dtype(dtype)
         if tf.__version__ >= "1.15.0":
             var = tf.compat.v1.placeholder(
@@ -144,8 +146,9 @@ class TensorflowAPIBenchmarkBase(object):
 
         if profile:
             profiler = model_analyzer.Profiler(graph=sess.graph)
-            run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-            run_metadata = tf.RunMetadata()
+            run_options = config_pb2.RunOptions(
+                trace_level=config_pb2.RunOptions.FULL_TRACE)
+            run_metadata = config_pb2.RunMetadata()
         else:
             profiler = None
             run_options = None
