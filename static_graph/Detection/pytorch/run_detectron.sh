@@ -18,6 +18,8 @@ function _set_params(){
     skip_steps=2                    # 解析日志，有些模型前几个step耗时长，需要跳过(必填)
     keyword="json_stats:"           # 解析日志，筛选出数据所在行的关键字(必填)
     separator=""                    # 解析日志，数据所在行的分隔符(必填)
+    direction_id=0
+    mission_name="目标检测"
     model_mode=0                    # 解析日志，s/step -> samples/s (必填)
     position=-1                     # 解析日志，需要提取的数据所在的位置，-1表示是最后一个
     if [[ ${model_name} = "cascade_rcnn_fpn" ]]; then

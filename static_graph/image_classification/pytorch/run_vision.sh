@@ -20,7 +20,8 @@ function _set_params() {
 #    separator=" "
 #    position=14
 #    model_mode=1 # s/step -> samples/s
-
+    mission_name="图像分类"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
+    direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     skip_steps=2
     keyword="time:"
     separator=" "
