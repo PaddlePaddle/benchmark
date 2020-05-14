@@ -159,7 +159,7 @@ def test_main_without_json(pd_obj, tf_obj=None, config=None):
 
     args = parse_args()
     config.backward = args.backward
-    use_feed_fetch = False if args.task == "speed" else True
+    use_feed_fetch = True if args.task == "accuracy" else False
 
     feed_dict = pd_obj.generate_feed_dict(config)
     if _is_paddle_enabled(args, config):

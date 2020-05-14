@@ -58,7 +58,7 @@ function run_api(){
     if [ "${HAS_MODIFIED_API_TEST}" != "" ] ; then
         for api in ${HAS_MODIFIED_API_TEST[@]}; do
             new_name=`echo $api |awk -F "/" '{print $NF}' |awk -F "." '{print $NR}'`
-            if [[ "$new_name" != "main" && "$new_name" != "feeder" && "$new_name" != "common_ops" ]]; then
+            if [[ "$new_name" != "main" && "$new_name" != "run" && "$new_name" != "common_ops" ]]; then
                 need_append="yes"
                 for name in ${API_NAMES[@]}; do
                     if [ "${name}" == "${new_name}" ]; then
