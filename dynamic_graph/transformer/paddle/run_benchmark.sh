@@ -1,22 +1,16 @@
 #!bin/bash
 set -xe
-
-if [[ $# -lt 4 ]]; then
+if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 1000(max_iter) model_name(MobileNetV1|MobileNetV2)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 100(max_iter)"
     exit
 fi
 
-
 function _set_params(){
     index=$1
-    base_batch_size=256
-    if [ ${4} != "MobileNetV1" ] && [ ${4} != "MobileNetV2" ]; then
-        echo "------------> please check the model name!"
-        exit 1
-    fi
-    model_name=${4}
+    base_batch_size=4096
+    model_name="transformer"
 
     run_mode="sp" # Don't support mp
     max_iter=${3}
@@ -25,18 +19,18 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
-    direction_id=0
-    mission_name="图像分类"
-    skip_steps=10
-    keyword="net_t:"
+    mission_name="机器翻译"
+    direction_id=1
+    skip_steps=0
+    keyword="step/s"
     separator=" "
-    position=13
-    #range=0:9
-    model_mode=0 # s/step -> steps/s
+    position=17
+    model_mode=1 # s/step -> steps/s
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
+
     if [[ ${run_mode} = "sp" ]]; then
         batch_size=`expr $base_batch_size \* $num_gpu_devices`
     else
@@ -56,33 +50,31 @@ function _set_env(){
 }
 
 function _train(){
-   train_cmd="--batch_size=${batch_size} \
-              --total_images=1281167 \
-              --class_dim=1000 \
-              --image_shape=3,224,224 \
-              --model_save_dir=output \
-              --lr_strategy=piecewise_decay \
-              --lr=0.1 \
-              --data_dir=./data/ILSVRC2012 \
-              --l2_decay=3e-5 \
-              --model=${model_name} \
-              --max_iter=${max_iter} \
-              --num_epochs=2 "
-#              --is_profiler=${is_profiler} \
-#              --profiler_path=${profiler_path} \
+   train_cmd="--max_iter ${max_iter} \
+              --src_vocab_fpath gen_data_19/iwslt14.tokenized.de-en/vocab.de \
+              --trg_vocab_fpath gen_data_19/iwslt14.tokenized.de-en/vocab.en \
+              --special_token  <s> <e> <unk> \
+              --training_file gen_data_19/iwslt14.tokenized.de-en/para_small.de-en \
+              --weight_sharing False \
+              --batch_size ${batch_size}"
+
     if [ ${num_gpu_devices} -eq 1 ]; then
         train_cmd="python -u train.py "${train_cmd}
     else
         rm -r ./mylog
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog train.py --use_data_parallel=1 "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --started_port 8999 --selected_gpus=$CUDA_VISIBLE_DEVICES  --log_dir ./mylog train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
+
     ${train_cmd} > ${log_file} 2>&1
     kill -9 `ps -ef|grep python |awk '{print $2}'`
     if [ ${num_gpu_devices} != 1  -a -d mylog ]; then
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
     fi
+
+#    python -u train.py ${train_cmd} > ${log_file} 2>&1
+#    kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
