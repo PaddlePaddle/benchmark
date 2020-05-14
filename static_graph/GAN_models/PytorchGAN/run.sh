@@ -17,6 +17,8 @@ function _set_params() {
     separator=" "
     position=5
     range=5
+    mission_name="图像生成"           # 模�~^~K�~I~@�~^任�~J��~P~M称�~L�~E��~S�~O��~O~B�~@~Cscripts/config.ini                                �~H忿
+    direction_id=0                   # 任�~J��~I~@�~^�~V��~P~Q�~L0�~ZCV�~L1�~ZNLP�~L2�~ZRec�~@~B
     model_mode=2
     model_name=pix2pix
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -29,7 +31,7 @@ function _set_params() {
 
 function _train() {
   echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size}"
-  env no_proxy=localhost python3.6 train.py \
+  env no_proxy=localhost python train.py \
               --dataroot ./dataset \
               --name cityscapes_pix2pix \
               --model pix2pix \
