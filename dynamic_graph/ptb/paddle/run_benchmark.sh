@@ -3,7 +3,7 @@ set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 8000(max_iter)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 2(max_epoch)"
     exit
 fi
 
@@ -13,7 +13,7 @@ function _set_params(){
     model_name="ptb"
 
     run_mode="sp" # Don't support mp
-    max_iter=${3}
+    max_epoch=${3}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -21,7 +21,7 @@ function _set_params(){
 
     direction_id=1
     mission_name="语言模型"
-    skip_steps=0
+    skip_steps=5
     keyword="batch cost"
     separator=" "
     position=11
@@ -51,7 +51,7 @@ function _set_env(){
 
 function _train(){
    train_cmd="--data_path  ./data/simple-examples/data/ \
-              --max_iter ${max_iter} \
+              --max_epoch ${max_epoch} \
               --model_type small"
 
     python -u ptb_dy.py ${train_cmd} > ${log_file} 2>&1
