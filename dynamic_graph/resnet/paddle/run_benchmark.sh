@@ -9,7 +9,7 @@ fi
 
 function _set_params(){
     index=$1
-    base_batch_size=20
+    base_batch_size=32
     model_name="resnet"
 
     run_mode="sp" # Don't support mp
