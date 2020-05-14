@@ -5,8 +5,10 @@ __MACOSX
 *~
 __pycache__
 log*
+*.log
 *.swp
 *.dot
 *.profile
 *.timeline
 *.npz
+*.tar.gz
