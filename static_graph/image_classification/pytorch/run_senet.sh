@@ -21,6 +21,8 @@ function _set_params() {
     position=11
     range=5
     model_mode=3 # steps/s -> samples/s
+    mission_name="图像分类"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
+    direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
