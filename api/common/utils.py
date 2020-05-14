@@ -48,7 +48,7 @@ def check_outputs(list1, list2, name, atol=1e-6):
     max_diff = np.float32(0.0)
     num_outputs = 0
 
-    if name != "feed":
+    if name not in special_op_list.NO_FETCHES_OPS:
         assert len(list1) == len(list2)
         num_outputs = len(list1)
         for i in xrange(num_outputs):

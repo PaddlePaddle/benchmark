@@ -264,10 +264,10 @@ class TensorflowAPIBenchmarkBase(object):
                 feed_dict_paddle=feed_dict,
                 feed_spec=config.feed_spec)
             for name, value in feed_dict.items():
-                setattr(config, name + "_data", value)
+                setattr(config.alias, name + "_data", value)
         else:
             for name, value in feed_dict.items():
-                setattr(config, name + "_data", None)
+                setattr(config.alias, name + "_data", None)
 
         print(config)
         self.build_graph(config=config)

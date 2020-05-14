@@ -14,6 +14,7 @@
 
 import os
 import json
+import warnings
 import numpy as np
 
 
@@ -96,24 +97,47 @@ class APIConfig(object):
         self.atol = 1e-6
         self.run_tf = True
 
+    def alias_filename(self, filename):
+        """
+        Get the filename of alias config.
+        If self.name = a, self.alias_config.name = b, the filename should be "dir/a.json",
+        the filename of alias config will be "dir/b.json".
+        """
+        if hasattr(self, "alias_config"):
+            dirname = os.path.dirname(filename)
+            basename = os.path.basename(filename)
+            basename = basename.replace(self.name, self.alias_config.name)
+            return os.path.join(dirname, basename)
+        return filename
+
+    @property
+    def alias_name(self):
+        if hasattr(self, "alias_config"):
+            return self.alias_config.name
+        else:
+            return self.name
+
+    @property
+    def alias(self):
+        if hasattr(self, "alias_config"):
+            return self.alias_config
+        else:
+            return self
+
     def init_from_json(self, filename, config_id=0):
         if hasattr(self, "alias_config"):
-            json_file = filename
-            dir = os.path.dirname(json_file)
-            file_name = os.path.basename(json_file)
-            end = file_name.split('.')
-            filename = dir + '/' + self.alias_config.name + '.' + end[1]
-            self.alias_config.init_from_json(filename, config_id)
+            self.alias_config.init_from_json(
+                self.alias_filename(filename), config_id)
             return self
 
         print("---- Initialize APIConfig from %s, config_id = %d.\n" %
               (filename, config_id))
         with open(filename, 'r') as f:
             data = json.load(f)
-            assert data[config_id][
-                "op"] == self.name, "The op type (%s) in json file is different from the name (%s). " \
+            op = data[config_id]["op"]
+            assert op == self.name or op == self.alias_name, "The op type (%s) in json file is different from the name (%s) and the alias name (%s). " \
                 "The filename: %s, config_id: %d." % (
-                    data[config_id]["op"], self.name, filename, config_id)
+                    op, self.name, self.alias_name, filename, config_id)
             self.params = data[config_id]["param_info"]
             if data[config_id].get("atol", None) is not None:
                 if isinstance(data[config_id]["atol"], str):

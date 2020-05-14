@@ -111,8 +111,10 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
 
     args = parse_args()
     if args.json_file is not None:
+        # Set the filename to alias config's filename, when there is a alias config.
+        filename = config.alias_filename(args.json_file)
         if args.config_id is not None and args.config_id >= 0:
-            config.init_from_json(args.json_file, args.config_id)
+            config.init_from_json(filename, args.config_id)
             if args.api_name != None:
                 API_s = args.api_name.split(',')
                 for api in API_s:
@@ -122,14 +124,6 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
                 test_main_without_json(pd_obj, tf_obj, config)
         else:
             num_configs = 0
-            if hasattr(config, "alias_config"):
-                json_file = args.json_file
-                dir = os.path.dirname(json_file)
-                file_name = os.path.basename(json_file)
-                end = file_name.split('.')
-                filename = dir + '/' + config.alias_config.name + '.' + end[1]
-            else:
-                filename = args.json_file
             with open(filename, 'r') as f:
                 num_configs = len(json.load(f))
             for config_id in range(0, num_configs):

@@ -14,6 +14,8 @@
 
 RANDOM_OP_LIST = ["dropout"]
 
+NO_FETCHES_OPS = ["feed", "null"]
+
 NO_NEED_ARGS = {"batch_norm": ["moving_mean_name", "moving_variance_name"]}
 
 CONTROL_FLOW_OPS = [
