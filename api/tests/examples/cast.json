@@ -20,7 +20,7 @@
         },
         "x": {
             "dtype": "uint8",
-            "shape": "[-1L, 128L]",
+            "shape": "[16L, 128L]",
             "type": "Variable"
         }
     }
