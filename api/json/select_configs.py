@@ -17,6 +17,7 @@ import os
 import json
 import warnings
 from operator import mul
+import random
 
 import sys
 sys.path.append("..")
@@ -49,29 +50,18 @@ def select_configs(args, forward_logs, backward_logs):
     all_selected_ids = []
     i = 0
     for key in config_groups:
-        print("config {0}: {1}, total: {2}".format(
+        print("config {0}: {1}, total: {2}.".format(
             i, key, len(config_groups[key]['ids'])))
         shape_groups = config_groups[key]['shape_groups']
-        j = 0
-        for label in shape_groups:
-            selected_ids = []
-            ids = shape_groups[label]['ids']
-            ids = rearrange_ids(shape_groups[label]['sizes'], ids)
-            if len(ids) <= 3:
-                selected_ids = ids
-            else:
-                selected_ids = [ids[0], ids[int(len(ids) / 2)], ids[-1]]
-            all_selected_ids += selected_ids
-            selected_shapes = [shapes_list[idx] for idx in selected_ids]
-            selected_shapes_info = " The shapes are: "
-            for shape in selected_shapes:
-                selected_shapes_info += "{} ".format(shape)
-            shape_groups_info = " " * 2 + "shape {0}: {1}, total: {2}.".format(
-                j, label, len(ids))
-            select_ids_info = " Select {0} config_ids: {1}.".format(
+        if not shape_groups:
+            selected_ids = random.sample(config_groups[key]['ids'], 1)
+            all_selected_ids.append(selected_ids)
+            select_ids_info = "  Select {0} config_ids: {1}.".format(
                 len(selected_ids), selected_ids)
-            print(shape_groups_info + select_ids_info + selected_shapes_info)
-            j += 1
+            print(select_ids_info)
+        else:
+            all_selected_ids += select_from_shape_groups(shape_groups,
+                                                         shapes_list)
         i += 1
 
     with open(args.input_json_file, 'r') as f:
@@ -84,6 +74,42 @@ def select_configs(args, forward_logs, backward_logs):
         configs.append(all_configs[index])
     with open(args.output_json_file, 'w') as f:
         json.dump(configs, f, indent=4, sort_keys=True)
+
+
+def select_from_shape_groups(shape_groups, shapes):
+    """
+    Select configs from shape groups. The small, middle and large input will
+    be selected.
+
+    args:
+        shape_groups(dict): A dict that groups input shapes.
+        shapes(list): A list of input shapes. 
+
+    Returns: A list of selected config ids.
+    """
+    all_selected_ids = []
+    j = 0
+    for label in shape_groups:
+        selected_ids = []
+        ids = shape_groups[label]['ids']
+        ids = rearrange_ids(shape_groups[label]['sizes'], ids)
+        if len(ids) <= 3:
+            selected_ids = ids
+        else:
+            selected_ids = [ids[0], ids[int(len(ids) / 2)], ids[-1]]
+        all_selected_ids += selected_ids
+        selected_shapes = [shapes[idx] for idx in selected_ids]
+        selected_shapes_info = " The shapes are: "
+        for shape in selected_shapes:
+            selected_shapes_info += "{} ".format(shape)
+        shape_groups_info = " " * 2 + "shape {0}: {1}, total: {2}.".format(
+            j, label, len(ids))
+        select_ids_info = " Select {0} config_ids: {1}.".format(
+            len(selected_ids), selected_ids)
+        print(shape_groups_info + select_ids_info + selected_shapes_info)
+        j += 1
+
+    return all_selected_ids
 
 
 def combine_logs_with_key_params(removed_params, forward_logs, backward_logs):
@@ -183,21 +209,22 @@ def get_input_shapes(logs, input_shape):
     Returns: A list of input shapes and each input shape is also a list.
     """
 
-    shapes = []
+    all_shapes = []
     for log in logs:
+        shapes = []
         for item in log:
             param_val = item.split("=")
             if param_val[0] in input_shape:
                 shape = parse_list(param_val[1])
                 shapes.append(shape)
+        all_shapes.append(shapes)
 
-    return shapes
+    return all_shapes
 
 
 def group_input_shapes(shapes, config_ids):
     """
-    Group the input shapes according to the number of dimensions and whether the size
-    is a power of 2.
+    Group the input shapes according to the shape's label.
 
     Args: 
         shapes(list): A list of input shapes.
@@ -206,12 +233,12 @@ def group_input_shapes(shapes, config_ids):
     Returns: A 2-D dict of shape groups.
     """
     shape_groups = dict()
+    if not shapes[0]:
+        warnings.warn("Group configs regardless of input shape.")
+        return shape_groups
     for index in config_ids:
         shape = shapes[index]
-        num_dims = len(shape)
-        size = reduce(mul, shape)
-        is_power_of_2 = 'T' if size == 0 or size & (size - 1) == 0 else 'F'
-        label = str(num_dims) + '-D' + ' is_power_of_2=' + is_power_of_2
+        label, size = label_shape(shape)
         if label not in shape_groups.keys():
             shape_groups[label] = {'ids': [index], 'sizes': [size]}
         else:
@@ -219,6 +246,43 @@ def group_input_shapes(shapes, config_ids):
             shape_groups[label]['sizes'] += [size]
 
     return shape_groups
+
+
+def label_shape(shape):
+    """
+    Label shape with the features. When only one shape is found, label the shape
+    according to the number of dimensions and whether the size is a power of 2. 
+    When two shape is found, if the shapes are the same, label the shapes according
+    to the rule of one input, if the shapes are not the same, label the shapes
+    according to the number of dimensions.
+
+    Args:
+        (shape): A list of input shapes. Each item is also a list containing 1 or 2 items.
+
+    Returns: A label of shapes that is a string and the size of the input with the most
+        dimensions.
+    """
+    if len(shape) == 1:
+        size = reduce(mul, shape[0])
+        is_power_of_2 = 'T' if size & (size - 1) == 0 else 'F'
+        label = str(len(shape[0])) + '-D' + ' is_power_of_2=' + is_power_of_2
+    elif len(shape) == 2:
+        if (shape[0] == shape[1]):
+            is_same_shape = 'T'
+            size = reduce(mul, shape[0])
+            is_power_of_2 = 'T' if size & (size - 1) == 0 else 'F'
+            label = 'is_same_shape=' + is_same_shape + ' ' + str(
+                len(shape[0])) + '-D-' + str(len(shape[
+                    1])) + '-D' + ' is_power_of_2=' + is_power_of_2
+        else:
+            is_same_shape = 'F'
+            size1 = reduce(mul, shape[0])
+            size2 = reduce(mul, shape[0])
+            label = 'is_same_shape=' + is_same_shape + ' ' + str(
+                len(shape[0])) + '-D-' + str(len(shape[1])) + '-D'
+            size = size1 if (len(shape[0]) > len(shape[1])) else size2
+
+    return label, size
 
 
 def rearrange_ids(sizes, ids):
