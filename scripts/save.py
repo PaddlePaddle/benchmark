@@ -339,7 +339,7 @@ def parse_logs(args):
                         if "MAX_GPU_MEMORY_USE" in line and args.implement_type != 'static_graph':
                             value = line.strip().split("=")[1].strip()
                             mem_result = int(value) if str.isdigit(value) else 0
-                            break
+                            
                 elif job_info["index"] == 2:
                     for line in file_lines:
                         if "MAX_GPU_MEMORY_USE" in line:
@@ -364,7 +364,7 @@ def parse_logs(args):
                 log_save_dict = {"train_log_path": train_log_path}
                 if job_info["index"] == 1:
                     insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result, '%')
-                    insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%') 
+                    insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%')
                     if int(job_info["gpu_num"]) == 1:
                         profiler_log = job_info["log_with_profiler"].split("/")[-1]
                         profiler_path = job_info["profiler_path"].split("/")[-1]
@@ -376,7 +376,7 @@ def parse_logs(args):
                 pjrl = bm.JobResultsLog()
                 pjrl.result_id = pjr.result_id
                 pjrl.log_path = json.dumps(log_save_dict)
-                pjrl.save()  
+                pjrl.save()
                 # TODO: 动态图吞吐和显存占用是一个任务，后续静态图也改成一个任务，即可删除这个判断
                 if args.implement_type != 'static_graph':
                     pjr = insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 0)
@@ -388,16 +388,16 @@ def parse_logs(args):
                     job_info["model_name"], run_machine_type, job_info["index"], result))
 
                 if job_info["index"] != 3:
-                    check_results(job_info["model_name"], job_info["index"], 
+                    check_results(job_info["model_name"], job_info["index"],
                                         run_machine_type, result, html_results)
                     # TODO: 动态图吞吐和显存占用是一个任务，后续静态图也改成一个任务，即可删除这个判断
                     if args.implement_type != 'static_graph':
-                        check_results(job_info["model_name"], 2, run_machine_type, 
+                        check_results(job_info["model_name"], 2, run_machine_type,
                                       mem_result, html_results)
                 else:
-                    check_results(job_info["model_name"], job_info["index"], run_machine_type, 
+                    check_results(job_info["model_name"], job_info["index"], run_machine_type,
                                     result, html_results, "Framework_Total")
-                    check_results(job_info["model_name"], job_info["index"], 
+                    check_results(job_info["model_name"], job_info["index"],
                                     run_machine_type, result, html_results, "GpuMemcpy_Total")
 
     if html_results:
