@@ -86,7 +86,7 @@ dy_ptb_lm(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/ptb/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 800 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 4000 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
 }
 
 dy_transformer(){
