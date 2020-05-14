@@ -1,39 +1,41 @@
 [{
-    "op": "while_loop",
+    "op": "elementwise",
     "param_info": {
-        "input": {
+        "x": {
             "type": "Variable",
             "dtype": "float32",
             "shape": "[16L, 256L, 6L, 6L]"
         },
-        "size": {
-            "type": "int",
-            "value": "4096"
+        "y": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[16L, 256L, 6L, 6L]"
         },
-        "num_flatten_dims": {
+        "axis": {
             "type": "int",
             "value": "1"
         },
         "act": {
             "type": "string",
-            "value": "relu"
+            "value": "None"
         }
     }
 }, {
-    "op": "while_loop",
+    "op": "elementwise",
     "param_info": {
-        "input": {
+        "x": {
             "type": "Variable",
             "dtype": "float32",
-            "shape": "[16L, 256L, 5L, 5L]"
+            "shape": "[16L, 256L, 6L, 6L]"
         },
-        "size": {
-            "type": "int",
-            "value": "4096"
+        "y": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[16L, 256L, 6L, 6L]"
         },
-        "num_flatten_dims": {
+        "axis": {
             "type": "int",
-            "value": "1"
+            "value": "0"
         },
         "act": {
             "type": "string",

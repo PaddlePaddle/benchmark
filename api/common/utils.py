@@ -39,20 +39,19 @@ def compare(output1, output2, atol):
     return max_diff, offset
 
 
-def check_outputs(list1, list2, name):
+def check_outputs(list1, list2, name, atol=1e-6):
     if not isinstance(list1, list) or not isinstance(list2, list):
         raise TypeError(
             "input argument's type should be list of numpy.ndarray.")
 
     consistent = True
     max_diff = np.float32(0.0)
-    atol = 1e-6
     num_outputs = 0
 
     if name != "feed":
         assert len(list1) == len(list2)
         num_outputs = len(list1)
-        for i in range(num_outputs):
+        for i in xrange(num_outputs):
             output1 = list1[i]
             output2 = list2[i]
 

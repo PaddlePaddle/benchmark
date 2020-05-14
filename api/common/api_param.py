@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import json
 import numpy as np
 
@@ -54,7 +55,7 @@ class BaseParamInfo(object):
         elif self.type in ["int", "int32", "int64"]:
             return int(value_str)
         elif self.type == "bool":
-            return bool(value_str)
+            return eval(value_str)
         elif self.type == "string":
             return None if value_str == "None" else value_str
         elif self.type == "list":
@@ -92,8 +93,19 @@ class APIConfig(object):
         self.params_list = None
         self.backward = False
         self.feed_spec = None
+        self.atol = 1e-6
+        self.run_tf = True
 
     def init_from_json(self, filename, config_id=0):
+        if hasattr(self, "alias_config"):
+            json_file = filename
+            dir = os.path.dirname(json_file)
+            file_name = os.path.basename(json_file)
+            end = file_name.split('.')
+            filename = dir + '/' + self.alias_config.name + '.' + end[1]
+            self.alias_config.init_from_json(filename, config_id)
+            return self
+
         print("---- Initialize APIConfig from %s, config_id = %d.\n" %
               (filename, config_id))
         with open(filename, 'r') as f:
@@ -103,6 +115,11 @@ class APIConfig(object):
                 "The filename: %s, config_id: %d." % (
                     data[config_id]["op"], self.name, filename, config_id)
             self.params = data[config_id]["param_info"]
+            if data[config_id].get("atol", None) is not None:
+                if isinstance(data[config_id]["atol"], str):
+                    self.atol = float(data[config_id]["atol"])
+                elif isinstance(data[config_id]["atol"], float):
+                    self.atol = data[config_id]["atol"]
 
         self._parse_params()
         for param in self.params_list:
@@ -113,6 +130,8 @@ class APIConfig(object):
         return self
 
     def to_tensorflow(self):
+        if hasattr(self, "alias_config"):
+            self.alias_config.to_tensorflow()
         return self
 
     def to_string(self):

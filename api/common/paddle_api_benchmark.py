@@ -18,6 +18,7 @@ import time
 import abc, six
 import traceback
 import contextlib
+import importlib
 import numpy as np
 import utils
 
@@ -97,6 +98,12 @@ class PaddleAPIBenchmarkBase(object):
         data.persistable = True
         data.stop_gradient = stop_gradient
         return data
+
+    def layers(self, name, **kwargs):
+        module = importlib.import_module("paddle.fluid.layers")
+        func = getattr(module, name)
+        result = func(**kwargs)
+        return result
 
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, fluid.framework.Variable):
@@ -230,6 +237,39 @@ class PaddleAPIBenchmarkBase(object):
             check_output=args.check_output,
             profiler=args.profiler)
         return outputs
+
+    def _init_feed_tensor(self, feed):
+        for var in self.feed_vars:
+            if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
+                raise TypeError("Feed data of non LoDTensor is not supported.")
+
+            var_in_scope = self.scope.find_var(var.name)
+            assert var_in_scope, "Variable {} is not created.".format(var.name)
+            tensor = var_in_scope.get_tensor()
+
+            cur_feed = feed[var.name]
+            if not isinstance(cur_feed, fluid.core.LoDTensor):
+                tensor.set(cur_feed, self.place)
+            else:
+                raise TypeError(
+                    "Feed data of non LoDTensor is not supported yet.")
+
+    def _get_fetch_tensor(self):
+        place = fluid.core.Place()
+        place.set_place(fluid.CPUPlace())
+        output = []
+        for var in self.fetch_vars:
+            if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
+                raise TypeError(
+                    "Fetch data of non LoDTensor is not supported.")
+
+            var_in_scope = self.scope.find_var(var.name)
+            assert var_in_scope, "Variable {} is not created.".format(var.name)
+            tensor = var_in_scope.get_tensor()
+
+            cpu_tensor = tensor._copy(place)
+            output.append(cpu_tensor)
+        return output
 
     def _check_consistency(self, fetches):
         def _self_check(output):

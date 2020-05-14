@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 function _collect_occupancy() {
     if [[ "${BENCHMARK_MONITOR}" = "" ]]; then
         export BENCHMARK_MONITOR=ON
@@ -22,7 +21,16 @@ function _run(){
     # running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}
     if [[ ${index} -eq 1 ]]; then
         job_bt=`date '+%Y%m%d%H%M%S'`
-        _train
+        if [[ ${IMPLEMENT_TYPE} != "static_graph" ]]; then
+            gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
+            nvidia-smi --id=$gpu_id --query-compute-apps=used_memory --format=csv -lms 100 > gpu_use.log 2>&1 &
+            gpu_memory_pid=$!
+            _train
+            kill ${gpu_memory_pid}
+            awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "MAX_GPU_MEMORY_USE=", max}' gpu_use.log
+        else
+            _train
+        fi
         job_et=`date '+%Y%m%d%H%M%S'`
         _collect_occupancy
     elif [[ ${index} -eq 2 ]]; then
@@ -61,6 +69,8 @@ function _run(){
             --skip_steps ${skip_steps} \
             --model_mode ${model_mode} \
             --model_name "${model_name}" \
+            --mission_name "${mission_name}" \
+            --direction_id "${direction_id}" \
             --run_mode ${run_mode} \
             --index ${index} \
             --gpu_num ${num_gpu_devices} \

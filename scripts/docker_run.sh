@@ -1,6 +1,6 @@
 #!/bin/bash
 
-usage () {
+function usage () {
   cat <<EOF
   usage: $0 [options]
   -h         optional   Print this help message
@@ -10,7 +10,7 @@ usage () {
   -n  cudnn_version 7
   -a  image_branch develop|1.6|pr_number|v1.6.0
   -p  all_path contains dir of prepare(pretrained models), dataset, logs, images such as /ssd1/ljh
-  -r  run_module  ce or local
+  -r  run_module  build_paddle or run_models
   -t  job_type  benchmark_daliy | models test | pr_test
   -g  device_type  p40 | v100
   -s  implement_type of model static | dynamic
@@ -45,35 +45,33 @@ paddle_repo="https://github.com/PaddlePaddle/Paddle.git"
 export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
 export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
 
-#build paddle
-build(){
 
-    if [ ${run_module} = "local" ]; then
-        if [ -e ${benchmark_work_path} ]; then
-             rm -rf ${benchmark_work_path}/Paddle
-        else
-            mkdir -p ${benchmark_work_path}
-        fi
-        cd ${benchmark_work_path}
-        git clone ${paddle_repo}
-        cd Paddle
-    else
-        cd ${benchmark_work_path}/Paddle
-    fi
-
+function construnct_version(){
+    cd ${benchmark_work_path}/Paddle
     image_commit_id=$(git log|head -n1|awk '{print $2}')
     echo "image_commit_id is: "${image_commit_id}
 
     PADDLE_DEV_NAME=docker.io/paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
-    #version=`date '+%Y%m%d%H%M%S'`
     version=`date -d @$(git log -1 --pretty=format:%ct) "+%Y.%m%d.%H%M%S"`
     image_branch=$(echo ${image_branch} | rev | cut -d'/' -f 1 | rev)
-    PADDLE_VERSION=${version}'.post'$(echo $cuda_version|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
-    image_name=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
-    echo "image_name is: "${image_name}
+    if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
+        PADDLE_VERSION=${version}".${image_branch//-/_}"
+        IMAGE_NAME=paddlepaddle-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
+        with_gpu="OFF"
+        PADDLE_DEV_NAME=hub.baidubce.com/paddlepaddle/paddle:latest-dev
+    else
+        PADDLE_VERSION=${version}'.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
+        IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
+        with_gpu='ON'
+    fi
+    echo "IMAGE_NAME is: "${IMAGE_NAME}
+}
 
+#build paddle
+function build_paddle(){
+    construnct_version
     #double check1: In some case, docker would hang while compiling paddle, so to avoid re-compilem, need this
-    if [ -e ${all_path}/images/${image_name} ]
+    if [[ -e ${all_path}/images/${IMAGE_NAME} ]]
     then
         echo "image had built, begin running models"
         return
@@ -81,34 +79,47 @@ build(){
         echo "image not found, begin building"
     fi
 
-    docker pull ${PADDLE_DEV_NAME}
-    nvidia-docker run -i --rm -v $PWD:/paddle \
-      -w /paddle \
-      -e "CMAKE_BUILD_TYPE=Release" \
-      -e "PYTHON_ABI=cp27-cp27mu" \
-      -e "PADDLE_VERSION=0.0.0.${PADDLE_VERSION}" \
-      -e "WITH_DOC=OFF" \
-      -e "WITH_AVX=ON" \
-      -e "WITH_GPU=ON" \
-      -e "WITH_TEST=OFF" \
-      -e "RUN_TEST=OFF" \
-      -e "WITH_GOLANG=OFF" \
-      -e "WITH_SWIG_PY=ON" \
-      -e "WITH_PYTHON=ON" \
-      -e "WITH_C_API=OFF" \
-      -e "WITH_STYLE_CHECK=OFF" \
-      -e "WITH_TESTING=OFF" \
-      -e "CMAKE_EXPORT_COMPILE_COMMANDS=ON" \
-      -e "WITH_MKL=ON" \
-      -e "BUILD_TYPE=Release" \
-      -e "WITH_DISTRIBUTE=ON" \
-      -e "WITH_FLUID_ONLY=OFF" \
-      -e "CMAKE_VERBOSE_MAKEFILE=OFF" \
-      -e "http_proxy=${HTTP_PORXY}" \
-      -e "https_proxy=${HTTP_PORXY}" \
-      ${PADDLE_DEV_NAME} \
-       /bin/bash -c "paddle/scripts/paddle_build.sh build"
-    mkdir -p ./output
+    if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
+        docker run -i --rm -v $PWD:/paddle \
+          -w /paddle \
+          -e "http_proxy=${HTTP_PROXY}" \
+          -e "https_proxy=${HTTP_PROXY}" \
+          ${PADDLE_DEV_NAME} \
+           /bin/bash -c "mkdir -p /paddle/build && cd /paddle/build; pip install protobuf; \
+                         cmake .. -DPY_VERSION=2.7 -DWITH_GPU=OFF -DWITH_TESTING=OFF -DCMAKE_BUILD_TYPE=Release;\
+                         make -j$(nproc)"
+        build_name="paddlepaddle-0.0.0-cp27-cp27mu-linux_x86_64.whl"
+
+    else
+        nvidia-docker run -i --rm -v $PWD:/paddle \
+          -w /paddle \
+          -e "CMAKE_BUILD_TYPE=Release" \
+          -e "PYTHON_ABI=cp27-cp27mu" \
+          -e "PADDLE_VERSION=0.0.0.${PADDLE_VERSION}" \
+          -e "WITH_DOC=OFF" \
+          -e "WITH_AVX=ON" \
+          -e "WITH_GPU=${with_gpu}" \
+          -e "WITH_TEST=OFF" \
+          -e "RUN_TEST=OFF" \
+          -e "WITH_GOLANG=OFF" \
+          -e "WITH_SWIG_PY=ON" \
+          -e "WITH_PYTHON=ON" \
+          -e "WITH_C_API=OFF" \
+          -e "WITH_STYLE_CHECK=OFF" \
+          -e "WITH_TESTING=OFF" \
+          -e "CMAKE_EXPORT_COMPILE_COMMANDS=ON" \
+          -e "WITH_MKL=ON" \
+          -e "BUILD_TYPE=Release" \
+          -e "WITH_DISTRIBUTE=ON" \
+          -e "WITH_FLUID_ONLY=OFF" \
+          -e "CMAKE_VERBOSE_MAKEFILE=OFF" \
+          -e "http_proxy=${HTTP_PROXY}" \
+          -e "https_proxy=${HTTP_PROXY}" \
+          ${PADDLE_DEV_NAME} \
+           /bin/bash -c "paddle/scripts/paddle_build.sh build"
+         build_name=${IMAGE_NAME}
+
+    fi
 
     if [[ -d ${all_path}/images ]]; then
         echo "images dir already exists"
@@ -117,17 +128,18 @@ build(){
     fi
 
     if [[ -d ${all_path}/logs ]]; then
-        echo "images dir already exists"
+        echo "logs dir already exists"
     else
         mkdir -p ${all_path}/logs
     fi
-
+    mkdir ./output
     build_link="${CE_SERVER}/viewLog.html?buildId=${BUILD_ID}&buildTypeId=${BUILD_TYPE_ID}&tab=buildLog"
     echo "build log link: ${build_link}"
+
     #double check2
-    if [[ -s ./build/python/dist/${image_name} ]]
+    if [[ -s ./build/python/dist/${build_name} ]]
     then
-        cp ./build/python/dist/${image_name} ${all_path}/images/
+        cp ./build/python/dist/${build_name} ${all_path}/images/${IMAGE_NAME}
         echo "build paddle success, begin run !"
     else
         echo "build paddle failed, exit!"
@@ -140,26 +152,16 @@ PADDLE BUILD FAILED!!
 EOF
         exit 1
     fi
+
 }
 
-run(){
-    RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
-    nvidia-docker run -i --rm \
-        -v /home/work:/home/work \
-        -v /ssd1:/ssd1 \
-        -v /ssd2:/ssd2 \
-        -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
-        -v /usr/bin/monquery:/usr/bin/monquery \
-        -e "BENCHMARK_WEBSITE=${BENCHMARK_WEBSITE}" \
-        -e "http_proxy=${HTTP_PORXY}" \
-        -e "https_proxy=${HTTP_PORXY}" \
-        --net=host \
-        --privileged \
-        $RUN_IMAGE_NAME \
-        /bin/bash -c "cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/benchmark;
+function run_models(){
+    construnct_version
+    if [[ -s ${all_path}/images/${IMAGE_NAME} ]]; then echo "image found" else exit 1; fi 
+    run_cmd="cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/scripts;
         bash auto_run_paddle.sh -m $model \
         -c ${cuda_version} \
-        -n ${all_path}/images/${image_name} \
+        -n ${all_path}/images/${IMAGE_NAME} \
         -i ${image_commit_id} \
         -a ${image_branch} \
         -v ${PADDLE_VERSION} \
@@ -167,28 +169,58 @@ run(){
         -t ${job_type} \
         -g ${device_type} \
         -s ${implement_type}"
-}
 
-send_email(){
-    # if [[ ${job_type} == 2 && -e ${all_path}/logs/log_${PADDLE_VERSION}/mail.html ]]; then
-    if [[ -e ${all_path}/logs/log_${PADDLE_VERSION}/mail.html ]]; then
-        cat ${all_path}/logs/log_${PADDLE_VERSION}/mail.html |sendmail -t ${email_address}
+    if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
+        RUN_IMAGE_NAME=hub.baidubce.com/paddlepaddle/paddle:latest
+
+        docker run -i --rm \
+        -v /home/work:/home/work \
+        -v ${all_path}:${all_path} \
+        -v /usr/bin/monquery:/usr/bin/monquery \
+        -e "BENCHMARK_WEBSITE=${BENCHMARK_WEBSITE}" \
+        -e "http_proxy=${HTTP_PROXY}" \
+        -e "https_proxy=${HTTP_PROXY}" \
+        --net=host \
+        --privileged \
+        ${RUN_IMAGE_NAME} \
+        /bin/bash -c "${run_cmd}"
+    else
+        RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
+        nvidia-docker run -i --rm \
+            -v /home/work:/home/work \
+            -v ${all_path}:${all_path} \
+            -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
+            -v /usr/bin/monquery:/usr/bin/monquery \
+            -e "BENCHMARK_WEBSITE=${BENCHMARK_WEBSITE}" \
+            -e "http_proxy=${HTTP_PROXY}" \
+            -e "https_proxy=${HTTP_PROXY}" \
+            --net=host \
+            --privileged \
+            ${RUN_IMAGE_NAME} \
+            /bin/bash -c "${run_cmd}"
     fi
 }
 
-zip_log(){
+function send_email(){
+    # if [[ ${job_type} == 2 && -e ${all_path}/logs/log_${PADDLE_VERSION}/mail.html ]]; then
+    if [[ -e ${all_path}/logs/log_${PADDLE_VERSION}/${implement_type}/mail.html ]]; then
+        cat ${all_path}/logs/log_${PADDLE_VERSION}/${implement_type}/mail.html |sendmail -t ${email_address}
+    fi
+}
+
+function zip_log(){
     echo $(pwd)
     if [[ -d ${all_path}/logs/log_${PADDLE_VERSION} ]]; then
         rm -rf output/*
         tar -zcvf output/log_${PADDLE_VERSION}.tar.gz ${all_path}/logs/log_${PADDLE_VERSION}
-        cp ${all_path}/images/${image_name}  output/
+        cp ${all_path}/images/${IMAGE_NAME}  output/
     fi
 }
 
-build
-run
-zip_log
-
-if [ ${device_type} == "v100" ]; then
+if [[ ${run_module} = "build_paddle" ]]; then
+    build_paddle
+else
+    run_models
+    zip_log
     send_email
 fi

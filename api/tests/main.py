@@ -19,6 +19,8 @@ import os
 import json
 
 import sys
+import warnings
+
 sys.path.append("..")
 from common import utils
 from common import api_param
@@ -47,6 +49,8 @@ def parse_args():
         help='Specify the framework: [paddle|tensorflow|tf|both]')
     parser.add_argument(
         '--json_file', type=str, default=None, help='The file of API params')
+    parser.add_argument(
+        '--api_name', type=str, default=None, help='The series of API')
     parser.add_argument(
         '--config_id',
         type=int,
@@ -109,16 +113,51 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
     if args.json_file is not None:
         if args.config_id is not None and args.config_id >= 0:
             config.init_from_json(args.json_file, args.config_id)
-            test_main_without_json(pd_obj, tf_obj, config)
+            if args.api_name != None:
+                API_s = args.api_name.split(',')
+                for api in API_s:
+                    config.api = api
+                    test_main_without_json(pd_obj, tf_obj, config)
+            else:
+                test_main_without_json(pd_obj, tf_obj, config)
         else:
             num_configs = 0
-            with open(args.json_file, 'r') as f:
+            if hasattr(config, "alias_config"):
+                json_file = args.json_file
+                dir = os.path.dirname(json_file)
+                file_name = os.path.basename(json_file)
+                end = file_name.split('.')
+                filename = dir + '/' + config.alias_config.name + '.' + end[1]
+            else:
+                filename = args.json_file
+            with open(filename, 'r') as f:
                 num_configs = len(json.load(f))
             for config_id in range(0, num_configs):
                 config.init_from_json(args.json_file, config_id)
-                test_main_without_json(pd_obj, tf_obj, config)
+                if args.api_name != None:
+                    API_s = args.api_name.split(',')
+                    for api in API_s:
+                        config.api = api
+                        test_main_without_json(pd_obj, tf_obj, config)
+                else:
+                    test_main_without_json(pd_obj, tf_obj, config)
     else:
         test_main_without_json(pd_obj, tf_obj, config)
+
+
+def _is_paddle_enabled(args, config):
+    if args.task == "accuracy" or args.framework in ["paddle", "both"]:
+        return True
+    return False
+
+
+def _is_tensorflow_enabled(args, config):
+    if config.run_tf:
+        if args.task == "accuracy" or args.framework in [
+                "tensorflow", "tf", "both"
+        ]:
+            return True
+    return False
 
 
 def test_main_without_json(pd_obj, tf_obj=None, config=None):
@@ -129,15 +168,17 @@ def test_main_without_json(pd_obj, tf_obj=None, config=None):
     use_feed_fetch = False if args.task == "speed" else True
 
     feed_dict = pd_obj.generate_feed_dict(config)
-    if args.task == "accuracy" or args.framework in ["paddle", "both"]:
+    if _is_paddle_enabled(args, config):
         pd_outputs = pd_obj.run(config, args, use_feed_fetch, feed_dict)
 
-    if args.task == "accuracy" or args.framework in [
-            "tensorflow", "tf", "both"
-    ]:
+    if _is_tensorflow_enabled(args, config):
         assert tf_obj is not None, "TensorFlow object is None."
         tf_config = config.to_tensorflow()
         tf_outputs = tf_obj.run(tf_config, args, use_feed_fetch, feed_dict)
 
     if args.task == "accuracy":
-        utils.check_outputs(pd_outputs, tf_outputs, name=config.name)
+        if config.run_tf:
+            utils.check_outputs(pd_outputs, tf_outputs, name=config.name)
+        else:
+            warnings.simplefilter('always', UserWarning)
+            warnings.warn("This config is not supported by TensorFlow.")

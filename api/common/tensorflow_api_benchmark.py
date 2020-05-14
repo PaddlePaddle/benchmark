@@ -18,6 +18,7 @@ import sys
 import json
 import time
 import abc, six
+import importlib
 import numpy as np
 import utils
 import api_param
@@ -27,6 +28,7 @@ try:
     import tensorflow as tf
     from tensorflow.python.profiler import model_analyzer
     from tensorflow.python.profiler import option_builder
+    from tensorflow.core.protobuf import config_pb2
     from tensorflow.python.client import timeline
 except Exception as e:
     sys.stderr.write(
@@ -154,6 +156,7 @@ class TensorflowAPIBenchmarkBase(object):
         pass
 
     def placeholder(self, name, shape, dtype):
+        import tensorflow as tf
         tf_dtype = tf.as_dtype(dtype)
         if tf.__version__ >= "1.15.0":
             var = tf.compat.v1.placeholder(
@@ -173,6 +176,12 @@ class TensorflowAPIBenchmarkBase(object):
             data = tf.Variable(value, name=name)
         self.data = data
         return data
+
+    def layers(self, name, **kwargs):
+        module = importlib.import_module("tensorflow")
+        func = getattr(module, name)
+        result = func(**kwargs)
+        return result
 
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, tf.Tensor):
