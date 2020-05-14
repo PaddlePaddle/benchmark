@@ -157,7 +157,7 @@ EOF
 
 function run_models(){
     construnct_version
-    if [[ -s ${all_path}/images/${IMAGE_NAME} ]]; then echo "image found" else exit 1; fi 
+    if [[ -s ${all_path}/images/${IMAGE_NAME} ]]; then echo "image found" else exit 1; fi
     run_cmd="cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/scripts;
         bash auto_run_paddle.sh -m $model \
         -c ${cuda_version} \
@@ -202,17 +202,17 @@ function run_models(){
 }
 
 function send_email(){
-    # if [[ ${job_type} == 2 && -e ${all_path}/logs/log_${PADDLE_VERSION}/mail.html ]]; then
-    if [[ -e ${all_path}/logs/log_${PADDLE_VERSION}/${implement_type}/mail.html ]]; then
-        cat ${all_path}/logs/log_${PADDLE_VERSION}/${implement_type}/mail.html |sendmail -t ${email_address}
+    # if [[ ${job_type} == 2 && -e ${all_path}/logs/${PADDLE_VERSION}/mail.html ]]; then
+    if [[ -e ${all_path}/logs/${PADDLE_VERSION}/${implement_type}/mail.html ]]; then
+        cat ${all_path}/logs/${PADDLE_VERSION}/${implement_type}/mail.html |sendmail -t ${email_address}
     fi
 }
 
 function zip_log(){
     echo $(pwd)
-    if [[ -d ${all_path}/logs/log_${PADDLE_VERSION} ]]; then
+    if [[ -d ${all_path}/logs/${PADDLE_VERSION} ]]; then
         rm -rf output/*
-        tar -zcvf output/log_${PADDLE_VERSION}.tar.gz ${all_path}/logs/log_${PADDLE_VERSION}
+        tar -zcvf output/${PADDLE_VERSION}.tar.gz ${all_path}/logs/${PADDLE_VERSION}
         cp ${all_path}/images/${IMAGE_NAME}  output/
     fi
 }
