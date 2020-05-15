@@ -21,6 +21,8 @@ function _set_params() {
   base_batch_size=16
 # the pytorch batch_size is defined in stargan/main.py, and the defalt value is 16
   model_name="StarGAN"
+  mission_name="图像生成"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
+  direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
   model_mode=3
   device=${CUDA_VISIBLE_DEVICES//,/ }
   arr=($device)

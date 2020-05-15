@@ -88,8 +88,7 @@ def check_outputs(list1, list2, name, atol=1e-6):
 
 
 def print_benchmark_result(result, log_level=0):
-    if not isinstance(result, dict):
-        raise TypeError("Input stats should be a dict.")
+    assert isinstance(result, dict), "Input result should be a dict."
 
     runtimes = result.get("total", None)
     stable = result.get("stable", None)

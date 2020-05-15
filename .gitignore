@@ -11,4 +11,5 @@ log*
 *.profile
 *.timeline
 *.npz
+*.tar
 *.tar.gz

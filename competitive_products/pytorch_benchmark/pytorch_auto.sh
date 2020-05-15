@@ -8,6 +8,7 @@
 #                                        #
 ##########################################
 
+#************ note that you neet the images of pytorch which name contains devel***********#
 
 cur_model_list=(detection pix2pix stargan image_classification)
 export https_proxy=http://172.19.56.199:3128
@@ -17,17 +18,29 @@ export http_proxy=http://172.19.56.199:3128
 ######################
 environment(){
 apt-get update
-apt-get install wget
-apt-get install vim
+apt-get install wget -y
+apt-get install vim -y
+apt-get install git -y
+apt-get install libglib2.0-dev -y
+apt-get install apt-file -y
+apt-file update
+apt-get install libsm6 -y
+apt-get install libxrender1 -y
+apt-get install libxext-dev -y
+
 pip uninstall torch-nightly -y
-pip uninstall tensorflow
 #conda remove wrapt --y
 #pip uninstall setuptools -y
 #pip install setuptools>=41.0.0
-pip install tensorflow
+pip uninstall tensorflow  -y
+pip uninstall tensorboard -y
+pip uninstall tensorflow-estimator -y
+pip uninstall Pillow -y
+pip install tensorflow==1.14.0
+pip install Pillow==6.1
 pip install transformers
 
-package_check_list=(pytest Cython opencv-python future pycocotools matplotlib networkx fasttext visdom)
+package_check_list=(pytest Cython opencv-python future pycocotools matplotlib networkx fasttext visdom protobuf dominate)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
             echo "${package} have already installed"
@@ -37,13 +50,19 @@ package_check_list=(pytest Cython opencv-python future pycocotools matplotlib ne
             echo "${package} installed"
         fi
 done
+
+cd /usr/bin/
+ln -s /ssd3/heya/tools/monquery
+ln -s /ssd3/heya/tools/monqueryfunctions
+export LD_LIBRARY_PATH=/home/work/418.39/lib64/:${LD_LIBRARY_PATH}
+
 }
 
 
 #################pip packages
 prepare(){
-export BENCHMARK_ROOT=/ssd3/heya/tensorflow/benchmark_push/benchmark/
-export PYTORCH_BENCHMARK_ROOT=${BENCHMARK_ROOT}/competitive_products/py_benchmark
+export BENCHMARK_ROOT=/ssd3/heya/pytorch/0430_cuda10/benchmark/
+export PYTORCH_BENCHMARK_ROOT=${BENCHMARK_ROOT}/competitive_products/pytorch_benchmark
 
 export datapath=/ssd1/ljh/dataset
 
@@ -74,10 +93,10 @@ model_list=(mask_rcnn_fpn_resnet mask_rcnn_fpn_resnext retinanet_rcnn_fpn)
 for model_name in ${model_list[@]}; do
     echo "----------------${model_name}"
     echo "------1-----------}"
-    CUDA_VISIBLE_DEVICES=0 bash run_detectron.sh speed ${model_name} sp ${LOG_DIR} > ${RES_DIR}/${model_name}_1.res 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_detectron.sh 1 ${model_name} sp ${LOG_DIR} > ${RES_DIR}/${model_name}_1.res 2>&1
     sleep 60
     echo "------8-----------"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_detectron.sh speed ${model_name} sp ${LOG_DIR} > ${RES_DIR}/${model_name}_8.res 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_detectron.sh 1 ${model_name} sp ${LOG_DIR} > ${RES_DIR}/${model_name}_8.res 2>&1
     sleep 60
     
 done 
@@ -100,10 +119,10 @@ ln -s ${datapath}/pytorch_pix2pix_data ${curl_model_path}/pytorch-CycleGAN-and-p
 
 echo "----------------pix2pix"
     echo "----1----}"
-CUDA_VISIBLE_DEVICES=0 bash run_pix2pix.sh speed ${LOG_DIR} > ${RES_DIR}/pix2pix_1.res 2>&1
+CUDA_VISIBLE_DEVICES=0 bash run_pix2pix.sh 1 ${LOG_DIR} > ${RES_DIR}/pix2pix_1.res 2>&1
 #sleep 60
 #    echo "----8----}" # not run
-#CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_pix2pix.sh speed ${LOG_DIR} > ${RES_DIR}/pix2pix_8.res 2>&1
+#CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_pix2pix.sh 1 ${LOG_DIR} > ${RES_DIR}/pix2pix_8.res 2>&1
 
 }
 
@@ -121,10 +140,10 @@ ln -s ${datapath}/CelebA/Anno/* ${curl_model_path}/stargan/data/celeba
 ln -s ${datapath}/CelebA/Img/img_align_celeba/ ${curl_model_path}/stargan/data/celeba/images
 echo "----------------stargan"
     echo "----1----}"
-CUDA_VISIBLE_DEVICES=0 bash run_stargan.sh train speed ${LOG_DIR} > ${RES_DIR}/stargan_1.res 2>&1
+CUDA_VISIBLE_DEVICES=0 bash run_stargan.sh train 1 ${LOG_DIR} > ${RES_DIR}/stargan_1.res 2>&1
 #sleep 60
 #    echo "----8----}" # not run
-#CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_stargan.sh train speed ${LOG_DIR} > ${RES_DIR}/stargan_8.res 2>&1
+#CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_stargan.sh train 1 ${LOG_DIR} > ${RES_DIR}/stargan_8.res 2>&1
 }
 
 
@@ -147,18 +166,18 @@ model_list=(resnet101 resnet50)
 for model_name in ${model_list[@]}; do
     echo "----------------${model_name}"
     echo "------1-----------}"
-    CUDA_VISIBLE_DEVICES=0 bash run_vision.sh speed 32 ${model_name} sp ${LOG_DIR} > ${RES_DIR}/image_${model_name}_1.res 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_vision.sh 1 32 ${model_name} sp ${LOG_DIR} > ${RES_DIR}/image_${model_name}_1.res 2>&1
     sleep 60
     #echo "------8-----------"  # not run
-    #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_vision.sh speed 32 ${model_name} sp ${LOG_DIR} > ${RES_DIR}/image_${model_name}_8.res 2>&1
+    #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_vision.sh 1 32 ${model_name} sp ${LOG_DIR} > ${RES_DIR}/image_${model_name}_8.res 2>&1
 done
 #------------
 echo "----------------se_resnet50"
     echo "----1----}"
-CUDA_VISIBLE_DEVICES=0 bash run_senet.sh speed 32 se_resnext_50 sp ${LOG_DIR} > ${RES_DIR}/image_se_resnet50_1.res 2>&1
+CUDA_VISIBLE_DEVICES=0 bash run_senet.sh 1 32 se_resnext_50 sp ${LOG_DIR} > ${RES_DIR}/image_se_resnet50_1.res 2>&1
 sleep 60
 #    echo "----8----}"  #not run 
-#CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_senet.sh speed 32 se_resnext_50 sp  ${LOG_DIR} > ${RES_DIR}/image_se_resnet50_8.res 2>&1 
+#CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_senet.sh 1 32 se_resnext_50 sp  ${LOG_DIR} > ${RES_DIR}/image_se_resnet50_8.res 2>&1 
 
 }
 

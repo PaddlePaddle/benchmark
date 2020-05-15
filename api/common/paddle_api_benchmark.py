@@ -301,11 +301,11 @@ class PaddleAPIBenchmarkBase(object):
         repeat = len(fetches)
         num_outputs = len(fetches[0])
         max_diff = 0.0
-        for j in xrange(num_outputs):
+        for j in range(num_outputs):
             if not stable:
                 break
             output_0 = None
-            for i in xrange(repeat):
+            for i in range(repeat):
                 try:
                     output_i = _self_check(fetches[i][j])
                     if i == 0:
