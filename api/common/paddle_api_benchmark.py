@@ -34,7 +34,7 @@ except Exception as e:
 def profile_context(name, use_gpu, profiler):
     if profiler in ["Default", "OpDetail", "AllOpDetail"]:
         profile_type = "All" if use_gpu else "CPU"
-        output_file = "./outputs/" + name + ".profile"
+        output_file = "./outputs/" + name + ".pd.profile"
         with fluid.profiler.profiler(
                 profile_type, 'total', output_file, tracer_option=profiler):
             yield
@@ -85,11 +85,16 @@ class PaddleAPIBenchmarkBase(object):
         self.place = None
         self.feed_vars = None
         self.fetch_vars = None
-        self.feed_tensors = {}
 
     @abc.abstractmethod
     def build_program(self, config=None):
         pass
+
+    def layers(self, name, **kwargs):
+        module = importlib.import_module("paddle.fluid.layers")
+        func = getattr(module, name)
+        result = func(**kwargs)
+        return result
 
     def create_program(self):
         self.main_program = fluid.Program()
@@ -120,24 +125,28 @@ class PaddleAPIBenchmarkBase(object):
         executor = fluid.Executor(self.place)
         executor.run(self.startup_program)
 
-        if feed is None:
-            feed = self._feed_random_data(use_gpu, as_lodtensor=False)
+        def _run_main_iter(feed=None):
+            outputs = executor.run(program=self.main_program,
+                                   feed=feed,
+                                   fetch_list=self.fetch_vars,
+                                   use_program_cache=True,
+                                   return_numpy=True)
+            return outputs
+
+        # warmup run
+        outputs = _run_main_iter(feed=feed)
 
         runtimes = []
         fetches = []
         outputs = None
         with profile_context(self.name, use_gpu, profiler):
-            for i in xrange(repeat):
+            for i in range(repeat):
                 begin = time.time()
-                outputs = executor.run(program=self.main_program,
-                                       feed=feed,
-                                       fetch_list=self.fetch_vars,
-                                       use_program_cache=True,
-                                       return_numpy=True)
-                end = time.time()
-                runtimes.append(end - begin)
+                outputs = _run_main_iter(feed=feed)
+                runtimes.append(time.time() - begin)
                 if check_output:
                     fetches.append(outputs)
+
         if check_output:
             stable, max_diff = self._check_consistency(fetches)
             stats = {"total": runtimes, "stable": stable, "diff": max_diff}
@@ -147,109 +156,8 @@ class PaddleAPIBenchmarkBase(object):
         stats["version"] = paddle.__version__
         stats["name"] = self.name
         stats["device"] = "GPU" if use_gpu else "CPU"
-        utils.print_stat(stats, log_level=log_level)
+        utils.print_benchmark_result(stats, log_level=log_level)
         return outputs
-
-    def run_with_core_executor(self,
-                               use_gpu,
-                               feed=None,
-                               repeat=1,
-                               log_level=0,
-                               check_output=False,
-                               profiler="none"):
-        self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
-        executor = fluid.Executor(self.place)
-        executor.run(self.startup_program)
-
-        # Use to run main_program
-        place = fluid.core.Place()
-        place.set_place(self.place)
-        core_executor = fluid.core.Executor(place)
-
-        fetch_list_str = []
-        for var in self.fetch_vars:
-            fetch_list_str.append(var.name)
-        ctx = core_executor.prepare(self.main_program.desc, 0, fetch_list_str,
-                                    False)
-        core_executor.create_variables(self.main_program.desc, self.scope, 0)
-
-        if feed is None:
-            feed = self._feed_random_data(use_gpu, as_lodtensor=False)
-
-        feed_times = []
-        fetch_times = []
-        compute_times = []
-        runtimes = []
-        fetches = []
-        outputs = None
-        with profile_context(self.name, use_gpu, profiler):
-            for i in xrange(repeat):
-                begin = time.time()
-                self._init_feed_tensor(feed)
-                feed_end = time.time()
-                core_executor.run_prepared_ctx(ctx, self.scope, False, False,
-                                               False)
-                compute_end = time.time()
-                outputs = self._get_fetch_tensor()
-                fetch_end = time.time()
-
-                runtimes.append(fetch_end - begin)
-                feed_times.append(feed_end - begin)
-                compute_times.append(compute_end - feed_end)
-                fetch_times.append(fetch_end - compute_end)
-
-                if check_output:
-                    fetches.append(outputs)
-        if check_output:
-            stable, max_diff = self._check_consistency(fetches)
-            stats = {
-                "total": runtimes,
-                "feed": feed_times,
-                "compute": compute_times,
-                "fetch": fetch_times,
-                "stable": stable,
-                "diff": max_diff
-            }
-        else:
-            stats = {
-                "total": runtimes,
-                "feed": feed_times,
-                "compute": compute_times,
-                "fetch": fetch_times
-            }
-        stats["framework"] = "paddle"
-        stats["version"] = paddle.__version__
-        stats["name"] = self.name
-        stats["device"] = "GPU" if use_gpu else "CPU"
-        utils.print_stat(stats, log_level=log_level)
-        return outputs
-
-    def layers(self, api, **kwargs):
-        module = importlib.import_module("paddle.fluid.layers")
-        api_paddle = getattr(module, api)
-        result = api_paddle(**kwargs)
-        return result
-
-    def _feed_random_data(self, use_gpu, as_lodtensor=False):
-        print("feed random data")
-        feed = {}
-        if use_gpu and as_lodtensor:
-            place = fluid.CPUPlace()
-            #place = fluid.CUDAPinnedPlace()
-        for var in self.feed_vars:
-            if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
-                raise TypeError("Feed data of non LoDTensor is not supported.")
-
-            shape = var.shape
-            dtype = convert_dtype(var.dtype, to_string=True)
-            data = np.random.random(shape).astype(dtype)
-            if use_gpu and as_lodtensor:
-                tensor = fluid.core.LoDTensor()
-                tensor.set(data, place)
-                feed[var.name] = tensor
-            else:
-                feed[var.name] = data
-        return feed
 
     def _init_feed_tensor(self, feed):
         for var in self.feed_vars:
@@ -314,11 +222,11 @@ class PaddleAPIBenchmarkBase(object):
         repeat = len(fetches)
         num_outputs = len(fetches[0])
         max_diff = 0.0
-        for j in xrange(num_outputs):
+        for j in range(num_outputs):
             if not stable:
                 break
             output_0 = None
-            for i in xrange(repeat):
+            for i in range(repeat):
                 try:
                     output_i = _self_check(fetches[i][j])
                     if i == 0:
