@@ -30,10 +30,14 @@ def compare(output1, output2, atol):
     offset = -1
     try:
         assert len(output1) == len(output2)
-        diff = np.abs(output1 - output2)
-        max_diff = np.max(diff)
-        offset = np.argmax(diff)
-        assert np.allclose(output1, output2, atol=atol)
+        if str(output1.dtype).find('bool') != -1:
+            assert np.array_equal(output1, output2)
+            max_diff = np.array_equal(output1, output2)
+        else:
+            diff = np.abs(output1 - output2)
+            max_diff = np.max(diff)
+            offset = np.argmax(diff)
+            assert np.allclose(output1, output2, atol=atol)
     except (AssertionError) as e:
         pass
     return max_diff, offset
@@ -54,23 +58,30 @@ def check_outputs(list1, list2, name=None, atol=1e-6):
         output2 = list2[i]
 
         max_diff_i, offset_i = compare(output1, output2, atol)
-        if max_diff_i > atol:
-            print("---- The %d-th output (shape: %s, data type: %s) has diff. "
-                  "The maximum diff is %e, offset is %d: %e vs %e." %
-                  (i, str(output1.shape), str(output1.dtype), max_diff_i,
-                   offset_i, output1.flatten()[offset_i],
-                   output2.flatten()[offset_i]))
+        if type(max_diff_i) == bool:
+            consistent = max_diff_i & consistent
+        else:
+            if max_diff_i > atol:
+                print(
+                    "---- The %d-th output (shape: %s, data type: %s) has diff. "
+                    "The maximum diff is %e, offset is %d: %e vs %e." %
+                    (i, str(output1.shape), str(output1.dtype), max_diff_i,
+                     offset_i, output1.flatten()[offset_i],
+                     output2.flatten()[offset_i]))
 
-        max_diff = max_diff_i if max_diff_i > max_diff else max_diff
-        if max_diff > atol:
-            consistent = False
+            max_diff = max_diff_i if max_diff_i > max_diff else max_diff
+            if max_diff > atol:
+                consistent = False
 
     status = collections.OrderedDict()
     if name is not None:
         status["name"] = name
     status["consistent"] = consistent
     status["num_outputs"] = num_outputs
-    status["diff"] = max_diff.astype("float")
+    if str(type(max_diff_i)).find('bool') != -1:
+        status["diff"] = consistent
+    else:
+        status["diff"] = max_diff.astype("float")
 
     if not consistent:
         if name is not None and name in special_op_list.RANDOM_OP_LIST:

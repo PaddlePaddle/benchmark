@@ -1,5 +1,5 @@
 [{
-    "op": "less_than",
+    "op": "compare",
     "param_info": {
         "cond": {
             "type": "string",
@@ -21,7 +21,7 @@
         }
     }
 }, {
-    "op": "less_than",
+    "op": "compare",
     "param_info": {
         "cond": {
             "type": "string",
@@ -39,28 +39,6 @@
         "y": {
             "dtype": "float32",
             "shape": "[1L]",
-            "type": "Variable"
-        }
-    }
-}, {
-    "op": "less_than",
-    "param_info": {
-        "cond": {
-            "type": "string",
-            "value": "None"
-        },
-        "force_cpu": {
-            "type": "string",
-            "value": "None"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[-1L, 1L]",
-            "type": "Variable"
-        },
-        "y": {
-            "dtype": "float32",
-            "shape": "[-1L, 1L]",
             "type": "Variable"
         }
     }
