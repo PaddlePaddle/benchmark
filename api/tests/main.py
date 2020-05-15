@@ -59,11 +59,6 @@ def parse_args():
         help='Only import params of API from json file in the specified position [0|1|...]'
     )
     parser.add_argument(
-        '--run_with_executor',
-        type=str2bool,
-        default=True,
-        help='Whether running with executor [True|False]')
-    parser.add_argument(
         '--check_output',
         type=str2bool,
         default=True,
@@ -182,13 +177,14 @@ def copy_feed_spec(config=None):
 
 
 def test_main(pd_obj=None, tf_obj=None, config=None):
-    if config is None:
-        raise ValueError("API config must be set.")
+    assert config is not None, "API config must be set."
 
     args = parse_args()
     if args.json_file is not None:
+        # Set the filename to alias config's filename, when there is a alias config.
+        filename = config.alias_filename(args.json_file)
         if args.config_id is not None and args.config_id >= 0:
-            config.init_from_json(args.json_file, args.config_id)
+            config.init_from_json(filename, args.config_id)
             if args.api_name != None:
                 API_s = args.api_name.split(',')
                 for api in API_s:
@@ -198,14 +194,6 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
                 test_main_without_json(pd_obj, tf_obj, config)
         else:
             num_configs = 0
-            if hasattr(config, "alias_config"):
-                json_file = args.json_file
-                dir = os.path.dirname(json_file)
-                file_name = os.path.basename(json_file)
-                end = file_name.split('.')
-                filename = dir + '/' + config.alias_config.name + '.' + end[1]
-            else:
-                filename = args.json_file
             with open(filename, 'r') as f:
                 num_configs = len(json.load(f))
             for config_id in range(0, num_configs):
@@ -221,17 +209,30 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
         test_main_without_json(pd_obj, tf_obj, config)
 
 
+def _is_paddle_enabled(args, config):
+    if args.task == "accuracy" or args.framework in ["paddle", "both"]:
+        return True
+    return False
+
+
+def _is_tensorflow_enabled(args, config):
+    if config.run_tf:
+        if args.task == "accuracy" or args.framework in [
+                "tensorflow", "tf", "both"
+        ]:
+            return True
+    return False
+
+
 def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
-    if config is None:
-        raise ValueError("API config must be set.")
+    assert config is not None, "API config must be set."
 
     args = parse_args()
     config.backward = args.backward
     feed_spec = copy_feed_spec(config)
     feed_list = None
-    if args.task == "accuracy" or args.framework in ["paddle", "both"]:
-        if pd_obj is None:
-            raise ValueError("Paddle object is None.")
+    if _is_paddle_enabled(args, config):
+        assert pd_obj is not None, "Paddle object is None."
         print(config)
         pd_obj.name = config.name
         pd_obj.create_program()
@@ -239,24 +240,21 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
         feed_list = feeder.feed_paddle(pd_obj, feed_spec=feed_spec)
         pd_outputs = run_paddle(args.task, pd_obj, args, feed_list)
 
-    if args.task == "accuracy" or args.framework in [
-            "tensorflow", "tf", "both"
-    ]:
-        if tf_obj is None:
-            raise ValueError("TensorFlow object is None.")
+    if _is_tensorflow_enabled(args, config):
+        assert tf_obj is not None, "TensorFlow object is None."
         tf_config = config.to_tensorflow()
         print(tf_config)
         warnings.simplefilter('always', UserWarning)
-        if tf_config.run_tf:
-            tf_obj.name = tf_config.name
-            tf_obj.build_graph(config=tf_config)
-            feed_list = feeder.feed_tensorflow(
-                tf_obj, feed_list, feed_spec=feed_spec)
-            tf_outputs = run_tensorflow(args.task, tf_obj, args, feed_list)
-        else:
-            warnings.warn("This config is not supported by TensorFlow.")
+        tf_obj.name = tf_config.name
+        tf_obj.build_graph(config=tf_config)
+        feed_list = feeder.feed_tensorflow(
+            tf_obj, feed_list, feed_spec=feed_spec)
+        tf_outputs = run_tensorflow(args.task, tf_obj, args, feed_list)
 
     if args.task == "accuracy":
         if tf_config.run_tf:
             utils.check_outputs(
                 pd_outputs, tf_outputs, name=pd_obj.name, atol=config.atol)
+        else:
+            warnings.simplefilter('always', UserWarning)
+            warnings.warn("This config is not supported by TensorFlow.")
