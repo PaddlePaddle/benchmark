@@ -18,11 +18,7 @@ class LogicalConfig(APIConfig):
     def __init__(self):
         super(LogicalConfig, self).__init__('logical')
         self.api = 'and'
-        self.api_list = {
-            'logical_and': 'logical_and',
-            'logical_xor': 'logical_xor',
-            'logical_or': 'logical_or'
-        }
+        self.api_list = {'and': 'and', 'xor': 'xor', 'or': 'or'}
 
 
 class PDLogical(PaddleAPIBenchmarkBase):

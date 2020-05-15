@@ -15,16 +15,16 @@
 from common_import import *
 
 
-class PDAssign(PaddleAPIBenchmarkBase):
+class PDLeakyRelu(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
                 name='data',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
+                shape=config.x_shape,
+                dtype=config.x_dtype,
                 lod_level=0)
             data.stop_gradient = False
-            result = fluid.layers.assign(input=data)
+            result = fluid.layers.leaky_relu(x=data, alpha=config.alpha)
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -32,13 +32,11 @@ class PDAssign(PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data])
 
 
-class TFAssign(TensorflowAPIBenchmarkBase):
+class TFLeakyRelu(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.placeholder(
-            name='data', shape=config.input_shape, dtype=config.input_dtype)
-        ref = tf.Variable(
-            tf.zeros(config.input_shape), name='target', dtype=tf.float32)
-        result = tf.assign(ref=ref, value=data)
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.nn.leaky_relu(features=data, alpha=config.alpha)
 
         self.feed_list = [data]
         self.fetch_list = [result]
@@ -47,4 +45,4 @@ class TFAssign(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDAssign(), TFAssign(), config=APIConfig("assign"))
+    test_main(PDLeakyRelu(), TFLeakyRelu(), config=APIConfig("leaky_relu"))

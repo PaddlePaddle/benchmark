@@ -30,7 +30,7 @@ def compare(output1, output2, atol):
     offset = -1
     try:
         assert len(output1) == len(output2)
-        if str(output1.dtype).find('bool') != -1:
+        if output1.dtype == np.bool:
             assert np.array_equal(output1, output2)
             max_diff = np.array_equal(output1, output2)
         else:
@@ -78,7 +78,7 @@ def check_outputs(list1, list2, name=None, atol=1e-6):
         status["name"] = name
     status["consistent"] = consistent
     status["num_outputs"] = num_outputs
-    if str(type(max_diff_i)).find('bool') != -1:
+    if type(max_diff_i) == bool:
         status["diff"] = consistent
     else:
         status["diff"] = max_diff.astype("float")
