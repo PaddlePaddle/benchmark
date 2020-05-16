@@ -51,10 +51,10 @@ function _set_env(){
 
 function _train(){
    train_cmd="--max_iter ${max_iter} \
-              --src_vocab_fpath gen_data_19/iwslt14.tokenized.de-en/vocab.de \
-              --trg_vocab_fpath gen_data_19/iwslt14.tokenized.de-en/vocab.en \
+              --src_vocab_fpath gen_data/iwslt14.tokenized.de-en/vocab.de \
+              --trg_vocab_fpath gen_data/iwslt14.tokenized.de-en/vocab.en \
               --special_token  <s> <e> <unk> \
-              --training_file gen_data_19/iwslt14.tokenized.de-en/para_small.de-en \
+              --training_file gen_data/iwslt14.tokenized.de-en/para_small.de-en \
               --weight_sharing False \
               --batch_size ${batch_size}"
 
