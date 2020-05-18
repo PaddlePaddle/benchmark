@@ -1,0 +1,14 @@
+[{
+    "op": "squeeze",
+    "param_info": {
+        "axes": {
+            "type": "list",
+            "value": "[1]"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[1L, 1L, 512L]",
+            "type": "Variable"
+        }
+    }
+}]

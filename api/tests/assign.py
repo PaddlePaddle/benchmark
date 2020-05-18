@@ -38,7 +38,7 @@ class TFAssign(TensorflowAPIBenchmarkBase):
             name='data', shape=config.input_shape, dtype=config.input_dtype)
         ref = tf.Variable(
             tf.zeros(config.input_shape), name='target', dtype=tf.float32)
-        result = tf.assign(ref=ref, value=data)
+        result = ref.assign(data)
 
         self.feed_list = [data]
         self.fetch_list = [result]

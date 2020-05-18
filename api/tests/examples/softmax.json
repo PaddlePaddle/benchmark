@@ -1,0 +1,35 @@
+[{
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 1000L]",
+            "type": "Variable"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}, {
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 8L, 128L]",
+            "type": "Variable"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}]
