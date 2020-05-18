@@ -56,13 +56,13 @@ class TFCase(TensorflowAPIBenchmarkBase):
             name='input', shape=config.x_shape, dtype=config.x_dtype)
 
         def f1():
-            return tf.assign(ref=data, value=zero_var)
+            return tf.compat.v1.assign(ref=data, value=zero_var)
 
         def f2():
-            return tf.assign(ref=data, value=five_var)
+            return tf.compat.v1.assign(ref=data, value=five_var)
 
         def f3():
-            return tf.assign(ref=data, value=ten_var)
+            return tf.compat.v1.assign(ref=data, value=ten_var)
 
         result = tf.case(
             [(tf.reshape(tf.less(input, 0), []), f1),
