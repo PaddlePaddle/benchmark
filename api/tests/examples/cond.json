@@ -1,0 +1,18 @@
+[{
+    "op": "cond",
+    "param_info": {
+        "x": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[1L]"
+        },
+        "shape": {
+            "type": "list",
+            "value": "[10L, 10L, 100L, 100L]"
+        },
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        }
+    }
+}]
