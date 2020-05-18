@@ -30,10 +30,20 @@ def compare(output1, output2, atol):
     offset = -1
     try:
         assert len(output1) == len(output2)
-        diff = np.abs(output1 - output2)
-        max_diff = np.max(diff)
-        offset = np.argmax(diff)
-        assert np.allclose(output1, output2, atol=atol)
+        if output1.dtype == np.bool:
+            assert np.array_equal(output1, output2)
+            max_diff = np.array_equal(output1, output2)
+            if max_diff == False:
+                for i in range(len(output1)):
+                    if output1[i] != output2[i]:
+                        offset = i
+                        return max_diff, offset
+
+        else:
+            diff = np.abs(output1 - output2)
+            max_diff = np.max(diff)
+            offset = np.argmax(diff)
+            assert np.allclose(output1, output2, atol=atol)
     except (AssertionError) as e:
         pass
     return max_diff, offset
@@ -54,22 +64,35 @@ def check_outputs(list1, list2, name, atol=1e-6):
         output2 = list2[i]
 
         max_diff_i, offset_i = compare(output1, output2, atol)
-        if max_diff_i > atol:
-            print("---- The %d-th output (shape: %s, data type: %s) has diff. "
-                  "The maximum diff is %e, offset is %d: %e vs %e." %
-                  (i, str(output1.shape), str(output1.dtype), max_diff_i,
-                   offset_i, output1.flatten()[offset_i],
-                   output2.flatten()[offset_i]))
+        if type(max_diff_i) == bool:
+            consistent = max_diff_i & consistent
+            if max_diff_i == False:
+                print(
+                    "---- The %d-th output (shape: %s, data type: %s) has diff. "
+                    "The offset is %d: %e vs %e." %
+                    (i, str(output1.shape), str(output1.dtype), offset_i,
+                     output1.flatten()[offset_i], output2.flatten()[offset_i]))
+        else:
+            if max_diff_i > atol:
+                print(
+                    "---- The %d-th output (shape: %s, data type: %s) has diff. "
+                    "The maximum diff is %e, offset is %d: %e vs %e." %
+                    (i, str(output1.shape), str(output1.dtype), max_diff_i,
+                     offset_i, output1.flatten()[offset_i],
+                     output2.flatten()[offset_i]))
 
-        max_diff = max_diff_i if max_diff_i > max_diff else max_diff
-        if max_diff > atol:
-            consistent = False
+            max_diff = max_diff_i if max_diff_i > max_diff else max_diff
+            if max_diff > atol:
+                consistent = False
 
     status = collections.OrderedDict()
     status["name"] = name
     status["consistent"] = consistent
     status["num_outputs"] = num_outputs
-    status["diff"] = max_diff.astype("float")
+    if type(max_diff_i) == bool:
+        status["diff"] = consistent
+    else:
+        status["diff"] = max_diff.astype("float")
 
     if not consistent:
         if name is not None and name in special_op_list.RANDOM_OP_LIST:
