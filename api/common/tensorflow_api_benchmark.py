@@ -33,6 +33,49 @@ except Exception as e:
         "Cannot import tensorflow, maybe tensorflow is not installed.\n")
 
 
+class Profiler(object):
+    def __init__(self, name, sess, profile):
+        self.name = name
+        self.sess = sess
+        self.profile = profile
+        self.profiler = None
+        self.run_options = None
+        self.run_metadata = None
+        self.generate_timeline = False
+
+    def __enter__(self):
+        if self.profile:
+            self.profiler = model_analyzer.Profiler(graph=self.sess.graph)
+            if tf.__version__ < "1.15.0":
+                self.run_options = tf.RunOptions(
+                    trace_level=tf.RunOptions.FULL_TRACE)
+                self.run_metadata = tf.RunMetadata()
+            else:
+                self.run_options = tf.compat.v1.RunOptions(
+                    trace_level=tf.compat.v1.RunOptions.FULL_TRACE)
+                self.run_metadata = tf.compat.v1.RunMetadata()
+        return self
+
+    def add_step(self, step):
+        if self.profile:
+            # Update profiler
+            self.profiler.add_step(step=step, run_meta=self.run_metadata)
+            if self.generate_timeline:
+                # For timeline
+                tl = timeline.Timeline(self.run_metadata.step_stats)
+                chrome_trace = tl.generate_chrome_trace_format()
+                trace_file = open(self.name + '.tf.timeline', 'w')
+                trace_file.write(chrome_trace)
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        if self.profile:
+            # Generate profiling result
+            profile_op_builder = option_builder.ProfileOptionBuilder().select(
+                ['micros', 'occurrence']).order_by('micros').with_max_depth(5)
+            self.profiler.profile_operations(profile_op_builder.build())
+        return self
+
+
 def convert_dtype(dtype, to_string=True):
     def _trans(to_string, dtype_str, np_dtype):
         dtype = dtype_str if to_string else np.dtype(np_dtype)
@@ -120,6 +163,12 @@ class TensorflowAPIBenchmarkBase(object):
             var = tf.placeholder(name=name, shape=shape, dtype=tf_dtype)
         return var
 
+    def layers(self, name, **kwargs):
+        module = importlib.import_module("tensorflow")
+        func = getattr(module, name)
+        result = func(**kwargs)
+        return result
+
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, tf.Tensor):
             inputs = [inputs]
@@ -142,62 +191,34 @@ class TensorflowAPIBenchmarkBase(object):
             check_output=False,
             profile=False):
         sess = self._init_session(use_gpu)
+
         #tf.debugging.set_log_device_placement(True)
 
-        if profile:
-            profiler = model_analyzer.Profiler(graph=sess.graph)
-            run_options = config_pb2.RunOptions(
-                trace_level=config_pb2.RunOptions.FULL_TRACE)
-            run_metadata = config_pb2.RunMetadata()
-        else:
-            profiler = None
-            run_options = None
-            run_metadata = None
-        self.timeline_dict = None
-
-        if feed is None:
-            feed = self._feed_random_data()
-
-        runtimes = []
-        fetches = []
-        outputs = None
-        for i in range(repeat):
-            begin = time.time()
+        def _run_main_iter(feed=feed, run_options=None, run_metadata=None):
             outputs = sess.run(fetches=self.fetch_list,
                                feed_dict=feed,
                                options=run_options,
                                run_metadata=run_metadata)
-            end = time.time()
-            runtimes.append(end - begin)
+            return outputs
 
-            if profile:
-                # Update profiler
-                profiler.add_step(step=i, run_meta=run_metadata)
-                # For timeline
-                tl = timeline.Timeline(run_metadata.step_stats)
-                chrome_trace = tl.generate_chrome_trace_format()
-                trace_file = open(self.name + '_tf.timeline', 'w')
-                trace_file.write(chrome_trace)
-                #self._update_timeline(chrome_trace)
+        # warmup run
+        _run_main_iter(feed=feed, run_options=None, run_metadata=None)
 
-            if check_output:
-                fetches.append(outputs)
-        if profile:
-            # Generate profiling result
-            profile_op_builder = option_builder.ProfileOptionBuilder()
-            profile_op_builder.select(['micros', 'occurrence'])
-            profile_op_builder.order_by('micros')
-            profile_op_builder.with_max_depth(10)
-            profiler.profile_operations(profile_op_builder.build())
-            # Generate timeline
-        #            profile_graph_builder = option_builder.ProfileOptionBuilder(
-        #                                    option_builder.ProfileOptionBuilder.time_and_memory())
-        #            profile_graph_builder.with_timeline_output(timeline_file=self.name + '_tf.timeline')
-        #            profile_graph_builder.with_step(10)
-        #            profiler.profile_graph(profile_graph_builder.build())
-        #tl_output_file = self.name + "_tf.timeline"
-        #with open(tl_output_file, 'w') as f:
-        #    json.dump(self.timeline_dict, f)
+        runtimes = []
+        fetches = []
+        outputs = None
+        with Profiler(self.name, sess, profile) as prof:
+            for i in range(repeat):
+                begin = time.time()
+                outputs = _run_main_iter(
+                    feed=feed,
+                    run_options=prof.run_options,
+                    run_metadata=prof.run_metadata)
+                runtimes.append(time.time() - begin)
+                prof.add_step(step=i)
+
+                if check_output:
+                    fetches.append(outputs)
 
         stats = {
             "framework": "tensorflow",
@@ -206,14 +227,8 @@ class TensorflowAPIBenchmarkBase(object):
             "total": runtimes
         }
         stats["device"] = "GPU" if use_gpu else "CPU"
-        utils.print_stat(stats, log_level=log_level)
+        utils.print_benchmark_result(stats, log_level=log_level)
         return outputs
-
-    def layers(self, api, **kwargs):
-        module = importlib.import_module("tensorflow")
-        api_tf = getattr(module, api)
-        result = api_tf(**kwargs)
-        return result
 
     def _init_session(self, use_gpu):
         if tf.__version__ >= "1.15.0":
@@ -227,12 +242,3 @@ class TensorflowAPIBenchmarkBase(object):
             sess.run(tf.global_variables_initializer())
             sess.run(tf.local_variables_initializer())
         return sess
-
-    def _feed_random_data(self):
-        print("feed random data")
-        feed = {}
-        for var in self.feed_list:
-            shape = var.shape
-            dtype = self.convert_dtype(var.dtype, to_string=True)
-            feed[var] = np.random.random(shape).astype(dtype)
-        return feed
