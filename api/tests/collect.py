@@ -47,6 +47,7 @@ def get_job_res(inputfile, statistic_file):
         except Exception:
             if op_name not in res:
                 res[op_name] = {}
+                res[op_name][statistic_type] = "--"
             else:
                 res[op_name][statistic_type] = "--"
     if lines and "accuracy" in inputfile:
@@ -60,6 +61,7 @@ def get_job_res(inputfile, statistic_file):
         except Exception:
             if op_name not in res:
                  res[op_name] = {}
+                 res[op_name][statistic_type] = "--"
             else:
                  res[op_name][statistic_type] = "--"
     data_file.close()
