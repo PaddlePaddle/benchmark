@@ -63,7 +63,7 @@ class TFCompare(TensorflowAPIBenchmarkBase):
         y = self.placeholder(
             name='y', shape=config.y_shape, dtype=config.y_dtype)
         self.name = config.tf_api
-        result = self.layers(config.tf_api, x=x, y=y)
+        result = self.layers(".math", config.tf_api, x=x, y=y)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]

@@ -51,7 +51,7 @@ class TFArg(TensorflowAPIBenchmarkBase):
         x = self.placeholder(
             name='x', shape=config.x_shape, dtype=config.x_dtype)
         self.name = config.tf_api
-        result = self.layers(config.tf_api, input=x, axis=config.axis)
+        result = self.layers(".math", config.tf_api, input=x, axis=config.axis)
 
         self.feed_list = [x]
         self.fetch_list = [result]

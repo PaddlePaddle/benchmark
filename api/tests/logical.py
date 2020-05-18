@@ -52,7 +52,7 @@ class TFLogical(TensorflowAPIBenchmarkBase):
         y = self.placeholder(
             name='y', shape=config.y_shape, dtype=config.y_dtype)
         self.name = 'logical_' + config.api
-        result = self.layers("logical_" + config.api, x=x, y=y)
+        result = self.layers(".math", "logical_" + config.api, x=x, y=y)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]
