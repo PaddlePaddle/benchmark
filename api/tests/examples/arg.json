@@ -1,0 +1,14 @@
+[{
+    "op": "arg",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "3"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1L, 513L, 513L, 19L]",
+            "type": "Variable"
+        }
+    }
+}]

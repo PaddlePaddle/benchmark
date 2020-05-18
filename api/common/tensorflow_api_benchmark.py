@@ -163,8 +163,9 @@ class TensorflowAPIBenchmarkBase(object):
             var = tf.placeholder(name=name, shape=shape, dtype=tf_dtype)
         return var
 
-    def layers(self, name, **kwargs):
-        module = importlib.import_module("tensorflow")
+    def layers(self, module, name, **kwargs):
+        tf_module = "tensorflow" + module
+        module = importlib.import_module(tf_module)
         func = getattr(module, name)
         result = func(**kwargs)
         return result
