@@ -30,10 +30,19 @@ def compare(output1, output2, atol):
     offset = -1
     try:
         assert len(output1) == len(output2)
-        diff = np.abs(output1 - output2)
-        max_diff = np.max(diff)
-        offset = np.argmax(diff)
-        assert np.allclose(output1, output2, atol=atol)
+        if output1.dtype == np.bool:
+            diff = np.array_equal(output1, output2)
+            max_diff = np.float32(np.logical_not(diff))
+            if diff == False:
+                for i in range(len(output1)):
+                    if output1[i] != output2[i]:
+                        offset = i
+            assert np.array_equal(output1, output2)
+        else:
+            diff = np.abs(output1 - output2)
+            max_diff = np.max(diff)
+            offset = np.argmax(diff)
+            assert np.allclose(output1, output2, atol=atol)
     except (AssertionError) as e:
         pass
     return max_diff, offset
@@ -56,10 +65,10 @@ def check_outputs(list1, list2, name, atol=1e-6):
         max_diff_i, offset_i = compare(output1, output2, atol)
         if max_diff_i > atol:
             print("---- The %d-th output (shape: %s, data type: %s) has diff. "
-                  "The maximum diff is %e, offset is %d: %e vs %e." %
+                  "The maximum diff is %e, offset is %d: %s vs %s." %
                   (i, str(output1.shape), str(output1.dtype), max_diff_i,
-                   offset_i, output1.flatten()[offset_i],
-                   output2.flatten()[offset_i]))
+                   offset_i, str(output1.flatten()[offset_i]),
+                   str(output2.flatten()[offset_i])))
 
         max_diff = max_diff_i if max_diff_i > max_diff else max_diff
         if max_diff > atol:
