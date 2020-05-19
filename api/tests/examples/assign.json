@@ -1,0 +1,15 @@
+[{
+    "op": "assign",
+    "param_info": {
+        "input": {
+            "dtype": "float32",
+            "shape": "[512L, 1024L]",
+            "type": "Variable"
+        },
+        "output": {
+            "dtype": "float32",
+            "shape": "[512L, 1024L]",
+            "type": "Variable"
+        }
+    }
+}]

@@ -1,0 +1,27 @@
+[{
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "uint8",
+            "shape": "[1024L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "uint8",
+            "shape": "[16L, 128L]",
+            "type": "Variable"
+        }
+    }
+}]
