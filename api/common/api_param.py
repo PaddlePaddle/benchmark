@@ -89,6 +89,7 @@ class APIConfig(object):
     def __init__(self, op_type, params=None):
         self.name = op_type
         self.params = params
+        self.framework = "paddle"
         self.variable_list = None
         self.params_list = None
         self.backward = False
@@ -156,6 +157,7 @@ class APIConfig(object):
         return self
 
     def to_tensorflow(self):
+        self.framework = "tensorflow"
         if hasattr(self, "alias_config"):
             self.alias_config.to_tensorflow()
         return self

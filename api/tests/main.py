@@ -154,21 +154,25 @@ def _is_tensorflow_enabled(args, config):
     return False
 
 
-def test_main_without_json(pd_obj, tf_obj=None, config=None):
+def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
     assert config is not None, "API config must be set."
 
     args = parse_args()
     config.backward = args.backward
     use_feed_fetch = True if args.task == "accuracy" else False
 
-    feed_dict = pd_obj.generate_feed_dict(config)
-    if _is_paddle_enabled(args, config):
-        pd_outputs = pd_obj.run(config, args, use_feed_fetch, feed_dict)
-
+    feeder_adapter = None
     if _is_tensorflow_enabled(args, config):
         assert tf_obj is not None, "TensorFlow object is None."
         tf_config = config.to_tensorflow()
-        tf_outputs = tf_obj.run(tf_config, args, use_feed_fetch, feed_dict)
+        feeder_adapter = tf_obj.generate_random_feeder(tf_config,
+                                                       use_feed_fetch)
+        tf_outputs = tf_obj.run(tf_config, args, use_feed_fetch,
+                                feeder_adapter)
+
+    if _is_paddle_enabled(args, config):
+        assert pd_obj is not None, "Paddle object is None."
+        pd_outputs = pd_obj.run(config, args, use_feed_fetch, feeder_adapter)
 
     if args.task == "accuracy":
         if config.run_tf:

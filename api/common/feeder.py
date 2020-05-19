@@ -22,6 +22,22 @@ import paddle_api_benchmark as paddle_api
 import tensorflow_api_benchmark as tensorflow_api
 
 
+class FeederAdapter(object):
+    def __init__(self, framework, feed_spec, feed_list):
+        self.__framework = framework
+        self.__feed_spec = feed_spec
+        self.__feed_list = feed_list
+
+    def to_tensorflow(self):
+        if self.__framework == "tensorflow":
+            return self.__feed_list
+        assert False
+
+    @property
+    def framework(self):
+        return self.__framework
+
+
 def copy_feed_spec(feed_spec):
     if feed_spec is None:
         return None

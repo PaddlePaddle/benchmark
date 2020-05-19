@@ -34,11 +34,7 @@ class PDAbs(PaddleAPIBenchmarkBase):
 
 class TFAbs(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x',
-            shape=config.x_shape,
-            dtype=config.x_dtype,
-            value=config.x_data)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.abs(x=x)
 
         self.feed_list = [x]

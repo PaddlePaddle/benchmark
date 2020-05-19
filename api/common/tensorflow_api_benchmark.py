@@ -155,7 +155,6 @@ class TensorflowAPIBenchmarkBase(object):
         pass
 
     def placeholder(self, name, shape, dtype):
-        import tensorflow as tf
         tf_dtype = tf.as_dtype(dtype)
         if tf.__version__ >= "1.15.0":
             var = tf.compat.v1.placeholder(
@@ -166,12 +165,13 @@ class TensorflowAPIBenchmarkBase(object):
 
     def variable(self, name, shape, dtype, value=None):
         assert shape is not None
-        if self._use_feed_fetch or self.name == "feed":
-            data = self.placeholder(name=name, shape=shape, dtype=dtype)
+        value = feeder.generate_random_data(shape, dtype, value=value)
+        if self._need_feed:
+            var = self.placeholder(name=name, shape=shape, dtype=dtype)
         else:
-            value = feeder.generate_random_data(shape, dtype, value=value)
-            data = tf.Variable(value, name=name)
-        return data
+            var = tf.Variable(value, name=name)
+        self._feed_dict[var] = value
+        return var
 
     def layers(self, name, **kwargs):
         module = importlib.import_module("tensorflow")
@@ -203,7 +203,7 @@ class TensorflowAPIBenchmarkBase(object):
         tf.debugging.set_log_device_placement(True)
 
         def _run_main_iter(feed=feed, run_options=None, run_metadata=None):
-            if self._use_feed_fetch or self.name == "fetch":
+            if self._need_fetch:
                 fetches = self.fetch_list
             else:
                 fetches = []
@@ -244,39 +244,46 @@ class TensorflowAPIBenchmarkBase(object):
         utils.print_benchmark_result(stats, log_level=log_level)
         return outputs
 
-    def run(self, config, args, use_feed_fetch=True, feed_dict=None):
+    def generate_random_feeder(self,
+                               config,
+                               use_feed_fetch=True,
+                               feeder_adapter=None):
         if config is None or not isinstance(config, api_param.APIConfig):
             raise ValueError(
                 "Argument \"config\" must be set to an instance of APIConfig.")
 
-        self.name = config.name
-        self._use_feed_fetch = use_feed_fetch
-        if not use_feed_fetch and self.name != "feed":
-            # For a test without feed and fetch, feeding data must be ready
-            # before building graph and recorded in config.
-            assert feed_dict is not None
-            feed_dict = feeder.feed_tensorflow(
-                feed_list=None,
-                feed_dict_paddle=feed_dict,
-                feed_spec=config.feed_spec)
-            for name, value in feed_dict.items():
-                setattr(config.alias, name + "_data", value)
-        else:
-            for name, value in feed_dict.items():
-                setattr(config.alias, name + "_data", None)
+        if feeder_adapter is not None and feeder_adapter.framework == "paddle":
+            assert use_feed_fetch, "Argument use_feed_fetch must be True when feeder_adapter is initialized by paddle."
 
-        print(config)
-        self.build_graph(config=config)
-        if use_feed_fetch or self.name == "feed":
-            feed_dict = feeder.feed_tensorflow(
-                self.feed_list,
-                feed_dict_paddle=feed_dict,
-                feed_spec=config.feed_spec)
-            assert len(feed_dict) == len(self.feed_list)
+        if feeder_adapter is None or feeder_adapter.framework == "paddle":
+            self._need_feed = use_feed_fetch or config.name == "feed"
+            self._need_fetch = use_feed_fetch or config.name == "fetch"
+            self._feed_dict = {}
 
-            feed = {}
+            self.build_graph(config=config)
+
+        if feeder_adapter is None:
+            feed_list = []
             for var in self.feed_list:
-                feed[var] = feed_dict[var.name]
+                feed_list.append(self._feed_dict[var])
+            return feeder.FeederAdapter("tensorflow", config.feed_spec,
+                                        feed_list)
+        else:
+            return feeder_adapter
+
+    def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
+        print(config)
+
+        self.name = config.name
+        feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
+                                                     feeder_adapter)
+
+        if self._need_feed:
+            feed_list = feeder_adapter.to_tensorflow()
+            assert len(feed_list) == len(self.feed_list)
+            feed = {}
+            for i in range(feed_list):
+                feed[self.feed_list[i]] = feed_list[i]
         else:
             feed = None
 
