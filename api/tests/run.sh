@@ -14,7 +14,7 @@ name=${1:-"abs"}
 config_id=${2:-"0"}
 filename="examples/${name}.json"
 
-python ${name}.py \
+nvprof --csv --log-file ./csv/${name}.csv python ${name}.py \
       --task "accuracy" \
       --framework "paddle" \
       --json_file ${filename} \
