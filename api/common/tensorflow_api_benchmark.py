@@ -180,14 +180,17 @@ class TensorflowAPIBenchmarkBase(object):
             var = tf.placeholder(name=name, shape=shape, dtype=tf_dtype)
         return var
 
-    def layers(self, name, module="", **kwargs):
+    def layers(self, name, module=None, **kwargs):
         func = import_tf_module(name)
         if func is None:
             func = import_math_module(name)
-        if func is None and module != "":
-            module_name = "tensorflow." + module
-            tf_module = importlib.import_module(module_name)
-            func = getattr(tf_module, name)
+        if func is None and module is not None:
+            try:
+                module_name = "tensorflow." + module
+                tf_module = importlib.import_module(module_name)
+                func = getattr(tf_module, name)
+            except Exception:
+                print("Cannot immport %s." % (name))
         result = func(**kwargs)
         return result
 
