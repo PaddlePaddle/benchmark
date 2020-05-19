@@ -45,7 +45,6 @@ class PDGather(PaddleAPIBenchmarkBase):
                 dtype=config.index_dtype,
                 lod_level=0)
             input.stop_gradient = False
-            index.stop_gradient = False
             result = fluid.layers.gather(
                 input=input, index=index, overwrite=config.overwrite)
 
