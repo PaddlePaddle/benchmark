@@ -20,48 +20,61 @@ class PDCond(PaddleAPIBenchmarkBase):
         with fluid.program_guard(self.main_program, self.startup_program):
 
             def true_fn():
-                return fluid.layers.fill_constant(
-                    value=1, shape=config.shape, dtype=config.dtype)
+                return fluid.layers.elementwise_mul(x, y)
 
             def false_fn():
-                return fluid.layers.fill_constant(
-                    value=0, shape=config.shape, dtype=config.dtype)
+                return fluid.layers.elementwise_div(x, y)
 
             ten_var = fluid.layers.fill_constant(
-                shape=config.x_shape, value=10, dtype=config.x_dtype)
+                shape=config.input_shape, dtype=config.input_dtype, value=10)
+
+            x = fluid.data(
+                name='x', shape=config.x_shape, dtype=config.x_dtype)
+            y = fluid.data(
+                name='y', shape=config.y_shape, dtype=config.y_dtype)
             input = fluid.data(
-                name='input', shape=config.x_shape, dtype=config.x_dtype)
+                name='input',
+                shape=config.input_shape,
+                dtype=config.input_dtype)
+            x.stop_gradient = False
+            y.stop_gradient = False
             input.stop_gradient = False
 
             pred = fluid.layers.less_than(input, ten_var)
 
             result = fluid.layers.cond(pred, true_fn, false_fn)
 
-            self.feed_vars = [input]
+            self.feed_vars = [x, y, input]
             self.fetch_vars = [result]
             if config.backward:
-                self.append_gradients(result, [input])
+                self.append_gradients(result, [x, y, input])
 
 
 class TFCond(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         def true_fn():
-            return tf.constant(1, shape=config.shape, dtype=config.dtype)
+            return tf.multiply(x, y)
 
         def false_fn():
-            return tf.constant(0, shape=config.shape, dtype=config.dtype)
+            return tf.divide(x, y)
 
-        ten_var = tf.constant(10, shape=config.x_shape, dtype=config.x_dtype)
+        ten_var = tf.constant(
+            10, shape=config.input_shape, dtype=config.input_dtype)
+
+        x = self.placeholder(
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.placeholder(
+            name='y', shape=config.y_shape, dtype=config.y_dtype)
         input = self.placeholder(
-            name='input', shape=config.x_shape, dtype=config.x_dtype)
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
 
-        result = tf.cond(
-            tf.reshape(tf.less(input, ten_var), []), true_fn, false_fn)
+        pred = tf.less(input, ten_var)
+        result = tf.cond(tf.reshape(pred, []), true_fn, false_fn)
 
-        self.feed_list = [input]
+        self.feed_list = [x, y, input]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [input])
+            self.append_gradients(result, [x, y, input])
 
 
 if __name__ == '__main__':
