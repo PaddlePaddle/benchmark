@@ -10,6 +10,10 @@ if [ ${NVCC} != "" ]; then
   export LD_LIBRARY_PATH=/usr/local/cuda-${NVCC_VERSION}/extras/CUPTI/lib64:${LD_LIBRARY_PATH}
 fi
 
+if [ ! -d "$dirAndName" ];then
+	mkdir "./csv"
+fi
+
 name=${1:-"abs"}
 config_id=${2:-"0"}
 filename="examples/${name}.json"
