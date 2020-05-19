@@ -18,12 +18,15 @@ class ElementwiseConfig(APIConfig):
     def __init__(self):
         super(ElementwiseConfig, self).__init__('elementwise')
         self.api = 'add'
+        self.atol = 1e-3
         self.api_list = {
             'add': 'add',
+            'div': 'divide',
+            'max': 'maximum',
+            'min': 'minimum',
             'sub': 'subtract',
             'mul': 'multiply',
-            'pow': 'pow',
-            'div': 'pow'
+            'pow': 'pow'
         }
 
     def to_tensorflow(self):

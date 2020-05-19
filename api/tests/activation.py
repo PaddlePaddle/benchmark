@@ -14,18 +14,35 @@
 from common_import import *
 
 
-class ArgConfig(APIConfig):
+class ActivationConfig(APIConfig):
     def __init__(self):
-        super(ArgConfig, self).__init__('arg')
-        self.api = 'max'
-        self.api_list = {'max': 'argmax', 'min': 'argmin'}
+        super(ActivationConfig, self).__init__('activation')
+        self.api = 'cos'
+        self.api_list = {
+            'abs': 'abs',
+            'acos': 'acos',
+            'asin': 'asin',
+            'atan': 'atan',
+            'ceil': 'ceil',
+            'cos': 'cos',
+            'exp': 'exp',
+            'floor': 'floor',
+            'reciprocal': 'reciprocal',
+            'round': 'round',
+            'rsqrt': 'rsqrt',
+            'sigmoid': 'sigmoid',
+            'sin': 'sin',
+            'sqrt': 'sqrt',
+            'square': 'square',
+            'tanh': 'tanh',
+        }
 
     def to_tensorflow(self):
         self.tf_api = self.api_list[self.api]
         return self
 
 
-class PDArg(PaddleAPIBenchmarkBase):
+class PDActivation(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             x = fluid.data(
@@ -34,11 +51,8 @@ class PDArg(PaddleAPIBenchmarkBase):
                 dtype=config.x_dtype,
                 lod_level=0)
             x.stop_gradient = False
-            self.name = 'arg' + config.api
-            result = self.layers(
-                "arg" + config.api,
-                x=x,
-                axis=config.axis, )
+            self.name = config.api
+            result = self.layers(config.api, x=x)
 
             self.feed_vars = [x]
             self.fetch_vars = [result]
@@ -46,12 +60,12 @@ class PDArg(PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [x])
 
 
-class TFArg(TensorflowAPIBenchmarkBase):
+class TFActivation(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.placeholder(
             name='x', shape=config.x_shape, dtype=config.x_dtype)
         self.name = config.tf_api
-        result = self.layers(config.tf_api, input=x, axis=config.axis)
+        result = self.layers(config.tf_api, x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -60,4 +74,4 @@ class TFArg(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDArg(), TFArg(), ArgConfig())
+    test_main(PDActivation(), TFActivation(), ActivationConfig())
