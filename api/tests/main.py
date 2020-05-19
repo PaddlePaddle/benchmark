@@ -111,22 +111,13 @@ def run_paddle(task, obj, args, feed_list=None):
             feed[obj.feed_vars[i].name] = feed_list[i]
 
     if task == "speed":
-        if args.run_with_executor:
-            obj.run_with_executor(
-                use_gpu=args.use_gpu,
-                feed=feed,
-                repeat=args.repeat,
-                log_level=args.log_level,
-                check_output=args.check_output,
-                profiler=args.profiler)
-        else:
-            obj.run_with_core_executor(
-                use_gpu=args.use_gpu,
-                feed=feed,
-                repeat=args.repeat,
-                log_level=args.log_level,
-                check_output=args.check_output,
-                profiler=args.profiler)
+        obj.run_with_executor(
+            use_gpu=args.use_gpu,
+            feed=feed,
+            repeat=args.repeat,
+            log_level=args.log_level,
+            check_output=args.check_output,
+            profiler=args.profiler)
         return None
     elif task == "accuracy":
         if feed is None:
