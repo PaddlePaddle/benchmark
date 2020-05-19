@@ -82,7 +82,10 @@ data_layout=NHWC compute_format=NCHW use_global_stats=0 is_inplace=0 input_shape
 ```
 
 ## 根据log，对配置进行过滤
-以下的步骤，都由`benchmark/api/json/select_configs.py`脚本自动完成。只用执行下面的示例命令：
+
+### 脚本的使用方式
+
+过滤配置以及保存过滤后的结果都由`benchmark/api/json/select_configs.py`脚本自动完成。只用执行下面的示例命令：
 ```
 python select_configs.py \
       --op_name conv \
@@ -99,9 +102,17 @@ python select_configs.py \
 - input_shape：可选，指定log中输入shape的名称。未指定时，将默认使用`input_shape`去提取输入的shape。
 - ignored_params：可选，不建议设置。如果有特殊需要，希望在过滤配置时，忽略log中的某个参数进行过滤，则设置该参数。
 
-若log中的输入shape名称不是`input_shape`，例如是`x_dims`，则可以指定 `--input_shape x_dims`用于提取输入的shape。
+关于`--input_shape`的使用：
+- 若log中的输入shape名称不是`input_shape`，例如是`x_dims`，则可以指定 `--input_shape x_dims`用于提取输入的shape。
+- 该脚本目前只支持log中给出的输入shape为0个、1个和2个的情况，在shape为1个或者2个时，可以通过设置`--input_shape`指定要提取的输入shape的名字，例如2个输入时，使用`--input_shape x_shape y_shape`，那么脚本会结合`x_shape`和`y_shape`去过滤配置，具体处理过程在“脚本的处理逻辑”小节中有详细介绍。
+- 对于输入是list的OP：例如concat、sum和fc，由于list中输入个数不是固定的，并不好在过滤时考虑输入shape。因此如果要根据输入shape去筛选配置，建议手动筛选。如果不需要考虑输入shape，在log中可以不打印shape，那么使用该脚本根据其他参数去筛选配置即可。这种情况不需要设置`--input_shape`。
+- 其他复杂的OP：有的OP的输入会有多个，shape的大小会和特定含义的参数有关。例如`generate_proposals`，所有输入的shape大小，与N、A、H、W有关。N是批量大小，A是anchor数，H和W是feature map的高度和宽度。这类OP建议忽略输入shape过滤配置。因此log中可以不打印输入shape，那么同样使用该脚本根据其他参数去筛选配置即可，不需要设置`--input_shape`。
 
-若在过滤配置时，只想根据log中的部分参数进行过滤，则可以在运行脚本时指定`--ignored_params param_name1 param_name2`，那么过滤时将忽略这些指定的参数，根据其他参数来过滤配置。
+关于`--ignored_params`的使用：
+- 若在过滤配置时，只想根据log中的部分参数进行过滤，则可以在运行脚本时指定`--ignored_params param_name1 param_name2`，那么过滤时将忽略这些指定的参数，根据其他参数来过滤配置。
+- 该参数通常不需要指定，仅在有特殊需要时使用。例如log中打印了输入shape，其名字为`x_shape`，但是过滤配置时并不希望结合输入shape去过滤配置，那么可以设置`--ignored_params x_shape`。
+
+### 脚本的处理逻辑
 
 脚本的处理逻辑如下：
 
@@ -129,34 +140,94 @@ python select_configs.py \
   ```
 3. 根据每条配置的标识信息和输入大小进行分组，由`grouping_configs`函数完成，分为两步：
   - 第一次分组，根据每条配置的标识信息，将其id划分到相应的组中
-  - 第二次分组，对每个标识信息对应的config按照输入shape再次分组。按照shape进行分组的规则有：输入的维数、输入大小是否是2的幂
+  - 第二次分组，对每个标识信息对应的config按照输入shape再次分组，按照shape进行分组的规则为：
+    - 当log中没有输入shape信息时，直接进入步骤4。
+    - 当log中输入shape只有一个时，根据输入的维数、输入大小是否是2的幂对每个配置的输入打上标签，例如`4-D is_power_of_2=F`表示输入是4D的，并且shape的大小不是2的幂。
+    - 当输入shape有2个时：
+      - 若两个shape相同，按照shape只有1个时的规则进行分组，例如标签为`is_same_shape=T 4-D-4-D is_power_of_2=T`表示2个输入shape相同，并且shape大小是2的幂。
+      - 若两个shape不同，按照两个输入的维数进行标记，例如`is_same_shape=F 4-D-3-D`表示2个输入的shape不同，它们分别是3-D和2-D的。
 
-4. 从每组中分别选取测试配置：按照shape分组后，对每组中的配置按照输入shape从小到大排序，从中选取第一个、中间的一个、以及最后一个，得到小、中、大3种shape。
-
-- conv的分组结果：config 0~5代表了6种标识信息，所有配置被分为了6个大组，每个组中根据shape细分，最终都只得到1组。配置数不足3个时，将被全部选择。否则从每个小组中选取3个配置。
-
-  ```
-  ==============================config_groups==============================
-  config 0: use_cudnn=true data_format=NCHW groups=1 is_exhaustive_search=0 is_sys_pad=1 filter_size=[11,11], total: 1
-    shape 0: 4-D is_power_of_2=F, total: 1. Select 1 config_ids: [23]. The shapes are: [64, 3, 224, 224]
-  config 1: use_cudnn=true data_format=NCHW groups=1 is_exhaustive_search=0 is_sys_pad=1 filter_size=[3,3], total: 10
-    shape 0: 4-D is_power_of_2=F, total: 10. Select 3 config_ids: [22, 10, 6]. The shapes are: [64, 512, 7, 7] [64, 128, 28, 28] [64, 128, 56, 56]
-  config 2: use_cudnn=true data_format=NCHW groups=32 is_exhaustive_search=0 is_sys_pad=1 filter_size=[3,3], total: 6
-    shape 0: 4-D is_power_of_2=F, total: 6. Select 3 config_ids: [42, 39, 31]. The shapes are: [64, 1024, 7, 7] [64, 1024, 14, 14] [64, 256, 56, 56]
-  config 3: use_cudnn=true data_format=NCHW groups=1 is_exhaustive_search=0 is_sys_pad=1 filter_size=[5,5], total: 1
-    shape 0: 4-D is_power_of_2=F, total: 1. Select 1 config_ids: [24]. The shapes are: [64, 64, 27, 27]
-  config 4: use_cudnn=true data_format=NCHW groups=1 is_exhaustive_search=0 is_sys_pad=1 filter_size=[7,7], total: 1
-    shape 0: 4-D is_power_of_2=F, total: 1. Select 1 config_ids: [0]. The shapes are: [64, 3, 224, 224]
-  config 5: use_cudnn=true data_format=NCHW groups=1 is_exhaustive_search=0 is_sys_pad=1 filter_size=[1,1], total: 24
-    shape 0: 4-D is_power_of_2=F, total: 24. Select 3 config_ids: [19, 28, 30]. The shapes are: [64, 512, 7, 7] [64, 64, 56, 56] [64, 256, 56, 56]
-  ```
-- batch_norm的分组结果：config 0是第一次忽略输入大小进行分组得到的结果。按照输入shape再次进行分组后，该组又被分为了3个小组。最后从每个小组中选取了3种大小的shape。
-   ```
-   ==============================config_groups==============================
-   config 0: compute_format=NCHW use_global_stats=0 data_layout=NHWC is_inplace=0 test_mode=0, total: 64
-     shape 0: 2-D is_power_of_2=T, total: 5. Select 3 config_ids: [49, 48, 46]. The shapes are: [1, 256] [1, 2048] [1, 32768]
-     shape 1: 4-D is_power_of_2=F, total: 45. Select 3 config_ids: [44, 33, 11]. The shapes are: [1, 7, 7, 512] [1, 33, 33, 1536] [1, 16, 402, 2048]
-     shape 2: 4-D is_power_of_2=T, total: 14. Select 3 config_ids: [35, 51, 59]. The shapes are: [1, 1, 1, 256] [1, 32, 32, 128] [1, 256, 256, 32]
-   ```
+4. 从每组中分别选取测试配置：
+ - 若第3步中没有进行第二次分组，就根据第一次分组的结果，从每组中随机抽取一个。
+ - 若第3步中进行了第二次分组，对每组中的配置按照输入shape（如果有2个输入，则对维数更大的那个输入的shape）从小到大排序，从中选取第一个、中间的一个、以及最后一个，得到小、中、大3种shape。
 
 5. 最终选取的配置，将会被自动保存到指定的输出文件中，用于API测试。
+
+## 结果示例
+以下是按照过滤规则对配置进行分组的结果示例。
+
+- 当log中没有输入shape时，例如fill_constant，由于是0个输入，因此在log中将不会打印输入shape。可以构造以下测试log：
+  ```
+  param1=0 param2=1 op=op
+  param1=0 param2=1 op=op_grad
+  param1=0 param2=1 op=op
+  param1=0 param2=1 op=op_grad
+  param1=0 param2=1 op=op
+  param1=0 param2=1 op=op_grad
+  param1=1 param2=1 op=op
+  param1=1 param2=1 op=op_grad
+  ```
+  会得到下面的分组和筛选结果：由于和输入shape无关，因此仅根据其他参数设置进行分组，每组中选择任意1个即可。
+  ```
+  ==============================config_groups==============================
+  config 0: param1=0 param2=1, total: 3.
+    Select 1 config_ids: [1].
+  config 1: param1=1 param2=1, total: 1.
+    Select 1 config_ids: [3].
+  ```
+
+- 当log中仅有1个输入shape时，可以参考conv和batch_norm的log，处理后会得到以下分组结果
+  - conv的分组结果：config 0~5代表了6种标识信息，所有配置被分为了6个大组。每组再根据shape细分，最终都只得到1组，即shape 0，因为每个组中shape的标记都是`4-D is_power_of_2=F`，意味着输入都是4-D的，并且shape的大小不是2的幂。当配置数不足3个时，其配置id将被全部选择，如下面的config 0，3，4中的每个shape 0组，包含的id数都只有1个。当配置数超过3个时，从每组中选取最多3个配置，如config 1，2，5中的每个shape 0组，包含的id数都超过了3个。
+
+    ```
+    ==============================config_groups==============================
+    config 0: use_cudnn=true data_format=NCHW groups=1 is_exhaustive_search=0 is_sys_pad=1 filter_size=[11,11], total: 1
+      shape 0: 4-D is_power_of_2=F, total: 1. Select 1 config_ids: [23]. The shapes are: [64, 3, 224, 224]
+    config 1: use_cudnn=true data_format=NCHW groups=1 is_exhaustive_search=0 is_sys_pad=1 filter_size=[3,3], total: 10
+      shape 0: 4-D is_power_of_2=F, total: 10. Select 3 config_ids: [22, 10, 6]. The shapes are: [64, 512, 7, 7] [64, 128, 28, 28] [64, 128, 56, 56]
+    config 2: use_cudnn=true data_format=NCHW groups=32 is_exhaustive_search=0 is_sys_pad=1 filter_size=[3,3], total: 6
+      shape 0: 4-D is_power_of_2=F, total: 6. Select 3 config_ids: [42, 39, 31]. The shapes are: [64, 1024, 7, 7] [64, 1024, 14, 14] [64, 256, 56, 56]
+    config 3: use_cudnn=true data_format=NCHW groups=1 is_exhaustive_search=0 is_sys_pad=1 filter_size=[5,5], total: 1
+      shape 0: 4-D is_power_of_2=F, total: 1. Select 1 config_ids: [24]. The shapes are: [64, 64, 27, 27]
+    config 4: use_cudnn=true data_format=NCHW groups=1 is_exhaustive_search=0 is_sys_pad=1 filter_size=[7,7], total: 1
+      shape 0: 4-D is_power_of_2=F, total: 1. Select 1 config_ids: [0]. The shapes are: [64, 3, 224, 224]
+    config 5: use_cudnn=true data_format=NCHW groups=1 is_exhaustive_search=0 is_sys_pad=1 filter_size=[1,1], total: 24
+      shape 0: 4-D is_power_of_2=F, total: 24. Select 3 config_ids: [19, 28, 30]. The shapes are: [64, 512, 7, 7] [64, 64, 56, 56] [64, 256, 56, 56]
+    ```
+  - batch_norm的分组结果：config 0是第一次忽略输入大小进行分组得到的结果。按照输入shape再次进行分组后，该组又被分为了3个小组，shape 0、shape 1和shape 2。最后从每个小组中选取了3种大小的shape。
+    ```
+    ==============================config_groups==============================
+    config 0: compute_format=NCHW use_global_stats=0 data_layout=NHWC is_inplace=0 test_mode=0, total: 64
+      shape 0: 2-D is_power_of_2=T, total: 5. Select 3 config_ids: [49, 48, 46]. The shapes are: [1, 256] [1, 2048] [1, 32768]
+      shape 1: 4-D is_power_of_2=F, total: 45. Select 3 config_ids: [44, 33, 11]. The shapes are: [1, 7, 7, 512] [1, 33, 33, 1536] [1, 16, 402, 2048]
+      shape 2: 4-D is_power_of_2=T, total: 14. Select 3 config_ids: [35, 51, 59]. The shapes are: [1, 1, 1, 256] [1, 32, 32, 128] [1, 256, 256, 32]
+    ```
+
+- 当log中有2个输入shape时，例如elementwise_add，它有x和y这2个输入，因此log中也会对应打印2个shape。构造以下的测试log模拟这种场景：
+  ```
+  param1=0 param2=1 x_shape=[16L, 256L, 6L, 6L] y_shape=[16L, 256L, 6L, 6L] op=op
+  param1=0 param2=1 x_shape=[16L, 256L, 6L, 6L] y_shape=[16L, 256L, 6L, 6L] op=op_grad
+  param1=0 param2=1 x_shape=[16L, 64L, 6L, 6L] y_shape=[256L, 6L] op=op
+  param1=0 param2=1 x_shape=[16L, 64L, 6L, 6L] y_shape=[256L, 6L] op=op_grad
+  param1=0 param2=1 x_shape=[16L, 32L, 6L, 6L] y_shape=[16L, 256L, 6L, 6L] op=op
+  param1=0 param2=1 x_shape=[16L, 32L, 6L, 6L] y_shape=[16L, 256L, 6L, 6L] op=op_grad
+  param1=0 param2=1 x_shape=[16L, 256L, 6L, 6L] y_shape=[256L, 6L] op=op
+  param1=0 param2=1 x_shape=[16L, 256L, 6L, 6L] y_shape=[256L, 6L] op=op_grad
+  param1=0 param2=1 x_shape=[256L, 6L, 6L] y_shape=[256L, 6L] op=op
+  param1=0 param2=1 x_shape=[256L, 6L, 6L] y_shape=[256L, 6L] op=op_grad
+  param1=0 param2=1 x_shape=[256L, 4L, 4L] y_shape=[256L, 6L] op=op
+  param1=0 param2=1 x_shape=[256L, 4L, 4L] y_shape=[256L, 6L] op=op_grad
+  param1=0 param2=1 x_shape=[256L, 8L, 8L] y_shape=[256L, 6L] op=op
+  param1=0 param2=1 x_shape=[256L, 8L, 8L] y_shape=[256L, 6L] op=op_grad
+  param1=0 param2=1 x_shape=[256L, 6L, 6L] y_shape=[256L, 6L] op=op
+  param1=0 param2=1 x_shape=[256L, 6L, 6L] y_shape=[256L, 6L] op=op_grad
+  ```
+  会得到下面的分组和筛选结果：config 0是第一次忽略输入大小分组的结果。然后按照shape再次分组，被分为了4个小组，shape 0、shape 1、shape 2和shape 3。每组中根据维数更大的输入，对shape由小到大排序后进行选择，最多选择3个不同配置。在这个例子中shape 0和shape 1这两组，都是x的维数更大，因此参考x_shape进行排序；而shape 3这一组，x和y维数相同，这种情况下也参考x_shape排序。最后从每个shape组中，最多选择3个配置。需要特别说明的是shape 2，它的标记是`is_same_shape=T 4-D-4-D is_power_of_2=F`，表示输入x和y的shape是相同的，并且都是4-D的，shape的大小不是2的幂。这种情况在上一节中的步骤3中有说明，会按照输入shape为1个的场景进行处理。
+  ```
+  ==============================config_groups==============================
+  config 0: param1=0 param2=1, total: 8.
+    shape 0: is_same_shape=F 4-D-2-D, total: 2. Select 2 config_ids: [1, 3]. The shapes are: [[16, 64, 6, 6], [256, 6]] [[16, 256, 6, 6], [256, 6]]
+    shape 1: is_same_shape=F 3-D-2-D, total: 4. Select 3 config_ids: [5, 7, 6]. The shapes are: [[256, 4, 4], [256, 6]] [[256, 6, 6], [256, 6]] [[256, 8, 8], [256, 6]]
+    shape 2: is_same_shape=T 4-D-4-D is_power_of_2=F, total: 1. Select 1 config_ids: [0]. The shapes are: [[16, 256, 6, 6], [16, 256, 6, 6]]
+    shape 3: is_same_shape=F 4-D-4-D, total: 1. Select 1 config_ids: [2]. The shapes are: [[16, 32, 6, 6], [16, 256, 6, 6]]
+  ```
