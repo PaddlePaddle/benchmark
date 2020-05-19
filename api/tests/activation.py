@@ -20,20 +20,10 @@ class ActivationConfig(APIConfig):
         self.api = 'cos'
         self.api_list = {
             'abs': 'abs',
-            'acos': 'acos',
-            'asin': 'asin',
-            'atan': 'atan',
-            'ceil': 'ceil',
             'cos': 'cos',
             'exp': 'exp',
             'floor': 'floor',
-            'reciprocal': 'reciprocal',
-            'round': 'round',
-            'rsqrt': 'rsqrt',
-            'sigmoid': 'sigmoid',
-            'sin': 'sin',
-            'sqrt': 'sqrt',
-            'tanh': 'tanh'
+            'sigmoid': 'sigmoid'
         }
 
     def to_tensorflow(self):
