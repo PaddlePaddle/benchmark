@@ -190,7 +190,9 @@ class TensorflowAPIBenchmarkBase(object):
                 tf_module = importlib.import_module(module_name)
                 func = getattr(tf_module, name)
             except Exception:
-                print("Cannot immport %s." % (name))
+                print("Cannot immport %s API from %s module." %
+                      (name, module_name))
+        assert func is not None, "Need to set Tensorflow module to import %s API." % name
         result = func(**kwargs)
         return result
 
