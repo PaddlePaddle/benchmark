@@ -140,7 +140,6 @@ class TensorflowAPIBenchmarkBase(object):
         self.name = self.__class__.__name__
         self.feed_list = None
         self.fetch_list = None
-        self.allow_growth = True
         try:
             import tensorflow as tf
             self.graph = tf.Graph()
@@ -170,11 +169,8 @@ class TensorflowAPIBenchmarkBase(object):
         if self._use_feed_fetch or self.name == "feed":
             data = self.placeholder(name=name, shape=shape, dtype=dtype)
         else:
-            assert value is not None
-            assert isinstance(value, np.ndarray)
-            value = feeder.check_shape_and_dtype(shape, dtype, value)
+            value = feeder.generate_random_data(shape, dtype, value=value)
             data = tf.Variable(value, name=name)
-        self.data = data
         return data
 
     def layers(self, name, **kwargs):

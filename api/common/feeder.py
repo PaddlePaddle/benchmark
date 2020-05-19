@@ -37,25 +37,29 @@ def copy_feed_spec(feed_spec):
     return copy
 
 
-def generate_numpy_data(spec):
-    if not isinstance(spec, dict):
-        raise TypeError("Expected spec a dict, received a ", type(spec))
+def check_shape_and_dtype(shape, dtype, value):
+    assert list(shape) == list(value.shape) or list(shape) + [
+        1
+    ] == list(value.shape) or list(shape) == list(value.shape) + [1]
+    value = value.reshape(shape)
 
-    assert spec.get("shape", None) is not None
-    assert spec.get("dtype", None) is not None
+    # Allow different data type
+    if dtype != value.dtype:
+        value = value.astype(dtype)
 
-    shape = spec["shape"]
-    dtype = spec["dtype"]
-    range = None
-    if spec.get("range", None) is not None:
-        range = spec["range"]
+    return value
+
+
+def generate_random_data(shape, dtype, range=None, value=None):
+    if range is not None:
         if not isinstance(range, tuple) and not isinstance(range, list):
-            TypeError("Expected range a tuple or a list, received a ",
-                      type(range))
+            raise TypeError("Expected range a tuple or a list, received a ",
+                            type(range))
         assert len(range) == 2
 
-    if spec.get("data", None) is not None:
-        data = spec["data"]
+    if value is not None:
+        assert isinstance(value, np.ndarray)
+        data = check_shape_and_dtype(shape, dtype, value)
     else:
         if dtype == "int64" or dtype == "int32":
             data = np.random.randint(100, size=shape, dtype=dtype)
@@ -69,6 +73,20 @@ def generate_numpy_data(spec):
             if range is not None:
                 data = range[0] + (range[1] - range[0]) * data
     return data
+
+
+def generate_numpy_data(spec):
+    if not isinstance(spec, dict):
+        raise TypeError("Expected spec a dict, received a ", type(spec))
+
+    assert spec.get("shape", None) is not None
+    assert spec.get("dtype", None) is not None
+
+    shape = spec["shape"]
+    dtype = spec["dtype"]
+    range = spec.get("range", None)
+    value = spec.get("value", None)
+    return generate_random_data(shape, dtype, range, value)
 
 
 def feed_paddle(feed_vars, feed_spec=None):
@@ -99,20 +117,6 @@ def feed_paddle(feed_vars, feed_spec=None):
 
         feed_dict[var.name] = generate_numpy_data(spec)
     return feed_dict
-
-
-def check_shape_and_dtype(shape, dtype, value):
-    assert list(shape) == list(value.shape) or list(shape) + [
-        1
-    ] == list(value.shape) or list(shape) == list(value.shape) + [1]
-    value = value.reshape(shape)
-
-    # Allow different data type
-    dtype = tensorflow_api.convert_dtype(dtype, to_string=False)
-    if dtype != value.dtype:
-        value = value.astype(dtype)
-
-    return value
 
 
 def feed_tensorflow(feed_list, feed_dict_paddle=None, feed_spec=None):
