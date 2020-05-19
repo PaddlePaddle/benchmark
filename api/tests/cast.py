@@ -15,6 +15,12 @@
 from common_import import *
 
 
+class CastConfig(APIConfig):
+    def __init__(self):
+        super(CastConfig, self).__init__('cast')
+        self.feed_spec = {"range": [-10, 10]}
+
+
 class PDCast(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
@@ -45,4 +51,4 @@ class TFCast(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDCast(), TFCast(), config=APIConfig("cast"))
+    test_main(PDCast(), TFCast(), config=CastConfig())

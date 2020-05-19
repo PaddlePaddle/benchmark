@@ -15,6 +15,22 @@
 from common_import import *
 
 
+class GatherConfig(APIConfig):
+    def __init__(self):
+        super(GatherConfig, self).__init__('gather')
+
+    def init_from_json(self, filename, config_id=0):
+        super(GatherConfig, self).init_from_json(filename, config_id)
+        self.feed_spec = [
+            {
+                "range": [-10, 10]
+            },  # input
+            {
+                "range": [0, self.input_shape[0]]
+            }  # index
+        ]
+
+
 class PDGather(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
@@ -54,4 +70,4 @@ class TFGather(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDGather(), TFGather(), config=APIConfig("gather"))
+    test_main(PDGather(), TFGather(), config=GatherConfig())
