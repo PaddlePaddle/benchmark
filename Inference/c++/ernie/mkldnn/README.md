@@ -8,7 +8,7 @@
 PADDLE_ROOT=/path/of/capi
 git clone https://github.com/PaddlePaddle/Paddle.git
 cd Paddle
-git checkout develop
+git checkout tags/v2.0.0-alpha0 -b v2.0.0-alpha0-branch
 mkdir build
 cd build
 cmake -DFLUID_INFERENCE_INSTALL_DIR=$PADDLE_ROOT \
