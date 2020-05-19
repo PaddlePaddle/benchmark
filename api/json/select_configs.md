@@ -1,7 +1,11 @@
 # API配置过滤
 
+
 对同一个Op而言，从模型中收集到的相似配置在去重后依然非常多。因此，需要有一种筛选配置的方法，保证OP在不同参数设置下的性能数据都能收集到，同时去除大部分冗余的配置。
-## 为OP添加log
+
+## 第一步：在Paddle Repo中为C++ OP添加log
+
+### 必要性说明
 在对OP进行性能优化时，需要分析不同参数配置下的计算开销。对于同一个OP，当API参数设置不同，计算的逻辑也可能不同，那么计算的开销就会有差异。为了准确地获取OP在执行某种参数配置时，计算逻辑落入了哪条分支，就需要为OP添加log。对于一些简单的OP，例如[dist_op](https://github.com/PaddlePaddle/Paddle/blob/7fedf26b8778c5e1da1facfb32bd17ac9ca9f0a0/paddle/fluid/operators/dist_op.h#L99-L121)，影响性能的因素，除了OP输入大小，只有参数`p`。从下面的计算逻辑来看，`p`有4种情况，在忽略输入大小的情况下，最小只需要设计4种不同`p`值的配置，就能保证每个分支的性能都被测试到。
 ```
 if (p == 0) {
@@ -40,6 +44,7 @@ if (is_expand && data_dim == 2U) {
   col2vol(dev_ctx, col, dilations, strides, paddings, &in_grad_slice);
 }
 ```
+### 添加log的示例介绍
 添加log的示例，可以参考[conv_op](https://github.com/PaddlePaddle/Paddle/pull/24362)。需要注意：
 
 - 需要将所有类型的kernel都考虑到，例如conv具有GemmKernel，CudnnKernel
@@ -60,7 +65,7 @@ if (is_expand && data_dim == 2U) {
              << " op=conv";
 ```
 
-## 获取OP运行log
+## 第二步：获取所有Json配置对应的OP运行log
 在过滤之前，首先要获取到OP运行所有配置的log。执行下面的命令将OP运行所有配置时前向、反向的log保存到conv2d.log文件中：
 ```
 GLOG_v=10 python conv2d.py --json_file ./examples/conv2d.json --framework paddle --check_output False --use_gpu=True --backward True --config_id -1 2>&1 | grep 'op=' | awk '{for (i=5;i<=NF;i++){if (i>5) printf(" ");printf("%s", $i)};print ""}'> conv2d.log
@@ -81,9 +86,9 @@ data_layout=NHWC compute_format=NCHW use_global_stats=0 is_inplace=0 input_shape
 data_layout=NHWC compute_format=NCHW use_global_stats=0 is_inplace=0 input_shape=[1, 32, 32, 128] op=batch_norm_grad
 ```
 
-## 根据log，对配置进行过滤
+## 第三步：根据Op运行log，对所有Json配置进行过滤
 
-### 脚本的使用方式
+### 自动化脚本的使用方式
 
 过滤配置以及保存过滤后的结果都由`benchmark/api/json/select_configs.py`脚本自动完成。只用执行下面的示例命令：
 ```
@@ -112,7 +117,7 @@ python select_configs.py \
 - 若在过滤配置时，只想根据log中的部分参数进行过滤，则可以在运行脚本时指定`--ignored_params param_name1 param_name2`，那么过滤时将忽略这些指定的参数，根据其他参数来过滤配置。
 - 该参数通常不需要指定，仅在有特殊需要时使用。例如log中打印了输入shape，其名字为`x_shape`，但是过滤配置时并不希望结合输入shape去过滤配置，那么可以设置`--ignored_params x_shape`。
 
-### 脚本的处理逻辑
+### 自动化脚本的处理逻辑
 
 脚本的处理逻辑如下：
 
@@ -153,8 +158,9 @@ python select_configs.py \
 
 5. 最终选取的配置，将会被自动保存到指定的输出文件中，用于API测试。
 
-## 结果示例
+## 过滤结果展示
 以下是按照过滤规则对配置进行分组的结果示例。
+### 0输入的Op
 
 - 当log中没有输入shape时，例如fill_constant，由于是0个输入，因此在log中将不会打印输入shape。可以构造以下测试log：
   ```
@@ -175,7 +181,7 @@ python select_configs.py \
   config 1: param1=1 param2=1, total: 1.
     Select 1 config_ids: [3].
   ```
-
+### 1输入的Op
 - 当log中仅有1个输入shape时，可以参考conv和batch_norm的log，处理后会得到以下分组结果
   - conv的分组结果：config 0~5代表了6种标识信息，所有配置被分为了6个大组。每组再根据shape细分，最终都只得到1组，即shape 0，因为每个组中shape的标记都是`4-D is_power_of_2=F`，意味着输入都是4-D的，并且shape的大小不是2的幂。当配置数不足3个时，其配置id将被全部选择，如下面的config 0，3，4中的每个shape 0组，包含的id数都只有1个。当配置数超过3个时，从每组中选取最多3个配置，如config 1，2，5中的每个shape 0组，包含的id数都超过了3个。
 
@@ -202,7 +208,7 @@ python select_configs.py \
       shape 1: 4-D is_power_of_2=F, total: 45. Select 3 config_ids: [44, 33, 11]. The shapes are: [1, 7, 7, 512] [1, 33, 33, 1536] [1, 16, 402, 2048]
       shape 2: 4-D is_power_of_2=T, total: 14. Select 3 config_ids: [35, 51, 59]. The shapes are: [1, 1, 1, 256] [1, 32, 32, 128] [1, 256, 256, 32]
     ```
-
+### 2输入的Op
 - 当log中有2个输入shape时，例如elementwise_add，它有x和y这2个输入，因此log中也会对应打印2个shape。构造以下的测试log模拟这种场景：
   ```
   param1=0 param2=1 x_shape=[16L, 256L, 6L, 6L] y_shape=[16L, 256L, 6L, 6L] op=op
