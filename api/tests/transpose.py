@@ -12,50 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
+from common_import import *
 
 
-class PDTranspose(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False, dtype=None):
-        import paddle.fluid as fluid
-
-        self.name = "transpose"
+class PDTranspose(PaddleAPIBenchmarkBase):
+    def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
                 name='data',
-                shape=[10, 10, 100, 100],
-                dtype='float32',
+                shape=config.x_shape,
+                dtype=config.x_dtype,
                 lod_level=0)
             data.stop_gradient = False
-            result = fluid.layers.transpose(x=data, perm=[2, 3, 0, 1])
+            result = fluid.layers.transpose(x=data, perm=config.perm)
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
-            if backward:
+            if config.backward:
                 self.append_gradients(result, [data])
 
 
-class TFTranspose(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False, dtype=None):
-        import tensorflow as tf
-
-        self.name = "transpose"
-        self.allow_growth = True
-
-        data = tf.placeholder(
-            name='data', shape=[10, 10, 100, 100], dtype=tf.float32)
-        result = tf.transpose(a=data, perm=[2, 3, 0, 1], conjugate=False)
+class TFTranspose(TensorflowAPIBenchmarkBase):
+    def build_graph(self, config):
+        data = self.placeholder(
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.transpose(a=data, perm=config.perm)
 
         self.feed_list = [data]
         self.fetch_list = [result]
-        if backward:
+        if config.backward:
             self.append_gradients(result, [data])
 
 
 if __name__ == '__main__':
-    test_main(PDTranspose(), TFTranspose(), feed_spec=None)
+    test_main(PDTranspose(), TFTranspose(), config=APIConfig("transpose"))

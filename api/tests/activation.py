@@ -33,8 +33,7 @@ class ActivationConfig(APIConfig):
             'sigmoid': 'sigmoid',
             'sin': 'sin',
             'sqrt': 'sqrt',
-            'square': 'square',
-            'tanh': 'tanh',
+            'tanh': 'tanh'
         }
 
     def to_tensorflow(self):
