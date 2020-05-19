@@ -15,6 +15,7 @@
 from main import test_main, test_main_without_json
 
 import sys
+import importlib
 sys.path.append("..")
 from common.paddle_api_benchmark import PaddleAPIBenchmarkBase
 from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase
