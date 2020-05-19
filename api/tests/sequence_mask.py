@@ -21,8 +21,7 @@ class SequenceMaskConfig(APIConfig):
 
     def to_tensorflow(self):
         tf_config = self
-        module = importlib.import_module("tensorflow")
-        tf_config.dtype = getattr(module, self.dtype)
+        tf_config.dtype = tf.dtypes.as_dtype(self.dtype)
         return tf_config
 
 
