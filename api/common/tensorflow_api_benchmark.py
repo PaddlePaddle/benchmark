@@ -182,12 +182,23 @@ class TensorflowAPIBenchmarkBase(object):
 
     def variable(self, name, shape, dtype, value=None):
         assert shape is not None
-        value = feeder.generate_random_data(shape, dtype, value=value)
+
+        if self._feed_spec is not None and value is None:
+            i = len(self._feed_dict)
+            range = self._feed_spec[i].get("range", None)
+        else:
+            range = None
+        feed_value = feeder.generate_random_data(
+            shape, dtype, range=range, value=value)
+
         if self._need_feed:
             var = self.placeholder(name=name, shape=shape, dtype=dtype)
         else:
-            var = tf.Variable(value, name=name)
-        self._feed_dict[var] = value
+            var = tf.Variable(feed_value, name=name)
+
+        if value is None:
+            # When value is None, the variable is need to feed data.
+            self._feed_dict[var] = feed_value
         return var
 
     def layers(self, name, module=None, **kwargs):
@@ -285,12 +296,14 @@ class TensorflowAPIBenchmarkBase(object):
         if feeder_adapter is None or feeder_adapter.framework != "tensorflow":
             self._need_feed = use_feed_fetch or config.name == "feed"
             self._need_fetch = use_feed_fetch or config.name == "fetch"
+            self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
             self._feed_dict = {}
 
             self.build_graph(config=config)
 
         if feeder_adapter is None:
             feed_list = []
+            assert len(self._feed_dict) == len(self.feed_list)
             for var in self.feed_list:
                 feed_list.append(self._feed_dict[var])
             return feeder.FeederAdapter("tensorflow", config.feed_spec,
@@ -306,10 +319,10 @@ class TensorflowAPIBenchmarkBase(object):
                                                      feeder_adapter)
 
         if self._need_feed:
-            feed_list = feeder_adapter.to_tensorflow()
+            feed_list = feeder_adapter.to_tensorflow(self.feed_list)
             assert len(feed_list) == len(self.feed_list)
             feed = {}
-            for i in range(feed_list):
+            for i in range(len(feed_list)):
                 feed[self.feed_list[i]] = feed_list[i]
         else:
             feed = None

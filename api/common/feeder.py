@@ -22,27 +22,6 @@ import paddle_api_benchmark as paddle_api
 import tensorflow_api_benchmark as tensorflow_api
 
 
-class FeederAdapter(object):
-    def __init__(self, framework, feed_spec, feed_list):
-        self.__framework = framework
-        self.__feed_spec = feed_spec
-        self.__feed_list = feed_list
-
-    def to_paddle(self):
-        if self.__framework == "paddle":
-            return self.__feed_list
-        assert False
-
-    def to_tensorflow(self):
-        if self.__framework == "tensorflow":
-            return self.__feed_list
-        assert False
-
-    @property
-    def framework(self):
-        return self.__framework
-
-
 def copy_feed_spec(feed_spec):
     if feed_spec is None:
         return None
@@ -51,10 +30,11 @@ def copy_feed_spec(feed_spec):
 
     copy = []
     for feed_item in feed_spec:
-        item = {}
+        assert isinstance(feed_item, dict)
+        item_copy = {}
         for key, value in feed_item.items():
-            item[key] = value
-        copy.append(item)
+            item_copy[key] = value
+        copy.append(item_copy)
     return copy
 
 
@@ -102,85 +82,74 @@ def generate_random_data(shape, dtype, range=None, value=None):
     return data
 
 
-def generate_numpy_data(spec):
-    if not isinstance(spec, dict):
-        raise TypeError("Expected spec a dict, received a ", type(spec))
+class FeederAdapter(object):
+    def __init__(self, framework, feed_spec, feed_list):
+        self.__framework = framework
+        self.__feed_spec = copy_feed_spec(feed_spec)
+        self.__feed_list = feed_list
 
-    assert spec.get("shape", None) is not None
-    assert spec.get("dtype", None) is not None
+    def to_paddle(self, feed_vars):
+        if self.__framework == "paddle":
+            return self.__feed_list
+        else:  # self.__framework == "tensorflow"
+            assert isinstance(feed_vars, list)
+            assert len(feed_vars) == len(self.__feed_list)
+            if self.__feed_spec is not None:
+                assert len(feed_vars) == len(
+                    self.__feed_spec
+                ), "Expected the number of feeding vars (%d) to be equal to the length of feed_spec (%d)." % (
+                    len(feed_vars), len(self.__feed_spec))
 
-    shape = spec["shape"]
-    dtype = spec["dtype"]
-    range = spec.get("range", None)
-    value = spec.get("value", None)
-    return generate_random_data(shape, dtype, range, value)
+            feed_list = []
+            for i in range(len(feed_vars)):
+                var = feed_vars[i]
+                if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
+                    raise TypeError(
+                        "Feed data of non LoDTensor is not supported.")
 
+                # Check shape and dtype
+                var_shape = var.shape
+                var_dtype = paddle_api.convert_dtype(var.dtype, to_string=True)
+                value = check_shape_and_dtype(var_shape, var_dtype,
+                                              self.__feed_list[i])
 
-def feed_paddle(feed_vars, feed_spec=None):
-    assert isinstance(feed_vars, list)
-    if feed_spec is not None:
-        if not isinstance(feed_spec, list):
-            feed_spec = [feed_spec]
-        assert len(feed_vars) == len(
-            feed_spec
-        ), "Expected the number of feeding vars (%d) to be equal to the length of feed_spec (%d)." % (
-            len(feed_vars), len(feed_spec))
+                if self.__feed_spec is not None and self.__feed_spec[i].get(
+                        "permute", None) is not None:
+                    assert False
 
-    feed_dict = collections.OrderedDict()
-    for i in range(len(feed_vars)):
-        var = feed_vars[i]
-        if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
-            raise TypeError("Feed data of non LoDTensor is not supported.")
+                feed_list.append(value)
+            return feed_list
 
-        if feed_spec is not None:
-            spec = feed_spec[i]
-        else:
-            spec = {}
+    def to_tensorflow(self, feed_vars):
+        if self.__framework == "tensorflow":
+            return self.__feed_list
+        else:  # self.__framework == "paddle"
+            assert isinstance(feed_vars, list)
+            assert len(feed_vars) == len(self.__feed_list)
+            if self.__feed_spec is not None:
+                assert len(feed_vars) == len(
+                    self.__feed_spec
+                ), "Expected the number of feeding vars (%d) to be equal to the length of feed_spec (%d)." % (
+                    len(feed_vars), len(self.__feed_spec))
 
-        if spec.get("shape", None) is None:
-            spec["shape"] = var.shape
-        if spec.get("dtype", None) is None:
-            spec["dtype"] = paddle_api.convert_dtype(var.dtype)
-
-        feed_dict[var.name] = generate_numpy_data(spec)
-    return feed_dict
-
-
-def feed_tensorflow(feed_list, feed_dict_paddle=None, feed_spec=None):
-    feed_spec = copy_feed_spec(feed_spec)
-
-    feed_dict_tensorflow = collections.OrderedDict()
-    if feed_dict_paddle is not None:
-        for i in range(len(feed_dict_paddle)):
-            item = feed_dict_paddle.items()[i]
-            name = item[0]
-            value = item[1]
-
-            if feed_spec is not None:
-                spec = feed_spec[i]
-                if spec.get("permute", None) is not None:
-                    value = np.transpose(value, spec["permute"])
-
-            if feed_list is not None:
+            feed_list = []
+            for i in range(len(feed_list)):
                 var = feed_list[i]
-                value = check_shape_and_dtype(var.shape, var.dtype, value)
-                feed_dict_tensorflow[var.name] = value
-            else:
-                feed_dict_tensorflow[name] = value
-    else:
-        assert feed_list is not None
-        for i in range(len(feed_list)):
-            var = feed_list[i]
 
-            if feed_spec is not None:
-                spec = feed_spec[i]
-            else:
-                spec = {}
+                # Check shape and dtype
+                var_shape = var.shape
+                var_dtype = tensorflow_api.convert_dtype(
+                    var.dtype, to_string=True)
+                value = check_shape_and_dtype(var_shape, var_dtype,
+                                              self.__feed_list[i])
 
-            if spec.get("shape", None) is None:
-                spec["shape"] = var.shape
-            if spec.get("dtype", None) is None:
-                spec["dtype"] = tensorflow_api.convert_dtype(var.dtype)
+                if self.__feed_spec is not None and self.__feed_spec[i].get(
+                        "permute", None) is not None:
+                    value = np.transpose(value, self.__feed_spec[i]["permute"])
 
-            feed_dict_tensorflow[var.name] = generate_numpy_data(spec)
-    return feed_dict_tensorflow
+                feed_list.append(value)
+            return feed_list
+
+    @property
+    def framework(self):
+        return self.__framework

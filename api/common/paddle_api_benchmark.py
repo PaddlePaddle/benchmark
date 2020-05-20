@@ -95,11 +95,22 @@ class PaddleAPIBenchmarkBase(object):
 
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         assert shape is not None
-        value = feeder.generate_random_data(shape, dtype, value=value)
+
+        if self._feed_spec is not None and value is None:
+            i = len(self._feed_dict)
+            range = self._feed_spec[i].get("range", None)
+        else:
+            range = None
+        feed_value = feeder.generate_random_data(
+            shape, dtype, range=range, value=value)
+
         var = fluid.data(name=name, shape=shape, dtype=dtype, lod_level=0)
         var.persistable = True
         var.stop_gradient = stop_gradient
-        self._feed_dict[var] = value
+
+        if value is None:
+            # When value is None, need to feed data to the variable.
+            self._feed_dict[var] = feed_value
         return var
 
     def layers(self, name, **kwargs):
@@ -181,6 +192,7 @@ class PaddleAPIBenchmarkBase(object):
         if feeder_adapter is None or feeder_adapter.framework != "paddle":
             self._need_feed = use_feed_fetch or config.name == "feed"
             self._need_fetch = use_feed_fetch or config.name == "fetch"
+            self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
             self._feed_dict = {}
 
             self.main_program = fluid.Program()
@@ -203,11 +215,11 @@ class PaddleAPIBenchmarkBase(object):
         feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
                                                      feeder_adapter)
 
-        feed_list = feeder_adapter.to_paddle()
+        feed_list = feeder_adapter.to_paddle(self.feed_vars)
         assert len(feed_list) == len(self.feed_vars)
         if self._need_feed:
             feed = {}
-            for i in range(feed_list):
+            for i in range(len(feed_list)):
                 feed[self.feed_vars[i].name] = feed_list[i]
         else:
             with fluid.program_guard(self.startup_program):

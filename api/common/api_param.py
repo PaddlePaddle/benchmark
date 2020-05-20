@@ -87,9 +87,9 @@ class VarParamInfo(BaseParamInfo):
 
 class APIConfig(object):
     def __init__(self, op_type, params=None):
-        self.name = op_type
+        self.__name = op_type
+        self.__framework = "paddle"
         self.params = params
-        self.framework = "paddle"
         self.variable_list = None
         self.params_list = None
         self.backward = False
@@ -109,6 +109,14 @@ class APIConfig(object):
             basename = basename.replace(self.name, self.alias_config.name)
             return os.path.join(dirname, basename)
         return filename
+
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def framework(self):
+        return self.__framework
 
     @property
     def alias_name(self):
@@ -157,7 +165,7 @@ class APIConfig(object):
         return self
 
     def to_tensorflow(self):
-        self.framework = "tensorflow"
+        self.__framework = "tensorflow"
         if hasattr(self, "alias_config"):
             self.alias_config.to_tensorflow()
         return self
@@ -180,8 +188,8 @@ class APIConfig(object):
         debug_str = ('API params of <%s> {\n') % (self.name)
         for name, value in vars(self).items():
             if name not in [
-                    'name', 'params', 'variable_list', 'params_list',
-                    'backward', 'feed_spec'
+                    '_APIConfig__name', 'params', 'variable_list',
+                    'params_list', 'backward', 'feed_spec'
             ]:
                 if isinstance(value, np.ndarray):
                     debug_str = debug_str + (
