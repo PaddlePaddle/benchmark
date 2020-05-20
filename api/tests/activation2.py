@@ -11,32 +11,44 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from common_import import *
 
 
-class PDExp(PaddleAPIBenchmarkBase):
+class Activation2Config(APIConfig):
+    def __init__(self):
+        super(Activation2Config, self).__init__('activation2')
+        self.api = 'relu'
+        self.api_list = {'relu': 'relu', 'softsign': 'softsign'}
+
+    def to_tensorflow(self):
+        self.tf_api = self.api_list[self.api]
+        return self
+
+
+class PDActivation2(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
+            x = fluid.data(
+                name='x',
                 shape=config.x_shape,
                 dtype=config.x_dtype,
                 lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.exp(x=data)
+            x.stop_gradient = False
+            self.name = config.api
+            result = self.layers(config.api, x=x)
 
-            self.feed_vars = [data]
+            self.feed_vars = [x]
             self.fetch_vars = [result]
             if config.backward:
-                self.append_gradients(result, [data])
+                self.append_gradients(result, [x])
 
 
-class TFExp(TensorflowAPIBenchmarkBase):
+class TFActivation2(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.placeholder(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.exp(x=data)
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        self.name = config.tf_api
+        result = self.layers(config.tf_api, "nn", features=data)
 
         self.feed_list = [data]
         self.fetch_list = [result]
@@ -45,4 +57,4 @@ class TFExp(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDExp(), TFExp(), config=APIConfig("exp"))
+    test_main(PDActivation2(), TFActivation2(), Activation2Config())

@@ -1,0 +1,27 @@
+[{
+    "op": "matmul",
+    "param_info": {
+        "alpha": {
+            "type": "float",
+            "value": "1.0"
+        },
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 400L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[400L, 800L]",
+            "type": "Variable"
+        }
+    }
+}]

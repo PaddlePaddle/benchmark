@@ -1,0 +1,19 @@
+[{
+    "op": "activation2",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 32L, 257L, 257L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "activation2",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 64L, 257L, 257L]",
+            "type": "Variable"
+        }
+    }
+}]

@@ -23,7 +23,8 @@ class ActivationConfig(APIConfig):
             'cos': 'cos',
             'exp': 'exp',
             'floor': 'floor',
-            'sigmoid': 'sigmoid'
+            'sigmoid': 'sigmoid',
+            'sqrt': 'sqrt'
         }
 
     def to_tensorflow(self):

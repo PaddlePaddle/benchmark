@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,16 +15,19 @@
 from common_import import *
 
 
-class OneHotConfig(APIConfig):
+class ArgsortConfig(APIConfig):
     def __init__(self):
-        super(OneHotConfig, self).__init__('one_hot')
+        super(ArgsortConfig, self).__init__('argsort')
 
-    def init_from_json(self, filename, config_id=0):
-        super(OneHotConfig, self).init_from_json(filename, config_id)
-        self.feed_spec = {"range": [0, self.depth]}
+    def to_tensorflow(self):
+        if self.descending == True:
+            setattr(self, direction, 'DESCENDING')
+        else:
+            setattr(self, direction, 'ASCENDING')
+        return self
 
 
-class PDOneHot(PaddleAPIBenchmarkBase):
+class PDArgsort(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
@@ -33,7 +36,8 @@ class PDOneHot(PaddleAPIBenchmarkBase):
                 dtype=config.input_dtype,
                 lod_level=0)
             data.stop_gradient = False
-            result = fluid.one_hot(input=data, depth=config.depth)
+            result = fluid.layers.argsort(
+                input=data, axis=config.axis, descending=config.descending)
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -41,17 +45,12 @@ class PDOneHot(PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data])
 
 
-class TFOneHot(TensorflowAPIBenchmarkBase):
+class TFArgsort(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.placeholder(
             name='data', shape=config.input_shape, dtype=config.input_dtype)
-        result = tf.one_hot(
-            indices=data,
-            depth=config.depth,
-            on_value=None,
-            off_value=None,
-            axis=None,
-            dtype=None)
+        result = tf.argsort(
+            values=data, axis=config.axis, direction=config.direction)
 
         self.feed_list = [data]
         self.fetch_list = [result]
@@ -60,4 +59,4 @@ class TFOneHot(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDOneHot(), TFOneHot(), config=OneHotConfig())
+    test_main(PDArgsort(), TFArgsort(), config=ArgsortConfig())
