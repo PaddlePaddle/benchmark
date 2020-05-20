@@ -132,6 +132,23 @@ def convert_dtype(dtype, to_string=True):
         raise ValueError("Unsupported dtype %s" % dtype)
 
 
+def import_tf_module(api_name):
+    try:
+        module = importlib.import_module("tensorflow")
+        return getattr(module, api_name)
+    except Exception:
+        return None
+
+
+def import_math_module(api_name):
+    try:
+        module_name = "tensorflow.math"
+        module = importlib.import_module(module_name)
+        return getattr(module, api_name)
+    except Exception:
+        return None
+
+
 @six.add_metaclass(abc.ABCMeta)
 class TensorflowAPIBenchmarkBase(object):
     def __init__(self):
@@ -163,9 +180,19 @@ class TensorflowAPIBenchmarkBase(object):
             var = tf.placeholder(name=name, shape=shape, dtype=tf_dtype)
         return var
 
-    def layers(self, name, **kwargs):
-        module = importlib.import_module("tensorflow")
-        func = getattr(module, name)
+    def layers(self, name, module=None, **kwargs):
+        func = import_tf_module(name)
+        if func is None:
+            func = import_math_module(name)
+        if func is None and module is not None:
+            try:
+                module_name = "tensorflow." + module
+                tf_module = importlib.import_module(module_name)
+                func = getattr(tf_module, name)
+            except Exception:
+                print("Cannot immport %s API from %s module." %
+                      (name, module_name))
+        assert func is not None, "Need to set Tensorflow module to import %s API." % name
         result = func(**kwargs)
         return result
 

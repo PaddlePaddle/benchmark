@@ -31,28 +31,6 @@
         "y": {
             "type": "Variable",
             "dtype": "float32",
-            "shape": "[128L, 1000L]"
-        },
-        "axis": {
-            "type": "int",
-            "value": "0"
-        },
-        "act": {
-            "type": "string",
-            "value": "None"
-        }
-    }
-}, {
-    "op": "elementwise",
-    "param_info": {
-        "x": {
-            "type": "Variable",
-            "dtype": "float32",
-            "shape": "[50L, 128L, 1000L]"
-        },
-        "y": {
-            "type": "Variable",
-            "dtype": "float32",
             "shape": "[1L, 128L, 1000L]"
         },
         "axis": {

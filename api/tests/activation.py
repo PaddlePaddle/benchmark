@@ -14,20 +14,16 @@
 from common_import import *
 
 
-#TODO: broadcast function not support [50L, 128L, 1000L], [128L, 1000L]
-class ElementwiseConfig(APIConfig):
+class ActivationConfig(APIConfig):
     def __init__(self):
-        super(ElementwiseConfig, self).__init__('elementwise')
-        self.api = 'add'
-        self.atol = 1e-3
+        super(ActivationConfig, self).__init__('activation')
+        self.api = 'cos'
         self.api_list = {
-            'add': 'add',
-            'div': 'divide',
-            'max': 'maximum',
-            'min': 'minimum',
-            'sub': 'subtract',
-            'mul': 'multiply',
-            'pow': 'pow'
+            'abs': 'abs',
+            'cos': 'cos',
+            'exp': 'exp',
+            'floor': 'floor',
+            'sigmoid': 'sigmoid'
         }
 
     def to_tensorflow(self):
@@ -35,7 +31,7 @@ class ElementwiseConfig(APIConfig):
         return self
 
 
-class PDElementwise(PaddleAPIBenchmarkBase):
+class PDActivation(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             x = fluid.data(
@@ -43,41 +39,28 @@ class PDElementwise(PaddleAPIBenchmarkBase):
                 shape=config.x_shape,
                 dtype=config.x_dtype,
                 lod_level=0)
-            y = fluid.data(
-                name='y',
-                shape=config.y_shape,
-                dtype=config.y_dtype,
-                lod_level=0)
             x.stop_gradient = False
-            y.stop_gradient = False
-            self.name = 'elementwise_' + config.api
-            result = self.layers(
-                "elementwise_" + config.api,
-                x=x,
-                y=y,
-                axis=config.axis,
-                act=config.act)
+            self.name = config.api
+            result = self.layers(config.api, x=x)
 
-            self.feed_vars = [x, y]
+            self.feed_vars = [x]
             self.fetch_vars = [result]
             if config.backward:
-                self.append_gradients(result, [x, y])
+                self.append_gradients(result, [x])
 
 
-class TFElementwise(TensorflowAPIBenchmarkBase):
+class TFActivation(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.placeholder(
             name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.placeholder(
-            name='y', shape=config.y_shape, dtype=config.y_dtype)
         self.name = config.tf_api
-        result = self.layers(config.tf_api, x=x, y=y)
+        result = self.layers(config.tf_api, x=x)
 
-        self.feed_list = [x, y]
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, y])
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(PDElementwise(), TFElementwise(), ElementwiseConfig())
+    test_main(PDActivation(), TFActivation(), ActivationConfig())
