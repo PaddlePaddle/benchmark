@@ -17,7 +17,7 @@ from common_import import *
 
 class PDFeed(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=[1600000], dtype="float32")
 
         self.feed_vars = [x]
         self.fetch_vars = None
@@ -25,11 +25,7 @@ class PDFeed(PaddleAPIBenchmarkBase):
 
 class TFFeed(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x',
-            shape=config.x_shape,
-            dtype=config.x_dtype,
-            value=config.x_data)
+        x = self.variable(name='x', shape=[1600000], dtype="float32")
         result = tf.identity(x)
 
         self.feed_list = [x]
@@ -37,4 +33,4 @@ class TFFeed(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDFeed(), TFFeed(), config=APIConfig("feed"))
+    test_main_without_json(PDFeed(), TFFeed(), config=APIConfig("feed"))

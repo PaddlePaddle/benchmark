@@ -15,16 +15,9 @@
 from common_import import *
 
 
-class NullConfig(APIConfig):
-    def __init__(self):
-        super(NullConfig, self).__init__("null")
-        self.alias_config = APIConfig("feed")
-
-
 class PDNull(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        x = self.variable(name='x', shape=[1], dtype="float32")
 
         self.feed_vars = [x]
         self.fetch_vars = None
@@ -32,11 +25,7 @@ class PDNull(PaddleAPIBenchmarkBase):
 
 class TFNull(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x',
-            shape=config.alias.x_shape,
-            dtype=config.alias.x_dtype,
-            value=config.alias.x_data)
+        x = self.variable(name='x', shape=[1], dtype="float32")
         result = tf.identity(x)
 
         self.feed_list = [x]
@@ -44,4 +33,4 @@ class TFNull(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDNull(), TFNull(), config=NullConfig())
+    test_main_without_json(PDNull(), TFNull(), config=APIConfig("null"))
