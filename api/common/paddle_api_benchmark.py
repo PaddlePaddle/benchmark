@@ -132,6 +132,24 @@ class PaddleAPIBenchmarkBase(object):
         else:
             self.fetch_vars.append(gradients)
 
+    def _run_null_program(self, executor, repeat):
+        walltimes = []
+        with fluid.program_guard(fluid.Program(), fluid.Program()):
+            x = fluid.data(
+                name="null", shape=[1], dtype="float32", lod_level=0)
+
+            for i in range(repeat + 1):
+                begin = time.time()
+                outputs = executor.run(program=fluid.default_main_program(),
+                                       feed=None,
+                                       fetch_list=None,
+                                       use_program_cache=True,
+                                       return_numpy=True)
+                end = time.time()
+                if i > 0:
+                    walltimes.append(end - begin)
+        return walltimes
+
     def run_impl(self,
                  use_gpu,
                  feed=None,
@@ -155,6 +173,9 @@ class PaddleAPIBenchmarkBase(object):
                                    return_numpy=True)
             return outputs
 
+        if self.name != "null":
+            walltimes = self._run_null_program(executor, repeat)
+
         # warmup run
         outputs = _run_main_iter(feed=feed)
 
@@ -174,6 +195,8 @@ class PaddleAPIBenchmarkBase(object):
             stats = {"total": runtimes, "stable": stable, "diff": max_diff}
         else:
             stats = {"total": runtimes}
+        if self.name != "null":
+            stats["wall_time"] = walltimes
         stats["framework"] = "paddle"
         stats["version"] = paddle.__version__
         stats["name"] = self.name

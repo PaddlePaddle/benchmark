@@ -100,11 +100,14 @@ def print_benchmark_result(result, log_level=0):
     assert isinstance(result, dict), "Input result should be a dict."
 
     runtimes = result.get("total", None)
+    walltimes = result.get("wall_time", None)
     stable = result.get("stable", None)
     diff = result.get("diff", None)
 
     for i in range(len(runtimes)):
         runtimes[i] *= 1000
+        if walltimes is not None:
+            walltimes[i] *= 1000
 
     sorted_runtimes = np.sort(runtimes)
     if len(sorted_runtimes) <= 2:
@@ -120,6 +123,10 @@ def print_benchmark_result(result, log_level=0):
         begin = 10
         end = len(sorted_runtimes) - 10
     avg_runtime = np.average(sorted_runtimes[begin:end])
+    if walltimes is not None:
+        avg_walltime = np.average(np.sort(walltimes)[begin:end])
+    else:
+        avg_walltime = 0
 
     if log_level == 0:
         seg_0 = 0
@@ -133,8 +140,9 @@ def print_benchmark_result(result, log_level=0):
         seg_1 = 0
     for i in range(len(runtimes)):
         if i < seg_0 or i >= seg_1:
-            print("Iter {0}, Runtime: {1}".format("%4d" % i, "%.5f ms" %
-                                                  runtimes[i]))
+            walltime = walltimes[i] if walltimes is not None else 0
+            print("Iter %4d, Runtime: %.5f ms, Walltime: %.5f ms" %
+                  (i, runtimes[i], walltime))
 
     status = collections.OrderedDict()
     status["framework"] = result["framework"]
@@ -149,5 +157,6 @@ def print_benchmark_result(result, log_level=0):
     status["speed"]["repeat"] = len(sorted_runtimes)
     status["speed"]["begin"] = begin
     status["speed"]["end"] = end
-    status["speed"]["total"] = avg_runtime
+    status["speed"]["total"] = avg_runtime - avg_walltime
+    status["speed"]["wall_time"] = avg_walltime
     print(json.dumps(status))

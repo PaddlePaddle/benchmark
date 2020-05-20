@@ -157,6 +157,7 @@ class TensorflowAPIBenchmarkBase(object):
         self.name = self.__class__.__name__
         self.feed_list = None
         self.fetch_list = None
+        self.allow_growth = True
         try:
             import tensorflow as tf
             self.graph = tf.Graph()
@@ -230,6 +231,24 @@ class TensorflowAPIBenchmarkBase(object):
         else:
             self.fetch_list.append(gradients)
 
+    def _run_null_graph(self, use_gpu, repeat):
+        walltimes = []
+        graph = tf.Graph()
+        with graph.as_default():
+            x = tf.Variable(
+                np.random.random([1]).astype("float32"), name="null")
+            result = tf.identity(x)
+
+            sess = self._init_session(use_gpu)
+            for i in range(repeat + 1):
+                begin = time.time()
+                sess.run(fetches=[result.op], feed_dict=None)
+                end = time.time()
+                if i > 0:
+                    walltimes.append(end - begin)
+            sess.close()
+        return walltimes
+
     def run_impl(self,
                  use_gpu,
                  feed=None,
@@ -238,7 +257,8 @@ class TensorflowAPIBenchmarkBase(object):
                  check_output=False,
                  profile=False):
         sess = self._init_session(use_gpu)
-        tf.debugging.set_log_device_placement(True)
+
+        # tf.debugging.set_log_device_placement(True)
 
         def _run_main_iter(feed=feed, run_options=None, run_metadata=None):
             if self._need_fetch:
@@ -252,6 +272,9 @@ class TensorflowAPIBenchmarkBase(object):
                                options=run_options,
                                run_metadata=run_metadata)
             return outputs
+
+        if self.name != "null":
+            walltimes = self._run_null_graph(use_gpu, repeat)
 
         # warmup run
         _run_main_iter(feed=feed, run_options=None, run_metadata=None)
@@ -279,6 +302,8 @@ class TensorflowAPIBenchmarkBase(object):
             "name": self.name,
             "total": runtimes
         }
+        if self.name != "null":
+            stats["wall_time"] = walltimes
         stats["device"] = "GPU" if use_gpu else "CPU"
         utils.print_benchmark_result(stats, log_level=log_level)
         return outputs
@@ -329,6 +354,7 @@ class TensorflowAPIBenchmarkBase(object):
             feed = None
 
         profile = True if args.profiler != "none" else False
+        self.allow_growth = False if args.task == "speed" else True
         outputs = self.run_impl(
             use_gpu=args.use_gpu,
             feed=feed,
@@ -341,13 +367,13 @@ class TensorflowAPIBenchmarkBase(object):
     def _init_session(self, use_gpu):
         if tf.__version__ >= "1.15.0":
             config = tf.compat.v1.ConfigProto()
-            config.gpu_options.allow_growth = True
+            config.gpu_options.allow_growth = self.allow_growth
             sess = tf.compat.v1.Session(config=config)
             sess.run(tf.compat.v1.global_variables_initializer())
             sess.run(tf.compat.v1.local_variables_initializer())
         else:
             config = tf.ConfigProto()
-            config.gpu_options.allow_growth = True
+            config.gpu_options.allow_growth = self.allow_growth
             sess = tf.Session(config=config)
             sess.run(tf.global_variables_initializer())
             sess.run(tf.local_variables_initializer())
