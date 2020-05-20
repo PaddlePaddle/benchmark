@@ -271,6 +271,7 @@ class TensorflowAPIBenchmarkBase(object):
 
                 if check_output:
                     fetches.append(outputs)
+        sess.close()
 
         stats = {
             "framework": "tensorflow",
@@ -340,11 +341,13 @@ class TensorflowAPIBenchmarkBase(object):
     def _init_session(self, use_gpu):
         if tf.__version__ >= "1.15.0":
             config = tf.compat.v1.ConfigProto()
+            config.gpu_options.allow_growth = True
             sess = tf.compat.v1.Session(config=config)
             sess.run(tf.compat.v1.global_variables_initializer())
             sess.run(tf.compat.v1.local_variables_initializer())
         else:
             config = tf.ConfigProto()
+            config.gpu_options.allow_growth = True
             sess = tf.Session(config=config)
             sess.run(tf.global_variables_initializer())
             sess.run(tf.local_variables_initializer())

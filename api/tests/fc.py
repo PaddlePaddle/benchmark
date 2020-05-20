@@ -35,7 +35,7 @@ class FCConfig(APIConfig):
         self.num_flatten_dims = -1
 
     def to_tensorflow(self):
-        tf_config = self
+        tf_config = super(FCConfig, self).to_tensorflow()
         if self.act == "relu":
             tf_config.act = tf.nn.relu
         return tf_config
@@ -64,10 +64,7 @@ class PDFC(PaddleAPIBenchmarkBase):
 class TFFC(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
-            name="input",
-            shape=config.input_shape,
-            dtype=config.input_dtype,
-            value=config.input_data)
+            name="input", shape=config.input_shape, dtype=config.input_dtype)
         if tf.__version__ <= "1.15.0":
             result = tf.contrib.layers.fully_connected(
                 inputs=input,

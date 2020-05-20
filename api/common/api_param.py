@@ -14,6 +14,7 @@
 
 import os
 import json
+import copy
 import numpy as np
 
 
@@ -165,10 +166,11 @@ class APIConfig(object):
         return self
 
     def to_tensorflow(self):
-        self.__framework = "tensorflow"
-        if hasattr(self, "alias_config"):
-            self.alias_config.to_tensorflow()
-        return self
+        tf_config = copy.deepcopy(self)
+        tf_config.__framework = "tensorflow"
+        if hasattr(tf_config, "alias_config"):
+            tf_config.alias_config.to_tensorflow()
+        return tf_config
 
     def to_string(self):
         self._parse_params()
@@ -185,11 +187,11 @@ class APIConfig(object):
                 setattr(self, name, None)
 
     def __str__(self):
-        debug_str = ('API params of <%s> {\n') % (self.name)
+        debug_str = ('[%s] %s {\n') % (self.framework, self.name)
         for name, value in vars(self).items():
             if name not in [
-                    '_APIConfig__name', 'params', 'variable_list',
-                    'params_list', 'backward', 'feed_spec'
+                    '_APIConfig__name', '_APIConfig__framework', 'params',
+                    'variable_list', 'params_list', 'backward', 'feed_spec'
             ]:
                 if isinstance(value, np.ndarray):
                     debug_str = debug_str + (
