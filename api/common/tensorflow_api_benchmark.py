@@ -252,10 +252,10 @@ class TensorflowAPIBenchmarkBase(object):
             raise ValueError(
                 "Argument \"config\" must be set to an instance of APIConfig.")
 
-        if feeder_adapter is not None and feeder_adapter.framework == "paddle":
+        if feeder_adapter is not None and feeder_adapter.framework != "tensorflow":
             assert use_feed_fetch, "Argument use_feed_fetch must be True when feeder_adapter is initialized by paddle."
 
-        if feeder_adapter is None or feeder_adapter.framework == "paddle":
+        if feeder_adapter is None or feeder_adapter.framework != "tensorflow":
             self._need_feed = use_feed_fetch or config.name == "feed"
             self._need_fetch = use_feed_fetch or config.name == "fetch"
             self._feed_dict = {}

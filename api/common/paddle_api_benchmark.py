@@ -93,11 +93,14 @@ class PaddleAPIBenchmarkBase(object):
     def build_program(self, config=None):
         pass
 
-    def variable(self, name, shape, dtype, stop_gradient=False):
-        data = fluid.data(name=name, shape=shape, dtype=dtype, lod_level=0)
-        data.persistable = True
-        data.stop_gradient = stop_gradient
-        return data
+    def variable(self, name, shape, dtype, value=None, stop_gradient=False):
+        assert shape is not None
+        value = feeder.generate_random_data(shape, dtype, value=value)
+        var = fluid.data(name=name, shape=shape, dtype=dtype, lod_level=0)
+        var.persistable = True
+        var.stop_gradient = stop_gradient
+        self._feed_dict[var] = value
+        return var
 
     def layers(self, name, **kwargs):
         module = importlib.import_module("paddle.fluid.layers")
@@ -130,7 +133,7 @@ class PaddleAPIBenchmarkBase(object):
         executor.run(self.startup_program)
 
         def _run_main_iter(feed=None):
-            if self._use_feed_fetch or self.name == "fetch":
+            if self._need_fetch:
                 fetch_vars = self.fetch_vars
             else:
                 fetch_vars = None
@@ -167,15 +170,60 @@ class PaddleAPIBenchmarkBase(object):
         utils.print_benchmark_result(stats, log_level=log_level)
         return outputs
 
-    def generate_feed_dict(self, config):
-        self.main_program = fluid.Program()
-        self.startup_program = fluid.Program()
-        with fluid.program_guard(self.main_program, self.startup_program):
-            self.build_program(config=config)
+    def generate_random_feeder(self,
+                               config,
+                               use_feed_fetch=True,
+                               feeder_adapter=None):
+        if config is None or not isinstance(config, api_param.APIConfig):
+            raise ValueError(
+                "Argument \"config\" must be set to an instance of APIConfig.")
 
-        feed_dict = feeder.feed_paddle(
-            self.feed_vars, feed_spec=config.feed_spec)
-        return feed_dict
+        if feeder_adapter is None or feeder_adapter.framework != "paddle":
+            self._need_feed = use_feed_fetch or config.name == "feed"
+            self._need_fetch = use_feed_fetch or config.name == "fetch"
+            self._feed_dict = {}
+
+            self.main_program = fluid.Program()
+            self.startup_program = fluid.Program()
+            with fluid.program_guard(self.main_program, self.startup_program):
+                self.build_program(config=config)
+
+        if feeder_adapter is None:
+            feed_list = []
+            for var in self.feed_vars:
+                feed_list.append(self._feed_dict[var])
+            return feeder.FeederAdapter("paddle", config.feed_spec, feed_list)
+        else:
+            return feeder_adapter
+
+    def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
+        print(config)
+
+        self.name = config.name
+        feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
+                                                     feeder_adapter)
+
+        feed_list = feeder_adapter.to_paddle()
+        assert len(feed_list) == len(self.feed_vars)
+        if self._need_feed:
+            feed = {}
+            for i in range(feed_list):
+                feed[self.feed_vars[i].name] = feed_list[i]
+        else:
+            with fluid.program_guard(self.startup_program):
+                # Append initialiar operator to startup program.
+                for i in range(len(feed_list)):
+                    self._assign(self.feed_vars[i], value=feed_list[i])
+            feed = None
+
+        outputs = self.run_impl(
+            use_gpu=args.use_gpu,
+            feed=feed,
+            repeat=args.repeat,
+            log_level=args.log_level,
+            check_output=args.check_output,
+            profiler=args.profiler)
+        return outputs
 
     def _assign(self, feed_var, value):
         out = fluid.data(
@@ -208,35 +256,6 @@ class PaddleAPIBenchmarkBase(object):
                 'shape': list(feed_var.shape),
                 value_name: value
             })
-
-    def run(self, config, args, use_feed_fetch=True, feed_dict=None):
-        if config is None or not isinstance(config, api_param.APIConfig):
-            raise ValueError(
-                "Argument \"config\" must be set to an instance of APIConfig.")
-
-        self.name = config.name
-        self._use_feed_fetch = use_feed_fetch
-        print(config)
-
-        if feed_dict is None:
-            feed_dict = self.generate_feed_list(config)
-        if use_feed_fetch or self.name == "feed":
-            feed = feed_dict
-        else:
-            with fluid.program_guard(self.startup_program):
-                # Append initialiar operator to startup program.
-                for feed_var in self.feed_vars:
-                    self._assign(feed_var, value=feed_dict[feed_var.name])
-            feed = None
-
-        outputs = self.run_impl(
-            use_gpu=args.use_gpu,
-            feed=feed,
-            repeat=args.repeat,
-            log_level=args.log_level,
-            check_output=args.check_output,
-            profiler=args.profiler)
-        return outputs
 
     def _init_feed_tensor(self, feed):
         for var in self.feed_vars:

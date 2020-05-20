@@ -28,6 +28,11 @@ class FeederAdapter(object):
         self.__feed_spec = feed_spec
         self.__feed_list = feed_list
 
+    def to_paddle(self):
+        if self.__framework == "paddle":
+            return self.__feed_list
+        assert False
+
     def to_tensorflow(self):
         if self.__framework == "tensorflow":
             return self.__feed_list
