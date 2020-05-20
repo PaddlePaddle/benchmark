@@ -1,0 +1,10 @@
+[{
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16L]",
+            "type": "Variable"
+        }
+    }
+}]

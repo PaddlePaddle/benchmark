@@ -14,28 +14,14 @@
 from common_import import *
 
 
-#TODO: broadcast function not support [50L, 128L, 1000L], [128L, 1000L]
-class ElementwiseConfig(APIConfig):
+class LogicalConfig(APIConfig):
     def __init__(self):
-        super(ElementwiseConfig, self).__init__('elementwise')
-        self.api = 'add'
-        self.atol = 1e-3
-        self.api_list = {
-            'add': 'add',
-            'div': 'divide',
-            'max': 'maximum',
-            'min': 'minimum',
-            'sub': 'subtract',
-            'mul': 'multiply',
-            'pow': 'pow'
-        }
-
-    def to_tensorflow(self):
-        self.tf_api = self.api_list[self.api]
-        return self
+        super(LogicalConfig, self).__init__('logical')
+        self.api = 'and'
+        self.api_list = {'and': 'and', 'or': 'or'}
 
 
-class PDElementwise(PaddleAPIBenchmarkBase):
+class PDLogical(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             x = fluid.data(
@@ -50,13 +36,8 @@ class PDElementwise(PaddleAPIBenchmarkBase):
                 lod_level=0)
             x.stop_gradient = False
             y.stop_gradient = False
-            self.name = 'elementwise_' + config.api
-            result = self.layers(
-                "elementwise_" + config.api,
-                x=x,
-                y=y,
-                axis=config.axis,
-                act=config.act)
+            self.name = 'logical_' + config.api
+            result = self.layers("logical_" + config.api, x=x, y=y)
 
             self.feed_vars = [x, y]
             self.fetch_vars = [result]
@@ -64,14 +45,14 @@ class PDElementwise(PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [x, y])
 
 
-class TFElementwise(TensorflowAPIBenchmarkBase):
+class TFLogical(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.placeholder(
             name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.placeholder(
             name='y', shape=config.y_shape, dtype=config.y_dtype)
-        self.name = config.tf_api
-        result = self.layers(config.tf_api, x=x, y=y)
+        self.name = 'logical_' + config.api
+        result = self.layers("logical_" + config.api, x=x, y=y)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]
@@ -80,4 +61,4 @@ class TFElementwise(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDElementwise(), TFElementwise(), ElementwiseConfig())
+    test_main(PDLogical(), TFLogical(), LogicalConfig())
