@@ -11,44 +11,56 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from common_import import *
 
 
-class CastConfig(APIConfig):
+class ActivationConfig(APIConfig):
     def __init__(self):
-        super(CastConfig, self).__init__('cast')
-        self.feed_spec = {"range": [-10, 10]}
+        super(ActivationConfig, self).__init__('activation')
+        self.api = 'cos'
+        self.api_list = {
+            'abs': 'abs',
+            'cos': 'cos',
+            'exp': 'exp',
+            'floor': 'floor',
+            'sigmoid': 'sigmoid'
+        }
+
+    def to_tensorflow(self):
+        self.tf_api = self.api_list[self.api]
+        return self
 
 
-class PDCast(PaddleAPIBenchmarkBase):
+class PDActivation(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
+            x = fluid.data(
+                name='x',
                 shape=config.x_shape,
                 dtype=config.x_dtype,
                 lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.cast(x=data, dtype=config.dtype)
+            x.stop_gradient = False
+            self.name = config.api
+            result = self.layers(config.api, x=x)
 
-            self.feed_vars = [data]
+            self.feed_vars = [x]
             self.fetch_vars = [result]
             if config.backward:
-                self.append_gradients(result, [data])
+                self.append_gradients(result, [x])
 
 
-class TFCast(TensorflowAPIBenchmarkBase):
+class TFActivation(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.dtypes.cast(x=data, dtype=config.dtype)
+        x = self.placeholder(
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        self.name = config.tf_api
+        result = self.layers(config.tf_api, x=x)
 
-        self.feed_list = [data]
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [data])
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(PDCast(), TFCast(), config=CastConfig())
+    test_main(PDActivation(), TFActivation(), ActivationConfig())

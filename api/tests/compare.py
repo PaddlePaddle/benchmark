@@ -14,20 +14,17 @@
 from common_import import *
 
 
-#TODO: broadcast function not support [50L, 128L, 1000L], [128L, 1000L]
-class ElementwiseConfig(APIConfig):
+class CompareConfig(APIConfig):
     def __init__(self):
-        super(ElementwiseConfig, self).__init__('elementwise')
-        self.api = 'add'
-        self.atol = 1e-3
+        super(CompareConfig, self).__init__('compare')
+        self.api = 'less_than'
         self.api_list = {
-            'add': 'add',
-            'div': 'divide',
-            'max': 'maximum',
-            'min': 'minimum',
-            'sub': 'subtract',
-            'mul': 'multiply',
-            'pow': 'pow'
+            'less_than': 'less',
+            'less_equal': 'less_equal',
+            'not_equal': 'not_equal',
+            'greater_than': 'greater',
+            'greater_equal': 'greater_equal',
+            'equal': 'equal'
         }
 
     def to_tensorflow(self):
@@ -35,7 +32,7 @@ class ElementwiseConfig(APIConfig):
         return self
 
 
-class PDElementwise(PaddleAPIBenchmarkBase):
+class PDCompare(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             x = fluid.data(
@@ -50,13 +47,8 @@ class PDElementwise(PaddleAPIBenchmarkBase):
                 lod_level=0)
             x.stop_gradient = False
             y.stop_gradient = False
-            self.name = 'elementwise_' + config.api
-            result = self.layers(
-                "elementwise_" + config.api,
-                x=x,
-                y=y,
-                axis=config.axis,
-                act=config.act)
+            self.name = config.api
+            result = self.layers(config.api, x=x, y=y)
 
             self.feed_vars = [x, y]
             self.fetch_vars = [result]
@@ -64,7 +56,7 @@ class PDElementwise(PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [x, y])
 
 
-class TFElementwise(TensorflowAPIBenchmarkBase):
+class TFCompare(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.placeholder(
             name='x', shape=config.x_shape, dtype=config.x_dtype)
@@ -80,4 +72,4 @@ class TFElementwise(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDElementwise(), TFElementwise(), ElementwiseConfig())
+    test_main(PDCompare(), TFCompare(), CompareConfig())

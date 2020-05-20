@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,7 @@
 from common_import import *
 
 
-class CastConfig(APIConfig):
-    def __init__(self):
-        super(CastConfig, self).__init__('cast')
-        self.feed_spec = {"range": [-10, 10]}
-
-
-class PDCast(PaddleAPIBenchmarkBase):
+class PDLogicalNot(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
@@ -30,7 +24,7 @@ class PDCast(PaddleAPIBenchmarkBase):
                 dtype=config.x_dtype,
                 lod_level=0)
             data.stop_gradient = False
-            result = fluid.layers.cast(x=data, dtype=config.dtype)
+            result = fluid.layers.logical_not(x=data)
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -38,11 +32,11 @@ class PDCast(PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data])
 
 
-class TFCast(TensorflowAPIBenchmarkBase):
+class TFLogicalNot(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.placeholder(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.dtypes.cast(x=data, dtype=config.dtype)
+        result = tf.math.logical_not(x=data)
 
         self.feed_list = [data]
         self.fetch_list = [result]
@@ -51,4 +45,4 @@ class TFCast(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDCast(), TFCast(), config=CastConfig())
+    test_main(PDLogicalNot(), TFLogicalNot(), config=APIConfig("logical_not"))

@@ -87,8 +87,14 @@ def generate_random_data(shape, dtype, range=None, value=None):
             if range is not None:
                 data = np.random.randint(
                     range[0], range[1], size=shape, dtype=dtype)
-        if dtype == "bool":
+        elif dtype == "bool":
             data = np.random.randint(2, size=shape, dtype=bool)
+        elif dtype == "uint8" or dtype == "uint16":
+            data = np.random.randint(0, 100, size=shape, dtype=dtype)
+            range_low = max(0, range[0])
+            if range is not None:
+                data = np.random.randint(
+                    range_low, range[1], size=shape, dtype=dtype)
         else:
             data = np.random.random(shape).astype(dtype)
             if range is not None:

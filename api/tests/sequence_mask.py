@@ -15,13 +15,17 @@
 from common_import import *
 
 
-class CastConfig(APIConfig):
+class SequenceMaskConfig(APIConfig):
     def __init__(self):
-        super(CastConfig, self).__init__('cast')
-        self.feed_spec = {"range": [-10, 10]}
+        super(SequenceMaskConfig, self).__init__('sequence_mask')
+
+    def to_tensorflow(self):
+        tf_config = self
+        tf_config.dtype = tf.dtypes.as_dtype(self.dtype)
+        return tf_config
 
 
-class PDCast(PaddleAPIBenchmarkBase):
+class PDSequenceMask(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
@@ -30,7 +34,8 @@ class PDCast(PaddleAPIBenchmarkBase):
                 dtype=config.x_dtype,
                 lod_level=0)
             data.stop_gradient = False
-            result = fluid.layers.cast(x=data, dtype=config.dtype)
+            result = fluid.layers.sequence_mask(
+                x=data, maxlen=config.maxlen, dtype=config.dtype)
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -38,11 +43,13 @@ class PDCast(PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data])
 
 
-class TFCast(TensorflowAPIBenchmarkBase):
+class TFSequenceMask(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.placeholder(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.dtypes.cast(x=data, dtype=config.dtype)
+        print(config.dtype)
+        result = tf.sequence_mask(
+            lengths=data, maxlen=config.maxlen, dtype=config.dtype)
 
         self.feed_list = [data]
         self.fetch_list = [result]
@@ -51,4 +58,4 @@ class TFCast(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDCast(), TFCast(), config=CastConfig())
+    test_main(PDSequenceMask(), TFSequenceMask(), config=SequenceMaskConfig())

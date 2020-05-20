@@ -15,16 +15,16 @@
 from common_import import *
 
 
-class PDSigmoid(PaddleAPIBenchmarkBase):
+class PDShape(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
                 name='data',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
+                shape=config.input_shape,
+                dtype=config.input_dtype,
                 lod_level=0)
             data.stop_gradient = False
-            result = fluid.layers.sigmoid(x=data)
+            result = fluid.layers.shape(input=data)
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -32,11 +32,11 @@ class PDSigmoid(PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data])
 
 
-class TFSigmoid(TensorflowAPIBenchmarkBase):
+class TFShape(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.placeholder(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.sigmoid(x=data)
+            name='data', shape=config.input_shape, dtype=config.input_dtype)
+        result = tf.shape(input=data)
 
         self.feed_list = [data]
         self.fetch_list = [result]
@@ -45,4 +45,4 @@ class TFSigmoid(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDSigmoid(), TFSigmoid(), config=APIConfig("sigmoid"))
+    test_main(PDShape(), TFShape(), config=APIConfig("shape"))
