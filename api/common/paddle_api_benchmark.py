@@ -261,9 +261,13 @@ class PaddleAPIBenchmarkBase(object):
         return outputs
 
     def _assign(self, feed_var, value):
-        out = fluid.data(
-            name=feed_var.name, shape=feed_var.shape, dtype=feed_var.dtype)
-        out.persistable = True
+        block = fluid.default_main_program().global_block()
+        if block.has_var(feed_var.name):
+            out = block.var(feed_var.name)
+        else:
+            out = fluid.data(
+                name=feed_var.name, shape=feed_var.shape, dtype=feed_var.dtype)
+            out.persistable = feed_var.persistable
 
         dtype_str = convert_dtype(feed_var.dtype)
         if dtype_str == "bool":

@@ -41,7 +41,9 @@ def copy_feed_spec(feed_spec):
 def check_shape_and_dtype(shape, dtype, value):
     assert list(shape) == list(value.shape) or list(shape) + [
         1
-    ] == list(value.shape) or list(shape) == list(value.shape) + [1]
+    ] == list(value.shape) or list(shape) == list(
+        value.shape) + [1], "Expected shape: %s. Recieved shape: %s." % (
+            shape, value.shape)
     value = value.reshape(shape)
 
     # Allow different data type
@@ -103,19 +105,23 @@ class FeederAdapter(object):
             feed_list = []
             for i in range(len(feed_vars)):
                 var = feed_vars[i]
+                value = self.__feed_list[i]
                 if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
                     raise TypeError(
                         "Feed data of non LoDTensor is not supported.")
 
+                if self.__feed_spec is not None and self.__feed_spec[i].get(
+                        "permute", None) is not None:
+                    permute_paddle2tf = self.__feed_spec[i]["permute"]
+                    permute_tf2paddle = range(len(permute_paddle2tf))
+                    for pos in range(len(permute_paddle2tf)):
+                        permute_tf2paddle[permute_paddle2tf[pos]] = pos
+                    value = np.transpose(value, permute_tf2paddle)
+
                 # Check shape and dtype
                 var_shape = var.shape
                 var_dtype = paddle_api.convert_dtype(var.dtype, to_string=True)
-                value = check_shape_and_dtype(var_shape, var_dtype,
-                                              self.__feed_list[i])
-
-                if self.__feed_spec is not None and self.__feed_spec[i].get(
-                        "permute", None) is not None:
-                    assert False
+                value = check_shape_and_dtype(var_shape, var_dtype, value)
 
                 feed_list.append(value)
             return feed_list
@@ -135,17 +141,18 @@ class FeederAdapter(object):
             feed_list = []
             for i in range(len(feed_list)):
                 var = feed_list[i]
+                value = self.__feed_list[i]
+
+                if self.__feed_spec is not None and self.__feed_spec[i].get(
+                        "permute", None) is not None:
+                    permute_paddle2tf = self.__feed_spec[i]["permute"]
+                    value = np.transpose(value, permute_paddle2tf)
 
                 # Check shape and dtype
                 var_shape = var.shape
                 var_dtype = tensorflow_api.convert_dtype(
                     var.dtype, to_string=True)
-                value = check_shape_and_dtype(var_shape, var_dtype,
-                                              self.__feed_list[i])
-
-                if self.__feed_spec is not None and self.__feed_spec[i].get(
-                        "permute", None) is not None:
-                    value = np.transpose(value, self.__feed_spec[i]["permute"])
+                value = check_shape_and_dtype(var_shape, var_dtype, value)
 
                 feed_list.append(value)
             return feed_list
