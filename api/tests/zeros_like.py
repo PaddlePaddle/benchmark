@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,25 +15,16 @@
 from common_import import *
 
 
-class OneHotConfig(APIConfig):
-    def __init__(self):
-        super(OneHotConfig, self).__init__('one_hot')
-
-    def init_from_json(self, filename, config_id=0):
-        super(OneHotConfig, self).init_from_json(filename, config_id)
-        self.feed_spec = {"range": [0, self.depth]}
-
-
-class PDOneHot(PaddleAPIBenchmarkBase):
+class PDZerosLike(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
                 name='data',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
+                shape=config.x_shape,
+                dtype=config.x_dtype,
                 lod_level=0)
             data.stop_gradient = False
-            result = fluid.one_hot(input=data, depth=config.depth)
+            result = fluid.layers.zeros_like(x=data)
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -41,17 +32,11 @@ class PDOneHot(PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data])
 
 
-class TFOneHot(TensorflowAPIBenchmarkBase):
+class TFZerosLike(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.placeholder(
-            name='data', shape=config.input_shape, dtype=config.input_dtype)
-        result = tf.one_hot(
-            indices=data,
-            depth=config.depth,
-            on_value=None,
-            off_value=None,
-            axis=None,
-            dtype=None)
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.zeros_like(input=data)
 
         self.feed_list = [data]
         self.fetch_list = [result]
@@ -60,4 +45,4 @@ class TFOneHot(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDOneHot(), TFOneHot(), config=OneHotConfig())
+    test_main(PDZerosLike(), TFZerosLike(), config=APIConfig("zeros_like"))
