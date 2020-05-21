@@ -247,7 +247,7 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
         tf_outputs = run_tensorflow(args.task, tf_obj, args, feed_list)
 
     if args.task == "accuracy":
-        if tf_config.run_tf:
+        if config.run_tf:
             utils.check_outputs(
                 pd_outputs, tf_outputs, name=pd_obj.name, atol=config.atol)
         else:

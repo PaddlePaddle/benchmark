@@ -1,0 +1,18 @@
+[{
+    "op": "split",
+    "param_info": {
+        "dim": {
+            "type": "int",
+            "value": "1"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 35L, 1500L]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "int",
+            "value": "35"
+        }
+    }
+}]

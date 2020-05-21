@@ -15,34 +15,37 @@
 from common_import import *
 
 
-class PDTopK(PaddleAPIBenchmarkBase):
+class PDL2Normalize(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
+            x = fluid.data(
+                name='x',
+                shape=config.x_shape,
+                dtype=config.x_dtype,
                 lod_level=0)
-            data.stop_gradient = False
-            value, indices = fluid.layers.topk(input=data, k=config.k)
+            x.stop_gradient = False
+            result = fluid.layers.l2_normalize(
+                x=x, axis=config.axis, epsilon=config.epsilon)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [value, indices]
+            self.feed_vars = [x]
+            self.fetch_vars = [result]
             if config.backward:
-                self.append_gradients([value, indices], [data])
+                self.append_gradients(result, [x])
 
 
-class TFTopK(TensorflowAPIBenchmarkBase):
+class TFL2Normalize(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
-        value, indices = tf.math.top_k(input=data, k=config.k)
+        x = self.placeholder(
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.math.l2_normalize(
+            x, axis=config.axis, epsilon=config.epsilon)
 
-        self.feed_list = [data]
-        self.fetch_list = [value, indices]
+        self.feed_list = [x]
+        self.fetch_list = [result]
         if config.backward:
-            self.append_gradients([value, indices], [data])
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(PDTopK(), TFTopK(), config=APIConfig("topk"))
+    test_main(
+        PDL2Normalize(), TFL2Normalize(), config=APIConfig("l2_normalize"))
