@@ -12,35 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
+from common_import import *
 
 
-class MatmulConfig(object):
-    def __init__(self, x_shape, y_shape, transpose_x=False, transpose_y=False):
-        self.x_shape = x_shape
-        self.y_shape = y_shape
-        self.transpose_x = transpose_x
-        self.transpose_y = transpose_y
-
-
-config = MatmulConfig(x_shape=[32, 128, 768], y_shape=[32, 768, 256])
-
-
-class PDMatmul(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False, dtype=None):
-        import paddle.fluid as fluid
-
-        self.name = "matmul"
+class PDMatmul(PaddleAPIBenchmarkBase):
+    def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             x = fluid.data(
-                name='x', shape=config.x_shape, dtype='float32', lod_level=0)
+                name='x',
+                shape=config.x_shape,
+                dtype=config.x_dtype,
+                lod_level=0)
             y = fluid.data(
-                name='y', shape=config.y_shape, dtype='float32', lod_level=0)
+                name='y',
+                shape=config.y_shape,
+                dtype=config.y_dtype,
+                lod_level=0)
             x.stop_gradient = False
             y.stop_gradient = False
             result = fluid.layers.matmul(
@@ -48,23 +35,20 @@ class PDMatmul(paddle_api.PaddleAPIBenchmarkBase):
                 y=y,
                 transpose_x=config.transpose_x,
                 transpose_y=config.transpose_y,
-                alpha=1.0)
+                alpha=config.alpha)
 
             self.feed_vars = [x, y]
             self.fetch_vars = [result]
-            if backward:
+            if config.backward:
                 self.append_gradients(result, [x, y])
 
 
-class TFMatmul(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False):
-        import tensorflow as tf
-
-        self.name = "matmul"
-        self.allow_growth = True
-
-        x = tf.placeholder(name='x', shape=config.x_shape, dtype=tf.float32)
-        y = tf.placeholder(name='y', shape=config.y_shape, dtype=tf.float32)
+class TFMatmul(TensorflowAPIBenchmarkBase):
+    def build_graph(self, config):
+        x = self.placeholder(
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.placeholder(
+            name='y', shape=config.y_shape, dtype=config.y_dtype)
         result = tf.matmul(
             a=x,
             b=y,
@@ -77,9 +61,9 @@ class TFMatmul(tensorflow_api.TensorflowAPIBenchmarkBase):
 
         self.feed_list = [x, y]
         self.fetch_list = [result]
-        if backward:
+        if config.backward:
             self.append_gradients(result, [x, y])
 
 
 if __name__ == '__main__':
-    test_main(PDMatmul(), TFMatmul(), feed_spec=None)
+    test_main(PDMatmul(), TFMatmul(), config=APIConfig("matmul"))
