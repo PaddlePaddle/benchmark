@@ -166,8 +166,11 @@ class APIConfig(object):
         return self
 
     def to_tensorflow(self):
+        assert self.__framework == "paddle"
         tf_config = copy.deepcopy(self)
         tf_config.__framework = "tensorflow"
+        if hasattr(self, "api_list"):
+            tf_config.api_name = self.api_list[self.api_name]
         if hasattr(tf_config, "alias_config"):
             tf_config.alias_config.to_tensorflow()
         return tf_config

@@ -18,7 +18,7 @@ from common_import import *
 class ActivationConfig(APIConfig):
     def __init__(self):
         super(ActivationConfig, self).__init__('activation')
-        self.api = 'cos'
+        self.api_name = 'cos'
         self.api_list = {
             'cos': 'cos',
             'exp': 'exp',
@@ -28,35 +28,24 @@ class ActivationConfig(APIConfig):
             'sigmoid': 'sigmoid',
         }
 
-    def to_tensorflow(self):
-        self.tf_api = self.api_list[self.api]
-        return self
-
 
 class PDActivation(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            x.stop_gradient = False
-            self.name = config.api
-            result = self.layers(config.api, x=x)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        self.name = config.api_name
+        result = self.layers(config.api_name, x=x)
 
-            self.feed_vars = [x]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [x])
+        self.feed_vars = [x]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 class TFActivation(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
-        self.name = config.tf_api
-        result = self.layers(config.tf_api, x=x)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        self.name = config.api_name
+        result = self.layers(config.api_name, x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -65,4 +54,4 @@ class TFActivation(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDActivation(), TFActivation(), ActivationConfig())
+    test_main(PDActivation(), TFActivation(), config=ActivationConfig())

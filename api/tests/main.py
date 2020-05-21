@@ -118,8 +118,8 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
                 config.api = args.api_name
                 test_main_without_json(pd_obj, tf_obj, config)
             elif hasattr(config, "api_list"):
-                for api in config.api_list.keys():
-                    config.api = api
+                for api_name in config.api_list.keys():
+                    config.api_name = api_name
                     test_main_without_json(pd_obj, tf_obj, config)
             else:
                 test_main_without_json(pd_obj, tf_obj, config)
@@ -130,11 +130,11 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
             for config_id in range(0, num_configs):
                 config.init_from_json(args.json_file, config_id)
                 if args.api_name != None:
-                    config.api = args.api_name
+                    config.api_name = args.api_name
                     test_main_without_json(pd_obj, tf_obj, config)
                 elif hasattr(config, "api_list"):
-                    for api in config.api_list.keys():
-                        config.api = api
+                    for api_name in config.api_list.keys():
+                        config.api_name = api_name
                         test_main_without_json(pd_obj, tf_obj, config)
                 else:
                     test_main_without_json(pd_obj, tf_obj, config)
