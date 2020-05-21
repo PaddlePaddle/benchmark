@@ -19,6 +19,7 @@ class ReduceConfig(APIConfig):
     def __init__(self):
         super(ReduceConfig, self).__init__('reduce')
         self.api = 'mean'
+        self.atol = 1e-5
         self.api_list = {'mean': 'mean', 'sum': 'sum', 'prod': 'prod'}
 
     def to_tensorflow(self):

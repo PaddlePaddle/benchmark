@@ -11,44 +11,32 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from common_import import *
 
 
-class Activation2Config(APIConfig):
-    def __init__(self):
-        super(Activation2Config, self).__init__('activation2')
-        self.api = 'relu'
-        self.api_list = {'relu': 'relu', 'softsign': 'softsign'}
-
-    def to_tensorflow(self):
-        self.tf_api = self.api_list[self.api]
-        return self
-
-
-class PDActivation2(PaddleAPIBenchmarkBase):
+class PDZerosLike(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x',
+            data = fluid.data(
+                name='data',
                 shape=config.x_shape,
                 dtype=config.x_dtype,
                 lod_level=0)
-            x.stop_gradient = False
-            self.name = config.api
-            result = self.layers(config.api, x=x)
+            data.stop_gradient = False
+            result = fluid.layers.zeros_like(x=data)
 
-            self.feed_vars = [x]
+            self.feed_vars = [data]
             self.fetch_vars = [result]
             if config.backward:
-                self.append_gradients(result, [x])
+                self.append_gradients(result, [data])
 
 
-class TFActivation2(TensorflowAPIBenchmarkBase):
+class TFZerosLike(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
-        self.name = config.tf_api
-        result = self.layers(config.tf_api, "nn", features=data)
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.zeros_like(input=data)
 
         self.feed_list = [data]
         self.fetch_list = [result]
@@ -57,4 +45,4 @@ class TFActivation2(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDActivation2(), TFActivation2(), Activation2Config())
+    test_main(PDZerosLike(), TFZerosLike(), config=APIConfig("zeros_like"))
