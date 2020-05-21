@@ -134,23 +134,6 @@ def convert_dtype(dtype, to_string=True):
         raise ValueError("Unsupported dtype %s" % dtype)
 
 
-def import_tf_module(api_name):
-    try:
-        module = importlib.import_module("tensorflow")
-        return getattr(module, api_name)
-    except Exception:
-        return None
-
-
-def import_math_module(api_name):
-    try:
-        module_name = "tensorflow.math"
-        module = importlib.import_module(module_name)
-        return getattr(module, api_name)
-    except Exception:
-        return None
-
-
 @six.add_metaclass(abc.ABCMeta)
 class TensorflowAPIBenchmarkBase(object):
     def __init__(self):
@@ -202,19 +185,27 @@ class TensorflowAPIBenchmarkBase(object):
             self._feed_dict[var] = feed_value
         return var
 
-    def layers(self, name, module=None, **kwargs):
-        func = import_tf_module(name)
-        if func is None:
-            func = import_math_module(name)
-        if func is None and module is not None:
+    def layers(self, api_name, module_name=None, **kwargs):
+        def _import_func(tf_module_name, api_name):
             try:
-                module_name = "tensorflow." + module
-                tf_module = importlib.import_module(module_name)
-                func = getattr(tf_module, name)
+                module = importlib.import_module(tf_module_name)
+                func = getattr(module, api_name)
+                print("Successly import %s.%s" % (tf_module_name, api_name))
+                return func
             except Exception:
-                print("Cannot immport %s API from %s module." %
-                      (name, module_name))
-        assert func is not None, "Need to set Tensorflow module to import %s API." % name
+                print("Failed to import %s.%s" % (tf_module_name, api_name))
+            return None
+
+        tf_module_names = ["tensorflow", "tensorflow.math", "tensorflow.nn"]
+        if module_name is not None and module_name not in tf_module_names:
+            tf_module_names.append(module_name)
+
+        for tf_module_name in tf_module_names:
+            func = _import_func(tf_module_name, api_name)
+            if func is not None:
+                break
+
+        assert func is not None, "Need to specify module_name to import %s." % api_name
         result = func(**kwargs)
         return result
 
