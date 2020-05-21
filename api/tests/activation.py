@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from common_import import *
 
 
@@ -19,11 +20,12 @@ class ActivationConfig(APIConfig):
         super(ActivationConfig, self).__init__('activation')
         self.api = 'cos'
         self.api_list = {
-            'abs': 'abs',
             'cos': 'cos',
             'exp': 'exp',
             'floor': 'floor',
-            'sigmoid': 'sigmoid'
+            'square': 'square',
+            'tanh': 'tanh',
+            'sigmoid': 'sigmoid',
         }
 
     def to_tensorflow(self):
