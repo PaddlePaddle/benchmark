@@ -1,5 +1,5 @@
 [{
-    "op": "reduce_mean",
+    "op": "reduce",
     "param_info": {
         "input": {
             "type": "Variable",
