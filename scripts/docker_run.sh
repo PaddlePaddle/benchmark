@@ -45,7 +45,7 @@ paddle_repo="https://github.com/PaddlePaddle/Paddle.git"
 export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
 export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
 
-
+# Construct the paddle version according to the commit date
 function construnct_version(){
     cd ${benchmark_work_path}/Paddle
     image_commit_id=$(git log|head -n1|awk '{print $2}')
@@ -67,7 +67,7 @@ function construnct_version(){
     echo "IMAGE_NAME is: "${IMAGE_NAME}
 }
 
-#build paddle
+#build paddle whl and put it to ${all_path}/images
 function build_paddle(){
     construnct_version
     #double check1: In some case, docker would hang while compiling paddle, so to avoid re-compilem, need this
@@ -155,8 +155,10 @@ EOF
 
 }
 
+# create containers based on mirror ${RUN_IMAGE_NAME} and run jobs
 function run_models(){
     construnct_version
+    # Determine if the whl exists
     if [[ -s ${all_path}/images/${IMAGE_NAME} ]]; then echo "image found"; else exit 1; fi
     run_cmd="cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/scripts;
         bash auto_run_paddle.sh -m $model \
@@ -201,6 +203,7 @@ function run_models(){
     fi
 }
 
+#Send alarm email
 function send_email(){
     # if [[ ${job_type} == 2 && -e ${all_path}/logs/${PADDLE_VERSION}/mail.html ]]; then
     if [[ -e ${all_path}/logs/${PADDLE_VERSION}/${implement_type}/mail.html ]]; then
@@ -208,6 +211,7 @@ function send_email(){
     fi
 }
 
+# Compressed training log and storage
 function zip_log(){
     echo $(pwd)
     if [[ -d ${all_path}/logs/${PADDLE_VERSION} ]]; then
