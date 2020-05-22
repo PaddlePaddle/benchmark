@@ -67,7 +67,7 @@ def parse_args():
         '--profiler',
         type=str,
         default="none",
-        help='Choose which profiler to use [\"none\"|\"Default\"|\"OpDetail\"|\"AllOpDetail\"|\"nvprof\"]'
+        help='Choose which profiler to use [\"none\"|\"Default\"|\"OpDetail\"|\"AllOpDetail\"|\"nvprof\"|\"pyprof\"]'
     )
     parser.add_argument(
         '--backward',
@@ -137,13 +137,12 @@ def run_tensorflow(task, obj, args, feed_list=None):
             feed[obj.feed_list[i]] = feed_list[i]
 
     if task == "speed":
-        profile = True if args.profiler != "none" else False
         obj.run(use_gpu=args.use_gpu,
                 feed=feed,
                 repeat=args.repeat,
                 log_level=args.log_level,
                 check_output=args.check_output,
-                profile=profile)
+                profiler=args.profiler)
         return None
     elif task == "accuracy":
         if feed is None:
