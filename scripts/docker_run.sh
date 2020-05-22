@@ -157,7 +157,7 @@ EOF
 
 function run_models(){
     construnct_version
-    if [[ -s ${all_path}/images/${IMAGE_NAME} ]]; then echo "image found" else exit 1; fi
+    if [[ -s ${all_path}/images/${IMAGE_NAME} ]]; then echo "image found"; else exit 1; fi
     run_cmd="cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/scripts;
         bash auto_run_paddle.sh -m $model \
         -c ${cuda_version} \
