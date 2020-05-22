@@ -26,6 +26,7 @@ class ActivationConfig(APIConfig):
             'square': 'square',
             'tanh': 'tanh',
             'sigmoid': 'sigmoid',
+            'sqrt': 'sqrt'
         }
 
 

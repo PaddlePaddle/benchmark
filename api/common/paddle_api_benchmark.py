@@ -20,6 +20,7 @@ import traceback
 import contextlib
 import importlib
 import numpy as np
+import cProfile, pstats, StringIO
 import utils
 
 import api_param
@@ -45,6 +46,16 @@ def profile_context(name, use_gpu, profiler):
         output_file = name + ".nvprof"
         with fluid.profiler.cuda_profiler(output_file, 'kvp'):
             yield
+    elif profiler == "pyprof":
+        profiler_handle = cProfile.Profile()
+        profiler_handle.enable()
+        yield
+        profiler_handle.disable()
+        # profiler_handle.dump_stats("./outputs/" + name + ".pyprof")
+        s = StringIO.StringIO()
+        ps = pstats.Stats(profiler_handle, stream=s).sort_stats("cumulative")
+        ps.print_stats()
+        print(s.getvalue())
     else:
         yield
 

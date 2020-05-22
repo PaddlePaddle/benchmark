@@ -65,7 +65,7 @@ def parse_args():
         '--profiler',
         type=str,
         default="none",
-        help='Choose which profiler to use [\"none\"|\"Default\"|\"OpDetail\"|\"AllOpDetail\"|\"nvprof\"]'
+        help='Choose which profiler to use [\"none\"|\"Default\"|\"OpDetail\"|\"AllOpDetail\"|\"nvprof\"|\"pyprof\"]'
     )
     parser.add_argument(
         '--backward',

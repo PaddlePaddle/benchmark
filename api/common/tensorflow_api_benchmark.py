@@ -20,6 +20,7 @@ import time
 import abc, six
 import importlib
 import numpy as np
+import cProfile, pstats, StringIO
 import utils
 import api_param
 import feeder
@@ -36,18 +37,22 @@ except Exception as e:
 
 
 class Profiler(object):
-    def __init__(self, name, sess, profile):
+    def __init__(self, name, sess, profiler):
         self.name = name
         self.sess = sess
-        self.profile = profile
-        self.profiler = None
+        self.profiler = profiler
+        self.profiler_handle = None
         self.run_options = None
         self.run_metadata = None
         self.generate_timeline = False
 
     def __enter__(self):
-        if self.profile:
-            self.profiler = model_analyzer.Profiler(graph=self.sess.graph)
+        if self.profiler == "pyprof":
+            self.profiler_handle = cProfile.Profile()
+            self.profiler_handle.enable()
+        elif self.profiler != "none":
+            self.profiler_handle = model_analyzer.Profiler(
+                graph=self.sess.graph)
             if tf.__version__ < "1.15.0":
                 self.run_options = tf.RunOptions(
                     trace_level=tf.RunOptions.FULL_TRACE)
@@ -59,9 +64,10 @@ class Profiler(object):
         return self
 
     def add_step(self, step):
-        if self.profile:
+        if self.profiler != "none" and self.profiler != "pyprof":
             # Update profiler
-            self.profiler.add_step(step=step, run_meta=self.run_metadata)
+            self.profiler_handle.add_step(
+                step=step, run_meta=self.run_metadata)
             if self.generate_timeline:
                 # For timeline
                 tl = timeline.Timeline(self.run_metadata.step_stats)
@@ -70,11 +76,19 @@ class Profiler(object):
                 trace_file.write(chrome_trace)
 
     def __exit__(self, exception_type, exception_value, traceback):
-        if self.profile:
+        if self.profiler == "pyprof":
+            self.profiler_handle.disable()
+            # self.profiler_handle.dump_stats("./outputs/" + self.name + ".pyprof")
+            s = StringIO.StringIO()
+            ps = pstats.Stats(
+                self.profiler_handle, stream=s).sort_stats("cumulative")
+            ps.print_stats()
+            print(s.getvalue())
+        elif self.profiler != "none":
             # Generate profiling result
             profile_op_builder = option_builder.ProfileOptionBuilder().select(
                 ['micros', 'occurrence']).order_by('micros').with_max_depth(5)
-            self.profiler.profile_operations(profile_op_builder.build())
+            self.profiler_handle.profile_operations(profile_op_builder.build())
         return self
 
 
@@ -246,7 +260,7 @@ class TensorflowAPIBenchmarkBase(object):
                  repeat=1,
                  log_level=0,
                  check_output=False,
-                 profile=False):
+                 profiler="none"):
         sess = self._init_session(use_gpu)
 
         # tf.debugging.set_log_device_placement(True)
@@ -273,7 +287,7 @@ class TensorflowAPIBenchmarkBase(object):
         runtimes = []
         fetches = []
         outputs = None
-        with Profiler(self.name, sess, profile) as prof:
+        with Profiler(self.name, sess, profiler) as prof:
             for i in range(repeat):
                 begin = time.time()
                 outputs = _run_main_iter(
@@ -344,7 +358,6 @@ class TensorflowAPIBenchmarkBase(object):
         else:
             feed = None
 
-        profile = True if args.profiler != "none" else False
         self.allow_growth = False if args.task == "speed" else True
         outputs = self.run_impl(
             use_gpu=args.use_gpu,
@@ -352,7 +365,7 @@ class TensorflowAPIBenchmarkBase(object):
             repeat=args.repeat,
             log_level=args.log_level,
             check_output=args.check_output,
-            profile=profile)
+            profiler=args.profiler)
         return outputs
 
     def _init_session(self, use_gpu):
