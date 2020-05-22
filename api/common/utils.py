@@ -18,7 +18,32 @@ import traceback
 import numpy as np
 import json
 import collections
+import subprocess
 import special_op_list
+
+
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Unsupported value encountered.')
+
+
+def run_command(command, shell=True):
+    print("run command: %s" % command)
+    p = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell)
+
+    exit_code = None
+    stdout = ''
+    while exit_code is None or line:
+        exit_code = p.poll()
+        line = p.stdout.readline().decode('utf-8')
+        stdout += line
+
+    return stdout, exit_code
 
 
 def compare(output1, output2, atol):
@@ -98,39 +123,35 @@ def print_benchmark_result(result, log_level=0):
         raise TypeError("Input result should be a dict.")
 
     runtimes = result.get("total", None)
+    gpu_time = result.get("gpu_time", None)
     stable = result.get("stable", None)
     diff = result.get("diff", None)
 
-    for i in range(len(runtimes)):
+    repeat = len(runtimes)
+    for i in range(repeat):
         runtimes[i] *= 1000
 
     sorted_runtimes = np.sort(runtimes)
-    if len(sorted_runtimes) <= 2:
-        begin = 0
-        end = len(sorted_runtimes)
-    elif len(sorted_runtimes) <= 10:
-        begin = 1
-        end = len(sorted_runtimes) - 1
-    elif len(sorted_runtimes) <= 20:
-        begin = 5
-        end = len(sorted_runtimes) - 5
+    if repeat <= 2:
+        num_excepts = 0
+    elif repeat <= 10:
+        num_excepts = 1
+    elif repeat <= 20:
+        num_excepts = 5
     else:
-        begin = 10
-        end = len(sorted_runtimes) - 10
+        num_excepts = 10
+    begin = num_excepts
+    end = repeat - num_excepts
     avg_runtime = np.average(sorted_runtimes[begin:end])
 
+    # print all times
+    seg_range = [0, 0]
     if log_level == 0:
-        seg_0 = 0
-        seg_1 = len(runtimes)
-    elif log_level == 1 and len(runtimes) > 20:
-        seg_0 = 10
-        seg_1 = len(runtimes) - 10
-    else:
-        # print all times
-        seg_0 = 0
-        seg_1 = 0
+        seg_range = [0, repeat]
+    elif log_level == 1 and repeat > 20:
+        seg_range = [10, repeat - 10]
     for i in range(len(runtimes)):
-        if i < seg_0 or i >= seg_1:
+        if i < seg_range[0] or i >= seg_range[1]:
             print("Iter {0}, Runtime: {1}".format("%4d" % i, "%.5f ms" %
                                                   runtimes[i]))
 
@@ -148,4 +169,6 @@ def print_benchmark_result(result, log_level=0):
     status["speed"]["begin"] = begin
     status["speed"]["end"] = end
     status["speed"]["total"] = avg_runtime
+    if gpu_time is not None:
+        status["speed"]["gpu_time"] = gpu_time / repeat
     print(json.dumps(status))

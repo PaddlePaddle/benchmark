@@ -259,8 +259,7 @@ class TensorflowAPIBenchmarkBase(object):
             "total": runtimes
         }
         stats["device"] = "GPU" if use_gpu else "CPU"
-        utils.print_benchmark_result(stats, log_level=log_level)
-        return outputs
+        return outputs, stats
 
     def _init_session(self, use_gpu):
         if tf.__version__ >= "1.15.0":
