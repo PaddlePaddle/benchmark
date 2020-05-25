@@ -27,15 +27,6 @@ from common import utils
 from common import api_param
 
 
-def str2bool(v):
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Unsupported value encountered.')
-
-
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -60,25 +51,30 @@ def parse_args():
     )
     parser.add_argument(
         '--check_output',
-        type=str2bool,
+        type=utils.str2bool,
         default=True,
         help='Whether checking the consistency of outputs [True|False]')
     parser.add_argument(
         '--profiler',
         type=str,
         default="none",
-        help='Choose which profiler to use [\"none\"|\"Default\"|\"OpDetail\"|\"AllOpDetail\"|\"nvprof\"|\"pyprof\"]'
+        help='Choose which profiler to use [\"none\"|\"Default\"|\"OpDetail\"|\"AllOpDetail\"|\"pyprof\"]'
     )
     parser.add_argument(
         '--backward',
-        type=str2bool,
+        type=utils.str2bool,
         default=False,
         help='Whether appending grad ops [True|False]')
     parser.add_argument(
         '--use_gpu',
-        type=str2bool,
+        type=utils.str2bool,
         default=False,
         help='Whether using gpu [True|False]')
+    parser.add_argument(
+        '--gpu_time',
+        type=float,
+        default=0,
+        help='Total GPU kernel time parsed from nvprof')
     parser.add_argument(
         '--repeat', type=int, default=1, help='Iterations of Repeat running')
     parser.add_argument(
@@ -111,20 +107,19 @@ def run_paddle(task, obj, args, feed_list=None):
             feed[obj.feed_vars[i].name] = feed_list[i]
 
     if task == "speed":
-        obj.run_with_executor(
+        outputs, stats = obj.run_with_executor(
             use_gpu=args.use_gpu,
             feed=feed,
             repeat=args.repeat,
-            log_level=args.log_level,
             check_output=args.check_output,
             profiler=args.profiler)
-        return None
+        return outputs, stats
     elif task == "accuracy":
         if feed is None:
             raise ValueError("feed should not be None when checking accuracy.")
-        outputs = obj.run_with_executor(
+        outputs, stats = obj.run_with_executor(
             use_gpu=args.use_gpu, feed=feed, check_output=False)
-        return outputs
+        return outputs, stats
 
 
 def run_tensorflow(task, obj, args, feed_list=None):
@@ -137,18 +132,19 @@ def run_tensorflow(task, obj, args, feed_list=None):
             feed[obj.feed_list[i]] = feed_list[i]
 
     if task == "speed":
-        obj.run(use_gpu=args.use_gpu,
-                feed=feed,
-                repeat=args.repeat,
-                log_level=args.log_level,
-                check_output=args.check_output,
-                profiler=args.profiler)
-        return None
+        outputs, stats = obj.run(use_gpu=args.use_gpu,
+                                 feed=feed,
+                                 repeat=args.repeat,
+                                 check_output=args.check_output,
+                                 profiler=args.profiler)
+        return outputs, stats
     elif task == "accuracy":
         if feed is None:
             raise ValueError("feed should not be None when checking accuracy.")
-        outputs = obj.run(use_gpu=args.use_gpu, feed=feed, check_output=False)
-        return outputs
+        outputs, stats = obj.run(use_gpu=args.use_gpu,
+                                 feed=feed,
+                                 check_output=False)
+        return outputs, stats
 
 
 def copy_feed_spec(config=None):
@@ -232,7 +228,10 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
         pd_obj.create_program()
         pd_obj.build_program(config=config)
         feed_list = feeder.feed_paddle(pd_obj, feed_spec=feed_spec)
-        pd_outputs = run_paddle(args.task, pd_obj, args, feed_list)
+        pd_outputs, pd_stats = run_paddle(args.task, pd_obj, args, feed_list)
+        if args.task == "speed":
+            pd_stats["gpu_time"] = args.gpu_time
+            utils.print_benchmark_result(pd_stats, log_level=args.log_level)
 
     if _is_tensorflow_enabled(args, config):
         assert tf_obj is not None, "TensorFlow object is None."
@@ -243,7 +242,11 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
         tf_obj.build_graph(config=tf_config)
         feed_list = feeder.feed_tensorflow(
             tf_obj, feed_list, feed_spec=feed_spec)
-        tf_outputs = run_tensorflow(args.task, tf_obj, args, feed_list)
+        tf_outputs, tf_stats = run_tensorflow(args.task, tf_obj, args,
+                                              feed_list)
+        if args.task == "speed":
+            tf_stats["gpu_time"] = args.gpu_time
+            utils.print_benchmark_result(tf_stats, log_level=args.log_level)
 
     if args.task == "accuracy":
         if tf_config.run_tf:

@@ -39,10 +39,6 @@ def profile_context(name, use_gpu, profiler):
         with fluid.profiler.profiler(
                 profile_type, 'total', output_file, tracer_option=profiler):
             yield
-    elif profiler == "nvprof" and use_gpu:
-        output_file = name + ".nvprof"
-        with fluid.profiler.cuda_profiler(output_file, 'kvp'):
-            yield
     elif profiler == "pyprof":
         profiler_handle = cProfile.Profile()
         profiler_handle.enable()
@@ -129,7 +125,6 @@ class PaddleAPIBenchmarkBase(object):
                           use_gpu,
                           feed=None,
                           repeat=1,
-                          log_level=0,
                           check_output=False,
                           profiler="none"):
         self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
@@ -167,8 +162,7 @@ class PaddleAPIBenchmarkBase(object):
         stats["version"] = paddle.__version__
         stats["name"] = self.name
         stats["device"] = "GPU" if use_gpu else "CPU"
-        utils.print_benchmark_result(stats, log_level=log_level)
-        return outputs
+        return outputs, stats
 
     def _init_feed_tensor(self, feed):
         for var in self.feed_vars:
