@@ -218,7 +218,7 @@ class PaddleAPIBenchmarkBase(object):
                 "Argument \"config\" must be set to an instance of APIConfig.")
 
         if feeder_adapter is None or feeder_adapter.framework != "paddle":
-            self._need_feed = use_feed_fetch or config.name == "feed"
+            self._need_feed = config.name == "feed"
             self._need_fetch = use_feed_fetch or config.name == "fetch"
             self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
             self._feed_dict = {}

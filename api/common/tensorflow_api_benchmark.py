@@ -323,7 +323,7 @@ class TensorflowAPIBenchmarkBase(object):
             assert use_feed_fetch, "Argument use_feed_fetch must be True when feeder_adapter is initialized by paddle."
 
         if feeder_adapter is None or feeder_adapter.framework != "tensorflow":
-            self._need_feed = use_feed_fetch or config.name == "feed"
+            self._need_feed = config.name == "feed"
             self._need_fetch = use_feed_fetch or config.name == "fetch"
             self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
             self._feed_dict = {}
