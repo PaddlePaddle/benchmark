@@ -42,6 +42,8 @@ class PDArgsort(PaddleAPIBenchmarkBase):
 
             self.feed_vars = [input]
             self.fetch_vars = [indices]
+            if config.backward:
+                self.append_gradients(result, [input])
 
 
 class TFArgsort(TensorflowAPIBenchmarkBase):
@@ -56,6 +58,8 @@ class TFArgsort(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [input]
         self.fetch_list = [indices]
+        if config.backward:
+            self.append_gradients(result, [input])
 
 
 if __name__ == '__main__':
