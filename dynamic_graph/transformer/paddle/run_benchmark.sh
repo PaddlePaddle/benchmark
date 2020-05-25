@@ -61,7 +61,7 @@ function _train(){
     if [ ${num_gpu_devices} -eq 1 ]; then
         train_cmd="python -u train.py "${train_cmd}
     else
-        rm -r ./mylog
+        rm -rf ./mylog
         train_cmd="python -m paddle.distributed.launch --started_port 8999 --selected_gpus=$CUDA_VISIBLE_DEVICES  --log_dir ./mylog train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
