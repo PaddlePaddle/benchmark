@@ -23,27 +23,20 @@ class CumsumConfig(APIConfig):
 
 class PDCumsum(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            x.stop_gradient = False
-            result = fluid.layers.cumsum(
-                x=x,
-                axis=config.axis,
-                exclusive=config.exclusive,
-                reverse=config.reverse)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = fluid.layers.cumsum(
+            x=x,
+            axis=config.axis,
+            exclusive=config.exclusive,
+            reverse=config.reverse)
 
-            self.feed_vars = [x]
-            self.fetch_vars = [result]
+        self.feed_vars = [x]
+        self.fetch_vars = [result]
 
 
 class TFCumsum(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.cumsum(
             x=x,
             axis=config.axis,
