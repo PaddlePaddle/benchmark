@@ -33,8 +33,17 @@ class Conv2dConfig(APIConfig):
             self.num_channels = self.input_shape[1]
         elif self.data_format == "NHWC":
             self.num_channels = self.input_shape[4]
+        if self.input_shape[0] == -1:
+            self.input_shape[0] = 64 
+        if isinstance(self.filter_size, int):
+            self.filter_size = [self.filter_size, self.filter_size]
+        if self.num_channels % self.groups != 0:
+            raise ValueError(
+                "the channel of input must be divisible by groups,"
+                "received: the channel of input is {}, the shape of input is {}"
+                ", the groups is {}".format(self.num_channels, self.input_shape, self.groups))
         self.filter_shape = [
-            self.num_filters, self.num_channels, self.filter_size[0],
+            self.num_filters, self.num_channels // self.groups, self.filter_size[0],
             self.filter_size[1]
         ]
 
@@ -50,6 +59,8 @@ class Conv2dConfig(APIConfig):
     def _convert_padding(self, padding):
         if isinstance(padding, str):
             return padding
+        if isinstance(padding, int):
+            padding = [padding, padding]
 
         assert isinstance(padding, list)
         pad_top = padding[0] if len(padding) == 2 else padding[0]

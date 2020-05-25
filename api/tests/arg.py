@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,11 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from common_import import *
 
 
-class PDSquare(PaddleAPIBenchmarkBase):
+class ArgConfig(APIConfig):
+    def __init__(self):
+        super(ArgConfig, self).__init__('arg')
+        self.api = 'max'
+        self.api_list = {'max': 'argmax', 'min': 'argmin'}
+
+    def to_tensorflow(self):
+        self.tf_api = self.api_list[self.api]
+        return self
+
+
+class PDArg(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             x = fluid.data(
@@ -24,7 +34,11 @@ class PDSquare(PaddleAPIBenchmarkBase):
                 dtype=config.x_dtype,
                 lod_level=0)
             x.stop_gradient = False
-            result = fluid.layers.square(x=x)
+            self.name = 'arg' + config.api
+            result = self.layers(
+                "arg" + config.api,
+                x=x,
+                axis=config.axis, )
 
             self.feed_vars = [x]
             self.fetch_vars = [result]
@@ -32,11 +46,12 @@ class PDSquare(PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [x])
 
 
-class TFSquare(TensorflowAPIBenchmarkBase):
+class TFArg(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.placeholder(
             name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.square(x=x)
+        self.name = config.tf_api
+        result = self.layers(config.tf_api, input=x, axis=config.axis)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -45,4 +60,4 @@ class TFSquare(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDSquare(), TFSquare(), config=APIConfig("square"))
+    test_main(PDArg(), TFArg(), ArgConfig())

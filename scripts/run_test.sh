@@ -28,7 +28,8 @@ BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/.." && pwd )"
 echo ${BENCHMARK_ROOT}
 
 function prepare_tf_env(){
-    pip install tensorflow-gpu==1.15 pre-commit==1.21 pylint==1.9.5 pytest==4.6.9
+    pip install tensorflow-gpu==2.0 pre-commit==1.21 pylint==1.9.5 pytest==4.6.9
+    python -c "import tensorflow as tf; print(tf.__version__)"
     apt-get update
     apt-get install -y git
 }
@@ -52,12 +53,12 @@ function fetch_upstream_master_if_not_exist() {
 function run_api(){
     fetch_upstream_master_if_not_exist
     cd ${BENCHMARK_ROOT}/api/tests
-    HAS_MODIFIED_API_TEST=`git diff --name-only upstream/$BRANCH | grep "api/tests" || true`
-    API_NAMES=(abs fc)
+    HAS_MODIFIED_API_TEST=`git diff --name-status upstream/$BRANCH | awk '$1!="D" {print $2}' | grep "api/tests.*.py$" || true`
+    API_NAMES=(abs activation elementwise fc)
     if [ "${HAS_MODIFIED_API_TEST}" != "" ] ; then
         for api in ${HAS_MODIFIED_API_TEST[@]}; do
             new_name=`echo $api |awk -F "/" '{print $NF}' |awk -F "." '{print $NR}'`
-            if [[ "$new_name" != "main" && "$new_name" != "feeder" && "$new_name" != "common_ops" ]]; then
+            if [[ "$new_name" != "main" && "$new_name" != "feeder" && "$new_name" != "common_ops" && "$new_name" != "launch" ]]; then
                 need_append="yes"
                 for name in ${API_NAMES[@]}; do
                     if [ "${name}" == "${new_name}" ]; then
@@ -111,14 +112,31 @@ function check_style(){
     	trap 0
 }
 
+function build_and_test(){
+    apt_mirror='s#http://archive.ubuntu.com/ubuntu#mirror://mirrors.ubuntu.com/mirrors.txt#g'
+    PADDLE_DEV_NAME='hub.baidubce.com/paddlepaddle/paddle:latest-gpu-cuda10.0-cudnn7'
+    docker pull ${PADDLE_DEV_NAME}
+    nvidia-docker run --net=host $SHM -i --rm -v $PWD:/benchmark -w /benchmark \
+        -v ${GIT_PATH}:${GIT_PATH} \
+        -e "APT_MIRROR=${apt_mirror}" \
+        -e "http_proxy=${http_proxy}" \
+        -e "https_proxy=${https_proxy}" \
+        -e "GITHUB_API_TOKEN=${github_api_token}" \
+        -e "BRANCH=${branch}" \
+        ${PADDLE_DEV_NAME} \
+        bash scripts/run_test.sh run_api_test
+}
 
 function main(){
     local CMD=$1
-    prepare_tf_env
-    check_style
     case $CMD in
       run_api_test)
+        prepare_tf_env
+        check_style
         run_api
+        ;;
+      build_test)
+        build_and_test
         ;;
 	*)
         echo "Sorry, $CMD not recognized."

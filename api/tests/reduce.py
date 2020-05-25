@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,16 +15,33 @@
 from common_import import *
 
 
-class PDSigmoid(PaddleAPIBenchmarkBase):
+class ReduceConfig(APIConfig):
+    def __init__(self):
+        super(ReduceConfig, self).__init__('reduce')
+        self.api = 'mean'
+        self.atol = 1e-5
+        self.api_list = {'mean': 'mean', 'sum': 'sum', 'prod': 'prod'}
+
+    def to_tensorflow(self):
+        self.tf_api = self.api_list[self.api]
+        return self
+
+
+class PDReduce(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
-                name='data',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
+                name='input',
+                shape=config.input_shape,
+                dtype=config.input_dtype,
                 lod_level=0)
             data.stop_gradient = False
-            result = fluid.layers.sigmoid(x=data)
+            self.name = "reduce_" + config.api
+            result = self.layers(
+                "reduce_" + config.api,
+                input=data,
+                dim=config.dim,
+                keep_dim=config.keep_dim)
 
             self.feed_vars = [data]
             self.fetch_vars = [result]
@@ -32,11 +49,16 @@ class PDSigmoid(PaddleAPIBenchmarkBase):
                 self.append_gradients(result, [data])
 
 
-class TFSigmoid(TensorflowAPIBenchmarkBase):
+class TFReduce(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.placeholder(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.sigmoid(x=data)
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        self.name = "reduce_" + config.tf_api
+        result = self.layers(
+            "reduce_" + config.tf_api,
+            input_tensor=data,
+            axis=config.dim,
+            keepdims=config.keep_dim)
 
         self.feed_list = [data]
         self.fetch_list = [result]
@@ -45,4 +67,4 @@ class TFSigmoid(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDSigmoid(), TFSigmoid(), config=APIConfig("sigmoid"))
+    test_main(PDReduce(), TFReduce(), ReduceConfig())

@@ -1,0 +1,14 @@
+[{
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[1, 0, 2]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1L, 2L, 200L]",
+            "type": "Variable"
+        }
+    }
+}]

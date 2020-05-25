@@ -1,0 +1,248 @@
+[{
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[30522L, 1024L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[512L, 1024L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2L, 1024L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L, 1024L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L, 4096L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4096L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4096L, 1024L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L, 3L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[3L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[21128L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[512L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[768L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[768L, 3072L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[3072L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[3072L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "zeros_like",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[768L, 3L]",
+            "type": "Variable"
+        }
+    }
+}]

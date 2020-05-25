@@ -15,36 +15,34 @@
 from common_import import *
 
 
-class PDReduceMean(PaddleAPIBenchmarkBase):
+class PDLogicalNot(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            input = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
+            data = fluid.data(
+                name='data',
+                shape=config.x_shape,
+                dtype=config.x_dtype,
                 lod_level=0)
-            input.stop_gradient = False
-            result = fluid.layers.reduce_mean(
-                input=input, dim=config.dim, keep_dim=config.keep_dim)
+            data.stop_gradient = False
+            result = fluid.layers.logical_not(x=data)
 
-            self.feed_vars = [input]
+            self.feed_vars = [data]
             self.fetch_vars = [result]
             if config.backward:
-                self.append_gradients(result, [input])
+                self.append_gradients(result, [data])
 
 
-class TFReduceMean(TensorflowAPIBenchmarkBase):
+class TFLogicalNot(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        input = self.placeholder(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
-        result = tf.reduce_mean(
-            input_tensor=input, axis=config.dim, keepdims=config.keep_dim)
+        data = self.placeholder(
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.math.logical_not(x=data)
 
-        self.feed_list = [input]
+        self.feed_list = [data]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [input])
+            self.append_gradients(result, [data])
 
 
 if __name__ == '__main__':
-    test_main(PDReduceMean(), TFReduceMean(), config=APIConfig("reduce_mean"))
+    test_main(PDLogicalNot(), TFLogicalNot(), config=APIConfig("logical_not"))

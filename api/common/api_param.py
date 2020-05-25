@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import json
+import numpy as np
 
 
 def parse_list(value_str, sub_dtype="int"):
@@ -53,7 +55,7 @@ class BaseParamInfo(object):
         elif self.type in ["int", "int32", "int64"]:
             return int(value_str)
         elif self.type == "bool":
-            return bool(value_str)
+            return eval(value_str)
         elif self.type == "string":
             return None if value_str == "None" else value_str
         elif self.type == "list":
@@ -87,28 +89,75 @@ class APIConfig(object):
     def __init__(self, op_type, params=None):
         self.name = op_type
         self.params = params
-        self.variable_list = []
-        self.params_list = []
+        self.variable_list = None
+        self.params_list = None
         self.backward = False
         self.feed_spec = None
+        self.atol = 1e-6
+        self.run_tf = True
+
+    def alias_filename(self, filename):
+        """
+        Get the filename of alias config.
+        If self.name = a, self.alias_config.name = b, the filename should be "dir/a.json",
+        the filename of alias config will be "dir/b.json".
+        """
+        if hasattr(self, "alias_config"):
+            dirname = os.path.dirname(filename)
+            basename = os.path.basename(filename)
+            basename = basename.replace(self.name, self.alias_config.name)
+            return os.path.join(dirname, basename)
+        return filename
+
+    @property
+    def alias_name(self):
+        if hasattr(self, "alias_config"):
+            return self.alias_config.name
+        else:
+            return self.name
+
+    @property
+    def alias(self):
+        if hasattr(self, "alias_config"):
+            return self.alias_config
+        else:
+            return self
 
     def init_from_json(self, filename, config_id=0):
+        if hasattr(self, "alias_config"):
+            self.alias_config.init_from_json(
+                self.alias_filename(filename), config_id)
+            return self
+
         print("---- Initialize APIConfig from %s, config_id = %d.\n" %
               (filename, config_id))
         with open(filename, 'r') as f:
             data = json.load(f)
-            self.name = data[config_id]["op"]
+            op = data[config_id]["op"]
+            assert op == self.name or op == self.alias_name, "The op type (%s) in json file is different from the name (%s) and the alias name (%s). " \
+                "The filename: %s, config_id: %d." % (
+                    op, self.name, self.alias_name, filename, config_id)
             self.params = data[config_id]["param_info"]
+            if data[config_id].get("atol", None) is not None:
+                if isinstance(data[config_id]["atol"], str):
+                    self.atol = float(data[config_id]["atol"])
+                elif isinstance(data[config_id]["atol"], float):
+                    self.atol = data[config_id]["atol"]
 
         self._parse_params()
         for param in self.params_list:
             setattr(self, param.name, param.value)
         for var in self.variable_list:
+            for i in range(len(var.shape)):
+                if var.shape[i] == -1:
+                    var.shape[i] = 16
             setattr(self, var.name + '_shape', var.shape)
             setattr(self, var.name + '_dtype', var.dtype)
         return self
 
     def to_tensorflow(self):
+        if hasattr(self, "alias_config"):
+            self.alias_config.to_tensorflow()
         return self
 
     def to_string(self):
@@ -132,6 +181,8 @@ class APIConfig(object):
         return debug_str
 
     def _parse_params(self):
+        self.variable_list = []
+        self.params_list = []
         for name, value in self.params.items():
             assert value.get("type", None) is not None
             if value["type"] == "Variable":

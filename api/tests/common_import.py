@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
+from main import test_main, test_main_without_json
 
 import sys
+import importlib
 sys.path.append("..")
 from common.paddle_api_benchmark import PaddleAPIBenchmarkBase
 from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase
@@ -22,12 +23,12 @@ from common.api_param import APIConfig
 
 try:
     import paddle.fluid as fluid
-except Exception as e:
+except ImportError:
     sys.stderr.write(
         "Cannot import paddle.fluid, maybe paddle is not installed.\n")
 
 try:
     import tensorflow as tf
-except Exception as e:
+except ImportError:
     sys.stderr.write(
         "Cannot import tensorflow, maybe tensorflow is not installed.\n")

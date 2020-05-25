@@ -12,58 +12,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
+from common_import import *
 
 
-class PDStack(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False, dtype=None):
-        import paddle.fluid as fluid
-
-        self.name = "stack"
+class PDStack(PaddleAPIBenchmarkBase):
+    def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            data1 = fluid.data(
-                name='data1',
-                shape=[10, 10, 100, 100],
-                dtype='float32',
-                lod_level=0)
-            data1.stop_gradient = False
-            data2 = fluid.data(
-                name='data2',
-                shape=[10, 10, 100, 100],
-                dtype='float32',
-                lod_level=0)
-            data2.stop_gradient = False
-            result = fluid.layers.stack([data1, data2], axis=1)
+            xs = []
+            for i in range(len(config.x_shape)):
+                x_i = fluid.data(
+                    name='x_' + str(i),
+                    shape=config.x_shape[i],
+                    dtype=config.x_dtype[i],
+                    lod_level=0)
+                x_i.stop_gradient = False
+                xs.append(x_i)
+            result = fluid.layers.stack(x=xs, axis=config.axis)
 
-            self.feed_vars = [data1, data2]
+            self.feed_vars = xs
             self.fetch_vars = [result]
-            if backward:
-                self.append_gradients(result, [data1, data2])
+            if config.backward:
+                self.append_gradients(result, xs)
 
 
-class TFStack(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False, dtype=None):
-        import tensorflow as tf
+class TFStack(TensorflowAPIBenchmarkBase):
+    def build_graph(self, config):
+        values = []
+        for i in range(len(config.x_shape)):
+            value_i = self.placeholder(
+                name='value_' + str(i),
+                shape=config.x_shape[i],
+                dtype=config.x_dtype[i])
+            values.append(value_i)
+        result = tf.stack(values=values, axis=config.axis)
 
-        self.name = "stack"
-        self.allow_growth = True
-
-        data1 = tf.placeholder(
-            name='data1', shape=[10, 10, 100, 100], dtype=tf.float32)
-        data2 = tf.placeholder(
-            name='data2', shape=[10, 10, 100, 100], dtype=tf.float32)
-        result = tf.stack([data1, data2], axis=1)
-
-        self.feed_list = [data1, data2]
+        self.feed_list = values
         self.fetch_list = [result]
-        if backward:
-            self.append_gradients(result, [data1, data2])
+        if config.backward:
+            self.append_gradients(result, values)
 
 
 if __name__ == '__main__':
-    test_main(PDStack(), TFStack(), feed_spec=None)
+    test_main(PDStack(), TFStack(), config=APIConfig("stack"))

@@ -1,0 +1,19 @@
+[{
+    "op": "logical",
+    "param_info": {
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "bool",
+            "shape": "[1L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "bool",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}]

@@ -12,62 +12,52 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
+from common_import import *
 
 
-class OneHotConfig(object):
-    def __init__(self, input_shape, depth):
-        self.input_shape = input_shape
-        self.depth = depth
-        self.feed_spec = {"range": [0, depth]}
+class OneHotConfig(APIConfig):
+    def __init__(self):
+        super(OneHotConfig, self).__init__('one_hot')
+
+    def init_from_json(self, filename, config_id=0):
+        super(OneHotConfig, self).init_from_json(filename, config_id)
+        self.feed_spec = {"range": [0, self.depth]}
 
 
-config = OneHotConfig(input_shape=[32, 128], depth=10)
-
-
-class PDOneHot(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False, dtype=None):
-        import paddle.fluid as fluid
-
-        self.name = "one_hot"
+class PDOneHot(PaddleAPIBenchmarkBase):
+    def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
-            input = fluid.data(
-                name='input',
+            data = fluid.data(
+                name='data',
                 shape=config.input_shape,
-                dtype='int32',
+                dtype=config.input_dtype,
                 lod_level=0)
-            input.stop_gradient = False
-            result = fluid.one_hot(input=input, depth=config.depth)
+            data.stop_gradient = False
+            result = fluid.one_hot(input=data, depth=config.depth)
 
-            self.feed_vars = [input]
+            self.feed_vars = [data]
             self.fetch_vars = [result]
+            if config.backward:
+                self.append_gradients(result, [data])
 
 
-class TFOneHot(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False, dtype=None):
-        import tensorflow as tf
-
-        self.name = "one_hot"
-        self.allow_growth = True
-
-        input = tf.placeholder(
-            name='input', shape=config.input_shape, dtype=tf.int32)
+class TFOneHot(TensorflowAPIBenchmarkBase):
+    def build_graph(self, config):
+        data = self.placeholder(
+            name='data', shape=config.input_shape, dtype=config.input_dtype)
         result = tf.one_hot(
-            indices=input,
+            indices=data,
             depth=config.depth,
             on_value=None,
             off_value=None,
             axis=None,
             dtype=None)
 
-        self.feed_list = [input]
+        self.feed_list = [data]
         self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [data])
 
 
 if __name__ == '__main__':
-    test_main(PDOneHot(), TFOneHot(), feed_spec=config.feed_spec)
+    test_main(PDOneHot(), TFOneHot(), config=OneHotConfig())
