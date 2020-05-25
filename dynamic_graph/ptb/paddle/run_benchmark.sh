@@ -59,7 +59,7 @@ function _train(){
 #    if [ ${num_gpu_devices} -eq 1 ]; then
 #        train_cmd="python -u ptb_dy.py "${train_cmd}
 #    else
-#        rm ./mylog
+#        rm -rf ./mylog
 #        train_cmd="python3 -m paddle.distributed.launch --log_dir=./mylog ptb_dy.py "${train_cmd}
 #        log_parse_file="mylog/workerlog.0"
 #    fi
