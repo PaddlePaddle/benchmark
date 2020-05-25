@@ -125,7 +125,6 @@ class PaddleAPIBenchmarkBase(object):
                           use_gpu,
                           feed=None,
                           repeat=1,
-                          log_level=0,
                           check_output=False,
                           profiler="none"):
         self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()

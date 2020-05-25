@@ -219,7 +219,6 @@ class TensorflowAPIBenchmarkBase(object):
             use_gpu,
             feed=None,
             repeat=1,
-            log_level=0,
             check_output=False,
             profiler="none"):
         sess = self._init_session(use_gpu)

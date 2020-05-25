@@ -111,7 +111,6 @@ def run_paddle(task, obj, args, feed_list=None):
             use_gpu=args.use_gpu,
             feed=feed,
             repeat=args.repeat,
-            log_level=args.log_level,
             check_output=args.check_output,
             profiler=args.profiler)
         return outputs, stats
@@ -136,7 +135,6 @@ def run_tensorflow(task, obj, args, feed_list=None):
         outputs, stats = obj.run(use_gpu=args.use_gpu,
                                  feed=feed,
                                  repeat=args.repeat,
-                                 log_level=args.log_level,
                                  check_output=args.check_output,
                                  profiler=args.profiler)
         return outputs, stats

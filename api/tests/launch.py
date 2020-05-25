@@ -21,12 +21,11 @@ sys.path.append("..")
 from common import utils
 
 
-def nvprof(cmd):
+def _nvprof(cmd):
     return utils.run_command("nvprof {}".format(cmd))
 
 
-def parse_gpu_time(line):
-    print("nvprof result: %s" % line)
+def _parse_gpu_time(line):
     infos = line.strip().split()
     percent = float(infos[2].replace("%", "")) * 0.01
     gpu_time = infos[3]
@@ -47,26 +46,36 @@ def parse_gpu_time(line):
 
     total_gpu_time = gpu_time / percent
     print("total gpu_time: %.4f ms" % total_gpu_time)
+    print("")
     return total_gpu_time
 
 
-def launch(framework,
-           benchmark_script,
-           benchmark_script_args,
-           with_nvprof=False):
+def _parse_nvprof_logs(logs):
+    line_from = None
+    line_to = None
+    total_gpu_time = 0.0
+    for i in range(len(logs)):
+        line = logs[i].encode("utf-8")
+        if "GPU activities:" in line:
+            line_from = i - 1
+        if line_from is not None and "API calls:" in line:
+            line_to = i - 1
+    if line_from is not None and line_to is not None:
+        for i in range(line_from, line_to):
+            print(logs[i])
+        print("")
+        return _parse_gpu_time(logs[line_from + 1])
+    else:
+        return 0.0
+
+
+def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
     cmd = "{} {} {}".format(sys.executable, benchmark_script,
                             " ".join(benchmark_script_args))
     if with_nvprof:
-        stdout, exit_code = nvprof(cmd)
+        stdout, exit_code = _nvprof(cmd)
         if exit_code == 0:
-            logs = stdout.split("\n")
-            tag = "GPU activities:"
-            gpu_time = 0
-            for line in logs:
-                if tag in line.encode("utf-8"):
-                    total_gpu_time = parse_gpu_time(line.encode("utf-8"))
-                    break
-            return total_gpu_time
+            return _parse_nvprof_logs(stdout.split("\n"))
         else:
             print("stdout: {}".format(stdout))
     else:
@@ -75,6 +84,15 @@ def launch(framework,
         if exit_code != 0:
             raise RuntimeError("Run command (%s) error." % cmd)
     return 0.0
+
+
+def _args_list_to_dict(arg_list):
+    arg_dict = {}
+    for i in range(len(arg_list)):
+        if arg_list[i].startswith("--"):
+            name = arg_list[i].replace("--", "")
+            arg_dict[name] = arg_list[i + 1]
+    return arg_dict
 
 
 if __name__ == "__main__":
@@ -92,28 +110,19 @@ if __name__ == "__main__":
     # rest from the operator benchmark program
     parser.add_argument('benchmark_script_args', nargs=argparse.REMAINDER)
     args = parser.parse_args()
-    task = "speed"
-    framework = "paddle"
-    use_gpu = False
-    for i in range(len(args.benchmark_script_args)):
-        if args.benchmark_script_args[i] == "--task":
-            task = args.benchmark_script_args[i + 1]
-        elif args.benchmark_script_args[i] == "--framework":
-            framework = args.benchmark_script_args[i + 1]
-        elif args.benchmark_script_args[i] == "--use_gpu":
-            use_gpu = utils.str2bool(args.benchmark_script_args[i + 1])
+    benchmark_args_dict = _args_list_to_dict(args.benchmark_script_args)
+    task = benchmark_args_dict.get("task", "speed")
+    use_gpu = utils.str2bool(benchmark_args_dict.get("use_gpu", "False"))
+    profiler = benchmark_args_dict.get("profiler", "none")
+    repeat = benchmark_args_dict.get("repeat", "1")
 
-    if use_gpu and task == "speed":
+    if use_gpu and task == "speed" and profiler == "none":
         total_gpu_time = launch(
-            framework,
             args.benchmark_script,
             args.benchmark_script_args,
             with_nvprof=True)
         args.benchmark_script_args.append(" --gpu_time ")
-        args.benchmark_script_args.append(str(total_gpu_time))
+        args.benchmark_script_args.append(str(total_gpu_time / float(repeat)))
 
     launch(
-        framework,
-        args.benchmark_script,
-        args.benchmark_script_args,
-        with_nvprof=False)
+        args.benchmark_script, args.benchmark_script_args, with_nvprof=False)
