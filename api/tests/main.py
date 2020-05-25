@@ -25,15 +25,6 @@ from common import utils
 from common import api_param
 
 
-def str2bool(v):
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Unsupported value encountered.')
-
-
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -58,25 +49,30 @@ def parse_args():
     )
     parser.add_argument(
         '--check_output',
-        type=str2bool,
+        type=utils.str2bool,
         default=True,
         help='Whether checking the consistency of outputs [True|False]')
     parser.add_argument(
         '--profiler',
         type=str,
         default="none",
-        help='Choose which profiler to use [\"none\"|\"Default\"|\"OpDetail\"|\"AllOpDetail\"|\"nvprof\"|\"pyprof\"]'
+        help='Choose which profiler to use [\"none\"|\"Default\"|\"OpDetail\"|\"AllOpDetail\"|\"pyprof\"]'
     )
     parser.add_argument(
         '--backward',
-        type=str2bool,
+        type=utils.str2bool,
         default=False,
         help='Whether appending grad ops [True|False]')
     parser.add_argument(
         '--use_gpu',
-        type=str2bool,
+        type=utils.str2bool,
         default=False,
         help='Whether using gpu [True|False]')
+    parser.add_argument(
+        '--gpu_time',
+        type=float,
+        default=0,
+        help='Total GPU kernel time parsed from nvprof')
     parser.add_argument(
         '--repeat', type=int, default=1, help='Iterations of Repeat running')
     parser.add_argument(
@@ -170,12 +166,19 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
         tf_config = config.to_tensorflow()
         feeder_adapter = tf_obj.generate_random_feeder(tf_config,
                                                        use_feed_fetch)
-        tf_outputs = tf_obj.run(tf_config, args, use_feed_fetch,
-                                feeder_adapter)
+        tf_outputs, tf_stats = tf_obj.run(tf_config, args, use_feed_fetch,
+                                          feeder_adapter)
+        if args.task == "speed":
+            tf_stats["gpu_time"] = args.gpu_time
+            utils.print_benchmark_result(tf_stats, log_level=args.log_level)
 
     if _is_paddle_enabled(args, config):
         assert pd_obj is not None, "Paddle object is None."
-        pd_outputs = pd_obj.run(config, args, use_feed_fetch, feeder_adapter)
+        pd_outputs, pd_stats = pd_obj.run(config, args, use_feed_fetch,
+                                          feeder_adapter)
+        if args.task == "speed":
+            pd_stats["gpu_time"] = args.gpu_time
+            utils.print_benchmark_result(pd_stats, log_level=args.log_level)
 
     if args.task == "accuracy":
         if config.run_tf:

@@ -258,7 +258,6 @@ class TensorflowAPIBenchmarkBase(object):
                  use_gpu,
                  feed=None,
                  repeat=1,
-                 log_level=0,
                  check_output=False,
                  profiler="none"):
         sess = self._init_session(use_gpu)
@@ -310,8 +309,7 @@ class TensorflowAPIBenchmarkBase(object):
         if self.name != "null":
             stats["wall_time"] = walltimes
         stats["device"] = "GPU" if use_gpu else "CPU"
-        utils.print_benchmark_result(stats, log_level=log_level)
-        return outputs
+        return outputs, stats
 
     def generate_random_feeder(self,
                                config,
@@ -359,14 +357,13 @@ class TensorflowAPIBenchmarkBase(object):
             feed = None
 
         self.allow_growth = False if args.task == "speed" else True
-        outputs = self.run_impl(
+        outputs, stats = self.run_impl(
             use_gpu=args.use_gpu,
             feed=feed,
             repeat=args.repeat,
-            log_level=args.log_level,
             check_output=args.check_output,
             profiler=args.profiler)
-        return outputs
+        return outputs, stats
 
     def _init_session(self, use_gpu):
         if tf.__version__ >= "1.15.0":

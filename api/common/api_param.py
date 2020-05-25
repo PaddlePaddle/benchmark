@@ -48,7 +48,7 @@ class BaseParamInfo(object):
         return item.encode("utf-8") if isinstance(item, unicode) else item
 
     def to_string(self):
-        return self.name + '--' + self.type + '| ' + str(self.value) + '\n '
+        return self.name + '--' + self.type + '|' + str(self.value)
 
     def _translate_value(self, value_str):
         if self.type in ["float", "float32", "float64"]:
@@ -82,8 +82,11 @@ class VarParamInfo(BaseParamInfo):
         self.lod_level = self._encode_item(lod_level)
 
     def to_string(self):
-        return self.name + '--' + self.type + '| ' + str(
-            self.dtype) + '| shape:' + str(self.shape) + '\n '
+        if self.type == "Variable":
+            return self.name + "--Variable|dtype:" + str(
+                self.dtype) + "|shape:" + str(self.shape)
+        elif self.type == "list<Variable>":
+            return self.name + "--list<Variable>"
 
 
 class APIConfig(object):
@@ -176,13 +179,14 @@ class APIConfig(object):
         return tf_config
 
     def to_string(self):
-        self._parse_params()
-        params = ""
-        for info in self.variable_list:
-            params = params + info.to_string()
-        for info in self.params_list:
-            params = params + info.to_string()
-        return params
+        if self.params_list is None and self.variable_list is None:
+            self._parse_params()
+        params_str = ""
+        for var in self.variable_list:
+            params_str = params_str + var.to_string() + "\n"
+        for attr in self.params_list:
+            params_str = params_str + attr.to_string() + "\n"
+        return params_str
 
     def clear(self):
         for name in vars(self).keys():

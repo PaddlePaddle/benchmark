@@ -14,7 +14,7 @@ name=${1:-"abs"}
 config_id=${2:-"0"}
 filename="examples/${name}.json"
 
-python ${name}.py \
+python -m launch ${name}.py \
       --task "accuracy" \
       --framework "paddle" \
       --json_file ${filename} \
