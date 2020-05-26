@@ -137,6 +137,9 @@ class APIConfig(object):
             return self
 
     def init_from_json(self, filename, config_id=0):
+        if not hasattr(self, "api_name"):
+            self.api_name = self.name
+
         if hasattr(self, "alias_config"):
             self.alias_config.init_from_json(
                 self.alias_filename(filename), config_id)

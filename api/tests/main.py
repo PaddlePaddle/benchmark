@@ -104,36 +104,33 @@ def parse_args():
 def test_main(pd_obj=None, tf_obj=None, config=None):
     assert config is not None, "API config must be set."
 
+    def _test_with_json_impl(filename, config_id):
+        config.init_from_json(filename, config_id)
+        if hasattr(config, "api_list"):
+            if args.api_name != None:
+                assert args.api_name in config.api_list, "api_name should be one value in %s, but recieved %s." % (
+                    config.api_list.keys(), args.api_name)
+                config.api_name = args.api_name
+                test_main_without_json(pd_obj, tf_obj, config)
+            else:
+                for api_name in config.api_list.keys():
+                    config.api_name = api_name
+                    test_main_without_json(pd_obj, tf_obj, config)
+        else:
+            test_main_without_json(pd_obj, tf_obj, config)
+
     args = parse_args()
     if args.json_file is not None:
         # Set the filename to alias config's filename, when there is a alias config.
         filename = config.alias_filename(args.json_file)
         if args.config_id is not None and args.config_id >= 0:
-            config.init_from_json(filename, args.config_id)
-            if args.api_name != None:
-                config.api = args.api_name
-                test_main_without_json(pd_obj, tf_obj, config)
-            elif hasattr(config, "api_list"):
-                for api_name in config.api_list.keys():
-                    config.api_name = api_name
-                    test_main_without_json(pd_obj, tf_obj, config)
-            else:
-                test_main_without_json(pd_obj, tf_obj, config)
+            _test_with_json_impl(filename, args.config_id)
         else:
             num_configs = 0
             with open(filename, 'r') as f:
                 num_configs = len(json.load(f))
             for config_id in range(0, num_configs):
-                config.init_from_json(args.json_file, config_id)
-                if args.api_name != None:
-                    config.api_name = args.api_name
-                    test_main_without_json(pd_obj, tf_obj, config)
-                elif hasattr(config, "api_list"):
-                    for api_name in config.api_list.keys():
-                        config.api_name = api_name
-                        test_main_without_json(pd_obj, tf_obj, config)
-                else:
-                    test_main_without_json(pd_obj, tf_obj, config)
+                _test_with_json_impl(filename, config_id)
     else:
         test_main_without_json(pd_obj, tf_obj, config)
 
@@ -183,7 +180,7 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
     if args.task == "accuracy":
         if config.run_tf:
             utils.check_outputs(
-                pd_outputs, tf_outputs, name=config.name, atol=config.atol)
+                pd_outputs, tf_outputs, name=config.api_name, atol=config.atol)
         else:
             warnings.simplefilter('always', UserWarning)
             warnings.warn("This config is not supported by TensorFlow.")
