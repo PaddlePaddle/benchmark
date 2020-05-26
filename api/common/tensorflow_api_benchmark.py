@@ -256,7 +256,7 @@ class TensorflowAPIBenchmarkBase(object):
 
     def run_impl(self,
                  use_gpu,
-                 feed=None,
+                 feed,
                  repeat=1,
                  check_output=False,
                  profiler="none"):
@@ -264,7 +264,8 @@ class TensorflowAPIBenchmarkBase(object):
 
         # tf.debugging.set_log_device_placement(True)
 
-        def _run_main_iter(feed=feed, run_options=None, run_metadata=None):
+        def _run_main_iter(run_options=None, run_metadata=None):
+            feed_dict = feed if self._need_feed else None
             if self._need_fetch:
                 fetches = self.fetch_list
             else:
@@ -272,7 +273,7 @@ class TensorflowAPIBenchmarkBase(object):
                 for var in self.fetch_list:
                     fetches.append(var.op)
             outputs = sess.run(fetches=fetches,
-                               feed_dict=feed,
+                               feed_dict=feed_dict,
                                options=run_options,
                                run_metadata=run_metadata)
             return outputs
@@ -281,7 +282,7 @@ class TensorflowAPIBenchmarkBase(object):
             walltimes = self._run_null_graph(use_gpu, repeat)
 
         # warmup run
-        _run_main_iter(feed=feed, run_options=None, run_metadata=None)
+        _run_main_iter(run_options=None, run_metadata=None)
 
         runtimes = []
         fetches = []
@@ -290,7 +291,6 @@ class TensorflowAPIBenchmarkBase(object):
             for i in range(repeat):
                 begin = time.time()
                 outputs = _run_main_iter(
-                    feed=feed,
                     run_options=prof.run_options,
                     run_metadata=prof.run_metadata)
                 runtimes.append(time.time() - begin)
@@ -347,14 +347,11 @@ class TensorflowAPIBenchmarkBase(object):
         feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
                                                      feeder_adapter)
 
-        if self._need_feed:
-            feed_list = feeder_adapter.to_tensorflow(self.feed_list)
-            assert len(feed_list) == len(self.feed_list)
-            feed = {}
-            for i in range(len(feed_list)):
-                feed[self.feed_list[i]] = feed_list[i]
-        else:
-            feed = None
+        feed_list = feeder_adapter.to_tensorflow(self.feed_list)
+        assert len(feed_list) == len(self.feed_list)
+        feed = {}
+        for i in range(len(feed_list)):
+            feed[self.feed_list[i]] = feed_list[i]
 
         self.allow_growth = False if args.task == "speed" else True
         outputs, stats = self.run_impl(

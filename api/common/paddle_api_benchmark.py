@@ -91,8 +91,7 @@ def convert_dtype(dtype, to_string=True):
 class PaddleAPIBenchmarkBase(object):
     def __init__(self):
         self.name = self.__class__.__name__
-        self.scope = fluid.Scope()
-        self.place = None
+        self.scope = None
         self.feed_vars = None
         self.fetch_vars = None
 
@@ -159,21 +158,19 @@ class PaddleAPIBenchmarkBase(object):
 
     def run_impl(self,
                  use_gpu,
-                 feed=None,
+                 feed,
                  repeat=1,
                  check_output=False,
                  profiler="none"):
-        self.place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
-        executor = fluid.Executor(self.place)
+        place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
+        executor = fluid.Executor(place)
         executor.run(self.startup_program)
 
-        def _run_main_iter(feed=None):
-            if self._need_fetch:
-                fetch_vars = self.fetch_vars
-            else:
-                fetch_vars = None
+        def _run_main_iter():
+            feed_dict = feed if self._need_feed else None
+            fetch_vars = self.fetch_vars if self._need_fetch else None
             outputs = executor.run(program=self.main_program,
-                                   feed=feed,
+                                   feed=feed_dict,
                                    fetch_list=fetch_vars,
                                    use_program_cache=True,
                                    return_numpy=True)
@@ -182,8 +179,11 @@ class PaddleAPIBenchmarkBase(object):
         if self.name != "null":
             walltimes = self._run_null_program(executor, repeat)
 
+        if not self._need_feed:
+            self._init_feed_tensor(use_gpu, feed)
+
         # warmup run
-        outputs = _run_main_iter(feed=feed)
+        outputs = _run_main_iter()
 
         runtimes = []
         fetches = []
@@ -191,7 +191,7 @@ class PaddleAPIBenchmarkBase(object):
         with profile_context(self.name, use_gpu, profiler):
             for i in range(repeat):
                 begin = time.time()
-                outputs = _run_main_iter(feed=feed)
+                outputs = _run_main_iter()
                 runtimes.append(time.time() - begin)
                 if check_output:
                     fetches.append(outputs)
@@ -245,23 +245,24 @@ class PaddleAPIBenchmarkBase(object):
 
         feed_list = feeder_adapter.to_paddle(self.feed_vars)
         assert len(feed_list) == len(self.feed_vars)
-        if self._need_feed:
-            feed = {}
-            for i in range(len(feed_list)):
-                feed[self.feed_vars[i].name] = feed_list[i]
-        else:
-            with fluid.program_guard(self.startup_program):
-                # Append initialiar operator to startup program.
-                for i in range(len(feed_list)):
-                    self._assign(self.feed_vars[i], value=feed_list[i])
-            feed = None
+        feed = {}
+        for i in range(len(feed_list)):
+            feed[self.feed_vars[i].name] = feed_list[i]
 
-        outputs, stats = self.run_impl(
-            use_gpu=args.use_gpu,
-            feed=feed,
-            repeat=args.repeat,
-            check_output=args.check_output,
-            profiler=args.profiler)
+#        if not self._need_feed:
+#            with fluid.program_guard(self.startup_program):
+#                # Append initialiar operator to startup program.
+#                for i in range(len(feed_list)):
+#                    self._assign(self.feed_vars[i], value=feed_list[i])
+
+        self.scope = fluid.Scope()
+        with fluid.scope_guard(self.scope):
+            outputs, stats = self.run_impl(
+                use_gpu=args.use_gpu,
+                feed=feed,
+                repeat=args.repeat,
+                check_output=args.check_output,
+                profiler=args.profiler)
         return outputs, stats
 
     def _assign(self, feed_var, value):
@@ -283,7 +284,7 @@ class PaddleAPIBenchmarkBase(object):
         elif dtype_str == "int32":
             value_name = "int32_values"
             value = [int(v) for v in value.flat]
-        elif dtype == "int64":
+        elif dtype_str == "int64":
             value_name = "int64_values"
             value = [int(v) for v in value.flat]
         else:
@@ -300,21 +301,23 @@ class PaddleAPIBenchmarkBase(object):
                 value_name: value
             })
 
-    def _init_feed_tensor(self, feed):
+    def _init_feed_tensor(self, use_gpu, feed):
+        place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
         for var in self.feed_vars:
             if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
                 raise TypeError("Feed data of non LoDTensor is not supported.")
 
-            var_in_scope = self.scope.find_var(var.name)
-            assert var_in_scope, "Variable {} is not created.".format(var.name)
+            var_in_scope = self.scope.var(var.name)
             tensor = var_in_scope.get_tensor()
 
             cur_feed = feed[var.name]
-            if not isinstance(cur_feed, fluid.core.LoDTensor):
-                tensor.set(cur_feed, self.place)
+            if isinstance(cur_feed, np.ndarray) or isinstance(
+                    cur_feed, fluid.core.LoDTensor):
+                tensor.set(cur_feed, place)
             else:
                 raise TypeError(
-                    "Feed data of non LoDTensor is not supported yet.")
+                    "Feed data of non LoDTensor/np.ndarray is not supported yet."
+                )
 
     def _get_fetch_tensor(self):
         place = fluid.core.Place()
