@@ -47,6 +47,10 @@ class PDCosSim(PaddleAPIBenchmarkBase):
 
 class TFCosSim(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
+        # X = self.placeholder(
+        #     name='X', shape=config.X_shape, dtype=config.X_dtype)
+        # Y = self.placeholder(
+        #      name='Y', shape=config.Y_shape, dtype=config.Y_dtype)
         X = np.random.random(config.X_shape).astype(config.X_dtype)
         Y = np.random.random(config.Y_shape).astype(config.Y_dtype)
         result = tf.compat.v1.losses.cosine_distance(

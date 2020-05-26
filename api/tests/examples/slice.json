@@ -1,0 +1,22 @@
+[{
+    "op": "slice",
+    "param_info": {
+        "axes": {
+            "type": "list",
+            "value": "[0]"
+        },
+        "ends": {
+            "type": "list",
+            "value": "[1]"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[2L, -1L, 200L]",
+            "type": "Variable"
+        },
+        "starts": {
+            "type": "list",
+            "value": "[0]"
+        }
+    }
+}]
