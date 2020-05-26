@@ -30,25 +30,18 @@ class ArgsortConfig(APIConfig):
 
 class PDArgsort(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            input = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            input.stop_gradient = False
-            result, indices = fluid.layers.argsort(
-                input=input, axis=config.axis, descending=config.descending)
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result, indices = fluid.layers.argsort(
+            input=input, axis=config.axis, descending=config.descending)
 
-            self.feed_vars = [input]
-            self.fetch_vars = [indices]
-            if config.backward:
-                self.append_gradients(result, [input])
+        self.feed_vars = [input]
+        self.fetch_vars = [indices]
 
 
 class TFArgsort(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        input = self.placeholder(
+        input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
         indices = tf.argsort(
             values=input,
@@ -58,8 +51,6 @@ class TFArgsort(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [input]
         self.fetch_list = [indices]
-        if config.backward:
-            self.append_gradients(result, [input])
 
 
 if __name__ == '__main__':

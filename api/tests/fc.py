@@ -35,7 +35,7 @@ class FCConfig(APIConfig):
         self.num_flatten_dims = -1
 
     def to_tensorflow(self):
-        tf_config = self
+        tf_config = super(FCConfig, self).to_tensorflow()
         if self.act == "relu":
             tf_config.act = tf.nn.relu
         return tf_config
@@ -43,32 +43,27 @@ class FCConfig(APIConfig):
 
 class PDFC(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            input = fluid.data(
-                name="input",
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            input.stop_gradient = False
-            result = fluid.layers.fc(
-                input=input,
-                size=config.size,
-                num_flatten_dims=-1,
-                param_attr=fluid.ParamAttr(
-                    initializer=fluid.initializer.ConstantInitializer(0.5)),
-                bias_attr=fluid.ParamAttr(
-                    initializer=fluid.initializer.ConstantInitializer(0.1)),
-                act=config.act)
+        input = self.variable(
+            name="input", shape=config.input_shape, dtype=config.input_dtype)
+        result = fluid.layers.fc(
+            input=input,
+            size=config.size,
+            num_flatten_dims=-1,
+            param_attr=fluid.ParamAttr(
+                initializer=fluid.initializer.ConstantInitializer(0.5)),
+            bias_attr=fluid.ParamAttr(
+                initializer=fluid.initializer.ConstantInitializer(0.1)),
+            act=config.act)
 
-            self.feed_vars = [input]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [input])
+        self.feed_vars = [input]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [input])
 
 
 class TFFC(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        input = self.placeholder(
+        input = self.variable(
             name="input", shape=config.input_shape, dtype=config.input_dtype)
         if tf.__version__ <= "1.15.0":
             result = tf.contrib.layers.fully_connected(
