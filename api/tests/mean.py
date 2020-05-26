@@ -15,34 +15,36 @@
 from common_import import *
 
 
-class PDTopK(PaddleAPIBenchmarkBase):
+class MeanConfig(APIConfig):
+    def __init__(self):
+        super(MeanConfig, self).__init__('mean')
+        self.run_tf = False
+
+
+class PDMean(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         with fluid.program_guard(self.main_program, self.startup_program):
             data = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
+                name='x',
+                shape=config.x_shape,
+                dtype=config.x_dtype,
                 lod_level=0)
             data.stop_gradient = False
-            value, indices = fluid.layers.topk(input=data, k=config.k)
+            result = fluid.layers.mean(x=data)
 
             self.feed_vars = [data]
-            self.fetch_vars = [value, indices]
-            if config.backward:
-                self.append_gradients([value, indices], [data])
+            self.fetch_vars = [result]
 
 
-class TFTopK(TensorflowAPIBenchmarkBase):
+class TFMean(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.placeholder(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
-        value, indices = tf.math.top_k(input=data, k=config.k)
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.keras.metrics.Mean()
 
         self.feed_list = [data]
-        self.fetch_list = [value, indices]
-        if config.backward:
-            self.append_gradients([value, indices], [data])
+        self.fetch_list = [result]
 
 
 if __name__ == '__main__':
-    test_main(PDTopK(), TFTopK(), config=APIConfig("topk"))
+    test_main(PDMean(), TFMean(), config=MeanConfig())
