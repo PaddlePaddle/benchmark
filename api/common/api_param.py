@@ -14,6 +14,7 @@
 
 import os
 import json
+import copy
 import numpy as np
 
 
@@ -47,7 +48,7 @@ class BaseParamInfo(object):
         return item.encode("utf-8") if isinstance(item, unicode) else item
 
     def to_string(self):
-        return self.name + '--' + self.type + '| ' + str(self.value) + '\n '
+        return self.name + '--' + self.type + '|' + str(self.value)
 
     def _translate_value(self, value_str):
         if self.type in ["float", "float32", "float64"]:
@@ -81,13 +82,17 @@ class VarParamInfo(BaseParamInfo):
         self.lod_level = self._encode_item(lod_level)
 
     def to_string(self):
-        return self.name + '--' + self.type + '| ' + str(
-            self.dtype) + '| shape:' + str(self.shape) + '\n '
+        if self.type == "Variable":
+            return self.name + "--Variable|dtype:" + str(
+                self.dtype) + "|shape:" + str(self.shape)
+        elif self.type == "list<Variable>":
+            return self.name + "--list<Variable>"
 
 
 class APIConfig(object):
     def __init__(self, op_type, params=None):
-        self.name = op_type
+        self.__name = op_type
+        self.__framework = "paddle"
         self.params = params
         self.variable_list = None
         self.params_list = None
@@ -108,6 +113,14 @@ class APIConfig(object):
             basename = basename.replace(self.name, self.alias_config.name)
             return os.path.join(dirname, basename)
         return filename
+
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def framework(self):
+        return self.__framework
 
     @property
     def alias_name(self):
@@ -161,27 +174,43 @@ class APIConfig(object):
         return self
 
     def to_tensorflow(self):
-        if hasattr(self, "alias_config"):
-            self.alias_config.to_tensorflow()
-        return self
+        assert self.__framework == "paddle"
+        tf_config = copy.deepcopy(self)
+        tf_config.__framework = "tensorflow"
+        if hasattr(self, "api_list"):
+            tf_config.api_name = self.api_list[self.api_name]
+        if hasattr(tf_config, "alias_config"):
+            tf_config.alias_config.to_tensorflow()
+        return tf_config
 
     def to_string(self):
-        self._parse_params()
-        params = ""
-        for info in self.variable_list:
-            params = params + info.to_string()
-        for info in self.params_list:
-            params = params + info.to_string()
-        return params
+        if self.params_list is None and self.variable_list is None:
+            self._parse_params()
+        params_str = ""
+        for var in self.variable_list:
+            params_str = params_str + var.to_string() + "\n"
+        for attr in self.params_list:
+            params_str = params_str + attr.to_string() + "\n"
+        return params_str
+
+    def clear(self):
+        for name in vars(self).keys():
+            if name not in ['name', 'backward', 'feed_spec']:
+                setattr(self, name, None)
 
     def __str__(self):
-        debug_str = ('API params of <%s> {\n') % (self.name)
+        debug_str = ('[%s] %s {\n') % (self.framework, self.name)
         for name, value in vars(self).items():
             if name not in [
-                    'name', 'params', 'variable_list', 'params_list',
-                    'backward', 'feed_spec'
+                    '_APIConfig__name', '_APIConfig__framework', 'params',
+                    'variable_list', 'params_list', 'backward', 'feed_spec'
             ]:
-                debug_str = debug_str + ('  %s: %s\n') % (name, value)
+                if isinstance(value, np.ndarray):
+                    debug_str = debug_str + (
+                        '  %s: np.ndarray(shape=%s, dtype=%s)\n') % (
+                            name, str(value.shape), value.dtype)
+                else:
+                    debug_str = debug_str + ('  %s: %s\n') % (name, value)
         debug_str = debug_str + '}'
         return debug_str
 

@@ -82,7 +82,7 @@ def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
         stdout, exit_code = utils.run_command(cmd)
         print(stdout)
         if exit_code != 0:
-            raise RuntimeError("Run command (%s) error." % cmd)
+            raise RuntimeError("Run command failed:\n  %s" % cmd)
     return 0.0
 
 

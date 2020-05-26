@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main, test_main_without_json
-
 import sys
 import importlib
 import numpy as np
@@ -38,3 +36,5 @@ try:
 except ImportError:
     sys.stderr.write(
         "Cannot import tensorflow, maybe tensorflow is not installed.\n")
+
+from main import test_main, test_main_without_json

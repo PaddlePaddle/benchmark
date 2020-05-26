@@ -18,7 +18,7 @@ from common_import import *
 class ElementwiseConfig(APIConfig):
     def __init__(self):
         super(ElementwiseConfig, self).__init__('elementwise')
-        self.api = 'add'
+        self.api_name = 'add'
         self.atol = 1e-3
         self.api_list = {
             'add': 'add',
@@ -30,48 +30,31 @@ class ElementwiseConfig(APIConfig):
             'pow': 'pow'
         }
 
-    def to_tensorflow(self):
-        self.tf_api = self.api_list[self.api]
-        return self
-
 
 class PDElementwise(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            y = fluid.data(
-                name='y',
-                shape=config.y_shape,
-                dtype=config.y_dtype,
-                lod_level=0)
-            x.stop_gradient = False
-            y.stop_gradient = False
-            self.name = 'elementwise_' + config.api
-            result = self.layers(
-                "elementwise_" + config.api,
-                x=x,
-                y=y,
-                axis=config.axis,
-                act=config.act)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        self.name = 'elementwise_' + config.api_name
+        result = self.layers(
+            "elementwise_" + config.api_name,
+            x=x,
+            y=y,
+            axis=config.axis,
+            act=config.act)
 
-            self.feed_vars = [x, y]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [x, y])
+        self.feed_vars = [x, y]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [x, y])
 
 
 class TFElementwise(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.placeholder(
-            name='y', shape=config.y_shape, dtype=config.y_dtype)
-        self.name = config.tf_api
-        result = self.layers(config.tf_api, x=x, y=y)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        self.name = config.api_name
+        result = self.layers(config.api_name, x=x, y=y)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]
@@ -80,4 +63,4 @@ class TFElementwise(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDElementwise(), TFElementwise(), ElementwiseConfig())
+    test_main(PDElementwise(), TFElementwise(), config=ElementwiseConfig())
