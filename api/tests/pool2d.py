@@ -124,5 +124,9 @@ class TFPool2d(tensorflow_api.TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [input])
 
 
+def register_api():
+    REGISTER_API_INFO['pool2d'] = ['pool2d', 'pool2d.json']
+
+
 if __name__ == '__main__':
     test_main(PDPool2d(), TFPool2d(), feed_spec=None)

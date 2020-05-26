@@ -52,6 +52,11 @@ class TFElementwiseSum(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, inputs)
 
 
+def register_api():
+    REGISTER_API_INFO[
+        'elementwise_sum'] = ['elementwise_sum', 'elementwise_sum.json']
+
+
 if __name__ == '__main__':
     test_main(
         PDElementwiseSum(),

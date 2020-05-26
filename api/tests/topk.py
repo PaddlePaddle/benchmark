@@ -44,5 +44,9 @@ class TFTopK(TensorflowAPIBenchmarkBase):
             self.append_gradients([value, indices], [data])
 
 
+def register_api():
+    REGISTER_API_INFO['topk'] = ['topk', 'topk.json']
+
+
 if __name__ == '__main__':
     test_main(PDTopK(), TFTopK(), config=APIConfig("topk"))

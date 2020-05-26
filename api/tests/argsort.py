@@ -53,5 +53,9 @@ class TFArgsort(TensorflowAPIBenchmarkBase):
         self.fetch_list = [indices]
 
 
+def register_api():
+    REGISTER_API_INFO['argsort'] = ['argsort', 'argsort.json']
+
+
 if __name__ == '__main__':
     test_main(PDArgsort(), TFArgsort(), config=ArgsortConfig())

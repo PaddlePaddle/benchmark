@@ -46,5 +46,9 @@ class TFMean(TensorflowAPIBenchmarkBase):
         self.fetch_list = [result]
 
 
+def register_api():
+    REGISTER_API_INFO['mean'] = ['mean', 'mean.json']
+
+
 if __name__ == '__main__':
     test_main(PDMean(), TFMean(), config=MeanConfig())

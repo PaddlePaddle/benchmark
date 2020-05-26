@@ -40,5 +40,9 @@ class TFSoftmax(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [input])
 
 
+def register_api():
+    REGISTER_API_INFO['softmax'] = ['softmax', 'softmax.json']
+
+
 if __name__ == '__main__':
     test_main(PDSoftmax(), TFSoftmax(), config=APIConfig("softmax"))

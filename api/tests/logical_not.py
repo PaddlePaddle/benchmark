@@ -44,5 +44,9 @@ class TFLogicalNot(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [data])
 
 
+def register_api():
+    REGISTER_API_INFO['logical_not'] = ['logical_not', 'logical_not.json']
+
+
 if __name__ == '__main__':
     test_main(PDLogicalNot(), TFLogicalNot(), config=APIConfig("logical_not"))

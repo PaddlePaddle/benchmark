@@ -57,5 +57,10 @@ class TFSequenceMask(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [data])
 
 
+def register_api():
+    REGISTER_API_INFO[
+        'sequence_mask'] = ['sequence_mask', 'sequence_mask.json']
+
+
 if __name__ == '__main__':
     test_main(PDSequenceMask(), TFSequenceMask(), config=SequenceMaskConfig())

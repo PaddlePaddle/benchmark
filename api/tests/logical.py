@@ -60,5 +60,11 @@ class TFLogical(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x, y])
 
 
+def register_api():
+    api_list = ['logical_and', 'logical_or']
+    for api in api_list:
+        REGISTER_API_INFO[api] = ['logical', 'logical.json']
+
+
 if __name__ == '__main__':
     test_main(PDLogical(), TFLogical(), LogicalConfig())

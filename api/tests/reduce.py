@@ -66,5 +66,11 @@ class TFReduce(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [data])
 
 
+def register_api():
+    api_list = ['reduce_mean', 'reduce_sum', 'reduce_prod']
+    for api in api_list:
+        REGISTER_API_INFO[api] = ['reduce', 'reduce.json']
+
+
 if __name__ == '__main__':
     test_main(PDReduce(), TFReduce(), ReduceConfig())

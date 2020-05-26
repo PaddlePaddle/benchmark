@@ -36,6 +36,10 @@ class TFFillConstant(TensorflowAPIBenchmarkBase):
         self.fetch_list = [result]
 
 
+def register_api():
+    REGISTER_API_INFO['fill_constant'] = ['fill_constant', None]
+
+
 if __name__ == '__main__':
     test_main(
         PDFillConstant(), TFFillConstant(), config=APIConfig("fill_constant"))

@@ -54,5 +54,11 @@ class TFActivation(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
+def register_api():
+    api_list = ['cos', 'exp', 'floor', 'square', 'tanh', 'sigmoid', 'sqrt']
+    for api in api_list:
+        REGISTER_API_INFO[api] = ['activation', 'activation.json']
+
+
 if __name__ == '__main__':
     test_main(PDActivation(), TFActivation(), config=ActivationConfig())

@@ -32,5 +32,9 @@ class TFFeed(TensorflowAPIBenchmarkBase):
         self.fetch_list = [result]
 
 
+def register_api():
+    REGISTER_API_INFO['feed'] = ['feed', None]
+
+
 if __name__ == '__main__':
     test_main_without_json(PDFeed(), TFFeed(), config=APIConfig("feed"))

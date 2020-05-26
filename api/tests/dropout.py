@@ -49,5 +49,9 @@ class TFDropout(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
+def register_api():
+    REGISTER_API_INFO['dropout'] = ['dropout', 'dropout.json']
+
+
 if __name__ == '__main__':
     test_main(PDDropout(), TFDropout(), config=APIConfig("dropout"))

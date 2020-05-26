@@ -43,5 +43,9 @@ class TFAbs(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
+def register_api():
+    REGISTER_API_INFO['abs'] = ['abs', 'abs.json']
+
+
 if __name__ == '__main__':
     test_main(PDAbs(), TFAbs(), config=AbsConfig())

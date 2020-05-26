@@ -44,5 +44,9 @@ class TFZerosLike(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [data])
 
 
+def register_api():
+    REGISTER_API_INFO['zeros_like'] = ['zeros_like', 'zeros_like.json']
+
+
 if __name__ == '__main__':
     test_main(PDZerosLike(), TFZerosLike(), config=APIConfig("zeros_like"))

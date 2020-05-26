@@ -44,5 +44,9 @@ class TFTranspose(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [data])
 
 
+def register_api():
+    REGISTER_API_INFO['transpose'] = ['transpose', 'transpose.json']
+
+
 if __name__ == '__main__':
     test_main(PDTranspose(), TFTranspose(), config=APIConfig("transpose"))

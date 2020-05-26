@@ -46,6 +46,10 @@ class TFL2Normalize(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
+def register_api():
+    REGISTER_API_INFO['l2_normalize'] = ['l2_normalize', 'l2_normalize.json']
+
+
 if __name__ == '__main__':
     test_main(
         PDL2Normalize(), TFL2Normalize(), config=APIConfig("l2_normalize"))

@@ -133,5 +133,9 @@ class TFConv2d(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [input])
 
 
+def register_api():
+    REGISTER_API_INFO['conv2d'] = ['conv2d', 'conv2d.json']
+
+
 if __name__ == '__main__':
     test_main(PDConv2d(), TFConv2d(), config=Conv2dConfig())

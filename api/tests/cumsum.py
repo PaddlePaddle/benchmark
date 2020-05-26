@@ -47,5 +47,9 @@ class TFCumsum(TensorflowAPIBenchmarkBase):
         self.fetch_list = [result]
 
 
+def register_api():
+    REGISTER_API_INFO['cumsum'] = ['cumsum', 'cumsum.json']
+
+
 if __name__ == '__main__':
     test_main(PDCumsum(), TFCumsum(), config=CumsumConfig())

@@ -44,5 +44,9 @@ class TFRelu(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [data])
 
 
+def register_api():
+    REGISTER_API_INFO['relu'] = ['relu', 'relu.json']
+
+
 if __name__ == '__main__':
     test_main(PDRelu(), TFRelu(), config=APIConfig("relu"))

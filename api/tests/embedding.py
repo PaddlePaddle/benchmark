@@ -71,5 +71,9 @@ class TFEmbedding(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [table])
 
 
+def register_api():
+    REGISTER_API_INFO['embedding'] = ['embedding', 'embedding.json']
+
+
 if __name__ == '__main__':
     test_main(PDEmbedding(), TFEmbedding(), config=EmbeddingConfig())

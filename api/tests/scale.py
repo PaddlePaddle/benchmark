@@ -45,5 +45,9 @@ class TFScale(TensorflowAPIBenchmarkBase):
         self.fetch_list = [result]
 
 
+def register_api():
+    REGISTER_API_INFO['scale'] = ['scale', 'scale.json']
+
+
 if __name__ == '__main__':
     test_main(PDScale(), TFScale(), config=APIConfig("scale"))

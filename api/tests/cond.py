@@ -77,5 +77,9 @@ class TFCond(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x, y, input])
 
 
+def register_api():
+    REGISTER_API_INFO['cond'] = ['cond', 'cond.json']
+
+
 if __name__ == '__main__':
     test_main(PDCond(), TFCond(), config=APIConfig('cond'))

@@ -44,5 +44,9 @@ class TFShape(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [data])
 
 
+def register_api():
+    REGISTER_API_INFO['shape'] = ['shape', 'shape.json']
+
+
 if __name__ == '__main__':
     test_main(PDShape(), TFShape(), config=APIConfig("shape"))

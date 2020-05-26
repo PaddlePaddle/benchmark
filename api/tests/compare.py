@@ -71,5 +71,9 @@ class TFCompare(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x, y])
 
 
+def register_api():
+    REGISTER_API_INFO['compare'] = ['compare', 'compare.json']
+
+
 if __name__ == '__main__':
     test_main(PDCompare(), TFCompare(), CompareConfig())

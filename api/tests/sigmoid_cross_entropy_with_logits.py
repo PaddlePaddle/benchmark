@@ -54,6 +54,13 @@ class TFSigmoidCrossEntropyWithLogits(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [labels, logits])
 
 
+def register_api():
+    REGISTER_API_INFO['sigmoid_cross_entropy_with_logits'] = [
+        'sigmoid_cross_entropy_with_logits',
+        'sigmoid_cross_entropy_with_logits.json'
+    ]
+
+
 if __name__ == '__main__':
     test_main(
         PDSigmoidCrossEntropyWithLogits(),

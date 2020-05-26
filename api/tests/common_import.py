@@ -20,6 +20,8 @@ from common.paddle_api_benchmark import PaddleAPIBenchmarkBase
 from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase
 from common.api_param import APIConfig
 
+REGISTER_API_INFO = {}
+
 try:
     import paddle
 except ImportError:

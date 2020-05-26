@@ -87,5 +87,9 @@ class TFFC(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [input])
 
 
+def register_api():
+    REGISTER_API_INFO['fc'] = ['fc', 'fc.json']
+
+
 if __name__ == '__main__':
     test_main(PDFC(), TFFC(), config=FCConfig())

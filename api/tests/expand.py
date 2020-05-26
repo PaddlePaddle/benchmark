@@ -44,5 +44,9 @@ class TFExpand(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
+def register_api():
+    REGISTER_API_INFO['expand'] = ['expand', 'expand.json']
+
+
 if __name__ == '__main__':
     test_main(PDExpand(), TFExpand(), config=APIConfig("expand"))

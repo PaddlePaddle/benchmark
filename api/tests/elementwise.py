@@ -62,5 +62,15 @@ class TFElementwise(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x, y])
 
 
+def register_api():
+    api_list = [
+        'elementwise_add', 'elementwise_div', 'elementwise_max',
+        'elementwise_min', 'elementwise_sub', 'elementwise_mul',
+        'elementwise_pow'
+    ]
+    for api in api_list:
+        REGISTER_API_INFO[api] = ['elementwise', 'elementwise.json']
+
+
 if __name__ == '__main__':
     test_main(PDElementwise(), TFElementwise(), config=ElementwiseConfig())

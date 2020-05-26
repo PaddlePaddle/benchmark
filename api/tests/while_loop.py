@@ -112,5 +112,9 @@ class TFWhileLoop(TensorflowAPIBenchmarkBase):
             self.append_gradients(results, [input])
 
 
+def register_api():
+    REGISTER_API_INFO['while_loop'] = ['while_loop', 'fc.json']
+
+
 if __name__ == '__main__':
     test_main(PDWhileLoop(), TFWhileLoop(), config=WhileLoopConfig())

@@ -56,5 +56,9 @@ class TFSplit(TensorflowAPIBenchmarkBase):
             self.append_gradients([result], [data])
 
 
+def register_api():
+    REGISTER_API_INFO['split'] = ['split', 'split.json']
+
+
 if __name__ == '__main__':
     test_main(PDSplit(), TFSplit(), config=SplitConfig())

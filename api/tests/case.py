@@ -90,5 +90,9 @@ class TFCase(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x, y, input])
 
 
+def register_api():
+    REGISTER_API_INFO['case'] = ['case', 'case.json']
+
+
 if __name__ == '__main__':
     test_main(PDCase(), TFCase(), config=APIConfig('case'))

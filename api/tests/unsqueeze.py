@@ -44,5 +44,9 @@ class TFUnsqueeze(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [input])
 
 
+def register_api():
+    REGISTER_API_INFO['unsqueeze'] = ['unsqueeze', 'unsqueeze.json']
+
+
 if __name__ == '__main__':
     test_main(PDUnsqueeze(), TFUnsqueeze(), config=APIConfig("unsqueeze"))

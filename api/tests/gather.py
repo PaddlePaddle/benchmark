@@ -68,5 +68,9 @@ class TFGather(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [params, indices])
 
 
+def register_api():
+    REGISTER_API_INFO['gather'] = ['gather', 'gather.json']
+
+
 if __name__ == '__main__':
     test_main(PDGather(), TFGather(), config=GatherConfig())

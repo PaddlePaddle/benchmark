@@ -59,5 +59,9 @@ class TFOneHot(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [data])
 
 
+def register_api():
+    REGISTER_API_INFO['one_hot'] = ['one_hot', 'one_hot.json']
+
+
 if __name__ == '__main__':
     test_main(PDOneHot(), TFOneHot(), config=OneHotConfig())

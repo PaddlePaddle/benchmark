@@ -44,5 +44,9 @@ class TFIsfinite(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
+def register_api():
+    REGISTER_API_INFO['isfinite'] = ['isfinite', 'isfinite.json']
+
+
 if __name__ == '__main__':
     test_main(PDIsfinite(), TFIsfinite(), config=APIConfig("isfinite"))

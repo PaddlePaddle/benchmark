@@ -59,5 +59,11 @@ class TFArg(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
+def register_api():
+    api_list = ['argmax', 'argmin']
+    for api in api_list:
+        REGISTER_API_INFO[api] = ['arg', 'arg.json']
+
+
 if __name__ == '__main__':
     test_main(PDArg(), TFArg(), ArgConfig())

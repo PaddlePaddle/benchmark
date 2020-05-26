@@ -43,5 +43,10 @@ class TFInstanceNorm(TensorflowAPIBenchmarkBase):
             name='input', shape=config.input_shape, dtype=config.input_dtype)
 
 
+def register_api():
+    REGISTER_API_INFO[
+        'instance_norm'] = ['instance_norm', 'instance_norm.json']
+
+
 if __name__ == '__main__':
     test_main(PDInstanceNorm(), TFInstanceNorm(), config=InstanceNormConfig())

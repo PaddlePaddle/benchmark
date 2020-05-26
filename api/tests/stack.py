@@ -52,5 +52,9 @@ class TFStack(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, values)
 
 
+def register_api():
+    REGISTER_API_INFO['stack'] = ['stack', 'stack.json']
+
+
 if __name__ == '__main__':
     test_main(PDStack(), TFStack(), config=APIConfig("stack"))

@@ -44,5 +44,9 @@ class TFLeakyRelu(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [data])
 
 
+def register_api():
+    REGISTER_API_INFO['leaky_relu'] = ['leaky_relu', 'leaky_relu.json']
+
+
 if __name__ == '__main__':
     test_main(PDLeakyRelu(), TFLeakyRelu(), config=APIConfig("leaky_relu"))

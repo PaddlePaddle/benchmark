@@ -44,5 +44,9 @@ class TFReshape(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [data])
 
 
+def register_api():
+    REGISTER_API_INFO['reshape'] = ['reshape', 'reshape.json']
+
+
 if __name__ == '__main__':
     test_main(PDReshape(), TFReshape(), config=APIConfig("reshape"))

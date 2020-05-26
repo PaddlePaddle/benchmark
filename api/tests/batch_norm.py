@@ -102,5 +102,9 @@ class TFBatchNorm(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [input, scale, bias])
 
 
+def register_api():
+    REGISTER_API_INFO['batch_norm'] = ['batch_norm', 'batch_norm.json']
+
+
 if __name__ == '__main__':
     test_main(PDBatchNorm(), TFBatchNorm(), config=BatchNormConfig())

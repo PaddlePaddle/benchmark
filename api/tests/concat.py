@@ -52,5 +52,9 @@ class TFConcat(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, inputs)
 
 
+def register_api():
+    REGISTER_API_INFO['concat'] = ['concat', 'concat.json']
+
+
 if __name__ == '__main__':
     test_main(PDConcat(), TFConcat(), config=APIConfig("concat"))

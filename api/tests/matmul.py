@@ -65,5 +65,9 @@ class TFMatmul(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x, y])
 
 
+def register_api():
+    REGISTER_API_INFO['matmul'] = ['matmul', 'matmul.json']
+
+
 if __name__ == '__main__':
     test_main(PDMatmul(), TFMatmul(), config=APIConfig("matmul"))

@@ -58,5 +58,9 @@ class TFCosSim(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [X, Y])
 
 
+def register_api():
+    REGISTER_API_INFO['cos_sim'] = ['cos_sim', 'cos_sim.json']
+
+
 if __name__ == '__main__':
     test_main(PDCosSim(), TFCosSim(), config=CosSimConfig())

@@ -77,5 +77,9 @@ class TFSwitchCase(TensorflowAPIBenchmarkBase):
             self.append_gradients(result, [x, y, input])
 
 
+def register_api():
+    REGISTER_API_INFO['switch_case'] = ['switch_case', 'switch_case.json']
+
+
 if __name__ == '__main__':
     test_main(PDSwitchCase(), TFSwitchCase(), config=APIConfig('switch_case'))
