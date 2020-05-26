@@ -46,7 +46,7 @@ def run_command(command, shell=True):
     return stdout, exit_code
 
 
-def compare(output1, output2, atol):
+def _compare(output1, output2, atol):
     max_diff = np.float32(-0.0)
     offset = -1
     try:
@@ -100,7 +100,7 @@ def check_outputs(list1, list2, name, atol=1e-6):
                     "---- The %d-the output's data type is different, %s vs %s."
                     % (i, str(output1.dtype), str(output2.dtype)))
 
-            max_diff_i, offset_i = compare(output1, output2, atol)
+            max_diff_i, offset_i = _compare(output1, output2, atol)
             if max_diff_i > atol:
                 print(
                     "---- The %d-th output (shape: %s, data type: %s) has diff. "

@@ -182,7 +182,8 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
 
     if args.task == "accuracy":
         if config.run_tf:
-            utils.check_outputs(pd_outputs, tf_outputs, name=config.name)
+            utils.check_outputs(
+                pd_outputs, tf_outputs, name=config.name, atol=config.atol)
         else:
             warnings.simplefilter('always', UserWarning)
             warnings.warn("This config is not supported by TensorFlow.")
