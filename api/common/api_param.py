@@ -151,6 +151,11 @@ class APIConfig(object):
             for i in range(len(var.shape)):
                 if var.shape[i] == -1:
                     var.shape[i] = 16
+                var_temp = var.shape[i]
+                if type(var_temp) == list:
+                    for j in range(len(var_temp)):
+                        if var_temp[j] == -1:
+                            var_temp[j] = 16
             setattr(self, var.name + '_shape', var.shape)
             setattr(self, var.name + '_dtype', var.dtype)
         return self
