@@ -17,38 +17,25 @@ from common_import import *
 
 class PDMatmul(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            y = fluid.data(
-                name='y',
-                shape=config.y_shape,
-                dtype=config.y_dtype,
-                lod_level=0)
-            x.stop_gradient = False
-            y.stop_gradient = False
-            result = fluid.layers.matmul(
-                x=x,
-                y=y,
-                transpose_x=config.transpose_x,
-                transpose_y=config.transpose_y,
-                alpha=config.alpha)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = fluid.layers.matmul(
+            x=x,
+            y=y,
+            transpose_x=config.transpose_x,
+            transpose_y=config.transpose_y,
+            alpha=config.alpha)
 
-            self.feed_vars = [x, y]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [x, y])
+        self.feed_vars = [x, y]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [x, y])
 
 
 class TFMatmul(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.placeholder(
-            name='y', shape=config.y_shape, dtype=config.y_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
         result = tf.matmul(
             a=x,
             b=y,

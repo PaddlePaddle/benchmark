@@ -26,24 +26,17 @@ class OneHotConfig(APIConfig):
 
 class PDOneHot(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.one_hot(input=data, depth=config.depth)
+        data = self.variable(
+            name='data', shape=config.input_shape, dtype=config.input_dtype)
+        result = fluid.one_hot(input=data, depth=config.depth)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [data])
+        self.feed_vars = [data]
+        self.fetch_vars = [result]
 
 
 class TFOneHot(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
+        data = self.variable(
             name='data', shape=config.input_shape, dtype=config.input_dtype)
         result = tf.one_hot(
             indices=data,
@@ -55,8 +48,6 @@ class TFOneHot(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [data]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [data])
 
 
 if __name__ == '__main__':

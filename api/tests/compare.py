@@ -11,13 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from common_import import *
 
 
 class CompareConfig(APIConfig):
     def __init__(self):
         super(CompareConfig, self).__init__('compare')
-        self.api = 'less_than'
+        self.api_name = 'less_than'
         self.api_list = {
             'less_than': 'less',
             'less_equal': 'less_equal',
@@ -27,49 +28,26 @@ class CompareConfig(APIConfig):
             'equal': 'equal'
         }
 
-    def to_tensorflow(self):
-        self.tf_api = self.api_list[self.api]
-        return self
-
 
 class PDCompare(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            y = fluid.data(
-                name='y',
-                shape=config.y_shape,
-                dtype=config.y_dtype,
-                lod_level=0)
-            x.stop_gradient = False
-            y.stop_gradient = False
-            self.name = config.api
-            result = self.layers(config.api, x=x, y=y)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = self.layers(config.api_name, x=x, y=y)
 
-            self.feed_vars = [x, y]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [x, y])
+        self.feed_vars = [x, y]
+        self.fetch_vars = [result]
 
 
 class TFCompare(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.placeholder(
-            name='y', shape=config.y_shape, dtype=config.y_dtype)
-        self.name = config.tf_api
-        result = self.layers(config.tf_api, x=x, y=y)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = self.layers(config.api_name, x=x, y=y)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x, y])
 
 
 if __name__ == '__main__':
-    test_main(PDCompare(), TFCompare(), CompareConfig())
+    test_main(PDCompare(), TFCompare(), config=CompareConfig())

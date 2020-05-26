@@ -17,25 +17,18 @@ from common_import import *
 
 class PDExpand(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            x.stop_gradient = False
-            result = fluid.layers.expand(x=x, expand_times=config.expand_times)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = fluid.layers.expand(x=x, expand_times=config.expand_times)
 
-            self.feed_vars = [x]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [x])
+        self.feed_vars = [x]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 class TFExpand(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.tile(input=x, multiples=config.expand_times)
 
         self.feed_list = [x]

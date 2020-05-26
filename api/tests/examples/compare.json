@@ -33,12 +33,12 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[1L]",
+            "shape": "[256L, 1024L]",
             "type": "Variable"
         },
         "y": {
             "dtype": "float32",
-            "shape": "[1L]",
+            "shape": "[256L, 1024L]",
             "type": "Variable"
         }
     }

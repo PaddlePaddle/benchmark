@@ -64,6 +64,7 @@ class Conv2dConfig(APIConfig):
             padding = [padding, padding]
 
         assert isinstance(padding, list)
+        assert len(padding) == 2 or len(padding) == 4
         pad_top = padding[0] if len(padding) == 2 else padding[0]
         pad_bottom = padding[0] if len(padding) == 2 else padding[1]
         pad_left = padding[1] if len(padding) == 2 else padding[2]

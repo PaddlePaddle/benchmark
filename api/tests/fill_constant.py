@@ -17,12 +17,11 @@ from common_import import *
 
 class PDFillConstant(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            result = fluid.layers.fill_constant(
-                shape=config.shape, dtype=config.dtype, value=config.value)
+        result = fluid.layers.fill_constant(
+            shape=config.shape, dtype=config.dtype, value=config.value)
 
-            self.feed_vars = []
-            self.fetch_vars = [result]
+        self.feed_vars = []
+        self.fetch_vars = [result]
 
 
 class TFFillConstant(TensorflowAPIBenchmarkBase):

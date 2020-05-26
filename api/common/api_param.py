@@ -45,7 +45,18 @@ class BaseParamInfo(object):
         self.value = self._translate_value(self._encode_item(value))
 
     def _encode_item(self, item):
-        return item.encode("utf-8") if isinstance(item, unicode) else item
+        if isinstance(item, unicode):
+            return item.encode("utf-8")
+        elif isinstance(item, list):
+            item_str = []
+            for ele in item:
+                if isinstance(ele, unicode):
+                    item_str.append(ele.encode("utf-8"))
+                else:
+                    item_str.append(ele)
+            return item_str
+        else:
+            return item
 
     def to_string(self):
         return self.name + '--' + self.type + '|' + str(self.value)
@@ -93,6 +104,7 @@ class APIConfig(object):
     def __init__(self, op_type, params=None):
         self.__name = op_type
         self.__framework = "paddle"
+        self.api_name = self.name
         self.params = params
         self.variable_list = None
         self.params_list = None
@@ -137,9 +149,6 @@ class APIConfig(object):
             return self
 
     def init_from_json(self, filename, config_id=0):
-        if not hasattr(self, "api_name"):
-            self.api_name = self.name
-
         if hasattr(self, "alias_config"):
             self.alias_config.init_from_json(
                 self.alias_filename(filename), config_id)
@@ -206,7 +215,8 @@ class APIConfig(object):
         for name, value in vars(self).items():
             if name not in [
                     '_APIConfig__name', '_APIConfig__framework', 'params',
-                    'variable_list', 'params_list', 'backward', 'feed_spec'
+                    'api_list', 'variable_list', 'params_list', 'backward',
+                    'feed_spec'
             ]:
                 if isinstance(value, np.ndarray):
                     debug_str = debug_str + (

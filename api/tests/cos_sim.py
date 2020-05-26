@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,49 +13,37 @@
 # limitations under the License.
 
 from common_import import *
-import numpy as np
 
 
 class CosSimConfig(APIConfig):
     def __init__(self):
         super(CosSimConfig, self).__init__('cos_sim')
+        # TODO: cos_sim of tf = -1 * cos_sim of paddle
         self.run_tf = False
 
 
 class PDCosSim(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            X = fluid.data(
-                name='X',
-                shape=config.X_shape,
-                dtype=config.X_dtype,
-                lod_level=0)
-            X.stop_gradient = False
-            Y = fluid.data(
-                name='Y',
-                shape=config.Y_shape,
-                dtype=config.Y_dtype,
-                lod_level=0)
-            Y.stop_gradient = False
-            result = fluid.layers.cos_sim(X=X, Y=Y)
+        x = self.variable(name='x', shape=config.X_shape, dtype=config.X_dtype)
+        y = self.variable(name='y', shape=config.Y_shape, dtype=config.Y_dtype)
+        result = fluid.layers.cos_sim(X=x, Y=y)
 
-            self.feed_vars = [X, Y]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [X, Y])
+        self.feed_vars = [x, y]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [x, y])
 
 
 class TFCosSim(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        X = np.random.random(config.X_shape).astype(config.X_dtype)
-        Y = np.random.random(config.Y_shape).astype(config.Y_dtype)
-        result = tf.compat.v1.losses.cosine_distance(
-            labels=X, predictions=Y, axis=-1, weights=1.0, scope=None)
+        x = self.variable(name='x', shape=config.X_shape, dtype=config.X_dtype)
+        y = self.variable(name='y', shape=config.Y_shape, dtype=config.Y_dtype)
+        result = tf.losses.cosine_similarity(y_true=x, y_pred=y, axis=-1)
 
-        self.feed_list = [X, Y]
+        self.feed_list = [x, y]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [X, Y])
+            self.append_gradients(result, [x, y])
 
 
 if __name__ == '__main__':

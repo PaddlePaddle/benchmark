@@ -343,7 +343,7 @@ class TensorflowAPIBenchmarkBase(object):
     def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
         print(config)
 
-        self.name = config.name
+        self.name = config.api_name
         feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
                                                      feeder_adapter)
 
