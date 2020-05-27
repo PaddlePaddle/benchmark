@@ -114,7 +114,18 @@ def check_outputs(list1, list2, name, atol=1e-6):
     num_outputs = 0
 
     if name not in special_op_list.NO_FETCHES_OPS:
-        assert len(list1) == len(list2)
+        if len(list1) != len(list2):
+            if len(list1) > 1 and len(list2) == 1 and isinstance(list2[0],
+                                                                 list):
+                list2 = list2[0]
+            if len(list1) == 1 and len(list2) > 1 and isinstance(list1[0],
+                                                                 list):
+                list1 = list1[0]
+            assert len(list1) == len(
+                list2
+            ), "Expected the number of outputs to be equal, but recieved: %d vs %d." % (
+                len(list1), len(list2))
+
         num_outputs = len(list1)
         for i in xrange(num_outputs):
             output1 = list1[i]

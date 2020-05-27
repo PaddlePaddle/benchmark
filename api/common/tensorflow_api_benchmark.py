@@ -353,6 +353,15 @@ class TensorflowAPIBenchmarkBase(object):
         for i in range(len(feed_list)):
             feed[self.feed_list[i]] = feed_list[i]
 
+        fetch_list = []
+        for item in self.fetch_list:
+            if isinstance(item, list):
+                for var in item:
+                    fetch_list.append(var)
+            else:
+                fetch_list.append(item)
+        self.fetch_list = fetch_list
+
         self.allow_growth = False if args.task == "speed" else True
         outputs, stats = self.run_impl(
             use_gpu=args.use_gpu,

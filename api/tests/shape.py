@@ -17,31 +17,22 @@ from common_import import *
 
 class PDShape(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.shape(input=data)
+        data = self.variable(
+            name='data', shape=config.input_shape, dtype=config.input_dtype)
+        result = fluid.layers.shape(input=data)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [data])
+        self.feed_vars = [data]
+        self.fetch_vars = [result]
 
 
 class TFShape(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
+        data = self.variable(
             name='data', shape=config.input_shape, dtype=config.input_dtype)
         result = tf.shape(input=data)
 
         self.feed_list = [data]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [data])
 
 
 if __name__ == '__main__':
