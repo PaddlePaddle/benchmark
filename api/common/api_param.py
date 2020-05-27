@@ -192,7 +192,7 @@ class APIConfig(object):
         if hasattr(self, "api_list"):
             tf_config.api_name = self.api_list[self.api_name]
         if hasattr(tf_config, "alias_config"):
-            tf_config.alias_config.to_tensorflow()
+            tf_config.alias_config = tf_config.alias_config.to_tensorflow()
         return tf_config
 
     def to_string(self):

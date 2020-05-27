@@ -17,13 +17,15 @@ from common_import import *
 
 class AbsConfig(APIConfig):
     def __init__(self):
-        super(AbsConfig, self).__init__('abs')
+        super(AbsConfig, self).__init__("abs")
         self.feed_spec = {"range": [-1, 1]}
+        self.alias_config = APIConfig("activation")
 
 
 class PDAbs(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(
+            name="x", shape=config.alias.x_shape, dtype=config.alias.x_dtype)
         result = fluid.layers.abs(x=x)
 
         self.feed_vars = [x]
@@ -34,7 +36,8 @@ class PDAbs(PaddleAPIBenchmarkBase):
 
 class TFAbs(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(
+            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
         result = tf.abs(x=x)
 
         self.feed_list = [x]
