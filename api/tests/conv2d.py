@@ -34,21 +34,22 @@ class Conv2dConfig(APIConfig):
         elif self.data_format == "NHWC":
             self.num_channels = self.input_shape[4]
         if self.input_shape[0] == -1:
-            self.input_shape[0] = 64 
+            self.input_shape[0] = 64
         if isinstance(self.filter_size, int):
             self.filter_size = [self.filter_size, self.filter_size]
         if self.num_channels % self.groups != 0:
             raise ValueError(
                 "the channel of input must be divisible by groups,"
                 "received: the channel of input is {}, the shape of input is {}"
-                ", the groups is {}".format(self.num_channels, self.input_shape, self.groups))
+                ", the groups is {}".format(self.num_channels,
+                                            self.input_shape, self.groups))
         self.filter_shape = [
-            self.num_filters, self.num_channels // self.groups, self.filter_size[0],
-            self.filter_size[1]
+            self.num_filters, self.num_channels // self.groups,
+            self.filter_size[0], self.filter_size[1]
         ]
 
     def to_tensorflow(self):
-        tf_config = self
+        tf_config = super(Conv2dConfig, self).to_tensorflow()
         tf_config.filter_shape = [
             self.filter_size[0], self.filter_size[1], self.num_channels,
             self.num_filters
@@ -78,42 +79,35 @@ class Conv2dConfig(APIConfig):
 
 class PDConv2d(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            input = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            filter = fluid.layers.create_parameter(
-                name='filter',
-                shape=config.filter_shape,
-                dtype=config.input_dtype)
-            input.stop_gradient = False
-            result = fluid.layers.conv2d(
-                input=input,
-                num_filters=config.num_filters,
-                filter_size=config.filter_size,
-                stride=config.stride,
-                padding=config.padding,
-                dilation=config.dilation,
-                groups=config.groups,
-                param_attr='filter',
-                bias_attr=False,
-                use_cudnn=config.use_cudnn,
-                act=None,
-                data_format=config.data_format)
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        filter = self.variable(
+            name='filter', shape=config.filter_shape, dtype=config.input_dtype)
+        result = fluid.layers.conv2d(
+            input=input,
+            num_filters=config.num_filters,
+            filter_size=config.filter_size,
+            stride=config.stride,
+            padding=config.padding,
+            dilation=config.dilation,
+            groups=config.groups,
+            param_attr='filter',
+            bias_attr=False,
+            use_cudnn=config.use_cudnn,
+            act=None,
+            data_format=config.data_format)
 
-            self.feed_vars = [input, filter]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [input])
+        self.feed_vars = [input, filter]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [input])
 
 
 class TFConv2d(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        input = self.placeholder(
+        input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
-        filter = self.placeholder(
+        filter = self.variable(
             name='filter', shape=config.filter_shape, dtype=config.input_dtype)
         if tf.__version__ <= "1.15.0":
             result = tf.nn.conv2d(

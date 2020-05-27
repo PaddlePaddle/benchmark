@@ -17,32 +17,27 @@ from common_import import *
 
 class PDSoftmax(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.softmax(
-                input=data, use_cudnn=config.use_cudnn, axis=config.axis)
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = fluid.layers.softmax(
+            input=input, use_cudnn=config.use_cudnn, axis=config.axis)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [data])
+        self.feed_vars = [input]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [input])
 
 
 class TFSoftmax(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
-            name='data', shape=config.input_shape, dtype=config.input_dtype)
-        result = tf.nn.softmax(logits=data, axis=config.axis)
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = tf.nn.softmax(logits=input, axis=config.axis)
 
-        self.feed_list = [data]
+        self.feed_list = [input]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [data])
+            self.append_gradients(result, [input])
 
 
 if __name__ == '__main__':
