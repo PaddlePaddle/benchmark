@@ -17,19 +17,26 @@ import os
 import json
 import warnings
 from operator import mul
+from functools import reduce
 import random
+import copy
 
 import sys
 sys.path.append("..")
 from common.api_param import parse_list
 
 
-def select_configs_by_json(args, all_configs, all_shapes, input_type):
+def select_configs_by_json(args, origin_configs, configs_without_input,
+                           all_shapes, input_type):
+    """
+    Select configs according to json config and save the selected
+    configs to the sepcified json file.
+    """
     ignored_params = []
     if args.ignored_params:
         ignored_params += args.ignored_params
     all_config_info = []
-    for config in all_configs:
+    for config in configs_without_input:
         config_info = ""
         for param in config["param_info"]:
             if param not in ignored_params:
@@ -37,26 +44,19 @@ def select_configs_by_json(args, all_configs, all_shapes, input_type):
                 config_info += param + "=" + value + " "
         all_config_info.append(config_info)
     config_groups = grouping_configs(all_config_info, all_shapes, input_type)
-    print("=" * 30 + "config_groups" + "=" * 30)
-    all_selected_ids = []
-    i = 0
-    for key in config_groups:
-        print("config {0}: {1}, total: {2}.".format(
-            i, key, len(config_groups[key]['ids'])))
-        shape_groups = config_groups[key]['shape_groups']
-        if not shape_groups:
-            selected_ids = random.sample(config_groups[key]['ids'], 1)
-            all_selected_ids.append(selected_ids)
-            select_ids_info = "  Select {0} config_ids: {1}.".format(
-                len(selected_ids), selected_ids)
-            print(select_ids_info)
-        else:
-            all_selected_ids += select_from_shape_groups(shape_groups,
-                                                         all_shapes)
-        i += 1
+    all_selected_ids = select_and_print_configs(config_groups, all_shapes)
+
+    out_dir = os.path.dirname(args.output_json_file)
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+    configs = []
+    for index in all_selected_ids:
+        configs.append(origin_configs[index])
+    with open(args.output_json_file, 'w') as f:
+        json.dump(configs, f, indent=4, sort_keys=True)
 
 
-def select_configs(args, forward_logs, backward_logs):
+def select_configs_by_log(args, forward_logs, backward_logs):
     """
     Select configs according to forward logs and backward logs and save the selected
     configs to the sepcified json file.
@@ -77,24 +77,7 @@ def select_configs(args, forward_logs, backward_logs):
     combined_logs = combine_logs_with_key_params(removed_params, forward_logs,
                                                  backward_logs)
     config_groups = grouping_configs(combined_logs, shapes_list)
-
-    print("=" * 30 + "config_groups" + "=" * 30)
-    all_selected_ids = []
-    i = 0
-    for key in config_groups:
-        print("config {0}: {1}, total: {2}.".format(
-            i, key, len(config_groups[key]['ids'])))
-        shape_groups = config_groups[key]['shape_groups']
-        if not shape_groups:
-            selected_ids = random.sample(config_groups[key]['ids'], 1)
-            all_selected_ids.append(selected_ids)
-            select_ids_info = "  Select {0} config_ids: {1}.".format(
-                len(selected_ids), selected_ids)
-            print(select_ids_info)
-        else:
-            all_selected_ids += select_from_shape_groups(shape_groups,
-                                                         shapes_list)
-        i += 1
+    all_selected_ids = select_and_print_configs(config_groups, shapes_list)
 
     with open(args.input_json_file, 'r') as f:
         all_configs = json.load(f)
@@ -106,6 +89,27 @@ def select_configs(args, forward_logs, backward_logs):
         configs.append(all_configs[index])
     with open(args.output_json_file, 'w') as f:
         json.dump(configs, f, indent=4, sort_keys=True)
+
+
+def select_and_print_configs(config_groups, shapes_list):
+    print("=" * 30 + "config_groups" + "=" * 30)
+    all_selected_ids = []
+    i = 0
+    for key in config_groups:
+        print("config {0}: {1}, total: {2}.".format(
+            i, key, len(config_groups[key]['ids'])))
+        shape_groups = config_groups[key]['shape_groups']
+        if not shape_groups:
+            selected_ids = random.sample(config_groups[key]['ids'], 1)
+            all_selected_ids.extend(selected_ids)
+            select_ids_info = "  Select {0} config_ids: {1}.".format(
+                len(selected_ids), selected_ids)
+            print(select_ids_info)
+        else:
+            all_selected_ids.extend(
+                select_from_shape_groups(shape_groups, shapes_list))
+        i += 1
+    return all_selected_ids
 
 
 def select_from_shape_groups(shape_groups, shapes):
@@ -248,7 +252,7 @@ def get_input_shapes(logs, input_shape):
             param_val = item.split("=")
             if param_val[0] in input_shape:
                 shape = parse_list(param_val[1])
-                shapes.append(shape)
+                shapes.append(list(shape))
         all_shapes.append(shapes)
 
     return all_shapes
@@ -278,6 +282,49 @@ def group_input_shapes(shapes, config_ids, input_type):
             shape_groups[label]['sizes'] += [size]
 
     return shape_groups
+
+
+def get_input_shapes_from_json(args, origin_configs):
+    configs_without_input = []
+    all_shapes = []
+    input_type = "Variable"
+    input_name = ["input", "x", "y"]
+    for config in origin_configs:
+        config_res = copy.deepcopy(config)
+        input_shapes = []
+        var_shapes = []
+        for name, value in config["param_info"].items():
+            if name in args.ignored_params:
+                continue
+            if value["type"] in ["Variable", "numpy.ndarray"]:
+                if value["type"] == "Variable":
+                    shape = list(parse_list(value["shape"]))
+                else:
+                    shape = list(parse_list(value["value"]))
+                for i in range(len(shape)):
+                    if shape[i] == -1:
+                        shape[i] = 16
+                if name in input_name:
+                    input_shapes.append(shape)
+                else:
+                    var_shapes.append(shape)
+                del config_res["param_info"][name]
+            elif value["type"] == "list<Variable>":
+                input_type = "list<Variable>"
+                for key, var in value.items():
+                    if key != "type":
+                        shape = list(parse_list(var["shape"]))
+                        for i in range(len(shape)):
+                            if shape[i] == -1:
+                                shape[i] = 16
+                        input_shapes.append(shape)
+                del config_res["param_info"][name]
+        configs_without_input.append(config_res)
+        all_shapes.append(input_shapes)
+        if len(input_shapes) == 0 and len(var_shapes) <= 2:
+            all_shapes.append(var_shapes)
+
+    return configs_without_input, all_shapes, input_type
 
 
 def label_shape(shape, input_type):
@@ -388,30 +435,33 @@ def get_logs(op_name, log_file):
     return forward_logs, backward_logs
 
 
-def parse_json_config(json_file):
-    if not os.path.exists(json_file):
+def parse_json_config(args):
+    if not os.path.exists(args.input_json_file):
         raise ValueError(
-            "The file {} is not found. Please check the path of json file.".
-            format(json_file))
-    with open(args.input_json_file, 'r') as f:
-        all_configs = json.load(f)
-        all_shapes = []
-        for config in all_configs:
-            if "input" in config["param_info"]:
-                shapes = []
-                value = config["param_info"]["input"]
-                if value["type"] == "Variable":
-                    input_type = "Variable"
-                    shape = parse_list(value["shape"])
-                    shapes.append(shape)
-                elif value["type"] == "list<Variable>":
-                    input_type = "list<Variable>"
-                    for key, var in value.items():
-                        if key != "type":
-                            shapes.append(parse_list(var["shape"]))
-                del config["param_info"]["input"]
-            all_shapes.append(shapes)
-    return all_configs, all_shapes, input_type
+            "The input_json_file {} is not found. Please check the path of json file.".
+            format(args.input_json_file))
+
+    origin_configs = []
+    if os.path.isdir(args.input_json_file):
+        if args.similar_api:
+            for api in args.similar_api:
+                json_path = os.path.join(args.input_json_file, api + '.json')
+                with open(json_path, 'r') as f:
+                    api_configs = json.load(f)
+                    origin_configs.extend(api_configs)
+        else:
+            raise ValueError(
+                "When input_json_file is a Directory, the args similar_api should be set."
+            )
+    elif os.path.isfile(args.input_json_file):
+        with open(args.input_json_file, 'r') as f:
+            origin_configs = json.load(f)
+
+    configs_without_input, all_shapes, input_type = get_input_shapes_from_json(
+        args, origin_configs)
+    print("Total config of input json: {}".format(len(origin_configs)))
+
+    return origin_configs, configs_without_input, all_shapes, input_type
 
 
 def parse_args():
@@ -450,6 +500,11 @@ def parse_args():
         action='store_true',
         help='Whether selecting configs by parsing runtime log. '
         'Default: False, selecting configs by parsing json config.')
+    parser.add_argument(
+        '--similar_api',
+        nargs='*',
+        help='Specify the similar APIs, the output config will be '
+        'selected from the json file of these APIs.')
     args = parser.parse_args()
     return args
 
@@ -459,8 +514,9 @@ if __name__ == '__main__':
     print("ignored_params: {0}.".format(args.ignored_params))
     if args.parse_runtime_log:
         forward_logs, backward_logs = get_logs(args.op_name, args.log_file)
-        select_configs(args, forward_logs, backward_logs)
+        select_configs_by_log(args, forward_logs, backward_logs)
     else:
-        all_configs, all_shapes, input_type = parse_json_config(
-            args.input_json_file)
-        select_configs_by_json(args, all_configs, all_shapes, input_type)
+        origin_configs, configs_without_input, all_shapes, input_type = parse_json_config(
+            args)
+        select_configs_by_json(args, origin_configs, configs_without_input,
+                               all_shapes, input_type)
