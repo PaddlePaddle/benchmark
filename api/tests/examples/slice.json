@@ -11,7 +11,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[2L, -1L, 200L]",
+            "shape": "[2L, 200L]",
             "type": "Variable"
         },
         "starts": {

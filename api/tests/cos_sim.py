@@ -13,46 +13,24 @@
 # limitations under the License.
 
 from common_import import *
-import numpy as np
-
-
-class CosSimConfig(APIConfig):
-    def __init__(self):
-        super(CosSimConfig, self).__init__('cos_sim')
-        self.run_tf = False
 
 
 class PDCosSim(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            X = fluid.data(
-                name='X',
-                shape=config.X_shape,
-                dtype=config.X_dtype,
-                lod_level=0)
-            X.stop_gradient = False
-            Y = fluid.data(
-                name='Y',
-                shape=config.Y_shape,
-                dtype=config.Y_dtype,
-                lod_level=0)
-            Y.stop_gradient = False
-            result = fluid.layers.cos_sim(X=X, Y=Y)
+        X = self.variable(name='X', shape=config.X_shape, dtype=config.X_dtype)
+        Y = self.variable(name='Y', shape=config.Y_shape, dtype=config.Y_dtype)
+        result = fluid.layers.cos_sim(X=X, Y=Y)
 
-            self.feed_vars = [X, Y]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [X, Y])
+        self.feed_vars = [X, Y]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [X, Y])
 
 
 class TFCosSim(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        # X = self.placeholder(
-        #     name='X', shape=config.X_shape, dtype=config.X_dtype)
-        # Y = self.placeholder(
-        #      name='Y', shape=config.Y_shape, dtype=config.Y_dtype)
-        X = np.random.random(config.X_shape).astype(config.X_dtype)
-        Y = np.random.random(config.Y_shape).astype(config.Y_dtype)
+        X = self.variable(name='X', shape=config.X_shape, dtype=config.X_dtype)
+        Y = self.variable(name='Y', shape=config.Y_shape, dtype=config.Y_dtype)
         result = tf.compat.v1.losses.cosine_distance(
             labels=X, predictions=Y, axis=-1, weights=1.0, scope=None)
 
@@ -63,4 +41,4 @@ class TFCosSim(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDCosSim(), TFCosSim(), config=CosSimConfig())
+    test_main(PDCosSim(), TFCosSim(), config=APIConfig("cos_sim"))

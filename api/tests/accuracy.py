@@ -15,48 +15,40 @@
 from common_import import *
 
 
+#TODO:parameter total is not include
 class AccuracyConfig(APIConfig):
     def __init__(self):
         super(AccuracyConfig, self).__init__('accuracy')
-
-#        self.run_tf = False
+        self.run_tf = False
 
     def to_tensorflow(self):
-        tf_config = self
+        tf_config = super(AccuracyConfig, self).to_tensorflow()
         tf_config.label_shape = self.input_shape
         return tf_config
 
 
 class PDAccuracy(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            input = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            label = fluid.data(
-                name='label',
-                shape=config.label_shape,
-                dtype=config.label_dtype,
-                lod_level=0)
-            input.stop_gradient = False
-            label.stop_gradient = False
-            result = fluid.layers.accuracy(input=input, label=label, k=1)
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        label = self.variable(
+            name='label', shape=config.label_shape, dtype=config.label_dtype)
+        result = fluid.layers.accuracy(input=input, label=label, k=1)
 
-            self.feed_vars = [input, label]
-            self.fetch_vars = [result[0]]
-            if config.backward:
-                self.append_gradients(result[0], [input, label])
+        self.feed_vars = [input, label]
+        self.fetch_vars = [result[0]]
+        if config.backward:
+            self.append_gradients(result[0], [input, label])
 
 
+# The labels of accuracy in Paddle and TF is not same. 
 class TFAccuracy(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        predictions = self.placeholder(
+        predictions = self.variable(
             name='predictions',
             shape=config.input_shape,
             dtype=config.input_dtype)
-        labels = self.placeholder(
+        labels = self.variable(
             name='labels', shape=config.label_shape, dtype=config.label_dtype)
         result1, result2 = tf.compat.v1.metrics.accuracy(
             labels=labels, predictions=predictions)

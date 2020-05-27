@@ -21,43 +21,51 @@ class SliceConfig(APIConfig):
         self.run_tf = False
 
     def to_tensorflow(self):
-        tf_config = self
-        tf_config.ends = fluid.layers.elementwise_sub(self.starts, self.ends)
+        tf_config = super(SliceConfig, self).to_tensorflow()
+        if len(self.starts) < len(self.input_shape):
+            tf_config.starts = []
+            tf_config.ends = []
+            for i in range(len(self.input_shape)):
+                tf_config.starts.append(0)
+                tf_config.ends.append(self.input_shape[i])
+            for i in self.axes:
+                tf_config.starts[i] = self.starts[i]
+                tf_config.ends[i] = self.ends[i] - self.starts[i]
+        else:
+            for j in range(len(self.starts)):
+                tf_config.ends[j] = self.ends[j] - self.starts[j]
         return tf_config
 
 
 class PDSlice(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.slice(
-                input=data,
-                axes=config.axes,
-                starts=config.starts,
-                ends=config.ends)
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = fluid.layers.slice(
+            input=input,
+            axes=config.axes,
+            starts=config.starts,
+            ends=config.ends)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [data])
+        self.feed_vars = [input]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [input])
 
 
 class TFSlice(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
+        input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
-        result = tf.slice(input_=data, begin=config.starts, size=config.ends)
+        begin = self.variable(name='begin', shape=config.starts, dtype="int32")
+        size = self.variable(name='size', shape=config.ends, dtype="int32")
+        result = tf.slice(input_=input, begin=begin, size=size)
 
-        self.feed_list = [data]
+        self.feed_list = [input, begin, size]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [data])
+            self.append_gradients(result, [input, begin, size])
 
 
 if __name__ == '__main__':
-    test_main(PDSlice(), TFSlice(), config=APIConfig("slice"))
+    test_main(PDSlice(), TFSlice(), config=SliceConfig())

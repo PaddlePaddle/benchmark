@@ -18,10 +18,10 @@ from common_import import *
 class Pad2dConfig(APIConfig):
     def __init__(self):
         super(Pad2dConfig, self).__init__('pad2d')
-        self.run_tf = False
+        #self.run_tf = False
 
     def to_tensorflow(self):
-        tf_config = self
+        tf_config = super(Pad2dConfig, self).to_tensorflow()
         if self.mode == 'constant':
             tf_config.mode = 'CONSTANT'
         elif self.mode == 'reflect':
@@ -34,39 +34,39 @@ class Pad2dConfig(APIConfig):
                 self.input_shape[0], self.input_shape[2], self.input_shape[3],
                 self.input_shape[1]
             ]
+        tf_config.paddings_shape = [matrix_rank(np.array(self.input_shape)), 2]
         return tf_config
 
 
 class PDPad2d(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.pad2d(
-                input=data,
-                paddings=config.paddings,
-                mode=config.mode,
-                pad_value=config.pad_value,
-                data_format=config.data_format)
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = fluid.layers.pad2d(
+            input=input,
+            paddings=config.paddings,
+            mode=config.mode,
+            pad_value=config.pad_value,
+            data_format=config.data_format)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
+        self.feed_vars = [input]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [input])
 
 
 class TFPad2d(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
+        input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
-        result = tf.pad(tensor=data,
-                        paddings=config.paddings,
+        paddings = self.variable(
+            name='paddings', shape=config.paddings_shape, dtype="int32")
+        result = tf.pad(tensor=input,
+                        paddings=paddings,
                         mode=config.mode,
                         constant_values=config.pad_value)
 
-        self.feed_list = [x]
+        self.feed_list = [input]
         self.fetch_list = [result]
 
 
