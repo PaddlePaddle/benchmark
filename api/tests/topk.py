@@ -17,31 +17,26 @@ from common_import import *
 
 class PDTopK(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            value, indices = fluid.layers.topk(input=data, k=config.k)
+        data = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        value, indices = fluid.layers.topk(input=data, k=config.k)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [value, indices]
-            if config.backward:
-                self.append_gradients([value, indices], [data])
+        self.feed_vars = [data]
+        self.fetch_vars = [value, indices]
+        if config.backward:
+            self.append_gradients([value], [data])
 
 
 class TFTopK(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
+        data = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
         value, indices = tf.math.top_k(input=data, k=config.k)
 
         self.feed_list = [data]
         self.fetch_list = [value, indices]
         if config.backward:
-            self.append_gradients([value, indices], [data])
+            self.append_gradients([value], [data])
 
 
 if __name__ == '__main__':

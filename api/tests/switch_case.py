@@ -17,44 +17,34 @@ from common_import import *
 
 class PDSwitchCase(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x', shape=config.x_shape, dtype=config.x_dtype)
-            y = fluid.data(
-                name='y', shape=config.y_shape, dtype=config.y_dtype)
-            input = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype)
-            x.stop_gradient = False
-            y.stop_gradient = False
-            input.stop_gradient = False
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
 
-            def f1():
-                return fluid.layers.elementwise_add(x=x, y=y)
+        def f1():
+            return fluid.layers.elementwise_add(x=x, y=y)
 
-            def f2():
-                return fluid.layers.elementwise_sub(x=x, y=y)
+        def f2():
+            return fluid.layers.elementwise_sub(x=x, y=y)
 
-            def f3():
-                return fluid.layers.elementwise_mul(x=x, y=y)
+        def f3():
+            return fluid.layers.elementwise_mul(x=x, y=y)
 
-            result = fluid.layers.switch_case(
-                branch_index=input, branch_fns={0: f1,
-                                                1: f2}, default=f3)
-            self.feed_vars = [x, y, input]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [x, y, input])
+        result = fluid.layers.switch_case(
+            branch_index=input, branch_fns={0: f1,
+                                            1: f2}, default=f3)
+        self.feed_vars = [x, y, input]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [x, y, input])
 
 
 class TFSwitchCase(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.placeholder(
-            name='y', shape=config.y_shape, dtype=config.y_dtype)
-        input = self.placeholder(
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
 
         def f1():
