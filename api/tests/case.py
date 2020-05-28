@@ -17,10 +17,11 @@ from common_import import *
 
 class PDCase(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        zero_var = fluid.layers.zeros(
-            shape=config.input_shape, dtype=config.input_dtype)
-        five_var = fluid.layers.fill_constant(
-            shape=config.input_shape, dtype=config.input_dtype, value=5)
+        with fluid.device_guard("cpu"):
+            zero_var = fluid.layers.zeros(
+                shape=config.input_shape, dtype=config.input_dtype)
+            five_var = fluid.layers.fill_constant(
+                shape=config.input_shape, dtype=config.input_dtype, value=5)
 
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
@@ -36,8 +37,9 @@ class PDCase(PaddleAPIBenchmarkBase):
         def f3():
             return fluid.layers.elementwise_mul(x=x, y=y)
 
-        pred_1 = fluid.layers.less_than(input, zero_var)
-        pred_2 = fluid.layers.greater_than(input, five_var)
+        with fluid.device_guard("cpu"):
+            pred_1 = fluid.layers.less_than(input, zero_var)
+            pred_2 = fluid.layers.greater_than(input, five_var)
 
         result = fluid.layers.case(
             pred_fn_pairs=[(pred_1, f1), (pred_2, f2)], default=f3)
