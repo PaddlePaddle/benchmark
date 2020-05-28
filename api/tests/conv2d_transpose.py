@@ -12,36 +12,61 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
+from common_import import *
 
 
-class PDConv2dTranspose(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False, dtype=None):
-        import paddle.fluid as fluid
+class Conv2dTransposeConfig(APIConfig):
+    def __init__(self):
+        super(Conv2dTransposeConfig, self).__init__('conv2d_transpose')
 
-        self.name = "conv2d_transpose"
-        with fluid.program_guard(self.main_program, self.startup_program):
-            input = fluid.data(
-                name='input', shape=[1, 1, 80, 63], dtype=dtype, lod_level=0)
-            input.stop_gradient = False
-            result = fluid.layers.conv2d_transpose(
-                input=input,
-                num_filters=1,
-                filter_size=(3, 32),
-                padding=(1, 8),
-                stride=(1, 16),
-                bias_attr=False,
-                use_cudnn=True)
+    def init_from_json(self, filename, config_id=0):
+        super(Conv2dTransposeConfig, self).init_from_json(filename, config_id)
+        if self.data_format == "NCHW":
+            self.num_channels = self.input_shape[1]
+        elif self.data_format == "NHWC":
+            self.num_channels = self.input_shape[4]
+        if self.input_shape[0] == -1:
+            self.input_shape[0] = 64
+        if isinstance(self.filter_size, int):
+            self.filter_size = [self.filter_size, self.filter_size]
+        if self.num_channels % self.groups != 0:
+            raise ValueError(
+                "the channel of input must be divisible by groups,"
+                "received: the channel of input is {}, the shape of input is {}"
+                ", the groups is {}".format(self.num_channels,
+                                            self.input_shape, self.groups))
+        self.filter_shape = [
+            self.num_filters, self.num_channels // self.groups,
+            self.filter_size[0], self.filter_size[1]
+        ]
 
-            self.feed_vars = [input]
-            self.fetch_vars = [result]
-            if backward:
-                self.append_gradients(result, [input])
+
+class PDConv2dTranspose(PaddleAPIBenchmarkBase):
+    def build_program(self, config):
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        filter = self.variable(
+            name='filter', shape=config.filter_shape, dtype=config.input_dtype)
+        result = fluid.layers.conv2d_transpose(
+            input=input,
+            num_filters=config.num_filters,
+            output_size=config.output_size,
+            filter_size=config.filter_size,
+            padding=config.padding,
+            stride=config.stride,
+            dilation=config.dilation,
+            groups=config.groups,
+            param_attr="filter",
+            bias_attr=False,
+            use_cudnn=config.use_cudnn,
+            act=None,
+            data_format=config.data_format)
+
+        self.feed_vars = [input, filter]
+        self.fetch_vars = [result]
+        if backward:
+            self.append_gradients(result, [input])
 
 
 if __name__ == '__main__':
-    test_main(PDConv2dTranspose(), feed_spec=None)
+    test_main(PDConv2dTranspose(), config=Conv2dTransposeConfig())
