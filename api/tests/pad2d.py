@@ -18,7 +18,6 @@ from common_import import *
 class Pad2dConfig(APIConfig):
     def __init__(self):
         super(Pad2dConfig, self).__init__('pad2d')
-        self.run_tf = False
 
     def to_tensorflow(self):
         tf_config = super(Pad2dConfig, self).to_tensorflow()
@@ -29,12 +28,11 @@ class Pad2dConfig(APIConfig):
         elif self.mode == 'edge':
             tf_config.mode = 'SYMMETRIC'
 
-        if self.data_format == 'NCHW':
-            tf_config.input_shape = [
-                self.input_shape[0], self.input_shape[2], self.input_shape[3],
-                self.input_shape[1]
-            ]
-        tf_config.paddings_shape = [matrix_rank(np.array(self.input_shape)), 2]
+        tf_config.paddings = np.zeros([4, 2]).astype("int32")
+        offset = 2 if self.data_format == 'NCHW' else 1  # NHWC
+        for i in range(2):
+            tf_config.paddings[i + offset][0] = self.paddings[2 * i]
+            tf_config.paddings[i + offset][1] = self.paddings[2 * i + 1]
         return tf_config
 
 
@@ -59,8 +57,8 @@ class TFPad2d(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
-        paddings = self.variable(
-            name='paddings', shape=config.paddings_shape, dtype="int32")
+        paddings = tf.constant(
+            shape=config.paddings.shape, dtype=tf.int32, value=config.paddings)
         result = tf.pad(tensor=input,
                         paddings=paddings,
                         mode=config.mode,
@@ -68,6 +66,8 @@ class TFPad2d(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [input]
         self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [input])
 
 
 if __name__ == '__main__':

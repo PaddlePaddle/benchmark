@@ -13,24 +13,20 @@
 # limitations under the License.
 
 import sys
-import importlib
 import numpy as np
+
 sys.path.append("..")
-from numpy.linalg import matrix_rank
 from common.paddle_api_benchmark import PaddleAPIBenchmarkBase
 from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase
 from common.api_param import APIConfig
 
 try:
     import paddle
-except ImportError:
-    sys.stderr.write("Cannot import paddle, maybe paddle is not installed.\n")
-
-try:
     import paddle.fluid as fluid
 except ImportError:
     sys.stderr.write(
-        "Cannot import paddle.fluid, maybe paddle is not installed.\n")
+        "Cannot import paddle or paddle.fluid, maybe paddle is not installed.\n"
+    )
 
 try:
     import tensorflow as tf
