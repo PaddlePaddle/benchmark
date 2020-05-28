@@ -1,0 +1,27 @@
+[{
+    "op": "accuracy",
+    "param_info": {
+        "correct": {
+            "type": "string",
+            "value": "None"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 1000L]",
+            "type": "Variable"
+        },
+        "k": {
+            "type": "int",
+            "value": "1"
+        },
+        "label": {
+            "dtype": "int64",
+            "shape": "[-1L, 1L]",
+            "type": "Variable"
+        },
+        "total": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}]
