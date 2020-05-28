@@ -18,7 +18,6 @@ from common_import import *
 class SliceConfig(APIConfig):
     def __init__(self):
         super(SliceConfig, self).__init__('slice')
-        self.run_tf = False
 
     def to_tensorflow(self):
         tf_config = super(SliceConfig, self).to_tensorflow()
@@ -57,14 +56,22 @@ class TFSlice(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
-        begin = self.variable(name='begin', shape=config.starts, dtype="int32")
-        size = self.variable(name='size', shape=config.ends, dtype="int32")
+        begin = self.variable(
+            name='begin',
+            shape=[len(config.starts)],
+            dtype="int32",
+            value=config.starts)
+        size = self.variable(
+            name='size',
+            shape=[len(config.ends)],
+            dtype="int32",
+            value=config.ends)
         result = tf.slice(input_=input, begin=begin, size=size)
 
-        self.feed_list = [input, begin, size]
+        self.feed_list = [input]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [input, begin, size])
+            self.append_gradients(result, [input])
 
 
 if __name__ == '__main__':

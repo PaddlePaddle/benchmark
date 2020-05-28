@@ -161,6 +161,7 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
     if _is_tensorflow_enabled(args, config):
         assert tf_obj is not None, "TensorFlow object is None."
         tf_config = config.to_tensorflow()
+        print(tf_config)
         feeder_adapter = tf_obj.generate_random_feeder(tf_config,
                                                        use_feed_fetch)
         tf_outputs, tf_stats = tf_obj.run(tf_config, args, use_feed_fetch,
@@ -171,6 +172,7 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
 
     if _is_paddle_enabled(args, config):
         assert pd_obj is not None, "Paddle object is None."
+        print(config)
         pd_outputs, pd_stats = pd_obj.run(config, args, use_feed_fetch,
                                           feeder_adapter)
         if args.task == "speed":
