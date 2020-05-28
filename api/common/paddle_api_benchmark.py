@@ -247,12 +247,6 @@ class PaddleAPIBenchmarkBase(object):
         for i in range(len(feed_list)):
             feed[self.feed_vars[i].name] = feed_list[i]
 
-#        if not self._need_feed:
-#            with fluid.program_guard(self.startup_program):
-#                # Append initialiar operator to startup program.
-#                for i in range(len(feed_list)):
-#                    self._assign(self.feed_vars[i], value=feed_list[i])
-
         self.scope = fluid.Scope()
         with fluid.scope_guard(self.scope):
             outputs, stats = self.run_impl(
@@ -262,42 +256,6 @@ class PaddleAPIBenchmarkBase(object):
                 check_output=args.check_output,
                 profiler=args.profiler)
         return outputs, stats
-
-    def _assign(self, feed_var, value):
-        block = fluid.default_main_program().global_block()
-        if block.has_var(feed_var.name):
-            out = block.var(feed_var.name)
-        else:
-            out = fluid.data(
-                name=feed_var.name, shape=feed_var.shape, dtype=feed_var.dtype)
-            out.persistable = feed_var.persistable
-
-        dtype_str = convert_dtype(feed_var.dtype)
-        if dtype_str == "bool":
-            value_name = "bool_values"
-            value = [bool(v) for v in value.flat]
-        elif dtype_str == "float32":
-            value_name = "fp32_values"
-            value = [float(v) for v in value.flat]
-        elif dtype_str == "int32":
-            value_name = "int32_values"
-            value = [int(v) for v in value.flat]
-        elif dtype_str == "int64":
-            value_name = "int64_values"
-            value = [int(v) for v in value.flat]
-        else:
-            raise TypeError(
-                "The data type of 'value' must be bool, float32, int32 or int64, but "
-                "received %s." % dtype_str)
-
-        fluid.default_main_program().global_block().append_op(
-            type='assign_value',
-            outputs={'Out': [out]},
-            attrs={
-                'dtype': feed_var.dtype,
-                'shape': list(feed_var.shape),
-                value_name: value
-            })
 
     def _init_feed_tensor(self, use_gpu, feed):
         place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
