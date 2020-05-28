@@ -17,29 +17,22 @@ from common_import import *
 
 class PDDropout(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            x.stop_gradient = False
-            result = fluid.layers.dropout(
-                x=x,
-                dropout_prob=config.dropout_prob,
-                seed=123,
-                dropout_implementation=config.dropout_implementation)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = fluid.layers.dropout(
+            x=x,
+            dropout_prob=config.dropout_prob,
+            seed=123,
+            dropout_implementation=config.dropout_implementation)
 
-            self.feed_vars = [x]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [x])
+        self.feed_vars = [x]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 class TFDropout(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.nn.dropout(
             x=x, rate=config.dropout_prob, noise_shape=None, seed=123)
 

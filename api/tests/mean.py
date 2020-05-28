@@ -18,32 +18,30 @@ from common_import import *
 class MeanConfig(APIConfig):
     def __init__(self):
         super(MeanConfig, self).__init__('mean')
-        self.run_tf = False
 
 
 class PDMean(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='x',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.mean(x=data)
+        data = self.variable(
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = fluid.layers.mean(x=data)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
+        self.feed_vars = [data]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [data])
 
 
 class TFMean(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
+        data = self.variable(
             name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.keras.metrics.Mean()
+        _, result = tf.compat.v1.metrics.mean(values=data)
 
         self.feed_list = [data]
         self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [data])
 
 
 if __name__ == '__main__':

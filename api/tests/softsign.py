@@ -15,27 +15,32 @@
 from common_import import *
 
 
+class SoftsignConfig(APIConfig):
+    def __init__(self):
+        super(SoftsignConfig, self).__init__("softsign")
+        self.alias_config = APIConfig("activation")
+
+
 class PDSoftsign(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.softsign(x=data)
+        data = self.variable(
+            name='data',
+            shape=config.alias.x_shape,
+            dtype=config.alias.x_dtype)
+        result = fluid.layers.softsign(x=data)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [data])
+        self.feed_vars = [data]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [data])
 
 
 class TFSoftsign(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        data = self.variable(
+            name='data',
+            shape=config.alias.x_shape,
+            dtype=config.alias.x_dtype)
         result = tf.nn.softsign(features=data)
 
         self.feed_list = [data]
@@ -45,4 +50,4 @@ class TFSoftsign(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDSoftsign(), TFSoftsign(), config=APIConfig("softsign"))
+    test_main(PDSoftsign(), TFSoftsign(), config=SoftsignConfig())

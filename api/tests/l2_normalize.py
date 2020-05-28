@@ -17,26 +17,19 @@ from common_import import *
 
 class PDL2Normalize(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            x.stop_gradient = False
-            result = fluid.layers.l2_normalize(
-                x=x, axis=config.axis, epsilon=config.epsilon)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = fluid.layers.l2_normalize(
+            x=x, axis=config.axis, epsilon=config.epsilon)
 
-            self.feed_vars = [x]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [x])
+        self.feed_vars = [x]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 class TFL2Normalize(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.math.l2_normalize(
             x, axis=config.axis, epsilon=config.epsilon)
 

@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,27 +17,27 @@ from common_import import *
 
 class PDCosSim(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        X = self.variable(name='X', shape=config.X_shape, dtype=config.X_dtype)
-        Y = self.variable(name='Y', shape=config.Y_shape, dtype=config.Y_dtype)
-        result = fluid.layers.cos_sim(X=X, Y=Y)
+        x = self.variable(name='x', shape=config.X_shape, dtype=config.X_dtype)
+        y = self.variable(name='y', shape=config.Y_shape, dtype=config.Y_dtype)
+        result = fluid.layers.cos_sim(X=x, Y=y)
 
-        self.feed_vars = [X, Y]
+        self.feed_vars = [x, y]
         self.fetch_vars = [result]
         if config.backward:
-            self.append_gradients(result, [X, Y])
+            self.append_gradients(result, [x, y])
 
 
 class TFCosSim(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        X = self.variable(name='X', shape=config.X_shape, dtype=config.X_dtype)
-        Y = self.variable(name='Y', shape=config.Y_shape, dtype=config.Y_dtype)
+        x = self.variable(name='x', shape=config.X_shape, dtype=config.X_dtype)
+        y = self.variable(name='y', shape=config.Y_shape, dtype=config.Y_dtype)
         result = tf.compat.v1.losses.cosine_distance(
-            labels=X, predictions=Y, axis=-1, weights=1.0, scope=None)
+            labels=x, predictions=y, axis=-1, weights=1.0, scope=None)
 
-        self.feed_list = [X, Y]
+        self.feed_list = [x, y]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [X, Y])
+            self.append_gradients(result, [x, y])
 
 
 if __name__ == '__main__':

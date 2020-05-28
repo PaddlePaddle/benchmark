@@ -69,6 +69,41 @@ def _compare(output1, output2, atol):
     return max_diff, offset
 
 
+def _check_type(output1, output2):
+    def _is_numpy_dtype(value):
+        if type(value
+                ) in [np.float32, np.float16, np.int32, np.int64, np.bool]:
+            return True
+        else:
+            return False
+
+    if _is_numpy_dtype(output1):
+        output1 = np.array([output1])
+
+    if _is_numpy_dtype(output2):
+        output2 = np.array([output2])
+
+    if not isinstance(output1, np.ndarray) or not isinstance(output2,
+                                                             np.ndarray):
+        raise TypeError(
+            "Output argument's type should be numpy.ndarray, but recieved: %s and %s."
+            % (str(type(output1)), str(type(output2))))
+    return output1, output2
+
+
+def _check_shape(output1, output2, i):
+    shape1 = list(output1.shape)
+    shape2 = list(output2.shape)
+    if shape1 != shape2:
+        print("---- The %d-the output's shape is different, %s vs %s." %
+              (i, str(shape1), str(shape2)))
+        if shape1 == shape2 + [1]:
+            output2 = np.reshape(output2, output1.shape)
+        elif shape1 + [1] == shape2:
+            output1 = np.reshape(output1, output2.shape)
+    return output1, output2
+
+
 def check_outputs(list1, list2, name, atol=1e-6):
     if not isinstance(list1, list) or not isinstance(list2, list):
         raise TypeError(
@@ -79,21 +114,25 @@ def check_outputs(list1, list2, name, atol=1e-6):
     num_outputs = 0
 
     if name not in special_op_list.NO_FETCHES_OPS:
-        assert len(list1) == len(list2)
+        if len(list1) != len(list2):
+            if len(list1) > 1 and len(list2) == 1 and isinstance(list2[0],
+                                                                 list):
+                list2 = list2[0]
+            if len(list1) == 1 and len(list2) > 1 and isinstance(list1[0],
+                                                                 list):
+                list1 = list1[0]
+            assert len(list1) == len(
+                list2
+            ), "Expected the number of outputs to be equal, but recieved: %d vs %d." % (
+                len(list1), len(list2))
+
         num_outputs = len(list1)
         for i in xrange(num_outputs):
             output1 = list1[i]
             output2 = list2[i]
 
-            if not isinstance(output1, np.ndarray) or not isinstance(
-                    output2, np.ndarray):
-                raise TypeError(
-                    "Output argument's type should be numpy.ndarray, but recieved: %s and %s."
-                    % (str(type(output1)), str(type(output2))))
-
-            if output1.shape != output2.shape:
-                print("---- The %d-the output's shape is different, %s vs %s."
-                      % (i, str(output1.shape), str(output2.shape)))
+            output1, output2 = _check_type(output1, output2)
+            output1, output2 = _check_shape(output1, output2, i)
 
             if output1.dtype != output2.dtype:
                 print(

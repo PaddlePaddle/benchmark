@@ -17,24 +17,19 @@ from common_import import *
 
 class PDTranspose(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.transpose(x=data, perm=config.perm)
+        data = self.variable(
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        result = fluid.layers.transpose(x=data, perm=config.perm)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [data])
+        self.feed_vars = [data]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [data])
 
 
 class TFTranspose(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
+        data = self.variable(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.transpose(a=data, perm=config.perm)
 

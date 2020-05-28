@@ -18,7 +18,7 @@ from common_import import *
 class Pad2dConfig(APIConfig):
     def __init__(self):
         super(Pad2dConfig, self).__init__('pad2d')
-        #self.run_tf = False
+        self.run_tf = False
 
     def to_tensorflow(self):
         tf_config = super(Pad2dConfig, self).to_tensorflow()
