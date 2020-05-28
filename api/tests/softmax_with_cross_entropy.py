@@ -38,7 +38,8 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
     def to_tensorflow(self):
         tf_config = super(FCConfig, self).to_tensorflow()
         label_rank = len(tf_config.label_shape)
-        tf_config.label_shape = tf_config.label_shape[0:label_rank - 2]
+        if tf_config.label_shape[label_rank - 1] == 1:
+            tf_config.label_shape = tf_config.label_shape[0:label_rank - 1]
         return tf_config
 
 

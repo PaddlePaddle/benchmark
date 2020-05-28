@@ -18,6 +18,7 @@ from common_import import *
 class Conv2dTransposeConfig(APIConfig):
     def __init__(self):
         super(Conv2dTransposeConfig, self).__init__('conv2d_transpose')
+        self.run_tf = False
 
     def init_from_json(self, filename, config_id=0):
         super(Conv2dTransposeConfig, self).init_from_json(filename, config_id)
@@ -64,7 +65,7 @@ class PDConv2dTranspose(PaddleAPIBenchmarkBase):
 
         self.feed_vars = [input, filter]
         self.fetch_vars = [result]
-        if backward:
+        if config.backward:
             self.append_gradients(result, [input])
 
 
