@@ -35,7 +35,7 @@ class BatchNormConfig(APIConfig):
             self.num_channels = self.input_shape[1]
 
     def to_tensorflow(self):
-        tf_config = self
+        tf_config = super(BatchNormConfig, self).to_tensorflow()
         if len(tf_config.input_shape) == 4:
             tf_config.axes = [0, 1, 2]
         else:
@@ -45,46 +45,39 @@ class BatchNormConfig(APIConfig):
 
 class PDBatchNorm(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            input = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            scale = fluid.layers.create_parameter(
-                name='scale',
-                shape=[config.num_channels],
-                dtype=config.input_dtype)
-            bias = fluid.layers.create_parameter(
-                name='bias',
-                shape=[config.num_channels],
-                dtype=config.input_dtype)
-            input.stop_gradient = False
-            result = fluid.layers.batch_norm(
-                input=input,
-                act=None,
-                is_test=False,
-                momentum=0.9,
-                epsilon=config.epsilon,
-                param_attr="scale",
-                bias_attr="bias",
-                data_layout=config.data_layout)
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        scale = self.variable(
+            name='scale',
+            shape=[config.num_channels],
+            dtype=config.input_dtype)
+        bias = self.variable(
+            name='bias', shape=[config.num_channels], dtype=config.input_dtype)
+        result = fluid.layers.batch_norm(
+            input=input,
+            act=None,
+            is_test=False,
+            momentum=0.9,
+            epsilon=config.epsilon,
+            param_attr="scale",
+            bias_attr="bias",
+            data_layout=config.data_layout)
 
-            self.feed_vars = [input, scale, bias]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [input, scale, bias])
+        self.feed_vars = [input, scale, bias]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [input, scale, bias])
 
 
 class TFBatchNorm(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        input = tf.placeholder(
+        input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
-        scale = tf.placeholder(
+        scale = self.variable(
             name='scale',
             shape=[config.num_channels],
             dtype=config.input_dtype)
-        bias = tf.placeholder(
+        bias = self.variable(
             name='bias', shape=[config.num_channels], dtype=config.input_dtype)
         mean, var = tf.nn.moments(
             x=input, axes=config.axes, shift=None, keepdims=False)

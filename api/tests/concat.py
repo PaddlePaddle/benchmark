@@ -17,29 +17,26 @@ from common_import import *
 
 class PDConcat(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            inputs = []
-            for i in range(len(config.input_shape)):
-                input_i = fluid.data(
-                    name='input_' + str(i),
-                    shape=config.input_shape[i],
-                    dtype=config.input_dtype[i],
-                    lod_level=0)
-                input_i.stop_gradient = False
-                inputs.append(input_i)
-            result = fluid.layers.concat(input=inputs, axis=config.axis)
+        inputs = []
+        for i in range(len(config.input_shape)):
+            input_i = self.variable(
+                name='input_' + str(i),
+                shape=config.input_shape[i],
+                dtype=config.input_dtype[i])
+            inputs.append(input_i)
+        result = fluid.layers.concat(input=inputs, axis=config.axis)
 
-            self.feed_vars = inputs
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, inputs)
+        self.feed_vars = inputs
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, inputs)
 
 
 class TFConcat(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         inputs = []
         for i in range(len(config.input_shape)):
-            input_i = self.placeholder(
+            input_i = self.variable(
                 name='input_' + str(i),
                 shape=config.input_shape[i],
                 dtype=config.input_dtype[i])

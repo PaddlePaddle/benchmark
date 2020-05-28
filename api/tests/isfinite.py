@@ -17,31 +17,20 @@ from common_import import *
 
 class PDIsfinite(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            x.stop_gradient = False
-            result = fluid.layers.isfinite(x=x)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = fluid.layers.isfinite(x=x)
 
-            self.feed_vars = [x]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [x])
+        self.feed_vars = [x]
+        self.fetch_vars = [result]
 
 
 class TFIsfinite(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.math.is_finite(x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':

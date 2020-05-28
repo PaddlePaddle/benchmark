@@ -18,16 +18,16 @@ from common_import import *
 class ElementwiseConfig(APIConfig):
     def __init__(self):
         super(ElementwiseConfig, self).__init__('elementwise')
-        self.api_name = 'add'
+        self.api_name = 'elementwise_add'
         self.atol = 1e-3
         self.api_list = {
-            'add': 'add',
-            'div': 'divide',
-            'max': 'maximum',
-            'min': 'minimum',
-            'sub': 'subtract',
-            'mul': 'multiply',
-            'pow': 'pow'
+            'elementwise_add': 'add',
+            'elementwise_div': 'divide',
+            'elementwise_max': 'maximum',
+            'elementwise_min': 'minimum',
+            'elementwise_sub': 'subtract',
+            'elementwise_mul': 'multiply',
+            'elementwise_pow': 'pow'
         }
 
 
@@ -35,13 +35,8 @@ class PDElementwise(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        self.name = 'elementwise_' + config.api_name
         result = self.layers(
-            "elementwise_" + config.api_name,
-            x=x,
-            y=y,
-            axis=config.axis,
-            act=config.act)
+            config.api_name, x=x, y=y, axis=config.axis, act=config.act)
 
         self.feed_vars = [x, y]
         self.fetch_vars = [result]
@@ -53,7 +48,6 @@ class TFElementwise(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        self.name = config.api_name
         result = self.layers(config.api_name, x=x, y=y)
 
         self.feed_list = [x, y]

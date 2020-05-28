@@ -15,27 +15,32 @@
 from common_import import *
 
 
+class ReluConfig(APIConfig):
+    def __init__(self):
+        super(ReluConfig, self).__init__("relu")
+        self.alias_config = APIConfig("activation")
+
+
 class PDRelu(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.relu(x=data)
+        data = self.variable(
+            name='data',
+            shape=config.alias.x_shape,
+            dtype=config.alias.x_dtype)
+        result = fluid.layers.relu(x=data)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [data])
+        self.feed_vars = [data]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [data])
 
 
 class TFRelu(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        data = self.variable(
+            name='data',
+            shape=config.alias.x_shape,
+            dtype=config.alias.x_dtype)
         result = tf.nn.relu(features=data)
 
         self.feed_list = [data]
@@ -45,4 +50,4 @@ class TFRelu(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDRelu(), TFRelu(), config=APIConfig("relu"))
+    test_main(PDRelu(), TFRelu(), config=ReluConfig())

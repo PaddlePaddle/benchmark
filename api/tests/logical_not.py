@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,31 +17,22 @@ from common_import import *
 
 class PDLogicalNot(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.logical_not(x=data)
+        data = self.variable(
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        result = fluid.layers.logical_not(x=data)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [data])
+        self.feed_vars = [data]
+        self.fetch_vars = [result]
 
 
 class TFLogicalNot(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
+        data = self.variable(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.math.logical_not(x=data)
 
         self.feed_list = [data]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [data])
 
 
 if __name__ == '__main__':

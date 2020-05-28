@@ -12,32 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import numpy as np
 from common_import import *
 
 
 class PDAssign(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='data',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.assign(input=data)
+        data = self.variable(
+            name='data', shape=config.input_shape, dtype=config.input_dtype)
+        result = fluid.layers.assign(input=data)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [data])
+        self.feed_vars = [data]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [data])
 
 
 class TFAssign(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
+        data = self.variable(
             name='data', shape=config.input_shape, dtype=config.input_dtype)
-        ref = tf.Variable(
-            tf.zeros(config.input_shape), name='target', dtype=tf.float32)
+        ref = self.variable(
+            name='target',
+            shape=config.input_shape,
+            dtype=config.input_dtype,
+            value=np.zeros(config.input_shape).astype(config.input_dtype))
         result = ref.assign(data)
 
         self.feed_list = [data]

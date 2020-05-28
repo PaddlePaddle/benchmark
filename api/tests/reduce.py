@@ -18,44 +18,37 @@ from common_import import *
 class ReduceConfig(APIConfig):
     def __init__(self):
         super(ReduceConfig, self).__init__('reduce')
-        self.api = 'mean'
+        self.api_name = 'reduce_mean'
         self.atol = 1e-5
-        self.api_list = {'mean': 'mean', 'sum': 'sum', 'prod': 'prod'}
-
-    def to_tensorflow(self):
-        self.tf_api = self.api_list[self.api]
-        return self
+        self.api_list = {
+            'reduce_mean': 'reduce_mean',
+            'reduce_sum': 'reduce_sum',
+            'reduce_prod': 'reduce_prod'
+        }
 
 
 class PDReduce(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            self.name = "reduce_" + config.api
-            result = self.layers(
-                "reduce_" + config.api,
-                input=data,
-                dim=config.dim,
-                keep_dim=config.keep_dim)
+        data = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = self.layers(
+            config.api_name,
+            input=data,
+            dim=config.dim,
+            keep_dim=config.keep_dim)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [data])
+        self.feed_vars = [data]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [data])
 
 
 class TFReduce(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
+        data = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
-        self.name = "reduce_" + config.tf_api
         result = self.layers(
-            "reduce_" + config.tf_api,
+            config.api_name,
             input_tensor=data,
             axis=config.dim,
             keepdims=config.keep_dim)
@@ -67,4 +60,4 @@ class TFReduce(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDReduce(), TFReduce(), ReduceConfig())
+    test_main(PDReduce(), TFReduce(), config=ReduceConfig())

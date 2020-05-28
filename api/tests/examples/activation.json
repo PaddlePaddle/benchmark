@@ -2,9 +2,9 @@
     "op": "activation",
     "param_info": {
         "x": {
+            "type": "Variable",
             "dtype": "float32",
-            "shape": "[16L]",
-            "type": "Variable"
+            "shape": "[-1L, 32L, 257L, 257L]"
         }
     }
 }]

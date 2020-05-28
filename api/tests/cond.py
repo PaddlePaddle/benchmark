@@ -17,37 +17,26 @@ from common_import import *
 
 class PDCond(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
+        def true_fn():
+            return fluid.layers.elementwise_mul(x, y)
 
-            def true_fn():
-                return fluid.layers.elementwise_mul(x, y)
+        def false_fn():
+            return fluid.layers.elementwise_div(x, y)
 
-            def false_fn():
-                return fluid.layers.elementwise_div(x, y)
+        ten_var = fluid.layers.fill_constant(
+            shape=config.input_shape, dtype=config.input_dtype, value=10)
 
-            ten_var = fluid.layers.fill_constant(
-                shape=config.input_shape, dtype=config.input_dtype, value=10)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        pred = fluid.layers.less_than(input, ten_var)
+        result = fluid.layers.cond(pred, true_fn, false_fn)
 
-            x = fluid.data(
-                name='x', shape=config.x_shape, dtype=config.x_dtype)
-            y = fluid.data(
-                name='y', shape=config.y_shape, dtype=config.y_dtype)
-            input = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype)
-            x.stop_gradient = False
-            y.stop_gradient = False
-            input.stop_gradient = False
-
-            pred = fluid.layers.less_than(input, ten_var)
-
-            result = fluid.layers.cond(pred, true_fn, false_fn)
-
-            self.feed_vars = [x, y, input]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [x, y, input])
+        self.feed_vars = [x, y, input]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [x, y, input])
 
 
 class TFCond(TensorflowAPIBenchmarkBase):
@@ -61,13 +50,10 @@ class TFCond(TensorflowAPIBenchmarkBase):
         ten_var = tf.constant(
             10, shape=config.input_shape, dtype=config.input_dtype)
 
-        x = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.placeholder(
-            name='y', shape=config.y_shape, dtype=config.y_dtype)
-        input = self.placeholder(
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
-
         pred = tf.less(input, ten_var)
         result = tf.cond(tf.reshape(pred, []), true_fn, false_fn)
 
