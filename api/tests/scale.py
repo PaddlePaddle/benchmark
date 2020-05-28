@@ -17,28 +17,17 @@ from common_import import *
 
 class PDScale(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            x = fluid.data(
-                name='x',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                lod_level=0)
-            x.stop_gradient = False
-            result = fluid.layers.scale(
-                x=x,
-                scale=config.scale,
-                bias=0.0,
-                bias_after_scale=True,
-                act=None)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = fluid.layers.scale(
+            x=x, scale=config.scale, bias=0.0, bias_after_scale=True, act=None)
 
-            self.feed_vars = [x]
-            self.fetch_vars = [result]
+        self.feed_vars = [x]
+        self.fetch_vars = [result]
 
 
 class TFScale(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.placeholder(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.scalar_mul(scalar=config.scale, x=x)
 
         self.feed_list = [x]

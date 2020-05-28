@@ -23,6 +23,7 @@ class ActivationConfig(APIConfig):
             'cos': 'cos',
             'exp': 'exp',
             'floor': 'floor',
+            'sin': 'sin',
             'square': 'square',
             'tanh': 'tanh',
             'sigmoid': 'sigmoid',
@@ -33,7 +34,6 @@ class ActivationConfig(APIConfig):
 class PDActivation(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        self.name = config.api_name
         result = self.layers(config.api_name, x=x)
 
         self.feed_vars = [x]
@@ -45,7 +45,6 @@ class PDActivation(PaddleAPIBenchmarkBase):
 class TFActivation(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        self.name = config.api_name
         result = self.layers(config.api_name, x=x)
 
         self.feed_list = [x]

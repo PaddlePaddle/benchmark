@@ -23,23 +23,19 @@ class InstanceNormConfig(APIConfig):
 
 class PDInstanceNorm(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            data = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            data.stop_gradient = False
-            result = fluid.layers.instance_norm(
-                input=data, epsilon=config.epsilon)
+        data = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = fluid.layers.instance_norm(input=data, epsilon=config.epsilon)
 
-            self.feed_vars = [data]
-            self.fetch_vars = [result]
+        self.feed_vars = [data]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [data])
 
 
 class TFInstanceNorm(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.placeholder(
+        data = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
 
 

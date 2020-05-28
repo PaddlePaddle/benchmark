@@ -35,33 +35,29 @@ class EmbeddingConfig(APIConfig):
 
 class PDEmbedding(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            input = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype=config.input_dtype,
-                lod_level=0)
-            table = fluid.layers.create_parameter(
-                shape=config.size, dtype=config.dtype, name='table')
-            result = fluid.embedding(
-                input=input,
-                size=config.size,
-                is_sparse=config.is_sparse,
-                padding_idx=config.padding_idx,
-                param_attr='table',
-                dtype=config.dtype)
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        table = self.variable(
+            name='table', shape=config.size, dtype=config.dtype)
+        result = fluid.embedding(
+            input=input,
+            size=config.size,
+            is_sparse=config.is_sparse,
+            padding_idx=config.padding_idx,
+            param_attr='table',
+            dtype=config.dtype)
 
-            self.feed_vars = [input, table]
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, [table])
+        self.feed_vars = [input, table]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [table])
 
 
 class TFEmbedding(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        input = self.placeholder(
+        input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
-        table = self.placeholder(
+        table = self.variable(
             name='table', shape=config.size, dtype=config.dtype)
         result = tf.nn.embedding_lookup(ids=input, params=table, max_norm=None)
 

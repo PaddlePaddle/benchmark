@@ -17,29 +17,26 @@ from common_import import *
 
 class PDStack(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        with fluid.program_guard(self.main_program, self.startup_program):
-            xs = []
-            for i in range(len(config.x_shape)):
-                x_i = fluid.data(
-                    name='x_' + str(i),
-                    shape=config.x_shape[i],
-                    dtype=config.x_dtype[i],
-                    lod_level=0)
-                x_i.stop_gradient = False
-                xs.append(x_i)
-            result = fluid.layers.stack(x=xs, axis=config.axis)
+        xs = []
+        for i in range(len(config.x_shape)):
+            x_i = self.variable(
+                name='x_' + str(i),
+                shape=config.x_shape[i],
+                dtype=config.x_dtype[i])
+            xs.append(x_i)
+        result = fluid.layers.stack(x=xs, axis=config.axis)
 
-            self.feed_vars = xs
-            self.fetch_vars = [result]
-            if config.backward:
-                self.append_gradients(result, xs)
+        self.feed_vars = xs
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, xs)
 
 
 class TFStack(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         values = []
         for i in range(len(config.x_shape)):
-            value_i = self.placeholder(
+            value_i = self.variable(
                 name='value_' + str(i),
                 shape=config.x_shape[i],
                 dtype=config.x_dtype[i])

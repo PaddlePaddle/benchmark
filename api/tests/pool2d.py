@@ -12,48 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from main import test_main
-
-import sys
-sys.path.append("..")
-from common import paddle_api_benchmark as paddle_api
-from common import tensorflow_api_benchmark as tensorflow_api
+from common_import import *
 
 
-class Pool2dConfig(object):
-    def __init__(self,
-                 input_shape,
-                 pool_size,
-                 pool_type="max",
-                 stride=[1, 1],
-                 padding=[0, 0]):
-        self.input_shape = input_shape
-        self.pool_size = pool_size
-        self._pool_type = pool_type
-        self.pool_stride = stride
-        self._padding = padding
-        self.data_format = "NCHW"
-        self.use_cudnn = True
+class Pool2dConfig(APIConfig):
+    def __init__(self):
+        super(Pool2dConfig, self).__init__('pool2d')
 
-    def pool_type(self, for_tensorflow=False):
-        if not for_tensorflow:
-            return self._pool_type.lower()
-        else:
-            return self._pool_type.upper()
+    def init_from_json(self, filename, config_id=0):
+        super(Pool2dConfig, self).init_from_json(filename, config_id)
+        self.pool_type = self.pool_type.lower()
+        # The argument of tf's padding algorithm, must be "SAME" or "VALID".
+        if not isinstance(self.pool_padding, str):
+            config.run_tf = False
 
-    def pool_padding(self, for_tensorflow=False):
-        if not for_tensorflow or isinstance(self._padding, str):
-            return self._padding
+    def to_tensorflow(self):
+        tf_config = super(Pool2dConfig, self).to_tensorflow()
+        tf_config.pool_type = tf_config.pool_type.upper()
+        tf_config.pool_padding = self._convert_padding(self.pool_padding)
+        return tf_config
 
-        assert isinstance(self._padding, list)
-        pad_top = self._padding[0] if len(
-            self._padding) == 2 else self._padding[0]
-        pad_bottom = self._padding[0] if len(
-            self._padding) == 2 else self._padding[1]
-        pad_left = self._padding[1] if len(
-            self._padding) == 2 else self._padding[2]
-        pad_right = self._padding[1] if len(
-            self._padding) == 2 else self._padding[3]
+    def _convert_padding(self, padding):
+        if isinstance(padding, str):
+            return padding
+        if isinstance(padding, int):
+            padding = [padding, padding]
+
+        assert isinstance(padding, list)
+        assert len(padding) == 2 or len(padding) == 4
+        pad_top = padding[0] if len(padding) == 2 else padding[0]
+        pad_bottom = padding[0] if len(padding) == 2 else padding[1]
+        pad_left = padding[1] if len(padding) == 2 else padding[2]
+        pad_right = padding[1] if len(padding) == 2 else padding[3]
 
         if self.data_format == "NCHW":
             return [[0, 0], [0, 0], [pad_top, pad_bottom],
@@ -63,66 +53,45 @@ class Pool2dConfig(object):
                     [0, 0]]
 
 
-config = Pool2dConfig(
-    input_shape=[10, 10, 100, 100],
-    pool_size=[3, 3],
-    pool_type="avg",
-    stride=[3, 3],
-    padding="SAME")
+class PDPool2d(PaddleAPIBenchmarkBase):
+    def build_program(self, config):
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = fluid.layers.pool2d(
+            input=input,
+            pool_size=config.pool_size,
+            pool_type=config.pool_type,
+            pool_stride=config.pool_stride,
+            pool_padding=config.pool_padding,
+            global_pooling=config.global_pooling,
+            use_cudnn=config.use_cudnn,
+            ceil_mode=config.ceil_mode,
+            exclusive=config.exclusive,
+            data_format=config.data_format)
+
+        self.feed_vars = [input]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [input])
 
 
-class PDPool2d(paddle_api.PaddleAPIBenchmarkBase):
-    def build_program(self, backward=False, dtype=None):
-        import paddle.fluid as fluid
-
-        self.name = "pool2d"
-        with fluid.program_guard(self.main_program, self.startup_program):
-            input = fluid.data(
-                name='input',
-                shape=config.input_shape,
-                dtype='float32',
-                lod_level=0)
-            input.stop_gradient = False
-            result = fluid.layers.pool2d(
-                input=input,
-                pool_size=config.pool_size,
-                pool_type=config.pool_type(),
-                pool_stride=config.pool_stride,
-                pool_padding=config.pool_padding(),
-                global_pooling=False,
-                use_cudnn=config.use_cudnn,
-                ceil_mode=False,
-                exclusive=True,
-                data_format=config.data_format)
-
-            self.feed_vars = [input]
-            self.fetch_vars = [result]
-            if backward:
-                self.append_gradients(result, [input])
-
-
-class TFPool2d(tensorflow_api.TensorflowAPIBenchmarkBase):
-    def build_graph(self, backward=False, dtype=None):
-        import tensorflow as tf
-
-        self.name = "pool2d"
-        self.allow_growth = True
-
-        input = tf.placeholder(
-            name='input', shape=config.input_shape, dtype=tf.float32)
+class TFPool2d(TensorflowAPIBenchmarkBase):
+    def build_graph(self, config):
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
         result = tf.nn.pool(
             input,
             window_shape=config.pool_size,
-            pooling_type=config.pool_type(),
+            pooling_type=config.pool_type,
             strides=config.pool_stride,
-            padding=config.pool_padding(for_tensorflow=True),
+            padding=config.pool_padding,
             data_format=config.data_format)
 
         self.feed_list = [input]
         self.fetch_list = [result]
-        if backward:
+        if config.backward:
             self.append_gradients(result, [input])
 
 
 if __name__ == '__main__':
-    test_main(PDPool2d(), TFPool2d(), feed_spec=None)
+    test_main(PDPool2d(), TFPool2d(), config=Pool2dConfig())
