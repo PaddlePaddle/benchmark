@@ -16,6 +16,7 @@ import sys
 import importlib
 import numpy as np
 sys.path.append("..")
+from numpy.linalg import matrix_rank
 from common.paddle_api_benchmark import PaddleAPIBenchmarkBase
 from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase
 from common.api_param import APIConfig

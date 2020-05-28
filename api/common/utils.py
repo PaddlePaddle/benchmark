@@ -91,7 +91,7 @@ def _check_type(output1, output2):
     return output1, output2
 
 
-def _check_shape(output1, output2):
+def _check_shape(output1, output2, i):
     shape1 = list(output1.shape)
     shape2 = list(output2.shape)
     if shape1 != shape2:
@@ -132,7 +132,7 @@ def check_outputs(list1, list2, name, atol=1e-6):
             output2 = list2[i]
 
             output1, output2 = _check_type(output1, output2)
-            output1, output2 = _check_shape(output1, output2)
+            output1, output2 = _check_shape(output1, output2, i)
 
             if output1.dtype != output2.dtype:
                 print(

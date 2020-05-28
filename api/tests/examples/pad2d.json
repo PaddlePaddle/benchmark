@@ -1,0 +1,126 @@
+[{
+    "op": "pad2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L, 256L, 256L]",
+            "type": "Variable"
+        },
+        "mode": {
+            "type": "string",
+            "value": "reflect"
+        },
+        "pad_value": {
+            "type": "float",
+            "value": "0.0"
+        },
+        "paddings": {
+            "type": "list",
+            "value": "[3, 3, 3, 3]"
+        }
+    }
+}, {
+    "op": "pad2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 64L, 64L]",
+            "type": "Variable"
+        },
+        "mode": {
+            "type": "string",
+            "value": "reflect"
+        },
+        "pad_value": {
+            "type": "float",
+            "value": "0.0"
+        },
+        "paddings": {
+            "type": "list",
+            "value": "[1, 1, 1, 1]"
+        }
+    }
+}, {
+    "op": "pad2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 64L, 127L, 127L]",
+            "type": "Variable"
+        },
+        "mode": {
+            "type": "string",
+            "value": "constant"
+        },
+        "pad_value": {
+            "type": "float",
+            "value": "0.0"
+        },
+        "paddings": {
+            "type": "list",
+            "value": "[0, 1, 0, 1]"
+        }
+    }
+}, {
+    "op": "pad2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 32L, 255L, 255L]",
+            "type": "Variable"
+        },
+        "mode": {
+            "type": "string",
+            "value": "constant"
+        },
+        "pad_value": {
+            "type": "float",
+            "value": "0.0"
+        },
+        "paddings": {
+            "type": "list",
+            "value": "[0, 1, 0, 1]"
+        }
+    }
+}, {
+    "op": "pad2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 32L, 256L, 256L]",
+            "type": "Variable"
+        },
+        "mode": {
+            "type": "string",
+            "value": "reflect"
+        },
+        "pad_value": {
+            "type": "float",
+            "value": "0.0"
+        },
+        "paddings": {
+            "type": "list",
+            "value": "[3, 3, 3, 3]"
+        }
+    }
+}]
