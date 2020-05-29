@@ -32,7 +32,7 @@ class Conv2dConfig(APIConfig):
         if self.data_format == "NCHW":
             self.num_channels = self.input_shape[1]
         elif self.data_format == "NHWC":
-            self.num_channels = self.input_shape[4]
+            self.num_channels = self.input_shape[3]
         if self.input_shape[0] == -1:
             self.input_shape[0] = 64
         if isinstance(self.filter_size, int):

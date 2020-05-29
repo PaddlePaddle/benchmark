@@ -18,14 +18,21 @@ from common_import import *
 class Conv2dTransposeConfig(APIConfig):
     def __init__(self):
         super(Conv2dTransposeConfig, self).__init__('conv2d_transpose')
-        self.run_tf = False
+        self.feed_spec = [
+            {
+                "range": [0, 1]
+            },  # input
+            {
+                "permute": [2, 3, 1, 0]
+            }  # filters
+        ]
 
     def init_from_json(self, filename, config_id=0):
         super(Conv2dTransposeConfig, self).init_from_json(filename, config_id)
         if self.data_format == "NCHW":
             self.num_channels = self.input_shape[1]
         elif self.data_format == "NHWC":
-            self.num_channels = self.input_shape[4]
+            self.num_channels = self.input_shape[3]
         if self.input_shape[0] == -1:
             self.input_shape[0] = 64
         if isinstance(self.filter_size, int):
@@ -37,9 +44,20 @@ class Conv2dTransposeConfig(APIConfig):
                 ", the groups is {}".format(self.num_channels,
                                             self.input_shape, self.groups))
         self.filter_shape = [
-            self.num_filters, self.num_channels // self.groups,
+            self.num_channels // self.groups, self.num_filters,
             self.filter_size[0], self.filter_size[1]
         ]
+        # The argument padding of tf's conv2d_transpose must be a string and the value is "SAME" or "VALID".
+        if self.output_size is None or not isinstance(self.padding, str):
+            self.run_tf = False
+
+    def to_tensorflow(self):
+        tf_config = super(Conv2dTransposeConfig, self).to_tensorflow()
+        tf_config.filter_shape = [
+            self.filter_size[0], self.filter_size[1], self.num_filters,
+            self.num_channels
+        ]
+        return tf_config
 
 
 class PDConv2dTranspose(PaddleAPIBenchmarkBase):
@@ -62,6 +80,7 @@ class PDConv2dTranspose(PaddleAPIBenchmarkBase):
             use_cudnn=config.use_cudnn,
             act=None,
             data_format=config.data_format)
+        print(result)
 
         self.feed_vars = [input, filter]
         self.fetch_vars = [result]
@@ -69,5 +88,29 @@ class PDConv2dTranspose(PaddleAPIBenchmarkBase):
             self.append_gradients(result, [input])
 
 
+class TFConv2dTranspose(TensorflowAPIBenchmarkBase):
+    def build_graph(self, config):
+        input = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        filter = self.variable(
+            name='filter', shape=config.filter_shape, dtype=config.input_dtype)
+        result = tf.nn.conv2d_transpose(
+            input=input,
+            filters=filter,
+            output_shape=config.output_size,
+            strides=config.stride,
+            padding=config.padding,
+            data_format=config.data_format,
+            dilations=config.dilation)
+
+        self.feed_list = [input, filter]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [input])
+
+
 if __name__ == '__main__':
-    test_main(PDConv2dTranspose(), config=Conv2dTransposeConfig())
+    test_main(
+        PDConv2dTranspose(),
+        TFConv2dTranspose(),
+        config=Conv2dTransposeConfig())
