@@ -22,17 +22,17 @@ class SliceConfig(APIConfig):
     def to_tensorflow(self):
         tf_config = super(SliceConfig, self).to_tensorflow()
         if len(self.starts) < len(self.input_shape):
-            tf_config.starts = []
-            tf_config.ends = []
+            tf_config.begin = []
+            tf_config.size = []
             for i in range(len(self.input_shape)):
-                tf_config.starts.append(0)
-                tf_config.ends.append(self.input_shape[i])
+                tf_config.begin.append(0)
+                tf_config.size.append(self.input_shape[i])
             for i in self.axes:
-                tf_config.starts[i] = self.starts[i]
-                tf_config.ends[i] = self.ends[i] - self.starts[i]
+                tf_config.begin[i] = self.starts[i]
+                tf_config.size[i] = self.ends[i] - self.starts[i]
         else:
             for j in range(len(self.starts)):
-                tf_config.ends[j] = self.ends[j] - self.starts[j]
+                tf_config.size[j] = self.ends[j] - self.starts[j]
         return tf_config
 
 
@@ -56,17 +56,7 @@ class TFSlice(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
-        begin = self.variable(
-            name='begin',
-            shape=[len(config.starts)],
-            dtype="int32",
-            value=config.starts)
-        size = self.variable(
-            name='size',
-            shape=[len(config.ends)],
-            dtype="int32",
-            value=config.ends)
-        result = tf.slice(input_=input, begin=begin, size=size)
+        result = tf.slice(input_=input, begin=config.begin, size=config.size)
 
         self.feed_list = [input]
         self.fetch_list = [result]
