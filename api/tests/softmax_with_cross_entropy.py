@@ -19,7 +19,6 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
     def __init__(self):
         super(SoftmaxWithCrossEntropyConfig,
               self).__init__("softmax_with_cross_entropy")
-        self.run_tf = False
 
     def init_from_json(self, filename, config_id=0):
         super(SoftmaxWithCrossEntropyConfig, self).init_from_json(filename,
@@ -36,9 +35,10 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
         ]
 
     def to_tensorflow(self):
-        tf_config = super(FCConfig, self).to_tensorflow()
+        tf_config = super(SoftmaxWithCrossEntropyConfig, self).to_tensorflow()
         label_rank = len(tf_config.label_shape)
-        tf_config.label_shape = tf_config.label_shape[0:label_rank - 2]
+        if tf_config.label_shape[label_rank - 1] == 1:
+            tf_config.label_shape = tf_config.label_shape[0:label_rank - 1]
         return tf_config
 
 
@@ -67,12 +67,12 @@ class TFSoftmaxWithCrossEntropy(TensorflowAPIBenchmarkBase):
         label = self.variable(
             name='label', shape=config.label_shape, dtype=config.label_dtype)
         onehot_label = tf.one_hot(indices=label, depth=config.num_classes)
-        result = tf.losses.softmax_cross_entropy(
-            logits=input, onehot_labels=onehot_label)
+        result = tf.compat.v1.losses.softmax_cross_entropy(
+            logits=input, onehot_labels=onehot_label, reduction='none')
 
         self.feed_list = [input, label]
         self.fetch_list = [result]
-        if backward:
+        if config.backward:
             self.append_gradients(result, [input])
 
 

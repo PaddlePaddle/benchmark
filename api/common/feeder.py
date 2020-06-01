@@ -61,7 +61,12 @@ def generate_random_data(shape, dtype, range=None, value=None):
         assert len(range) == 2
 
     if value is not None:
-        assert isinstance(value, np.ndarray)
+        if isinstance(value, list):
+            value = np.array(value)
+        assert isinstance(
+            value, np.ndarray
+        ), "Expected value's type to be numpy.ndarray, but recieved {}.".format(
+            type(value))
         data = check_shape_and_dtype(shape, dtype, value)
     else:
         if dtype == "int64" or dtype == "int32":
