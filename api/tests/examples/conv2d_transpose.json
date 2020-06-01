@@ -1,0 +1,50 @@
+[{
+    "op": "conv2d_transpose",
+    "param_info": {
+        "input": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[1L, 1L, 80L, 63L]"
+        },
+        "num_filters": {
+            "type": "int",
+            "value": "1"
+        },
+        "output_size": {
+            "type": "string",
+            "value": "None"
+        },
+        "filter_size": {
+            "type": "list",
+            "value": "[3, 32]"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[1, 8]"
+        },
+        "stride": {
+            "type": "list",
+            "value": "[1, 16]"
+        },
+        "dilation": {
+            "type": "list",
+            "value": "[1, 1]"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "True"
+        },
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        }
+    }
+}]
