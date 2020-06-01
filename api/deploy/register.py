@@ -62,8 +62,15 @@ def config_api():
 
 
 def fwrite_api():
-    with open("api_info.txt", 'w') as f:
-        json.dump(REGISTER_API_INFO, f, indent=4, sort_keys=True)
+    with open("auto_run_info.txt", 'w') as f:
+        for api in REGISTER_API_INFO.keys():
+            f.writelines(api + ',' + str(REGISTER_API_INFO[api][1]) + ',' +
+                         str(REGISTER_API_INFO[api][2]) + '\n')
+
+    with open("support_api_list.txt", 'w') as fo:
+        for api in REGISTER_API_INFO.keys():
+            for api_name in REGISTER_API_INFO[api][0]:
+                fo.writelines(str(api_name) + '\n')
 
 
 def import_module():
