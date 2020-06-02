@@ -10,11 +10,14 @@ if [ ${NVCC} != "" ]; then
   export LD_LIBRARY_PATH=/usr/local/cuda-${NVCC_VERSION}/extras/CUPTI/lib64:${LD_LIBRARY_PATH}
 fi
 
+OP_BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../" && pwd )"
+export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
+
 name=${1:-"abs"}
 config_id=${2:-"0"}
-filename="examples/${name}.json"
+filename="${OP_BENCHMARK_ROOT}/tests/examples/${name}.json"
 
-python -m launch ${name}.py \
+python -m tests.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py \
       --task "accuracy" \
       --framework "paddle" \
       --json_file ${filename} \
