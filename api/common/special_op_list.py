@@ -16,6 +16,10 @@ RANDOM_OP_LIST = ["dropout"]
 
 NO_FETCHES_OPS = ["feed", "null"]
 
+NO_BACKEND_API = ["instance_norm", "feed", "fetch", "fill_constant", "null"]
+
+HANG_CASES = ["instance_norm"]
+
 NO_NEED_ARGS = {
     "batch_norm": ["moving_mean_name", "moving_variance_name"],
     "embedding": ["is_distributed"]

@@ -6,10 +6,11 @@ import importlib
 
 sys.path.append("..")
 from tests.common_import import *
+from common.special_op_list import NO_BACKEND_API
 
-NOT_API = ["conv2d_transpose", "main", "common_import", "launch"]
+NOT_API = ["main", "common_import", "launch"]
 NO_JSON_API = ["feed", "fetch", "fill_constant", "null"]
-NO_BACKEND_API = ["feed", "fetch", "fill_constant", "null"]
+
 API_LIST = []
 SUB_CONFIG_LIST = []
 
