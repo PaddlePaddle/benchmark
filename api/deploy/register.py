@@ -42,7 +42,8 @@ def subconfig_api():
         else:
             backend = True
 
-        REGISTER_API_INFO[obj.name] = [api_list, json_file, backend]
+        for api in api_list:
+            REGISTER_API_INFO[api] = [obj.name, json_file, backend]
 
 
 def config_api():
@@ -58,19 +59,19 @@ def config_api():
         else:
             json_file = api + '.json'
 
-        REGISTER_API_INFO[api] = [[api], json_file, backend]
+        REGISTER_API_INFO[api] = [api, json_file, backend]
 
 
 def fwrite_api():
     with open("auto_run_info.txt", 'w') as f:
         for api in REGISTER_API_INFO.keys():
-            f.writelines(api + ',' + str(REGISTER_API_INFO[api][1]) + ',' +
-                         str(REGISTER_API_INFO[api][2]) + '\n')
+            f.writelines(api + ',' + str(REGISTER_API_INFO[api][0]) + ',' +
+                         str(REGISTER_API_INFO[api][1]) + ',' + str(
+                             REGISTER_API_INFO[api][2]) + '\n')
 
     with open("support_api_list.txt", 'w') as fo:
         for api in REGISTER_API_INFO.keys():
-            for api_name in REGISTER_API_INFO[api][0]:
-                fo.writelines(str(api_name) + '\n')
+            fo.writelines(str(api) + '\n')
 
 
 def import_module():
