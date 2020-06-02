@@ -211,12 +211,13 @@ class APIConfig(object):
                 setattr(self, name, None)
 
     def __str__(self):
-        debug_str = ('[%s] %s {\n') % (self.framework, self.name)
+        debug_str = ('[%s][%s] %s {\n') % (self.framework, self.name,
+                                           self.api_name)
         for name, value in vars(self).items():
             if name not in [
                     '_APIConfig__name', '_APIConfig__framework', 'params',
-                    'api_list', 'variable_list', 'params_list', 'backward',
-                    'feed_spec'
+                    'api_name', 'api_list', 'variable_list', 'params_list',
+                    'backward', 'feed_spec'
             ]:
                 if isinstance(value, np.ndarray):
                     debug_str = debug_str + (

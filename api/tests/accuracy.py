@@ -15,15 +15,28 @@
 from common_import import *
 
 
-#TODO:parameter total is not include
 class AccuracyConfig(APIConfig):
     def __init__(self):
         super(AccuracyConfig, self).__init__('accuracy')
-        self.run_tf = False
+
+    def init_from_json(self, filename, config_id=0):
+        super(AccuracyConfig, self).init_from_json(filename, config_id)
+        input_rank = len(self.input_shape)
+        self.num_classes = self.input_shape[input_rank - 1]
+        self.feed_spec = [
+            {
+                "range": [0, 1]
+            },  # input
+            {
+                "range": [0, self.num_classes]
+            }  # label
+        ]
 
     def to_tensorflow(self):
         tf_config = super(AccuracyConfig, self).to_tensorflow()
-        tf_config.label_shape = self.input_shape
+        label_rank = len(tf_config.label_shape)
+        if tf_config.label_shape[label_rank - 1] == 1:
+            tf_config.label_shape = tf_config.label_shape[0:label_rank - 1]
         return tf_config
 
 
@@ -33,15 +46,13 @@ class PDAccuracy(PaddleAPIBenchmarkBase):
             name='input', shape=config.input_shape, dtype=config.input_dtype)
         label = self.variable(
             name='label', shape=config.label_shape, dtype=config.label_dtype)
-        result = fluid.layers.accuracy(input=input, label=label, k=1)
+        result = fluid.layers.accuracy(
+            input=input, label=label, k=1, correct=None, total=None)
 
         self.feed_vars = [input, label]
         self.fetch_vars = [result[0]]
-        if config.backward:
-            self.append_gradients(result[0], [input, label])
 
 
-# The labels of accuracy in Paddle and TF is not same. 
 class TFAccuracy(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         predictions = self.variable(
@@ -50,13 +61,12 @@ class TFAccuracy(TensorflowAPIBenchmarkBase):
             dtype=config.input_dtype)
         labels = self.variable(
             name='labels', shape=config.label_shape, dtype=config.label_dtype)
-        result1, result2 = tf.compat.v1.metrics.accuracy(
-            labels=labels, predictions=predictions)
+        onehot_labels = tf.one_hot(indices=labels, depth=config.num_classes)
+        _, result = tf.compat.v1.metrics.accuracy(
+            labels=onehot_labels, predictions=predictions)
 
         self.feed_list = [predictions, labels]
-        self.fetch_list = [result2]
-        if config.backward:
-            self.append_gradients(result2, [predictions, labels])
+        self.fetch_list = [result]
 
 
 if __name__ == '__main__':
