@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
+import os, sys
 import numpy as np
 
-sys.path.append("..")
+package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(package_path)
+
 from common.paddle_api_benchmark import PaddleAPIBenchmarkBase
 from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase
 from common.api_param import APIConfig
