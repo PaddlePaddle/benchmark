@@ -16,6 +16,11 @@ RANDOM_OP_LIST = ["dropout"]
 
 NO_FETCHES_OPS = ["feed", "null"]
 
+NO_BACKWARD_API = ["instance_norm", "feed", "fetch", "fill_constant", "null"]
+
+#When running the API backwards in HANG_CASES, the progress will hang.
+HANG_CASES = ["instance_norm"]
+
 NO_NEED_ARGS = {
     "batch_norm": ["moving_mean_name", "moving_variance_name"],
     "embedding": ["is_distributed"]
