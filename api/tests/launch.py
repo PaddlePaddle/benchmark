@@ -14,10 +14,12 @@
 
 from __future__ import print_function
 
-import sys
+import os, sys
 import argparse
 
-sys.path.append("..")
+package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(package_path)
+
 from common import utils
 
 
