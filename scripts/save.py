@@ -230,8 +230,6 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
                                check_key if check_key else DICT_INDEX[index],
                                avg_values, cur_value, ranges]
         html_results[index].append(current_html_result)
-        global flag
-        flag = True
 
 
 def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0):
@@ -402,11 +400,9 @@ def parse_logs(args):
                                     result, html_results, "Framework_Total")
                     check_results(job_info["model_name"], job_info["index"],
                                     run_machine_type, result, html_results, "GpuMemcpy_Total")
-        if flag:
-            template.construct_email_content(html_results, args.log_path, args)
+    template.construct_email_content(html_results, args.log_path, args)
 
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    flag = False
     parse_logs(args)
