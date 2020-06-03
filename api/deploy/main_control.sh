@@ -61,6 +61,9 @@ do
                         if [ ${direction[$m]} = "backward" ] && [ ${backward} = False ]; then
                             continue
                         fi
+                        if [ ${framwork[$k]} = "tensorflow" ] && [ ${feature[$n]} = "accuracy" ]; then
+                            continue
+                        fi
                         if [ "${device[$j]}" = "gpu" ]; then
                             repeat=1000
                         else
