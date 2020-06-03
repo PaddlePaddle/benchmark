@@ -1,0 +1,10 @@
+[{
+    "op": "increment",
+    "param_info": {
+        "x": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[1L]"
+        }
+    }
+}]
