@@ -2,21 +2,19 @@
 
 export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
 
-AUTO_RUN_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}/../")" && pwd )"
-export PYTHONPATH=${AUTO_RUN_ROOT}:${PYTHONPATH}
+path=$(cd $(dirname $0);pwd)
+test_dir="../tests"
+export PYTHONPATH=${path}/${test_dir}:${PYTHONPATH}
 
-python collect_api_info.py --info_file  api_info.txt --support_api_file support_api_list.txt
+api_info_file=$path/api_info.txt
+python ${path}/collect_api_info.py --info_file  ${api_info_file} --support_api_file ${path}/support_api_list.txt
 
-py_dir="../tests"
-api_info_file="api_info.txt"
 json_dir=$1
 res_dir=$2
 if [ ! -d $res_dir ]
 then
     mkdir $res_dir
 fi
-
-path=$(cd $(dirname $0);pwd)
 
 device=("cpu" "gpu")
 device_set=(false true)
@@ -43,8 +41,8 @@ do
 
     if [ "$json_file" != "None" ]
     then
-        cases_num=$(grep ""op"" $path/$json_dir/$json_file |wc -l)
-        json_file_name=$path/$json_dir/${json_file}
+        json_file_name=${PWD}/$json_dir/${json_file}
+        cases_num=$(grep ""op"" ${json_file_name} |wc -l)
     else
         cases_num=1
         json_file_name=None
@@ -64,14 +62,14 @@ do
                             continue
                         fi
                         if [ "${device[$j]}" = "gpu" ]; then
-                            repeat=1
+                            repeat=1000
                         else
-                            repeat=1
+                            repeat=100
                         fi
                         logfile=$res_dir/${api_name}"-"${framwork[$k]}"_"${device[$j]}"_"${feature[$n]}"_""${direction[$m]}""_"${i}".txt"
                         echo "api_name: "${api_name}", api: "${api}", "${direction[$m]}", json_file: "${json_file}", json_id: "${i}", "${logfile}
 
-                        python -m tests.launch ${AUTO_RUN_ROOT}/deploy/${api}.py \
+                        python -m launch ${path}/${test_dir}/${api}.py \
                           --api_name ${api_name} \
                           --task ${feature[$n]} \
                           --framework ${framwork[$k]} \
