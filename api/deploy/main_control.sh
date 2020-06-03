@@ -42,7 +42,7 @@ do
     if [ "$json_file" != "None" ]
     then
         json_file_name=${PWD}/$json_dir/${json_file}
-        cases_num=$(grep ""op"" ${json_file_name} |wc -l)
+        cases_num=$(grep '"op"' ${json_file_name} |wc -l)
     else
         cases_num=1
         json_file_name=None
