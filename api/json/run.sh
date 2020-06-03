@@ -10,6 +10,8 @@ fi
 declare -A SPECIAL_DICTS
 # Set ignored params
 SPECIAL_DICTS=( \
+    ["accuracy"]="k correct total" \
+    ["affine_channel"]="act" \
     ["conv2d"]="act num_filters" \
     ["conv2d_transpose"]="act num_filters" \
     ["depthwise_conv2d"]="act num_filters groups" \
@@ -27,8 +29,12 @@ SPECIAL_DICTS=( \
 declare -A SIMILAR_API
 # Set similar APIs
 SIMILAR_API=( \
-    ["activation"]="cos floor square tanh sigmoid sqrt" \
-    ["elementwise"]="elementwise_add elementwise_div elementwise_max elementwise_min elementwise_mul elementwise_sub elementwise_sum" \
+    ["activation"]="abs cos exp floor relu sin sigmoid softsign square sqrt tanh" \
+    ["arg"]="argmax argmin" \
+    ["compare"]="less_than less_equal not_equal greater_than greater_equal equal" \
+    ["elementwise"]="elementwise_add elementwise_div elementwise_max elementwise_min elementwise_mul elementwise_sub elementwise_pow" \
+    ["logical"]="logical_and logical_or" \
+    ["reduce"]="reduce_mean reduce_sum reduce_prod" \
 )
 
 filenames=$(ls ${INPUT_DIR}/*.json)
