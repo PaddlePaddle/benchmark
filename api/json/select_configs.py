@@ -126,15 +126,20 @@ def select_from_shape_groups(shape_groups, shapes):
     all_selected_ids = []
     j = 0
     for label in shape_groups:
+        candidate_ids = []
         selected_ids = []
         ids = shape_groups[label]['ids']
         ids = rearrange_ids(shape_groups[label]['sizes'], ids)
         if len(ids) <= 3:
             selected_ids = ids
         else:
-            selected_ids = [ids[0], ids[int(len(ids) / 2)], ids[-1]]
+            candidate_ids = [ids[0], ids[int(len(ids) / 2)], ids[-1]]
+        selected_shapes = []
+        for idx in candidate_ids:
+            if shapes[idx] not in selected_shapes:
+                selected_shapes.append(shapes[idx])
+                selected_ids.append(idx)
         all_selected_ids += selected_ids
-        selected_shapes = [shapes[idx] for idx in selected_ids]
         selected_shapes_info = " The shapes are: "
         for shape in selected_shapes:
             selected_shapes_info += "{} ".format(shape)
