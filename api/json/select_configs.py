@@ -131,7 +131,7 @@ def select_from_shape_groups(shape_groups, shapes):
         ids = shape_groups[label]['ids']
         ids = rearrange_ids(shape_groups[label]['sizes'], ids)
         if len(ids) <= 3:
-            selected_ids = ids
+            candidate_ids = ids
         else:
             candidate_ids = [ids[0], ids[int(len(ids) / 2)], ids[-1]]
         selected_shapes = []
@@ -274,7 +274,7 @@ def group_input_shapes(shapes, config_ids, input_type):
     Returns: A 2-D dict of shape groups.
     """
     shape_groups = dict()
-    if not shapes[0]:
+    if len(shapes) == 0:
         warnings.warn("Group configs regardless of input shape.")
         return shape_groups
     for index in config_ids:
@@ -299,7 +299,7 @@ def get_input_shapes_from_json(args, origin_configs):
         input_shapes = []
         var_shapes = []
         for name, value in config["param_info"].items():
-            if name in args.ignored_params:
+            if args.ignored_params is not None and name in args.ignored_params:
                 continue
             if value["type"] in ["Variable", "numpy.ndarray"]:
                 if value["type"] == "Variable":
@@ -325,8 +325,9 @@ def get_input_shapes_from_json(args, origin_configs):
                         input_shapes.append(shape)
                 del config_res["param_info"][name]
         configs_without_input.append(config_res)
-        all_shapes.append(input_shapes)
-        if len(input_shapes) == 0 and len(var_shapes) <= 2:
+        if len(input_shapes) != 0:
+            all_shapes.append(input_shapes)
+        elif len(var_shapes) != 0 and len(var_shapes) <= 2:
             all_shapes.append(var_shapes)
 
     return configs_without_input, all_shapes, input_type

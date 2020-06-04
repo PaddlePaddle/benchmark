@@ -65,6 +65,6 @@ done
 for key in $(echo ${!SIMILAR_API[*]})
 do
     echo "processing API:" ${SIMILAR_API[${key}]}
-    python2 select_configs.py --input_json_file ${file} --output_json_file ${OUTPUT_DIR}/${key}.json --similar_api {SIMILAR_API[${key}]}
+    python2 select_configs.py --input_json_file ${INPUT_DIR} --output_json_file ${OUTPUT_DIR}/${key}.json --similar_api ${SIMILAR_API[${key}]}
     echo ""
 done
