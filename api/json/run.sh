@@ -3,6 +3,8 @@
 INPUT_DIR=$1
 OUTPUT_DIR=$2
 
+unset GREP_OPTIONS
+
 if [ ! -d ${OUTPUT_DIR} ]; then
     mkdir -p ${OUTPUT_DIR}
 fi
@@ -12,17 +14,26 @@ declare -A SPECIAL_DICTS
 SPECIAL_DICTS=( \
     ["accuracy"]="k correct total" \
     ["affine_channel"]="act" \
-    ["conv2d"]="act num_filters" \
-    ["conv2d_transpose"]="act num_filters" \
-    ["depthwise_conv2d"]="act num_filters groups" \
-    ["fill_constant"]="value" \
     ["anchor_generator"]="anchor_sizes" \
-    ["batch_norm"]="epsilon" \
+    ["assign"]="output" \
+    ["batch_norm"]="epsilon is_test act in_place momentum" \
+    ["conv2d"]="act num_filters use_cudnn" \
+    ["conv2d_transpose"]="act num_filters use_cudnn" \
+    ["depthwise_conv2d"]="act num_filters groups" \
+    ["dropout"]="is_test seed dropout_prob" \
+    ["embedding"]="padding_idx is_sparse" \
     ["fc"]="size" \
+    ["fill_constant"]="value force_cpu" \
+    ["instance_norm"]="epsilon" \
+    ["l2_normalize"]="epsilon" \
+    ["layer_norm"]="act epsilon" \
+    ["leaky_relu"]="alpha" \
     ["matmul"]="alpha" \
-    ["reshape"]="shape" \
+    ["pool2d"]="use_cudnn" \
+    ["reshape"]="shape inplace" \
     ["roi_align"]="spatial_scale" \
-    ["scale"]="bias" \
+    ["scale"]="scale bias act" \
+    ["softmax_with_cross_entropy"]="return_softmax ignore_index" \
     ["transpose"]="perm" \
 )
 
@@ -71,6 +82,6 @@ done
 for key in $(echo ${!SIMILAR_API[*]})
 do
     echo "processing API:" ${SIMILAR_API[${key}]}
-    python2 select_configs.py --input_json_file ${file} --output_json_file ${OUTPUT_DIR}/${key}.json --similar_api {SIMILAR_API[${key}]}
+    python2 select_configs.py --input_json_file ${INPUT_DIR} --output_json_file ${OUTPUT_DIR}/${key}.json --similar_api ${SIMILAR_API[${key}]} --ignored_params "act"
     echo ""
 done

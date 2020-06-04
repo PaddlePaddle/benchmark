@@ -51,6 +51,9 @@ def select_configs_by_json(args, origin_configs, configs_without_input,
         os.makedirs(out_dir)
     configs = []
     for index in all_selected_ids:
+        if args.similar_api:
+            filename = os.path.basename(args.output_json_file)
+            origin_configs[index]["op"] = os.path.splitext(filename)[0]
         configs.append(origin_configs[index])
     with open(args.output_json_file, 'w') as f:
         json.dump(configs, f, indent=4, sort_keys=True)
@@ -131,7 +134,7 @@ def select_from_shape_groups(shape_groups, shapes):
         ids = shape_groups[label]['ids']
         ids = rearrange_ids(shape_groups[label]['sizes'], ids)
         if len(ids) <= 3:
-            selected_ids = ids
+            candidate_ids = ids
         else:
             candidate_ids = [ids[0], ids[int(len(ids) / 2)], ids[-1]]
         selected_shapes = []
@@ -299,7 +302,7 @@ def get_input_shapes_from_json(args, origin_configs):
         input_shapes = []
         var_shapes = []
         for name, value in config["param_info"].items():
-            if name in args.ignored_params:
+            if args.ignored_params and name in args.ignored_params:
                 continue
             if value["type"] in ["Variable", "numpy.ndarray"]:
                 if value["type"] == "Variable":
@@ -451,12 +454,13 @@ def parse_json_config(args):
         if args.similar_api:
             for api in args.similar_api:
                 json_path = os.path.join(args.input_json_file, api + '.json')
-                with open(json_path, 'r') as f:
-                    api_configs = json.load(f)
-                    origin_configs.extend(api_configs)
+                if os.path.exists(json_path):
+                    with open(json_path, 'r') as f:
+                        api_configs = json.load(f)
+                        origin_configs.extend(api_configs)
         else:
             raise ValueError(
-                "When input_json_file is a Directory, the args similar_api should be set."
+                "When input_json_file is a directory, the args similar_api should be set."
             )
     elif os.path.isfile(args.input_json_file):
         with open(args.input_json_file, 'r') as f:
