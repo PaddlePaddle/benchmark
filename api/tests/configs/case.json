@@ -1,0 +1,20 @@
+[{
+    "op": "case",
+    "param_info": {
+        "input": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[1L]"
+        },
+        "x": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[16L, 256L, 6L, 6L]"
+        },
+        "y": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[16L, 256L, 6L, 6L]"
+        }
+    }
+}]

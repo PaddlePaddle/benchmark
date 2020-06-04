@@ -13,13 +13,13 @@
 # limitations under the License.
 
 import json
-import os
 import argparse
 import warnings
-import collections
 
-import sys
-sys.path.append("..")
+import os, sys
+package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(package_path)
+
 from clear_params import *
 from common import special_op_list
 

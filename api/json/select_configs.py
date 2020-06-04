@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import argparse
-import os
 import json
 import warnings
 from operator import mul
@@ -21,8 +20,10 @@ from functools import reduce
 import random
 import copy
 
-import sys
-sys.path.append("..")
+import os, sys
+package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(package_path)
+
 from common.api_param import parse_list
 
 

@@ -1,0 +1,40 @@
+[{
+    "op": "expand",
+    "param_info": {
+        "expand_times": {
+            "type": "list",
+            "value": "[1, 1, 2]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1785L, 1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "expand",
+    "param_info": {
+        "expand_times": {
+            "type": "list",
+            "value": "[1, 1, 128L, 128L]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 5L, 1L, 1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "expand",
+    "param_info": {
+        "x": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[32L, 807L, 1L]"
+        },
+        "expand_times": {
+            "type": "list",
+            "value": "[4, 1, 807]"
+        }
+    }
+}]

@@ -1,0 +1,19 @@
+[{
+    "op": "sequence_mask",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "maxlen": {
+            "dtype": "int32",
+            "shape": "[1L]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "int32",
+            "shape": "[-1L]",
+            "type": "Variable"
+        }
+    }
+}]

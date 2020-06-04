@@ -1,0 +1,51 @@
+[{
+    "op": "reshape",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "actual_shape": {
+            "type": "string",
+            "value": "None"
+        },
+        "inplace": {
+            "type": "bool",
+            "value": "False"
+        },
+        "shape": {
+            "type": "list",
+            "value": "[-1, 19]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 513L, 513L, 19L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "reshape",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "actual_shape": {
+            "type": "string",
+            "value": "None"
+        },
+        "inplace": {
+            "type": "bool",
+            "value": "False"
+        },
+        "shape": {
+            "type": "list",
+            "value": "[-1, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L]",
+            "type": "Variable"
+        }
+    }
+}]
