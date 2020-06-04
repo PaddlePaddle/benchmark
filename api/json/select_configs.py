@@ -277,7 +277,7 @@ def group_input_shapes(shapes, config_ids, input_type):
     Returns: A 2-D dict of shape groups.
     """
     shape_groups = dict()
-    if not shapes[0]:
+    if len(shapes) == 0:
         warnings.warn("Group configs regardless of input shape.")
         return shape_groups
     for index in config_ids:
@@ -328,8 +328,9 @@ def get_input_shapes_from_json(args, origin_configs):
                         input_shapes.append(shape)
                 del config_res["param_info"][name]
         configs_without_input.append(config_res)
-        all_shapes.append(input_shapes)
-        if len(input_shapes) == 0 and len(var_shapes) <= 2:
+        if len(input_shapes) != 0:
+            all_shapes.append(input_shapes)
+        elif len(var_shapes) != 0 and len(var_shapes) <= 2:
             all_shapes.append(var_shapes)
 
     return configs_without_input, all_shapes, input_type
