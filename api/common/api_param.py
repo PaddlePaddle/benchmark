@@ -94,12 +94,12 @@ class VarParamInfo(BaseParamInfo):
 
     def to_string(self):
         if self.type == "Variable":
-            return self.name + " (Variable) - dtype:" + str(
-                self.dtype) + ", shape:" + str(self.shape)
+            return self.name + " (Variable) - dtype: " + str(
+                self.dtype) + ", shape: " + str(self.shape)
         elif self.type == "list<Variable>":
             str_list=self.name + " (list<Variable>) - "
             for i in range(len(self.dtype)):
-                str_list=str_list + self.name + str(i) + " - dtype:" + str(self.dtype) + ", shape:" + str(self.shape)+"; "
+                str_list=str_list + self.name + str(i) + " - dtype: " + str(self.dtype[i]) + ", shape: " + str(self.shape[i])+"; "
             return str_list
 
 
