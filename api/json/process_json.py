@@ -20,14 +20,13 @@ import os, sys
 package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
 
-from clear_params import *
+import clear_params
 from common import special_op_list
 
 op_list = []
-params_list = []
 result_json = []
 op_dicts_sum = {}
-op_frequncy_each = {}
+op_frequency_each = {}
 
 
 def get_index(lst=None, item=''):
@@ -56,16 +55,9 @@ def parse_args():
 
 
 def remove_duplicates(args):
-    json_path = args.json_path
-    filenames = []
-    if os.path.isdir(json_path):
-        dir = os.path.join(os.getcwd(), json_path)
-        file = os.listdir(dir)
-        for f in file:
-            filenames.append(os.path.join(dir, f))
-    else:
-        filenames = [json_path]
+    filenames = clear_params.get_json_filenames(args.json_path)
 
+    params_list = []
     for file in filenames:
         print('Read API info from json file: ' + file)
         if not os.path.isdir(file):
@@ -78,11 +70,11 @@ def remove_duplicates(args):
                     ):
                         op = special_op_list.ALIAS_OP_MAP[op]
                     param = data[i]["param_info"]
-                    if check_frequency(op, param):
+                    if clear_params.check_frequency(op, param):
                         op_file_dict[op] = op_file_dict.get(op, 0) + 1
                         op_dicts_sum[op] = op_dicts_sum.get(op, 0) + 1
-                    if not check_removable(op, param):
-                        check_and_clear_params(op, param)
+                    if not clear_params.check_removable(op, param):
+                        clear_params.check_and_clear_params(op, param)
                         if op not in op_list:
                             op_list.append(op)
                             params_list.append(param)
@@ -98,7 +90,7 @@ def remove_duplicates(args):
                                 params_list.append(param)
                                 result_json.append(data[i])
             f.close()
-            op_frequncy_each[file] = op_file_dict
+            op_frequency_each[file] = op_file_dict
 
 
 def write_op_configs(args):
@@ -155,18 +147,18 @@ def write_op_frequency(args):
         op_frequency_path = os.path.join(output_dir, 'op_frequency.txt')
 
     with open(op_frequency_path, 'w') as f:
-        for filename, op_frequency_dict in op_frequncy_each.items():
+        for filename, op_frequency_dict in op_frequency_each.items():
             f.writelines(_translate_to_string(filename, op_frequency_dict))
 
         frequency_summary_title = "Summary of %d models" % len(
-            op_frequncy_each)
+            op_frequency_each)
         frequency_str_summary = _translate_to_string(frequency_summary_title,
                                                      op_dicts_sum)
         print(frequency_str_summary)
         f.writelines(frequency_str_summary)
 
     print("-- Write frequency results of %d models to %s." %
-          (len(op_frequncy_each), op_frequency_path))
+          (len(op_frequency_each), op_frequency_path))
 
 
 if __name__ == '__main__':

@@ -121,8 +121,8 @@ def get_json_filenames(config_path):
 
 
 if __name__ == '__main__':
-    config_path = "results_all"
-    output_dir = os.path.abspath("results_all_cleared")
+    config_path = "results"
+    output_dir = os.path.abspath("results_cleared")
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 

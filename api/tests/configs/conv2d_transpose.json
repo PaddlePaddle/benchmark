@@ -64,6 +64,55 @@
         },
         "filter_size": {
             "type": "int",
+            "value": "4"
+        },
+        "groups": {
+            "type": "string",
+            "value": "None"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 1549L, 8L, 8L]",
+            "type": "Variable"
+        },
+        "num_filters": {
+            "type": "int",
+            "value": "512"
+        },
+        "output_size": {
+            "type": "string",
+            "value": "None"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[1, 1]"
+        },
+        "stride": {
+            "type": "int",
+            "value": "2"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}, {
+    "op": "conv2d_transpose",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "filter_size": {
+            "type": "int",
             "value": "3"
         },
         "groups": {
@@ -94,6 +143,55 @@
         "use_cudnn": {
             "type": "bool",
             "value": "True"
+        }
+    }
+}, {
+    "op": "conv2d_transpose",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "filter_size": {
+            "type": "int",
+            "value": "3"
+        },
+        "groups": {
+            "type": "string",
+            "value": "None"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 64L, 64L]",
+            "type": "Variable"
+        },
+        "num_filters": {
+            "type": "int",
+            "value": "64"
+        },
+        "output_size": {
+            "type": "string",
+            "value": "None"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[1, 1]"
+        },
+        "stride": {
+            "type": "int",
+            "value": "2"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "False"
         }
     }
 }, {
@@ -150,6 +248,55 @@
     "param_info": {
         "act": {
             "type": "string",
+            "value": "None"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "filter_size": {
+            "type": "int",
+            "value": "4"
+        },
+        "groups": {
+            "type": "string",
+            "value": "None"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "num_filters": {
+            "type": "int",
+            "value": "512"
+        },
+        "output_size": {
+            "type": "string",
+            "value": "None"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "2"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}, {
+    "op": "conv2d_transpose",
+    "param_info": {
+        "act": {
+            "type": "string",
             "value": "relu"
         },
         "data_format": {
@@ -197,10 +344,79 @@
 }, {
     "op": "conv2d_transpose",
     "param_info": {
+        "act": {
+            "type": "string",
+            "value": "relu"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "filter_size": {
+            "type": "int",
+            "value": "2"
+        },
+        "groups": {
+            "type": "string",
+            "value": "None"
+        },
         "input": {
-            "type": "Variable",
             "dtype": "float32",
-            "shape": "[1L, 1L, 80L, 63L]"
+            "shape": "[-1L, 256L, 14L, 14L]",
+            "type": "Variable"
+        },
+        "num_filters": {
+            "type": "int",
+            "value": "256"
+        },
+        "output_size": {
+            "type": "string",
+            "value": "None"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "2"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}, {
+    "op": "conv2d_transpose",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "list",
+            "value": "[1, 1]"
+        },
+        "filter_size": {
+            "type": "list",
+            "value": "[3, 32]"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[1L, 1L, 80L, 63L]",
+            "type": "Variable"
         },
         "num_filters": {
             "type": "int",
@@ -210,9 +426,54 @@
             "type": "string",
             "value": "None"
         },
+        "padding": {
+            "type": "list",
+            "value": "[1, 8]"
+        },
+        "stride": {
+            "type": "list",
+            "value": "[1, 16]"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "True"
+        }
+    }
+}, {
+    "op": "conv2d_transpose",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "list",
+            "value": "[1, 1]"
+        },
         "filter_size": {
             "type": "list",
             "value": "[3, 32]"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[1L, 1L, 80L, 63L]",
+            "type": "Variable"
+        },
+        "num_filters": {
+            "type": "int",
+            "value": "1"
+        },
+        "output_size": {
+            "type": "string",
+            "value": "None"
         },
         "padding": {
             "type": "list",
@@ -222,25 +483,9 @@
             "type": "list",
             "value": "[1, 16]"
         },
-        "dilation": {
-            "type": "list",
-            "value": "[1, 1]"
-        },
-        "groups": {
-            "type": "int",
-            "value": "1"
-        },
         "use_cudnn": {
             "type": "bool",
-            "value": "True"
-        },
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
-        "data_format": {
-            "type": "string",
-            "value": "NCHW"
+            "value": "False"
         }
     }
 }]
