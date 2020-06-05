@@ -100,7 +100,7 @@ class VarParamInfo(BaseParamInfo):
         elif self.type == "list<Variable>":
             str_list=self.name + " (list<Variable>) - "
             for i in range(len(self.dtype)):
-                str_list=str_list + self.name + str(i) + " - dtype: " + str(self.dtype[i]) + ", shape: " + str(self.shape[i])+"; "
+                str_list=str_list + "dtype: " + str(self.dtype[i]) + ", shape: " + str(self.shape[i])+"; "
             return str_list
 
 
