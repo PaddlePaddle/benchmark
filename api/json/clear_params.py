@@ -25,34 +25,29 @@ sys.path.append("..")
 from common import special_op_list
 
 
-def import_fluid_module(api_name):
-    act_api_name = api_name
+def import_layers(api_name):
+    def _import_func(module_name, api_name):
+        try:
+            module = importlib.import_module(module_name)
+            func = getattr(module, api_name)
+            # print("Successly import %s.%s" % (module_name, api_name))
+            return func
+        except Exception:
+            # print("Failed to import %s.%s" % (module_name, api_name))
+            return None
+
     if api_name in special_op_list.ALIAS_OP_MAP.keys():
-        act_api_name = special_op_list.ALIAS_OP_MAP[api_name]
+        api_name = special_op_list.ALIAS_OP_MAP[api_name]
 
-    try:
-        if act_api_name in ["embedding", "one_hot"]:
-            module_name = "paddle.fluid"
-        else:
-            module_name = "paddle.fluid.layers"
-        module = importlib.import_module(module_name)
-        return getattr(module, act_api_name)
-    except Exception:
-        print("Cannot immport %s.%s." % (module_name, act_api_name))
-        module = None
-
-
-def import_paddle_module(api_name):
-    act_api_name = api_name
-    if api_name in special_op_list.ALIAS_OP_MAP.keys():
-        act_api_name = special_op_list.ALIAS_OP_MAP[api_name]
-
-    try:
-        module = importlib.import_module("paddle")
-        return getattr(module, act_api_name)
-    except Exception:
-        print("Cannot immport paddle.%s." % act_api_name)
-        module = None
+    all_module_names = [
+        "paddle.fluid", "paddle.fluid.layers", "paddle.fluid.contrib.layers",
+        "paddle"
+    ]
+    for module_name in all_module_names:
+        func = _import_func(module_name, api_name)
+        if func is not None:
+            break
+    return func
 
 
 def check_removable(api_name, params):
@@ -76,17 +71,13 @@ def check_frequency(api_name, params):
 
 
 def check_and_clear_params(api_name, params, print_detail=False):
-    func = import_fluid_module(api_name)
-    if func is None:
-        func = import_paddle_module(api_name)
-    if func is None:
-        print("Cannot import %s from paddle.fluid.layers and paddle" %
-              api_name)
+    func = import_layers(api_name)
+    assert func is not None, "Cannot import %s from paddle.fluid.layers and paddle" % api_name
 
     if func is not None:
         argspec = inspect.getargspec(func)
         if print_detail:
-            print("API:", api_name, ",", argspec)
+            print("   OP:", api_name, ",", argspec)
 
         no_need_args = []
         if api_name in special_op_list.NO_NEED_ARGS.keys():

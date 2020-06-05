@@ -1,0 +1,18 @@
+[{
+    "op": "increment",
+    "param_info": {
+        "in_place": {
+            "type": "bool",
+            "value": "True"
+        },
+        "value": {
+            "type": "float",
+            "value": "1.0"
+        },
+        "x": {
+            "dtype": "int32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}]

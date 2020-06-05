@@ -1,0 +1,14 @@
+[{
+    "op": "instance_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 32L, 32L]",
+            "type": "Variable"
+        }
+    }
+}]

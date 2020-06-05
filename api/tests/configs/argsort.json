@@ -1,0 +1,35 @@
+[{
+    "op": "argsort",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "descending": {
+            "type": "bool",
+            "value": "False"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 1785L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "argsort",
+    "param_info": {
+        "input": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[1700971L, 1L]"
+        },
+        "axis": {
+            "type": "int",
+            "value": "0"
+        },
+        "descending": {
+            "type": "bool",
+            "value": "True"
+        }
+    }
+}]
