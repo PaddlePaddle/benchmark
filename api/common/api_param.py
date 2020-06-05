@@ -16,6 +16,7 @@ import os
 import json
 import copy
 import numpy as np
+from operator import attrgetter
 
 
 def parse_list(value_str, sub_dtype="int"):
@@ -204,6 +205,8 @@ class APIConfig(object):
         if self.alias.variable_list is None and self.alias.params_list is None:
             return "None"
         params_str = ""
+        self.alias.variable_list=sorted(self.alias.variable_list, key=attrgetter('name')) 
+        self.alias.params_list=sorted(self.alias.params_list, key=attrgetter('name')) 
         for var in self.alias.variable_list:
             params_str = params_str + var.to_string() + "\n"
         for attr in self.alias.params_list:
