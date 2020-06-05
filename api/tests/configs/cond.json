@@ -2,19 +2,19 @@
     "op": "cond",
     "param_info": {
         "input": {
-            "type": "Variable",
             "dtype": "float32",
-            "shape": "[1L]"
+            "shape": "[1L]",
+            "type": "Variable"
         },
         "x": {
-            "type": "Variable",
             "dtype": "float32",
-            "shape": "[16L, 256L, 6L, 6L]"
+            "shape": "[16L, 256L, 6L, 6L]",
+            "type": "Variable"
         },
         "y": {
-            "type": "Variable",
             "dtype": "float32",
-            "shape": "[16L, 256L, 6L, 6L]"
+            "shape": "[16L, 256L, 6L, 6L]",
+            "type": "Variable"
         }
     }
 }]
