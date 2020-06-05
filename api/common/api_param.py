@@ -19,10 +19,19 @@ import numpy as np
 
 
 def parse_list(value_str, sub_dtype="int"):
+    if isinstance(value_str, unicode):
+        value_str = value_str.encode("utf-8")
+
     if sub_dtype in ["int", "int64"]:
-        value_str = value_str.replace("L", "").replace("[", "").replace(
-            "]", "").split(',')
-        return map(int, value_str)
+        try:
+            if value_str != "[]":
+                value_str = value_str.replace("L", "").replace(
+                    "[", "").replace("]", "").split(',')
+                return map(int, value_str)
+            else:
+                return []
+        except Exception as e:
+            assert False, "Parse {} failed: {}".format(value_str, e)
     else:
         # TODO: check and support list of other data type.
         raise ValueError("Do not support parsing list of non-int data type.")

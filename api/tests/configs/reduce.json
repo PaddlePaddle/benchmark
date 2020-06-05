@@ -1,0 +1,69 @@
+[{
+    "op": "reduce",
+    "param_info": {
+        "dim": {
+            "type": "list",
+            "value": "[2, 3]"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, 33L, 33L]",
+            "type": "Variable"
+        },
+        "keep_dim": {
+            "type": "bool",
+            "value": "True"
+        }
+    }
+}, {
+    "op": "reduce",
+    "param_info": {
+        "dim": {
+            "type": "list",
+            "value": "[1]"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 8L, 128L]",
+            "type": "Variable"
+        },
+        "keep_dim": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}, {
+    "op": "reduce",
+    "param_info": {
+        "dim": {
+            "type": "list",
+            "value": "[0]"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, -1L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "keep_dim": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}, {
+    "op": "reduce",
+    "param_info": {
+        "dim": {
+            "type": "string",
+            "value": "None"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[30522L, 1024L]",
+            "type": "Variable"
+        },
+        "keep_dim": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}]
