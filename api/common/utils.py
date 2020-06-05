@@ -103,7 +103,7 @@ def _check_shape(output1, output2, i):
     return output1, output2
 
 
-def check_outputs(list1, list2, name, atol=1e-6):
+def check_outputs(list1, list2, name, atol=1e-6, config_params=None):
     if not isinstance(list1, list) or not isinstance(list2, list):
         raise TypeError(
             "input argument's type should be list of numpy.ndarray.")
@@ -156,6 +156,7 @@ def check_outputs(list1, list2, name, atol=1e-6):
     status["consistent"] = consistent
     status["num_outputs"] = num_outputs
     status["diff"] = max_diff.astype("float")
+    status["parameters"] = config_params
 
     if not consistent:
         if name is not None and name in special_op_list.RANDOM_OP_LIST:
@@ -170,7 +171,7 @@ def check_outputs(list1, list2, name, atol=1e-6):
         print(json.dumps(status))
 
 
-def print_benchmark_result(result, log_level=0):
+def print_benchmark_result(result, log_level=0, config_params=None):
     assert isinstance(result, dict), "Input result should be a dict."
 
     runtimes = result.get("total", None)
@@ -232,4 +233,5 @@ def print_benchmark_result(result, log_level=0):
     status["speed"]["total_include_wall_time"] = avg_runtime
     if gpu_time is not None:
         status["speed"]["gpu_time"] = gpu_time
+    status["parameters"] = config_params
     print(json.dumps(status))

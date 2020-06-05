@@ -59,7 +59,7 @@ class BaseParamInfo(object):
             return item
 
     def to_string(self):
-        return self.name + '--' + self.type + '|' + str(self.value)
+        return self.name + ' (' + self.type + '): ' + str(self.value)
 
     def _translate_value(self, value_str):
         if self.type in ["float", "float32", "float64"]:
@@ -94,10 +94,13 @@ class VarParamInfo(BaseParamInfo):
 
     def to_string(self):
         if self.type == "Variable":
-            return self.name + "--Variable|dtype:" + str(
-                self.dtype) + "|shape:" + str(self.shape)
+            return self.name + " (Variable) - dtype:" + str(
+                self.dtype) + ", shape:" + str(self.shape)
         elif self.type == "list<Variable>":
-            return self.name + "--list<Variable>"
+            str_list=self.name + " (list<Variable>) - "
+            for i in range(len(self.dtype)):
+                str_list=str_list + self.name + str(i) + " - dtype:" + str(self.dtype) + ", shape:" + str(self.shape)+"; "
+            return str_list
 
 
 class APIConfig(object):
@@ -196,12 +199,14 @@ class APIConfig(object):
         return tf_config
 
     def to_string(self):
-        if self.params_list is None and self.variable_list is None:
-            self._parse_params()
+        if self.alias.params_list is None and self.alias.variable_list is None:
+            self.alias._parse_params()
+        if self.alias.variable_list is None and self.alias.params_list is None:
+            return "None"
         params_str = ""
-        for var in self.variable_list:
+        for var in self.alias.variable_list:
             params_str = params_str + var.to_string() + "\n"
-        for attr in self.params_list:
+        for attr in self.alias.params_list:
             params_str = params_str + attr.to_string() + "\n"
         return params_str
 
@@ -231,23 +236,27 @@ class APIConfig(object):
     def _parse_params(self):
         self.variable_list = []
         self.params_list = []
-        for name, value in self.params.items():
-            assert value.get("type", None) is not None
-            if value["type"] == "Variable":
-                info = VarParamInfo(name, value["type"], value["dtype"],
-                                    value["shape"])
-                self.variable_list.append(info)
-            elif value["type"] == "list<Variable>":
-                dtype_list = []
-                shape_list = []
-                for key, var in value.items():
-                    if key != "type":
-                        assert var["type"] == "Variable"
-                        dtype_list.append(var["dtype"])
-                        shape_list.append(parse_list(var["shape"]))
-                info = VarParamInfo(name, value["type"], dtype_list,
-                                    shape_list)
-                self.variable_list.append(info)
-            else:
-                info = BaseParamInfo(name, value["type"], value["value"])
-                self.params_list.append(info)
+        if self.params is None :
+            self.variable_list=None
+            self.params_list=None
+        else:
+            for name, value in self.params.items():
+                assert value.get("type", None) is not None
+                if value["type"] == "Variable":
+                    info = VarParamInfo(name, value["type"], value["dtype"],
+                                        value["shape"])
+                    self.variable_list.append(info)
+                elif value["type"] == "list<Variable>":
+                    dtype_list = []
+                    shape_list = []
+                    for key, var in value.items():
+                        if key != "type":
+                            assert var["type"] == "Variable"
+                            dtype_list.append(var["dtype"])
+                            shape_list.append(parse_list(var["shape"]))
+                    info = VarParamInfo(name, value["type"], dtype_list,
+                                        shape_list)
+                    self.variable_list.append(info)
+                else:
+                    info = BaseParamInfo(name, value["type"], value["value"])
+                    self.params_list.append(info)
