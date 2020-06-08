@@ -5,12 +5,14 @@ import json
 import argparse
 import importlib
 
-sys.path.append("..")
+package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(package_path)
+
 from tests.common_import import *
 from common import special_op_list
 
 NOT_API = ["main", "common_import", "launch"]
-NO_JSON_API = ["feed", "fetch", "fill_constant", "null"]
+NO_JSON_API = ["feed", "fetch", "null"]
 
 API_LIST = []
 SUB_CONFIG_LIST = []
@@ -81,19 +83,20 @@ def write_api_info():
 
     args = parser.parse_args()
     with open(args.info_file, 'w') as f:
-        for api in REGISTER_API_INFO.keys():
+        for api in sorted(REGISTER_API_INFO.keys()):
             f.writelines(api + ',' + str(REGISTER_API_INFO[api][0]) + ',' +
                          str(REGISTER_API_INFO[api][1]) + ',' + str(
                              REGISTER_API_INFO[api][2]) + '\n')
 
-    with open(args.support_api_file, 'w') as fo:
-        for api in REGISTER_API_INFO.keys():
-            fo.writelines(str(api) + '\n')
+    if args.support_api_file:
+        with open(args.support_api_file, 'w') as fo:
+            for api in REGISTER_API_INFO.keys():
+                fo.writelines(str(api) + '\n')
 
 
 def import_module():
-    path = os.getcwd() + '/../tests/'
-    for filename in os.listdir(path):
+    tests_path = os.path.join(package_path, 'tests')
+    for filename in os.listdir(tests_path):
         api_name = os.path.splitext(filename)[0]
         file_extension = os.path.splitext(filename)[1]
         if file_extension == '.py' and api_name not in NOT_API:
