@@ -97,8 +97,8 @@ do
 
     for((i=0;i<cases_num;i++));
     do
-        echo "[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}"
         config_id=$[$config_id+1]
+        echo "[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}"
         case_id=0
         # device: gpu, cpu
         for device in ${DEVICE_SET[@]};
@@ -144,14 +144,16 @@ do
                         if [ "${OUTPUT_DIR}" != "" ]; then
                             logfile=${OUTPUT_DIR}/${api_name}"-"${framework}"_"${device}"_"${task}"_""${direction}""_"${i}".txt"
                             ${run_cmd} > $logfile 2>&1
+                            return_status=$?
                         else
                             logfile=""
                             ${run_cmd}
+                            return_status=$?
                         fi
                         run_end=`date +%s%N`;
                         runtime=$((run_end-run_start))
                         runtime=`expr $runtime / 1000000`
-                        return_status=$?
+
                         if [ ${return_status} -eq 0 ]; then
                             num_success_cases=$[$num_success_cases+1]
                         else

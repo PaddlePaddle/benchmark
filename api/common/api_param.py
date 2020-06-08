@@ -107,9 +107,10 @@ class VarParamInfo(BaseParamInfo):
             return self.name + " (Variable) - dtype: " + str(
                 self.dtype) + ", shape: " + str(self.shape)
         elif self.type == "list<Variable>":
-            str_list=self.name + " (list<Variable>) - "
+            str_list = self.name + " (list<Variable>) - "
             for i in range(len(self.dtype)):
-                str_list=str_list + "dtype: " + str(self.dtype[i]) + ", shape: " + str(self.shape[i])+"; "
+                str_list = str_list + "dtype: " + str(self.dtype[
+                    i]) + ", shape: " + str(self.shape[i]) + "; "
             return str_list
 
 
@@ -214,8 +215,10 @@ class APIConfig(object):
         if self.alias.variable_list is None and self.alias.params_list is None:
             return "None"
         params_str = ""
-        self.alias.variable_list=sorted(self.alias.variable_list, key=attrgetter('name')) 
-        self.alias.params_list=sorted(self.alias.params_list, key=attrgetter('name')) 
+        self.alias.variable_list = sorted(
+            self.alias.variable_list, key=attrgetter('name'))
+        self.alias.params_list = sorted(
+            self.alias.params_list, key=attrgetter('name'))
         for var in self.alias.variable_list:
             params_str = params_str + var.to_string() + "\n"
         for attr in self.alias.params_list:
@@ -231,18 +234,22 @@ class APIConfig(object):
         if hasattr(self, "alias_config"):
             self.alias_config.is_alias_of_other = True
 
-        debug_str = ('[%s][%s] %s {\n') % (self.framework, self.name,
-                                           self.api_name)
+        exclude_attrs = [
+            '_APIConfig__name', '_APIConfig__framework', 'params', 'api_name',
+            'api_list', 'variable_list', 'params_list', 'backward',
+            'feed_spec', 'is_alias_of_other'
+        ]
         if hasattr(self, "is_alias_of_other") and self.is_alias_of_other:
             prefix = "  "
+            for name in ["run_tf", "atol"]:
+                exclude_attrs.append(name)
         else:
             prefix = ""
+
+        debug_str = ('[%s][%s] %s {\n') % (self.framework, self.name,
+                                           self.api_name)
         for name, value in vars(self).items():
-            if name not in [
-                    '_APIConfig__name', '_APIConfig__framework', 'params',
-                    'api_name', 'api_list', 'variable_list', 'params_list',
-                    'backward', 'feed_spec', 'is_alias_of_other'
-            ]:
+            if name not in exclude_attrs:
                 if isinstance(value, np.ndarray):
                     debug_str = debug_str + (
                         '  %s: np.ndarray(shape=%s, dtype=%s)\n') % (
@@ -250,15 +257,15 @@ class APIConfig(object):
                 else:
                     debug_str = debug_str + ('  %s%s: %s\n') % (prefix, name,
                                                                 value)
-        debug_str = debug_str + '}'
+        debug_str = debug_str + prefix + '}'
         return debug_str
 
     def _parse_params(self):
         self.variable_list = []
         self.params_list = []
-        if self.params is None :
-            self.variable_list=None
-            self.params_list=None
+        if self.params is None:
+            self.variable_list = None
+            self.params_list = None
         else:
             for name, value in self.params.items():
                 assert value.get("type", None) is not None
