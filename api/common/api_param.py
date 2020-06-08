@@ -220,20 +220,28 @@ class APIConfig(object):
                 setattr(self, name, None)
 
     def __str__(self):
+        if hasattr(self, "alias_config"):
+            self.alias_config.is_alias_of_other = True
+
         debug_str = ('[%s][%s] %s {\n') % (self.framework, self.name,
                                            self.api_name)
+        if hasattr(self, "is_alias_of_other") and self.is_alias_of_other:
+            prefix = "  "
+        else:
+            prefix = ""
         for name, value in vars(self).items():
             if name not in [
                     '_APIConfig__name', '_APIConfig__framework', 'params',
                     'api_name', 'api_list', 'variable_list', 'params_list',
-                    'backward', 'feed_spec'
+                    'backward', 'feed_spec', 'is_alias_of_other'
             ]:
                 if isinstance(value, np.ndarray):
                     debug_str = debug_str + (
                         '  %s: np.ndarray(shape=%s, dtype=%s)\n') % (
                             name, str(value.shape), value.dtype)
                 else:
-                    debug_str = debug_str + ('  %s: %s\n') % (name, value)
+                    debug_str = debug_str + ('  %s%s: %s\n') % (prefix, name,
+                                                                value)
         debug_str = debug_str + '}'
         return debug_str
 

@@ -1,93 +1,166 @@
 #! /bin/bash
 
 export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
+export CUDA_VISIBLE_DEVICES="0"
 
-path=$(cd $(dirname $0);pwd)
-test_dir="../tests"
-export PYTHONPATH=${path}/${test_dir}:${PYTHONPATH}
+OP_BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../" && pwd )"
+DEPLOY_DIR="${OP_BENCHMARK_ROOT}/deploy"
+TEST_DIR="${OP_BENCHMARK_ROOT}/tests"
+export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 
-api_info_file=$path/api_info.txt
-python ${path}/collect_api_info.py --info_file  ${api_info_file} --support_api_file ${path}/support_api_list.txt
+JSON_CONFIG_DIR=${1:-"${TEST_DIR}/examples"}
+OUTPUT_DIR=${2:-""}
 
-json_dir=$1
-res_dir=$2
-if [ ! -d $res_dir ]
-then
-    mkdir $res_dir
+if [ ! -d ${OUTPUT_DIR} ]; then
+    mkdir -p ${OUTPUT_DIR}
 fi
 
-device=("cpu" "gpu")
-device_set=(false true)
-direction=("forward" "backward")
-direction_set=(false true)
-framwork=("paddle" "tensorflow")
-feature=("speed" "accuracy")
-api_num=0
-no_backward=()
+function print_detail_status() {
+    config_id=$1
+    case_id=$2
+    device=$3
+    backward=$4
+    logfile=$5
+    runtime=$6
+    return_status=$7
 
+    if [ ${backward} = "False" ]; then
+        backward_shorten="F"
+    else # backward="True"
+        backward_shorten="T"
+    fi
+    if  [ ${return_status} -eq 0 ]; then
+        run_status="SUCCESS"
+    else
+        run_status="FAILED"
+    fi
+    print_str="[${config_id}-${case_id}] device=${device}, backward=${backward_shorten}, ${logfile}, time=${runtime} ms"
+    print_str_length=${#print_str}
+    if [ ${print_str_length} -lt 80 ]; then
+        printf "  %-80s ...... %s\n" "${print_str}" "${run_status}"
+    elif [ ${print_str_length} -lt 90 ]; then
+        printf "  %-90s ...... %s\n" "${print_str}" "${run_status}"
+    elif [ ${print_str_length} -lt 100 ]; then
+        printf "  %-100s ...... %s\n" "${print_str}" "${run_status}"
+    elif [ ${print_str_length} -lt 110 ]; then
+        printf "  %-110s ...... %s\n" "${print_str}" "${run_status}"
+    fi
+}
+
+if [ ${OUTPUT_DIR} != "" ]; then
+    api_info_file=${OUTPUT_DIR}/api_info.txt
+else
+    api_info_file=./api_info.txt
+fi
+#python ${DEPLOY_DIR}/collect_api_info.py --info_file ${api_info_file}
+
+config_id=0
+cpu_runtime=0
+gpu_runtime=0
+num_success_cases=0
+num_failed_cases=0
+
+device_set=("gpu" "cpu")
+task_set=("speed" "accuracy")
 for line in `cat $api_info_file`
 do
-    api_num=$[$api_num+1]
     api_name=$(echo $line| cut -d',' -f1)
-    api=$(echo $line| cut -d',' -f2)
+    name=$(echo $line| cut -d',' -f2)
     json_file=$(echo $line| cut -d',' -f3)
-    backward=$(echo $line| cut -d',' -f4)
+    has_backward=$(echo $line| cut -d',' -f4)
 
-    if [ ${backward} = False ]; then  
-        length=${#no_backward[@]}
-        length=$[$length+1]
-        no_backward[${length}]=${api_name}  
+    direction_set=("forward" "backward")
+    if [ ${has_backward} = False ]; then  
+        direction_set=("forward")
     fi
 
     if [ "$json_file" != "None" ]
     then
-        json_file_name=${PWD}/$json_dir/${json_file}
-        cases_num=$(grep '"op"' ${json_file_name} |wc -l)
+        json_file_path=${JSON_CONFIG_DIR}/${json_file}
+        cases_num=$(grep '"op"' ${json_file_path} |wc -l)
     else
         cases_num=1
-        json_file_name=None
+        json_file_path=None
     fi
 
     for((i=0;i<cases_num;i++));
     do
-        for j in "${!device[@]}";
+        echo "[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}"
+        config_id=$[$config_id+1]
+        case_id=0
+        # device: gpu, cpu
+        for device in ${device_set[@]};
         do 
-            for k in "${!framwork[@]}";
+            if [ ${device} = "gpu" ]; then
+                use_gpu="True"
+                repeat=1000
+            else
+                use_gpu="False"
+                repeat=100
+            fi
+            # task: speed, accuracy
+            for task in "${task_set[@]}";
             do 
-                for n in "${!feature[@]}";
+                framwork_set=("paddle" "tensorflow")
+                if [ ${task} = "accuracy" ]; then
+                    framwork_set=("paddle")
+                fi
+                # framework: paddle, tensorflow
+                for framework in "${framwork_set[@]}";
                 do 
-                    for m in "${!direction[@]}"; 
+                    # direction: forward, backward
+                    for direction in "${direction_set[@]}"; 
                     do
-                        if [ ${direction[$m]} = "backward" ] && [ ${backward} = False ]; then
-                            continue
-                        fi
-                        if [ ${framwork[$k]} = "tensorflow" ] && [ ${feature[$n]} = "accuracy" ]; then
-                            continue
-                        fi
-                        if [ "${device[$j]}" = "gpu" ]; then
-                            repeat=1000
+                        if [ ${direction} = "forward" ]; then
+                            backward="False"
                         else
-                            repeat=100
+                            backward="True"
                         fi
-                        logfile=$res_dir/${api_name}"-"${framwork[$k]}"_"${device[$j]}"_"${feature[$n]}"_""${direction[$m]}""_"${i}".txt"
-                        echo "api_name: "${api_name}", api: "${api}", "${direction[$m]}", json_file: "${json_file}", json_id: "${i}", "${logfile}
 
-                        python -m launch ${path}/${test_dir}/${api}.py \
-                          --api_name ${api_name} \
-                          --task ${feature[$n]} \
-                          --framework ${framwork[$k]} \
-                          --json_file ${json_file_name} \
-                          --config_id $i \
-                          --backward ${direction_set[$m]} \
-                          --use_gpu ${device_set[$j]} \
-                          --repeat $repeat \
-                          --log_level 0 > $logfile 2>&1
-                   done
+                        case_id=$[$case_id+1]
+                        run_cmd="python -m tests.launch ${TEST_DIR}/${name}.py \
+                              --api_name ${api_name} \
+                              --task ${task} \
+                              --framework ${framework} \
+                              --json_file ${json_file_path} \
+                              --config_id $i \
+                              --backward ${backward} \
+                              --use_gpu ${use_gpu} \
+                              --repeat $repeat"
+
+                        run_start=`date +%s%N`
+                        if [ "${OUTPUT_DIR}" != "" ]; then
+                            logfile=${OUTPUT_DIR}/${api_name}"-"${framework}"_"${device}"_"${task}"_""${direction}""_"${i}".txt"
+                            ${run_cmd} > $logfile 2>&1
+                        else
+                            logfile=""
+                            ${run_cmd}
+                        fi
+                        run_end=`date +%s%N`;
+                        runtime=$((run_end-run_start))
+                        runtime=`expr $runtime / 1000000`
+                        return_status=$?
+                        if [ ${return_status} -eq 0 ]; then
+                            num_success_cases=$[$num_success_cases+1]
+                        else
+                            num_failed_cases=$[$num_failed_cases+1]
+                        fi
+                        if [ ${device} == "gpu" ]; then
+                            gpu_runtime=`expr $gpu_runtime + $runtime`
+                        else
+                            cpu_runtime=`expr $cpu_runtime + $runtime`
+                        fi
+                        print_detail_status ${config_id} ${case_id} "${device}" "${backward}" "${logfile}" ${runtime} ${return_status}
+                     done
                 done
             done
-       done
+        done
+        echo ""
     done
-    echo -e "\n"
 done
-echo -e "\nSUMMARY: The number of whole API: "${api_num}
-echo -e "\nSUMMARY: APIs which has no backwards: "${no_backward[@]}
+
+echo "=================================="
+echo "Summary:"
+echo "  ${num_success_cases} successed; ${num_failed_cases} failed"
+echo "  GPU runtime: ${gpu_runtime} ms; CPU runtime: ${cpu_runtime} ms"
+echo ""
