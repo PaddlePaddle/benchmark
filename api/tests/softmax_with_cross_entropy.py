@@ -23,8 +23,8 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
     def init_from_json(self, filename, config_id=0):
         super(SoftmaxWithCrossEntropyConfig, self).init_from_json(filename,
                                                                   config_id)
-        input_rank = len(self.input_shape)
-        self.num_classes = self.input_shape[input_rank - 1]
+        logits_rank = len(self.logits_shape)
+        self.num_classes = self.logits_shape[logits_rank - 1]
         self.feed_spec = [
             {
                 "range": [0, 1]
@@ -44,36 +44,36 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
 
 class PDSoftmaxWithCrossEntropy(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        logits = self.variable(
+            name='logits', shape=config.logits_shape, dtype=config.logits_dtype)
         label = self.variable(
             name="label",
             shape=config.label_shape,
             dtype=config.label_dtype,
             stop_gradient=True)
         result = fluid.layers.softmax_with_cross_entropy(
-            logits=input, label=label, soft_label=config.soft_label)
+            logits=logits, label=label, soft_label=config.soft_label)
 
-        self.feed_vars = [input, label]
+        self.feed_vars = [logits, label]
         self.fetch_vars = [result]
         if config.backward:
-            self.append_gradients(result, [input])
+            self.append_gradients(result, [logits])
 
 
 class TFSoftmaxWithCrossEntropy(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        logits = self.variable(
+            name='logits', shape=config.logits_shape, dtype=config.logits_dtype)
         label = self.variable(
             name='label', shape=config.label_shape, dtype=config.label_dtype)
         onehot_label = tf.one_hot(indices=label, depth=config.num_classes)
         result = tf.compat.v1.losses.softmax_cross_entropy(
-            logits=input, onehot_labels=onehot_label, reduction='none')
+            logits=logits, onehot_labels=onehot_label, reduction='none')
 
-        self.feed_list = [input, label]
+        self.feed_list = [logits, label]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [input])
+            self.append_gradients(result, [logits])
 
 
 if __name__ == '__main__':
