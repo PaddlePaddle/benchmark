@@ -29,8 +29,6 @@ class PDCast(PaddleAPIBenchmarkBase):
 
         self.feed_vars = [data]
         self.fetch_vars = [result]
-        if config.backward:
-            self.append_gradients(result, [data])
 
 
 class TFCast(TensorflowAPIBenchmarkBase):
@@ -41,8 +39,6 @@ class TFCast(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [data]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [data])
 
 
 if __name__ == '__main__':

@@ -41,29 +41,29 @@ def collect_subconfig_info():
         else:
             json_file = obj.name + '.json'
 
-        if obj.name in special_op_list.NO_BACKWARD_API:
-            backend = False
+        if obj.name in special_op_list.NO_BACKWARD_OPS:
+            backward = False
         else:
-            backend = True
+            backward = True
 
         for api in api_list:
-            REGISTER_API_INFO[api] = [obj.name, json_file, backend]
+            REGISTER_API_INFO[api] = [obj.name, json_file, backward]
 
 
 def collect_config_info():
     CONFIG_LIST = list(set(API_LIST).difference(set(SUB_CONFIG_LIST)))
     CONFIG_LIST.remove('__init__')
     for api in CONFIG_LIST:
-        if api in special_op_list.NO_BACKWARD_API:
-            backend = False
+        if api in special_op_list.NO_BACKWARD_OPS:
+            backward = False
         else:
-            backend = True
+            backward = True
         if api in NO_JSON_API:
             json_file = None
         else:
             json_file = api + '.json'
 
-        REGISTER_API_INFO[api] = [api, json_file, backend]
+        REGISTER_API_INFO[api] = [api, json_file, backward]
 
 
 def write_api_info():
