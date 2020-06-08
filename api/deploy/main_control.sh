@@ -9,10 +9,24 @@ TEST_DIR="${OP_BENCHMARK_ROOT}/tests"
 export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 
 JSON_CONFIG_DIR=${1:-"${TEST_DIR}/examples"}
-OUTPUT_DIR=${2:-""}
 
+OUTPUT_DIR=${2:-""}
 if [ ! -d ${OUTPUT_DIR} ]; then
     mkdir -p ${OUTPUT_DIR}
+fi
+
+DEVICE_SET=("gpu" "cpu")
+if [ $# -ge 3 ]; then
+    if [[ ${3} == "cpu" || ${3} == "gpu" ]]; then
+        DEVICE_SET=(${3})
+    fi
+fi
+
+TASK_SET=("speed" "accuracy")
+if [ $# -ge 4 ]; then
+    if [[ ${4} == "speed" || ${4} == "accuracy" ]]; then
+        TASK_SET=(${4})
+    fi
 fi
 
 function print_detail_status() {
@@ -52,7 +66,7 @@ if [ ${OUTPUT_DIR} != "" ]; then
 else
     api_info_file=./api_info.txt
 fi
-#python ${DEPLOY_DIR}/collect_api_info.py --info_file ${api_info_file}
+python ${DEPLOY_DIR}/collect_api_info.py --info_file ${api_info_file}
 
 config_id=0
 cpu_runtime=0
@@ -60,8 +74,6 @@ gpu_runtime=0
 num_success_cases=0
 num_failed_cases=0
 
-device_set=("gpu" "cpu")
-task_set=("speed" "accuracy")
 for line in `cat $api_info_file`
 do
     api_name=$(echo $line| cut -d',' -f1)
@@ -89,7 +101,7 @@ do
         config_id=$[$config_id+1]
         case_id=0
         # device: gpu, cpu
-        for device in ${device_set[@]};
+        for device in ${DEVICE_SET[@]};
         do 
             if [ ${device} = "gpu" ]; then
                 use_gpu="True"
@@ -99,7 +111,7 @@ do
                 repeat=100
             fi
             # task: speed, accuracy
-            for task in "${task_set[@]}";
+            for task in "${TASK_SET[@]}";
             do 
                 framwork_set=("paddle" "tensorflow")
                 if [ ${task} = "accuracy" ]; then
@@ -159,8 +171,8 @@ do
     done
 done
 
-echo "=================================="
+echo "===================================================================="
 echo "Summary:"
 echo "  ${num_success_cases} successed; ${num_failed_cases} failed"
 echo "  GPU runtime: ${gpu_runtime} ms; CPU runtime: ${cpu_runtime} ms"
-echo ""
+echo "===================================================================="
