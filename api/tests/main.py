@@ -168,7 +168,7 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
                                           feeder_adapter)
         if args.task == "speed":
             tf_stats["gpu_time"] = args.gpu_time
-            utils.print_benchmark_result(tf_stats, log_level=args.log_level)
+            utils.print_benchmark_result(tf_stats, log_level=args.log_level, config_params=config.to_string())
 
     if _is_paddle_enabled(args, config):
         assert pd_obj is not None, "Paddle object is None."
@@ -177,12 +177,12 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
                                           feeder_adapter)
         if args.task == "speed":
             pd_stats["gpu_time"] = args.gpu_time
-            utils.print_benchmark_result(pd_stats, log_level=args.log_level)
+            utils.print_benchmark_result(pd_stats, log_level=args.log_level, config_params=config.to_string())
 
     if args.task == "accuracy":
         if config.run_tf:
             utils.check_outputs(
-                pd_outputs, tf_outputs, name=config.api_name, atol=config.atol)
+                pd_outputs, tf_outputs, name=config.api_name, atol=config.atol, config_params=config.to_string())
         else:
             warnings.simplefilter('always', UserWarning)
             warnings.warn("This config is not supported by TensorFlow.")
