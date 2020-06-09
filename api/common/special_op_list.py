@@ -22,11 +22,8 @@ NO_BACKWARD_OPS = [
     "less_equal", "not_equal", "greater_than", "greater_equal", "equal",
     "cumsum", "feed", "fetch", "fill_constant", "increment", "isfinite",
     "logical_not", "logical_and", "logical_or", "null", "one_hot", "scale",
-    "sequence_mask", "shape", "zeros_like", "instance_norm"
+    "sequence_mask", "shape", "zeros_like"
 ]
-
-# When running the API backwards in HANG_CASES, the progress will hang.
-HANG_CASES = ["instance_norm"]
 
 NO_NEED_ARGS = {
     "batch_norm": ["moving_mean_name", "moving_variance_name"],
