@@ -142,7 +142,7 @@ do
 
                         run_start=`date +%s%N`
                         if [ "${OUTPUT_DIR}" != "" ]; then
-                            logfile=${OUTPUT_DIR}/${api_name}"-"${framework}"_"${device}"_"${task}"_""${direction}""_"${i}".txt"
+                            logfile=${OUTPUT_DIR}/${api_name}"_"${i}"-"${framework}"_"${device}"_"${task}"_"${direction}".txt"
                             ${run_cmd} > $logfile 2>&1
                             return_status=$?
                         else
