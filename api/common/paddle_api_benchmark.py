@@ -167,10 +167,12 @@ class PaddleAPIBenchmarkBase(object):
         executor = fluid.Executor(place)
         executor.run(self.startup_program)
 
-        stats = {"framework": "paddle"}
-        stats["version"] = paddle.__version__
-        stats["name"] = self.name
-        stats["device"] = "GPU" if use_gpu else "CPU"
+        stats = {
+            "framework": "paddle",
+            "version": paddle.__version__,
+            "name": self.name,
+            "device": "GPU" if use_gpu else "CPU"
+        }
 
         def _run_main_iter():
             feed_dict = feed if self._need_feed else None
@@ -203,15 +205,14 @@ class PaddleAPIBenchmarkBase(object):
                     if check_output:
                         fetches.append(outputs)
 
+            stats["total"] = runtimes
             if check_output:
                 stable, max_diff = self._check_consistency(fetches)
-                stats = {"total": runtimes, "stable": stable, "diff": max_diff}
-            else:
-                stats = {"total": runtimes}
+                stats["stable"] = stable
+                stats["diff"] = max_diff
             if self.name != "null":
                 stats["wall_time"] = walltimes
             return outputs, stats
-
         except fluid.core.EnforceNotMet as ex:
             logging.basicConfig(level=logging.INFO)
             logger = logging.getLogger(__name__)
