@@ -19,6 +19,7 @@ import abc, six
 import traceback
 import contextlib
 import importlib
+import logging
 import numpy as np
 import cProfile, pstats, StringIO
 import utils
@@ -212,7 +213,9 @@ class PaddleAPIBenchmarkBase(object):
             return outputs, stats
 
         except fluid.core.EnforceNotMet as ex:
-            print("paddle failed.")
+            logging.basicConfig(level=logging.INFO)
+            logger = logging.getLogger(__name__)
+            logger.error(ex.message)
             return False, stats
 
     def generate_random_feeder(self,

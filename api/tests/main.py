@@ -19,9 +19,6 @@ import os
 import json
 import sys
 import warnings
-import logging
-import collections
-import paddle.fluid as fluid
 
 sys.path.append("..")
 from common import utils
@@ -182,18 +179,15 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
         pd_outputs, pd_stats = pd_obj.run(config, args, use_feed_fetch,
                                           feeder_adapter)
 
-        #if pd_outputs == False:
-        #    raise RuntimeError("Run paddle failed")
-
         if args.task == "speed":
             pd_stats["gpu_time"] = args.gpu_time
             utils.print_benchmark_result(
                 pd_stats,
                 log_level=args.log_level,
                 config_params=config.to_string())
-
+            
         if pd_outputs == False:
-            raise RuntimeError("Run paddle failed")
+            sys.exit(1)
 
     if args.task == "accuracy":
         if config.run_tf:
