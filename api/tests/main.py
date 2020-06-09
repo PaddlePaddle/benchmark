@@ -53,7 +53,7 @@ def parse_args():
     parser.add_argument(
         '--check_output',
         type=utils.str2bool,
-        default=True,
+        default=False,
         help='Whether checking the consistency of outputs [True|False]')
     parser.add_argument(
         '--profiler',
