@@ -19,6 +19,7 @@ import abc, six
 import traceback
 import contextlib
 import importlib
+import logging
 import numpy as np
 import cProfile, pstats, StringIO
 import utils
@@ -166,6 +167,11 @@ class PaddleAPIBenchmarkBase(object):
         executor = fluid.Executor(place)
         executor.run(self.startup_program)
 
+        stats = {"framework": "paddle"}
+        stats["version"] = paddle.__version__
+        stats["name"] = self.name
+        stats["device"] = "GPU" if use_gpu else "CPU"
+
         def _run_main_iter():
             feed_dict = feed if self._need_feed else None
             fetch_vars = self.fetch_vars if self._need_fetch else None
@@ -182,32 +188,35 @@ class PaddleAPIBenchmarkBase(object):
         if not self._need_feed:
             self._init_feed_tensor(use_gpu, feed)
 
-        # warmup run
-        outputs = _run_main_iter()
+        try:
+            # warmup run
+            outputs = _run_main_iter()
 
-        runtimes = []
-        fetches = []
-        outputs = None
-        with profile_context(self.name, use_gpu, profiler):
-            for i in range(repeat):
-                begin = time.time()
-                outputs = _run_main_iter()
-                runtimes.append(time.time() - begin)
-                if check_output:
-                    fetches.append(outputs)
+            runtimes = []
+            fetches = []
+            outputs = None
+            with profile_context(self.name, use_gpu, profiler):
+                for i in range(repeat):
+                    begin = time.time()
+                    outputs = _run_main_iter()
+                    runtimes.append(time.time() - begin)
+                    if check_output:
+                        fetches.append(outputs)
 
-        if check_output:
-            stable, max_diff = self._check_consistency(fetches)
-            stats = {"total": runtimes, "stable": stable, "diff": max_diff}
-        else:
-            stats = {"total": runtimes}
-        if self.name != "null":
-            stats["wall_time"] = walltimes
-        stats["framework"] = "paddle"
-        stats["version"] = paddle.__version__
-        stats["name"] = self.name
-        stats["device"] = "GPU" if use_gpu else "CPU"
-        return outputs, stats
+            if check_output:
+                stable, max_diff = self._check_consistency(fetches)
+                stats = {"total": runtimes, "stable": stable, "diff": max_diff}
+            else:
+                stats = {"total": runtimes}
+            if self.name != "null":
+                stats["wall_time"] = walltimes
+            return outputs, stats
+
+        except fluid.core.EnforceNotMet as ex:
+            logging.basicConfig(level=logging.INFO)
+            logger = logging.getLogger(__name__)
+            logger.error(ex.message)
+            return False, stats
 
     def generate_random_feeder(self,
                                config,
