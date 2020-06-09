@@ -174,7 +174,18 @@ def check_outputs(list1, list2, name, atol=1e-6, config_params=None):
 def print_benchmark_result(result, log_level=0, config_params=None):
     assert isinstance(result, dict), "Input result should be a dict."
 
+    status = collections.OrderedDict()
+    status["framework"] = result["framework"]
+    status["version"] = result["version"]
+    status["name"] = result["name"]
+    status["device"] = result["device"]
+
     runtimes = result.get("total", None)
+    if runtimes is None:
+        status["parameters"] = config_params
+        print(json.dumps(status))
+        return
+
     walltimes = result.get("wall_time", None)
     gpu_time = result.get("gpu_time", None)
     stable = result.get("stable", None)
@@ -215,11 +226,6 @@ def print_benchmark_result(result, log_level=0, config_params=None):
             print("Iter %4d, Runtime: %.5f ms, Walltime: %.5f ms" %
                   (i, runtimes[i], walltime))
 
-    status = collections.OrderedDict()
-    status["framework"] = result["framework"]
-    status["version"] = result["version"]
-    status["name"] = result["name"]
-    status["device"] = result["device"]
     if stable is not None and diff is not None:
         status["precision"] = collections.OrderedDict()
         status["precision"]["stable"] = stable
