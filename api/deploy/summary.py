@@ -1,20 +1,42 @@
 #!/bin/python
+#coding=utf-8
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """
 summary script
 """
 from __future__ import print_function
-import os
+
+import os, sys
 import json
-import xlsxwriter as xlw
 import time
+import argparse
+
+package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(package_path)
+
+from common import utils
 
 res = {}
-path = "./result/"
+
 
 def dump_excel(data):
     """
     dump data to a excel
     """
+    import xlsxwriter as xlw
+
     wb = xlw.Workbook('Operators.xlsx')
     ws = wb.add_worksheet('OP')
 
@@ -99,115 +121,281 @@ def dump_excel(data):
 
     wb.close()
 
-def get_job_res(inputfile, statistic_file):
-    """
-    implements within avoiding  too large file
-    inputfile -- directory path
-    statistic_file -- statistic by one dimension
-    """
-    filename = os.path.splitext(statistic_file)[0]
-    case_name = filename.split("-")[0]
-    statistic_beg_idx = filename.find("-")
-    statistic_type = filename[statistic_beg_idx + 1 :]
+
+def _read_last_line(inputfile):
     filesize = os.path.getsize(inputfile)
+    f = open(inputfile, 'r')
+
     blocksize = 1024
-    data_file = open(inputfile, 'r')
     if filesize > blocksize:
         maxseekpoint = filesize // blocksize
-        data_file.seek((maxseekpoint - 1) * blocksize)
+        f.seek((maxseekpoint - 1) * blocksize)
     elif filesize:
-        data_file.seek(0, 0)
-    lines = data_file.readlines()
-    d = {}
-    param = ""
-    try:
+        f.seek(0, 0)
+
+    lines = f.readlines()
+    if len(lines) >= 2:
         last_line = lines[-2].strip("\n")
-        d = json.loads(last_line)
-        #print(d['parameters'])
-        param = d['parameters']
+    else:
+        last_line = None
+    f.close()
+    return last_line
+
+
+def _parse_parameters(case_name, last_line):
+    assert res.get(case_name, None) is not None
+
+    case_detail = res[case_name]
+    if case_detail.get("parameters", None) is None:
+        try:
+            data = json.loads(last_line)
+            param = data['parameters']
+            res[case_name]['parameters'] = param.strip("\n")
+        except Exception:
+            pass
+
+
+def _parse_speed(case_name, statistic_type, last_line):
+    assert res.get(case_name, None) is not None
+
+    gpu_time_key = None
+    if statistic_type == "paddle_gpu_speed_forward":
+        gpu_time_key = "gpu_time"
+    elif statistic_type == "paddle_gpu_speed_backward":
+        gpu_time_key = "gpu_time_backward"
+    elif statistic_type == "tensorflow_gpu_speed_forward":
+        gpu_time_key = "tf_gpu_time"
+    elif statistic_type == "tensorflow_gpu_speed_backward":
+        gpu_time_key = "tf_gpu_time_backward"
+
+    try:
+        data = json.loads(last_line)
+        # May set following values:
+        #   paddle_cpu/gpu_speed_forward
+        #   paddle_cpu/gpu_speed_backward
+        #   tensorflow_cpu/gpu_speed_forward
+        #   tensorflow_cpu/gpu_speed_backward
+        total = data["speed"]["total"]
+        total_str = "%.5f" % total
+        res[case_name][statistic_type] = total_str
+        if gpu_time_key and data["speed"].get("gpu_time", None):
+            # May set following values:
+            #   gpu_time
+            #   gpu_time_backward
+            #   tf_gpu_time
+            #   tf_gpu_time_backward
+            gpu_time = data["speed"]["gpu_time"]
+            gpu_time_str = "%.5f" % gpu_time
+            res[case_name][gpu_time_key] = gpu_time_str
     except Exception:
+        res[case_name][statistic_type] = "--"
+        res[case_name][gpu_time_key] = "--"
+
+
+def _parse_accuracy(case_name, statistic_type, last_line):
+    assert res.get(case_name, None) is not None
+
+    try:
+        data = json.loads(last_line)
+        # May set following values:
+        #   paddle_gpu_accuracy_forward
+        #   paddle_gpu_accuracy_backward
+        #   paddle_cpu_accuracy_forward
+        #   paddle_cpu_accuracy_backward
+        consitent_status = data['consistent']
+        res[case_name][statistic_type] = consitent_status
+    except Exception:
+        res[case_name][statistic_type] = "--"
+
+
+def get_job_res(inputfile, specified_op_list=None):
+    """
+    implements within avoiding too large file
+
+    Content of res:
+      name                          - case name, such as 'abs_0'
+
+      paddle_gpu_speed_forward      - GPU runtime, paddle, forward
+      paddle_gpu_speed_backward     - GPU runtime, paddle, backward
+      tensorflow_gpu_speed_forward  - GPU runtime, tensorflow, forward
+      tensorflow_gpu_speed_backward - GPU runtime, tensorflow, backward
+      gpu_time                      - GPU kernel time, paddle, forward
+      gpu_time_backward             - GPU kernel time, paddle, backward
+      tf_gpu_time                   - GPU kernel time, tensorflow, forward
+      tf_gpu_time_backward          - GPU kernel time, tensorflow, backward
+
+      paddle_cpu_speed_forward      - CPU runtime, paddle, forward
+      paddle_cpu_speed_backward     - CPU runtime, paddle, backward
+      tensorflow_cpu_speed_forward  - CPU runtime, tensorflow, forward
+      tensorflow_cpu_speed_backward - CPU runtime, tensorflow, backward
+   
+      paddle_gpu_accuracy_forward   - GPU accuracy status, forward
+      paddle_gpu_accuracy_backward  - GPU accuracy status, backward
+      paddle_cpu_accuracy_forward   - CPU accuracy status, forward
+      paddle_cpu_accuracy_backward  - CPU accuracy status, backward
+
+    Args:
+      inputfile (str) -- directory path
+    """
+    filename = os.path.splitext(os.path.basename(inputfile))[0]
+    case_name = filename.split("-")[0]
+    op_type = case_name.split("_")[0]
+    if specified_op_list and op_type not in specified_op_list:
+        return res
+
+    print("-- Parse %s from %s" % (case_name, inputfile))
+
+    # Add case_name to the global dict.
+    if case_name not in res:
         res[case_name] = {}
-    if lines and "_speed_" in inputfile:
-        try:
-            dic = json.loads(last_line)
-            perf = dic['speed']['total']
-            if case_name not in res:
-                res[case_name] = {}
-            res[case_name][statistic_type] = str(perf)
-        except Exception:
-            if case_name not in res:
-                res[case_name] = {}
-                res[case_name][statistic_type] = "--"
-            else:
-                res[case_name][statistic_type] = "--"
-    if lines and "_accuracy_" in inputfile:
-        try:
-            dic = json.loads(last_line)
-            consitent_status = dic['consistent']
-            if case_name not in res:
-                 res[case_name] = {}
-            res[case_name][statistic_type] = consitent_status
-        except Exception:
-            if case_name not in res:
-                 res[case_name] = {}
-                 res[case_name][statistic_type] = "--"
-            else:
-                 res[case_name][statistic_type] = "--"
-    if lines and "paddle_gpu_speed_backward" in inputfile:
-        try:
-            dic = json.loads(last_line)
-            gpu_time = dic['speed']['gpu_time']
-            if case_name not in res:
-                res[case_name] = {}
-            res[case_name]['gpu_time_backward'] = str(gpu_time)
-        except Exception:
-            if case_name not in res:
-                res[case_name] = {}
-                res[case_name]['gpu_time_backward'] = "--"
-            else:
-                res[case_name]['gpu_time_backward'] = "--"
-    if lines and "tensorflow_gpu_speed_backward" in inputfile:
-        try:
-            dic = json.loads(last_line)
-            gpu_time = dic['speed']['gpu_time']
-            if case_name not in res:
-                res[case_name] = {}
-            res[case_name]['tf_gpu_time_backward'] = str(gpu_time)
-        except Exception:
-            if case_name not in res:
-                res[case_name] = {}
-                res[case_name]['tf_gpu_time_backward'] = "--"
-            else:
-                res[case_name]['tf_gpu_time_backward'] = "--"
-    if lines and "paddle_gpu_speed_forward" in inputfile:
-        try:
-            dic = json.loads(last_line)
-            gpu_time = dic['speed']['gpu_time']
-            if case_name not in res:
-                res[case_name] = {}
-            res[case_name]['gpu_time'] = str(gpu_time)
-        except Exception:
-            if case_name not in res:
-                res[case_name] = {}
-                res[case_name]['gpu_time'] = "--"
-            else:
-                res[case_name]['gpu_time'] = "--"
-    if lines and "tensorflow_gpu_speed_forward" in inputfile:
-        try:
-            dic = json.loads(last_line)
-            gpu_time = dic['speed']['gpu_time']
-            if case_name not in res:
-                res[case_name] = {}
-            res[case_name]['tf_gpu_time'] = str(gpu_time)
-        except Exception:
-            if case_name not in res:
-                res[case_name] = {}
-                res[case_name]['tf_gpu_time'] = "--"
-            else:
-                res[case_name]['tf_gpu_time'] = "--"
-    res[case_name]['parameters'] = param.strip("\n")
-    data_file.close()
+
+    statistic_beg_idx = filename.find("-")
+    statistic_type = filename[statistic_beg_idx + 1:]
+    last_line = _read_last_line(inputfile)
+
+    # Parse parameters of current case from the result dict.
+    _parse_parameters(case_name, last_line)
+
+    if last_line and "_speed_" in statistic_type:
+        _parse_speed(case_name, statistic_type, last_line)
+
+    if last_line and "_accuracy_" in statistic_type:
+        _parse_accuracy(case_name, statistic_type, last_line)
+
     return res
+
+
+def _get_case(case_detail, framework, device, task, direction):
+    assert framework in ["paddle", "tensorflow"]
+    assert device in ["cpu", "gpu"]
+    assert task in ["speed", "accuracy"]
+    assert direction in ["forward", "backward"]
+
+    if task == "accuracy":
+        try:
+            key = "paddle_" + device + "_accuracy_" + direction
+            return case_detail[key]
+        except Exception:
+            return "--"
+    else:
+        try:
+            total_key = framework + "_" + device + "_speed_" + direction
+            if device == "cpu":
+                return case_detail[total_key], "--"
+
+            framework_alias = "" if framework == "paddle" else "tf_"
+            direction_alias = "" if direction == "forward" else "_backward"
+            gpu_time_key = framework_alias + "gpu_time" + direction_alias
+            return case_detail[total_key], case_detail[gpu_time_key]
+        except Exception:
+            return "--", "--"
+
+
+def _compare(time1, time2):
+    try:
+        ratio = float(time1) / float(time2)
+        if float(time1) > 0 and float(time2) < 0:
+            result_str = "Less"
+        elif ratio <= 0.95:
+            result_str = "Better"
+        elif ratio >= 1.05:
+            result_str = "Less"
+        else:
+            result_str = "Equal"
+        return result_str
+    except Exception:
+        return "--"
+
+
+def dump_text(data, output_path, dump_with_parameters):
+    if output_path is None:
+        output_path = "op_benchmark_summary.txt"
+        print("Output path is not specified, use op_benchmark_summary.txt.")
+
+    title_total = "%s%s%s" % ("Paddle(total)".ljust(16),
+                              "Tensorflow(total)".ljust(20),
+                              "status".ljust(10))
+    title_kernel = "%s%s%s" % ("Paddle(kernel)".ljust(16),
+                               "Tensorflow(kernel)".ljust(20),
+                               "status".ljust(10))
+    title_else = "%s%s" % ("accuracy".ljust(10), "paramaters")
+
+    gpu_forward_str = ""
+    gpu_backward_str = ""
+    cpu_forward_str = ""
+    cpu_backward_str = ""
+    for case_id in range(len(data)):
+        case_detail = data[case_id]
+        case_name = case_detail["name"]
+        for device in ["gpu", "cpu"]:
+            for direction in ["forward", "backward"]:
+                paddle_total, paddle_gpu_time = _get_case(
+                    case_detail, "paddle", device, "speed", direction)
+                tf_total, tf_gpu_time = _get_case(case_detail, "tensorflow",
+                                                  device, "speed", direction)
+                accuracy = _get_case(case_detail, "paddle", device, "accuracy",
+                                     direction)
+
+                case_line_total = "%s%s%s" % (
+                    paddle_total.ljust(16), tf_total.ljust(20), _compare(
+                        paddle_total, tf_total).ljust(10))
+                if device == "gpu":
+                    case_line_kernel = "%s%s%s" % (
+                        paddle_gpu_time.ljust(16), tf_gpu_time.ljust(20),
+                        _compare(paddle_gpu_time, tf_gpu_time).ljust(10))
+                else:
+                    case_line_kernel = ""
+                if dump_with_parameters:
+                    if case_detail.get("parameters", None):
+                        parameters = case_detail["parameters"].encode("utf-8")
+                        parameters = parameters.replace(" ", "")
+                        parameters = parameters.replace("\n", " ")
+                    else:
+                        parameters = "--"
+                    case_line_else = "%s%s" % (str(accuracy).ljust(10),
+                                               parameters)
+                else:
+                    case_line_else = "%s" % (str(accuracy).ljust(10))
+
+                case_line = "%s%s%s%s%s" % (
+                    str(case_id).ljust(8), case_name.ljust(40),
+                    case_line_total, case_line_kernel, case_line_else)
+                if device == "cpu" and direction == "forward":
+                    cpu_forward_str += case_line + "\n"
+                elif device == "cpu" and direction == "backward":
+                    cpu_backward_str += case_line + "\n"
+                elif device == "gpu" and direction == "forward":
+                    gpu_forward_str += case_line + "\n"
+                elif device == "gpu" and direction == "backward":
+                    gpu_backward_str += case_line + "\n"
+
+    with open(output_path, 'w') as f:
+        gpu_title = "%s%s%s%s%s\n" % ("case_id".ljust(8),
+                                      "case_name".ljust(40), title_total,
+                                      title_kernel, title_else)
+        f.writelines(
+            "============================================================== Forward Running on GPU ==============================================================\n"
+        )
+        f.writelines(gpu_title.encode("utf-8"))
+        f.writelines(gpu_forward_str.encode("utf-8"))
+        f.writelines(
+            "\n============================================================== Backward Running on GPU =============================================================\n"
+        )
+        f.writelines(gpu_title.encode("utf-8"))
+        f.writelines(gpu_backward_str.encode("utf-8"))
+
+        cpu_title = "%s%s%s%s\n" % ("case_id".ljust(8), "case_name".ljust(40),
+                                    title_total, title_else)
+        f.writelines(
+            "\n======================================== Forward Running on CPU ======================================\n"
+        )
+        f.writelines(cpu_title.encode("utf-8"))
+        f.writelines(cpu_forward_str.encode("utf-8"))
+        f.writelines(
+            "\n======================================== Backward Running on CPU =====================================\n"
+        )
+        f.writelines(cpu_title.encode("utf-8"))
+        f.writelines(cpu_backward_str.encode("utf-8"))
 
 
 def dump_mysql(data):
@@ -282,61 +470,83 @@ def dump_mysql(data):
                     paddle_cpu_perf, tf_cpu_perf, paddle_gpu_perf, tf_gpu_perf, paddle_cpu_perf_backwards,
                     tf_cpu_perf_backwards, paddle_gpu_perf_backwards, tf_gpu_perf_backwards, "--", parameters, timestamp, gpu_time, gpu_time_backward, tf_gpu_time, tf_gpu_time_backward
                     )
-        #print(cmd)
         os.system(cmd)
 
 
-dirs = os.listdir(path)
-dirs.remove('api_info.txt')
-#print(dirs)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        '--op_result_dir',
+        type=str,
+        default="result",
+        help='Specify the result directory of operator benchmark.')
+    parser.add_argument(
+        '--specified_op_list',
+        type=str,
+        default=None,
+        help='Specify the operator list.')
+    parser.add_argument(
+        '--dump_to_text',
+        type=utils.str2bool,
+        default=False,
+        help='Whether dumping the summary data to a text file [True|False]')
+    parser.add_argument(
+        '--dump_to_excel',
+        type=utils.str2bool,
+        default=True,
+        help='Whether dumping summary data to an excel [True|False]')
+    parser.add_argument(
+        '--dump_with_parameters',
+        type=utils.str2bool,
+        default=False,
+        help='Whether dumping summary data to an excel [True|False]')
+    parser.add_argument(
+        '--output_path',
+        type=str,
+        default=None,
+        help='Specify the output path.')
+    parser.add_argument(
+        '--dump_to_mysql',
+        type=utils.str2bool,
+        default=True,
+        help='Whether dumping summary data to mysql database [True|False]')
+    args = parser.parse_args()
 
-#dirs = ['logical_and-paddle_cpu_speed_backward_0.txt', 'logical_and-paddle_cpu_accuracy_forward_0.txt', 'logical_and-paddle_cpu_speed_forward_0.txt', 'logical_and-paddle_gpu_accuracy_forward_0.txt', 'logical_and-paddle_gpu_speed_backward_0.txt', 'logical_and-tensorflow_cpu_speed_backward_0.txt', 'logical_and-tensorflow_cpu_speed_forward_0.txt','logical_and-tensorflow_gpu_speed_backward_0.txt','logical_and-tensorflow_gpu_speed_forward_0.txt', 'logical_and-paddle_gpu_speed_forward_0.txt']
+    op_result_dir = os.path.abspath(args.op_result_dir)
+    assert os.path.exists(
+        op_result_dir), "Directory %s does not exist." % op_result_dir
 
-for d in dirs:
-    res = get_job_res(os.path.join(path, d), d)
-# print(res)
+    filenames = os.listdir(op_result_dir)
+    filenames.remove('api_info.txt')
+    assert len(filenames) > 0, "Directory %s is empty." % op_result_dir
 
-data = []
-excel_dic = {}
+    specified_op_list = None
+    if args.specified_op_list:
+        specified_op_list = args.specified_op_list.split()
 
-for k, v in res.items():
-    excel_dic = v.copy()
-    excel_dic['name'] = k
-    data.append(excel_dic)
-print(data)
+    for filename in sorted(filenames):
+        res = get_job_res(
+            os.path.join(op_result_dir, filename), specified_op_list)
 
-try:
-    dump_excel(data)
-except Exception as e:
-    print(e)
+    data = []
+    for key, value in sorted(res.items()):
+        value_copy = value.copy()
+        value_copy['name'] = key
+        data.append(value_copy)
 
+    if args.dump_to_text:
+        dump_text(data, args.output_path, args.dump_with_parameters)
 
+    if args.dump_to_excel:
+        try:
+            dump_excel(data)
+        except Exception as e:
+            print("write excel failed, please check the reason!")
+            print(e)
 
-dirs = os.listdir(path)
-dirs.remove('api_info.txt')
-#print(dirs)
-
-
-for d in dirs:
-    res = get_job_res(os.path.join(path, d), d)
-# print(res)
-
-data = []
-excel_dic = {}
-
-for k, v in res.items():
-    excel_dic = v.copy()
-    excel_dic['name'] = k
-    data.append(excel_dic)
-print(data)
-
-try:
-    dump_excel(data)
-except Exception as e:
-    print(e)
-    print("write excel failed, please check the reason!")
-try:
-    dump_mysql(data)
-except Exception as e:
-    print(e)
-    print("dump data into mysql failed, please check reason!")
+    if args.dump_to_mysql:
+        try:
+            dump_mysql(data)
+        except Exception as e:
+            print("dump data into mysql failed, please check reason!")
+            print(e)
