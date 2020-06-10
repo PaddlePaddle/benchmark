@@ -45,26 +45,29 @@ function print_detail_status() {
     fi
     if  [ ${return_status} -eq 0 ]; then
         run_status="SUCCESS"
+    elif [ ${runtime} -ge 600000 ]; then
+        run_status="**TIMEOUT**"
     else
-        run_status="FAILED"
+        run_status="**FAILED**"
     fi
-    print_str="[${config_id}-${case_id}] device=${device}, backward=${backward_shorten}, ${logfile}, time=${runtime} ms"
+    print_str="device=${device}, backward=${backward_shorten}, ${logfile}, time=${runtime} ms"
     print_str_length=${#print_str}
+    timestamp=`date +"%Y-%m-%d %T"`
     if [ ${print_str_length} -lt 80 ]; then
-        printf "  %-80s ...... %s\n" "${print_str}" "${run_status}"
+        printf "  [%d-%d][%s] %-80s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     elif [ ${print_str_length} -lt 90 ]; then
-        printf "  %-90s ...... %s\n" "${print_str}" "${run_status}"
+        printf "  [%d-%d][%s] %-90s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     elif [ ${print_str_length} -lt 100 ]; then
-        printf "  %-100s ...... %s\n" "${print_str}" "${run_status}"
+        printf "  [%d-%d][%s] %-100s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     elif [ ${print_str_length} -lt 110 ]; then
-        printf "  %-110s ...... %s\n" "${print_str}" "${run_status}"
+        printf "  [%d-%d][%s] %-110s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     fi
 }
 
 if [ ${OUTPUT_DIR} != "" ]; then
     api_info_file=${OUTPUT_DIR}/api_info.txt
 else
-    api_info_file=./api_info.txt
+    api_info_file=api_info.txt
 fi
 python ${DEPLOY_DIR}/collect_api_info.py --info_file ${api_info_file}
 
@@ -143,7 +146,8 @@ do
                         run_start=`date +%s%N`
                         if [ "${OUTPUT_DIR}" != "" ]; then
                             logfile=${OUTPUT_DIR}/${api_name}"_"${i}"-"${framework}"_"${device}"_"${task}"_"${direction}".txt"
-                            ${run_cmd} > $logfile 2>&1
+                            # Set maxmimum runtime to 10min, or it will be considered hanged and will be killed.
+                            timeout 600s ${run_cmd} > $logfile 2>&1
                             return_status=$?
                         else
                             logfile=""

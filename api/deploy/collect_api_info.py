@@ -1,3 +1,17 @@
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 import re
 import sys
@@ -41,29 +55,29 @@ def collect_subconfig_info():
         else:
             json_file = obj.name + '.json'
 
-        if obj.name in special_op_list.NO_BACKWARD_API:
-            backend = False
+        if obj.name in special_op_list.NO_BACKWARD_OPS:
+            backward = False
         else:
-            backend = True
+            backward = True
 
         for api in api_list:
-            REGISTER_API_INFO[api] = [obj.name, json_file, backend]
+            REGISTER_API_INFO[api] = [obj.name, json_file, backward]
 
 
 def collect_config_info():
     CONFIG_LIST = list(set(API_LIST).difference(set(SUB_CONFIG_LIST)))
     CONFIG_LIST.remove('__init__')
     for api in CONFIG_LIST:
-        if api in special_op_list.NO_BACKWARD_API:
-            backend = False
+        if api in special_op_list.NO_BACKWARD_OPS:
+            backward = False
         else:
-            backend = True
+            backward = True
         if api in NO_JSON_API:
             json_file = None
         else:
             json_file = api + '.json'
 
-        REGISTER_API_INFO[api] = [api, json_file, backend]
+        REGISTER_API_INFO[api] = [api, json_file, backward]
 
 
 def write_api_info():
