@@ -31,6 +31,106 @@ from common import utils
 res = {}
 
 
+def _compare(time1, time2):
+    try:
+        ratio = float(time1) / float(time2)
+        if float(time1) > 0 and float(time2) < 0:
+            result_str = "Less"
+        elif ratio <= 0.95:
+            result_str = "Better"
+        elif ratio >= 1.05:
+            result_str = "Less"
+        else:
+            result_str = "Equal"
+        return result_str
+    except Exception:
+        return "--"
+
+
+class OpBenchmarkUnit(object):
+    def __init__(self, case_detail):
+        self.case_name = case_detail["name"]
+
+        if case_detail.get("parameters", None):
+            parameters = case_detail["parameters"].encode("utf-8")
+            parameters = parameters.replace(" ", "")
+            parameters = parameters.replace("\n", " ")
+        else:
+            parameters = "--"
+        self.parameters = parameters
+
+        self.gpu_forward = {}
+        self.gpu_backward = {}
+        self.cpu_forward = {}
+        self.cpu_backward = {}
+        for device in ["gpu", "cpu"]:
+            for direction in ["forward", "backward"]:
+                attr_name = device + "_" + direction
+                result = getattr(self, attr_name)
+
+                paddle_total, paddle_gpu_time = self._get_case_value(
+                    case_detail, "paddle", device, "speed", direction)
+                result["paddle"] = {
+                    "total": paddle_total,
+                    "gpu_time": paddle_gpu_time
+                }
+
+                tf_total, tf_gpu_time = self._get_case_value(
+                    case_detail, "tensorflow", device, "speed", direction)
+                result["tensorflow"] = {
+                    "total": tf_total,
+                    "gpu_time": tf_gpu_time
+                }
+                result["compare"] = {
+                    "total": _compare(paddle_total, tf_total),
+                    "gpu_time": _compare(paddle_gpu_time, tf_gpu_time)
+                }
+
+                accuracy = self._get_case_value(case_detail, "paddle", device,
+                                                "accuracy", direction)
+                result["accuracy"] = str(accuracy)
+
+    def to_string(self, device, direction, with_parameters):
+        attr_name = device + "_" + direction
+        result = getattr(self, attr_name)
+
+        case_line = "%s" % self.case_name.ljust(40)
+        time_set = ["total"] if device == "cpu" else ["total", "gpu_time"]
+        for key in time_set:
+            case_line += "%s%s%s" % (result["paddle"][key].ljust(20),
+                                     result["tensorflow"][key].ljust(20),
+                                     result["compare"][key].ljust(10))
+        case_line += "%s" % result["accuracy"].ljust(10)
+        if with_parameters:
+            case_line += parameters
+        return case_line
+
+    def _get_case_value(self, case_detail, framework, device, task, direction):
+        assert framework in ["paddle", "tensorflow"]
+        assert device in ["cpu", "gpu"]
+        assert task in ["speed", "accuracy"]
+        assert direction in ["forward", "backward"]
+
+        if task == "accuracy":
+            try:
+                key = "paddle_" + device + "_accuracy_" + direction
+                return case_detail[key]
+            except Exception:
+                return "--"
+        else:
+            try:
+                total_key = framework + "_" + device + "_speed_" + direction
+                if device == "cpu":
+                    return case_detail[total_key], "--"
+
+                framework_alias = "" if framework == "paddle" else "tf_"
+                direction_alias = "" if direction == "forward" else "_backward"
+                gpu_time_key = framework_alias + "gpu_time" + direction_alias
+                return case_detail[total_key], case_detail[gpu_time_key]
+            except Exception:
+                return "--", "--"
+
+
 def dump_excel(data):
     """
     dump data to a excel
@@ -265,137 +365,61 @@ def get_job_res(inputfile, specified_op_list=None):
     return res
 
 
-def _get_case(case_detail, framework, device, task, direction):
-    assert framework in ["paddle", "tensorflow"]
-    assert device in ["cpu", "gpu"]
-    assert task in ["speed", "accuracy"]
-    assert direction in ["forward", "backward"]
-
-    if task == "accuracy":
-        try:
-            key = "paddle_" + device + "_accuracy_" + direction
-            return case_detail[key]
-        except Exception:
-            return "--"
-    else:
-        try:
-            total_key = framework + "_" + device + "_speed_" + direction
-            if device == "cpu":
-                return case_detail[total_key], "--"
-
-            framework_alias = "" if framework == "paddle" else "tf_"
-            direction_alias = "" if direction == "forward" else "_backward"
-            gpu_time_key = framework_alias + "gpu_time" + direction_alias
-            return case_detail[total_key], case_detail[gpu_time_key]
-        except Exception:
-            return "--", "--"
-
-
-def _compare(time1, time2):
-    try:
-        ratio = float(time1) / float(time2)
-        if float(time1) > 0 and float(time2) < 0:
-            result_str = "Less"
-        elif ratio <= 0.95:
-            result_str = "Better"
-        elif ratio >= 1.05:
-            result_str = "Less"
-        else:
-            result_str = "Equal"
-        return result_str
-    except Exception:
-        return "--"
-
-
 def dump_text(data, output_path, dump_with_parameters):
     if output_path is None:
-        output_path = "op_benchmark_summary.txt"
-        print("Output path is not specified, use op_benchmark_summary.txt.")
+        timestamp = time.strftime('%Y-%m-%d', time.localtime(int(time.time())))
+        output_path = "op_benchmark_summary-%s.txt" % timestamp
+        print("Output path is not specified, use %s." % output_path)
 
-    title_total = "%s%s%s" % ("Paddle(total)".ljust(16),
+    title_total = "%s%s%s" % ("Paddle(total)".ljust(20),
                               "Tensorflow(total)".ljust(20),
                               "status".ljust(10))
-    title_kernel = "%s%s%s" % ("Paddle(kernel)".ljust(16),
+    title_kernel = "%s%s%s" % ("Paddle(kernel)".ljust(20),
                                "Tensorflow(kernel)".ljust(20),
                                "status".ljust(10))
     title_else = "%s%s" % ("accuracy".ljust(10), "paramaters")
+    gpu_title = "%s%s%s%s%s\n" % ("case_id".ljust(8), "case_name".ljust(40),
+                                  title_total, title_kernel, title_else)
+    cpu_title = "%s%s%s%s\n" % ("case_id".ljust(8), "case_name".ljust(40),
+                                title_total, title_else)
 
-    gpu_forward_str = ""
-    gpu_backward_str = ""
-    cpu_forward_str = ""
-    cpu_backward_str = ""
+    output_str_list = {
+        "gpu_forward": "",
+        "gpu_backward": "",
+        "cpu_forward": "",
+        "cpu_backward": ""
+    }
+    benchmark_result_list = []
     for case_id in range(len(data)):
         case_detail = data[case_id]
-        case_name = case_detail["name"]
+        op_unit = OpBenchmarkUnit(case_detail)
+        benchmark_result_list.append(op_unit)
+
         for device in ["gpu", "cpu"]:
             for direction in ["forward", "backward"]:
-                paddle_total, paddle_gpu_time = _get_case(
-                    case_detail, "paddle", device, "speed", direction)
-                tf_total, tf_gpu_time = _get_case(case_detail, "tensorflow",
-                                                  device, "speed", direction)
-                accuracy = _get_case(case_detail, "paddle", device, "accuracy",
-                                     direction)
-
-                case_line_total = "%s%s%s" % (
-                    paddle_total.ljust(16), tf_total.ljust(20), _compare(
-                        paddle_total, tf_total).ljust(10))
-                if device == "gpu":
-                    case_line_kernel = "%s%s%s" % (
-                        paddle_gpu_time.ljust(16), tf_gpu_time.ljust(20),
-                        _compare(paddle_gpu_time, tf_gpu_time).ljust(10))
-                else:
-                    case_line_kernel = ""
-                if dump_with_parameters:
-                    if case_detail.get("parameters", None):
-                        parameters = case_detail["parameters"].encode("utf-8")
-                        parameters = parameters.replace(" ", "")
-                        parameters = parameters.replace("\n", " ")
-                    else:
-                        parameters = "--"
-                    case_line_else = "%s%s" % (str(accuracy).ljust(10),
-                                               parameters)
-                else:
-                    case_line_else = "%s" % (str(accuracy).ljust(10))
-
-                case_line = "%s%s%s%s%s" % (
-                    str(case_id + 1).ljust(8), case_name.ljust(40),
-                    case_line_total, case_line_kernel, case_line_else)
-                if device == "cpu" and direction == "forward":
-                    cpu_forward_str += case_line + "\n"
-                elif device == "cpu" and direction == "backward":
-                    cpu_backward_str += case_line + "\n"
-                elif device == "gpu" and direction == "forward":
-                    gpu_forward_str += case_line + "\n"
-                elif device == "gpu" and direction == "backward":
-                    gpu_backward_str += case_line + "\n"
+                case_line = "%s%s" % (
+                    str(case_id + 1).ljust(8),
+                    op_unit.to_string(device, direction, dump_with_parameters))
+                output_str_list[device + "_" + direction] += case_line + "\n"
 
     with open(output_path, 'w') as f:
-        gpu_title = "%s%s%s%s%s\n" % ("case_id".ljust(8),
-                                      "case_name".ljust(40), title_total,
-                                      title_kernel, title_else)
-        f.writelines(
-            "============================================================== Forward Running on GPU ==============================================================\n"
-        )
-        f.writelines(gpu_title.encode("utf-8"))
-        f.writelines(gpu_forward_str.encode("utf-8"))
-        f.writelines(
-            "\n============================================================== Backward Running on GPU =============================================================\n"
-        )
-        f.writelines(gpu_title.encode("utf-8"))
-        f.writelines(gpu_backward_str.encode("utf-8"))
+        for direction in ["Forward", "Backward"]:
+            f.writelines(
+                "============================================================== %s Running on GPU ==============================================================\n"
+                % direction)
+            f.writelines(gpu_title.encode("utf-8"))
+            f.writelines(output_str_list["gpu_" + direction.lower()].encode(
+                "utf-8"))
+            f.writelines("\n")
 
-        cpu_title = "%s%s%s%s\n" % ("case_id".ljust(8), "case_name".ljust(40),
-                                    title_total, title_else)
-        f.writelines(
-            "\n======================================== Forward Running on CPU ======================================\n"
-        )
-        f.writelines(cpu_title.encode("utf-8"))
-        f.writelines(cpu_forward_str.encode("utf-8"))
-        f.writelines(
-            "\n======================================== Backward Running on CPU =====================================\n"
-        )
-        f.writelines(cpu_title.encode("utf-8"))
-        f.writelines(cpu_backward_str.encode("utf-8"))
+        for direction in ["Forward", "Backward"]:
+            f.writelines(
+                "======================================== %s Running on CPU ======================================\n"
+                % direction)
+            f.writelines(cpu_title.encode("utf-8"))
+            f.writelines(output_str_list["cpu_" + direction.lower()].encode(
+                "utf-8"))
+            f.writelines("\n")
 
 
 def dump_mysql(data):
