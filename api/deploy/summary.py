@@ -126,7 +126,11 @@ def get_job_res(inputfile, statistic_file):
         #print(d['parameters'])
         param = d['parameters']
     except Exception:
-        res[case_name] = {}
+        if case_name not in res:
+            res[case_name] = {}
+            res[case_name][statistic_type] = "--"
+        else:
+            res[case_name][statistic_type] = "--"
     if lines and "_speed_" in inputfile:
         try:
             dic = json.loads(last_line)
