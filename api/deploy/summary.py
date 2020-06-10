@@ -105,6 +105,19 @@ class OpBenchmarkUnit(object):
             case_line += parameters
         return case_line
 
+    def get_compare_value(self, device, direction):
+        attr_name = device + "_" + direction
+        result = getattr(self, attr_name)
+
+        total = result["compare"]["total"]
+        total = "Unkown" if total == "--" else total
+        if device == "gpu":
+            gpu_time = result["compare"]["gpu_time"]
+            gpu_time = "Unkown" if gpu_time == "--" else gpu_time
+            return total, gpu_time
+        else:
+            return total, None
+
     def _get_case_value(self, case_detail, framework, device, task, direction):
         assert framework in ["paddle", "tensorflow"]
         assert device in ["cpu", "gpu"]
@@ -365,7 +378,50 @@ def get_job_res(inputfile, specified_op_list=None):
     return res
 
 
-def dump_text(data, output_path, dump_with_parameters):
+def summary_compare_result(benchmark_result_list):
+    compare_result_list = {}
+    for key in [
+            "gpu_forward_total", "gpu_forward_kernel", "gpu_backward_total",
+            "gpu_backward_kernel", "cpu_forward_total", "cpu_backward_total"
+    ]:
+        compare_result_list[key] = {
+            "Better": 0,
+            "Less": 0,
+            "Equal": 0,
+            "Unkown": 0
+        }
+
+    for op_unit in benchmark_result_list:
+        for device in ["gpu", "cpu"]:
+            for direction in ["forward", "backward"]:
+                key = device + "_" + direction
+
+                compare_total, compare_kernel = op_unit.get_compare_value(
+                    device, direction)
+                compare_result_list[key + "_total"][compare_total] += 1
+                if device == "gpu":
+                    compare_result_list[key + "_kernel"][compare_kernel] += 1
+
+    compare_result_str = "%s" % (" ".ljust(24))
+    for compare_result_key in ["Better", "Equal", "Less", "Unkown"]:
+        compare_result_str += "%s" % compare_result_key.ljust(16)
+    compare_result_str += "\n"
+    for key, value in sorted(compare_result_list.items(), reverse=True):
+        compare_result_str += "%s" % key.ljust(24)
+        num_total_cases = 0
+        for compare_result_key in ["Better", "Equal", "Less", "Unkown"]:
+            num_total_cases += value[compare_result_key]
+        for compare_result_key in ["Better", "Equal", "Less", "Unkown"]:
+            ratio = float(value[compare_result_key]) / float(num_total_cases)
+            ratio_str = "%.2f" % (ratio * 100)
+            this_str = "{} ({}%)".format(value[compare_result_key], ratio_str)
+            compare_result_str += "%s" % str(this_str).ljust(16)
+        compare_result_str += "\n"
+    print(compare_result_str)
+    return compare_result_str
+
+
+def dump_text(benchmark_result_list, output_path, dump_with_parameters):
     if output_path is None:
         timestamp = time.strftime('%Y-%m-%d', time.localtime(int(time.time())))
         output_path = "op_benchmark_summary-%s.txt" % timestamp
@@ -389,23 +445,24 @@ def dump_text(data, output_path, dump_with_parameters):
         "cpu_forward": "",
         "cpu_backward": ""
     }
-    benchmark_result_list = []
-    for case_id in range(len(data)):
-        case_detail = data[case_id]
-        op_unit = OpBenchmarkUnit(case_detail)
-        benchmark_result_list.append(op_unit)
 
+    for case_id in range(len(benchmark_result_list)):
+        op_unit = benchmark_result_list[case_id]
         for device in ["gpu", "cpu"]:
             for direction in ["forward", "backward"]:
+                key = device + "_" + direction
                 case_line = "%s%s" % (
                     str(case_id + 1).ljust(8),
                     op_unit.to_string(device, direction, dump_with_parameters))
                 output_str_list[device + "_" + direction] += case_line + "\n"
 
+    compare_result_str = summary_compare_result(benchmark_result_list)
+
     with open(output_path, 'w') as f:
+        f.writelines(compare_result_str + "\n")
         for direction in ["Forward", "Backward"]:
             f.writelines(
-                "============================================================== %s Running on GPU ==============================================================\n"
+                "================================================================== %s Running on GPU ==================================================================\n"
                 % direction)
             f.writelines(gpu_title.encode("utf-8"))
             f.writelines(output_str_list["gpu_" + direction.lower()].encode(
@@ -414,7 +471,7 @@ def dump_text(data, output_path, dump_with_parameters):
 
         for direction in ["Forward", "Backward"]:
             f.writelines(
-                "======================================== %s Running on CPU ======================================\n"
+                "========================================== %s Running on CPU =======================================\n"
                 % direction)
             f.writelines(cpu_title.encode("utf-8"))
             f.writelines(output_str_list["cpu_" + direction.lower()].encode(
@@ -553,13 +610,18 @@ if __name__ == '__main__':
             os.path.join(op_result_dir, filename), specified_op_list)
 
     data = []
+    benchmark_result_list = []
     for key, value in sorted(res.items()):
-        value_copy = value.copy()
-        value_copy['name'] = key
-        data.append(value_copy)
+        case_detail = value.copy()
+        case_detail['name'] = key
+        data.append(case_detail)
+
+        op_unit = OpBenchmarkUnit(case_detail)
+        benchmark_result_list.append(op_unit)
 
     if args.dump_to_text:
-        dump_text(data, args.output_path, args.dump_with_parameters)
+        dump_text(benchmark_result_list, args.output_path,
+                  args.dump_with_parameters)
 
     if args.dump_to_excel:
         try:
