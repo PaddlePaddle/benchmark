@@ -105,6 +105,10 @@ class OpBenchmarkUnit(object):
             case_line += parameters
         return case_line
 
+    def get(self, device, direction):
+        attr_name = device + "_" + direction
+        return getattr(self, attr_name)
+
     def get_compare_value(self, device, direction):
         attr_name = device + "_" + direction
         result = getattr(self, attr_name)
@@ -142,97 +146,6 @@ class OpBenchmarkUnit(object):
                 return case_detail[total_key], case_detail[gpu_time_key]
             except Exception:
                 return "--", "--"
-
-
-def dump_excel(data):
-    """
-    dump data to a excel
-    """
-    import xlsxwriter as xlw
-
-    wb = xlw.Workbook('Operators.xlsx')
-    ws = wb.add_worksheet('OP')
-
-    align = wb.add_format({'align': 'right'})
-    bold = wb.add_format({'bold': 15, 'color': 'black'})
-    wrong_format = wb.add_format({'bold': 8, 'color': 'red', 'align': 'right'})
-
-    ws.set_row(0, 15, bold)
-    ws.set_column(0, 1, 15)
-    ws.set_column(1, 2, 28)
-    ws.set_column(2, 3, 28)
-    ws.set_column(3, 4, 22)
-    ws.set_column(4, 5, 22)
-    ws.set_column(5, 6, 22)
-    ws.set_column(6, 7, 22)
-    ws.set_column(7, 8, 22)
-    ws.set_column(8, 9, 22)
-    ws.set_column(9, 10, 22)
-    ws.set_column(10, 11, 22)
-
-    ws.set_row(0, 15, align)
-    ws.set_column(0, 1, 15, align)
-    ws.set_column(1, 2, 28, align)
-    ws.set_column(2, 3, 28, align)
-    ws.set_column(3, 4, 22, align)
-    ws.set_column(4, 5, 22, align)
-    ws.set_column(5, 6, 22, align)
-    ws.set_column(6, 7, 22, align)
-    ws.set_column(7, 8, 22, align)
-    ws.set_column(8, 9, 22, align)
-    ws.set_column(9, 10, 22, align)
-    ws.set_column(10, 11, 22, align)
-
-    row = 0
-    column = 0
-    ws.write(row, column, 'name')
-    ws.write(row, column + 1, 'paddle_cpu_accuracy')
-    ws.write(row, column + 2, 'paddle_gpu_accuracy')
-    ws.write(row, column + 3, 'paddle_cpu_perf(ms)')
-    ws.write(row, column + 4, 'tf_cpu_perf(ms)')
-    ws.write(row, column + 5, 'paddle_gpu_perf(ms)')
-    ws.write(row, column + 6, 'tf_gpu_perf(ms)')
-    ws.write(row, column + 7, 'paddle_cpu_perf_backwards(ms)')
-    ws.write(row, column + 8, 'tf_cpu_perf_backwards(ms)')
-    ws.write(row, column + 9, 'paddle_gpu_perf_backwards(ms)')
-    ws.write(row, column + 10, 'tf_gpu_perf_backwards(ms)')
-
-    row = 1
-    column = 0
-    for i in range(len(data)):
-        for key, value in data[i].items():
-            if key == 'name':
-                val = value.split("-")[0]
-                ws.write(row, column, val)
-            if key == 'paddle_cpu_accuracy':
-                if not value:
-                    ws.write(row, column + 1, value, wrong_format)
-                else:
-                    ws.write(row, column + 1, value)
-            if key == 'paddle_gpu_accuracy':
-                if not value:
-                    ws.write(row, column + 2, value, wrong_format)
-                else:
-                    ws.write(row, column + 2, value)
-            if key == 'paddle_cpu_perf':
-                ws.write_string(row, column + 3, value)
-            if key == 'tf_cpu_perf':
-                ws.write_string(row, column + 4, value)
-            if key == 'paddle_gpu_perf':
-                ws.write_string(row, column + 5, value)
-            if key == 'tf_gpu_perf':
-                ws.write_string(row, column + 6, value)
-            if key == 'paddle_cpu_perf_backwards':
-                ws.write_string(row, column + 7, value)
-            if key == 'tf_cpu_perf_backwards':
-                ws.write_string(row, column + 8, value)
-            if key == 'paddle_gpu_perf_backwards':
-                ws.write_string(row, column + 9, value)
-            if key == 'tf_gpu_perf_backwards':
-                ws.write_string(row, column + 10, value)
-        row += 1
-
-    wb.close()
 
 
 def _read_last_line(inputfile):
@@ -418,7 +331,7 @@ def summary_compare_result(benchmark_result_list):
             compare_result_str += "%s" % str(this_str).ljust(16)
         compare_result_str += "\n"
     print(compare_result_str)
-    return compare_result_str
+    return compare_result_list, compare_result_str
 
 
 def dump_text(benchmark_result_list, output_path, dump_with_parameters):
@@ -454,9 +367,9 @@ def dump_text(benchmark_result_list, output_path, dump_with_parameters):
                 case_line = "%s%s" % (
                     str(case_id + 1).ljust(8),
                     op_unit.to_string(device, direction, dump_with_parameters))
-                output_str_list[device + "_" + direction] += case_line + "\n"
+                output_str_list[key] += case_line + "\n"
 
-    compare_result_str = summary_compare_result(benchmark_result_list)
+    _, compare_result_str = summary_compare_result(benchmark_result_list)
 
     with open(output_path, 'w') as f:
         f.writelines(compare_result_str + "\n")
@@ -477,6 +390,112 @@ def dump_text(benchmark_result_list, output_path, dump_with_parameters):
             f.writelines(output_str_list["cpu_" + direction.lower()].encode(
                 "utf-8"))
             f.writelines("\n")
+
+
+def dump_excel(benchmark_result_list, output_path):
+    """
+    dump data to a excel
+    """
+    import xlsxwriter as xlw
+
+    if output_path is None:
+        timestamp = time.strftime('%Y-%m-%d', time.localtime(int(time.time())))
+        output_path = "op_benchmark_summary-%s.xlsx" % timestamp
+        print("Output path is not specified, use %s." % output_path)
+
+    wb = xlw.Workbook(output_path)
+    title_format = wb.add_format({
+        'bold': True,
+        'font_color': 'black',
+        'bg_color': '#6495ED'
+    })
+    better_format = wb.add_format({'bold': True, 'font_color': 'green'})
+    less_format = wb.add_format({'bold': True, 'font_color': 'red'})
+
+    compare_result_list, _ = summary_compare_result(benchmark_result_list)
+
+    summary_ws = wb.add_worksheet("summary")
+    summary_column_width = [40, 20, 20, 20, 20]
+    for col in range(len(summary_column_width)):
+        col_char = chr(ord("A") + col)
+        summary_ws.set_column(col_char + ":" + col_char,
+                              summary_column_width[col])
+    summary_title_names = ["Better", "Equal", "Less", "Unkown"]
+    for col in range(len(summary_title_names)):
+        summary_ws.write(0, col + 1, summary_title_names[col], title_format)
+
+    row = 1
+    for key, value in sorted(compare_result_list.items(), reverse=True):
+        summary_ws.write(row, 0, key)
+
+        num_total_cases = 0
+        for compare_result_key in summary_title_names:
+            num_total_cases += value[compare_result_key]
+
+        col = 1
+        for compare_result_key in summary_title_names:
+            ratio = float(value[compare_result_key]) / float(num_total_cases)
+            ratio_str = "%.2f" % (ratio * 100)
+            this_str = "{} ({}%)".format(value[compare_result_key], ratio_str)
+            summary_ws.write(row, col, this_str)
+            col += 1
+        row += 1
+
+    for device in ["gpu", "cpu"]:
+        for direction in ["forward", "backward"]:
+            worksheet_name = device + "_" + direction
+            ws = wb.add_worksheet(worksheet_name)
+
+            title_names = [
+                "case_name", "Paddle(total)", "Tensorflow(total)", "status"
+            ]
+            column_width = [40, 20, 20, 10]
+            if device == "gpu":
+                title_names.append("Paddle(kernel)")
+                title_names.append("Tensorflow(kernel)")
+                title_names.append("status")
+                column_width.append(20)
+                column_width.append(20)
+                column_width.append(10)
+            title_names.append("accuracy")
+            title_names.append("parameters")
+            column_width.append(10)
+            column_width.append(80)
+
+            for col in range(len(column_width)):
+                col_char = chr(ord("A") + col)
+                ws.set_column(col_char + ":" + col_char, column_width[col])
+
+            for col in range(len(title_names)):
+                ws.write(0, col, title_names[col], title_format)
+
+            for case_id in range(len(benchmark_result_list)):
+                op_unit = benchmark_result_list[case_id]
+                result = op_unit.get("gpu", "forward")
+
+                row = case_id + 1
+                ws.write(row, 0, op_unit.case_name)
+
+                col = 0
+                time_set = ["total"
+                            ] if device == "cpu" else ["total", "gpu_time"]
+                for key in time_set:
+                    if result["compare"][key] == "Less":
+                        cell_format = less_format
+                    elif result["compare"][key] == "Better":
+                        cell_format = better_format
+                    else:
+                        cell_format = None
+                    ws.write(row, col + 1, result["paddle"][key], cell_format)
+                    ws.write(row, col + 2, result["tensorflow"][key],
+                             cell_format)
+                    ws.write(row, col + 3, result["compare"][key], cell_format)
+                    col += 3
+
+                ws.write(row, col + 1, result["accuracy"])
+                ws.write(row, col + 2, op_unit.parameters)
+
+    wb.close()
 
 
 def dump_mysql(data):
@@ -624,11 +643,7 @@ if __name__ == '__main__':
                   args.dump_with_parameters)
 
     if args.dump_to_excel:
-        try:
-            dump_excel(data)
-        except Exception as e:
-            print("write excel failed, please check the reason!")
-            print(e)
+        dump_excel(benchmark_result_list, args.output_path)
 
     if args.dump_to_mysql:
         try:
