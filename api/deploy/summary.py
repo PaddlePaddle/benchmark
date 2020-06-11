@@ -47,9 +47,15 @@ def _compare(time1, time2):
         return "--"
 
 
+def parse_op_type(case_name):
+    import re
+    return re.sub("_[0-9]*$", "", case_name)
+
+
 class OpBenchmarkUnit(object):
     def __init__(self, case_detail):
         self.case_name = case_detail["name"]
+        self.op_type = parse_op_type(self.case_name)
 
         if case_detail.get("parameters", None):
             parameters = case_detail["parameters"].encode("utf-8")
@@ -265,7 +271,7 @@ def get_job_res(inputfile, specified_op_list=None):
     """
     filename = os.path.splitext(os.path.basename(inputfile))[0]
     case_name = filename.split("-")[0]
-    op_type = case_name.split("_")[0]
+    op_type = parse_op_type(case_name)
     if specified_op_list and op_type not in specified_op_list:
         return res
 
@@ -289,6 +295,17 @@ def get_job_res(inputfile, specified_op_list=None):
         _parse_accuracy(case_name, statistic_type, last_line)
 
     return res
+
+
+def read_frequency_from_text(op_frequency_path):
+    op_frequency_dict = {}
+    with open(op_frequency_path, "r") as f:
+        for line in f.readlines():
+            contents = line.split()
+            if len(contents) != 3:
+                continue
+            op_frequency_dict[contents[1]] = int(contents[2])
+    return op_frequency_dict
 
 
 def summary_compare_result(benchmark_result_list):
@@ -392,7 +409,8 @@ def dump_text(benchmark_result_list, output_path, dump_with_parameters):
             f.writelines("\n")
 
 
-def dump_excel(benchmark_result_list, output_path):
+def dump_excel(benchmark_result_list, output_path=None,
+               op_frequency_dict=None):
     """
     dump data to a excel
     """
@@ -404,6 +422,7 @@ def dump_excel(benchmark_result_list, output_path):
         print("Output path is not specified, use %s." % output_path)
 
     wb = xlw.Workbook(output_path)
+    align = wb.add_format({"align": "left"})
     title_format = wb.add_format({
         'bold': True,
         'font_color': 'black',
@@ -446,13 +465,16 @@ def dump_excel(benchmark_result_list, output_path):
             worksheet_name = device + "_" + direction
             ws = wb.add_worksheet(worksheet_name)
 
-            title_names = [
-                "case_name", "Paddle(total)", "Tensorflow(total)", "status"
-            ]
-            column_width = [40, 20, 20, 10]
-            if device == "gpu":
-                title_names.append("Paddle(kernel)")
-                title_names.append("Tensorflow(kernel)")
+            title_names = ["case_name"]
+            column_width = [40]
+            if op_frequency_dict is not None:
+                title_names.append("frequency")
+                column_width.append(10)
+
+            time_set = ["total"] if device == "cpu" else ["total", "kernel"]
+            for key in time_set:
+                title_names.append("Paddle(%s)" % key)
+                title_names.append("Tensorflow(%s)" % key)
                 title_names.append("status")
                 column_width.append(20)
                 column_width.append(20)
@@ -476,7 +498,15 @@ def dump_excel(benchmark_result_list, output_path):
                 row = case_id + 1
                 ws.write(row, 0, op_unit.case_name)
 
-                col = 0
+                if op_frequency_dict is not None:
+                    num_frequency = 0
+                    if op_unit.op_type in op_frequency_dict.keys():
+                        num_frequency = op_frequency_dict[op_unit.op_type]
+                    ws.write_number(row, 1, num_frequency, align)
+                    col = 1
+                else:
+                    col = 0
+
                 time_set = ["total"
                             ] if device == "cpu" else ["total", "gpu_time"]
                 for key in time_set:
@@ -586,6 +616,11 @@ if __name__ == '__main__':
         default=None,
         help='Specify the operator list.')
     parser.add_argument(
+        '--op_frequency_path',
+        type=str,
+        default=None,
+        help='Specify the path of operator frequency data.')
+    parser.add_argument(
         '--dump_to_text',
         type=utils.str2bool,
         default=False,
@@ -638,12 +673,16 @@ if __name__ == '__main__':
         op_unit = OpBenchmarkUnit(case_detail)
         benchmark_result_list.append(op_unit)
 
+    op_frequency_dict = None
+    if args.op_frequency_path:
+        op_frequency_dict = read_frequency_from_text(args.op_frequency_path)
+
     if args.dump_to_text:
         dump_text(benchmark_result_list, args.output_path,
                   args.dump_with_parameters)
 
     if args.dump_to_excel:
-        dump_excel(benchmark_result_list, args.output_path)
+        dump_excel(benchmark_result_list, args.output_path, op_frequency_dict)
 
     if args.dump_to_mysql:
         try:
