@@ -19,6 +19,7 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
     def __init__(self):
         super(SoftmaxWithCrossEntropyConfig,
               self).__init__("softmax_with_cross_entropy")
+        self.atol = 1e-3
 
     def init_from_json(self, filename, config_id=0):
         super(SoftmaxWithCrossEntropyConfig, self).init_from_json(filename,
@@ -45,7 +46,9 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
 class PDSoftmaxWithCrossEntropy(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         logits = self.variable(
-            name='logits', shape=config.logits_shape, dtype=config.logits_dtype)
+            name='logits',
+            shape=config.logits_shape,
+            dtype=config.logits_dtype)
         label = self.variable(
             name="label",
             shape=config.label_shape,
@@ -63,7 +66,9 @@ class PDSoftmaxWithCrossEntropy(PaddleAPIBenchmarkBase):
 class TFSoftmaxWithCrossEntropy(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         logits = self.variable(
-            name='logits', shape=config.logits_shape, dtype=config.logits_dtype)
+            name='logits',
+            shape=config.logits_shape,
+            dtype=config.logits_dtype)
         label = self.variable(
             name='label', shape=config.label_shape, dtype=config.label_dtype)
         onehot_label = tf.one_hot(indices=label, depth=config.num_classes)
