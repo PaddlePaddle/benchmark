@@ -69,32 +69,34 @@ def dump_excel(data):
             if key == 'name':
                 val = value.split("-")[0]
                 ws.write(row, column, val)
-            if key == 'paddle_cpu_accuracy':
+            elif key == 'paddle_cpu_accuracy':
                 if not value:
                     ws.write(row, column + 1, value, wrong_format)
                 else:
                     ws.write(row, column + 1, value)
-            if key == 'paddle_gpu_accuracy':
+            elif key == 'paddle_gpu_accuracy':
                 if not value:
                     ws.write(row, column + 2, value, wrong_format)
                 else:
                     ws.write(row, column + 2, value)
-            if key == 'paddle_cpu_perf':
+            elif key == 'paddle_cpu_perf':
                 ws.write_string(row, column + 3, value)
-            if key == 'tf_cpu_perf':
+            elif key == 'tf_cpu_perf':
                 ws.write_string(row, column + 4, value)
-            if key == 'paddle_gpu_perf':
+            elif key == 'paddle_gpu_perf':
                 ws.write_string(row, column + 5, value)
-            if key == 'tf_gpu_perf':
+            elif key == 'tf_gpu_perf':
                 ws.write_string(row, column + 6, value)
-            if key == 'paddle_cpu_perf_backwards':
+            elif key == 'paddle_cpu_perf_backwards':
                 ws.write_string(row, column + 7, value)
-            if key == 'tf_cpu_perf_backwards':
+            elif key == 'tf_cpu_perf_backwards':
                 ws.write_string(row, column + 8, value)
-            if key == 'paddle_gpu_perf_backwards':
+            elif key == 'paddle_gpu_perf_backwards':
                 ws.write_string(row, column + 9, value)
-            if key == 'tf_gpu_perf_backwards':
+            elif key == 'tf_gpu_perf_backwards':
                 ws.write_string(row, column + 10, value)
+            else:
+                pass
         row += 1
 
     wb.close()
@@ -123,7 +125,6 @@ def get_job_res(inputfile, statistic_file):
     try:
         last_line = lines[-2].strip("\n")
         d = json.loads(last_line)
-        #print(d['parameters'])
         param = d['parameters']
     except Exception:
         if case_name not in res:
@@ -209,7 +210,8 @@ def get_job_res(inputfile, statistic_file):
                 res[case_name]['tf_gpu_time'] = "--"
             else:
                 res[case_name]['tf_gpu_time'] = "--"
-    res[case_name]['parameters'] = param.strip("\n")
+    if param != "":
+        res[case_name]['parameters'] = param.strip("\n")
     data_file.close()
     return res
 
@@ -223,7 +225,9 @@ def dump_mysql(data):
         dic = data[i]
         case_name = dic['name']
         paddle_cpu_accuracy = "--"
+        paddle_cpu_accuracy_backwards = "--"
         paddle_gpu_accuracy = "--"
+        paddle_gpu_accuracy_backwards = "--"
         paddle_cpu_perf = "--"
         tf_cpu_perf = "--"
         paddle_gpu_perf = "--"
@@ -241,38 +245,40 @@ def dump_mysql(data):
         for k, v in dic.items():
             if k == "paddle_cpu_accuracy_forward":
                 paddle_cpu_accuracy = v
-            if k == "paddle_cpu_accuracy_backward":
+            elif k == "paddle_cpu_accuracy_backward":
                 paddle_cpu_accuracy_backwards = v
-            if k == "paddle_gpu_accuracy_forward":
+            elif k == "paddle_gpu_accuracy_forward":
                 paddle_gpu_accuracy = v
-            if k == "paddle_gpu_accuracy_backward":
+            elif k == "paddle_gpu_accuracy_backward":
                 paddle_gpu_accuracy_backwards = v
-            if k == "paddle_cpu_speed_forward":
+            elif k == "paddle_cpu_speed_forward":
                 paddle_cpu_perf = v
-            if k == "tensorflow_cpu_speed_forward":
+            elif k == "tensorflow_cpu_speed_forward":
                 tf_cpu_perf = v
-            if k == "paddle_gpu_speed_forward":
+            elif k == "paddle_gpu_speed_forward":
                 paddle_gpu_perf = v
-            if k == "tensorflow_gpu_speed_forward":
+            elif k == "tensorflow_gpu_speed_forward":
                 tf_gpu_perf = v
-            if k == "paddle_cpu_speed_backward":
+            elif k == "paddle_cpu_speed_backward":
                 paddle_cpu_perf_backwards = v
-            if k == "tensorflow_cpu_speed_backward":
+            elif k == "tensorflow_cpu_speed_backward":
                 tf_cpu_perf_backwards = v
-            if k == "paddle_gpu_speed_backward":
+            elif k == "paddle_gpu_speed_backward":
                 paddle_gpu_perf_backwards = v
-            if k == "tensorflow_gpu_speed_backward":
+            elif k == "tensorflow_gpu_speed_backward":
                 tf_gpu_perf_backwards = v
-            if k == "parameters":
+            elif k == "parameters":
                 parameters = v
-            if k == "gpu_time_backward":
+            elif k == "gpu_time_backward":
                 gpu_time_backward = v
-            if k == "gpu_time":
+            elif k == "gpu_time":
                 gpu_time = v
-            if k == "tf_gpu_time_backward":
+            elif k == "tf_gpu_time_backward":
                 tf_gpu_time_backward = v
-            if k == "tf_gpu_time":
+            elif k == "tf_gpu_time":
                 tf_gpu_time = v
+            else:
+                pass
 
         cmd = 'nvidia-docker exec mysql ./mysql -e "insert into paddle.op_record2 ' \
               'values(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, \'{}\', \'{}\', \'{}\', \'{}\')' \
@@ -286,44 +292,15 @@ def dump_mysql(data):
                     paddle_cpu_perf, tf_cpu_perf, paddle_gpu_perf, tf_gpu_perf, paddle_cpu_perf_backwards,
                     tf_cpu_perf_backwards, paddle_gpu_perf_backwards, tf_gpu_perf_backwards, "--", parameters, timestamp, gpu_time, gpu_time_backward, tf_gpu_time, tf_gpu_time_backward
                     )
-        #print(cmd)
         os.system(cmd)
 
 
 dirs = os.listdir(path)
 dirs.remove('api_info.txt')
-#print(dirs)
-
-#dirs = ['logical_and-paddle_cpu_speed_backward_0.txt', 'logical_and-paddle_cpu_accuracy_forward_0.txt', 'logical_and-paddle_cpu_speed_forward_0.txt', 'logical_and-paddle_gpu_accuracy_forward_0.txt', 'logical_and-paddle_gpu_speed_backward_0.txt', 'logical_and-tensorflow_cpu_speed_backward_0.txt', 'logical_and-tensorflow_cpu_speed_forward_0.txt','logical_and-tensorflow_gpu_speed_backward_0.txt','logical_and-tensorflow_gpu_speed_forward_0.txt', 'logical_and-paddle_gpu_speed_forward_0.txt']
-
-for d in dirs:
-    res = get_job_res(os.path.join(path, d), d)
-# print(res)
-
-data = []
-excel_dic = {}
-
-for k, v in res.items():
-    excel_dic = v.copy()
-    excel_dic['name'] = k
-    data.append(excel_dic)
-print(data)
-
-try:
-    dump_excel(data)
-except Exception as e:
-    print(e)
-
-
-
-dirs = os.listdir(path)
-dirs.remove('api_info.txt')
-#print(dirs)
 
 
 for d in dirs:
     res = get_job_res(os.path.join(path, d), d)
-# print(res)
 
 data = []
 excel_dic = {}
@@ -344,3 +321,4 @@ try:
 except Exception as e:
     print(e)
     print("dump data into mysql failed, please check reason!")
+
