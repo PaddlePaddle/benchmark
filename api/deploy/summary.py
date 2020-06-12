@@ -281,17 +281,14 @@ def dump_mysql(data):
             else:
                 pass
 
-        cmd = 'nvidia-docker exec mysql ./mysql -e "insert into paddle.op_record2 ' \
-              'values(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, \'{}\', \'{}\', \'{}\', \'{}\')' \
-              'on duplicate key update case_name=\'{}\', paddle_cpu_accuracy=\'{}\', paddle_cpu_accuracy_backwards=\'{}\', paddle_gpu_accuracy=\'{}\', paddle_gpu_accuracy_backwards=\'{}\', paddle_cpu_perf=\'{}\',' \
-              'tf_cpu_perf=\'{}\', paddle_gpu_perf=\'{}\', tf_gpu_perf=\'{}\', paddle_cpu_perf_backwards=\'{}\', tf_cpu_perf_backwards=\'{}\',' \
-              'paddle_gpu_perf_backwards=\'{}\', tf_gpu_perf_backwards=\'{}\', log_url= \'{}\', config=\'{}\', timestamp={}, gpu_time=\'{}\', gpu_time_backward=\'{}\', tf_gpu_time=\'{}\', tf_gpu_time_backward=\'{}\';"'\
-            .format(case_name, paddle_cpu_accuracy, paddle_cpu_accuracy_backwards, paddle_gpu_accuracy, paddle_gpu_accuracy_backwards,
-                    paddle_cpu_perf, tf_cpu_perf, paddle_gpu_perf, tf_gpu_perf, paddle_cpu_perf_backwards,
-                    tf_cpu_perf_backwards, paddle_gpu_perf_backwards, tf_gpu_perf_backwards, "--", parameters, timestamp, gpu_time, gpu_time_backward, tf_gpu_time, tf_gpu_time_backward,
-                    case_name, paddle_cpu_accuracy, paddle_cpu_accuracy_backwards, paddle_gpu_accuracy, paddle_gpu_accuracy_backwards,
-                    paddle_cpu_perf, tf_cpu_perf, paddle_gpu_perf, tf_gpu_perf, paddle_cpu_perf_backwards,
-                    tf_cpu_perf_backwards, paddle_gpu_perf_backwards, tf_gpu_perf_backwards, "--", parameters, timestamp, gpu_time, gpu_time_backward, tf_gpu_time, tf_gpu_time_backward
+        cmd = 'docker exec mysql ./mysql -e "insert into paddle.op_record2 ' \
+              'values(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\',' \
+              '\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, \'{}\', \'{}\', \'{}\', \'{}\');" '\
+            .format(
+                    case_name, paddle_cpu_accuracy, paddle_cpu_accuracy_backwards, paddle_gpu_accuracy,
+                    paddle_gpu_accuracy_backwards, paddle_cpu_perf, tf_cpu_perf, paddle_gpu_perf, tf_gpu_perf,
+                    paddle_cpu_perf_backwards, tf_cpu_perf_backwards, paddle_gpu_perf_backwards, tf_gpu_perf_backwards,
+                    "--", parameters, timestamp, gpu_time, gpu_time_backward, tf_gpu_time, tf_gpu_time_backward
                     )
         os.system(cmd)
 
