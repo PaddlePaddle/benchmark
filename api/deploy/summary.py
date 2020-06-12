@@ -7,9 +7,10 @@ import os
 import json
 import xlsxwriter as xlw
 import time
+import sys
 
 res = {}
-path = "./result/"
+path = sys.argv[1]
 
 def dump_excel(data):
     """
