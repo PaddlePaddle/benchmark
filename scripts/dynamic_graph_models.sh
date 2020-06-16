@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_mobilenet dy_seq2seq dy_resnet dy_ptb_lm dy_transformer)
+cur_model_list=(dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
 
 # MobileNet
 dy_mobilenet(){
@@ -23,7 +23,7 @@ dy_mobilenet(){
 
     # Prepare data
     mkdir -p data
-    ln -s ${data_path}/ILSVRC2012  ${cur_model_path}/data                         # 准备数据集,需要保证benchmark任务极其21 上对应目录下存在该数据集！
+    ln -s ${data_path}/dygraph_data/ILSVRC2012_Pytorch/  ${cur_model_path}/data                         # 准备数据集,需要保证benchmark任务极其21 上对应目录下存在该数据集！
 
     # Running ...
     rm -f ./run_benchmark.sh
@@ -34,10 +34,10 @@ dy_mobilenet(){
     do
         echo "------------> begin to run ${model_name}"
         echo "index is speed, 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 1000 ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 1000 ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 1000 ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 800 ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
     done
 }
 
@@ -47,7 +47,7 @@ dy_seq2seq(){
     cd ${cur_model_path}
 
     # Prepare data
-    ln -s ${data_path}/dygraph_data/seq2seq/data/ ${cur_model_path}/
+    ln -s ${data_path}/dygraph_data/seq2seq/data/ ${cur_model_path}/data
 
     # Running ...
     rm -f ./run_benchmark.sh
@@ -71,10 +71,10 @@ dy_resnet(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 1000 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 800 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 1000 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
 }
 
 # ptb
@@ -108,7 +108,7 @@ dy_transformer(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/transformer/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 3000 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 3000 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
 #    sleep 60
 #    echo "index is speed, 8gpus begin"
 #    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 3000 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
