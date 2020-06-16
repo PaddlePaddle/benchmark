@@ -4,7 +4,7 @@ set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 100(max_iter)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 100(max_iter)"
     exit
 fi
 
@@ -13,8 +13,8 @@ function _set_params(){
     base_batch_size=4096
     model_name="transformer"
 
-    run_mode="sp"
-    max_iter=${2}
+    run_mode=${2}
+    max_iter=${3}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -50,7 +50,7 @@ function _train(){
               --weight_sharing False \
               --batch_size ${base_batch_size}"
 
-    if [ ${num_gpu_devices} -eq 1 ]; then
+    if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u train.py "${train_cmd}
     else
         rm -rf ./mylog
@@ -59,7 +59,7 @@ function _train(){
     fi
 
     ${train_cmd} > ${log_file} 2>&1
-    if [ ${num_gpu_devices} != 1  -a -d mylog ]; then
+    if [ ${run_mode} != "sp"  -a -d mylog ]; then
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
     fi
