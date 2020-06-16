@@ -1,9 +1,10 @@
 #!bin/bash
+
 set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 1(max_epoch)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|2|3 1(max_epoch)"
     exit
 fi
 
@@ -12,8 +13,8 @@ function _set_params(){
     base_batch_size=128
     model_name="seq2seq"
 
-    run_mode="sp" # Don't support mp
-    max_epoch=${3}
+    run_mode="sp"
+    max_epoch=${2}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -22,20 +23,14 @@ function _set_params(){
     direction_id=1
     mission_name="文本生成"
     skip_steps=0
-    keyword="; Time:"
+    keyword="avg_batch_cost:"
     separator=" "
-    position=4
+    position=6
     model_mode=2 # s/step -> steps/s
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
-
-    if [[ ${run_mode} = "sp" ]]; then
-        batch_size=`expr $base_batch_size \* $num_gpu_devices`
-    else
-        batch_size=$base_batch_size
-    fi
 
     log_file=${run_log_path}/dynamic_${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/dynamic_${model_name}_3_${num_gpu_devices}_${run_mode}
@@ -44,35 +39,44 @@ function _set_params(){
     log_parse_file=${log_file}
 }
 
-function _set_env(){
-    #开启gc
-    echo "nothing"
-}
-
 function _train(){
-   train_cmd="--src_lang en --tar_lang vi \
-              --attention True \
-              --num_layers 2 \
-              --hidden_size 512 \
-              --src_vocab_size 17191 \
-              --tar_vocab_size 7709 \
-              --batch_size ${batch_size} \
-              --dropout 0.2 \
-              --init_scale  0.1 \
-              --max_grad_norm 5.0 \
-              --train_data_prefix data/en-vi/train \
-              --eval_data_prefix data/en-vi/tst2012 \
-              --test_data_prefix data/en-vi/tst2013 \
-              --vocab_prefix data/en-vi/vocab \
-              --use_gpu True \
-              --max_epoch ${max_epoch} \
-              --model_path attention_models"
-    
-    python -u train.py ${train_cmd} > ${log_file} 2>&1
-    kill -9 `ps -ef|grep python |awk '{print $2}'`
+    train_cmd_en_vi="--src_lang en --tar_lang vi \
+                     --attention True \
+                     --num_layers 2 \
+                     --hidden_size 512 \
+                     --src_vocab_size 17191 \
+                     --tar_vocab_size 7709 \
+                     --batch_size ${base_batch_size} \
+                     --dropout 0.2 \
+                     --init_scale  0.1 \
+                     --max_grad_norm 5.0 \
+                     --train_data_prefix data/en-vi/train \
+                     --eval_data_prefix data/en-vi/tst2012 \
+                     --test_data_prefix data/en-vi/tst2013 \
+                     --vocab_prefix data/en-vi/vocab \
+                     --use_gpu True \
+                     --max_epoch ${max_epoch} \
+                     --model_path attention_models"
+    train_cmd_de_en="--src_lang de --tar_lang en \
+                     --attention True \
+                     --num_layers 4 \
+                     --hidden_size 1000 \
+                     --src_vocab_size 8847 \
+                     --tar_vocab_size 6631 \
+                     --batch_size ${base_batch_size} \
+                     --dropout 0.2 \
+                     --init_scale  0.1 \
+                     --max_grad_norm 5.0 \
+                     --train_data_prefix data/iwslt14.tokenized.de-en/train \
+                     --eval_data_prefix data/iwslt14.tokenized.de-en/valid \
+                     --test_data_prefix data/iwslt14.tokenized.de-en/test \
+                     --vocab_prefix data/iwslt14.tokenized.de-en/vocab \
+                     --use_gpu True \
+                     --model_path attention_models"
+
+    python -u train.py ${train_cmd_de_en} > ${log_file} 2>&1
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
 _set_params $@
-_set_env
 _run
