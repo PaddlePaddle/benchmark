@@ -72,6 +72,7 @@ function _train(){
                      --test_data_prefix data/iwslt14.tokenized.de-en/test \
                      --vocab_prefix data/iwslt14.tokenized.de-en/vocab \
                      --use_gpu True \
+                     --max_epoch ${max_epoch} \
                      --model_path attention_models"
 
     python -u train.py ${train_cmd_de_en} > ${log_file} 2>&1
