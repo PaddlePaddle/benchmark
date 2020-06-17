@@ -13,7 +13,7 @@ function _set_params(){
     base_batch_size=32
     model_name="resnet"
 
-    run_mode=${2}
+    run_mode=${2} # Use sp for single GPU and mp for multiple GPU.
     max_iter=${3}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
@@ -50,7 +50,7 @@ function _train(){
         train_cmd="python -u train.py "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --selected_gpus=$CUDA_VISIBLE_DEVICES  --log_dir ./mylog train.py   --use_data_parallel=1 "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --selected_gpus=$CUDA_VISIBLE_DEVICES --log_dir ./mylog train.py --use_data_parallel=1 "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
     
