@@ -23,7 +23,7 @@ function _set_params(){
     direction_id=1
     mission_name="文本生成"
     skip_steps=0
-    keyword="batch_cost:"
+    keyword="avg_batch_cost:"
     separator=" "
     position=6
     model_mode=2 # s/step -> steps/s
