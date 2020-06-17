@@ -640,14 +640,6 @@ yolov3(){
         python2 setup.py install --user
         echo "cocoapi installed"
     fi
-    if python -c "import tb_paddle" >/dev/null 2>&1;
-    then
-        echo "tb_paddle have already installed"
-    else
-        echo "tb_paddle NOT FOUND"
-        pip install tb_paddle
-        echo "tb_paddle installed"
-    fi
 
     cd ${BENCHMARK_ROOT}/PaddleDetection
 
