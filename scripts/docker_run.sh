@@ -184,6 +184,7 @@ function run_models(){
         -e "https_proxy=${HTTP_PROXY}" \
         --net=host \
         --privileged \
+        --shm-size=32G \
         ${RUN_IMAGE_NAME} \
         /bin/bash -c "${run_cmd}"
     else
@@ -198,6 +199,7 @@ function run_models(){
             -e "https_proxy=${HTTP_PROXY}" \
             --net=host \
             --privileged \
+            --shm-size=32G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
     fi
