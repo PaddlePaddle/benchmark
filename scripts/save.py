@@ -195,7 +195,11 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
                                               run_machine_type=run_machine_type).order_by('-version')
 
     results_list = []
+    count = 0
     for result in results:
+        if count == 0:
+            count += 1
+            break
         if len(results_list) == 3:
             break
         try:
