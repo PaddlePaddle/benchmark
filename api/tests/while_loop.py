@@ -14,13 +14,14 @@
 
 from common_import import *
 from fc import FCConfig
+tf.compat.v1.disable_v2_behavior()
 
 
 class WhileLoopConfig(APIConfig):
     def __init__(self):
         super(WhileLoopConfig, self).__init__('while_loop')
         self.alias_config = FCConfig()
-        self.run_tf = False
+        self.run_tf = True
 
 
 class PDWhileLoop(PaddleAPIBenchmarkBase):
