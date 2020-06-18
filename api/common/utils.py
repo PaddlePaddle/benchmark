@@ -14,6 +14,7 @@
 
 from __future__ import print_function
 
+import sys
 import traceback
 import numpy as np
 import json
@@ -163,10 +164,11 @@ def check_outputs(list1, list2, name, atol=1e-6, config_params=None):
             print(
                 "---- The output is not consistent, but %s is in the white list."
                 % name)
-            print(json.dumps(status))
-        else:
-            print(json.dumps(status))
-            assert consistent == True, "The output is not consistent."
+        elif not consistent:
+            print("The output is not consistent.")
+        print(json.dumps(status))
+        if not consistent:
+            sys.exit(1)
     else:
         print(json.dumps(status))
 

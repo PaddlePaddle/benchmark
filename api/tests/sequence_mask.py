@@ -19,6 +19,7 @@ class PDSequenceMask(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         data = self.variable(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
+        # TODO: maxlen is a variable
         result = fluid.layers.sequence_mask(
             x=data, maxlen=config.maxlen, dtype=config.dtype)
 

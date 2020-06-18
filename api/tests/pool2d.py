@@ -24,7 +24,7 @@ class Pool2dConfig(APIConfig):
         self.pool_type = self.pool_type.lower()
         # The argument of tf's padding algorithm, must be "SAME" or "VALID".
         if not isinstance(self.pool_padding, str):
-            config.run_tf = False
+            self.run_tf = False
 
     def to_tensorflow(self):
         tf_config = super(Pool2dConfig, self).to_tensorflow()
