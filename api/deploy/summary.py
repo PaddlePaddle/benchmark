@@ -537,7 +537,9 @@ def dump_mysql(data):
         dic = data[i]
         case_name = dic['name']
         paddle_cpu_accuracy = "--"
+        paddle_cpu_accuracy_backwards = "--"
         paddle_gpu_accuracy = "--"
+        paddle_gpu_accuracy_backwards = "--"
         paddle_cpu_perf = "--"
         tf_cpu_perf = "--"
         paddle_gpu_perf = "--"
@@ -555,50 +557,49 @@ def dump_mysql(data):
         for k, v in dic.items():
             if k == "paddle_cpu_accuracy_forward":
                 paddle_cpu_accuracy = v
-            if k == "paddle_cpu_accuracy_backward":
+            elif k == "paddle_cpu_accuracy_backward":
                 paddle_cpu_accuracy_backwards = v
-            if k == "paddle_gpu_accuracy_forward":
+            elif k == "paddle_gpu_accuracy_forward":
                 paddle_gpu_accuracy = v
-            if k == "paddle_gpu_accuracy_backward":
+            elif k == "paddle_gpu_accuracy_backward":
                 paddle_gpu_accuracy_backwards = v
-            if k == "paddle_cpu_speed_forward":
+            elif k == "paddle_cpu_speed_forward":
                 paddle_cpu_perf = v
-            if k == "tensorflow_cpu_speed_forward":
+            elif k == "tensorflow_cpu_speed_forward":
                 tf_cpu_perf = v
-            if k == "paddle_gpu_speed_forward":
+            elif k == "paddle_gpu_speed_forward":
                 paddle_gpu_perf = v
-            if k == "tensorflow_gpu_speed_forward":
+            elif k == "tensorflow_gpu_speed_forward":
                 tf_gpu_perf = v
-            if k == "paddle_cpu_speed_backward":
+            elif k == "paddle_cpu_speed_backward":
                 paddle_cpu_perf_backwards = v
-            if k == "tensorflow_cpu_speed_backward":
+            elif k == "tensorflow_cpu_speed_backward":
                 tf_cpu_perf_backwards = v
-            if k == "paddle_gpu_speed_backward":
+            elif k == "paddle_gpu_speed_backward":
                 paddle_gpu_perf_backwards = v
-            if k == "tensorflow_gpu_speed_backward":
+            elif k == "tensorflow_gpu_speed_backward":
                 tf_gpu_perf_backwards = v
-            if k == "parameters":
+            elif k == "parameters":
                 parameters = v
-            if k == "gpu_time_backward":
+            elif k == "gpu_time_backward":
                 gpu_time_backward = v
-            if k == "gpu_time":
+            elif k == "gpu_time":
                 gpu_time = v
-            if k == "tf_gpu_time_backward":
+            elif k == "tf_gpu_time_backward":
                 tf_gpu_time_backward = v
-            if k == "tf_gpu_time":
+            elif k == "tf_gpu_time":
                 tf_gpu_time = v
+            else:
+                pass
 
-        cmd = 'nvidia-docker exec mysql ./mysql -e "insert into paddle.op_record2 ' \
-              'values(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, \'{}\', \'{}\', \'{}\', \'{}\')' \
-              'on duplicate key update case_name=\'{}\', paddle_cpu_accuracy=\'{}\', paddle_cpu_accuracy_backwards=\'{}\', paddle_gpu_accuracy=\'{}\', paddle_gpu_accuracy_backwards=\'{}\', paddle_cpu_perf=\'{}\',' \
-              'tf_cpu_perf=\'{}\', paddle_gpu_perf=\'{}\', tf_gpu_perf=\'{}\', paddle_cpu_perf_backwards=\'{}\', tf_cpu_perf_backwards=\'{}\',' \
-              'paddle_gpu_perf_backwards=\'{}\', tf_gpu_perf_backwards=\'{}\', log_url= \'{}\', config=\'{}\', timestamp={}, gpu_time=\'{}\', gpu_time_backward=\'{}\', tf_gpu_time=\'{}\', tf_gpu_time_backward=\'{}\';"'\
-            .format(case_name, paddle_cpu_accuracy, paddle_cpu_accuracy_backwards, paddle_gpu_accuracy, paddle_gpu_accuracy_backwards,
-                    paddle_cpu_perf, tf_cpu_perf, paddle_gpu_perf, tf_gpu_perf, paddle_cpu_perf_backwards,
-                    tf_cpu_perf_backwards, paddle_gpu_perf_backwards, tf_gpu_perf_backwards, "--", parameters, timestamp, gpu_time, gpu_time_backward, tf_gpu_time, tf_gpu_time_backward,
-                    case_name, paddle_cpu_accuracy, paddle_cpu_accuracy_backwards, paddle_gpu_accuracy, paddle_gpu_accuracy_backwards,
-                    paddle_cpu_perf, tf_cpu_perf, paddle_gpu_perf, tf_gpu_perf, paddle_cpu_perf_backwards,
-                    tf_cpu_perf_backwards, paddle_gpu_perf_backwards, tf_gpu_perf_backwards, "--", parameters, timestamp, gpu_time, gpu_time_backward, tf_gpu_time, tf_gpu_time_backward
+        cmd = 'docker exec mysql ./mysql -e "insert into paddle.op_record2 ' \
+              'values(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\',' \
+              '\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, \'{}\', \'{}\', \'{}\', \'{}\');" '\
+            .format(
+                    case_name, paddle_cpu_accuracy, paddle_cpu_accuracy_backwards, paddle_gpu_accuracy,
+                    paddle_gpu_accuracy_backwards, paddle_cpu_perf, tf_cpu_perf, paddle_gpu_perf, tf_gpu_perf,
+                    paddle_cpu_perf_backwards, tf_cpu_perf_backwards, paddle_gpu_perf_backwards, tf_gpu_perf_backwards,
+                    "--", parameters, timestamp, gpu_time, gpu_time_backward, tf_gpu_time, tf_gpu_time_backward
                     )
         os.system(cmd)
 

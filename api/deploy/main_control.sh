@@ -70,6 +70,10 @@ else
     api_info_file=api_info.txt
 fi
 python ${DEPLOY_DIR}/collect_api_info.py --info_file ${api_info_file}
+return_status=$?
+if [ ${return_status} -ne 0 ] || [ ! -f "${api_info_file}" ]; then
+    api_info_file=${DEPLOY_DIR}/api_info.txt
+fi
 
 config_id=0
 cpu_runtime=0
