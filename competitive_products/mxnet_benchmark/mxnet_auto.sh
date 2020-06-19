@@ -7,7 +7,7 @@
 #                                        #
 ##########################################
 
-cur_model_list=(mxnet)
+cur_model_list=(yolov3)
 
 
 export https_proxy=http://172.19.56.199:3128
@@ -16,11 +16,7 @@ export http_proxy=http://172.19.56.199:3128
 environment(){
 export LD_LIBRARY_PATH=/home/work/418.39/lib64/:/usr/local/cuda-10.0/compat/:$LD_LIBRARY_PATH
 apt-get update
-apt-get install vim -y
-apt-get install git -y
-apt-get install psmisc -y
-apt-get install python-tk
-apt-get install yum
+apt-get install vim git psmisc python-tk yum -y
 
 check_package_list=(gluoncv Cython)
 for package in ${check_package_list[@]};
@@ -46,8 +42,8 @@ cd -
 }
 
 prepare(){
-export BENCHMARK_ROOT=/ssd3/heya/mxnet/0317_auto_add/benchmark/
-export MX_BENCHMARK_ROOT=${BENCHMARK_ROOT}/competitive_products/mx_benchmark
+export BENCHMARK_ROOT=/ssd3/heya/mxnet/0619_code/benchmark/
+export MX_BENCHMARK_ROOT=${BENCHMARK_ROOT}/competitive_products/mxnet_benchmark
 
 export datapath=/ssd1/ljh/dataset
 
@@ -63,7 +59,7 @@ mkdir -p ${MODEL_PATH}
 
 }
 
-mxnet(){
+yolov3(){
 curl_model_path=${MODEL_PATH}
 cd ${curl_model_path}
 
@@ -93,7 +89,7 @@ for model_name in ${cur_model_list[@]}; do
 done
 }
 
-#environment # according to the actual condition
+environment # according to the actual condition
 prepare
 run
 
