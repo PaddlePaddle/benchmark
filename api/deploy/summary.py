@@ -409,7 +409,14 @@ def dump_text(benchmark_result_list, output_path, dump_with_parameters):
             f.writelines("\n")
 
 
-def dump_excel(benchmark_result_list, output_path=None,
+def _op_result_filename(prefix, case_name, framework, device, task, direction):
+    filename = case_name + "-" + framework + "_" + device + "_" + task + "_" + direction + ".txt"
+    return os.path.join(prefix, filename)
+
+
+def dump_excel(benchmark_result_list,
+               op_result_dir,
+               output_path=None,
                op_frequency_dict=None):
     """
     dump data to a excel
@@ -428,8 +435,16 @@ def dump_excel(benchmark_result_list, output_path=None,
         'font_color': 'black',
         'bg_color': '#6495ED'
     })
-    better_format = wb.add_format({'bold': True, 'font_color': 'green'})
-    less_format = wb.add_format({'bold': True, 'font_color': 'red'})
+    cell_formats = {}
+    for underline in [False, True]:
+        for color in ["green", "red", "black"]:
+            key = color + "_underline" if underline else color
+            value = wb.add_format({
+                'bold': True,
+                'underline': underline,
+                'font_color': color
+            })
+            cell_formats[key] = value
 
     compare_result_list, _ = summary_compare_result(benchmark_result_list)
 
@@ -460,6 +475,10 @@ def dump_excel(benchmark_result_list, output_path=None,
             col += 1
         row += 1
 
+    if op_result_dir:
+        url_prefix = "http://yq01-gpu-255-129-13-00.epc.baidu.com:8912/PaddlePaddle/benchmark/api/logs/" + os.path.basename(
+            op_result_dir)
+        print("url prefix: ", url_prefix)
     for device in ["gpu", "cpu"]:
         for direction in ["forward", "backward"]:
             worksheet_name = device + "_" + direction
@@ -511,20 +530,55 @@ def dump_excel(benchmark_result_list, output_path=None,
                             ] if device == "cpu" else ["total", "gpu_time"]
                 for key in time_set:
                     if result["compare"][key] == "Less":
-                        cell_format = less_format
+                        color = "red"
                     elif result["compare"][key] == "Better":
-                        cell_format = better_format
+                        color = "green"
                     else:
-                        cell_format = None
-                    ws.write(row, col + 1, result["paddle"][key], cell_format)
-                    ws.write(row, col + 2, result["tensorflow"][key],
-                             cell_format)
-                    ws.write(row, col + 3, result["compare"][key], cell_format)
+                        color = "black"
+                    time_paddle = result["paddle"][key]
+                    time_tensorflow = result["tensorflow"][key]
+                    if op_result_dir:
+                        op_url_paddle = _op_result_filename(
+                            url_prefix, op_unit.case_name, "paddle", device,
+                            "speed", direction)
+                        op_url_tensorflow = _op_result_filename(
+                            url_prefix, op_unit.case_name, "tensorflow",
+                            device, "speed", direction)
+                        ws.write_url(
+                            row,
+                            col + 1,
+                            url=op_url_paddle,
+                            string=time_paddle,
+                            cell_format=cell_formats[color + "_underline"])
+                        ws.write_url(
+                            row,
+                            col + 2,
+                            url=op_url_tensorflow,
+                            string=time_tensorflow,
+                            cell_format=cell_formats[color + "_underline"])
+                    else:
+                        ws.write(row, col + 1, time_paddle,
+                                 cell_formats[color])
+                        ws.write(row, col + 2, time_tensorflow,
+                                 cell_formats[color])
+                    ws.write(row, col + 3, result["compare"][key],
+                             cell_formats[color])
                     col += 3
 
-                ws.write(row, col + 1, result["accuracy"])
+                if op_result_dir:
+                    op_url = _op_result_filename(url_prefix, op_unit.case_name,
+                                                 "paddle", device, "accuracy",
+                                                 direction)
+                    ws.write_url(
+                        row,
+                        col + 1,
+                        url=op_url,
+                        string=result["accuracy"],
+                        cell_format=cell_formats["black_underline"])
+                else:
+                    ws.write(row, col + 1, result["accuracy"],
+                             cell_formats["black"])
                 ws.write(row, col + 2, op_unit.parameters)
-
     wb.close()
 
 
@@ -629,13 +683,13 @@ if __name__ == '__main__':
     parser.add_argument(
         '--dump_to_excel',
         type=utils.str2bool,
-        default=True,
+        default=False,
         help='Whether dumping summary data to an excel [True|False]')
     parser.add_argument(
         '--dump_with_parameters',
         type=utils.str2bool,
         default=False,
-        help='Whether dumping summary data to an excel [True|False]')
+        help='Whether dumping summary data to an text [True|False]')
     parser.add_argument(
         '--output_path',
         type=str,
@@ -683,7 +737,8 @@ if __name__ == '__main__':
                   args.dump_with_parameters)
 
     if args.dump_to_excel:
-        dump_excel(benchmark_result_list, args.output_path, op_frequency_dict)
+        dump_excel(benchmark_result_list, op_result_dir, args.output_path,
+                   op_frequency_dict)
 
     if args.dump_to_mysql:
         try:
