@@ -10,7 +10,7 @@ fi
 
 function _set_params(){
     index=$1
-    base_batch_size=32
+    base_batch_size=128
     model_name="resnet"
 
     run_mode=${2} # Use sp for single GPU and mp for multiple GPU.

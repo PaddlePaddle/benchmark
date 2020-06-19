@@ -161,23 +161,21 @@ function run_models(){
 
     if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
         RUN_IMAGE_NAME=hub.baidubce.com/paddlepaddle/paddle:latest
-
         docker run -i --rm \
-        -v /home/work:/home/work \
-        -v ${all_path}:${all_path} \
-        -v /usr/bin/monquery:/usr/bin/monquery \
-        -e "BENCHMARK_WEBSITE=${BENCHMARK_WEBSITE}" \
-        -e "http_proxy=${HTTP_PROXY}" \
-        -e "https_proxy=${HTTP_PROXY}" \
-        --net=host \
-        --privileged \
-        --shm-size=32G \
-        ${RUN_IMAGE_NAME} \
-        /bin/bash -c "${run_cmd}"
+            -v /home/work:/home/work \
+            -v ${all_path}:${all_path} \
+            -v /usr/bin/monquery:/usr/bin/monquery \
+            -e "BENCHMARK_WEBSITE=${BENCHMARK_WEBSITE}" \
+            -e "http_proxy=${HTTP_PROXY}" \
+            -e "https_proxy=${HTTP_PROXY}" \
+            --net=host \
+            --privileged \
+            --shm-size=32G \
+            ${RUN_IMAGE_NAME} \
+            /bin/bash -c "${run_cmd}"
     else
         RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
         nvidia-docker run -i --rm \
-            --shm-size 16G \
             -v /home/work:/home/work \
             -v ${all_path}:${all_path} \
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
