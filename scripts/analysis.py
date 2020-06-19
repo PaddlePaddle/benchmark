@@ -139,7 +139,7 @@ class TimeAnalyzer(object):
             print("base_batch_size should larger than 0.")
             return 0, ''
 
-        if len(self.records) <= 0:
+        if len(self.records) <= skip_steps:  # to address the condition which item of log equals to skip_steps
             print("no records")
             return 0, ''
 
