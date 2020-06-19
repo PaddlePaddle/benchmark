@@ -63,14 +63,13 @@ function _train(){
 
     train_cmd="-c configs/yolov3_darknet.yml \
      --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} TrainReader.worker_num=${num_workers} \
-     --use_tb=True \
-     --tb_log_dir=tb_fruit_dir/scalar \
      --is_profiler=${is_profiler} \
      --profiler_path=${profiler_path}"
 #     --batch_size=${base_batch_size} \
     case ${run_mode} in
     sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)
+        rm -rf ./mylog
         train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;

@@ -50,20 +50,20 @@ function construnct_version(){
     cd ${benchmark_work_path}/Paddle
     image_commit_id=$(git log|head -n1|awk '{print $2}')
     echo "image_commit_id is: "${image_commit_id}
-
-    PADDLE_DEV_NAME=docker.io/paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
     version=`date -d @$(git log -1 --pretty=format:%ct) "+%Y.%m%d.%H%M%S"`
     image_branch=$(echo ${image_branch} | rev | cut -d'/' -f 1 | rev)
     if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
         PADDLE_VERSION=${version}".${image_branch//-/_}"
         IMAGE_NAME=paddlepaddle-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
         with_gpu="OFF"
-        PADDLE_DEV_NAME=hub.baidubce.com/paddlepaddle/paddle:latest-dev
+        cuda_version="10.0"
+        cudnn_version=7
     else
         PADDLE_VERSION=${version}'.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
         with_gpu='ON'
     fi
+    PADDLE_DEV_NAME=docker.io/paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
     echo "IMAGE_NAME is: "${IMAGE_NAME}
 }
 
@@ -79,47 +79,34 @@ function build_paddle(){
         echo "image not found, begin building"
     fi
 
-    if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
-        docker run -i --rm -v $PWD:/paddle \
-          -w /paddle \
-          -e "http_proxy=${HTTP_PROXY}" \
-          -e "https_proxy=${HTTP_PROXY}" \
-          ${PADDLE_DEV_NAME} \
-           /bin/bash -c "mkdir -p /paddle/build && cd /paddle/build; pip install protobuf; \
-                         cmake .. -DPY_VERSION=2.7 -DWITH_GPU=OFF -DWITH_TESTING=OFF -DCMAKE_BUILD_TYPE=Release;\
-                         make -j$(nproc)"
-        build_name="paddlepaddle-0.0.0-cp27-cp27mu-linux_x86_64.whl"
-
-    else
-        nvidia-docker run -i --rm -v $PWD:/paddle \
-          -w /paddle \
-          -e "CMAKE_BUILD_TYPE=Release" \
-          -e "PYTHON_ABI=cp27-cp27mu" \
-          -e "PADDLE_VERSION=0.0.0.${PADDLE_VERSION}" \
-          -e "WITH_DOC=OFF" \
-          -e "WITH_AVX=ON" \
-          -e "WITH_GPU=${with_gpu}" \
-          -e "WITH_TEST=OFF" \
-          -e "RUN_TEST=OFF" \
-          -e "WITH_GOLANG=OFF" \
-          -e "WITH_SWIG_PY=ON" \
-          -e "WITH_PYTHON=ON" \
-          -e "WITH_C_API=OFF" \
-          -e "WITH_STYLE_CHECK=OFF" \
-          -e "WITH_TESTING=OFF" \
-          -e "CMAKE_EXPORT_COMPILE_COMMANDS=ON" \
-          -e "WITH_MKL=ON" \
-          -e "BUILD_TYPE=Release" \
-          -e "WITH_DISTRIBUTE=ON" \
-          -e "WITH_FLUID_ONLY=OFF" \
-          -e "CMAKE_VERBOSE_MAKEFILE=OFF" \
-          -e "http_proxy=${HTTP_PROXY}" \
-          -e "https_proxy=${HTTP_PROXY}" \
-          ${PADDLE_DEV_NAME} \
-           /bin/bash -c "paddle/scripts/paddle_build.sh build"
-         build_name=${IMAGE_NAME}
-
-    fi
+    docker run -i --rm -v $PWD:/paddle \
+      -w /paddle \
+      --net=host \
+      -e "CMAKE_BUILD_TYPE=Release" \
+      -e "PYTHON_ABI=cp27-cp27mu" \
+      -e "PADDLE_VERSION=0.0.0.${PADDLE_VERSION}" \
+      -e "WITH_DOC=OFF" \
+      -e "WITH_AVX=ON" \
+      -e "WITH_GPU=${with_gpu}" \
+      -e "WITH_TEST=OFF" \
+      -e "RUN_TEST=OFF" \
+      -e "WITH_GOLANG=OFF" \
+      -e "WITH_SWIG_PY=ON" \
+      -e "WITH_PYTHON=ON" \
+      -e "WITH_C_API=OFF" \
+      -e "WITH_STYLE_CHECK=OFF" \
+      -e "WITH_TESTING=OFF" \
+      -e "CMAKE_EXPORT_COMPILE_COMMANDS=ON" \
+      -e "WITH_MKL=ON" \
+      -e "BUILD_TYPE=Release" \
+      -e "WITH_DISTRIBUTE=ON" \
+      -e "WITH_FLUID_ONLY=OFF" \
+      -e "CMAKE_VERBOSE_MAKEFILE=OFF" \
+      -e "http_proxy=${HTTP_PROXY}" \
+      -e "https_proxy=${HTTP_PROXY}" \
+      ${PADDLE_DEV_NAME} \
+       /bin/bash -c "paddle/scripts/paddle_build.sh build"
+     build_name=${IMAGE_NAME}
 
     if [[ -d ${all_path}/images ]]; then
         echo "images dir already exists"
@@ -184,6 +171,7 @@ function run_models(){
         -e "https_proxy=${HTTP_PROXY}" \
         --net=host \
         --privileged \
+        --shm-size=32G \
         ${RUN_IMAGE_NAME} \
         /bin/bash -c "${run_cmd}"
     else
@@ -199,6 +187,7 @@ function run_models(){
             -e "https_proxy=${HTTP_PROXY}" \
             --net=host \
             --privileged \
+            --shm-size=32G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
     fi
