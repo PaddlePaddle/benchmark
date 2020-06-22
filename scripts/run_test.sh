@@ -27,7 +27,15 @@ fi
 BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/.." && pwd )"
 echo ${BENCHMARK_ROOT}
 
-function prepare_tf_env(){
+function prepare_env(){
+    # Update pip
+    easy_install --upgrade pip
+    # Install latest paddle
+    PADDLE_WHL="paddlepaddle_gpu-0.0.0-cp27-cp27mu-linux_x86_64.whl"
+    PADDLE_URL="https://paddle-wheel.bj.bcebos.com/0.0.0-gpu-cuda10-cudnn7-mkl/${PADDLE_WHL}"
+    wget ${PADDLE_URL}
+    pip install -U ${PADDLE_WHL}
+    # Install tensorflow and other packages
     pip install tensorflow-gpu==2.0 pre-commit==1.21 pylint==1.9.5 pytest==4.6.9
     python -c "import tensorflow as tf; print(tf.__version__)"
     apt-get update
@@ -130,7 +138,7 @@ function main(){
     local CMD=$1
     case $CMD in
       run_api_test)
-        prepare_tf_env
+        prepare_env
         check_style
         run_api
         ;;

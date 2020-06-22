@@ -59,8 +59,8 @@ function print_detail_status() {
         printf "  [%d-%d][%s] %-90s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     elif [ ${print_str_length} -lt 100 ]; then
         printf "  [%d-%d][%s] %-100s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
-    elif [ ${print_str_length} -lt 110 ]; then
-        printf "  [%d-%d][%s] %-110s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
+    else
+        printf "  [%d-%d][%s] %-120s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     fi
 }
 

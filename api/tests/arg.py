@@ -29,8 +29,6 @@ class PDArg(PaddleAPIBenchmarkBase):
 
         self.feed_vars = [x]
         self.fetch_vars = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
 class TFArg(TensorflowAPIBenchmarkBase):
@@ -40,8 +38,6 @@ class TFArg(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':

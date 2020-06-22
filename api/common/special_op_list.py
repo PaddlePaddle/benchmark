@@ -18,7 +18,7 @@ NO_FETCHES_OPS = ["feed", "null"]
 
 # operators without grad ops.
 NO_BACKWARD_OPS = [
-    "accuracy", "argsort", "assign", "cast", "compare", "less_than",
+    "accuracy", "argmax", "argmin", "argsort", "assign", "cast", "less_than",
     "less_equal", "not_equal", "greater_than", "greater_equal", "equal",
     "cumsum", "feed", "fetch", "fill_constant", "increment", "isfinite",
     "logical_not", "logical_and", "logical_or", "null", "one_hot", "scale",
