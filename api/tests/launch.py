@@ -79,12 +79,12 @@ def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
         if exit_code == 0:
             return _parse_nvprof_logs(stdout.split("\n"))
         else:
-            print("stdout: {}".format(stdout))
+            print("Runing Error:\n {}".format(stdout))
     else:
         stdout, exit_code = utils.run_command(cmd)
         print(stdout)
         if exit_code != 0:
-            sys.exit(1)
+            sys.exit(exit_code)
     return 0.0
 
 

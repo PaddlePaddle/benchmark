@@ -223,6 +223,13 @@ class TensorflowAPIBenchmarkBase(object):
         result = func(**kwargs)
         return result
 
+    @property
+    def backward(self):
+        if hasattr(self, "__backward"):
+            return self.__backward
+        else:
+            return False
+
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, tf.Tensor):
             inputs = [inputs]
@@ -230,6 +237,7 @@ class TensorflowAPIBenchmarkBase(object):
             raise TypeError("inputs should be a list.")
 
         gradients = tf.gradients(targets, inputs)
+        self.__backward = True
         if isinstance(gradients, list):
             for grad in gradients:
                 self.fetch_list.append(grad)
@@ -304,11 +312,12 @@ class TensorflowAPIBenchmarkBase(object):
             "framework": "tensorflow",
             "version": tf.__version__,
             "name": self.name,
+            "device": "GPU" if use_gpu else "CPU",
+            "backward": self.__backward,
             "total": runtimes
         }
         if self.name != "null":
             stats["wall_time"] = walltimes
-        stats["device"] = "GPU" if use_gpu else "CPU"
         return outputs, stats
 
     def generate_random_feeder(self,
@@ -328,6 +337,7 @@ class TensorflowAPIBenchmarkBase(object):
             self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
             self._feed_dict = {}
 
+            self.__backward = False
             self.build_graph(config=config)
 
         if feeder_adapter is None:
@@ -344,6 +354,7 @@ class TensorflowAPIBenchmarkBase(object):
         self.name = config.api_name
         feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
                                                      feeder_adapter)
+        assert self.__backward == args.backward, "Backward is not surported for %s." % self.name
 
         feed_list = feeder_adapter.to_tensorflow(self.feed_list)
         assert len(feed_list) == len(self.feed_list)

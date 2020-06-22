@@ -104,7 +104,12 @@ def _check_shape(output1, output2, i):
     return output1, output2
 
 
-def check_outputs(list1, list2, name, atol=1e-6, config_params=None):
+def check_outputs(list1,
+                  list2,
+                  name,
+                  atol=1e-6,
+                  backward=False,
+                  config_params=None):
     if not isinstance(list1, list) or not isinstance(list2, list):
         raise TypeError(
             "input argument's type should be list of numpy.ndarray.")
@@ -154,6 +159,7 @@ def check_outputs(list1, list2, name, atol=1e-6, config_params=None):
 
     status = collections.OrderedDict()
     status["name"] = name
+    status["backward"] = backward
     status["consistent"] = consistent
     status["num_outputs"] = num_outputs
     status["diff"] = max_diff.astype("float")
@@ -181,6 +187,7 @@ def print_benchmark_result(result, log_level=0, config_params=None):
     status["version"] = result["version"]
     status["name"] = result["name"]
     status["device"] = result["device"]
+    status["backward"] = result["backward"]
 
     runtimes = result.get("total", None)
     if runtimes is None:
