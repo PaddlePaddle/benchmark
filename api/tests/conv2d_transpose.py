@@ -37,6 +37,8 @@ class Conv2dTransposeConfig(APIConfig):
             self.input_shape[0] = 64
         if isinstance(self.filter_size, int):
             self.filter_size = [self.filter_size, self.filter_size]
+        if self.groups is None:
+            self.groups = 1
         if self.num_channels % self.groups != 0:
             raise ValueError(
                 "the channel of input must be divisible by groups,"

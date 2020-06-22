@@ -185,7 +185,7 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
                 pd_stats,
                 log_level=args.log_level,
                 config_params=config.to_string())
-            
+
         if pd_outputs == False:
             sys.exit(1)
 
@@ -196,6 +196,7 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
                 tf_outputs,
                 name=config.api_name,
                 atol=config.atol,
+                backward=pd_obj.backward,
                 config_params=config.to_string())
         else:
             warnings.simplefilter('always', UserWarning)
