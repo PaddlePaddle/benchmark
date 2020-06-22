@@ -261,7 +261,7 @@ class PaddleAPIBenchmarkBase(object):
         self.name = config.api_name
         feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
                                                      feeder_adapter)
-        assert self.__backward == args.backward, "Backward is not surported for %s." % self.name
+        # assert self.__backward == args.backward, "Backward is not surported for %s." % self.name
 
         feed_list = feeder_adapter.to_paddle(self.feed_vars)
         assert len(feed_list) == len(self.feed_vars)

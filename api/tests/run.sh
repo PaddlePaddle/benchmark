@@ -21,12 +21,11 @@ filename="${OP_BENCHMARK_ROOT}/tests/examples/${name}.json"
 python -m tests.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py \
       --task "accuracy" \
       --framework "paddle" \
-      --api_name "${api_name}" \
       --json_file ${filename} \
       --config_id ${config_id} \
       --check_output False \
       --profiler "none" \
-      --backward True \
+      --backward False \
       --use_gpu True \
       --repeat 1 \
       --log_level 0
