@@ -118,6 +118,8 @@ if __name__ == "__main__":
     profiler = benchmark_args_dict.get("profiler", "none")
     repeat = benchmark_args_dict.get("repeat", "1")
 
+    utils.check_commit()
+
     if use_gpu and task == "speed" and profiler == "none":
         total_gpu_time = launch(
             args.benchmark_script,
