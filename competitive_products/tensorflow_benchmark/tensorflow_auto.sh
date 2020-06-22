@@ -10,8 +10,6 @@
 
 #cur_model_list=(deeplabv3 transformer)
 cur_model_list=(padding nextvlad seq2seq deeplabv3 stgan cyclegan transformer)
-export https_proxy=http://172.19.56.199:3128 && export http_proxy=http://172.19.56.199:3128
-
 ##   config.gpu_options.allow_growth = True
 ## run_type_list--> 1(speed), 2(mem)
 
