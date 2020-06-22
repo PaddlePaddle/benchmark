@@ -3,8 +3,8 @@
 set -x
 #nvprof -o timeline_output_medium -f --cpu-profiling off  --profile-from-start off  python  train.py \
 #export CUDA_VISIBLE_DEVICES=7
-  echo "Usage: "
-  echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh speed|mem large|medium|small static|padding /path/to/log"
+echo "Usage: "
+echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh 1|2(speed|mem) large|medium|small static|padding /path/to/log"
 
 function _set_params(){
     index=$1
@@ -18,6 +18,8 @@ function _set_params(){
     separator=" "
     position=4
     model_mode=2
+    mission_name="语言模型"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
+    direction_id=1 # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     run_mode=sp
 
     devices_str=${CUDA_VISIBLE_DEVICES//,/ }
@@ -30,19 +32,19 @@ function _set_params(){
 }
 
 function _train(){
-  echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices"
-  if [ ${index} = "speed" ]; then
-      sed -i '93c \    config.gpu_options.allow_growth = False' train.py
-  elif [ ${index} = "mem" ]; then
-      echo "this index is: "$index
-      sed -i '93c \    config.gpu_options.allow_growth = True' train.py
-  fi
-  python -u train.py \
-    --model_type $model_type \
-    --rnn_type $rnn_type > ${log_file} 2>&1 &
-  train_pid=$!
-  sleep 600
-  kill -9 $train_pid
+    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices"
+    if [ ${index} -eq 1 ]; then
+        sed -i '93c \    config.gpu_options.allow_growth = False' train.py
+    elif [ ${index} -eq 2 ]; then
+        echo "this index is: "$index
+        sed -i '93c \    config.gpu_options.allow_growth = True' train.py
+    fi
+    python -u train.py \
+      --model_type $model_type \
+      --rnn_type $rnn_type > ${log_file} 2>&1 &
+    train_pid=$!
+    sleep 600
+    kill -9 $train_pid
 }
 
 source ${BENCHMARK_ROOT}/competitive_products/common_scripts/run_model.sh

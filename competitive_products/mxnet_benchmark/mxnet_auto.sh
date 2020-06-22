@@ -9,10 +9,6 @@
 
 cur_model_list=(mxnet)
 
-
-export https_proxy=http://172.19.56.199:3128
-export http_proxy=http://172.19.56.199:3128
-
 environment(){
 export LD_LIBRARY_PATH=/home/work/418.39/lib64/:/usr/local/cuda-10.0/compat/:$LD_LIBRARY_PATH
 apt-get update
