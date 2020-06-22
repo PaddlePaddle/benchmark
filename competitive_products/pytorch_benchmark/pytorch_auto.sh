@@ -11,22 +11,14 @@
 #************ note that you neet the images of pytorch which name contains devel***********#
 
 cur_model_list=(detection pix2pix stargan image_classification)
-export https_proxy=http://172.19.56.199:3128
-export http_proxy=http://172.19.56.199:3128
-
 
 ######################
 environment(){
+export LD_LIBRARY_PATH=/home/work/418.39/lib64/:/usr/local/cuda-10.0/compat/:$LD_LIBRARY_PATH
 apt-get update
-apt-get install wget -y
-apt-get install vim -y
-apt-get install git -y
-apt-get install libglib2.0-dev -y
-apt-get install apt-file -y
+apt-get install wget vim git libglib2.0-dev apt-file -y
 apt-file update
-apt-get install libsm6 -y
-apt-get install libxrender1 -y
-apt-get install libxext-dev -y
+apt-get install libsm6 libxrender1 libxext-dev -y
 
 pip uninstall torch-nightly -y
 #conda remove wrapt --y

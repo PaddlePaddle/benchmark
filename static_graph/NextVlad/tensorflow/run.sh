@@ -3,7 +3,7 @@
 set -x
 if [ $# -lt 3 ]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer speed|mem sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|infer 1|2(speed|mem) sp|mp /ssd1/ljh/logs"
     exit
 fi
 
@@ -15,39 +15,44 @@ train_dir=$WORK_ROOT/nextvlad_8g_5l2_5drop_128k_2048_2x80_logistic
 result_folder=$WORK_ROOT/results
 
 function _set_params() {
-  task="$1"
-  index="$2"
-  run_mode="$3"
-  model_name="NeXtVLADModel"
-  run_log_root=${4:-$(pwd)}
-  skip_steps=2
-  keyword="Examples/sec:"
-  separator=" "
-  position=11
-  range=5
-  model_mode=1 #  # 解析日志，若数据单位是s/step，则为0，若数据单位是step/s,则为1(必填)
-
-  device=${CUDA_VISIBLE_DEVICES//,/ }
-  arr=($device)
-  num_gpu_devices=${#arr[*]}
-  base_batch_size=32
-  parameters="--groups=8 --nextvlad_cluster_size=128 --nextvlad_hidden_size=2048 \
-            --expansion=2 --gating_reduction=8 --drop_rate=0.5 learning_rate_decay_examples 2 \
-            --video_level_classifier_model=LogisticModel --label_loss=CrossEntropyLoss --start_new_model=False \
-            --train_data_pattern=${datapath}/train*.tfrecord --train_dir=${train_dir} --frame_features=True \
-            --feature_names="rgb,audio" --feature_sizes="1024,128" --base_learning_rate=0.0002 \
-            --learning_rate_decay=0.8 --l2_penalty=1e-5"
-
-  if [[ ${index} = "speed" ]]; then
-      log_file=${run_log_root}/log_${model_name}_speed_${num_gpu_devices}_${run_mode}
-  else
-      log_file=${run_log_root}/log_${model_name}_${index}_${num_gpu_devices}_${run_mode}
-  fi
-  log_parse_file=${log_file}
+    task="$1"
+    index="$2"
+    run_mode="$3"
+    model_name="NeXtVLADModel"
+    run_log_root=${4:-$(pwd)}
+    skip_steps=2
+    keyword="Examples/sec:"
+    separator=" "
+    position=11
+    range=5
+    model_mode=1 #  # 解析日志，若数据单位是s/step，则为0，若数据单位是step/s,则为1(必填)
+    mission_name="视频分类"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
+    direction_id=0 # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
+  
+    device=${CUDA_VISIBLE_DEVICES//,/ }
+    arr=($device)
+    num_gpu_devices=${#arr[*]}
+    base_batch_size=32
+    parameters="--groups=8 --nextvlad_cluster_size=128 --nextvlad_hidden_size=2048 \
+              --expansion=2 --gating_reduction=8 --drop_rate=0.5 learning_rate_decay_examples 2 \
+              --video_level_classifier_model=LogisticModel --label_loss=CrossEntropyLoss --start_new_model=False \
+              --train_data_pattern=${datapath}/train*.tfrecord --train_dir=${train_dir} --frame_features=True \
+              --feature_names="rgb,audio" --feature_sizes="1024,128" --base_learning_rate=0.0002 \
+              --learning_rate_decay=0.8 --l2_penalty=1e-5"
+  
+    if [[ ${index} -eq 1 ]]; then
+        log_file=${run_log_root}/log_${model_name}_speed_${num_gpu_devices}_${run_mode}
+    elif [[ ${index} -eq 2 ]]; then
+        log_file=${run_log_root}/log_${model_name}_mem_${num_gpu_devices}_${run_mode}
+    else
+        exit 1
+        echo " please set 1(speed)|2(mem)"
+    fi
+    log_parse_file=${log_file}
 }
 
 function _set_env() {
-  echo "nothing ..."
+    echo "nothing ..."
 
 }
 
@@ -94,6 +99,7 @@ function _train() {
         cp mylog/workerlog.0 ${log_file}
     fi
 }
+
 source ${BENCHMARK_ROOT}/competitive_products/common_scripts/run_model.sh
 _set_params $@
 _set_env
