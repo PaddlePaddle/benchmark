@@ -27,6 +27,7 @@ package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
 
 from common import utils
+from common import special_op_list
 
 res = {}
 
@@ -96,6 +97,15 @@ class OpBenchmarkUnit(object):
                                                 "accuracy", direction)
                 result["accuracy"] = str(accuracy)
 
+    def __str__(self):
+        debug_str = "case_name    : " + self.case_name + "\n"
+        debug_str += "op_type      : " + self.op_type + "\n"
+        debug_str += "gpu_forward  : " + str(self.gpu_forward) + "\n"
+        debug_str += "gpu_backward : " + str(self.gpu_backward) + "\n"
+        debug_str += "cpu_forward  : " + str(self.cpu_forward) + "\n"
+        debug_str += "cpu_backward : " + str(self.cpu_backward) + "\n"
+        return debug_str
+
     def to_string(self, device, direction, with_parameters):
         attr_name = device + "_" + direction
         result = getattr(self, attr_name)
@@ -120,10 +130,18 @@ class OpBenchmarkUnit(object):
         result = getattr(self, attr_name)
 
         total = result["compare"]["total"]
-        total = "Unkown" if total == "--" else total
+        if total == "--":
+            if direction == "backward" and self.op_type in special_op_list.NO_BACKWARD_OPS:
+                total = "Unsupport"
+            else:
+                total = "Unkown"
         if device == "gpu":
             gpu_time = result["compare"]["gpu_time"]
-            gpu_time = "Unkown" if gpu_time == "--" else gpu_time
+            if gpu_time == "--":
+                if direction == "backward" and self.op_type in special_op_list.NO_BACKWARD_OPS:
+                    gpu_time = "Unsupport"
+                else:
+                    gpu_time = "Unkown"
             return total, gpu_time
         else:
             return total, None
@@ -284,6 +302,7 @@ def get_job_res(inputfile, specified_op_list=None):
     statistic_beg_idx = filename.find("-")
     statistic_type = filename[statistic_beg_idx + 1:]
     last_line = _read_last_line(inputfile)
+    # print(last_line)
 
     # Parse parameters of current case from the result dict.
     _parse_parameters(case_name, last_line)
@@ -308,40 +327,42 @@ def read_frequency_from_text(op_frequency_path):
     return op_frequency_dict
 
 
-def summary_compare_result(benchmark_result_list):
+def summary_compare_result(benchmark_result_list, level="case"):
     compare_result_list = {}
-    for key in [
+    compare_result_key_list = [
+        "Better", "Equal", "Less", "Unkown", "Unsupport", "Total"
+    ]
+    for result_type in [
             "gpu_forward_total", "gpu_forward_kernel", "gpu_backward_total",
             "gpu_backward_kernel", "cpu_forward_total", "cpu_backward_total"
     ]:
-        compare_result_list[key] = {
-            "Better": 0,
-            "Less": 0,
-            "Equal": 0,
-            "Unkown": 0
-        }
+        compare_result_list[result_type] = {}
+        for compare_result_key in compare_result_key_list:
+            compare_result_list[result_type][compare_result_key] = 0
 
     for op_unit in benchmark_result_list:
         for device in ["gpu", "cpu"]:
             for direction in ["forward", "backward"]:
-                key = device + "_" + direction
+                result_type = device + "_" + direction
 
-                compare_total, compare_kernel = op_unit.get_compare_value(
+                compare_result_total, compare_result_kernel = op_unit.get_compare_value(
                     device, direction)
-                compare_result_list[key + "_total"][compare_total] += 1
+                compare_result_list[result_type + "_total"][
+                    compare_result_total] += 1
+                compare_result_list[result_type + "_total"]["Total"] += 1
                 if device == "gpu":
-                    compare_result_list[key + "_kernel"][compare_kernel] += 1
+                    compare_result_list[result_type + "_kernel"][
+                        compare_result_kernel] += 1
+                    compare_result_list[result_type + "_kernel"]["Total"] += 1
 
     compare_result_str = "%s" % (" ".ljust(24))
-    for compare_result_key in ["Better", "Equal", "Less", "Unkown"]:
+    for compare_result_key in compare_result_key_list:
         compare_result_str += "%s" % compare_result_key.ljust(16)
     compare_result_str += "\n"
     for key, value in sorted(compare_result_list.items(), reverse=True):
         compare_result_str += "%s" % key.ljust(24)
-        num_total_cases = 0
-        for compare_result_key in ["Better", "Equal", "Less", "Unkown"]:
-            num_total_cases += value[compare_result_key]
-        for compare_result_key in ["Better", "Equal", "Less", "Unkown"]:
+        num_total_cases = value["Total"]
+        for compare_result_key in compare_result_key_list:
             ratio = float(value[compare_result_key]) / float(num_total_cases)
             ratio_str = "%.2f" % (ratio * 100)
             this_str = "{} ({}%)".format(value[compare_result_key], ratio_str)
@@ -409,9 +430,20 @@ def dump_text(benchmark_result_list, output_path, dump_with_parameters):
             f.writelines("\n")
 
 
-def _op_result_filename(prefix, case_name, framework, device, task, direction):
+def _op_filename(case_name, framework, device, task, direction):
     filename = case_name + "-" + framework + "_" + device + "_" + task + "_" + direction + ".txt"
-    return os.path.join(prefix, filename)
+    return filename
+
+
+def _op_result_path(op_result_dir, case_name, framework, device, task,
+                    direction):
+    filename = _op_filename(case_name, framework, device, task, direction)
+    return os.path.abspath(os.path.join(op_result_dir, filename))
+
+
+def _op_result_url(url_prefix, case_name, framework, device, task, direction):
+    filename = _op_filename(case_name, framework, device, task, direction)
+    return os.path.join(url_prefix, filename)
 
 
 def dump_excel(benchmark_result_list,
@@ -449,12 +481,14 @@ def dump_excel(benchmark_result_list,
     compare_result_list, _ = summary_compare_result(benchmark_result_list)
 
     summary_ws = wb.add_worksheet("summary")
-    summary_column_width = [40, 20, 20, 20, 20]
+    summary_column_width = [40, 20, 20, 20, 20, 20, 20]
     for col in range(len(summary_column_width)):
         col_char = chr(ord("A") + col)
         summary_ws.set_column(col_char + ":" + col_char,
                               summary_column_width[col])
-    summary_title_names = ["Better", "Equal", "Less", "Unkown"]
+    summary_title_names = [
+        "Better", "Equal", "Less", "Unkown", "Unsupport", "Total"
+    ]
     for col in range(len(summary_title_names)):
         summary_ws.write(0, col + 1, summary_title_names[col], title_format)
 
@@ -462,11 +496,8 @@ def dump_excel(benchmark_result_list,
     for key, value in sorted(compare_result_list.items(), reverse=True):
         summary_ws.write(row, 0, key)
 
-        num_total_cases = 0
-        for compare_result_key in summary_title_names:
-            num_total_cases += value[compare_result_key]
-
         col = 1
+        num_total_cases = value["Total"]
         for compare_result_key in summary_title_names:
             ratio = float(value[compare_result_key]) / float(num_total_cases)
             ratio_str = "%.2f" % (ratio * 100)
@@ -512,7 +543,7 @@ def dump_excel(benchmark_result_list,
 
             for case_id in range(len(benchmark_result_list)):
                 op_unit = benchmark_result_list[case_id]
-                result = op_unit.get("gpu", "forward")
+                result = op_unit.get(device, direction)
 
                 row = case_id + 1
                 ws.write(row, 0, op_unit.case_name)
@@ -522,9 +553,9 @@ def dump_excel(benchmark_result_list,
                     if op_unit.op_type in op_frequency_dict.keys():
                         num_frequency = op_frequency_dict[op_unit.op_type]
                     ws.write_number(row, 1, num_frequency, align)
-                    col = 1
+                    col = 2
                 else:
-                    col = 0
+                    col = 1
 
                 time_set = ["total"
                             ] if device == "cpu" else ["total", "gpu_time"]
@@ -535,50 +566,47 @@ def dump_excel(benchmark_result_list,
                         color = "green"
                     else:
                         color = "black"
-                    time_paddle = result["paddle"][key]
-                    time_tensorflow = result["tensorflow"][key]
-                    if op_result_dir:
-                        op_url_paddle = _op_result_filename(
-                            url_prefix, op_unit.case_name, "paddle", device,
-                            "speed", direction)
-                        op_url_tensorflow = _op_result_filename(
-                            url_prefix, op_unit.case_name, "tensorflow",
-                            device, "speed", direction)
-                        ws.write_url(
-                            row,
-                            col + 1,
-                            url=op_url_paddle,
-                            string=time_paddle,
-                            cell_format=cell_formats[color + "_underline"])
-                        ws.write_url(
-                            row,
-                            col + 2,
-                            url=op_url_tensorflow,
-                            string=time_tensorflow,
-                            cell_format=cell_formats[color + "_underline"])
-                    else:
-                        ws.write(row, col + 1, time_paddle,
-                                 cell_formats[color])
-                        ws.write(row, col + 2, time_tensorflow,
-                                 cell_formats[color])
-                    ws.write(row, col + 3, result["compare"][key],
-                             cell_formats[color])
-                    col += 3
 
-                if op_result_dir:
-                    op_url = _op_result_filename(url_prefix, op_unit.case_name,
-                                                 "paddle", device, "accuracy",
-                                                 direction)
+                    for framework in ["paddle", "tensorflow"]:
+                        op_time = result[framework][key]
+                        op_speed_path = _op_result_path(
+                            op_result_dir, op_unit.case_name, framework,
+                            device, "speed", direction)
+                        if op_result_dir and os.path.exists(op_speed_path):
+                            op_speed_url = _op_result_url(
+                                url_prefix, op_unit.case_name, framework,
+                                device, "speed", direction)
+                            ws.write_url(
+                                row,
+                                col,
+                                url=op_speed_url,
+                                string=op_time,
+                                cell_format=cell_formats[color + "_underline"])
+                        else:
+                            ws.write(row, col, op_time, cell_formats[color])
+                        col += 1
+
+                    ws.write(row, col, result["compare"][key],
+                             cell_formats[color])
+                    col += 1
+
+                op_acc_path = _op_result_path(op_result_dir, op_unit.case_name,
+                                              "paddle", device, "accuracy",
+                                              direction)
+                if op_result_dir and os.path.exists(op_acc_path):
+                    op_acc_url = _op_result_url(url_prefix, op_unit.case_name,
+                                                "paddle", device, "accuracy",
+                                                direction)
                     ws.write_url(
                         row,
-                        col + 1,
-                        url=op_url,
+                        col,
+                        url=op_acc_url,
                         string=result["accuracy"],
                         cell_format=cell_formats["black_underline"])
                 else:
-                    ws.write(row, col + 1, result["accuracy"],
+                    ws.write(row, col, result["accuracy"],
                              cell_formats["black"])
-                ws.write(row, col + 2, op_unit.parameters)
+                ws.write(row, col + 1, op_unit.parameters)
     wb.close()
 
 
@@ -726,6 +754,7 @@ if __name__ == '__main__':
         data.append(case_detail)
 
         op_unit = OpBenchmarkUnit(case_detail)
+        # print(op_unit)
         benchmark_result_list.append(op_unit)
 
     op_frequency_dict = None
