@@ -98,12 +98,12 @@
             "value": "-1"
         },
         "x": {
-            "dtype": "int32",
+            "dtype": "float32",
             "shape": "[-1L, 1L, 513L, 513L]",
             "type": "Variable"
         },
         "y": {
-            "dtype": "int32",
+            "dtype": "float32",
             "shape": "[1L]",
             "type": "Variable"
         }

@@ -46,7 +46,7 @@ class PDGather(PaddleAPIBenchmarkBase):
         self.feed_vars = [input, index]
         self.fetch_vars = [result]
         if config.backward:
-            self.append_gradients(result, [input, index])
+            self.append_gradients(result, [input])
 
 
 class TFGather(TensorflowAPIBenchmarkBase):
@@ -60,7 +60,7 @@ class TFGather(TensorflowAPIBenchmarkBase):
         self.feed_list = [params, indices]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [params, indices])
+            self.append_gradients(result, [params])
 
 
 if __name__ == '__main__':
