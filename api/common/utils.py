@@ -14,7 +14,7 @@
 
 from __future__ import print_function
 
-import sys
+import os, sys
 import traceback
 import numpy as np
 import json
@@ -45,6 +45,44 @@ def run_command(command, shell=True):
         stdout += line
 
     return stdout, exit_code
+
+
+def check_commit():
+    try:
+        current_dir = os.getcwd()
+        print("-- Current directory: %s" % current_dir)
+
+        dir_of_this_file = os.path.dirname(os.path.abspath(__file__))
+        print("-- Entering %s" % dir_of_this_file)
+        os.chdir(dir_of_this_file)
+        print("-- Current directory: %s" % os.getcwd())
+        benchmark_commit, _ = run_command("git rev-parse HEAD")
+        benchmark_commit = benchmark_commit.replace("\n", "")
+        benchmark_update_time, _ = run_command("git show -s --format=%ad")
+        benchmark_update_time = benchmark_update_time.replace("\n", "")
+        os.chdir(current_dir)
+        print("-- Current directory: %s" % os.getcwd())
+
+        import paddle
+        paddle_version = paddle.version.full_version
+        paddle_commit = paddle.version.commit
+
+        import tensorflow as tf
+        tf_version = tf.__version__
+
+        print(
+            "==========================================================================="
+        )
+        print("-- paddle version             : %s" % paddle_version)
+        print("-- paddle commit              : %s" % paddle_commit)
+        print("-- tensorflow version         : %s" % tf_version)
+        print("-- benchmark commit           : %s" % benchmark_commit)
+        print("-- benchmark last update time : %s" % benchmark_update_time)
+        print(
+            "==========================================================================="
+        )
+    except Exception:
+        pass
 
 
 def _compare(output1, output2, atol):
@@ -104,7 +142,12 @@ def _check_shape(output1, output2, i):
     return output1, output2
 
 
-def check_outputs(list1, list2, name, atol=1e-6, config_params=None):
+def check_outputs(list1,
+                  list2,
+                  name,
+                  atol=1e-6,
+                  backward=False,
+                  config_params=None):
     if not isinstance(list1, list) or not isinstance(list2, list):
         raise TypeError(
             "input argument's type should be list of numpy.ndarray.")
@@ -154,6 +197,7 @@ def check_outputs(list1, list2, name, atol=1e-6, config_params=None):
 
     status = collections.OrderedDict()
     status["name"] = name
+    status["backward"] = backward
     status["consistent"] = consistent
     status["num_outputs"] = num_outputs
     status["diff"] = max_diff.astype("float")
@@ -181,6 +225,7 @@ def print_benchmark_result(result, log_level=0, config_params=None):
     status["version"] = result["version"]
     status["name"] = result["name"]
     status["device"] = result["device"]
+    status["backward"] = result["backward"]
 
     runtimes = result.get("total", None)
     if runtimes is None:

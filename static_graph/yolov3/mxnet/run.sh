@@ -27,38 +27,39 @@ function _set_params(){
 }
 
 function _train(){
-  rm *.json
-  echo "Train on ${num_gpu_devices} GPUs"
-  echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-  export MXNET_CUDNN_AUTOTUNE_DEFAULT=0
-  python train_yolo3.py \
-      --dataset=coco --batch-size=${batch_size} \
-      --gpus=${CUDA_VISIBLE_DEVICES} \
-      --data-shape=608 \
-      --no-random-shape > ${log_file} 2>&1 &
-  train_pid=$!
- if [ ${num_gpu_devices} = 1 ]; then
-     sleep 600
- elif [ ${num_gpu_devices} = 8 ]; then
-     sleep 1000
- else
-     sleep 800
- fi
+    rm *.json
+    echo "Train on ${num_gpu_devices} GPUs"
+    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+    export MXNET_CUDNN_AUTOTUNE_DEFAULT=0
+    python train_yolo3.py \
+        --dataset=coco --batch-size=${batch_size} \
+        --gpus=${CUDA_VISIBLE_DEVICES} \
+        --data-shape=608 \
+        --no-random-shape > ${log_file} 2>&1 &
+    train_pid=$!
+   if [ ${num_gpu_devices} = 1 ]; then
+       sleep 600
+   elif [ ${num_gpu_devices} = 8 ]; then
+       sleep 1000
+   else
+       sleep 800
+   fi
 
-  kill -9 $train_pid
-  kill -9 `ps -ef|grep 'train_yolo3'|awk '{print $2}'`
+    kill -9 $train_pid
+    kill -9 `ps -ef|grep 'train_yolo3'|awk '{print $2}'`
 }
 
 infer(){
-  echo "infer on ${num_gpu_devices} GPUs"
-  echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-#  python eval.py \
-#    --data_dir=./dataset/coco/ \
-#    --batch_size=$batch_size \
-#    --weights=./weights/yolov3 > ${log_file} 2>&1 &
-#  infer_pid=$!
-#  sleep 60
-#  kill -9 $infer_pid
+    # unused momentarily
+    echo "infer on ${num_gpu_devices} GPUs"
+    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+    python eval.py \
+      --data_dir=./dataset/coco/ \
+      --batch_size=$batch_size \
+      --weights=./weights/yolov3 > ${log_file} 2>&1 &
+    infer_pid=$!
+    sleep 60
+    kill -9 $infer_pid
 }
 
 source ${BENCHMARK_ROOT}/competitive_products/common_scripts/run_model.sh
