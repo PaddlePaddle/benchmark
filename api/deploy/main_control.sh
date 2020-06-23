@@ -1,7 +1,9 @@
 #! /bin/bash
 
+# Usage:
+#   bash main_control.sh json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both"
+
 export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
-export CUDA_VISIBLE_DEVICES="0"
 
 OP_BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../" && pwd )"
 DEPLOY_DIR="${OP_BENCHMARK_ROOT}/deploy"
@@ -15,17 +17,19 @@ if [ ! -d ${OUTPUT_DIR} ]; then
     mkdir -p ${OUTPUT_DIR}
 fi
 
+GPU_ID=${3:-"0"}
+
 DEVICE_SET=("gpu" "cpu")
-if [ $# -ge 3 ]; then
-    if [[ ${3} == "cpu" || ${3} == "gpu" ]]; then
-        DEVICE_SET=(${3})
+if [ $# -ge 4 ]; then
+    if [[ ${4} == "cpu" || ${4} == "gpu" ]]; then
+        DEVICE_SET=(${4})
     fi
 fi
 
 TASK_SET=("speed" "accuracy")
-if [ $# -ge 4 ]; then
-    if [[ ${4} == "speed" || ${4} == "accuracy" ]]; then
-        TASK_SET=(${4})
+if [ $# -ge 5 ]; then
+    if [[ ${5} == "speed" || ${5} == "accuracy" ]]; then
+        TASK_SET=(${5})
     fi
 fi
 
@@ -111,9 +115,11 @@ do
         for device in ${DEVICE_SET[@]};
         do 
             if [ ${device} = "gpu" ]; then
+                export CUDA_VISIBLE_DEVICES="${GPU_ID}"
                 use_gpu="True"
                 repeat=1000
             else
+                export CUDA_VISIBLE_DEVICES=""
                 use_gpu="False"
                 repeat=100
             fi

@@ -15,14 +15,25 @@
 from __future__ import print_function
 
 import argparse
-import os
+import os, sys
 import json
 import sys
 import warnings
 
-sys.path.append("..")
+package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(package_path)
+
 from common import utils
 from common import api_param
+
+
+def _check_gpu_device(use_gpu):
+    gpu_devices = os.environ.get("CUDA_VISIBLE_DEVICES", None)
+    if use_gpu:
+        assert gpu_devices, "export CUDA_VISIBLE_DEVICES=\"x\" to test GPU performance."
+        assert len(gpu_devices.split(",")) == 1
+    else:
+        assert gpu_devices == "", "export CUDA_VISIBLE_DEVICES=\"\" to test CPU performance."
 
 
 def parse_args():
@@ -77,17 +88,7 @@ def parse_args():
         '--repeat', type=int, default=1, help='Iterations of Repeat running')
     parser.add_argument(
         '--log_level', type=int, default=0, help='level of logging')
-    parser.add_argument(
-        '--gpu_id',
-        type=int,
-        default=0,
-        help='GPU id when benchmarking for GPU')
     args = parser.parse_args()
-    gpu_id = args.gpu_id if args.gpu_id > 0 else 0
-    if os.environ.get("CUDA_VISIBLE_DEVICES", None) is None:
-        print("CUDA_VISIBLE_DEVICES is None, set to CUDA_VISIBLE_DEVICES={}".
-              format(gpu_id))
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
     if args.task not in ["speed", "accuracy"]:
         raise ValueError("task should be speed, accuracy")
     if args.framework not in ["paddle", "tensorflow", "tf", "both"]:
@@ -98,6 +99,8 @@ def parse_args():
         args.log_level = 0
         args.check_output = False
         args.profiler = "none"
+
+    _check_gpu_device(args.use_gpu)
     return args
 
 
