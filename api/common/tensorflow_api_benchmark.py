@@ -270,7 +270,8 @@ class TensorflowAPIBenchmarkBase(object):
                  check_output=False,
                  profiler="none"):
         sess = self._init_session(use_gpu)
-        tf.debugging.set_log_device_placement(True)
+
+        #tf.debugging.set_log_device_placement(True)
 
         def _run_main_iter(run_options=None, run_metadata=None):
             feed_dict = feed if self._need_feed else None
