@@ -199,7 +199,7 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
     for result in results:
         if count == 0:
             count += 1
-            break
+            continue
         if len(results_list) == 3:
             break
         try:
