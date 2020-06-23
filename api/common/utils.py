@@ -273,6 +273,14 @@ def print_benchmark_result(result, log_level=0, config_params=None):
             print("Iter %4d, Runtime: %.5f ms, Walltime: %.5f ms" %
                   (i, runtimes[i], walltime))
 
+    if avg_runtime - avg_walltime > 0.001:
+        total = avg_runtime - avg_walltime
+    else:
+        print(
+            "Average runtime (%.5f ms) is less than average walltime (%.5f ms)."
+            % (avg_runtime, avg_walltime))
+        total = 0.001
+
     if stable is not None and diff is not None:
         status["precision"] = collections.OrderedDict()
         status["precision"]["stable"] = stable
@@ -281,7 +289,7 @@ def print_benchmark_result(result, log_level=0, config_params=None):
     status["speed"]["repeat"] = len(sorted_runtimes)
     status["speed"]["begin"] = begin
     status["speed"]["end"] = end
-    status["speed"]["total"] = avg_runtime - avg_walltime
+    status["speed"]["total"] = total
     status["speed"]["wall_time"] = avg_walltime
     status["speed"]["total_include_wall_time"] = avg_runtime
     if gpu_time is not None:
