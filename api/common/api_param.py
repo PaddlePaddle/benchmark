@@ -102,13 +102,26 @@ class VarParamInfo(BaseParamInfo):
             self.shape = shape_str
         self.lod_level = self._encode_item(lod_level)
 
+    def _is_same(self, dtypes, shapes):
+        dtype_0 = dtypes[0]
+        shape_0 = shapes[0]
+        for i in range(len(dtypes)):
+            if dtype_0 != dtypes[i] or shape_0 != shapes[i]:
+                return False
+        return True
+
     def to_string(self):
         if self.type == "Variable":
             return self.name + " (Variable) - dtype: " + str(
                 self.dtype) + ", shape: " + str(self.shape)
         elif self.type == "list<Variable>":
-            str_list = self.name + " (list<Variable>) - "
-            for i in range(len(self.dtype)):
+            str_list = "%s (list<Variable>[%d]) - " % (self.name,
+                                                       len(self.dtype))
+            if self._is_same(self.dtype, self.shape):
+                params_len = 1
+            else:
+                params_len = len(self.dtype)
+            for i in range(params_len):
                 str_list = str_list + "dtype: " + str(self.dtype[
                     i]) + ", shape: " + str(self.shape[i]) + "; "
             return str_list

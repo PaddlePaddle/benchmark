@@ -225,7 +225,7 @@ class TensorflowAPIBenchmarkBase(object):
 
     @property
     def backward(self):
-        if hasattr(self, "__backward"):
+        if hasattr(self, "_TensorflowAPIBenchmarkBase__backward"):
             return self.__backward
         else:
             return False
@@ -238,7 +238,7 @@ class TensorflowAPIBenchmarkBase(object):
 
         gradients = tf.gradients(targets, inputs)
         self.__backward = True
-        print("Gradients: ", gradients)
+        # print("Gradients: ", gradients)
         if isinstance(gradients, list):
             for grad in gradients:
                 self.fetch_list.append(grad)
@@ -271,7 +271,7 @@ class TensorflowAPIBenchmarkBase(object):
                  profiler="none"):
         sess = self._init_session(use_gpu)
 
-        # tf.debugging.set_log_device_placement(True)
+        #tf.debugging.set_log_device_placement(True)
 
         def _run_main_iter(run_options=None, run_metadata=None):
             feed_dict = feed if self._need_feed else None
