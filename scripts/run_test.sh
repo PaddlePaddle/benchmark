@@ -33,7 +33,7 @@ function prepare_env(){
     # Install latest paddle
     PADDLE_WHL="paddlepaddle_gpu-0.0.0-cp27-cp27mu-linux_x86_64.whl"
     PADDLE_URL="https://paddle-wheel.bj.bcebos.com/0.0.0-gpu-cuda10-cudnn7-mkl/${PADDLE_WHL}"
-    wget ${PADDLE_URL}
+    wget -q ${PADDLE_URL}
     pip install -U ${PADDLE_WHL}
     # Install tensorflow and other packages
     pip install tensorflow-gpu==2.0 pre-commit==1.21 pylint==1.9.5 pytest==4.6.9

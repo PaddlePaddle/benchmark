@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-echo "CUDA_VISIBLE_DEVICES=7 bash run_transformer.sh speed|mem big|base /log/path"
+echo "CUDA_VISIBLE_DEVICES=7 bash run_transformer.sh 1|2(speed|mem) big|base /log/path"
 
 function _set_params()
 {
@@ -19,6 +19,8 @@ function _set_params()
     separator=" "
     position=-1
     model_mode=1
+    mission_name="机器翻译"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
+    direction_id=1 # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     run_mode=sp
         
     base_batch_size=4096
@@ -40,9 +42,9 @@ function _set_env(){
 }
 
 function _train(){
-    if [ $index = "speed" ]; then
+    if [ $index -eq 1 ]; then
         sed -i '81c \  config.gpu_options.allow_growth = False' /usr/local/lib/python2.7/dist-packages/tensor2tensor/utils/trainer_lib.py
-    elif [ $index = "mem" ]; then
+    elif [ $index -eq 2 ]; then
         echo "this index is: "$index
         sed -i '81c \  config.gpu_options.allow_growth = True' /usr/local/lib/python2.7/dist-packages/tensor2tensor/utils/trainer_lib.py
     fi

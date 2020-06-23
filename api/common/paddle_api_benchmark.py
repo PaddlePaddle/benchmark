@@ -128,7 +128,7 @@ class PaddleAPIBenchmarkBase(object):
 
     @property
     def backward(self):
-        if hasattr(self, "__backward"):
+        if hasattr(self, "_PaddleAPIBenchmarkBase__backward"):
             return self.__backward
         else:
             return False
@@ -141,7 +141,7 @@ class PaddleAPIBenchmarkBase(object):
 
         gradients = fluid.backward.gradients(targets, inputs)
         self.__backward = True
-        print("Gradients: ", gradients)
+        # print("Gradients: ", gradients)
         if isinstance(gradients, list):
             for grad in gradients:
                 self.fetch_vars.append(grad)

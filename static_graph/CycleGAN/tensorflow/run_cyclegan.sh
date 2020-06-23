@@ -3,7 +3,7 @@ set -x
 
 if [[ $# -lt 1 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_cyclegan.sh speed|mem  /log/path"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_cyclegan.sh 1|2(speed|mem)  /log/path"
     exit
 fi
 
@@ -17,6 +17,8 @@ function _set_params(){
     separator=" "
     position=-1
     model_mode=0
+    mission_name="图像生成"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
+    direction_id=0 # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     run_mode=sp
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -32,9 +34,9 @@ function _set_env(){
 
 
 function _train(){
-    if [ $index = "mem" ];then
+    if [ $index -eq 2 ];then
          sed -i '56c TEST_GPU_MEM = True' main.py
-    elif [ $index = "speed" ];then
+    elif [ $index -eq 1 ];then
          sed -i '56c TEST_GPU_MEM = False' main.py
     fi
 
