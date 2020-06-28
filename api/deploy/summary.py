@@ -448,6 +448,7 @@ def _op_result_url(url_prefix, case_name, framework, device, task, direction):
 
 def dump_excel(benchmark_result_list,
                op_result_dir,
+               url_prefix=None,
                output_path=None,
                op_frequency_dict=None):
     """
@@ -506,9 +507,7 @@ def dump_excel(benchmark_result_list,
             col += 1
         row += 1
 
-    if op_result_dir:
-        url_prefix = "http://yq01-gpu-255-129-13-00.epc.baidu.com:8912/PaddlePaddle/benchmark/api/logs/" + os.path.basename(
-            op_result_dir)
+    if url_prefix:
         print("url prefix: ", url_prefix)
     for device in ["gpu", "cpu"]:
         for direction in ["forward", "backward"]:
@@ -572,7 +571,7 @@ def dump_excel(benchmark_result_list,
                         op_speed_path = _op_result_path(
                             op_result_dir, op_unit.case_name, framework,
                             device, "speed", direction)
-                        if op_result_dir and os.path.exists(op_speed_path):
+                        if url_prefix and os.path.exists(op_speed_path):
                             op_speed_url = _op_result_url(
                                 url_prefix, op_unit.case_name, framework,
                                 device, "speed", direction)
@@ -593,7 +592,7 @@ def dump_excel(benchmark_result_list,
                 op_acc_path = _op_result_path(op_result_dir, op_unit.case_name,
                                               "paddle", device, "accuracy",
                                               direction)
-                if op_result_dir and os.path.exists(op_acc_path):
+                if url_prefix and os.path.exists(op_acc_path):
                     op_acc_url = _op_result_url(url_prefix, op_unit.case_name,
                                                 "paddle", device, "accuracy",
                                                 direction)
@@ -689,9 +688,9 @@ def dump_mysql(data):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        '--op_result_dir',
+        'op_result_dir',
         type=str,
-        default="result",
+        default=None,
         help='Specify the result directory of operator benchmark.')
     parser.add_argument(
         '--specified_op_list',
@@ -718,6 +717,11 @@ if __name__ == '__main__':
         type=utils.str2bool,
         default=False,
         help='Whether dumping summary data to an text [True|False]')
+    parser.add_argument(
+        '--url_prefix',
+        type=str,
+        default=None,
+        help='Specify url prefix of output logs.')
     parser.add_argument(
         '--output_path',
         type=str,
@@ -766,8 +770,8 @@ if __name__ == '__main__':
                   args.dump_with_parameters)
 
     if args.dump_to_excel:
-        dump_excel(benchmark_result_list, op_result_dir, args.output_path,
-                   op_frequency_dict)
+        dump_excel(benchmark_result_list, op_result_dir, args.url_prefix,
+                   args.output_path, op_frequency_dict)
 
     if args.dump_to_mysql:
         try:
