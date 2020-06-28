@@ -55,7 +55,7 @@ def collect_subconfig_info():
         else:
             json_file = obj.name + '.json'
 
-        if obj.name in special_op_list.NO_BACKWARD_OPS:
+        if obj.api_name in special_op_list.NO_BACKWARD_OPS:
             backward = False
         else:
             backward = True
@@ -85,7 +85,7 @@ def write_api_info():
     parser.add_argument(
         '--info_file',
         type=str,
-        default=None,
+        default="api_info.txt",
         help='The file is used to collect API information to automatically run the entire APIs.'
     )
     parser.add_argument(
