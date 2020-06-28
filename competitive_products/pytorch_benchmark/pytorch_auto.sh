@@ -24,15 +24,12 @@ pip uninstall torch-nightly -y
 #conda remove wrapt --y
 #pip uninstall setuptools -y
 #pip install setuptools>=41.0.0
-pip uninstall tensorflow  -y
-pip uninstall tensorboard -y
-pip uninstall tensorflow-estimator -y
-pip uninstall Pillow -y
+pip uninstall tensorflow  tensorboard tensorflow-estimator Pillow -y
 pip install tensorflow==1.14.0
 pip install Pillow==6.1
 pip install transformers
 
-package_check_list=(pytest Cython opencv-python future pycocotools matplotlib networkx fasttext visdom protobuf dominate)
+package_check_list=(pytest Cython opencv-python future pycocotools matplotlib networkx fasttext visdom protobuf dominate enum)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
             echo "${package} have already installed"
@@ -81,7 +78,8 @@ ln -s ${datapath}/COCO17 ./Detectron/detectron/datasets/data/coco
 rm ${curl_model_path}/pytorch_detection/run_detectron.sh
 cp ${BENCHMARK_ROOT}/static_graph/Detection/pytorch/run_detectron.sh ${curl_model_path}/pytorch_detection/
 
-model_list=(mask_rcnn_fpn_resnet mask_rcnn_fpn_resnext retinanet_rcnn_fpn)
+model_list=(mask_rcnn_fpn_resnet mask_rcnn_fpn_resnext retinanet_rcnn_fpn cascade_rcnn_fpn)
+# maybe you need py2 env to run cascade_rcnn_fpn because of the compatibility
 for model_name in ${model_list[@]}; do
     echo "----------------${model_name}"
     echo "------1-----------}"
