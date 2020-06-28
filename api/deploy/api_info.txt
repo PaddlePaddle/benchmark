@@ -44,9 +44,9 @@ layer_norm,layer_norm,layer_norm.json,True
 leaky_relu,leaky_relu,leaky_relu.json,True
 less_equal,compare,compare.json,False
 less_than,compare,compare.json,False
-logical_and,logical,logical.json,True
+logical_and,logical,logical.json,False
 logical_not,logical_not,logical_not.json,False
-logical_or,logical,logical.json,True
+logical_or,logical,logical.json,False
 matmul,matmul,matmul.json,True
 mean,mean,mean.json,True
 not_equal,compare,compare.json,False
