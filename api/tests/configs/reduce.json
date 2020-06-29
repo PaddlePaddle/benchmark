@@ -14,7 +14,8 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "op": "reduce",
     "param_info": {
@@ -65,5 +66,6 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "repeat": 10000
 }]

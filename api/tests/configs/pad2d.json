@@ -22,7 +22,8 @@
             "type": "list",
             "value": "[0, 1, 0, 1]"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "pad2d",
     "param_info": {
@@ -47,5 +48,6 @@
             "type": "list",
             "value": "[3, 3, 3, 3]"
         }
-    }
+    },
+    "repeat": 5000
 }]

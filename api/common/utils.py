@@ -286,13 +286,13 @@ def print_benchmark_result(result, log_level=0, config_params=None):
         status["precision"]["stable"] = stable
         status["precision"]["diff"] = diff
     status["speed"] = collections.OrderedDict()
-    status["speed"]["repeat"] = len(sorted_runtimes)
+    status["speed"]["repeat"] = repeat
     status["speed"]["begin"] = begin
     status["speed"]["end"] = end
     status["speed"]["total"] = total
     status["speed"]["wall_time"] = avg_walltime
     status["speed"]["total_include_wall_time"] = avg_runtime
     if gpu_time is not None:
-        status["speed"]["gpu_time"] = gpu_time
+        status["speed"]["gpu_time"] = gpu_time / repeat
     status["parameters"] = config_params
     print(json.dumps(status))

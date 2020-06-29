@@ -41,5 +41,6 @@
             "shape": "[256L, 1024L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 10000
 }]
