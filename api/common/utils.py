@@ -154,7 +154,7 @@ def _check_shape(name, output1, output2, i):
 def check_outputs(list1,
                   list2,
                   name,
-                  atol=1e-6,
+                  atol=1E-6,
                   backward=False,
                   config_params=None):
     if not isinstance(list1, list) or not isinstance(list2, list):
@@ -192,13 +192,13 @@ def check_outputs(list1,
                     % (i, str(output1.dtype), str(output2.dtype)))
 
             max_diff_i, offset_i = _compare(output1, output2, atol)
-            if max_diff_i > atol:
+            if max_diff_i > 1E-6:
                 print(
                     "---- The %d-th output (shape: %s, data type: %s) has diff. "
-                    "The maximum diff is %e, offset is %d: %s vs %s." %
-                    (i, str(output1.shape), str(output1.dtype), max_diff_i,
-                     offset_i, str(output1.flatten()[offset_i]),
-                     str(output2.flatten()[offset_i])))
+                    "The maximum diff is %e, offset is %d: %s vs %s. atol is %.2e."
+                    % (i, str(output1.shape), str(output1.dtype), max_diff_i,
+                       offset_i, str(output1.flatten()[offset_i]),
+                       str(output2.flatten()[offset_i]), atol))
 
             max_diff = max_diff_i if max_diff_i > max_diff else max_diff
             if max_diff > atol:

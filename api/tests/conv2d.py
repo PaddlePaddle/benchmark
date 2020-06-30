@@ -30,6 +30,10 @@ class Conv2dConfig(APIConfig):
 
     def init_from_json(self, filename, config_id=0):
         super(Conv2dConfig, self).init_from_json(filename, config_id)
+        if self.input_dtype == "float16" and self.use_cudnn == False:
+            self.disabled = True
+            return
+
         if self.data_format == "NCHW":
             self.num_channels = self.input_shape[1]
         elif self.data_format == "NHWC":
