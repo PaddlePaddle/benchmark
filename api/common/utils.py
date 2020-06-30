@@ -130,15 +130,24 @@ def _check_type(output1, output2):
     return output1, output2
 
 
-def _check_shape(output1, output2, i):
-    shape1 = list(output1.shape)
-    shape2 = list(output2.shape)
-    if shape1 == shape2 + [1]:
-        output2 = np.reshape(output2, output1.shape)
-    elif shape1 + [1] == shape2:
-        output1 = np.reshape(output1, output2.shape)
-    assert output1.shape == output2.shape, "The %d-the output's shape is different, %s vs %s." % (
-        i, str(output1.shape), str(output2.shape))
+def _check_shape(name, output1, output2, i):
+    if name in ["reshape", "squeeze", "unsqueeze"]:
+        assert output1.shape == output2.shape, "The %d-the output's shape is different, %s vs %s." % (
+            i, str(output1.shape), str(output2.shape))
+        return output1, output2
+
+    if output1.shape != output2.shape:
+        output1_squeezed = np.squeeze(output1)
+        output2_squeezed = np.squeeze(output2)
+        if output1_squeezed.shape != output2_squeezed.shape:
+            raise RuntimeError(
+                "The %d-the output's shape is different, %s vs %s." % (
+                    i, str(output1.shape), str(output2.shape)))
+        else:
+            print(
+                "The %d-the output's shape is compatible (same after squeezed), %s vs %s."
+                % (i, str(output1.shape), str(output2.shape)))
+        return output1_squeezed, output2_squeezed
     return output1, output2
 
 
@@ -175,7 +184,7 @@ def check_outputs(list1,
             output2 = list2[i]
 
             output1, output2 = _check_type(output1, output2)
-            output1, output2 = _check_shape(output1, output2, i)
+            output1, output2 = _check_shape(name, output1, output2, i)
 
             if output1.dtype != output2.dtype:
                 print(
