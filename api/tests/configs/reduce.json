@@ -14,7 +14,8 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "atol": 0.0001
 }, {
     "op": "reduce",
     "param_info": {
@@ -65,5 +66,6 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 0.001
 }]

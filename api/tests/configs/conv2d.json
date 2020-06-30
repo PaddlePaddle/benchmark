@@ -87,7 +87,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 0.01
 }, {
     "op": "conv2d",
     "param_info": {
@@ -132,7 +133,8 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "atol": 0.001
 }, {
     "op": "conv2d",
     "param_info": {
@@ -177,7 +179,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 0.0001
 }, {
     "op": "conv2d",
     "param_info": {
@@ -447,7 +450,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 0.001
 }, {
     "op": "conv2d",
     "param_info": {
@@ -627,7 +631,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 0.00001
 }, {
     "op": "conv2d",
     "param_info": {
@@ -807,7 +812,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 0.00001
 }, {
     "op": "conv2d",
     "param_info": {
@@ -852,7 +858,8 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "atol": 0.01
 }, {
     "op": "conv2d",
     "param_info": {
@@ -897,7 +904,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 0.01
 }, {
     "op": "conv2d",
     "param_info": {
