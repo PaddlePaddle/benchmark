@@ -130,22 +130,31 @@ def _check_type(output1, output2):
     return output1, output2
 
 
-def _check_shape(output1, output2, i):
-    shape1 = list(output1.shape)
-    shape2 = list(output2.shape)
-    if shape1 == shape2 + [1]:
-        output2 = np.reshape(output2, output1.shape)
-    elif shape1 + [1] == shape2:
-        output1 = np.reshape(output1, output2.shape)
-    assert output1.shape == output2.shape, "The %d-the output's shape is different, %s vs %s." % (
-        i, str(output1.shape), str(output2.shape))
+def _check_shape(name, output1, output2, i):
+    if name in ["reshape", "squeeze", "unsqueeze"]:
+        assert output1.shape == output2.shape, "The %d-the output's shape is different, %s vs %s." % (
+            i, str(output1.shape), str(output2.shape))
+        return output1, output2
+
+    if output1.shape != output2.shape:
+        output1_squeezed = np.squeeze(output1)
+        output2_squeezed = np.squeeze(output2)
+        if output1_squeezed.shape != output2_squeezed.shape:
+            raise RuntimeError(
+                "The %d-the output's shape is different, %s vs %s." % (
+                    i, str(output1.shape), str(output2.shape)))
+        else:
+            print(
+                "The %d-the output's shape is compatible (same after squeezed), %s vs %s."
+                % (i, str(output1.shape), str(output2.shape)))
+        return output1_squeezed, output2_squeezed
     return output1, output2
 
 
 def check_outputs(list1,
                   list2,
                   name,
-                  atol=1e-6,
+                  atol=1E-6,
                   backward=False,
                   config_params=None):
     if not isinstance(list1, list) or not isinstance(list2, list):
@@ -175,7 +184,7 @@ def check_outputs(list1,
             output2 = list2[i]
 
             output1, output2 = _check_type(output1, output2)
-            output1, output2 = _check_shape(output1, output2, i)
+            output1, output2 = _check_shape(name, output1, output2, i)
 
             if output1.dtype != output2.dtype:
                 print(
@@ -183,13 +192,13 @@ def check_outputs(list1,
                     % (i, str(output1.dtype), str(output2.dtype)))
 
             max_diff_i, offset_i = _compare(output1, output2, atol)
-            if max_diff_i > atol:
+            if max_diff_i > 1E-6:
                 print(
                     "---- The %d-th output (shape: %s, data type: %s) has diff. "
-                    "The maximum diff is %e, offset is %d: %s vs %s." %
-                    (i, str(output1.shape), str(output1.dtype), max_diff_i,
-                     offset_i, str(output1.flatten()[offset_i]),
-                     str(output2.flatten()[offset_i])))
+                    "The maximum diff is %e, offset is %d: %s vs %s. atol is %.2e."
+                    % (i, str(output1.shape), str(output1.dtype), max_diff_i,
+                       offset_i, str(output1.flatten()[offset_i]),
+                       str(output2.flatten()[offset_i]), atol))
 
             max_diff = max_diff_i if max_diff_i > max_diff else max_diff
             if max_diff > atol:

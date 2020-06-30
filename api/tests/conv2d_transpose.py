@@ -57,7 +57,7 @@ class Conv2dTransposeConfig(APIConfig):
         tf_config = super(Conv2dTransposeConfig, self).to_tensorflow()
         tf_config.filter_shape = [
             self.filter_size[0], self.filter_size[1], self.num_filters,
-            self.num_channels
+            self.num_channels // self.groups
         ]
         return tf_config
 
