@@ -20,9 +20,10 @@ class Conv2dConfig(APIConfig):
         super(Conv2dConfig, self).__init__('conv2d')
         self.feed_spec = [
             {
-                "range": [0, 1]
+                "range": [-1, 1]
             },  # input
             {
+                "range": [-1, 1],
                 "permute": [2, 3, 1, 0]
             }  # filters
         ]
@@ -53,8 +54,8 @@ class Conv2dConfig(APIConfig):
     def to_tensorflow(self):
         tf_config = super(Conv2dConfig, self).to_tensorflow()
         tf_config.filter_shape = [
-            self.filter_size[0], self.filter_size[1], self.num_channels,
-            self.num_filters
+            self.filter_size[0], self.filter_size[1],
+            self.num_channels // self.groups, self.num_filters
         ]
         tf_config.padding = self._convert_padding(self.padding)
         return tf_config
