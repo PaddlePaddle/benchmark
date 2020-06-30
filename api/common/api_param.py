@@ -155,7 +155,6 @@ class APIConfig(object):
         self.params_list = None
         self.backward = False
         self.feed_spec = None
-        self.atol = 1e-6
         self.run_tf = True
 
     def alias_filename(self, filename):
@@ -199,6 +198,7 @@ class APIConfig(object):
                 self.alias_filename(filename), config_id)
             if hasattr(self.alias_config, "repeat"):
                 self.repeat = self.alias_config.repeat
+            self.atol = self.alias_config.atol
             return self
 
         print("---- Initialize APIConfig from %s, config_id = %d.\n" %
@@ -211,6 +211,7 @@ class APIConfig(object):
                     op, self.name, self.alias_name, filename, config_id)
             self.params = data[config_id]["param_info"]
 
+            self.atol = 1e-6
             if data[config_id].get("atol", None) is not None:
                 self.atol = parse_float(data[config_id]["atol"])
 
@@ -258,11 +259,6 @@ class APIConfig(object):
         for attr in self.alias.params_list:
             params_str = params_str + attr.to_string() + "\n"
         return params_str
-
-    def clear(self):
-        for name in vars(self).keys():
-            if name not in ['name', 'backward', 'feed_spec']:
-                setattr(self, name, None)
 
     def __str__(self):
         if hasattr(self, "alias_config"):

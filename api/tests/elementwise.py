@@ -21,7 +21,6 @@ class ElementwiseConfig(APIConfig):
     def __init__(self):
         super(ElementwiseConfig, self).__init__('elementwise')
         self.api_name = 'elementwise_add'
-        self.atol = 1e-3
         self.api_list = {
             'elementwise_add': 'add',
             'elementwise_div': 'divide',
@@ -31,6 +30,7 @@ class ElementwiseConfig(APIConfig):
             'elementwise_mul': 'multiply',
             'elementwise_pow': 'pow'
         }
+        self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
     def to_tensorflow(self):
         tf_config = super(ElementwiseConfig, self).to_tensorflow()
@@ -59,7 +59,7 @@ class PDElementwise(PaddleAPIBenchmarkBase):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
         result = self.layers(
-            config.api_name, x=x, y=y, axis=config.axis, act=config.act)
+            config.api_name, x=x, y=y, axis=config.axis, act=None)
 
         self.feed_vars = [x, y]
         self.fetch_vars = [result]

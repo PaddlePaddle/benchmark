@@ -167,6 +167,10 @@ def _adaptive_repeat(config, args):
 
 def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
     assert config is not None, "API config must be set."
+    if hasattr(config, "disabled") and config.disabled:
+        warnings.simplefilter('always', UserWarning)
+        warnings.warn("This config is disabled.")
+        return
 
     args = parse_args()
     _adaptive_repeat(config, args)
