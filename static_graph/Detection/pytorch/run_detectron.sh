@@ -50,6 +50,15 @@ function _train(){
         # Update some files of Detectron-Cascade-RCNN with that of Detectron
         cp -f ${WORK_ROOT}/Detectron/detectron/utils/io.py ${WORK_ROOT}/Detectron-Cascade-RCNN/detectron/utils/io.py
         cp -f ${WORK_ROOT}/Detectron/detectron/utils/env.py ${WORK_ROOT}/Detectron-Cascade-RCNN/detectron/utils/env.py
+        # add for address the .pyx files
+        grep -q "To address Detectron-Cascade-RCNN/detectron/utils/cython_bbox.pyx" ${WORK_ROOT}/Detectron-Cascade-RCNN/tools/test_net.py
+        if [ $? -eq 0 ]; then
+            echo "----------already addressed .pyx files"
+        else
+            sed -i "33 a ##### To address Detectron-Cascade-RCNN/detectron/utils/cython_bbox.pyx" ${WORK_ROOT}/Detectron-Cascade-RCNN/tools/test_net.py
+            sed -i "34 a import pyximport" ${WORK_ROOT}/Detectron-Cascade-RCNN/tools/test_net.py
+            sed -i "35 a pyximport.install()" ${WORK_ROOT}/Detectron-Cascade-RCNN/tools/test_net.py
+        fi
         DETECTRON_REPO_NAME=Detectron-Cascade-RCNN
         train_cmd="--cfg configs/e2e_cascade_rcnn_R-50-FPN_1x.yaml OUTPUT_DIR ./output"
     elif [[ ${model_name} = "mask_rcnn_fpn_resnet" ]]; then
