@@ -41,7 +41,6 @@ function _set_params(){
     if [[ ${run_mode} = "sp" ]]; then
         batch_size=`expr $base_batch_size \* $num_gpu_devices`
         learning_rate=$(awk 'BEGIN{ print '${base_learning_rate}' * '${num_gpu_devices}' }')
-#learning_rate=`expr ${base_learning_rate} \* $num_gpu_devices`
     else
         batch_size=$base_batch_size
         learning_rate=${base_learning_rate}
