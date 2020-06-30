@@ -159,7 +159,8 @@ def _is_tensorflow_enabled(args, config):
 
 
 def _adaptive_repeat(config, args):
-    if args.allow_adaptive_repeat and hasattr(config, "repeat"):
+    if args.task == "speed" and args.allow_adaptive_repeat and hasattr(
+            config, "repeat"):
         if args.use_gpu and args.repeat < config.repeat:
             args.repeat = config.repeat
 
