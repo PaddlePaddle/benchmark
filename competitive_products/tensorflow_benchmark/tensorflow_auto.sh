@@ -70,10 +70,10 @@ for model_type in ${model_type_list[@]}; do
     for rnn_type in ${rnn_type_list[@]}; do
         model_name="padding_${model_type}_${rnn_type}"
         echo "-----------------------$model_name begin!"
-        CUDA_VISIBLE_DEVICES=0 bash run.sh 1 ${model_type} ${rnn_type} ${LOG_DIR} > ${RES_DIR}/speed_${model_name}_1.res 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run.sh 1 ${model_type} ${rnn_type} ${LOG_DIR} > ${RES_DIR}/1_${model_name}_1.res 2>&1
         echo "$model_name speed finished!"
         sleep 60
-        CUDA_VISIBLE_DEVICES=0 bash run.sh 2 ${model_type} ${rnn_type} ${LOG_DIR} > ${RES_DIR}/mem_${model_name}_1.res 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run.sh 2 ${model_type} ${rnn_type} ${LOG_DIR} > ${RES_DIR}/2_${model_name}_1.res 2>&1
         echo "$model_name mem finished!"
         sleep 60
      done
