@@ -342,9 +342,9 @@ image_classification(){
         echo "index is maxbs, 1gpus, begin, ${model_name}"
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 112 ${model_name} sp 500 | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
         sleep 60
-        echo "index is maxbs, 8gpus, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 112 ${model_name} sp 500 | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
-        sleep 60
+        #echo "index is maxbs, 8gpus, begin, ${model_name}"
+        #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 112 ${model_name} sp 500 | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
+        #sleep 60
         echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 32 ${model_name} mp 1000 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
         sleep 60
