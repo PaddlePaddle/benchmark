@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import os
+import string
 import xlsxwriter as xlw
 import op_benchmark_unit
 
@@ -37,51 +38,43 @@ def _op_result_url(url_prefix, case_name, framework, device, task, direction):
 
 def _write_summary_worksheet(benchmark_result_list, workbook, title_format,
                              cell_formats):
-    compare_result_keys = [
-        "Better", "Equal", "Less", "Unkown", "Unsupport", "Total"
-    ]
-
-    def _write_summary_unit(compare_result_list,
-                            category,
-                            worksheet,
-                            row,
-                            replaced_titles=None):
-        compare_result_colors = {
-            "Better": "green",
-            "Equal": "black",
-            "Less": "red",
-            "Unkown": "black",
-            "Unsupport": "black",
-            "Total": "black"
-        }
+    def _write_summary_unit(compare_result, category, worksheet, row):
+        compare_result_keys = compare_result.compare_result_keys
+        compare_result_colors = {"Better": "green", "Less": "red"}
         if category is not None:
             worksheet.write(row, 0, category, title_format)
         for col in range(len(compare_result_keys)):
-            compare_result_key = compare_result_keys[col]
-            if replaced_titles and compare_result_key in replaced_titles.keys(
-            ):
-                compare_result_key = replaced_titles[compare_result_key]
-            worksheet.write(row, col + 1, compare_result_key, title_format)
+            worksheet.write(row, col + 1, compare_result_keys[col],
+                            title_format)
 
         row += 1
-        for key, value in sorted(compare_result_list.items(), reverse=True):
-            worksheet.write(row, 0, key)
+        for device in ["gpu", "cpu"]:
+            for direction in ["forward", "backward"]:
+                method_set = ["total"
+                              ] if device == "cpu" else ["total", "kernel"]
+                for method in method_set:
+                    category = device.upper() + " " + string.capwords(
+                        direction) + " (" + method + ")"
+                    worksheet.write(row, 0, category)
 
-            num_total_cases = value["Total"]
-            for col in range(len(compare_result_keys)):
-                compare_result_key = compare_result_keys[col]
-                num_cases = value[compare_result_key]
+                    value = compare_result.get(device, direction, method)
+                    num_total_cases = value["Total"]
+                    for col in range(len(compare_result_keys)):
+                        compare_result_key = compare_result_keys[col]
+                        num_cases = value[compare_result_key]
 
-                if num_cases > 0:
-                    color = compare_result_colors[compare_result_key]
-                    ratio = float(num_cases) / float(num_total_cases)
-                    ratio_str = "%.2f" % (ratio * 100)
-                    this_str = "{} ({}%)".format(num_cases, ratio_str)
-                else:
-                    color = "black"
-                    this_str = "--"
-                worksheet.write(row, col + 1, this_str, cell_formats[color])
-            row += 1
+                        if num_cases > 0:
+                            color = compare_result_colors.get(
+                                compare_result_key, "black")
+                            ratio = float(num_cases) / float(num_total_cases)
+                            ratio_str = "%.2f" % (ratio * 100)
+                            this_str = "{} ({}%)".format(num_cases, ratio_str)
+                        else:
+                            color = "black"
+                            this_str = "--"
+                        worksheet.write(row, col + 1, this_str,
+                                        cell_formats[color])
+                    row += 1
         return row
 
     ws = workbook.add_worksheet("summary")
@@ -91,22 +84,17 @@ def _write_summary_worksheet(benchmark_result_list, workbook, title_format,
         ws.set_column(col_char + ":" + col_char, column_width[col])
 
     row = 0
-    compare_result_list = op_benchmark_unit.summary_compare_result(
+    compare_result_case_level = op_benchmark_unit.summary_compare_result(
         benchmark_result_list)
-    row = _write_summary_unit(compare_result_list, "case_level", ws, row)
+    row = _write_summary_unit(compare_result_case_level, "case_level", ws, row)
 
-    compare_result_list_ops_overall, compare_result_dict_ops_detail = op_benchmark_unit.summary_compare_result_op_level(
+    compare_result_op_level, compare_result_dict_ops_detail = op_benchmark_unit.summary_compare_result_op_level(
         benchmark_result_list, return_op_detail=True)
-    row = _write_summary_unit(
-        compare_result_list_ops_overall,
-        "op_level",
-        ws,
-        row + 1,
-        replaced_titles={"Equal": "Others"})
+    row = _write_summary_unit(compare_result_op_level, "op_level", ws, row + 1)
 
-    for op_type, compare_result in sorted(compare_result_dict_ops_detail.items(
-    )):
-        row = _write_summary_unit(compare_result, op_type, ws, row + 1)
+    for op_type, op_compare_result in sorted(
+            compare_result_dict_ops_detail.items()):
+        row = _write_summary_unit(op_compare_result, op_type, ws, row + 1)
 
 
 def dump_excel(benchmark_result_list,
