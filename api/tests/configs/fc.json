@@ -60,7 +60,8 @@
             "type": "int",
             "value": "1024"
         }
-    }
+    },
+    "repeat": 2000
 }, {
     "op": "fc",
     "param_info": {

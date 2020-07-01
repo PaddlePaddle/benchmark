@@ -151,7 +151,8 @@ do
                               --config_id $i \
                               --backward ${backward} \
                               --use_gpu ${use_gpu} \
-                              --repeat $repeat"
+                              --repeat $repeat \
+                              --allow_adaptive_repeat True"
 
                         run_start=`date +%s%N`
                         if [ "${OUTPUT_DIR}" != "" ]; then

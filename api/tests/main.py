@@ -87,6 +87,11 @@ def parse_args():
     parser.add_argument(
         '--repeat', type=int, default=1, help='Iterations of Repeat running')
     parser.add_argument(
+        '--allow_adaptive_repeat',
+        type=utils.str2bool,
+        default=False,
+        help='Whether use the value repeat in json config [True|False]')
+    parser.add_argument(
         '--log_level', type=int, default=0, help='level of logging')
     args = parser.parse_args()
     if args.task not in ["speed", "accuracy"]:
@@ -153,6 +158,13 @@ def _is_tensorflow_enabled(args, config):
     return False
 
 
+def _adaptive_repeat(config, args):
+    if args.task == "speed" and args.allow_adaptive_repeat and hasattr(
+            config, "repeat"):
+        if args.use_gpu and args.repeat < config.repeat:
+            args.repeat = config.repeat
+
+
 def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
     assert config is not None, "API config must be set."
     if hasattr(config, "disabled") and config.disabled:
@@ -161,6 +173,7 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
         return
 
     args = parse_args()
+    _adaptive_repeat(config, args)
     config.backward = args.backward
     use_feed_fetch = True if args.task == "accuracy" else False
 

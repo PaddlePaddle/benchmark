@@ -315,7 +315,8 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "conv2d",
     "param_info": {
@@ -360,7 +361,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "repeat": 2000
 }, {
     "op": "conv2d",
     "param_info": {
@@ -586,7 +588,8 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "repeat": 2000
 }, {
     "op": "conv2d",
     "param_info": {

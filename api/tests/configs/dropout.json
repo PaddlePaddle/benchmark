@@ -22,7 +22,8 @@
             "shape": "[-1L, 36864L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 2000
 }, {
     "op": "dropout",
     "param_info": {
@@ -47,7 +48,8 @@
             "shape": "[-1L, 16L, -1L, -1L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 2000
 }, {
     "op": "dropout",
     "param_info": {
@@ -72,7 +74,8 @@
             "shape": "[-1L, 35L, 1500L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 2000
 }, {
     "op": "dropout",
     "param_info": {

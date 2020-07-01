@@ -15,7 +15,8 @@
             "value": "True"
         }
     },
-    "atol": 0.0001
+    "atol": 0.0001,
+    "repeat": 10000
 }, {
     "op": "reduce",
     "param_info": {
@@ -67,5 +68,6 @@
             "value": "False"
         }
     },
-    "atol": 0.001
+    "atol": 0.001,
+    "repeat": 10000
 }]

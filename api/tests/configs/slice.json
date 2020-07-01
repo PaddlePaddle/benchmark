@@ -39,7 +39,8 @@
             "type": "list",
             "value": "[34]"
         }
-    }
+    },
+    "repeat": 20000
 }, {
     "op": "slice",
     "param_info": {

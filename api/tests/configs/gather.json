@@ -33,5 +33,6 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "repeat": 5000
 }]
