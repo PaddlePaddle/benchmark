@@ -384,7 +384,14 @@ class TensorflowAPIBenchmarkBase(object):
     def _init_session(self, use_gpu):
         if tf.__version__ >= "1.15.0":
             config = tf.compat.v1.ConfigProto()
-            config.gpu_options.allow_growth = self.allow_growth
+            if use_gpu:
+                config.gpu_options.allow_growth = self.allow_growth
+            else:
+                # In default, TF use full cpu cores, but Paddle use one cpu core.
+                # To make the same experiment, set TF use one cpu core as well.
+                # See https://github.com/PaddlePaddle/Paddle/issues/18665#issuecomment-513780210
+                config.intra_op_parallelism_threads = 1
+                config.inter_op_parallelism_threads = 1
             sess = tf.compat.v1.Session(config=config)
             sess.run(tf.compat.v1.global_variables_initializer())
             sess.run(tf.compat.v1.local_variables_initializer())
