@@ -36,7 +36,8 @@
             "shape": "[-1L, 1L, 513L, 513L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "cast",
     "param_info": {
@@ -49,7 +50,8 @@
             "shape": "[30522L, 1024L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "cast",
     "param_info": {
@@ -88,5 +90,6 @@
             "shape": "[-1L, -1L, 1024L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }]

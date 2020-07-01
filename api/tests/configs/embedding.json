@@ -72,7 +72,8 @@
             "type": "list",
             "value": "[10000, 1500]"
         }
-    }
+    },
+    "repeat": 20000
 }, {
     "op": "embedding",
     "param_info": {

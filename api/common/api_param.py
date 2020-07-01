@@ -19,6 +19,24 @@ import numpy as np
 from operator import attrgetter
 
 
+def parse_float(value):
+    if isinstance(value, float):
+        return value
+    elif isinstance(value, unicode):
+        return float(value.encode("utf-8"))
+    else:
+        return float(value)
+
+
+def parse_int(value):
+    if isinstance(value, int):
+        return value
+    elif isinstance(value, unicode):
+        return int(value.encode("utf-8"))
+    else:
+        return int(value)
+
+
 def parse_list(value_str, sub_dtype="int"):
     if isinstance(value_str, unicode):
         value_str = value_str.encode("utf-8")
@@ -178,6 +196,8 @@ class APIConfig(object):
         if hasattr(self, "alias_config"):
             self.alias_config.init_from_json(
                 self.alias_filename(filename), config_id)
+            if hasattr(self.alias_config, "repeat"):
+                self.repeat = self.alias_config.repeat
             self.atol = self.alias_config.atol
             return self
 
@@ -193,10 +213,10 @@ class APIConfig(object):
 
             self.atol = 1e-6
             if data[config_id].get("atol", None) is not None:
-                if isinstance(data[config_id]["atol"], str):
-                    self.atol = float(data[config_id]["atol"])
-                elif isinstance(data[config_id]["atol"], float):
-                    self.atol = data[config_id]["atol"]
+                self.atol = parse_float(data[config_id]["atol"])
+
+            if data[config_id].get("repeat", None) is not None:
+                self.repeat = parse_int(data[config_id]["repeat"])
 
         self._parse_params()
         for param in self.params_list:
@@ -251,7 +271,7 @@ class APIConfig(object):
         ]
         if hasattr(self, "is_alias_of_other") and self.is_alias_of_other:
             prefix = "  "
-            for name in ["run_tf", "atol"]:
+            for name in ["run_tf", "atol", "repeat"]:
                 exclude_attrs.append(name)
         else:
             prefix = ""

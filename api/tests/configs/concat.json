@@ -18,7 +18,8 @@
             },
             "type": "list<Variable>"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "concat",
     "param_info": {
@@ -1122,5 +1123,6 @@
             },
             "type": "list<Variable>"
         }
-    }
+    },
+    "repeat": 5000
 }]

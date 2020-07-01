@@ -9,7 +9,7 @@ if [ ! -d ${OP_BENCHMARK_ROOT}/logs ]; then
     mkdir -p ${OP_BENCHMARK_ROOT}/logs
 fi
 
-gpu_id="0"
+gpu_id=${1:-"0"}
 config_dir=${OP_BENCHMARK_ROOT}/tests/configs
 log_path=${OP_BENCHMARK_ROOT}/logs/log_${timestamp}.txt
 bash ${OP_BENCHMARK_ROOT}/deploy/main_control.sh ${config_dir} ${output_dir} ${gpu_id} > ${log_path} 2>&1 &
