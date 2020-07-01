@@ -35,33 +35,78 @@ def _op_result_url(url_prefix, case_name, framework, device, task, direction):
     return os.path.join(url_prefix, filename)
 
 
-def _write_summary_worksheet(benchmark_result_list, workbook, title_format):
-    compare_result_list, _ = op_benchmark_unit.summary_compare_result(
-        benchmark_result_list)
-    op_benchmark_unit.summary_compare_result_for_op(benchmark_result_list)
+def _write_summary_worksheet(benchmark_result_list, workbook, title_format,
+                             cell_formats):
+    compare_result_keys = [
+        "Better", "Equal", "Less", "Unkown", "Unsupport", "Total"
+    ]
+
+    def _write_summary_unit(compare_result_list,
+                            category,
+                            worksheet,
+                            row,
+                            replaced_titles=None):
+        compare_result_colors = {
+            "Better": "green",
+            "Equal": "black",
+            "Less": "red",
+            "Unkown": "black",
+            "Unsupport": "black",
+            "Total": "black"
+        }
+        if category is not None:
+            worksheet.write(row, 0, category, title_format)
+        for col in range(len(compare_result_keys)):
+            compare_result_key = compare_result_keys[col]
+            if replaced_titles and compare_result_key in replaced_titles.keys(
+            ):
+                compare_result_key = replaced_titles[compare_result_key]
+            worksheet.write(row, col + 1, compare_result_key, title_format)
+
+        row += 1
+        for key, value in sorted(compare_result_list.items(), reverse=True):
+            worksheet.write(row, 0, key)
+
+            num_total_cases = value["Total"]
+            for col in range(len(compare_result_keys)):
+                compare_result_key = compare_result_keys[col]
+                num_cases = value[compare_result_key]
+
+                if num_cases > 0:
+                    color = compare_result_colors[compare_result_key]
+                    ratio = float(num_cases) / float(num_total_cases)
+                    ratio_str = "%.2f" % (ratio * 100)
+                    this_str = "{} ({}%)".format(num_cases, ratio_str)
+                else:
+                    color = "black"
+                    this_str = "--"
+                worksheet.write(row, col + 1, this_str, cell_formats[color])
+            row += 1
+        return row
 
     ws = workbook.add_worksheet("summary")
     column_width = [40, 20, 20, 20, 20, 20, 20]
     for col in range(len(column_width)):
         col_char = chr(ord("A") + col)
         ws.set_column(col_char + ":" + col_char, column_width[col])
-    title_names = ["Better", "Equal", "Less", "Unkown", "Unsupport", "Total"]
-    for col in range(len(title_names)):
-        ws.write(0, col + 1, title_names[col], title_format)
 
-    row = 1
-    for key, value in sorted(compare_result_list.items(), reverse=True):
-        ws.write(row, 0, key)
+    row = 0
+    compare_result_list = op_benchmark_unit.summary_compare_result(
+        benchmark_result_list)
+    row = _write_summary_unit(compare_result_list, "case_level", ws, row)
 
-        col = 1
-        num_total_cases = value["Total"]
-        for compare_result_key in title_names:
-            ratio = float(value[compare_result_key]) / float(num_total_cases)
-            ratio_str = "%.2f" % (ratio * 100)
-            this_str = "{} ({}%)".format(value[compare_result_key], ratio_str)
-            ws.write(row, col, this_str)
-            col += 1
-        row += 1
+    compare_result_list_ops_overall, compare_result_dict_ops_detail = op_benchmark_unit.summary_compare_result_op_level(
+        benchmark_result_list, return_op_detail=True)
+    row = _write_summary_unit(
+        compare_result_list_ops_overall,
+        "op_level",
+        ws,
+        row + 1,
+        replaced_titles={"Equal": "Others"})
+
+    for op_type, compare_result in sorted(compare_result_dict_ops_detail.items(
+    )):
+        row = _write_summary_unit(compare_result, op_type, ws, row + 1)
 
 
 def dump_excel(benchmark_result_list,
@@ -95,7 +140,8 @@ def dump_excel(benchmark_result_list,
             })
             cell_formats[key] = value
 
-    _write_summary_worksheet(benchmark_result_list, wb, title_format)
+    _write_summary_worksheet(benchmark_result_list, wb, title_format,
+                             cell_formats)
 
     if url_prefix:
         print("url prefix: ", url_prefix)

@@ -164,18 +164,50 @@ class OpBenchmarkUnit(object):
                 return "--", "--"
 
 
-def summary_compare_result(benchmark_result_list, op_type=None):
+def _init_compare_result(compare_result_keys):
     compare_result_list = {}
-    compare_result_key_list = [
-        "Better", "Equal", "Less", "Unkown", "Unsupport", "Total"
-    ]
     for result_type in [
             "gpu_forward_total", "gpu_forward_kernel", "gpu_backward_total",
             "gpu_backward_kernel", "cpu_forward_total", "cpu_backward_total"
     ]:
         compare_result_list[result_type] = {}
-        for compare_result_key in compare_result_key_list:
+        for compare_result_key in compare_result_keys:
             compare_result_list[result_type][compare_result_key] = 0
+    return compare_result_list
+
+
+def compare_result_to_string(compare_result_list,
+                             compare_result_keys,
+                             op_type=None):
+    if op_type is None:
+        category_width = 24
+        compare_result_str = "%s" % (" ".ljust(category_width))
+    else:
+        category_width = 24 if len(op_type) < 24 else len(op_type) + 4
+        compare_result_str = "%s" % (op_type.ljust(category_width))
+
+    content_width = 16
+    for compare_result_key in compare_result_keys:
+        compare_result_str += "%s" % compare_result_key.ljust(content_width)
+    compare_result_str += "\n"
+
+    for key, value in sorted(compare_result_list.items(), reverse=True):
+        compare_result_str += "%s" % key.ljust(category_width)
+        num_total_cases = value["Total"]
+        for compare_result_key in compare_result_keys:
+            ratio = float(value[compare_result_key]) / float(num_total_cases)
+            ratio_str = "%.2f" % (ratio * 100)
+            this_str = "{} ({}%)".format(value[compare_result_key], ratio_str)
+            compare_result_str += "%s" % str(this_str).ljust(content_width)
+        compare_result_str += "\n"
+    return compare_result_str
+
+
+def summary_compare_result(benchmark_result_list, op_type=None):
+    compare_result_key_list = [
+        "Better", "Equal", "Less", "Unkown", "Unsupport", "Total"
+    ]
+    compare_result_list = _init_compare_result(compare_result_key_list)
 
     for op_unit in benchmark_result_list:
         for device in ["gpu", "cpu"]:
@@ -191,33 +223,11 @@ def summary_compare_result(benchmark_result_list, op_type=None):
                     compare_result_list[result_type + "_kernel"][
                         compare_result_kernel] += 1
                     compare_result_list[result_type + "_kernel"]["Total"] += 1
-
-    if op_type is None:
-        category_width = 24
-        compare_result_str = "%s" % (" ".ljust(category_width))
-    else:
-        category_width = 24 if len(op_type) < 24 else len(op_type) + 4
-        compare_result_str = "%s" % (op_type.ljust(category_width))
-
-    content_width = 16
-    for compare_result_key in compare_result_key_list:
-        compare_result_str += "%s" % compare_result_key.ljust(content_width)
-    compare_result_str += "\n"
-
-    for key, value in sorted(compare_result_list.items(), reverse=True):
-        compare_result_str += "%s" % key.ljust(category_width)
-        num_total_cases = value["Total"]
-        for compare_result_key in compare_result_key_list:
-            ratio = float(value[compare_result_key]) / float(num_total_cases)
-            ratio_str = "%.2f" % (ratio * 100)
-            this_str = "{} ({}%)".format(value[compare_result_key], ratio_str)
-            compare_result_str += "%s" % str(this_str).ljust(content_width)
-        compare_result_str += "\n"
-    print(compare_result_str)
-    return compare_result_list, compare_result_str
+    return compare_result_list
 
 
-def summary_compare_result_for_op(benchmark_result_list):
+def summary_compare_result_op_level(benchmark_result_list,
+                                    return_op_detail=False):
     benchmark_result_dict = {}
     for op_unit in benchmark_result_list:
         op_type = op_unit.op_type
@@ -225,5 +235,30 @@ def summary_compare_result_for_op(benchmark_result_list):
             benchmark_result_dict[op_type] = []
         benchmark_result_dict[op_type].append(op_unit)
 
+    compare_result_keys = [
+        "Better", "Equal", "Less", "Unkown", "Unsupport", "Total"
+    ]
+    compare_result_list_overall = _init_compare_result(compare_result_keys)
+
+    compare_result_dict_detail = {}
     for op_type, result in sorted(benchmark_result_dict.items()):
-        _, _ = summary_compare_result(result, op_type)
+        compare_result_list = summary_compare_result(result, op_type)
+        compare_result_dict_detail[op_type] = compare_result_list
+
+        for key, value in compare_result_list.items():
+            if value["Better"] == value["Total"]:
+                compare_result_list_overall[key]["Better"] += 1
+            elif value["Less"] == value["Total"]:
+                compare_result_list_overall[key]["Less"] += 1
+            elif value["Unkown"] == value["Total"]:
+                compare_result_list_overall[key]["Unkown"] += 1
+            elif value["Unsupport"] == value["Total"]:
+                compare_result_list_overall[key]["Unsupport"] += 1
+            else:
+                compare_result_list_overall[key]["Equal"] += 1
+            compare_result_list_overall[key]["Total"] += 1
+
+    if return_op_detail:
+        return compare_result_list_overall, compare_result_dict_detail
+    else:
+        return compare_result_list_overall
