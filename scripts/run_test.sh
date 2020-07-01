@@ -61,11 +61,11 @@ function fetch_upstream_master_if_not_exist() {
 function run_api(){
     fetch_upstream_master_if_not_exist
     HAS_MODIFIED_API_TEST=`git diff --name-status upstream/$BRANCH | awk '$1!="D" {print $2}' | grep "api/tests.*.py$" || true`
-    API_NAMES=(abs activation elementwise fc)
+    API_NAMES=(abs elementwise fc)
     if [ "${HAS_MODIFIED_API_TEST}" != "" ] ; then
         for api in ${HAS_MODIFIED_API_TEST[@]}; do
             new_name=`echo $api |awk -F "/" '{print $NF}' |awk -F "." '{print $NR}'`
-            if [[ "$new_name" != "main" && "$new_name" != "feeder" && "$new_name" != "common_ops" && "$new_name" != "launch" ]]; then
+            if [[ "$new_name" != "main" && "$new_name" != "common_ops" && "$new_name" != "launch" ]]; then
                 need_append="yes"
                 for name in ${API_NAMES[@]}; do
                     if [ "${name}" == "${new_name}" ]; then
