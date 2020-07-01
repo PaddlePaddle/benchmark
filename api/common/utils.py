@@ -302,6 +302,6 @@ def print_benchmark_result(result, log_level=0, config_params=None):
     status["speed"]["wall_time"] = avg_walltime
     status["speed"]["total_include_wall_time"] = avg_runtime
     if gpu_time is not None:
-        status["speed"]["gpu_time"] = gpu_time / repeat
+        status["speed"]["gpu_time"] = gpu_time
     status["parameters"] = config_params
     print(json.dumps(status))
