@@ -1,7 +1,17 @@
 #! /bin/bash
 
-# Usage:
-#   bash main_control.sh json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both"
+function print_usage() {
+    echo "Usage:"
+    echo "    bash ${0} json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file"
+    echo ""
+    echo "Arguments:"
+    echo "  json_config_dir         - the directory of json configs"
+    echo "  output_dir              - the output directory"
+    echo "  gpu_id (optional)       - the GPU id. Only one GPU can be specified."
+    echo "  device (optional)       - cpu, gpu, both"
+    echo "  task (optional)         - speed, accuracy, both"
+    echo "  op_list_file (optional) - the path which specified op list to test"
+}
 
 export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
 
@@ -10,9 +20,13 @@ DEPLOY_DIR="${OP_BENCHMARK_ROOT}/deploy"
 TEST_DIR="${OP_BENCHMARK_ROOT}/tests"
 export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 
-JSON_CONFIG_DIR=${1:-"${TEST_DIR}/examples"}
+if [ $# -lt 2 ]; then
+    print_usage
+    exit
+fi
 
-OUTPUT_DIR=${2:-""}
+JSON_CONFIG_DIR=${1}
+OUTPUT_DIR=${2}
 if [ ! -d ${OUTPUT_DIR} ]; then
     mkdir -p ${OUTPUT_DIR}
 fi
@@ -30,6 +44,17 @@ TASK_SET=("speed" "accuracy")
 if [ $# -ge 5 ]; then
     if [[ ${5} == "speed" || ${5} == "accuracy" ]]; then
         TASK_SET=(${5})
+    fi
+fi
+
+if [ $# -ge 6 ]; then
+    OP_LIST_FILE=${6}
+else
+    OP_LIST_FILE=${OUTPUT_DIR}/api_info.txt
+    python ${DEPLOY_DIR}/collect_api_info.py --info_file ${OP_LIST_FILE}
+    return_status=$?
+    if [ ${return_status} -ne 0 ] || [ ! -f "${OP_LIST_FILE}" ]; then
+        OP_LIST_FILE=${DEPLOY_DIR}/api_info.txt
     fi
 fi
 
@@ -68,24 +93,13 @@ function print_detail_status() {
     fi
 }
 
-if [ ${OUTPUT_DIR} != "" ]; then
-    api_info_file=${OUTPUT_DIR}/api_info.txt
-else
-    api_info_file=api_info.txt
-fi
-python ${DEPLOY_DIR}/collect_api_info.py --info_file ${api_info_file}
-return_status=$?
-if [ ${return_status} -ne 0 ] || [ ! -f "${api_info_file}" ]; then
-    api_info_file=${DEPLOY_DIR}/api_info.txt
-fi
-
 config_id=0
 cpu_runtime=0
 gpu_runtime=0
 num_success_cases=0
 num_failed_cases=0
 
-for line in `cat $api_info_file`
+for line in `cat ${OP_LIST_FILE}`
 do
     api_name=$(echo $line| cut -d',' -f1)
     name=$(echo $line| cut -d',' -f2)
