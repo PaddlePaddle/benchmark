@@ -126,7 +126,7 @@ if __name__ == "__main__":
             args.benchmark_script_args,
             with_nvprof=True)
         args.benchmark_script_args.append(" --gpu_time ")
-        args.benchmark_script_args.append(str(total_gpu_time / float(repeat)))
+        args.benchmark_script_args.append(str(total_gpu_time))
 
     launch(
         args.benchmark_script, args.benchmark_script_args, with_nvprof=False)
