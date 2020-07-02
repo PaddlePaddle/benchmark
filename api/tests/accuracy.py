@@ -61,9 +61,10 @@ class TFAccuracy(TensorflowAPIBenchmarkBase):
             dtype=config.input_dtype)
         labels = self.variable(
             name='labels', shape=config.label_shape, dtype=config.label_dtype)
-        onehot_labels = tf.one_hot(indices=labels, depth=config.num_classes)
+        predictions_argmax = tf.compat.v1.argmax(predictions,
+                                                 len(config.input_shape) - 1)
         _, result = tf.compat.v1.metrics.accuracy(
-            labels=onehot_labels, predictions=predictions)
+            labels=labels, predictions=predictions_argmax)
 
         self.feed_list = [predictions, labels]
         self.fetch_list = [result]
