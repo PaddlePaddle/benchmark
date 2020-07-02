@@ -249,6 +249,14 @@ def summary_compare_result_op_level(benchmark_result_list,
         "Better", "Less", "Unkown", "Unsupport", "Others", "Total"
     ]
     compare_result_op_level = CompareResult(compare_result_keys)
+    op_type_dict = {}
+    for key in [
+            "gpu_forward_total", "gpu_forward_kernel", "gpu_backward_total",
+            "gpu_backward_kernel", "cpu_forward_total", "cpu_backward_total"
+    ]:
+        op_type_dict[key] = {}
+        for result_key in compare_result_keys:
+            op_type_dict[key][result_key] = []
 
     compare_result_dict_detail = {}
     for op_type, result in sorted(benchmark_result_dict.items()):
@@ -264,16 +272,26 @@ def summary_compare_result_op_level(benchmark_result_list,
                     target = compare_result_op_level.get(device, direction,
                                                          method)
                     if value["Better"] == value["Total"]:
-                        target["Better"] += 1
+                        result_key = "Better"
                     elif value["Less"] == value["Total"]:
-                        target["Less"] += 1
+                        result_key = "Less"
                     elif value["Unkown"] == value["Total"]:
-                        target["Unkown"] += 1
+                        result_key = "Unkown"
                     elif value["Unsupport"] == value["Total"]:
-                        target["Unsupport"] += 1
+                        result_key = "Unsupport"
                     else:
-                        target["Others"] += 1
+                        result_key = "Others"
+                    op_type_dict[device + "_" + direction + "_" + method][
+                        result_key].append(op_type)
+                    target[result_key] += 1
                     target["Total"] += 1
+
+    for key, value in op_type_dict.items():
+        print(key)
+        for result_key, op_list in value.items():
+            print("    %s (%3d): %s" %
+                  (result_key.ljust(10), len(op_list), ",".join(op_list)))
+        print("")
 
     if return_op_detail:
         return compare_result_op_level, compare_result_dict_detail

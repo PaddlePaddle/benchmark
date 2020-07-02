@@ -316,7 +316,8 @@ if __name__ == '__main__':
         op_result_dir), "Directory %s does not exist." % op_result_dir
 
     filenames = os.listdir(op_result_dir)
-    filenames.remove('api_info.txt')
+    if "api_info.txt" in filenames:
+        filenames.remove('api_info.txt')
     assert len(filenames) > 0, "Directory %s is empty." % op_result_dir
 
     specified_op_list = None
