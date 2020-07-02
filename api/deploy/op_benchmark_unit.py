@@ -126,14 +126,14 @@ class OpBenchmarkUnit(object):
             if direction == "backward" and self.op_type in special_op_list.NO_BACKWARD_OPS:
                 total = "Unsupport"
             else:
-                total = "Unkown"
+                total = "Unknown"
         if device == "gpu":
             gpu_time = result["compare"]["gpu_time"]
             if gpu_time == "--":
                 if direction == "backward" and self.op_type in special_op_list.NO_BACKWARD_OPS:
                     gpu_time = "Unsupport"
                 else:
-                    gpu_time = "Unkown"
+                    gpu_time = "Unknown"
             return total, gpu_time
         else:
             return total, None
@@ -170,7 +170,7 @@ class CompareResult(object):
             self.compare_result_keys = compare_result_keys
         else:
             self.compare_result_keys = [
-                "Better", "Equal", "Less", "Unkown", "Unsupport", "Total"
+                "Better", "Equal", "Less", "Unknown", "Unsupport", "Total"
             ]
         self.gpu_forward_total = self._create_zero_dict()
         self.gpu_forward_kernel = self._create_zero_dict()
@@ -246,7 +246,7 @@ def summary_compare_result_op_level(benchmark_result_list,
         benchmark_result_dict[op_type].append(op_unit)
 
     compare_result_keys = [
-        "Better", "Less", "Unkown", "Unsupport", "Others", "Total"
+        "Better", "Less", "Unknown", "Unsupport", "Others", "Total"
     ]
     compare_result_op_level = CompareResult(compare_result_keys)
     op_type_dict = {}
@@ -275,8 +275,8 @@ def summary_compare_result_op_level(benchmark_result_list,
                         result_key = "Better"
                     elif value["Less"] == value["Total"]:
                         result_key = "Less"
-                    elif value["Unkown"] == value["Total"]:
-                        result_key = "Unkown"
+                    elif value["Unknown"] == value["Total"]:
+                        result_key = "Unknown"
                     elif value["Unsupport"] == value["Total"]:
                         result_key = "Unsupport"
                     else:
