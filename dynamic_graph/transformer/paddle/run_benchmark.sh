@@ -1,4 +1,5 @@
 #!bin/bash
+
 set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
@@ -12,7 +13,7 @@ function _set_params(){
     base_batch_size=4096
     model_name="transformer"
 
-    run_mode="sp" # Don't support mp
+    run_mode=${2}
     max_iter=${3}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
@@ -22,7 +23,7 @@ function _set_params(){
     mission_name="机器翻译"
     direction_id=1
     skip_steps=0
-    keyword="step/s"
+    keyword="avg_speed:"
     separator=" "
     position=17
     model_mode=1 # s/step -> steps/s
@@ -31,22 +32,11 @@ function _set_params(){
     arr=($device)
     num_gpu_devices=${#arr[*]}
 
-    if [[ ${run_mode} = "sp" ]]; then
-        batch_size=`expr $base_batch_size \* $num_gpu_devices`
-    else
-        batch_size=$base_batch_size
-    fi
-
     log_file=${run_log_path}/dynamic_${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/dynamic_${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_dynamic_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
-}
-
-function _set_env(){
-    #开启gc
-    echo "nothing"
 }
 
 function _train(){
@@ -55,29 +45,26 @@ function _train(){
               --trg_vocab_fpath gen_data/iwslt14.tokenized.de-en/vocab.en \
               --special_token  <s> <e> <unk> \
               --training_file gen_data/iwslt14.tokenized.de-en/para_small.de-en \
+              --validation_file gen_data/wmt16_ende_data_bpe/newstest2014.tok.bpe.32000.en-de \
+              --predict_file gen_data/wmt16_ende_data_bpe/newstest2016.tok.bpe.32000.en-de \
               --weight_sharing False \
-              --batch_size ${batch_size}"
+              --batch_size ${base_batch_size}"
 
-    if [ ${num_gpu_devices} -eq 1 ]; then
+    if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u train.py "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --started_port 8999 --selected_gpus=$CUDA_VISIBLE_DEVICES  --log_dir ./mylog train.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --started_port 9798 --selected_gpus=$CUDA_VISIBLE_DEVICES  --log_dir ./mylog train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
 
     ${train_cmd} > ${log_file} 2>&1
-    kill -9 `ps -ef|grep python |awk '{print $2}'`
-    if [ ${num_gpu_devices} != 1  -a -d mylog ]; then
+    if [ ${run_mode} != "sp"  -a -d mylog ]; then
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
     fi
-
-#    python -u train.py ${train_cmd} > ${log_file} 2>&1
-#    kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
 _set_params $@
-_set_env
 _run

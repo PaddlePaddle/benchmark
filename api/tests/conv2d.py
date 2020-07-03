@@ -20,15 +20,20 @@ class Conv2dConfig(APIConfig):
         super(Conv2dConfig, self).__init__('conv2d')
         self.feed_spec = [
             {
-                "range": [0, 1]
+                "range": [-1, 1]
             },  # input
             {
+                "range": [-1, 1],
                 "permute": [2, 3, 1, 0]
             }  # filters
         ]
 
     def init_from_json(self, filename, config_id=0):
         super(Conv2dConfig, self).init_from_json(filename, config_id)
+        if self.input_dtype == "float16" and self.use_cudnn == False:
+            self.disabled = True
+            return
+
         if self.data_format == "NCHW":
             self.num_channels = self.input_shape[1]
         elif self.data_format == "NHWC":
@@ -37,6 +42,8 @@ class Conv2dConfig(APIConfig):
             self.input_shape[0] = 64
         if isinstance(self.filter_size, int):
             self.filter_size = [self.filter_size, self.filter_size]
+        if self.groups is None:
+            self.groups = 1
         if self.num_channels % self.groups != 0:
             raise ValueError(
                 "the channel of input must be divisible by groups,"
@@ -51,8 +58,8 @@ class Conv2dConfig(APIConfig):
     def to_tensorflow(self):
         tf_config = super(Conv2dConfig, self).to_tensorflow()
         tf_config.filter_shape = [
-            self.filter_size[0], self.filter_size[1], self.num_channels,
-            self.num_filters
+            self.filter_size[0], self.filter_size[1],
+            self.num_channels // self.groups, self.num_filters
         ]
         tf_config.padding = self._convert_padding(self.padding)
         return tf_config

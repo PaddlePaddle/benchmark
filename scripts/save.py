@@ -22,7 +22,6 @@ import numpy as np
 import template
 import socket
 import json
-import commands
 import traceback
 
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
@@ -196,7 +195,11 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
                                               run_machine_type=run_machine_type).order_by('-version')
 
     results_list = []
+    count = 0
     for result in results:
+        if count == 0:
+            count += 1
+            continue
         if len(results_list) == 3:
             break
         try:
@@ -230,7 +233,7 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
         current_html_result = [model_name, run_machine_type,
                                check_key if check_key else DICT_INDEX[index],
                                avg_values, cur_value, ranges]
-        html_results.append(current_html_result)
+        html_results[index].append(current_html_result)
 
 
 def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0):
@@ -300,7 +303,9 @@ def parse_logs(args):
     """
     image_id = get_image_id()
     file_list = load_folder_files(os.path.join(args.log_path, "index"))
-    html_results = []
+    html_results = {}
+    for k in DICT_INDEX:
+        html_results[k] = []
     for job_file in file_list:
         result = 0
         with open(job_file, 'r+') as file_obj:
@@ -339,7 +344,7 @@ def parse_logs(args):
                         if "MAX_GPU_MEMORY_USE" in line and args.implement_type != 'static_graph':
                             value = line.strip().split("=")[1].strip()
                             mem_result = int(value) if str.isdigit(value) else 0
-                            
+
                 elif job_info["index"] == 2:
                     for line in file_lines:
                         if "MAX_GPU_MEMORY_USE" in line:
@@ -391,7 +396,7 @@ def parse_logs(args):
                     check_results(job_info["model_name"], job_info["index"],
                                         run_machine_type, result, html_results)
                     # TODO: 动态图吞吐和显存占用是一个任务，后续静态图也改成一个任务，即可删除这个判断
-                    if args.implement_type != 'static_graph':
+                    if args.implement_type != 'static_graph' and job_info["index"] != 6:
                         check_results(job_info["model_name"], 2, run_machine_type,
                                       mem_result, html_results)
                 else:
@@ -399,9 +404,7 @@ def parse_logs(args):
                                     result, html_results, "Framework_Total")
                     check_results(job_info["model_name"], job_info["index"],
                                     run_machine_type, result, html_results, "GpuMemcpy_Total")
-
-    if html_results:
-        template.construct_email_content(html_results, args.log_path, args)
+    template.construct_email_content(html_results, args.log_path, args)
 
 
 if __name__ == '__main__':

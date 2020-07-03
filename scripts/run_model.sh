@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 function _collect_occupancy() {
     if [[ "${BENCHMARK_MONITOR}" = "" ]]; then
         export BENCHMARK_MONITOR=ON

@@ -10,17 +10,14 @@
 
 #cur_model_list=(deeplabv3 transformer)
 cur_model_list=(padding nextvlad seq2seq deeplabv3 stgan cyclegan transformer)
-export https_proxy=http://172.19.56.199:3128
-export http_proxy=http://172.19.56.199:3128
 ##   config.gpu_options.allow_growth = True
+## run_type_list--> 1(speed), 2(mem)
 
 ######################
 environment(){
+export LD_LIBRARY_PATH=/home/work/418.39/lib64/:/usr/local/cuda-10.0/compat/:$LD_LIBRARY_PATH
 apt-get update
-apt-get install wget -y 
-apt-get install vim -y
-apt-get install tk-dev -y
-apt-get install python-tk -y
+apt-get install wget vim tk-dev python-tk -y 
 #pip uninstall tensorflow-gpu -y
 #pip install tensorflow-gpu==1.15.0
 package_check_list=(pytest Cython opencv-python future pycocotools matplotlib networkx fasttext visdom  Pillow)
@@ -38,8 +35,8 @@ done
 
 #################pip packages
 prepare(){
-export BENCHMARK_ROOT=/ssd3/heya/tensorflow/benchmark_push/benchmark/
-export TF_BENCHMARK_ROOT=${BENCHMARK_ROOT}/competitive_products/tf_benchmark
+export BENCHMARK_ROOT=/ssd3/heya/tensorflow/0619_benchmark/benchmark/
+export TF_BENCHMARK_ROOT=${BENCHMARK_ROOT}/competitive_products/tensorflow_benchmark
 
 export datapath=/ssd1/ljh/dataset
 
@@ -73,10 +70,10 @@ for model_type in ${model_type_list[@]}; do
     for rnn_type in ${rnn_type_list[@]}; do
         model_name="padding_${model_type}_${rnn_type}"
         echo "-----------------------$model_name begin!"
-        CUDA_VISIBLE_DEVICES=0 bash run.sh speed ${model_type} ${rnn_type} ${LOG_DIR} > ${RES_DIR}/speed_${model_name}_1.res 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run.sh 1 ${model_type} ${rnn_type} ${LOG_DIR} > ${RES_DIR}/1_${model_name}_1.res 2>&1
         echo "$model_name speed finished!"
         sleep 60
-        CUDA_VISIBLE_DEVICES=0 bash run.sh mem ${model_type} ${rnn_type} ${LOG_DIR} > ${RES_DIR}/mem_${model_name}_1.res 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run.sh 2 ${model_type} ${rnn_type} ${LOG_DIR} > ${RES_DIR}/2_${model_name}_1.res 2>&1
         echo "$model_name mem finished!"
         sleep 60
      done
@@ -96,7 +93,7 @@ mkdir -p ${curl_model_path}/youtube-8m/data
 ln -s ${datapath}/yt8m/ ${curl_model_path}/youtube-8m/data/
 cp ${BENCHMARK_ROOT}/static_graph/NextVlad/tensorflow/run.sh ${curl_model_path}/youtube-8m/run_nextvlad.sh
 
-run_type_list=(speed mem)  
+run_type_list=(1 2)  
 for run_type in ${run_type_list[@]};do
     CUDA_VISIBLE_DEVICES=0 bash run_nextvlad.sh train ${run_type} sp  ${LOG_DIR} > ${RES_DIR}/${run_type}_nextvlad_1.res 2>&1
     echo "-------------------1cards $run_type end"
@@ -117,7 +114,7 @@ cd ${curl_model_path}/seq2seq
 
 ln -s ${datapath}/tf_seq2seq_data/ ${curl_model_path}/seq2seq/nmt/data
 
-run_type_list=(speed mem) 
+run_type_list=(1 2) 
 for run_type in ${run_type_list[@]};do
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ${run_type} sp  ${LOG_DIR} > ${RES_DIR}/${run_type}_seq2seq_1.res 2>&1
     echo "------------------- $run_type end"
@@ -133,7 +130,7 @@ mkdir -p ${curl_model_path}/deeplabv3
 cp ${BENCHMARK_ROOT}/static_graph/deeplabv3+/tensorflow/run.sh ${curl_model_path}/deeplabv3/run_deeplabv3.sh
 cd ${curl_model_path}/deeplabv3
 
-run_type_list=(speed mem)  
+run_type_list=(1 2)  
 for run_type in ${run_type_list[@]};do
     echo "---------------$run_type----"
     CUDA_VISIBLE_DEVICES=0 bash run_deeplabv3.sh ${run_type} sp ${LOG_DIR} > ${RES_DIR}/${run_type}_deeplab_1.res 2>&1 
@@ -158,7 +155,7 @@ ln -s ${datapath}/CelebA/Img/img_align_celeba ${curl_model_path}/STGAN/data/cele
 ln -s ${datapath}/CelebA/Anno/list_attr_celeba.txt ${curl_model_path}/STGAN/data/celeba/list_attr_celeba.txt
 
 
-run_type_list=(speed mem)  
+run_type_list=(1 2)  
 for run_type in ${run_type_list[@]};do
     echo "---------------$run_type----"
     CUDA_VISIBLE_DEVICES=0 bash run_stgan.sh train ${run_type} ${LOG_DIR} > ${RES_DIR}/${run_type}_stgan_1.res 2>&1 
@@ -177,7 +174,7 @@ cd ${curl_model_path}/cyclegan
 mkdir -p ${curl_model_path}/cyclegan/input
 ln -s ${datapath}/horse2zebra/  ${curl_model_path}/cyclegan/input/
 
-run_type_list=(speed mem)  
+run_type_list=(1 2)  
 for run_type in ${run_type_list[@]};do
     echo "---------------$run_type----"
     CUDA_VISIBLE_DEVICES=0 bash run_cyclegan.sh ${run_type} ${LOG_DIR} > ${RES_DIR}/${run_type}_cyclegan_1.res 2>&1
@@ -202,7 +199,7 @@ cd ${curl_model_path}/transformer
 
 ln -s ${datapath}/transformer/data ${curl_model_path}/transformer/
 
-run_type_list=(speed mem)
+run_type_list=(1 2)
 model_type_list=(big base)
 for run_type in ${run_type_list[@]}; do
     for model_type in ${model_type_list[@]}; do

@@ -16,6 +16,15 @@ RANDOM_OP_LIST = ["dropout"]
 
 NO_FETCHES_OPS = ["feed", "null"]
 
+# operators without grad ops.
+NO_BACKWARD_OPS = [
+    "accuracy", "argmax", "argmin", "argsort", "assign", "cast",
+    "clip_by_norm", "cumsum", "equal", "feed", "fetch", "fill_constant",
+    "greater_equal", "greater_than", "increment", "isfinite", "less_equal",
+    "less_than", "logical_not", "logical_and", "logical_or", "not_equal",
+    "null", "one_hot", "scale", "sequence_mask", "shape", "zeros_like"
+]
+
 NO_NEED_ARGS = {
     "batch_norm": ["moving_mean_name", "moving_variance_name"],
     "embedding": ["is_distributed"]

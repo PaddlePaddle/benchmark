@@ -16,13 +16,41 @@ import os
 import json
 import copy
 import numpy as np
+from operator import attrgetter
+
+
+def parse_float(value):
+    if isinstance(value, float):
+        return value
+    elif isinstance(value, unicode):
+        return float(value.encode("utf-8"))
+    else:
+        return float(value)
+
+
+def parse_int(value):
+    if isinstance(value, int):
+        return value
+    elif isinstance(value, unicode):
+        return int(value.encode("utf-8"))
+    else:
+        return int(value)
 
 
 def parse_list(value_str, sub_dtype="int"):
+    if isinstance(value_str, unicode):
+        value_str = value_str.encode("utf-8")
+
     if sub_dtype in ["int", "int64"]:
-        value_str = value_str.replace("L", "").replace("[", "").replace(
-            "]", "").split(',')
-        return map(int, value_str)
+        try:
+            if value_str != "[]":
+                value_str = value_str.replace("L", "").replace(
+                    "[", "").replace("]", "").split(',')
+                return map(int, value_str)
+            else:
+                return []
+        except Exception as e:
+            assert False, "Parse {} failed: {}".format(value_str, e)
     else:
         # TODO: check and support list of other data type.
         raise ValueError("Do not support parsing list of non-int data type.")
@@ -59,7 +87,7 @@ class BaseParamInfo(object):
             return item
 
     def to_string(self):
-        return self.name + '--' + self.type + '|' + str(self.value)
+        return self.name + ' (' + self.type + '): ' + str(self.value)
 
     def _translate_value(self, value_str):
         if self.type in ["float", "float32", "float64"]:
@@ -92,12 +120,29 @@ class VarParamInfo(BaseParamInfo):
             self.shape = shape_str
         self.lod_level = self._encode_item(lod_level)
 
+    def _is_same(self, dtypes, shapes):
+        dtype_0 = dtypes[0]
+        shape_0 = shapes[0]
+        for i in range(len(dtypes)):
+            if dtype_0 != dtypes[i] or shape_0 != shapes[i]:
+                return False
+        return True
+
     def to_string(self):
         if self.type == "Variable":
-            return self.name + "--Variable|dtype:" + str(
-                self.dtype) + "|shape:" + str(self.shape)
+            return self.name + " (Variable) - dtype: " + str(
+                self.dtype) + ", shape: " + str(self.shape)
         elif self.type == "list<Variable>":
-            return self.name + "--list<Variable>"
+            str_list = "%s (list<Variable>[%d]) - " % (self.name,
+                                                       len(self.dtype))
+            if self._is_same(self.dtype, self.shape):
+                params_len = 1
+            else:
+                params_len = len(self.dtype)
+            for i in range(params_len):
+                str_list = str_list + "dtype: " + str(self.dtype[
+                    i]) + ", shape: " + str(self.shape[i]) + "; "
+            return str_list
 
 
 class APIConfig(object):
@@ -110,7 +155,6 @@ class APIConfig(object):
         self.params_list = None
         self.backward = False
         self.feed_spec = None
-        self.atol = 1e-6
         self.run_tf = True
 
     def alias_filename(self, filename):
@@ -152,6 +196,9 @@ class APIConfig(object):
         if hasattr(self, "alias_config"):
             self.alias_config.init_from_json(
                 self.alias_filename(filename), config_id)
+            if hasattr(self.alias_config, "repeat"):
+                self.repeat = self.alias_config.repeat
+            self.atol = self.alias_config.atol
             return self
 
         print("---- Initialize APIConfig from %s, config_id = %d.\n" %
@@ -163,11 +210,13 @@ class APIConfig(object):
                 "The filename: %s, config_id: %d." % (
                     op, self.name, self.alias_name, filename, config_id)
             self.params = data[config_id]["param_info"]
+
+            self.atol = 1e-6
             if data[config_id].get("atol", None) is not None:
-                if isinstance(data[config_id]["atol"], str):
-                    self.atol = float(data[config_id]["atol"])
-                elif isinstance(data[config_id]["atol"], float):
-                    self.atol = data[config_id]["atol"]
+                self.atol = parse_float(data[config_id]["atol"])
+
+            if data[config_id].get("repeat", None) is not None:
+                self.repeat = parse_int(data[config_id]["repeat"])
 
         self._parse_params()
         for param in self.params_list:
@@ -196,58 +245,75 @@ class APIConfig(object):
         return tf_config
 
     def to_string(self):
-        if self.params_list is None and self.variable_list is None:
-            self._parse_params()
+        if self.alias.params_list is None and self.alias.variable_list is None:
+            self.alias._parse_params()
+        if self.alias.variable_list is None and self.alias.params_list is None:
+            return "None"
         params_str = ""
-        for var in self.variable_list:
+        self.alias.variable_list = sorted(
+            self.alias.variable_list, key=attrgetter('name'))
+        self.alias.params_list = sorted(
+            self.alias.params_list, key=attrgetter('name'))
+        for var in self.alias.variable_list:
             params_str = params_str + var.to_string() + "\n"
-        for attr in self.params_list:
+        for attr in self.alias.params_list:
             params_str = params_str + attr.to_string() + "\n"
         return params_str
 
-    def clear(self):
-        for name in vars(self).keys():
-            if name not in ['name', 'backward', 'feed_spec']:
-                setattr(self, name, None)
-
     def __str__(self):
+        if hasattr(self, "alias_config"):
+            self.alias_config.is_alias_of_other = True
+
+        exclude_attrs = [
+            '_APIConfig__name', '_APIConfig__framework', 'params', 'api_name',
+            'api_list', 'variable_list', 'params_list', 'backward',
+            'feed_spec', 'is_alias_of_other'
+        ]
+        if hasattr(self, "is_alias_of_other") and self.is_alias_of_other:
+            prefix = "  "
+            for name in ["run_tf", "atol", "repeat"]:
+                exclude_attrs.append(name)
+        else:
+            prefix = ""
+
         debug_str = ('[%s][%s] %s {\n') % (self.framework, self.name,
                                            self.api_name)
         for name, value in vars(self).items():
-            if name not in [
-                    '_APIConfig__name', '_APIConfig__framework', 'params',
-                    'api_name', 'api_list', 'variable_list', 'params_list',
-                    'backward', 'feed_spec'
-            ]:
+            if name not in exclude_attrs:
                 if isinstance(value, np.ndarray):
                     debug_str = debug_str + (
                         '  %s: np.ndarray(shape=%s, dtype=%s)\n') % (
                             name, str(value.shape), value.dtype)
                 else:
-                    debug_str = debug_str + ('  %s: %s\n') % (name, value)
-        debug_str = debug_str + '}'
+                    debug_str = debug_str + ('  %s%s: %s\n') % (prefix, name,
+                                                                value)
+        debug_str = debug_str + prefix + '}'
         return debug_str
 
     def _parse_params(self):
         self.variable_list = []
         self.params_list = []
-        for name, value in self.params.items():
-            assert value.get("type", None) is not None
-            if value["type"] == "Variable":
-                info = VarParamInfo(name, value["type"], value["dtype"],
-                                    value["shape"])
-                self.variable_list.append(info)
-            elif value["type"] == "list<Variable>":
-                dtype_list = []
-                shape_list = []
-                for key, var in value.items():
-                    if key != "type":
-                        assert var["type"] == "Variable"
-                        dtype_list.append(var["dtype"])
-                        shape_list.append(parse_list(var["shape"]))
-                info = VarParamInfo(name, value["type"], dtype_list,
-                                    shape_list)
-                self.variable_list.append(info)
-            else:
-                info = BaseParamInfo(name, value["type"], value["value"])
-                self.params_list.append(info)
+        if self.params is None:
+            self.variable_list = None
+            self.params_list = None
+        else:
+            for name, value in self.params.items():
+                assert value.get("type", None) is not None
+                if value["type"] == "Variable":
+                    info = VarParamInfo(name, value["type"], value["dtype"],
+                                        value["shape"])
+                    self.variable_list.append(info)
+                elif value["type"] == "list<Variable>":
+                    dtype_list = []
+                    shape_list = []
+                    for key, var in value.items():
+                        if key != "type":
+                            assert var["type"] == "Variable"
+                            dtype_list.append(var["dtype"])
+                            shape_list.append(parse_list(var["shape"]))
+                    info = VarParamInfo(name, value["type"], dtype_list,
+                                        shape_list)
+                    self.variable_list.append(info)
+                else:
+                    info = BaseParamInfo(name, value["type"], value["value"])
+                    self.params_list.append(info)

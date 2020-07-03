@@ -1,0 +1,42 @@
+[{
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 3, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 14L, 1L, 1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 3, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 19L, 513L, 513L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 256L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}]

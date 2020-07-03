@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import argparse
-import os
 import json
 import warnings
 from operator import mul
@@ -21,8 +20,10 @@ from functools import reduce
 import random
 import copy
 
-import sys
-sys.path.append("..")
+import os, sys
+package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(package_path)
+
 from common.api_param import parse_list
 
 
@@ -51,6 +52,9 @@ def select_configs_by_json(args, origin_configs, configs_without_input,
         os.makedirs(out_dir)
     configs = []
     for index in all_selected_ids:
+        if args.similar_api:
+            filename = os.path.basename(args.output_json_file)
+            origin_configs[index]["op"] = os.path.splitext(filename)[0]
         configs.append(origin_configs[index])
     with open(args.output_json_file, 'w') as f:
         json.dump(configs, f, indent=4, sort_keys=True)
@@ -126,15 +130,20 @@ def select_from_shape_groups(shape_groups, shapes):
     all_selected_ids = []
     j = 0
     for label in shape_groups:
+        candidate_ids = []
         selected_ids = []
         ids = shape_groups[label]['ids']
         ids = rearrange_ids(shape_groups[label]['sizes'], ids)
         if len(ids) <= 3:
-            selected_ids = ids
+            candidate_ids = ids
         else:
-            selected_ids = [ids[0], ids[int(len(ids) / 2)], ids[-1]]
+            candidate_ids = [ids[0], ids[int(len(ids) / 2)], ids[-1]]
+        selected_shapes = []
+        for idx in candidate_ids:
+            if shapes[idx] not in selected_shapes:
+                selected_shapes.append(shapes[idx])
+                selected_ids.append(idx)
         all_selected_ids += selected_ids
-        selected_shapes = [shapes[idx] for idx in selected_ids]
         selected_shapes_info = " The shapes are: "
         for shape in selected_shapes:
             selected_shapes_info += "{} ".format(shape)
@@ -269,7 +278,7 @@ def group_input_shapes(shapes, config_ids, input_type):
     Returns: A 2-D dict of shape groups.
     """
     shape_groups = dict()
-    if not shapes[0]:
+    if len(shapes) == 0:
         warnings.warn("Group configs regardless of input shape.")
         return shape_groups
     for index in config_ids:
@@ -294,7 +303,7 @@ def get_input_shapes_from_json(args, origin_configs):
         input_shapes = []
         var_shapes = []
         for name, value in config["param_info"].items():
-            if name in args.ignored_params:
+            if args.ignored_params and name in args.ignored_params:
                 continue
             if value["type"] in ["Variable", "numpy.ndarray"]:
                 if value["type"] == "Variable":
@@ -320,8 +329,9 @@ def get_input_shapes_from_json(args, origin_configs):
                         input_shapes.append(shape)
                 del config_res["param_info"][name]
         configs_without_input.append(config_res)
-        all_shapes.append(input_shapes)
-        if len(input_shapes) == 0 and len(var_shapes) <= 2:
+        if len(input_shapes) != 0:
+            all_shapes.append(input_shapes)
+        elif len(var_shapes) != 0 and len(var_shapes) <= 2:
             all_shapes.append(var_shapes)
 
     return configs_without_input, all_shapes, input_type
@@ -446,12 +456,13 @@ def parse_json_config(args):
         if args.similar_api:
             for api in args.similar_api:
                 json_path = os.path.join(args.input_json_file, api + '.json')
-                with open(json_path, 'r') as f:
-                    api_configs = json.load(f)
-                    origin_configs.extend(api_configs)
+                if os.path.exists(json_path):
+                    with open(json_path, 'r') as f:
+                        api_configs = json.load(f)
+                        origin_configs.extend(api_configs)
         else:
             raise ValueError(
-                "When input_json_file is a Directory, the args similar_api should be set."
+                "When input_json_file is a directory, the args similar_api should be set."
             )
     elif os.path.isfile(args.input_json_file):
         with open(args.input_json_file, 'r') as f:

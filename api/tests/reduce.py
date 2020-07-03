@@ -18,8 +18,8 @@ from common_import import *
 class ReduceConfig(APIConfig):
     def __init__(self):
         super(ReduceConfig, self).__init__('reduce')
+        self.feed_spec = {"range": [-1, 1]}
         self.api_name = 'reduce_mean'
-        self.atol = 1e-5
         self.api_list = {
             'reduce_mean': 'reduce_mean',
             'reduce_sum': 'reduce_sum',

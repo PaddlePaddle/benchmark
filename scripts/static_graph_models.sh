@@ -253,7 +253,7 @@ nextvlad(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
 
-    model_list=(nextvlad CTCN)
+    model_list=(nextvlad) #CTCN)
     for model_name in ${model_list[@]}; do
         echo "index is speed, 1gpu, begin, ${model_name}"
         PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
@@ -342,9 +342,9 @@ image_classification(){
         echo "index is maxbs, 1gpus, begin, ${model_name}"
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 112 ${model_name} sp 500 | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
         sleep 60
-        echo "index is maxbs, 8gpus, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 112 ${model_name} sp 500 | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
-        sleep 60
+        #echo "index is maxbs, 8gpus, begin, ${model_name}"
+        #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 112 ${model_name} sp 500 | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
+        #sleep 60
         echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 32 ${model_name} mp 1000 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
         sleep 60
@@ -533,18 +533,18 @@ transformer(){
     sleep 60
     echo "model_type is ${model_type}, index is speed, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_1gpus 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 ${model_type} sp 100 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_8gpus 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_1gpus 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_8gpus 2>&1
+    #sleep 60
+    #echo "model_type is ${model_type}, index is mem, 1gpus, begin"
+    #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_1gpus 2>&1
+    #sleep 60
+    #echo "model_type is ${model_type}, index is mem, 8gpus, begin"
+    #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 ${model_type} sp 100 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_8gpus 2>&1
+    #sleep 60
+    #echo "model_type is ${model_type}, index is maxbs, 1gpus, begin"
+    #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_1gpus 2>&1
+    #sleep 60
+    #echo "model_type is ${model_type}, index is maxbs, 8gpus, begin"
+    #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_8gpus 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is speed, 8gpus, run_mode is multi_process, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_type} mp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus8p 2>&1
@@ -559,12 +559,13 @@ transformer(){
     echo "model_type is ${model_type}, index is speed, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus 2>&1
     sleep 60
-    echo "model_type is ${model_type}, index is mem, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_1gpus 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is mem, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 ${model_type} sp 100 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_8gpus 2>&1
-    sleep 60
+#    echo "model_type is ${model_type}, index is mem, 1gpus, begin"
+#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 2 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_1gpus 2>&1
+#    sleep 60
+#    echo "model_type is ${model_type}, index is mem, 8gpus, begin"
+#    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 2 ${model_type} sp 100 | tee ${log_path}/${FUNCNAME}_${model_type}_mem_8gpus 2>&1
+#    sleep 60
+
 #    echo "model_type is ${model_type}, index is maxbs, 1gpus, begin"
 #    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 ${model_type} sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_1gpus 2>&1
 #    sleep 60
@@ -638,14 +639,6 @@ yolov3(){
         make install
         python2 setup.py install --user
         echo "cocoapi installed"
-    fi
-    if python -c "import tb_paddle" >/dev/null 2>&1;
-    then
-        echo "tb_paddle have already installed"
-    else
-        echo "tb_paddle NOT FOUND"
-        pip install tb_paddle
-        echo "tb_paddle installed"
     fi
 
     cd ${BENCHMARK_ROOT}/PaddleDetection

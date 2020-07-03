@@ -19,6 +19,7 @@ import abc, six
 import traceback
 import contextlib
 import importlib
+import logging
 import numpy as np
 import cProfile, pstats, StringIO
 import utils
@@ -125,6 +126,13 @@ class PaddleAPIBenchmarkBase(object):
         result = func(**kwargs)
         return result
 
+    @property
+    def backward(self):
+        if hasattr(self, "_PaddleAPIBenchmarkBase__backward"):
+            return self.__backward
+        else:
+            return False
+
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, fluid.framework.Variable):
             inputs = [inputs]
@@ -132,6 +140,8 @@ class PaddleAPIBenchmarkBase(object):
             raise TypeError("inputs should be a list.")
 
         gradients = fluid.backward.gradients(targets, inputs)
+        self.__backward = True
+        # print("Gradients: ", gradients)
         if isinstance(gradients, list):
             for grad in gradients:
                 self.fetch_vars.append(grad)
@@ -166,6 +176,14 @@ class PaddleAPIBenchmarkBase(object):
         executor = fluid.Executor(place)
         executor.run(self.startup_program)
 
+        stats = {
+            "framework": "paddle",
+            "version": paddle.__version__,
+            "name": self.name,
+            "device": "GPU" if use_gpu else "CPU",
+            "backward": self.__backward
+        }
+
         def _run_main_iter():
             feed_dict = feed if self._need_feed else None
             fetch_vars = self.fetch_vars if self._need_fetch else None
@@ -182,32 +200,34 @@ class PaddleAPIBenchmarkBase(object):
         if not self._need_feed:
             self._init_feed_tensor(use_gpu, feed)
 
-        # warmup run
-        outputs = _run_main_iter()
+        try:
+            # warmup run
+            outputs = _run_main_iter()
 
-        runtimes = []
-        fetches = []
-        outputs = None
-        with profile_context(self.name, use_gpu, profiler):
-            for i in range(repeat):
-                begin = time.time()
-                outputs = _run_main_iter()
-                runtimes.append(time.time() - begin)
-                if check_output:
-                    fetches.append(outputs)
+            runtimes = []
+            fetches = []
+            outputs = None
+            with profile_context(self.name, use_gpu, profiler):
+                for i in range(repeat):
+                    begin = time.time()
+                    outputs = _run_main_iter()
+                    runtimes.append(time.time() - begin)
+                    if check_output:
+                        fetches.append(outputs)
 
-        if check_output:
-            stable, max_diff = self._check_consistency(fetches)
-            stats = {"total": runtimes, "stable": stable, "diff": max_diff}
-        else:
-            stats = {"total": runtimes}
-        if self.name != "null":
-            stats["wall_time"] = walltimes
-        stats["framework"] = "paddle"
-        stats["version"] = paddle.__version__
-        stats["name"] = self.name
-        stats["device"] = "GPU" if use_gpu else "CPU"
-        return outputs, stats
+            stats["total"] = runtimes
+            if check_output:
+                stable, max_diff = self._check_consistency(fetches)
+                stats["stable"] = stable
+                stats["diff"] = max_diff
+            if self.name != "null":
+                stats["wall_time"] = walltimes
+            return outputs, stats
+        except fluid.core.EnforceNotMet as ex:
+            logging.basicConfig(level=logging.INFO)
+            logger = logging.getLogger(__name__)
+            logger.error(ex.message)
+            return False, stats
 
     def generate_random_feeder(self,
                                config,
@@ -223,6 +243,7 @@ class PaddleAPIBenchmarkBase(object):
             self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
             self._feed_dict = {}
 
+            self.__backward = False
             self.main_program = fluid.Program()
             self.startup_program = fluid.Program()
             with fluid.program_guard(self.main_program, self.startup_program):
@@ -240,6 +261,7 @@ class PaddleAPIBenchmarkBase(object):
         self.name = config.api_name
         feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
                                                      feeder_adapter)
+        # assert self.__backward == args.backward, "Backward is not surported for %s." % self.name
 
         feed_list = feeder_adapter.to_paddle(self.feed_vars)
         assert len(feed_list) == len(self.feed_vars)

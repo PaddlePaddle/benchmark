@@ -1,0 +1,23 @@
+[{
+    "atol": 0.05,
+    "op": "cumsum",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "0"
+        },
+        "exclusive": {
+            "type": "bool",
+            "value": "False"
+        },
+        "reverse": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1700971L, 1L]",
+            "type": "Variable"
+        }
+    }
+}]

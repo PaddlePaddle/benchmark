@@ -14,10 +14,12 @@
 
 from __future__ import print_function
 
-import sys
+import os, sys
 import argparse
 
-sys.path.append("..")
+package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(package_path)
+
 from common import utils
 
 
@@ -77,12 +79,12 @@ def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
         if exit_code == 0:
             return _parse_nvprof_logs(stdout.split("\n"))
         else:
-            print("stdout: {}".format(stdout))
+            print("Runing Error:\n {}".format(stdout))
     else:
         stdout, exit_code = utils.run_command(cmd)
         print(stdout)
         if exit_code != 0:
-            raise RuntimeError("Run command failed:\n  %s" % cmd)
+            sys.exit(exit_code)
     return 0.0
 
 
@@ -116,13 +118,15 @@ if __name__ == "__main__":
     profiler = benchmark_args_dict.get("profiler", "none")
     repeat = benchmark_args_dict.get("repeat", "1")
 
+    utils.check_commit()
+
     if use_gpu and task == "speed" and profiler == "none":
         total_gpu_time = launch(
             args.benchmark_script,
             args.benchmark_script_args,
             with_nvprof=True)
         args.benchmark_script_args.append(" --gpu_time ")
-        args.benchmark_script_args.append(str(total_gpu_time / float(repeat)))
+        args.benchmark_script_args.append(str(total_gpu_time))
 
     launch(
         args.benchmark_script, args.benchmark_script_args, with_nvprof=False)

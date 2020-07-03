@@ -14,13 +14,13 @@
 
 from common_import import *
 from fc import FCConfig
+tf.compat.v1.disable_v2_behavior()
 
 
 class WhileLoopConfig(APIConfig):
     def __init__(self):
         super(WhileLoopConfig, self).__init__('while_loop')
         self.alias_config = FCConfig()
-        self.run_tf = False
 
 
 class PDWhileLoop(PaddleAPIBenchmarkBase):
@@ -54,7 +54,7 @@ class PDWhileLoop(PaddleAPIBenchmarkBase):
             cond, body, [i, loop_len, input, result])
         self.feed_vars = [input]
         self.fetch_vars = [results]
-        if config.alias_config.backward:
+        if config.backward:
             self.append_gradients(results, [input])
 
 
@@ -94,7 +94,7 @@ class TFWhileLoop(TensorflowAPIBenchmarkBase):
                                          [i, loop_len, input, result])
         self.feed_list = [input]
         self.fetch_list = [results]
-        if config.alias_config.backward:
+        if config.backward:
             self.append_gradients(results, [input])
 
 

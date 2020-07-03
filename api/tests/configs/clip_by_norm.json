@@ -1,0 +1,10 @@
+[{
+    "op": "clip_by_norm",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1000L, 300L]",
+            "type": "Variable"
+        }
+    }
+}]

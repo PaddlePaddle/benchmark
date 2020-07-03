@@ -4,7 +4,7 @@
 
 if [ $# -lt 2 ]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|test speed|mem /ssd3/benchmark_results/cwh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run.sh train|test 1|2(speed|mem) /ssd3/benchmark_results/cwh/logs"
     exit
 fi
 
@@ -25,6 +25,8 @@ function _set_params(){
     position=-2
     range=6
     model_mode=0
+    mission_name="图像生成"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
+    direction_id=0 # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     run_mode=sp
 
     base_batch_size=32

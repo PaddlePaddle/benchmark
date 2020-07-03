@@ -1,0 +1,65 @@
+[{
+    "op": "slice",
+    "param_info": {
+        "axes": {
+            "type": "list",
+            "value": "[1]"
+        },
+        "ends": {
+            "type": "list",
+            "value": "[400]"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 800L]",
+            "type": "Variable"
+        },
+        "starts": {
+            "type": "list",
+            "value": "[200]"
+        }
+    }
+}, {
+    "op": "slice",
+    "param_info": {
+        "axes": {
+            "type": "list",
+            "value": "[0]"
+        },
+        "ends": {
+            "type": "list",
+            "value": "[35]"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[35L, -1L, 1500L]",
+            "type": "Variable"
+        },
+        "starts": {
+            "type": "list",
+            "value": "[34]"
+        }
+    },
+    "repeat": 20000
+}, {
+    "op": "slice",
+    "param_info": {
+        "axes": {
+            "type": "list",
+            "value": "[0]"
+        },
+        "ends": {
+            "type": "list",
+            "value": "[1]"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[2L, -1L, 1500L]",
+            "type": "Variable"
+        },
+        "starts": {
+            "type": "list",
+            "value": "[0]"
+        }
+    }
+}]

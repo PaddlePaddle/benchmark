@@ -15,6 +15,12 @@
 from common_import import *
 
 
+class MatmulConfig(APIConfig):
+    def __init__(self):
+        super(MatmulConfig, self).__init__("matmul")
+        self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
+
+
 class PDMatmul(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
@@ -53,4 +59,4 @@ class TFMatmul(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDMatmul(), TFMatmul(), config=APIConfig("matmul"))
+    test_main(PDMatmul(), TFMatmul(), config=MatmulConfig())
