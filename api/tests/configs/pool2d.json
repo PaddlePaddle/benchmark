@@ -187,7 +187,7 @@
     "param_info": {
         "ceil_mode": {
             "type": "bool",
-            "value": "True"
+            "value": "False"
         },
         "data_format": {
             "type": "string",
@@ -233,7 +233,7 @@
     "param_info": {
         "ceil_mode": {
             "type": "bool",
-            "value": "True"
+            "value": "False"
         },
         "data_format": {
             "type": "string",

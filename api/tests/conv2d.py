@@ -16,8 +16,8 @@ from common_import import *
 
 
 class Conv2dConfig(APIConfig):
-    def __init__(self):
-        super(Conv2dConfig, self).__init__('conv2d')
+    def __init__(self, op_type="conv2d"):
+        super(Conv2dConfig, self).__init__(op_type)
         self.feed_spec = [
             {
                 "range": [-1, 1]

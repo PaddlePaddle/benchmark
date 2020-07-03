@@ -22,8 +22,10 @@ class Pool2dConfig(APIConfig):
     def init_from_json(self, filename, config_id=0):
         super(Pool2dConfig, self).init_from_json(filename, config_id)
         self.pool_type = self.pool_type.lower()
-        # The argument of tf's padding algorithm, must be "SAME" or "VALID".
-        if not isinstance(self.pool_padding, str):
+        if isinstance(self.pool_padding, int):
+            self.pool_size = [self.pool_padding, self.pool_padding]
+        if not self.global_pooling and not isinstance(
+                self.pool_padding, str) and self.pool_padding != [0, 0]:
             self.run_tf = False
 
     def to_tensorflow(self):
@@ -35,22 +37,12 @@ class Pool2dConfig(APIConfig):
     def _convert_padding(self, padding):
         if isinstance(padding, str):
             return padding
-        if isinstance(padding, int):
-            padding = [padding, padding]
 
-        assert isinstance(padding, list)
-        assert len(padding) == 2 or len(padding) == 4
-        pad_top = padding[0] if len(padding) == 2 else padding[0]
-        pad_bottom = padding[0] if len(padding) == 2 else padding[1]
-        pad_left = padding[1] if len(padding) == 2 else padding[2]
-        pad_right = padding[1] if len(padding) == 2 else padding[3]
+        # It works for current configs, but maybe we need to check whether pool_size == pool_stride.
+        if padding == [0, 0]:
+            return "SAME" if self.ceil_mode else "VALID"
 
-        if self.data_format == "NCHW":
-            return [[0, 0], [0, 0], [pad_top, pad_bottom],
-                    [pad_left, pad_right]]
-        elif self.data_format == "NHWC":
-            return [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right],
-                    [0, 0]]
+        # TODO: fix the call of tf for other padding
 
 
 class PDPool2d(PaddleAPIBenchmarkBase):
@@ -68,6 +60,7 @@ class PDPool2d(PaddleAPIBenchmarkBase):
             ceil_mode=config.ceil_mode,
             exclusive=config.exclusive,
             data_format=config.data_format)
+        print(result)
 
         self.feed_vars = [input]
         self.fetch_vars = [result]
@@ -79,13 +72,22 @@ class TFPool2d(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
-        result = tf.nn.pool(
-            input,
-            window_shape=config.pool_size,
-            pooling_type=config.pool_type,
-            strides=config.pool_stride,
-            padding=config.pool_padding,
-            data_format=config.data_format)
+        if config.global_pooling:
+            data_format = "channels_first" if config.data_format == "NCHW" else "channels_last"
+            if config.pool_type == "AVG":
+                result = tf.keras.layers.GlobalAveragePooling2D(
+                    data_format=data_format)(input)
+            elif config.pool_type == "MAX":
+                result = tf.keras.layers.GlobalMaxPool2D(
+                    data_format=data_format)(input)
+        else:
+            result = tf.nn.pool(
+                input=input,
+                window_shape=config.pool_size,
+                pooling_type=config.pool_type,
+                strides=config.pool_stride,
+                padding=config.pool_padding,
+                data_format=config.data_format)
 
         self.feed_list = [input]
         self.fetch_list = [result]
