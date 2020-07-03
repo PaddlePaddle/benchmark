@@ -34,6 +34,8 @@ class Conv2dConfig(APIConfig):
             self.disabled = True
             return
 
+        if isinstance(self.padding, int):
+            self.padding = [self.padding, self.padding]
         if self.data_format == "NCHW":
             self.num_channels = self.input_shape[1]
         elif self.data_format == "NHWC":
@@ -67,8 +69,6 @@ class Conv2dConfig(APIConfig):
     def _convert_padding(self, padding):
         if isinstance(padding, str):
             return padding
-        if isinstance(padding, int):
-            padding = [padding, padding]
 
         assert isinstance(padding, list)
         assert len(padding) == 2 or len(padding) == 4

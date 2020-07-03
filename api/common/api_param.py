@@ -92,7 +92,7 @@ class BaseParamInfo(object):
     def _translate_value(self, value_str):
         if self.type in ["float", "float32", "float64"]:
             return float(value_str)
-        elif self.type in ["int", "int32", "int64"]:
+        elif self.type in ["int", "int32", "int64", "long"]:
             return int(value_str)
         elif self.type == "bool":
             return eval(value_str)
