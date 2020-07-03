@@ -317,7 +317,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[-1L, 256L, 14L, 14L]",
+            "shape": "[32L, 256L, 14L, 14L]",
             "type": "Variable"
         },
         "num_filters": {
@@ -325,8 +325,8 @@
             "value": "256"
         },
         "output_size": {
-            "type": "string",
-            "value": "None"
+            "type": "list",
+            "value": "[28L, 28L]"
         },
         "padding": {
             "type": "int",
