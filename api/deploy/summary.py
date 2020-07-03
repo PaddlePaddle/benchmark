@@ -1,5 +1,4 @@
 #!/bin/python
-
 #   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -175,17 +174,6 @@ def get_job_res(inputfile, specified_op_list=None):
     return res
 
 
-def read_frequency_from_text(op_frequency_path):
-    op_frequency_dict = {}
-    with open(op_frequency_path, "r") as f:
-        for line in f.readlines():
-            contents = line.split()
-            if len(contents) != 3:
-                continue
-            op_frequency_dict[contents[1]] = int(contents[2])
-    return op_frequency_dict
-
-
 def dump_mysql(data):
     """
     dump data to mysql database
@@ -341,7 +329,9 @@ if __name__ == '__main__':
 
     op_frequency_dict = None
     if args.op_frequency_path:
-        op_frequency_dict = read_frequency_from_text(args.op_frequency_path)
+        import read_frequency
+        op_frequency_dict = read_frequency.read_frequency_from_text(
+            args.op_frequency_path)
 
     if args.dump_to_text:
         import write_text
