@@ -21,11 +21,15 @@ import contextlib
 import importlib
 import logging
 import numpy as np
-import cProfile, pstats, StringIO
-import utils
 
-import api_param
-import feeder
+if six.PY3:
+    from . import utils
+    from . import api_param
+    from . import feeder
+else:
+    import utils
+    import api_param
+    import feeder
 
 try:
     import paddle
@@ -44,6 +48,8 @@ def profile_context(name, use_gpu, profiler):
                 profile_type, 'total', output_file, tracer_option=profiler):
             yield
     elif profiler == "pyprof":
+        import cProfile, pstats, StringIO
+
         profiler_handle = cProfile.Profile()
         profiler_handle.enable()
         yield

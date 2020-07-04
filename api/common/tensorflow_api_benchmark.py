@@ -20,10 +20,15 @@ import time
 import abc, six
 import importlib
 import numpy as np
-import cProfile, pstats, StringIO
-import utils
-import api_param
-import feeder
+
+if six.PY3:
+    from . import utils
+    from . import api_param
+    from . import feeder
+else:
+    import utils
+    import api_param
+    import feeder
 
 try:
     import tensorflow as tf
@@ -48,6 +53,7 @@ class Profiler(object):
 
     def __enter__(self):
         if self.profiler == "pyprof":
+            import cProfile
             self.profiler_handle = cProfile.Profile()
             self.profiler_handle.enable()
         elif self.profiler != "none":
@@ -77,6 +83,7 @@ class Profiler(object):
 
     def __exit__(self, exception_type, exception_value, traceback):
         if self.profiler == "pyprof":
+            import pstats, StringIO
             self.profiler_handle.disable()
             # self.profiler_handle.dump_stats("./outputs/" + self.name + ".pyprof")
             s = StringIO.StringIO()

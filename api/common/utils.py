@@ -14,13 +14,18 @@
 
 from __future__ import print_function
 
+import six
 import os, sys
 import traceback
 import numpy as np
 import json
 import collections
 import subprocess
-import special_op_list
+
+if six.PY3:
+    from . import special_op_list
+else:
+    import special_op_list
 
 
 def str2bool(v):
@@ -179,7 +184,7 @@ def check_outputs(list1,
                 len(list1), len(list2))
 
         num_outputs = len(list1)
-        for i in xrange(num_outputs):
+        for i in range(num_outputs):
             output1 = list1[i]
             output2 = list2[i]
 
