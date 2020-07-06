@@ -24,6 +24,9 @@ class Pool2dConfig(APIConfig):
         self.pool_type = self.pool_type.lower()
         if isinstance(self.pool_padding, int):
             self.pool_size = [self.pool_padding, self.pool_padding]
+
+        # The argument padding of tf's pool2d must be a string and the value
+        #   is "SAME" or "VALID".
         if not self.global_pooling and not isinstance(
                 self.pool_padding, str) and self.pool_padding != [0, 0]:
             self.run_tf = False
@@ -38,7 +41,8 @@ class Pool2dConfig(APIConfig):
         if isinstance(padding, str):
             return padding
 
-        # It works for current configs, but maybe we need to check whether pool_size == pool_stride.
+        # It works for current configs, but maybe we need to check whether
+        #   pool_size == pool_stride.
         if padding == [0, 0]:
             return "SAME" if self.ceil_mode else "VALID"
 
@@ -60,7 +64,6 @@ class PDPool2d(PaddleAPIBenchmarkBase):
             ceil_mode=config.ceil_mode,
             exclusive=config.exclusive,
             data_format=config.data_format)
-        print(result)
 
         self.feed_vars = [input]
         self.fetch_vars = [result]

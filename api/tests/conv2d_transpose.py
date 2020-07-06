@@ -27,10 +27,12 @@ class Conv2dTransposeConfig(Conv2dConfig):
             self.filter_size[0], self.filter_size[1]
         ]
 
-        # The argument padding of tf's conv2d_transpose must be a string and the value is "SAME" or "VALID".
-
-    #        if not isinstance(self.padding, str):
-    #            self.run_tf = False
+        # The argument padding of tf's conv2d_transpose must be a string and
+        # the value is "SAME" or "VALID".
+        if not isinstance(
+                self.padding,
+                str) and self.padding != [0, 0] and self.padding != [1, 1]:
+            self.run_tf = False
 
     def to_tensorflow(self):
         assert self.output_size is not None
@@ -39,6 +41,16 @@ class Conv2dTransposeConfig(Conv2dConfig):
             self.filter_size[0], self.filter_size[1], self.num_filters,
             self.num_channels // self.groups
         ]
+        if self.data_format == "NCHW":
+            tf_config.output_size = [
+                self.input_shape[0], self.num_filters, self.output_size[0],
+                self.output_size[1]
+            ]
+        elif self.data_format == "NHWC":
+            tf_config.output_size = [
+                self.input_shape[0], self.output_size[0], self.output_size[1],
+                self.num_filters
+            ]
         tf_config.padding = self._convert_padding(self.padding)
         return tf_config
 
@@ -47,8 +59,9 @@ class Conv2dTransposeConfig(Conv2dConfig):
             return padding
 
         assert isinstance(padding, list)
-        if padding == [0, 0]:
-            return "VALID"
+
+        # It works for current configs, but maybe we need to add some check.
+        return "VALID" if padding == [0, 0] else "SAME"
 
 
 class PDConv2dTranspose(PaddleAPIBenchmarkBase):
@@ -71,7 +84,6 @@ class PDConv2dTranspose(PaddleAPIBenchmarkBase):
             use_cudnn=config.use_cudnn,
             act=None,
             data_format=config.data_format)
-        print(result)
 
         self.feed_vars = [input, filter]
         self.fetch_vars = [result]
@@ -85,13 +97,10 @@ class TFConv2dTranspose(TensorflowAPIBenchmarkBase):
             name='input', shape=config.input_shape, dtype=config.input_dtype)
         filter = self.variable(
             name='filter', shape=config.filter_shape, dtype=config.input_dtype)
-        output_shape = tf.Variable(config.output_size, name="output_shape")
-        print(input)
-        print(filter)
         result = tf.nn.conv2d_transpose(
             input=input,
             filters=filter,
-            output_shape=output_shape,
+            output_shape=config.output_size,
             strides=config.stride,
             padding=config.padding,
             data_format=config.data_format,

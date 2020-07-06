@@ -34,9 +34,10 @@ class DepthwiseConv2dConfig(Conv2dConfig):
             self.num_filters // self.groups
         ]
         if isinstance(self.stride, int):
-            tf_config.stride = [
-                self.stride, self.stride, self.stride, self.stride
-            ]
+            if self.data_format == "NCHW":
+                tf_config.stride = [1, 1, self.stride, self.stride]
+            elif self.data_format == "NHWC":
+                tf_config.stride = [1, self.stride, self.stride, 1]
         return tf_config
 
     def _convert_padding(self, padding):
