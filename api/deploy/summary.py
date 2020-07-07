@@ -192,7 +192,7 @@ def dump_mysql(data):
     """
     dump data to mysql database
     """
-    timestamp = time.time()
+    timestamp = os.getenv("PADDLE_VERSION", time.time())
     for i in range(len(data)):
         dic = data[i]
         op_record = models.OpRecord2()

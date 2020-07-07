@@ -220,6 +220,7 @@ function run(){
             -e "BENCHMARK_WEBSITE=${BENCHMARK_WEBSITE}" \
             -e "http_proxy=${HTTP_PROXY}" \
             -e "https_proxy=${HTTP_PROXY}" \
+            -e "PADDLE_VERSION=${PADDLE_VERSION}" \
             --net=host \
             --privileged \
             --shm-size=32G \
