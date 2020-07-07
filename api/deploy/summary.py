@@ -18,12 +18,16 @@ summary script
 """
 from __future__ import print_function
 
-import os, sys
+import os
+import sys
 import json
 import argparse
+import time
 
-package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(package_path)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+import models.benchmark_server.helper as helper
+from benchmark_op import models
 
 from common import utils
 import op_benchmark_unit
@@ -146,11 +150,11 @@ def get_job_res(inputfile, specified_op_list=None):
     Args:
       inputfile (str) -- directory path
     """
-    filename = os.path.splitext(os.path.basename(inputfile))[0]
-    case_name = filename.split("-")[0]
+    file_name = os.path.splitext(os.path.basename(inputfile))[0]
+    case_name = file_name.split("-")[0]
     op_type = op_benchmark_unit.parse_op_type(case_name)
     if specified_op_list and op_type not in specified_op_list:
-        return res
+        return
 
     print("-- Parse %s from %s" % (case_name, inputfile))
 
@@ -158,8 +162,8 @@ def get_job_res(inputfile, specified_op_list=None):
     if case_name not in res:
         res[case_name] = {}
 
-    statistic_beg_idx = filename.find("-")
-    statistic_type = filename[statistic_beg_idx + 1:]
+    statistic_beg_idx = file_name.find("-")
+    statistic_type = file_name[statistic_beg_idx + 1:]
     last_line = _read_last_line(inputfile)
     # print(last_line)
 
@@ -171,8 +175,6 @@ def get_job_res(inputfile, specified_op_list=None):
 
     if last_line and "_accuracy_" in statistic_type:
         _parse_accuracy(case_name, statistic_type, last_line)
-
-    return res
 
 
 def read_frequency_from_text(op_frequency_path):
@@ -193,73 +195,27 @@ def dump_mysql(data):
     timestamp = time.time()
     for i in range(len(data)):
         dic = data[i]
-        case_name = dic['name']
-        paddle_cpu_accuracy = "--"
-        paddle_cpu_accuracy_backwards = "--"
-        paddle_gpu_accuracy = "--"
-        paddle_gpu_accuracy_backwards = "--"
-        paddle_cpu_perf = "--"
-        tf_cpu_perf = "--"
-        paddle_gpu_perf = "--"
-        tf_gpu_perf = "--"
-        paddle_cpu_perf_backwards = "--"
-        tf_cpu_perf_backwards = "--"
-        paddle_gpu_perf_backwards = "--"
-        tf_gpu_perf_backwards = "--"
-        parameters = "--"
-        gpu_time = "--"
-        gpu_time_backward = "--"
-        tf_gpu_time = "--"
-        tf_gpu_time_backward = "--"
-
-        for k, v in dic.items():
-            if k == "paddle_cpu_accuracy_forward":
-                paddle_cpu_accuracy = v
-            elif k == "paddle_cpu_accuracy_backward":
-                paddle_cpu_accuracy_backwards = v
-            elif k == "paddle_gpu_accuracy_forward":
-                paddle_gpu_accuracy = v
-            elif k == "paddle_gpu_accuracy_backward":
-                paddle_gpu_accuracy_backwards = v
-            elif k == "paddle_cpu_speed_forward":
-                paddle_cpu_perf = v
-            elif k == "tensorflow_cpu_speed_forward":
-                tf_cpu_perf = v
-            elif k == "paddle_gpu_speed_forward":
-                paddle_gpu_perf = v
-            elif k == "tensorflow_gpu_speed_forward":
-                tf_gpu_perf = v
-            elif k == "paddle_cpu_speed_backward":
-                paddle_cpu_perf_backwards = v
-            elif k == "tensorflow_cpu_speed_backward":
-                tf_cpu_perf_backwards = v
-            elif k == "paddle_gpu_speed_backward":
-                paddle_gpu_perf_backwards = v
-            elif k == "tensorflow_gpu_speed_backward":
-                tf_gpu_perf_backwards = v
-            elif k == "parameters":
-                parameters = v
-            elif k == "gpu_time_backward":
-                gpu_time_backward = v
-            elif k == "gpu_time":
-                gpu_time = v
-            elif k == "tf_gpu_time_backward":
-                tf_gpu_time_backward = v
-            elif k == "tf_gpu_time":
-                tf_gpu_time = v
-            else:
-                pass
-
-        cmd = 'docker exec mysql ./mysql -e "insert into paddle.op_record2 ' \
-              'values(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\',' \
-              '\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, \'{}\', \'{}\', \'{}\', \'{}\');" '\
-            .format(
-                    case_name, paddle_cpu_accuracy, paddle_cpu_accuracy_backwards, paddle_gpu_accuracy,
-                    paddle_gpu_accuracy_backwards, paddle_cpu_perf, tf_cpu_perf, paddle_gpu_perf, tf_gpu_perf,
-                    paddle_cpu_perf_backwards, tf_cpu_perf_backwards, paddle_gpu_perf_backwards, tf_gpu_perf_backwards,
-                    "--", parameters, timestamp, gpu_time, gpu_time_backward, tf_gpu_time, tf_gpu_time_backward
-                    )
-        os.system(cmd)
+        op_record = models.OpRecord2()
+        op_record.timestamp = timestamp
+        op_record.case_name = dic['name']
+        op_record.paddle_cpu_accuracy = dic.get("paddle_cpu_accuracy_forward", "--")
+        op_record.paddle_cpu_accuracy_backwards = dic.get("paddle_cpu_accuracy_backward", "--")
+        op_record.paddle_gpu_accuracy = dic.get("paddle_gpu_accuracy_forward", "--")
+        op_record.paddle_gpu_accuracy_backwards = dic.get("paddle_gpu_accuracy_backward", "--")
+        op_record.paddle_cpu_perf = dic.get("paddle_cpu_speed_forward", "--")
+        op_record.tf_cpu_perf = dic.get("tensorflow_cpu_speed_forward", "--")
+        op_record.paddle_gpu_perf = dic.get("paddle_gpu_speed_forward", "--")
+        op_record.tf_gpu_perf = dic.get("tensorflow_gpu_speed_forward", "--")
+        op_record.paddle_cpu_perf_backwards = dic.get("paddle_cpu_speed_backward", "--")
+        op_record.tf_cpu_perf_backwards = dic.get("tensorflow_cpu_speed_backward", "--")
+        op_record.paddle_gpu_perf_backwards = dic.get("paddle_gpu_speed_backward", "--")
+        op_record.tf_gpu_perf_backwards = dic.get("tensorflow_gpu_speed_backward", "--")
+        op_record.config = dic.get("parameters", "--")
+        op_record.gpu_time_backward = dic.get("gpu_time_backward", "--")
+        op_record.gpu_time = dic.get("gpu_time", "--")
+        op_record.tf_gpu_time_backward = dic.get("tf_gpu_time_backward", "--")
+        op_record.tf_gpu_time = dic.get("tf_gpu_time", "--")
+        op_record.save()
 
 
 if __name__ == '__main__':
@@ -324,8 +280,7 @@ if __name__ == '__main__':
         specified_op_list = args.specified_op_list.split()
 
     for filename in sorted(filenames):
-        res = get_job_res(
-            os.path.join(op_result_dir, filename), specified_op_list)
+        get_job_res(os.path.join(op_result_dir, filename), specified_op_list)
 
     data = []
     benchmark_result_list = []
