@@ -27,9 +27,9 @@ class SliceConfig(APIConfig):
             for i in range(len(self.input_shape)):
                 tf_config.begin.append(0)
                 tf_config.size.append(self.input_shape[i])
-            for i in self.axes:
-                tf_config.begin[i] = self.starts[i]
-                tf_config.size[i] = self.ends[i] - self.starts[i]
+            for c, i in enumerate(self.axes):
+                tf_config.begin[i] = self.starts[c]
+                tf_config.size[i] = self.ends[c] - self.starts[c]
         else:
             for j in range(len(self.starts)):
                 tf_config.size[j] = self.ends[j] - self.starts[j]
