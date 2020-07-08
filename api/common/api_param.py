@@ -71,9 +71,18 @@ def parse_list(value_str, sub_dtype="int"):
 def parse_tuple(value_str, sub_dtype="int"):
     value_str = parse_string(value_str)
     if sub_dtype in ["int", "int64"]:
-        value_str = value_str.replace("L", "").replace("(", "").replace(
-            ")", "").split(',')
-        return map(int, value_str)
+        try:
+            if value_str != "()":
+                value_str_list = value_str.replace("L", "").replace(
+                    "(", "").replace(")", "").split(',')
+                value_list = []
+                for item in value_str_list:
+                    value_list.append(int(item))
+                return value_list
+            else:
+                return []
+        except Exception as e:
+            assert False, "Parse {} failed: {}".format(value_str, e)
     else:
         # TODO: check and support list of other data type.
         raise ValueError("Do not support parsing list of non-int data type.")
@@ -100,7 +109,7 @@ class BaseParamInfo(object):
     def _translate_value(self, value_str):
         if self.type in ["float", "float32", "float64"]:
             return float(value_str)
-        elif self.type in ["int", "int32", "int64"]:
+        elif self.type in ["int", "int32", "int64", "long"]:
             return int(value_str)
         elif self.type == "bool":
             return eval(value_str)

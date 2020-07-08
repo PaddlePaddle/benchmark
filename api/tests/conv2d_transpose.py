@@ -13,53 +13,55 @@
 # limitations under the License.
 
 from common_import import *
+from conv2d import Conv2dConfig
 
 
-class Conv2dTransposeConfig(APIConfig):
+class Conv2dTransposeConfig(Conv2dConfig):
     def __init__(self):
-        super(Conv2dTransposeConfig, self).__init__('conv2d_transpose')
-        self.feed_spec = [
-            {
-                "range": [0, 1]
-            },  # input
-            {
-                "permute": [2, 3, 1, 0]
-            }  # filters
-        ]
+        super(Conv2dTransposeConfig, self).__init__("conv2d_transpose")
 
     def init_from_json(self, filename, config_id=0):
         super(Conv2dTransposeConfig, self).init_from_json(filename, config_id)
-        if self.data_format == "NCHW":
-            self.num_channels = self.input_shape[1]
-        elif self.data_format == "NHWC":
-            self.num_channels = self.input_shape[3]
-        if self.input_shape[0] == -1:
-            self.input_shape[0] = 64
-        if isinstance(self.filter_size, int):
-            self.filter_size = [self.filter_size, self.filter_size]
-        if self.groups is None:
-            self.groups = 1
-        if self.num_channels % self.groups != 0:
-            raise ValueError(
-                "the channel of input must be divisible by groups,"
-                "received: the channel of input is {}, the shape of input is {}"
-                ", the groups is {}".format(self.num_channels,
-                                            self.input_shape, self.groups))
         self.filter_shape = [
             self.num_channels // self.groups, self.num_filters,
             self.filter_size[0], self.filter_size[1]
         ]
-        # The argument padding of tf's conv2d_transpose must be a string and the value is "SAME" or "VALID".
-        if self.output_size is None or not isinstance(self.padding, str):
+
+        # The argument padding of tf's conv2d_transpose must be a string and
+        # the value is "SAME" or "VALID".
+        if not isinstance(
+                self.padding,
+                str) and self.padding != [0, 0] and self.padding != [1, 1]:
             self.run_tf = False
 
     def to_tensorflow(self):
+        assert self.output_size is not None
         tf_config = super(Conv2dTransposeConfig, self).to_tensorflow()
         tf_config.filter_shape = [
             self.filter_size[0], self.filter_size[1], self.num_filters,
             self.num_channels // self.groups
         ]
+        if self.data_format == "NCHW":
+            tf_config.output_size = [
+                self.input_shape[0], self.num_filters, self.output_size[0],
+                self.output_size[1]
+            ]
+        elif self.data_format == "NHWC":
+            tf_config.output_size = [
+                self.input_shape[0], self.output_size[0], self.output_size[1],
+                self.num_filters
+            ]
+        tf_config.padding = self._convert_padding(self.padding)
         return tf_config
+
+    def _convert_padding(self, padding):
+        if isinstance(padding, str):
+            return padding
+
+        assert isinstance(padding, list)
+
+        # It works for current configs, but maybe we need to add some check.
+        return "VALID" if padding == [0, 0] else "SAME"
 
 
 class PDConv2dTranspose(PaddleAPIBenchmarkBase):
@@ -82,7 +84,6 @@ class PDConv2dTranspose(PaddleAPIBenchmarkBase):
             use_cudnn=config.use_cudnn,
             act=None,
             data_format=config.data_format)
-        print(result)
 
         self.feed_vars = [input, filter]
         self.fetch_vars = [result]
