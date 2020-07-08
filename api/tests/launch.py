@@ -21,6 +21,7 @@ package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
 
 from common import utils
+from common import api_param
 
 
 def _nvprof(cmd):
@@ -57,7 +58,7 @@ def _parse_nvprof_logs(logs):
     line_to = None
     total_gpu_time = 0.0
     for i in range(len(logs)):
-        line = logs[i].encode("utf-8")
+        line = api_param.parse_string(logs[i])
         if "GPU activities:" in line:
             line_from = i - 1
         if line_from is not None and "API calls:" in line:
