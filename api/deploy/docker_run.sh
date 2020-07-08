@@ -86,11 +86,6 @@ while [[ $# -gt 0 ]]; do
         implement_type=$2
         shift; shift
         ;;
-    -e|--email_address)
-        [[ "X$2" == "X" ]] && _fatal "option $1 needs an argument!"
-        email_address=$2
-        shift; shift
-        ;;
     *)
         _fatal "Unrecongnized option $1"
         ;;
@@ -202,14 +197,17 @@ function run(){
     export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
     export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
     RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
-    run_cmd="ln -s ${all_path}/env/bin/python /usr/local/bin/mypython;
-             export LD_LIBRARY_PATH=/usr/lib64:/usr/lib/x86_64-linux-gnu:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${all_path}/env/lib/;
-             pip install nvidia-ml-py;
+    run_cmd="pip install nvidia-ml-py;
              pip install psutil;
              pip install tensorflow-gpu;
+             pip uninstall paddlepaddle -y;
+             pip uninstall paddlepaddle-gpu -y;
+             pip install ${all_path}/images/${IMAGE_NAME};
              cd ${benchmark_work_path}/baidu/paddle/benchmark/api;
              bash deploy/main_control.sh tests/configs ${logs_dir};
              unset http_proxy https_proxy;
+             ln -s ${all_path}/env/bin/python /usr/local/bin/mypython;
+             export LD_LIBRARY_PATH=/usr/lib64:/usr/lib/x86_64-linux-gnu:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${all_path}/env/lib/;
              mypython deploy/summary.py ${logs_dir};
             "
     nvidia-docker run ${CUDA_SO} ${DEVICES}  -i --rm \
