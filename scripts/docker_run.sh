@@ -1,53 +1,99 @@
-#!/bin/bash
-
-function usage () {
-  cat <<EOF
-  usage: $0 [options]
-  -h         optional   Print this help message
-  -m  model  all
-  -d  dir of benchmark_work_path
-  -c  cuda_version 9.0|10.0
-  -n  cudnn_version 7
-  -a  image_branch develop|1.6|pr_number|v1.6.0
-  -p  all_path contains dir of prepare(pretrained models), dataset, logs, images such as /ssd1/ljh
-  -r  run_module  build_paddle or run_models
-  -t  job_type  benchmark_daliy | models test | pr_test
-  -g  device_type  p40 | v100
-  -s  implement_type of model static | dynamic
-  -e  benchmark alarm email address
-EOF
-}
-if [ $# -lt 18 ] ; then
-  usage
-  exit 1;
+if [[ -t 1 ]]
+then
+    YELLOW="$( echo -e "\e[33m" )"
+    GREEN="$( echo -e "\e[32m" )"
+    RED="$( echo -e "\e[31m" )"
+    NORMAL="$( echo -e "\e[0m" )"
 fi
-while getopts h:m:d:c:n:a:p:r:t:g:s:e: opt
-do
-  case $opt in
-  h) usage; exit 0 ;;
-  m) model="$OPTARG" ;;
-  d) benchmark_work_path="$OPTARG" ;;
-  c) cuda_version="$OPTARG" ;;
-  n) cudnn_version="$OPTARG" ;;
-  a) image_branch="$OPTARG" ;;
-  p) all_path="$OPTARG" ;;
-  r) run_module="$OPTARG" ;;
-  t) job_type="$OPTARG" ;;
-  g) device_type="$OPTARG" ;;
-  s) implement_type="$OPTARG" ;;
-  e) email_address="$OPTARG" ;;
-  \?) usage; exit 1 ;;
-  esac
+
+function _yellow(){ echo "$YELLOW""$@""$NORMAL";}
+function _green(){ echo "$GREEN""$@""$NORMAL";}
+function _red(){ echo "$RED""$@""$NORMAL";}
+
+function _message(){ echo "$@" >&2;}
+function _warn(){ echo $(_yellow '==> WARN:') "$@" >&2;}
+function _info(){ echo $(_green '==> ') "$@" >&2;}
+function _error(){ echo $(_red '==> ERROR:') "$@" >&2;}
+function _fatal(){ echo $(_red '==> ERROR:') "$@" >&2; exit 1;}
+
+
+function _print_usage(){
+    _message "usage: $0 [options]"
+    _message "    -h  optional   Print this help message"
+    _message "    -b  dir of benchmark_work_path"
+    _message "    -d  device_type  p40 | v100 | cpu"
+    _message "    -c  cuda_version 9.0|10.0"
+    _message "    -n  cudnn_version 7"
+    _message "    -a  image_branch develop | 1.6 | pr"
+    _message "    -t  job_type  benchmark_daliy | models test | pr_test"
+    _message "    -p  all_path contains dir of images such as /ssd1/ljh"
+    _message "    -s  implement_type of model static | dynamic"
+}
+
+function _init_parameters(){
+    benchmark_work_path=$(pwd)
+    image_branch='develop'
+    device_type=v100
+    cuda_version=10.1
+    cudnn_version=7
+    job_type=12
+    all_path=/ssd1/ljh
+    implement_type=staticgraph
+}
+
+_init_parameters
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -h|--help) _print_usage; exit 0 ;;
+    -b|--benchmark_work_path)
+        [[ "X$2" == "X" ]] && _fatal "option $1 needs an argument!"
+        benchmark_work_path=$2
+        shift; shift
+        ;;
+    -d|--device_type)
+        [[ "X$2" == "X" ]] && _fatal "option $1 needs an argument!"
+        device_type=$2
+        shift; shift
+        ;;
+    -c|--cuda_version)
+        [[ "X$2" == "X" ]] && _fatal "option $1 needs an argument!"
+        cuda_version=$2
+        shift; shift
+        ;;
+    -n|--cudnn_version)
+        [[ "X$2" == "X" ]] && _fatal "option $1 needs an argument!"
+        cudnn_version=$2
+        shift; shift
+        ;;
+    -a|--image_branch)
+        [[ "X$2" == "X" ]] && _fatal "option $1 needs an argument!"
+        image_branch=$2
+        shift; shift
+        ;;
+    -t|--job_type)
+        [[ "X$2" == "X" ]] && _fatal "option $1 needs an argument!"
+        job_type=$2
+        shift; shift
+        ;;
+    -p|--all_path)
+        [[ "X$2" == "X" ]] && _fatal "option $1 needs an argument!"
+        all_path=$2
+        shift; shift
+        ;;
+    -s|--implement_type)
+        [[ "X$2" == "X" ]] && _fatal "option $1 needs an argument!"
+        implement_type=$2
+        shift; shift
+        ;;
+    *)
+        _fatal "Unrecongnized option $1"
+        ;;
+   esac
 done
 
-paddle_repo="https://github.com/PaddlePaddle/Paddle.git"
-
-export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
-export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
-
-# Construct the paddle version according to the commit date
 function construnct_version(){
-    cd ${benchmark_work_path}/Paddle
+    cd ${benchmark_work_path}/Paddle || exit
     image_commit_id=$(git log|head -n1|awk '{print $2}')
     echo "image_commit_id is: "${image_commit_id}
     version=`date -d @$(git log -1 --pretty=format:%ct) "+%Y.%m%d.%H%M%S"`
@@ -63,7 +109,7 @@ function construnct_version(){
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
         with_gpu='ON'
     fi
-    PADDLE_DEV_NAME=docker.io/paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
+    PADDLE_DEV_NAME=paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
     echo "IMAGE_NAME is: "${IMAGE_NAME}
 }
 
@@ -142,41 +188,32 @@ EOF
 
 }
 
-# create containers based on mirror ${RUN_IMAGE_NAME} and run jobs
-function run_models(){
+function run(){
     construnct_version
     # Determine if the whl exists
     if [[ -s ${all_path}/images/${IMAGE_NAME} ]]; then echo "image found"; else exit 1; fi
-    run_cmd="cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/scripts;
-        bash auto_run_paddle.sh -m $model \
-        -c ${cuda_version} \
-        -n ${all_path}/images/${IMAGE_NAME} \
-        -i ${image_commit_id} \
-        -a ${image_branch} \
-        -v ${PADDLE_VERSION} \
-        -p ${all_path} \
-        -t ${job_type} \
-        -g ${device_type} \
-        -s ${implement_type}"
-
-    if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
-        RUN_IMAGE_NAME=hub.baidubce.com/paddlepaddle/paddle:latest
-
-        docker run -i --rm \
-        -v /home/work:/home/work \
-        -v ${all_path}:${all_path} \
-        -v /usr/bin/monquery:/usr/bin/monquery \
-        -e "BENCHMARK_WEBSITE=${BENCHMARK_WEBSITE}" \
-        -e "http_proxy=${HTTP_PROXY}" \
-        -e "https_proxy=${HTTP_PROXY}" \
-        --net=host \
-        --privileged \
-        --shm-size=32G \
-        ${RUN_IMAGE_NAME} \
-        /bin/bash -c "${run_cmd}"
-    else
-        RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
-        nvidia-docker run -i --rm \
+    logs_dir=${all_path}/logs/logs_op_benchmark/${PADDLE_VERSION}
+    # todo 当前web-server寻找日志是固定目录，后续优化
+    result_dir=${all_path}/logs/logs_op_benchmark/result_test
+    mkdir -p ${logs_dir}
+    export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
+    export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
+    RUN_IMAGE_NAME=paddlepaddle/paddle:latest-dev-cuda${cuda_version}-cudnn${cudnn_version}-gcc82
+    run_cmd="python -m pip install --upgrade pip;
+             pip install nvidia-ml-py;
+             pip install psutil;
+             pip install tensorflow==2.1;
+             pip uninstall paddlepaddle -y;
+             pip uninstall paddlepaddle-gpu -y;
+             pip install ${all_path}/images/${IMAGE_NAME};
+             cd ${benchmark_work_path}/baidu/paddle/benchmark/api;
+             bash deploy/main_control.sh tests/configs ${logs_dir};
+             unset http_proxy https_proxy;
+             ln -s ${all_path}/env/bin/python /usr/local/bin/mypython;
+             export LD_LIBRARY_PATH=/usr/lib64:/usr/lib/x86_64-linux-gnu:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${all_path}/env/lib/;
+             mypython deploy/summary.py ${logs_dir};
+            "
+    nvidia-docker run ${CUDA_SO} ${DEVICES}  -i --rm \
             -v /home/work:/home/work \
             -v ${all_path}:${all_path} \
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
@@ -184,36 +221,17 @@ function run_models(){
             -e "BENCHMARK_WEBSITE=${BENCHMARK_WEBSITE}" \
             -e "http_proxy=${HTTP_PROXY}" \
             -e "https_proxy=${HTTP_PROXY}" \
+            -e "PADDLE_VERSION=${PADDLE_VERSION}" \
             --net=host \
             --privileged \
             --shm-size=32G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
-    fi
+
+    # todo 需要将当前的日志拷贝到result，才能访问日志
+    rm -rf ${result_dir}
+    cp -r ${logs_dir} ${result_dir}
 }
 
-#Send alarm email
-function send_email(){
-    # if [[ ${job_type} == 2 && -e ${all_path}/logs/${PADDLE_VERSION}/mail.html ]]; then
-    if [[ -e ${all_path}/logs/${PADDLE_VERSION}/${implement_type}/mail.html ]]; then
-        cat ${all_path}/logs/${PADDLE_VERSION}/${implement_type}/mail.html |sendmail -t ${email_address}
-    fi
-}
-
-# Compressed training log and storage
-function zip_log(){
-    echo $(pwd)
-    if [[ -d ${all_path}/logs/${PADDLE_VERSION} ]]; then
-        rm -rf output/*
-        tar -zcvf output/${PADDLE_VERSION}.tar.gz ${all_path}/logs/${PADDLE_VERSION}
-        cp ${all_path}/images/${IMAGE_NAME}  output/
-    fi
-}
-
-if [[ ${run_module} = "build_paddle" ]]; then
-    build_paddle
-else
-    run_models
-    zip_log
-    send_email
-fi
+build_paddle
+run
