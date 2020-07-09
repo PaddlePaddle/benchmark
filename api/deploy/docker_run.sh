@@ -34,7 +34,7 @@ function _init_parameters(){
     benchmark_work_path=$(pwd)
     image_branch='develop'
     device_type=v100
-    cuda_version=10.0
+    cuda_version=10.1
     cudnn_version=7
     job_type=12
     all_path=/ssd1/ljh
@@ -109,7 +109,7 @@ function construnct_version(){
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
         with_gpu='ON'
     fi
-    PADDLE_DEV_NAME=docker.io/paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
+    PADDLE_DEV_NAME=paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
     echo "IMAGE_NAME is: "${IMAGE_NAME}
 }
 
@@ -193,13 +193,16 @@ function run(){
     # Determine if the whl exists
     if [[ -s ${all_path}/images/${IMAGE_NAME} ]]; then echo "image found"; else exit 1; fi
     logs_dir=${all_path}/logs/logs_op_benchmark/${PADDLE_VERSION}
+    # todo 当前web-server寻找日志是固定目录，后续优化
+    result_dir=${all_path}/logs/logs_op_benchmark/result_test
     mkdir -p ${logs_dir}
     export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
     export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
-    RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
-    run_cmd="pip install nvidia-ml-py;
+    RUN_IMAGE_NAME=paddlepaddle/paddle:latest-dev-cuda${cuda_version}-cudnn${cudnn_version}-gcc82
+    run_cmd="python -m pip install --upgrade pip;
+             pip install nvidia-ml-py;
              pip install psutil;
-             pip install tensorflow-gpu;
+             pip install tensorflow==2.1;
              pip uninstall paddlepaddle -y;
              pip uninstall paddlepaddle-gpu -y;
              pip install ${all_path}/images/${IMAGE_NAME};
@@ -224,9 +227,10 @@ function run(){
             --shm-size=32G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
-    # todo
-    rm -rf ${all_path}/logs/logs_op_benchmark/result_test
-    cp -r ${all_path}/logs/logs_op_benchmark/${PADDLE_VERSION} ${all_path}/logs/logs_op_benchmark/result_test
+
+    # todo 需要将当前的日志拷贝到result，才能访问日志
+    rm -rf ${result_dir}
+    cp -r ${logs_dir} ${result_dir}
 }
 
 build_paddle
