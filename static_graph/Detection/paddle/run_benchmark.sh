@@ -69,13 +69,13 @@ function _train(){
 
     if [[ ${model_name} = "mask_rcnn_fpn_resnet" ]]; then
         train_cmd="-c configs/mask_rcnn_r101_vd_fpn_1x.yml \
-                   --opt LearningRate.base_lr=${learning_rate} MaskRCNNTrainFeed.batch_size=${base_batch_size} max_iters=${max_iter} \
+                   --opt LearningRate.base_lr=${learning_rate} TrainReader.batch_size=${base_batch_size} max_iters=${max_iter} \
                    --is_profiler=${is_profiler} \
                    --profiler_path=${profiler_path}"
         position=19
     elif [[ ${model_name} = "mask_rcnn_fpn_resnext" ]];then
         train_cmd="-c configs/mask_rcnn_x101_vd_64x4d_fpn_1x.yml \
-                   --opt LearningRate.base_lr=${learning_rate} MaskRCNNTrainFeed.batch_size=${base_batch_size} max_iters=${max_iter} \
+                   --opt LearningRate.base_lr=${learning_rate} TrainReader.batch_size=${base_batch_size} max_iters=${max_iter} \
                    --is_profiler=${is_profiler} \
                    --profiler_path=${profiler_path}"
         position=19
