@@ -99,13 +99,13 @@ function construnct_version(){
     version=`date -d @$(git log -1 --pretty=format:%ct) "+%Y.%m%d.%H%M%S"`
     image_branch=$(echo ${image_branch} | rev | cut -d'/' -f 1 | rev)
     if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
-        PADDLE_VERSION=${version}".${image_branch//-/_}"
+        PADDLE_VERSION=${version}".${image_branch//-/_}.gcc82"
         IMAGE_NAME=paddlepaddle-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
         with_gpu="OFF"
         cuda_version="10.0"
         cudnn_version=7
     else
-        PADDLE_VERSION=${version}'.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
+        PADDLE_VERSION=${version}'.gcc82.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
         with_gpu='ON'
     fi
@@ -129,7 +129,7 @@ function build_paddle(){
       -w /paddle \
       --net=host \
       -e "CMAKE_BUILD_TYPE=Release" \
-      -e "PYTHON_ABI=cp27-cp27mu" \
+      -e "PYTHON_ABI=cp27-cp27mu-gcc82" \
       -e "PADDLE_VERSION=0.0.0.${PADDLE_VERSION}" \
       -e "WITH_DOC=OFF" \
       -e "WITH_AVX=ON" \
