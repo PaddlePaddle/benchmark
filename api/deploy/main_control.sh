@@ -77,8 +77,6 @@ else
     fi
 fi
 
-print_arguments $*
-
 function print_detail_status() {
     local config_id=$1
     local case_id=$2
@@ -87,12 +85,7 @@ function print_detail_status() {
     local logfile=$5
     local runtime=$6
     local return_status=$7
-
-    if [ ${device} = "gpu" ] && [ $# -ge 8 ]; then
-        local device_str="${device}-${8}"
-    else
-        local device_str="${device}"
-    fi
+    local gpu_id=$8
 
     if [ ${backward} = "False" ]; then
         local backward_shorten="F"
@@ -106,29 +99,24 @@ function print_detail_status() {
     else
         local run_status="**FAILED**"
     fi
-    local print_str="device=${device_str}, backward=${backward_shorten}, ${logfile}, time=${runtime} ms"
+    local print_str="device=${device}, backward=${backward_shorten}, ${logfile}, time=${runtime} ms"
     local print_str_length=${#print_str}
     local timestamp=`date +"%Y-%m-%d %T"`
     if [ ${print_str_length} -lt 80 ]; then
-        printf "  [%d-%d][%s] %-80s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
+        printf "  [%s][%d-%d][%s] %-80s ...... %s\n" "${gpu_id}" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     elif [ ${print_str_length} -lt 100 ]; then
-        printf "  [%d-%d][%s] %-100s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
+        printf "  [%s][%d-%d][%s] %-100s ...... %s\n" "${gpu_id}" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     else
-        printf "  [%d-%d][%s] %-120s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
+        printf "  [%s][%d-%d][%s] %-120s ...... %s\n" "${gpu_id}" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     fi
 }
 
-config_id=0
-cpu_runtime=0
-gpu_runtime=0
-num_success_cases=0
-num_failed_cases=0
-
 function execute_one_case() {
-    local line=$1
-    local json_file_path=$2
-    local i=$3
-    local gpu_id=$4
+    local config_id=$1
+    local line=$2
+    local json_file_path=$3
+    local i=$4
+    local gpu_id=$5
 
     local api_name=$(echo $line | cut -d ',' -f1)
     local name=$(echo $line | cut -d ',' -f2)
@@ -139,8 +127,12 @@ function execute_one_case() {
         direction_set=("forward" "backward")
     fi
 
-    local case_log="[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}\n"
     local case_id=0
+    local case_log="[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}"
+    if [ ${NUM_GPU_DEVICES} -eq 1 ]; then
+        echo "${case_log}"
+    fi
+
     # DEVICE_SET is specified by argument: "gpu", "cpu"
     for device in ${DEVICE_SET[@]}; do 
         if [ ${device} = "gpu" ]; then
@@ -172,7 +164,7 @@ function execute_one_case() {
                     fi
 
                     case_id=$[$case_id+1]
-                    run_cmd="python3 -m tests.launch ${TEST_DIR}/${name}.py \
+                    run_cmd="python -m tests.launch ${TEST_DIR}/${name}.py \
                           --api_name ${api_name} \
                           --task ${task} \
                           --framework ${framework} \
@@ -209,39 +201,68 @@ function execute_one_case() {
                     else
                         cpu_runtime=`expr $cpu_runtime + $runtime`
                     fi
-                    case_log_detail=`print_detail_status ${config_id} ${case_id} "${device}" "${backward}" "${logfile}" ${runtime} ${return_status} ${actual_gpu_id}`
-                    case_log=${case_log}${case_log_detail}"\n"
+                    local case_log_detail=`print_detail_status ${config_id} ${case_id} "${device}" "${backward}" "${logfile}" ${runtime} ${return_status} ${gpu_id}`
+                    if [ ${NUM_GPU_DEVICES} -eq 1 ]; then
+                        printf ${case_log_detail}
+                    else
+                        case_log="${case_log}\n${case_log_detail}"
+                    fi
                  done
             done
         done
     done
-    echo -e ${case_log}
+    if [ ${NUM_GPU_DEVICES} -gt 1 ]; then
+        echo -e "${case_log}\n"
+    fi
 }
 
-gpu_ids_array_index=0
-gpu_id=${GPU_IDS_ARRAY[${gpu_ids_array_index}]}
-for line in `cat ${OP_LIST_FILE}`
-do
-    json_file=$(echo $line | cut -d ',' -f3)
-    if [ "$json_file" != "None" ]; then
-        json_file_path=${JSON_CONFIG_DIR}/${json_file}
-        cases_num=$(grep '"op"' ${json_file_path} | wc -l)
-    else
-        cases_num=1
-        json_file_path=None
+function run_all_cases() {
+    local gpu_ids_array_index=$1
+
+    local op_info_str=`cat ${OP_LIST_FILE}`
+    local op_info_array=(${op_info_str/\\n/ })
+    local num_ops=${#op_info_array[*]}
+
+    local num_ops_each_gpu=$((num_ops+NUM_GPU_DEVICES-1))
+    local num_ops_each_gpu=$((num_ops_each_gpu/NUM_GPU_DEVICES))
+    local config_index_begin=$((gpu_ids_array_index*num_ops_each_gpu))
+    local config_index_end=$((config_index_begin+num_ops_each_gpu))
+    if [ ${config_index_end} -gt ${num_ops} ]; then
+        config_index_end=${num_ops}
     fi
 
-    for((i=0;i<cases_num;i++)); do
-        config_id=$[$config_id+1]
-        execute_one_case ${line} ${json_file_path} ${i} ${gpu_id} &
+    local config_id=0
+    local gpu_id=${GPU_IDS_ARRAY[${gpu_ids_array_index}]}
 
-        gpu_ids_array_index=`expr ${gpu_ids_array_index} + 1`
-        if [ ${gpu_ids_array_index} -eq ${NUM_GPU_DEVICES} ]; then
-            wait
-            gpu_ids_array_index=0
+    echo "config_index_begin: ${config_index_begin}; config_index_end: ${config_index_end}; gpu_id: ${gpu_id}"
+    local line_id=${config_index_begin}
+    while [ ${line_id} -lt ${config_index_end} ]; do
+        local line=${op_info_array[line_id]}
+        local json_file=$(echo $line | cut -d ',' -f3)
+        if [ "$json_file" != "None" ]; then
+            local json_file_path=${JSON_CONFIG_DIR}/${json_file}
+            local cases_num=$(grep '"op"' ${json_file_path} | wc -l)
+        else
+            local cases_num=1
+            local json_file_path=None
         fi
-        gpu_id=${GPU_IDS_ARRAY[${gpu_ids_array_index}]}
+    
+        for((i=0;i<cases_num;i++)); do
+            config_id=$[$config_id+1]
+            execute_one_case ${config_id} ${line} ${json_file_path} ${i} ${gpu_id}
+        done
+        line_id=$((line_id+1))
     done
+}
+
+print_arguments $*
+
+cpu_runtime=0
+gpu_runtime=0
+num_success_cases=0
+num_failed_cases=0
+for((index=0;index<NUM_GPU_DEVICES;index++)); do
+    run_all_cases ${index} &
 done
 wait
 

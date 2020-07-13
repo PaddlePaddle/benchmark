@@ -24,9 +24,8 @@ import argparse
 import time
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
-import models.benchmark_server.helper as helper
-from benchmark_op import models
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
 from common import utils
 import op_benchmark_unit
@@ -177,6 +176,8 @@ def get_job_res(inputfile, specified_op_list=None):
 
 
 def dump_mysql(data):
+    import models.benchmark_server.helper as helper
+    from benchmark_op import models
     """
     dump data to mysql database
     """
@@ -186,18 +187,26 @@ def dump_mysql(data):
         op_record = models.OpRecord2()
         op_record.timestamp = timestamp
         op_record.case_name = dic['name']
-        op_record.paddle_cpu_accuracy = dic.get("paddle_cpu_accuracy_forward", "--")
-        op_record.paddle_cpu_accuracy_backwards = dic.get("paddle_cpu_accuracy_backward", "--")
-        op_record.paddle_gpu_accuracy = dic.get("paddle_gpu_accuracy_forward", "--")
-        op_record.paddle_gpu_accuracy_backwards = dic.get("paddle_gpu_accuracy_backward", "--")
+        op_record.paddle_cpu_accuracy = dic.get("paddle_cpu_accuracy_forward",
+                                                "--")
+        op_record.paddle_cpu_accuracy_backwards = dic.get(
+            "paddle_cpu_accuracy_backward", "--")
+        op_record.paddle_gpu_accuracy = dic.get("paddle_gpu_accuracy_forward",
+                                                "--")
+        op_record.paddle_gpu_accuracy_backwards = dic.get(
+            "paddle_gpu_accuracy_backward", "--")
         op_record.paddle_cpu_perf = dic.get("paddle_cpu_speed_forward", "--")
         op_record.tf_cpu_perf = dic.get("tensorflow_cpu_speed_forward", "--")
         op_record.paddle_gpu_perf = dic.get("paddle_gpu_speed_forward", "--")
         op_record.tf_gpu_perf = dic.get("tensorflow_gpu_speed_forward", "--")
-        op_record.paddle_cpu_perf_backwards = dic.get("paddle_cpu_speed_backward", "--")
-        op_record.tf_cpu_perf_backwards = dic.get("tensorflow_cpu_speed_backward", "--")
-        op_record.paddle_gpu_perf_backwards = dic.get("paddle_gpu_speed_backward", "--")
-        op_record.tf_gpu_perf_backwards = dic.get("tensorflow_gpu_speed_backward", "--")
+        op_record.paddle_cpu_perf_backwards = dic.get(
+            "paddle_cpu_speed_backward", "--")
+        op_record.tf_cpu_perf_backwards = dic.get(
+            "tensorflow_cpu_speed_backward", "--")
+        op_record.paddle_gpu_perf_backwards = dic.get(
+            "paddle_gpu_speed_backward", "--")
+        op_record.tf_gpu_perf_backwards = dic.get(
+            "tensorflow_gpu_speed_backward", "--")
         op_record.config = dic.get("parameters", "--")
         op_record.gpu_time_backward = dic.get("gpu_time_backward", "--")
         op_record.gpu_time = dic.get("gpu_time", "--")
