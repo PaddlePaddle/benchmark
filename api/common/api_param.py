@@ -19,34 +19,46 @@ import numpy as np
 from operator import attrgetter
 
 
+def is_string(value):
+    return isinstance(value, str)
+
+
+def parse_string(value):
+    import six
+    # PY2     : PY3
+    # unicode : str
+    # str     : bytes
+    if six.PY3:
+        return value
+    else:
+        return value.encode("utf-8") if isinstance(value, unicode) else value
+
+
 def parse_float(value):
     if isinstance(value, float):
         return value
-    elif isinstance(value, unicode):
-        return float(value.encode("utf-8"))
     else:
-        return float(value)
+        return float(parse_string(value))
 
 
 def parse_int(value):
     if isinstance(value, int):
         return value
-    elif isinstance(value, unicode):
-        return int(value.encode("utf-8"))
     else:
-        return int(value)
+        return int(parse_string(value))
 
 
 def parse_list(value_str, sub_dtype="int"):
-    if isinstance(value_str, unicode):
-        value_str = value_str.encode("utf-8")
-
+    value_str = parse_string(value_str)
     if sub_dtype in ["int", "int64"]:
         try:
             if value_str != "[]":
-                value_str = value_str.replace("L", "").replace(
+                value_str_list = value_str.replace("L", "").replace(
                     "[", "").replace("]", "").split(',')
-                return map(int, value_str)
+                value_list = []
+                for item in value_str_list:
+                    value_list.append(int(item))
+                return value_list
             else:
                 return []
         except Exception as e:
@@ -57,10 +69,20 @@ def parse_list(value_str, sub_dtype="int"):
 
 
 def parse_tuple(value_str, sub_dtype="int"):
+    value_str = parse_string(value_str)
     if sub_dtype in ["int", "int64"]:
-        value_str = value_str.replace("L", "").replace("(", "").replace(
-            ")", "").split(',')
-        return map(int, value_str)
+        try:
+            if value_str != "()":
+                value_str_list = value_str.replace("L", "").replace(
+                    "(", "").replace(")", "").split(',')
+                value_list = []
+                for item in value_str_list:
+                    value_list.append(int(item))
+                return value_list
+            else:
+                return []
+        except Exception as e:
+            assert False, "Parse {} failed: {}".format(value_str, e)
     else:
         # TODO: check and support list of other data type.
         raise ValueError("Do not support parsing list of non-int data type.")
@@ -73,18 +95,13 @@ class BaseParamInfo(object):
         self.value = self._translate_value(self._encode_item(value))
 
     def _encode_item(self, item):
-        if isinstance(item, unicode):
-            return item.encode("utf-8")
-        elif isinstance(item, list):
+        if isinstance(item, list):
             item_str = []
             for ele in item:
-                if isinstance(ele, unicode):
-                    item_str.append(ele.encode("utf-8"))
-                else:
-                    item_str.append(ele)
+                item_str.append(parse_string(ele))
             return item_str
         else:
-            return item
+            return parse_string(item)
 
     def to_string(self):
         return self.name + ' (' + self.type + '): ' + str(self.value)
@@ -92,7 +109,7 @@ class BaseParamInfo(object):
     def _translate_value(self, value_str):
         if self.type in ["float", "float32", "float64"]:
             return float(value_str)
-        elif self.type in ["int", "int32", "int64"]:
+        elif self.type in ["int", "int32", "int64", "long"]:
             return int(value_str)
         elif self.type == "bool":
             return eval(value_str)
@@ -113,7 +130,7 @@ class VarParamInfo(BaseParamInfo):
         self.type = self._encode_item(type)
         self.dtype = self._encode_item(dtype)
         shape_str = self._encode_item(shape)
-        if isinstance(shape_str, str):
+        if is_string(shape_str):
             self.shape = parse_list(shape_str)
         else:
             assert isinstance(shape_str, list)
