@@ -253,7 +253,7 @@ nextvlad(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
 
-    model_list=(nextvlad CTCN)
+    model_list=(nextvlad) # CTCN)
     for model_name in ${model_list[@]}; do
         echo "index is speed, 1gpu, begin, ${model_name}"
         PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
