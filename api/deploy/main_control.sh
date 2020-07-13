@@ -19,7 +19,7 @@ function print_arguments() {
     echo ""
     echo "json_config_dir : ${JSON_CONFIG_DIR}"
     echo "output_dir      : ${OUTPUT_DIR}" 
-    echo "gpu_id          : ${GPU_ID}"
+    echo "gpu_ids         : ${GPU_IDS}"
     echo "device_set      : ${DEVICE_SET[@]}"
     echo "task_set        : ${TASK_SET[@]}"
     echo "op_list_file    : ${OP_LIST_FILE}"
@@ -47,6 +47,10 @@ fi
 GPU_IDS=${3:-"0"}
 GPU_IDS_ARRAY=(${GPU_IDS//,/ })
 NUM_GPU_DEVICES=${#GPU_IDS_ARRAY[*]}
+if [ ${NUM_GPU_DEVICES} -le 0 ]; then
+    echo "GPU devices (ids=${GPU_IDS}) should not be empty."
+    exit
+fi
 
 DEVICE_SET=("gpu" "cpu")
 if [ $# -ge 4 ]; then
@@ -76,34 +80,35 @@ fi
 print_arguments $*
 
 function print_detail_status() {
-    config_id=$1
-    case_id=$2
-    device=$3
-    backward=$4
-    logfile=$5
-    runtime=$6
-    return_status=$7
+    local config_id=$1
+    local case_id=$2
+    local device=$3
+    local backward=$4
+    local logfile=$5
+    local runtime=$6
+    local return_status=$7
 
-    device_str="${device}"
     if [ ${device} = "gpu" ] && [ $# -ge 8 ]; then
-        device_str="${device}-${8}"
+        local device_str="${device}-${8}"
+    else
+        local device_str="${device}"
     fi
 
     if [ ${backward} = "False" ]; then
-        backward_shorten="F"
+        local backward_shorten="F"
     else # backward="True"
-        backward_shorten="T"
+        local backward_shorten="T"
     fi
     if  [ ${return_status} -eq 0 ]; then
-        run_status="SUCCESS"
+        local run_status="SUCCESS"
     elif [ ${runtime} -ge 600000 ]; then
-        run_status="**TIMEOUT**"
+        local run_status="**TIMEOUT**"
     else
-        run_status="**FAILED**"
+        local run_status="**FAILED**"
     fi
-    print_str="device=${device_str}, backward=${backward_shorten}, ${logfile}, time=${runtime} ms"
-    print_str_length=${#print_str}
-    timestamp=`date +"%Y-%m-%d %T"`
+    local print_str="device=${device_str}, backward=${backward_shorten}, ${logfile}, time=${runtime} ms"
+    local print_str_length=${#print_str}
+    local timestamp=`date +"%Y-%m-%d %T"`
     if [ ${print_str_length} -lt 80 ]; then
         printf "  [%d-%d][%s] %-80s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     elif [ ${print_str_length} -lt 100 ]; then
@@ -134,26 +139,26 @@ function execute_one_case() {
         direction_set=("forward" "backward")
     fi
 
-    echo "[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}"
+    local case_log="[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}\n"
     local case_id=0
     # DEVICE_SET is specified by argument: "gpu", "cpu"
     for device in ${DEVICE_SET[@]}; do 
         if [ ${device} = "gpu" ]; then
-            actual_gpu_id="${gpu_id}"
-            use_gpu="True"
-            repeat=1000
+            local actual_gpu_id="${gpu_id}"
+            local use_gpu="True"
+            local repeat=1000
         else
-            actual_gpu_id=""
-            use_gpu="False"
-            repeat=100
+            local actual_gpu_id=""
+            local use_gpu="False"
+            local repeat=100
         fi
 
         # TASK_SET is specified by argument: "speed", "accuracy"
         for task in "${TASK_SET[@]}"; do 
             if [ ${task} = "accuracy" ]; then
-                framwork_set=("paddle")
+                local framwork_set=("paddle")
             else
-                framwork_set=("paddle" "tensorflow")
+                local framwork_set=("paddle" "tensorflow")
             fi
             # framework_set: "paddle", "tensorflow"
             for framework in "${framwork_set[@]}"; do 
@@ -161,13 +166,13 @@ function execute_one_case() {
                 for direction in "${direction_set[@]}"; 
                 do
                     if [ ${direction} = "forward" ]; then
-                        backward="False"
+                        local backward="False"
                     else
-                        backward="True"
+                        local backward="True"
                     fi
 
                     case_id=$[$case_id+1]
-                    run_cmd="python -m tests.launch ${TEST_DIR}/${name}.py \
+                    run_cmd="python3 -m tests.launch ${TEST_DIR}/${name}.py \
                           --api_name ${api_name} \
                           --task ${task} \
                           --framework ${framework} \
@@ -204,13 +209,17 @@ function execute_one_case() {
                     else
                         cpu_runtime=`expr $cpu_runtime + $runtime`
                     fi
-                    print_detail_status ${config_id} ${case_id} "${device}" "${backward}" "${logfile}" ${runtime} ${return_status} ${actual_gpu_id}
+                    case_log_detail=`print_detail_status ${config_id} ${case_id} "${device}" "${backward}" "${logfile}" ${runtime} ${return_status} ${actual_gpu_id}`
+                    case_log=${case_log}${case_log_detail}"\n"
                  done
             done
         done
     done
+    echo -e ${case_log}
 }
 
+gpu_ids_array_index=0
+gpu_id=${GPU_IDS_ARRAY[${gpu_ids_array_index}]}
 for line in `cat ${OP_LIST_FILE}`
 do
     json_file=$(echo $line | cut -d ',' -f3)
@@ -224,10 +233,17 @@ do
 
     for((i=0;i<cases_num;i++)); do
         config_id=$[$config_id+1]
-        execute_one_case ${line} ${json_file_path} ${i} ${GPU_ID}
-        echo ""
+        execute_one_case ${line} ${json_file_path} ${i} ${gpu_id} &
+
+        gpu_ids_array_index=`expr ${gpu_ids_array_index} + 1`
+        if [ ${gpu_ids_array_index} -eq ${NUM_GPU_DEVICES} ]; then
+            wait
+            gpu_ids_array_index=0
+        fi
+        gpu_id=${GPU_IDS_ARRAY[${gpu_ids_array_index}]}
     done
 done
+wait
 
 echo "===================================================================="
 echo "Summary:"
