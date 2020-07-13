@@ -13,6 +13,19 @@ function print_usage() {
     echo "  op_list_file (optional) - the path which specified op list to test"
 }
 
+function print_arguments() {
+    echo "Arguments:"
+    echo "  $*"
+    echo ""
+    echo "json_config_dir : ${JSON_CONFIG_DIR}"
+    echo "output_dir      : ${OUTPUT_DIR}" 
+    echo "gpu_id          : ${GPU_ID}"
+    echo "device_set      : ${DEVICE_SET[@]}"
+    echo "task_set        : ${TASK_SET[@]}"
+    echo "op_list_file    : ${OP_LIST_FILE}"
+    echo ""
+}
+
 export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
 
 OP_BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../" && pwd )"
@@ -31,7 +44,9 @@ if [ ! -d ${OUTPUT_DIR} ]; then
     mkdir -p ${OUTPUT_DIR}
 fi
 
-GPU_ID=${3:-"0"}
+GPU_IDS=${3:-"0"}
+GPU_IDS_ARRAY=(${GPU_IDS//,/ })
+NUM_GPU_DEVICES=${#GPU_IDS_ARRAY[*]}
 
 DEVICE_SET=("gpu" "cpu")
 if [ $# -ge 4 ]; then
@@ -58,6 +73,8 @@ else
     fi
 fi
 
+print_arguments $*
+
 function print_detail_status() {
     config_id=$1
     case_id=$2
@@ -66,6 +83,11 @@ function print_detail_status() {
     logfile=$5
     runtime=$6
     return_status=$7
+
+    device_str="${device}"
+    if [ ${device} = "gpu" ] && [ $# -ge 8 ]; then
+        device_str="${device}-${8}"
+    fi
 
     if [ ${backward} = "False" ]; then
         backward_shorten="F"
@@ -79,13 +101,11 @@ function print_detail_status() {
     else
         run_status="**FAILED**"
     fi
-    print_str="device=${device}, backward=${backward_shorten}, ${logfile}, time=${runtime} ms"
+    print_str="device=${device_str}, backward=${backward_shorten}, ${logfile}, time=${runtime} ms"
     print_str_length=${#print_str}
     timestamp=`date +"%Y-%m-%d %T"`
     if [ ${print_str_length} -lt 80 ]; then
         printf "  [%d-%d][%s] %-80s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
-    elif [ ${print_str_length} -lt 90 ]; then
-        printf "  [%d-%d][%s] %-90s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     elif [ ${print_str_length} -lt 100 ]; then
         printf "  [%d-%d][%s] %-100s ...... %s\n" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     else
@@ -99,105 +119,112 @@ gpu_runtime=0
 num_success_cases=0
 num_failed_cases=0
 
-for line in `cat ${OP_LIST_FILE}`
-do
-    api_name=$(echo $line| cut -d',' -f1)
-    name=$(echo $line| cut -d',' -f2)
-    json_file=$(echo $line| cut -d',' -f3)
-    has_backward=$(echo $line| cut -d',' -f4)
+function execute_one_case() {
+    local line=$1
+    local json_file_path=$2
+    local i=$3
+    local gpu_id=$4
 
-    direction_set=("forward" "backward")
+    local api_name=$(echo $line | cut -d ',' -f1)
+    local name=$(echo $line | cut -d ',' -f2)
+    local has_backward=$(echo $line | cut -d ',' -f4)
     if [ ${has_backward} = False ]; then  
         direction_set=("forward")
+    else
+        direction_set=("forward" "backward")
     fi
 
-    if [ "$json_file" != "None" ]
-    then
+    echo "[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}"
+    local case_id=0
+    # DEVICE_SET is specified by argument: "gpu", "cpu"
+    for device in ${DEVICE_SET[@]}; do 
+        if [ ${device} = "gpu" ]; then
+            actual_gpu_id="${gpu_id}"
+            use_gpu="True"
+            repeat=1000
+        else
+            actual_gpu_id=""
+            use_gpu="False"
+            repeat=100
+        fi
+
+        # TASK_SET is specified by argument: "speed", "accuracy"
+        for task in "${TASK_SET[@]}"; do 
+            if [ ${task} = "accuracy" ]; then
+                framwork_set=("paddle")
+            else
+                framwork_set=("paddle" "tensorflow")
+            fi
+            # framework_set: "paddle", "tensorflow"
+            for framework in "${framwork_set[@]}"; do 
+                # direction_set: "forward", "backward"
+                for direction in "${direction_set[@]}"; 
+                do
+                    if [ ${direction} = "forward" ]; then
+                        backward="False"
+                    else
+                        backward="True"
+                    fi
+
+                    case_id=$[$case_id+1]
+                    run_cmd="python -m tests.launch ${TEST_DIR}/${name}.py \
+                          --api_name ${api_name} \
+                          --task ${task} \
+                          --framework ${framework} \
+                          --json_file ${json_file_path} \
+                          --config_id $i \
+                          --backward ${backward} \
+                          --use_gpu ${use_gpu} \
+                          --repeat $repeat \
+                          --allow_adaptive_repeat True"
+
+                    run_start=`date +%s%N`
+                    if [ "${OUTPUT_DIR}" != "" ]; then
+                        logfile=${OUTPUT_DIR}/${api_name}"_"${i}"-"${framework}"_"${device}"_"${task}"_"${direction}".txt"
+                        # Set maxmimum runtime to 10min, or it will be considered
+                        #  hanged and will be killed.
+                        CUDA_VISIBLE_DEVICES="${actual_gpu_id}" timeout 600s ${run_cmd} > $logfile 2>&1
+                        return_status=$?
+                    else
+                        logfile=""
+                        CUDA_VISIBLE_DEVICES="${actual_gpu_id}" ${run_cmd}
+                        return_status=$?
+                    fi
+                    run_end=`date +%s%N`;
+                    runtime=$((run_end-run_start))
+                    runtime=`expr $runtime / 1000000`
+
+                    if [ ${return_status} -eq 0 ]; then
+                        num_success_cases=$[$num_success_cases+1]
+                    else
+                        num_failed_cases=$[$num_failed_cases+1]
+                    fi
+                    if [ ${device} == "gpu" ]; then
+                        gpu_runtime=`expr $gpu_runtime + $runtime`
+                    else
+                        cpu_runtime=`expr $cpu_runtime + $runtime`
+                    fi
+                    print_detail_status ${config_id} ${case_id} "${device}" "${backward}" "${logfile}" ${runtime} ${return_status} ${actual_gpu_id}
+                 done
+            done
+        done
+    done
+}
+
+for line in `cat ${OP_LIST_FILE}`
+do
+    json_file=$(echo $line | cut -d ',' -f3)
+    if [ "$json_file" != "None" ]; then
         json_file_path=${JSON_CONFIG_DIR}/${json_file}
-        cases_num=$(grep '"op"' ${json_file_path} |wc -l)
+        cases_num=$(grep '"op"' ${json_file_path} | wc -l)
     else
         cases_num=1
         json_file_path=None
     fi
 
-    for((i=0;i<cases_num;i++));
-    do
+    for((i=0;i<cases_num;i++)); do
         config_id=$[$config_id+1]
-        echo "[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}"
-        case_id=0
-        # device: gpu, cpu
-        for device in ${DEVICE_SET[@]};
-        do 
-            if [ ${device} = "gpu" ]; then
-                export CUDA_VISIBLE_DEVICES="${GPU_ID}"
-                use_gpu="True"
-                repeat=1000
-            else
-                export CUDA_VISIBLE_DEVICES=""
-                use_gpu="False"
-                repeat=100
-            fi
-            # task: speed, accuracy
-            for task in "${TASK_SET[@]}";
-            do 
-                framwork_set=("paddle" "tensorflow")
-                if [ ${task} = "accuracy" ]; then
-                    framwork_set=("paddle")
-                fi
-                # framework: paddle, tensorflow
-                for framework in "${framwork_set[@]}";
-                do 
-                    # direction: forward, backward
-                    for direction in "${direction_set[@]}"; 
-                    do
-                        if [ ${direction} = "forward" ]; then
-                            backward="False"
-                        else
-                            backward="True"
-                        fi
-
-                        case_id=$[$case_id+1]
-                        run_cmd="python -m tests.launch ${TEST_DIR}/${name}.py \
-                              --api_name ${api_name} \
-                              --task ${task} \
-                              --framework ${framework} \
-                              --json_file ${json_file_path} \
-                              --config_id $i \
-                              --backward ${backward} \
-                              --use_gpu ${use_gpu} \
-                              --repeat $repeat \
-                              --allow_adaptive_repeat True"
-
-                        run_start=`date +%s%N`
-                        if [ "${OUTPUT_DIR}" != "" ]; then
-                            logfile=${OUTPUT_DIR}/${api_name}"_"${i}"-"${framework}"_"${device}"_"${task}"_"${direction}".txt"
-                            # Set maxmimum runtime to 10min, or it will be considered hanged and will be killed.
-                            timeout 600s ${run_cmd} > $logfile 2>&1
-                            return_status=$?
-                        else
-                            logfile=""
-                            ${run_cmd}
-                            return_status=$?
-                        fi
-                        run_end=`date +%s%N`;
-                        runtime=$((run_end-run_start))
-                        runtime=`expr $runtime / 1000000`
-
-                        if [ ${return_status} -eq 0 ]; then
-                            num_success_cases=$[$num_success_cases+1]
-                        else
-                            num_failed_cases=$[$num_failed_cases+1]
-                        fi
-                        if [ ${device} == "gpu" ]; then
-                            gpu_runtime=`expr $gpu_runtime + $runtime`
-                        else
-                            cpu_runtime=`expr $cpu_runtime + $runtime`
-                        fi
-                        print_detail_status ${config_id} ${case_id} "${device}" "${backward}" "${logfile}" ${runtime} ${return_status}
-                     done
-                done
-            done
-        done
+        execute_one_case ${line} ${json_file_path} ${i} ${GPU_ID}
         echo ""
     done
 done
