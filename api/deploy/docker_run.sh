@@ -207,7 +207,7 @@ function run(){
              pip uninstall paddlepaddle-gpu -y;
              pip install ${all_path}/images/${IMAGE_NAME};
              cd ${benchmark_work_path}/baidu/paddle/benchmark/api;
-             bash deploy/main_control.sh tests/configs ${logs_dir};
+             bash deploy/main_control.sh tests/configs ${logs_dir} ${CUDA_VISIBLE_DEVICES};
              unset http_proxy https_proxy;
              ln -s ${all_path}/env/bin/python /usr/local/bin/mypython;
              export LD_LIBRARY_PATH=/usr/lib64:/usr/lib/x86_64-linux-gnu:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${all_path}/env/lib/;
