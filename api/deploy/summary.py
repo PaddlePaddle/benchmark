@@ -1,5 +1,4 @@
 #!/bin/python
-
 #   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,9 +24,8 @@ import argparse
 import time
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
-import models.benchmark_server.helper as helper
-from benchmark_op import models
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
 from common import utils
 import op_benchmark_unit
@@ -177,18 +175,9 @@ def get_job_res(inputfile, specified_op_list=None):
         _parse_accuracy(case_name, statistic_type, last_line)
 
 
-def read_frequency_from_text(op_frequency_path):
-    op_frequency_dict = {}
-    with open(op_frequency_path, "r") as f:
-        for line in f.readlines():
-            contents = line.split()
-            if len(contents) != 3:
-                continue
-            op_frequency_dict[contents[1]] = int(contents[2])
-    return op_frequency_dict
-
-
 def dump_mysql(data):
+    import models.benchmark_server.helper as helper
+    from benchmark_op import models
     """
     dump data to mysql database
     """
@@ -198,18 +187,26 @@ def dump_mysql(data):
         op_record = models.OpRecord2()
         op_record.timestamp = timestamp
         op_record.case_name = dic['name']
-        op_record.paddle_cpu_accuracy = dic.get("paddle_cpu_accuracy_forward", "--")
-        op_record.paddle_cpu_accuracy_backwards = dic.get("paddle_cpu_accuracy_backward", "--")
-        op_record.paddle_gpu_accuracy = dic.get("paddle_gpu_accuracy_forward", "--")
-        op_record.paddle_gpu_accuracy_backwards = dic.get("paddle_gpu_accuracy_backward", "--")
+        op_record.paddle_cpu_accuracy = dic.get("paddle_cpu_accuracy_forward",
+                                                "--")
+        op_record.paddle_cpu_accuracy_backwards = dic.get(
+            "paddle_cpu_accuracy_backward", "--")
+        op_record.paddle_gpu_accuracy = dic.get("paddle_gpu_accuracy_forward",
+                                                "--")
+        op_record.paddle_gpu_accuracy_backwards = dic.get(
+            "paddle_gpu_accuracy_backward", "--")
         op_record.paddle_cpu_perf = dic.get("paddle_cpu_speed_forward", "--")
         op_record.tf_cpu_perf = dic.get("tensorflow_cpu_speed_forward", "--")
         op_record.paddle_gpu_perf = dic.get("paddle_gpu_speed_forward", "--")
         op_record.tf_gpu_perf = dic.get("tensorflow_gpu_speed_forward", "--")
-        op_record.paddle_cpu_perf_backwards = dic.get("paddle_cpu_speed_backward", "--")
-        op_record.tf_cpu_perf_backwards = dic.get("tensorflow_cpu_speed_backward", "--")
-        op_record.paddle_gpu_perf_backwards = dic.get("paddle_gpu_speed_backward", "--")
-        op_record.tf_gpu_perf_backwards = dic.get("tensorflow_gpu_speed_backward", "--")
+        op_record.paddle_cpu_perf_backwards = dic.get(
+            "paddle_cpu_speed_backward", "--")
+        op_record.tf_cpu_perf_backwards = dic.get(
+            "tensorflow_cpu_speed_backward", "--")
+        op_record.paddle_gpu_perf_backwards = dic.get(
+            "paddle_gpu_speed_backward", "--")
+        op_record.tf_gpu_perf_backwards = dic.get(
+            "tensorflow_gpu_speed_backward", "--")
         op_record.config = dic.get("parameters", "--")
         op_record.gpu_time_backward = dic.get("gpu_time_backward", "--")
         op_record.gpu_time = dic.get("gpu_time", "--")
@@ -272,7 +269,8 @@ if __name__ == '__main__':
         op_result_dir), "Directory %s does not exist." % op_result_dir
 
     filenames = os.listdir(op_result_dir)
-    filenames.remove('api_info.txt')
+    if "api_info.txt" in filenames:
+        filenames.remove('api_info.txt')
     assert len(filenames) > 0, "Directory %s is empty." % op_result_dir
 
     specified_op_list = None
@@ -295,7 +293,9 @@ if __name__ == '__main__':
 
     op_frequency_dict = None
     if args.op_frequency_path:
-        op_frequency_dict = read_frequency_from_text(args.op_frequency_path)
+        import read_frequency
+        op_frequency_dict = read_frequency.read_frequency_from_text(
+            args.op_frequency_path)
 
     if args.dump_to_text:
         import write_text
