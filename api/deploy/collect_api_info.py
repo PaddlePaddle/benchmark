@@ -21,6 +21,7 @@ import importlib
 
 package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
+sys.path.append(os.path.join(package_path, "tests"))
 
 from tests.common_import import *
 from common import special_op_list
@@ -119,13 +120,14 @@ def import_module():
 
 def import_api(api_name):
     try:
-        api = "." + api_name
-        module = importlib.import_module(api, package='tests')
+        module = importlib.import_module("tests." + api_name)
         module_name = module.__name__.split('.')
         API_LIST.append(module_name[1])
+        print("Import {} successfully.".format(module.__name__))
         return module
-    except Exception:
-        print("Failed to import %s" % (api_name))
+    except Exception as e:
+        print("Failed to import {}: {}".format(api_name, e))
+        return None
 
 
 def hump_to_underline(hunp_str):
