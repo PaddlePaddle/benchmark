@@ -126,14 +126,14 @@ class OpBenchmarkUnit(object):
             if direction == "backward" and self.op_type in special_op_list.NO_BACKWARD_OPS:
                 total = "Unsupport"
             else:
-                total = "Unkown"
+                total = "Unknown"
         if device == "gpu":
             gpu_time = result["compare"]["gpu_time"]
             if gpu_time == "--":
                 if direction == "backward" and self.op_type in special_op_list.NO_BACKWARD_OPS:
                     gpu_time = "Unsupport"
                 else:
-                    gpu_time = "Unkown"
+                    gpu_time = "Unknown"
             return total, gpu_time
         else:
             return total, None
@@ -170,7 +170,7 @@ class CompareResult(object):
             self.compare_result_keys = compare_result_keys
         else:
             self.compare_result_keys = [
-                "Better", "Equal", "Less", "Unkown", "Unsupport", "Total"
+                "Better", "Equal", "Less", "Unknown", "Unsupport", "Total"
             ]
         self.gpu_forward_total = self._create_zero_dict()
         self.gpu_forward_kernel = self._create_zero_dict()
@@ -246,9 +246,17 @@ def summary_compare_result_op_level(benchmark_result_list,
         benchmark_result_dict[op_type].append(op_unit)
 
     compare_result_keys = [
-        "Better", "Less", "Unkown", "Unsupport", "Others", "Total"
+        "Better", "Less", "Unknown", "Unsupport", "Others", "Total"
     ]
     compare_result_op_level = CompareResult(compare_result_keys)
+    op_type_dict = {}
+    for key in [
+            "gpu_forward_total", "gpu_forward_kernel", "gpu_backward_total",
+            "gpu_backward_kernel", "cpu_forward_total", "cpu_backward_total"
+    ]:
+        op_type_dict[key] = {}
+        for result_key in compare_result_keys:
+            op_type_dict[key][result_key] = []
 
     compare_result_dict_detail = {}
     for op_type, result in sorted(benchmark_result_dict.items()):
@@ -264,16 +272,26 @@ def summary_compare_result_op_level(benchmark_result_list,
                     target = compare_result_op_level.get(device, direction,
                                                          method)
                     if value["Better"] == value["Total"]:
-                        target["Better"] += 1
+                        result_key = "Better"
                     elif value["Less"] == value["Total"]:
-                        target["Less"] += 1
-                    elif value["Unkown"] == value["Total"]:
-                        target["Unkown"] += 1
+                        result_key = "Less"
+                    elif value["Unknown"] == value["Total"]:
+                        result_key = "Unknown"
                     elif value["Unsupport"] == value["Total"]:
-                        target["Unsupport"] += 1
+                        result_key = "Unsupport"
                     else:
-                        target["Others"] += 1
+                        result_key = "Others"
+                    op_type_dict[device + "_" + direction + "_" + method][
+                        result_key].append(op_type)
+                    target[result_key] += 1
                     target["Total"] += 1
+
+    for key, value in op_type_dict.items():
+        print(key)
+        for result_key, op_list in value.items():
+            print("    %s (%3d): %s" %
+                  (result_key.ljust(10), len(op_list), ",".join(op_list)))
+        print("")
 
     if return_op_detail:
         return compare_result_op_level, compare_result_dict_detail
