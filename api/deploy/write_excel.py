@@ -1,5 +1,5 @@
 #!/bin/python
-
+# -*- coding: UTF-8 -*-
 #   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,10 @@ import os
 import string
 import xlsxwriter as xlw
 import op_benchmark_unit
+
+import sys
+reload(sys)
+sys.setdefaultencoding("utf8")
 
 
 def _op_filename(case_name, framework, device, task, direction):
@@ -38,14 +42,24 @@ def _op_result_url(url_prefix, case_name, framework, device, task, direction):
 
 def _write_summary_worksheet(benchmark_result_list, workbook, title_format,
                              cell_formats):
+    compare_result_titles = {
+        "Better": "优于",
+        "Equal": "打平",
+        "Less": "差于",
+        "Unknown": "未知",
+        "Unsupport": "不支持",
+        "Others": "其他",
+        "Total": "汇总"
+    }
+
     def _write_summary_unit(compare_result, category, worksheet, row):
         compare_result_keys = compare_result.compare_result_keys
         compare_result_colors = {"Better": "green", "Less": "red"}
         if category is not None:
             worksheet.write(row, 0, category, title_format)
         for col in range(len(compare_result_keys)):
-            worksheet.write(row, col + 1, compare_result_keys[col],
-                            title_format)
+            title = compare_result_titles[compare_result_keys[col]]
+            worksheet.write(row, col + 1, title, title_format)
 
         row += 1
         for device in ["gpu", "cpu"]:
