@@ -10,7 +10,8 @@
             "shape": "[30522L, 1024L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "op": "zeros_like",
     "param_info": {

@@ -14,12 +14,17 @@
 
 from __future__ import print_function
 
+import six
 import collections
 import numpy as np
 import paddle.fluid as fluid
 
-import paddle_api_benchmark as paddle_api
-import tensorflow_api_benchmark as tensorflow_api
+if six.PY3:
+    from . import paddle_api_benchmark as paddle_api
+    from . import tensorflow_api_benchmark as tensorflow_api
+else:
+    import paddle_api_benchmark as paddle_api
+    import tensorflow_api_benchmark as tensorflow_api
 
 
 def copy_feed_spec(feed_spec):
@@ -118,7 +123,10 @@ class FeederAdapter(object):
                 if self.__feed_spec is not None and self.__feed_spec[i].get(
                         "permute", None) is not None:
                     permute_paddle2tf = self.__feed_spec[i]["permute"]
-                    permute_tf2paddle = range(len(permute_paddle2tf))
+                    # In Python 3.x, 'range' object does not support item assignment.
+                    permute_tf2paddle = []
+                    for i in range(len(permute_paddle2tf)):
+                        permute_tf2paddle.append(i)
                     for pos in range(len(permute_paddle2tf)):
                         permute_tf2paddle[permute_paddle2tf[pos]] = pos
                     value = np.transpose(value, permute_tf2paddle)

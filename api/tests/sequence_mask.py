@@ -15,12 +15,31 @@
 from common_import import *
 
 
+class SequenceMaskConfig(APIConfig):
+    def __init__(self):
+        super(SequenceMaskConfig, self).__init__('sequence_mask')
+
+    def init_from_json(self, filename, config_id=0):
+        super(SequenceMaskConfig, self).init_from_json(filename, config_id)
+        if hasattr(self, "maxlen_shape"):
+            self.maxlen = 3
+
+
 class PDSequenceMask(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         data = self.variable(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
+        if hasattr(config, "maxlen_shape"):
+            # maxlen is a Variable
+            maxlen = fluid.layers.fill_constant(
+                shape=config.maxlen_shape,
+                dtype=config.maxlen_dtype,
+                value=config.maxlen)
+        else:
+            maxlen = config.maxlen
+
         result = fluid.layers.sequence_mask(
-            x=data, maxlen=config.maxlen, dtype=config.dtype)
+            x=data, maxlen=maxlen, dtype=config.dtype)
 
         self.feed_vars = [data]
         self.fetch_vars = [result]
@@ -30,6 +49,8 @@ class TFSequenceMask(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.variable(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
+
+        # maxlen must be scalar for sequence_mask
         result = tf.sequence_mask(
             lengths=data,
             maxlen=config.maxlen,
@@ -40,5 +61,4 @@ class TFSequenceMask(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(
-        PDSequenceMask(), TFSequenceMask(), config=APIConfig("sequence_mask"))
+    test_main(PDSequenceMask(), TFSequenceMask(), config=SequenceMaskConfig())

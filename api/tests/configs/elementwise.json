@@ -19,7 +19,8 @@
             "shape": "[128L, 1000L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "elementwise",
     "param_info": {
@@ -41,7 +42,8 @@
             "shape": "[1L, 128L, 1000L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "elementwise",
     "param_info": {
@@ -63,7 +65,8 @@
             "shape": "[-1L, 2048L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "elementwise",
     "param_info": {
@@ -85,7 +88,8 @@
             "shape": "[-1L, 2048L, -1L, -1L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "elementwise",
     "param_info": {
@@ -98,14 +102,15 @@
             "value": "-1"
         },
         "x": {
-            "dtype": "int32",
+            "dtype": "float32",
             "shape": "[-1L, 1L, 513L, 513L]",
             "type": "Variable"
         },
         "y": {
-            "dtype": "int32",
+            "dtype": "float32",
             "shape": "[1L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }]

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export CUDA_VISIBLE_DEVICES="1"
+export CUDA_VISIBLE_DEVICES="0"   # Set to "" if testing CPU
 #export GLOG_vmodule=operator=4
 #export LD_LIBRARY_PATH=/work/cudnn/cudnn-7.6.5/lib64:${LD_LIBRARY_PATH}
 
@@ -15,16 +15,28 @@ export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 
 name=${1:-"abs"}
 config_id=${2:-"0"}
-filename="${OP_BENCHMARK_ROOT}/tests/examples/${name}.json"
+
+task="accuracy"     # "accuracy" or "speed"
+framework="paddle"  # "paddle" or "tensorflow"
+filename="${OP_BENCHMARK_ROOT}/tests/configs/${name}.json"
+
+run_args="--task ${task} \
+          --framework ${framework} \
+          --json_file ${filename} \
+          --config_id ${config_id} \
+          --check_output False \
+          --profiler none \
+          --backward False \
+          --use_gpu True \
+          --repeat 1 \
+          --allow_adaptive_repeat False \
+          --log_level 0"
+
+if [ $# -ge 3 ]; then
+  api_name=${3}
+  run_args="${run_args} \
+            --api_name ${api_name}"
+fi
 
 python -m tests.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py \
-      --task "accuracy" \
-      --framework "paddle" \
-      --json_file ${filename} \
-      --config_id ${config_id} \
-      --check_output False \
-      --profiler "none" \
-      --backward False \
-      --use_gpu True \
-      --repeat 1 \
-      --log_level 0
+         ${run_args}

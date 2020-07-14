@@ -4,7 +4,7 @@ set -x
 
 if [[ $# -lt 1 ]]; then
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs sp|mp /ssd1/ljh/logs"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2(speed|mem) sp|mp /ssd1/ljh/logs"
     exit
 fi
 
@@ -22,6 +22,8 @@ function _set_params() {
     position=5
     range=-1
     model_mode=2  # s/step -> steps/s
+    mission_name="文本生成"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
+    direction_id=1 # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -41,9 +43,9 @@ function _set_env(){
 }
 
 function _train() {
-    if [ $index = "speed" ]; then
+    if [ $index -eq 1 ]; then
         sed -i '145c \  config_proto.gpu_options.allow_growth = False' nmt/nmt/utils/misc_utils.py
-    elif [ $index = "mem" ]; then
+    elif [ $index -eq 2 ]; then
         echo "this index is: "$index
         sed -i '145c \  config_proto.gpu_options.allow_growth = True' nmt/nmt/utils/misc_utils.py
     fi

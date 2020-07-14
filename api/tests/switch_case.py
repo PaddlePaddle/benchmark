@@ -37,7 +37,7 @@ class PDSwitchCase(PaddleAPIBenchmarkBase):
         self.feed_vars = [x, y, input]
         self.fetch_vars = [result]
         if config.backward:
-            self.append_gradients(result, [x, y, input])
+            self.append_gradients(result, [x, y])
 
 
 class TFSwitchCase(TensorflowAPIBenchmarkBase):
@@ -64,7 +64,7 @@ class TFSwitchCase(TensorflowAPIBenchmarkBase):
         self.feed_list = [x, y, input]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, y, input])
+            self.append_gradients(result, [x, y])
 
 
 if __name__ == '__main__':

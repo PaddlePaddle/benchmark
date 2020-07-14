@@ -49,7 +49,8 @@
             "shape": "[1500L, 10000L]",
             "type": "Variable"
         }
-    }
+    },
+    "atol": 0.001
 }, {
     "op": "matmul",
     "param_info": {
@@ -75,7 +76,8 @@
             "shape": "[3000L, 6000L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "op": "matmul",
     "param_info": {
@@ -101,7 +103,8 @@
             "shape": "[-1L, -1L, 512L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 2000
 }, {
     "op": "matmul",
     "param_info": {
@@ -127,5 +130,6 @@
             "shape": "[37007L, 1024L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 10000
 }]

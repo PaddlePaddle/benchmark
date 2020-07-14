@@ -42,7 +42,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "pool2d",
     "param_info": {
@@ -87,7 +88,8 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "op": "pool2d",
     "param_info": {
@@ -132,7 +134,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "op": "pool2d",
     "param_info": {
@@ -177,13 +180,14 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "pool2d",
     "param_info": {
         "ceil_mode": {
             "type": "bool",
-            "value": "True"
+            "value": "False"
         },
         "data_format": {
             "type": "string",
@@ -222,13 +226,14 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "op": "pool2d",
     "param_info": {
         "ceil_mode": {
             "type": "bool",
-            "value": "True"
+            "value": "False"
         },
         "data_format": {
             "type": "string",
@@ -267,7 +272,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "pool2d",
     "param_info": {
@@ -312,7 +318,8 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "op": "pool2d",
     "param_info": {
@@ -357,5 +364,6 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "repeat": 5000
 }]

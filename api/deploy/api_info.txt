@@ -1,12 +1,13 @@
 abs,abs,activation.json,True
 accuracy,accuracy,accuracy.json,False
-argmax,arg,arg.json,True
-argmin,arg,arg.json,True
+argmax,arg,arg.json,False
+argmin,arg,arg.json,False
 argsort,argsort,argsort.json,False
 assign,assign,assign.json,False
 batch_norm,batch_norm,batch_norm.json,True
 case,case,case.json,True
 cast,cast,cast.json,False
+clip_by_norm,clip_by_norm,clip_by_norm.json,False
 concat,concat,concat.json,True
 cond,cond,cond.json,True
 conv2d,conv2d,conv2d.json,True
@@ -44,9 +45,10 @@ layer_norm,layer_norm,layer_norm.json,True
 leaky_relu,leaky_relu,leaky_relu.json,True
 less_equal,compare,compare.json,False
 less_than,compare,compare.json,False
-logical_and,logical,logical.json,True
+logical_and,logical,logical.json,False
 logical_not,logical_not,logical_not.json,False
-logical_or,logical,logical.json,True
+logical_or,logical,logical.json,False
+lstm,lstm,lstm.json,True
 matmul,matmul,matmul.json,True
 mean,mean,mean.json,True
 not_equal,compare,compare.json,False
@@ -59,6 +61,8 @@ reduce_prod,reduce,reduce.json,True
 reduce_sum,reduce,reduce.json,True
 relu,relu,activation.json,True
 reshape,reshape,reshape.json,True
+resize_bilinear,resize_bilinear,resize_bilinear.json,True
+resize_nearest,resize_nearest,resize_nearest.json,True
 scale,scale,scale.json,False
 sequence_mask,sequence_mask,sequence_mask.json,False
 shape,shape,shape.json,False

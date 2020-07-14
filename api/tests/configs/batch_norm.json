@@ -120,7 +120,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "batch_norm",
     "param_info": {
@@ -202,5 +203,6 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "repeat": 5000
 }]

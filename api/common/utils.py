@@ -14,12 +14,18 @@
 
 from __future__ import print_function
 
+import six
+import os, sys
 import traceback
 import numpy as np
 import json
 import collections
 import subprocess
-import special_op_list
+
+if six.PY3:
+    from . import special_op_list
+else:
+    import special_op_list
 
 
 def str2bool(v):
@@ -44,6 +50,44 @@ def run_command(command, shell=True):
         stdout += line
 
     return stdout, exit_code
+
+
+def check_commit():
+    try:
+        current_dir = os.getcwd()
+        print("-- Current directory: %s" % current_dir)
+
+        dir_of_this_file = os.path.dirname(os.path.abspath(__file__))
+        print("-- Entering %s" % dir_of_this_file)
+        os.chdir(dir_of_this_file)
+        print("-- Current directory: %s" % os.getcwd())
+        benchmark_commit, _ = run_command("git rev-parse HEAD")
+        benchmark_commit = benchmark_commit.replace("\n", "")
+        benchmark_update_time, _ = run_command("git show -s --format=%ad")
+        benchmark_update_time = benchmark_update_time.replace("\n", "")
+        os.chdir(current_dir)
+        print("-- Current directory: %s" % os.getcwd())
+
+        import paddle
+        paddle_version = paddle.version.full_version
+        paddle_commit = paddle.version.commit
+
+        import tensorflow as tf
+        tf_version = tf.__version__
+
+        print(
+            "==========================================================================="
+        )
+        print("-- paddle version             : %s" % paddle_version)
+        print("-- paddle commit              : %s" % paddle_commit)
+        print("-- tensorflow version         : %s" % tf_version)
+        print("-- benchmark commit           : %s" % benchmark_commit)
+        print("-- benchmark last update time : %s" % benchmark_update_time)
+        print(
+            "==========================================================================="
+        )
+    except Exception:
+        pass
 
 
 def _compare(output1, output2, atol):
@@ -91,19 +135,33 @@ def _check_type(output1, output2):
     return output1, output2
 
 
-def _check_shape(output1, output2, i):
-    shape1 = list(output1.shape)
-    shape2 = list(output2.shape)
-    if shape1 == shape2 + [1]:
-        output2 = np.reshape(output2, output1.shape)
-    elif shape1 + [1] == shape2:
-        output1 = np.reshape(output1, output2.shape)
-    assert output1.shape == output2.shape, "The %d-the output's shape is different, %s vs %s." % (
-        i, str(output1.shape), str(output2.shape))
+def _check_shape(name, output1, output2, i):
+    if name in ["reshape", "squeeze", "unsqueeze"]:
+        assert output1.shape == output2.shape, "The %d-the output's shape is different, %s vs %s." % (
+            i, str(output1.shape), str(output2.shape))
+        return output1, output2
+
+    if output1.shape != output2.shape:
+        output1_squeezed = np.squeeze(output1)
+        output2_squeezed = np.squeeze(output2)
+        if output1_squeezed.shape != output2_squeezed.shape:
+            raise RuntimeError(
+                "The %d-the output's shape is different, %s vs %s." % (
+                    i, str(output1.shape), str(output2.shape)))
+        else:
+            print(
+                "The %d-the output's shape is compatible (same after squeezed), %s vs %s."
+                % (i, str(output1.shape), str(output2.shape)))
+        return output1_squeezed, output2_squeezed
     return output1, output2
 
 
-def check_outputs(list1, list2, name, atol=1e-6, config_params=None):
+def check_outputs(list1,
+                  list2,
+                  name,
+                  atol=1E-6,
+                  backward=False,
+                  config_params=None):
     if not isinstance(list1, list) or not isinstance(list2, list):
         raise TypeError(
             "input argument's type should be list of numpy.ndarray.")
@@ -126,12 +184,12 @@ def check_outputs(list1, list2, name, atol=1e-6, config_params=None):
                 len(list1), len(list2))
 
         num_outputs = len(list1)
-        for i in xrange(num_outputs):
+        for i in range(num_outputs):
             output1 = list1[i]
             output2 = list2[i]
 
             output1, output2 = _check_type(output1, output2)
-            output1, output2 = _check_shape(output1, output2, i)
+            output1, output2 = _check_shape(name, output1, output2, i)
 
             if output1.dtype != output2.dtype:
                 print(
@@ -139,13 +197,13 @@ def check_outputs(list1, list2, name, atol=1e-6, config_params=None):
                     % (i, str(output1.dtype), str(output2.dtype)))
 
             max_diff_i, offset_i = _compare(output1, output2, atol)
-            if max_diff_i > atol:
+            if max_diff_i > 1E-6:
                 print(
                     "---- The %d-th output (shape: %s, data type: %s) has diff. "
-                    "The maximum diff is %e, offset is %d: %s vs %s." %
-                    (i, str(output1.shape), str(output1.dtype), max_diff_i,
-                     offset_i, str(output1.flatten()[offset_i]),
-                     str(output2.flatten()[offset_i])))
+                    "The maximum diff is %e, offset is %d: %s vs %s. atol is %.2e."
+                    % (i, str(output1.shape), str(output1.dtype), max_diff_i,
+                       offset_i, str(output1.flatten()[offset_i]),
+                       str(output2.flatten()[offset_i]), atol))
 
             max_diff = max_diff_i if max_diff_i > max_diff else max_diff
             if max_diff > atol:
@@ -153,6 +211,7 @@ def check_outputs(list1, list2, name, atol=1e-6, config_params=None):
 
     status = collections.OrderedDict()
     status["name"] = name
+    status["backward"] = backward
     status["consistent"] = consistent
     status["num_outputs"] = num_outputs
     status["diff"] = max_diff.astype("float")
@@ -163,10 +222,11 @@ def check_outputs(list1, list2, name, atol=1e-6, config_params=None):
             print(
                 "---- The output is not consistent, but %s is in the white list."
                 % name)
-            print(json.dumps(status))
-        else:
-            print(json.dumps(status))
-            assert consistent == True, "The output is not consistent."
+        elif not consistent:
+            print("The output is not consistent.")
+        print(json.dumps(status))
+        if not consistent:
+            sys.exit(1)
     else:
         print(json.dumps(status))
 
@@ -179,6 +239,7 @@ def print_benchmark_result(result, log_level=0, config_params=None):
     status["version"] = result["version"]
     status["name"] = result["name"]
     status["device"] = result["device"]
+    status["backward"] = result["backward"]
 
     runtimes = result.get("total", None)
     if runtimes is None:
@@ -226,18 +287,26 @@ def print_benchmark_result(result, log_level=0, config_params=None):
             print("Iter %4d, Runtime: %.5f ms, Walltime: %.5f ms" %
                   (i, runtimes[i], walltime))
 
+    if avg_runtime - avg_walltime > 0.001:
+        total = avg_runtime - avg_walltime
+    else:
+        print(
+            "Average runtime (%.5f ms) is less than average walltime (%.5f ms)."
+            % (avg_runtime, avg_walltime))
+        total = 0.001
+
     if stable is not None and diff is not None:
         status["precision"] = collections.OrderedDict()
         status["precision"]["stable"] = stable
         status["precision"]["diff"] = diff
     status["speed"] = collections.OrderedDict()
-    status["speed"]["repeat"] = len(sorted_runtimes)
+    status["speed"]["repeat"] = repeat
     status["speed"]["begin"] = begin
     status["speed"]["end"] = end
-    status["speed"]["total"] = avg_runtime - avg_walltime
+    status["speed"]["total"] = total
     status["speed"]["wall_time"] = avg_walltime
     status["speed"]["total_include_wall_time"] = avg_runtime
     if gpu_time is not None:
-        status["speed"]["gpu_time"] = gpu_time
+        status["speed"]["gpu_time"] = gpu_time / repeat
     status["parameters"] = config_params
     print(json.dumps(status))

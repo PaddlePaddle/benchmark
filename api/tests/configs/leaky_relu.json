@@ -10,7 +10,8 @@
             "shape": "[-1L, 32L, -1L, -1L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 2000
 }, {
     "op": "leaky_relu",
     "param_info": {
@@ -23,5 +24,6 @@
             "shape": "[-1L, 512L, 31L, 31L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }]

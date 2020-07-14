@@ -23,7 +23,8 @@
             "shape": "[-1L, 19L, 513L, 513L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "transpose",
     "param_info": {
@@ -36,5 +37,6 @@
             "shape": "[-1L, 128L, 256L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }]

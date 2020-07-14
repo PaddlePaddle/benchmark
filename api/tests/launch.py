@@ -21,6 +21,7 @@ package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
 
 from common import utils
+from common import api_param
 
 
 def _nvprof(cmd):
@@ -57,7 +58,7 @@ def _parse_nvprof_logs(logs):
     line_to = None
     total_gpu_time = 0.0
     for i in range(len(logs)):
-        line = logs[i].encode("utf-8")
+        line = api_param.parse_string(logs[i])
         if "GPU activities:" in line:
             line_from = i - 1
         if line_from is not None and "API calls:" in line:
@@ -79,12 +80,12 @@ def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
         if exit_code == 0:
             return _parse_nvprof_logs(stdout.split("\n"))
         else:
-            print("stdout: {}".format(stdout))
+            print("Runing Error:\n {}".format(stdout))
     else:
         stdout, exit_code = utils.run_command(cmd)
         print(stdout)
         if exit_code != 0:
-            sys.exit(1)
+            sys.exit(exit_code)
     return 0.0
 
 
@@ -118,13 +119,15 @@ if __name__ == "__main__":
     profiler = benchmark_args_dict.get("profiler", "none")
     repeat = benchmark_args_dict.get("repeat", "1")
 
+    utils.check_commit()
+
     if use_gpu and task == "speed" and profiler == "none":
         total_gpu_time = launch(
             args.benchmark_script,
             args.benchmark_script_args,
             with_nvprof=True)
         args.benchmark_script_args.append(" --gpu_time ")
-        args.benchmark_script_args.append(str(total_gpu_time / float(repeat)))
+        args.benchmark_script_args.append(str(total_gpu_time))
 
     launch(
         args.benchmark_script, args.benchmark_script_args, with_nvprof=False)

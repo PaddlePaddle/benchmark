@@ -20,10 +20,15 @@ import time
 import abc, six
 import importlib
 import numpy as np
-import cProfile, pstats, StringIO
-import utils
-import api_param
-import feeder
+
+if six.PY3:
+    from . import utils
+    from . import api_param
+    from . import feeder
+else:
+    import utils
+    import api_param
+    import feeder
 
 try:
     import tensorflow as tf
@@ -48,6 +53,7 @@ class Profiler(object):
 
     def __enter__(self):
         if self.profiler == "pyprof":
+            import cProfile
             self.profiler_handle = cProfile.Profile()
             self.profiler_handle.enable()
         elif self.profiler != "none":
@@ -77,6 +83,7 @@ class Profiler(object):
 
     def __exit__(self, exception_type, exception_value, traceback):
         if self.profiler == "pyprof":
+            import pstats, StringIO
             self.profiler_handle.disable()
             # self.profiler_handle.dump_stats("./outputs/" + self.name + ".pyprof")
             s = StringIO.StringIO()
@@ -223,6 +230,13 @@ class TensorflowAPIBenchmarkBase(object):
         result = func(**kwargs)
         return result
 
+    @property
+    def backward(self):
+        if hasattr(self, "_TensorflowAPIBenchmarkBase__backward"):
+            return self.__backward
+        else:
+            return False
+
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, tf.Tensor):
             inputs = [inputs]
@@ -230,6 +244,8 @@ class TensorflowAPIBenchmarkBase(object):
             raise TypeError("inputs should be a list.")
 
         gradients = tf.gradients(targets, inputs)
+        self.__backward = True
+        # print("Gradients: ", gradients)
         if isinstance(gradients, list):
             for grad in gradients:
                 self.fetch_list.append(grad)
@@ -262,7 +278,7 @@ class TensorflowAPIBenchmarkBase(object):
                  profiler="none"):
         sess = self._init_session(use_gpu)
 
-        # tf.debugging.set_log_device_placement(True)
+        #tf.debugging.set_log_device_placement(True)
 
         def _run_main_iter(run_options=None, run_metadata=None):
             feed_dict = feed if self._need_feed else None
@@ -304,11 +320,12 @@ class TensorflowAPIBenchmarkBase(object):
             "framework": "tensorflow",
             "version": tf.__version__,
             "name": self.name,
+            "device": "GPU" if use_gpu else "CPU",
+            "backward": self.__backward,
             "total": runtimes
         }
         if self.name != "null":
             stats["wall_time"] = walltimes
-        stats["device"] = "GPU" if use_gpu else "CPU"
         return outputs, stats
 
     def generate_random_feeder(self,
@@ -328,6 +345,7 @@ class TensorflowAPIBenchmarkBase(object):
             self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
             self._feed_dict = {}
 
+            self.__backward = False
             self.build_graph(config=config)
 
         if feeder_adapter is None:
@@ -344,6 +362,7 @@ class TensorflowAPIBenchmarkBase(object):
         self.name = config.api_name
         feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
                                                      feeder_adapter)
+        # assert self.__backward == args.backward, "Backward is not surported for %s." % self.name
 
         feed_list = feeder_adapter.to_tensorflow(self.feed_list)
         assert len(feed_list) == len(self.feed_list)
@@ -372,7 +391,14 @@ class TensorflowAPIBenchmarkBase(object):
     def _init_session(self, use_gpu):
         if tf.__version__ >= "1.15.0":
             config = tf.compat.v1.ConfigProto()
-            config.gpu_options.allow_growth = self.allow_growth
+            if use_gpu:
+                config.gpu_options.allow_growth = self.allow_growth
+            else:
+                # In default, TF use full cpu cores, but Paddle use one cpu core.
+                # To make the same experiment, set TF use one cpu core as well.
+                # See https://github.com/PaddlePaddle/Paddle/issues/18665#issuecomment-513780210
+                config.intra_op_parallelism_threads = 1
+                config.inter_op_parallelism_threads = 1
             sess = tf.compat.v1.Session(config=config)
             sess.run(tf.compat.v1.global_variables_initializer())
             sess.run(tf.compat.v1.local_variables_initializer())
