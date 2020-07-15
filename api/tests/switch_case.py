@@ -19,8 +19,8 @@ class PDSwitchCase(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        input = fluid.layers.zeros(
+            shape=config.input_shape, dtype=config.input_dtype)
 
         def f1():
             return fluid.layers.elementwise_add(x=x, y=y)
@@ -34,7 +34,7 @@ class PDSwitchCase(PaddleAPIBenchmarkBase):
         result = fluid.layers.switch_case(
             branch_index=input, branch_fns={0: f1,
                                             1: f2}, default=f3)
-        self.feed_vars = [x, y, input]
+        self.feed_vars = [x, y]
         self.fetch_vars = [result]
         if config.backward:
             self.append_gradients(result, [x, y])
@@ -44,8 +44,7 @@ class TFSwitchCase(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        input = tf.zeros(shape=config.input_shape, dtype=config.input_dtype)
 
         def f1():
             return tf.add(x, y)
@@ -61,7 +60,7 @@ class TFSwitchCase(TensorflowAPIBenchmarkBase):
             branch_fns={0: f1,
                         1: f2},
             default=f3)
-        self.feed_list = [x, y, input]
+        self.feed_list = [x, y]
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x, y])
