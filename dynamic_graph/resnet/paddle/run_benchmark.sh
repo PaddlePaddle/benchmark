@@ -13,8 +13,8 @@ function _set_params(){
     base_batch_size=128
     model_name="resnet"
 
-    run_mode=${2} # Use sp for single GPU and mp for multiple GPU.
-    max_iter=${3}
+    run_mode=${2:-"sp"} # Use sp for single GPU and mp for multiple GPU.
+    max_iter=${3:-"1000"}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -45,6 +45,7 @@ function _train(){
                --class_dim=1000 \
                --use_imagenet_data \
                --data_dir=./data/ILSVRC2012 \
+               --reader_thread=8 \
                "
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u train.py "${train_cmd}
@@ -59,7 +60,6 @@ function _train(){
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
     fi
-
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh

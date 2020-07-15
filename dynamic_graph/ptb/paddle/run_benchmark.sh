@@ -40,7 +40,7 @@ function _set_params(){
 }
 
 function _train(){
-    train_cmd="--data_path  ./data/simple-examples/data/ \
+    train_cmd="--data_path ./data/simple-examples/data/ \
                --max_iter ${max_iter} \
                --model_type small"
     python -u ptb_dy.py ${train_cmd} > ${log_file} 2>&1

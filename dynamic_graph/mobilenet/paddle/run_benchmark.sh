@@ -16,8 +16,8 @@ function _set_params(){
         exit 1
     fi
     model_name=${4}                                                          # 当model_name唯一时可写死                                                                          (必填)
-    run_mode=${2}
-    max_iter=${3}                                                            # 该参数为训练最大的step数，需在该模型内添加相关变量，当训练step >= max_iter 时，结束训练           (必填)
+    run_mode=${2:-"sp"}
+    max_iter=${3:-"1000"}                                                    # 该参数为训练最大的step数，需在该模型内添加相关变量，当训练step >= max_iter 时，结束训练           (必填)
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi      # 动态图benchmark当前暂未添加profiler，该参数可暂不处理
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}

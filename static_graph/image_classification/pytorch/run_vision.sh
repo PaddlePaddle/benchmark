@@ -43,10 +43,6 @@ function _set_params() {
     log_parse_file=${log_file}
 }
 
-function _set_env() {
-    echo "nothing"
-}
-
 function _train() {
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
     WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
@@ -76,5 +72,4 @@ function _train() {
 
 source ${BENCHMARK_ROOT}/competitive_products/common_scripts/run_model.sh
 _set_params $@
-_set_env
 _run

@@ -4,7 +4,7 @@ set -xe
 if [[ $# -lt 3 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|3|6 sp|mp 1(num_epoch) model_name(MobileNetV1|MobileNetV2)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|3|6 sp|mp 1(num_epoch) model_name(MobileNetV1|MobileNetV2|resnet)"
     exit
 fi
 
@@ -46,26 +46,28 @@ function _set_params(){
 function _train(){
     if [ ${model_name} = "resnet" ]; then
         model_name_arg="ResNet50"
+        num_workers=8
+        data_dir="./data/ILSVRC2012"
     else
         model_name_arg=${model_name}
+        num_workers=10
+        data_dir="./data/ILSVRC2012_Pytorch/dataset_100"
     fi
     train_cmd="--batch_size=${base_batch_size} \
-               --workers=10 \
-               --data_dir=/work/dygraph/ILSVRC2012_dataset_100 \
+               --workers=${num_workers} \
+               --data_dir=${data_dir} \
                --model=${model_name_arg} \
                --epochs=${num_epoch}"
     if [ ${run_mode} = "sp" ]; then
-        train_cmd="python3 -u train_pytorch.py "${train_cmd}
-#    else
-#        rm -rf ./mylog
-#        train_cmd="python3 -m torch.distributed.launch --log_dir=./mylog train.py --use_data_parallel=1 "${train_cmd}
-#        log_parse_file="mylog/workerlog.0"
+        train_cmd="python -u train_pytorch.py "${train_cmd}
+    else
+        train_cmd="python3 -m torch.distributed.launch --nproc_per_node=${num_gpu_devices} --use_env train_pytorch.py "${train_cmd}
     fi
-    ${train_cmd} > ${log_file} 2>&1
-#    if [ ${run_mode} != "sp"  -a -d mylog ]; then
-#        rm ${log_file}
-#        cp mylog/workerlog.0 ${log_file}
-#    fi
+    ${train_cmd} > ${log_file} 2>&1 &
+
+    train_pid=$!
+    sleep 600
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
