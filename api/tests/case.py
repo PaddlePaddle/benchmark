@@ -17,15 +17,15 @@ from common_import import *
 
 class PDCase(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        zero_var = fluid.layers.zeros(
-            shape=config.input_shape, dtype=config.input_dtype)
         five_var = fluid.layers.fill_constant(
             shape=config.input_shape, dtype=config.input_dtype, value=5)
+        ten_var = fluid.layers.fill_constant(
+            shape=config.input_shape, dtype=config.input_dtype, value=10)
+        one_var = fluid.layers.ones(
+            shape=config.input_shape, dtype=config.input_dtype)
 
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
 
         def f1():
             return fluid.layers.elementwise_add(x=x, y=y)
@@ -36,12 +36,12 @@ class PDCase(PaddleAPIBenchmarkBase):
         def f3():
             return fluid.layers.elementwise_mul(x=x, y=y)
 
-        pred_1 = fluid.layers.less_than(input, zero_var)
-        pred_2 = fluid.layers.greater_than(input, five_var)
+        pred_1 = fluid.layers.less_than(one_var, five_var)
+        pred_2 = fluid.layers.greater_than(one_var, ten_var)
 
         result = fluid.layers.case(
             pred_fn_pairs=[(pred_1, f1), (pred_2, f2)], default=f3)
-        self.feed_vars = [x, y, input]
+        self.feed_vars = [x, y]
         self.fetch_vars = [result]
         if config.backward:
             self.append_gradients(result, [x, y])
@@ -49,15 +49,14 @@ class PDCase(PaddleAPIBenchmarkBase):
 
 class TFCase(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        zero_var = tf.constant(
-            0, shape=config.input_shape, dtype=config.input_dtype)
         five_var = tf.constant(
             5, shape=config.input_shape, dtype=config.input_dtype)
+        ten_var = tf.constant(
+            10, shape=config.input_shape, dtype=config.input_dtype)
+        one_var = tf.ones(shape=config.input_shape, dtype=config.input_dtype)
 
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
 
         def f1():
             return tf.add(x, y)
@@ -68,13 +67,13 @@ class TFCase(TensorflowAPIBenchmarkBase):
         def f3():
             return tf.multiply(x, y)
 
-        pred_1 = tf.less(input, zero_var)
-        pred_2 = tf.greater(input, five_var)
+        pred_1 = tf.less(one_var, five_var)
+        pred_2 = tf.greater(one_var, ten_var)
 
         result = tf.case(
             [(tf.reshape(pred_1, []), f1), (tf.reshape(pred_2, []), f2)],
             default=f3)
-        self.feed_list = [x, y, input]
+        self.feed_list = [x, y]
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x, y])
