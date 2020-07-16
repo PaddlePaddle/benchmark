@@ -15,13 +15,15 @@
 # limitations under the License.
 
 import os
+import sys
+import six
 import string
 import xlsxwriter as xlw
 import op_benchmark_unit
 
-import sys
-reload(sys)
-sys.setdefaultencoding("utf8")
+if not six.PY3:
+    reload(sys)
+    sys.setdefaultencoding("utf8")
 
 
 def _op_filename(case_name, framework, device, task, direction):

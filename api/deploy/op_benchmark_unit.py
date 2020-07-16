@@ -21,7 +21,7 @@ import os, sys
 package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
 
-from common import special_op_list
+from common import special_op_list, api_param
 
 
 def parse_op_type(case_name):
@@ -51,7 +51,7 @@ class OpBenchmarkUnit(object):
         self.op_type = parse_op_type(self.case_name)
 
         if case_detail.get("parameters", None):
-            parameters = case_detail["parameters"].encode("utf-8")
+            parameters = api_param.parse_string(case_detail["parameters"])
             parameters = parameters.replace(" ", "")
             parameters = parameters.replace("\n", " ")
         else:
