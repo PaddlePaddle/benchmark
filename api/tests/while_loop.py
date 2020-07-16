@@ -14,7 +14,10 @@
 
 from common_import import *
 from fc import FCConfig
-tf.compat.v1.disable_v2_behavior()
+try:
+    tf.compat.v1.disable_v2_behavior()
+except Exception:
+    pass
 
 
 class WhileLoopConfig(APIConfig):
