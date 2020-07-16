@@ -19,7 +19,7 @@ class PDSwitchCase(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        input = fluid.layers.zeros(
+        zero = fluid.layers.zeros(
             shape=config.input_shape, dtype=config.input_dtype)
 
         def f1():
@@ -32,8 +32,8 @@ class PDSwitchCase(PaddleAPIBenchmarkBase):
             return fluid.layers.elementwise_mul(x=x, y=y)
 
         result = fluid.layers.switch_case(
-            branch_index=input, branch_fns={0: f1,
-                                            1: f2}, default=f3)
+            branch_index=zero, branch_fns={0: f1,
+                                           1: f2}, default=f3)
         self.feed_vars = [x, y]
         self.fetch_vars = [result]
         if config.backward:
@@ -44,7 +44,7 @@ class TFSwitchCase(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        input = tf.zeros(shape=config.input_shape, dtype=config.input_dtype)
+        zero = tf.zeros(shape=config.input_shape, dtype=config.input_dtype)
 
         def f1():
             return tf.add(x, y)
@@ -56,7 +56,7 @@ class TFSwitchCase(TensorflowAPIBenchmarkBase):
             return tf.multiply(x, y)
 
         result = tf.switch_case(
-            branch_index=tf.reshape(input, []),
+            branch_index=tf.reshape(zero, []),
             branch_fns={0: f1,
                         1: f2},
             default=f3)
