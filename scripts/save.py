@@ -341,17 +341,10 @@ def parse_logs(args):
                         if 'AVG_GPU_USE' in line:
                             gpu_utilization_result = line.strip().split('=')[1]
                         # TODO: 动态图吞吐和显存占用是一个任务，后续静态图也改成一个任务，删除这个判断和删除 elif job_info["index"] == 2:
-                        if "MAX_GPU_MEMORY_USE" in line and args.implement_type != 'static_graph':
+                        if "MAX_GPU_MEMORY_USE" in line:
                             value = line.strip().split("=")[1].strip()
                             mem_result = int(value) if str.isdigit(value) else 0
 
-                elif job_info["index"] == 2:
-                    for line in file_lines:
-                        if "MAX_GPU_MEMORY_USE" in line:
-                            value = line.strip().split("=")[1].strip()
-                            result = int(value) if str.isdigit(value) else 0
-                            unit = 'MiB'
-                            break
                 elif job_info["index"] == 3:
                     result = json.dumps(job_info['FINAL_RESULT'])
                 else:
@@ -383,8 +376,7 @@ def parse_logs(args):
                 pjrl.log_path = json.dumps(log_save_dict)
                 pjrl.save()
                 # TODO: 动态图吞吐和显存占用是一个任务，后续静态图也改成一个任务，即可删除这个判断
-                if args.implement_type != 'static_graph':
-                    pjr = insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 0)
+                pjr = insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 0)
 
             except Exception as pfe:
                 print pfe
@@ -396,7 +388,7 @@ def parse_logs(args):
                     check_results(job_info["model_name"], job_info["index"],
                                         run_machine_type, result, html_results)
                     # TODO: 动态图吞吐和显存占用是一个任务，后续静态图也改成一个任务，即可删除这个判断
-                    if args.implement_type != 'static_graph' and job_info["index"] != 6:
+                    if job_info["index"] != 6:
                         check_results(job_info["model_name"], 2, run_machine_type,
                                       mem_result, html_results)
                 else:
