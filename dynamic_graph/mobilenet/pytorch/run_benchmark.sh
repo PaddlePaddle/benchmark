@@ -66,7 +66,7 @@ function _train(){
     ${train_cmd} > ${log_file} 2>&1 &
 
     train_pid=$!
-    sleep 600
+    sleep 1200
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
