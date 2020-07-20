@@ -340,7 +340,6 @@ def parse_logs(args):
                             cpu_utilization_result = line.strip().split('=')[1]
                         if 'AVG_GPU_USE' in line:
                             gpu_utilization_result = line.strip().split('=')[1]
-                        # TODO: 动态图吞吐和显存占用是一个任务，后续静态图也改成一个任务，删除这个判断和删除 elif job_info["index"] == 2:
                         if "MAX_GPU_MEMORY_USE" in line:
                             value = line.strip().split("=")[1].strip()
                             mem_result = int(value) if str.isdigit(value) else 0
@@ -363,6 +362,7 @@ def parse_logs(args):
                 if job_info["index"] == 1:
                     insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result, '%')
                     insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%')
+                    insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 0)
                     if int(job_info["gpu_num"]) == 1:
                         profiler_log = job_info["log_with_profiler"].split("/")[-1]
                         profiler_path = job_info["profiler_path"].split("/")[-1]
@@ -375,8 +375,6 @@ def parse_logs(args):
                 pjrl.result_id = pjr.result_id
                 pjrl.log_path = json.dumps(log_save_dict)
                 pjrl.save()
-                # TODO: 动态图吞吐和显存占用是一个任务，后续静态图也改成一个任务，即可删除这个判断
-                pjr = insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 0)
 
             except Exception as pfe:
                 print pfe
@@ -384,18 +382,21 @@ def parse_logs(args):
                 print("models: {}, run_machine_type: {}, index: {}, result: {}".format(
                     job_info["model_name"], run_machine_type, job_info["index"], result))
 
-                if job_info["index"] != 3:
-                    check_results(job_info["model_name"], job_info["index"],
-                                        run_machine_type, result, html_results)
-                    # TODO: 动态图吞吐和显存占用是一个任务，后续静态图也改成一个任务，即可删除这个判断
-                    if job_info["index"] != 6:
-                        check_results(job_info["model_name"], 2, run_machine_type,
-                                      mem_result, html_results)
-                else:
+                if job_info["index"] == 1:    # speed
+                    check_results(job_info["model_name"], job_info["index"], run_machine_type,
+                                    result, html_results)    # speed, CPU, GPU
+                    check_results(job_info["model_name"], 2, run_machine_type,
+                                    mem_result, html_results)    # mem
+                elif job_info["index"] == 3:    # profiler
                     check_results(job_info["model_name"], job_info["index"], run_machine_type,
                                     result, html_results, "Framework_Total")
-                    check_results(job_info["model_name"], job_info["index"],
-                                    run_machine_type, result, html_results, "GpuMemcpy_Total")
+                    check_results(job_info["model_name"], job_info["index"], run_machine_type,
+                                    result, html_results, "GpuMemcpy_Total")
+                elif job_info["index"] == 6:    # max BS
+                    check_results(job_info["model_name"], job_info["index"], run_machine_type,
+                                    result, html_results)
+                else
+                    print("--------------> please set a correct index(1|3|6)!")
     template.construct_email_content(html_results, args.log_path, args)
 
 
