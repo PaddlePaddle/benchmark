@@ -2,9 +2,9 @@
 set -xe
 
 if [[ $# -lt 2 ]]; then
-    echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
+    echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh speed|mem|maxbs DCGAN|CGAN|Pix2pix sp|mp 1000(max_iter) 1|0(is_profiler)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|3|6 DCGAN|CGAN|Pix2pix sp|mp 1000(max_iter)"
     exit
 fi
 
