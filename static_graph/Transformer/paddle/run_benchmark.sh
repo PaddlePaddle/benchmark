@@ -2,9 +2,9 @@
 set -xe
 
 if [[ $# -lt 3 ]]; then
-    echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
+    echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3|6 base|big sp|mp 1000(max_iter)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|3|6 base|big sp|mp 1000(max_iter)"
     exit
 fi
 
@@ -45,7 +45,7 @@ function _set_env(){
     export FLAGS_fraction_of_gpu_memory_to_use=1.0
     export FLAGS_eager_delete_tensor_gb=0.0
     export FLAGS_memory_fraction_of_eager_deletion=0.99999
-    export FLAGS_allocator_strategy=naive_best_fit
+    if [[ ${index} -eq 6 ]]; then export FLAGS_allocator_strategy=naive_best_fit; fi # 当前已合并mem 以及speed 任务，由于最大BS 下降较大，故而维持原有策略运行
 }
 
 function _train(){
