@@ -21,6 +21,7 @@ import numpy as np
 import json
 import collections
 import subprocess
+import itertools
 
 if six.PY3:
     from . import special_op_list
@@ -93,8 +94,9 @@ def check_commit():
 def _compare(output1, output2, atol):
     max_diff = np.float32(-0.0)
     offset = -1
+    assert output1.shape == output2.shape, "Outputs' shape must be the same, but receieved %s vs %s." % (
+        str(output1.shape), str(output2.shape))
     try:
-        assert len(output1) == len(output2)
         if output1.dtype == np.bool:
             diff = np.array_equal(output1, output2)
             max_diff = np.float32(np.logical_not(diff))
@@ -136,7 +138,7 @@ def _check_type(output1, output2):
 
 
 def _check_shape(name, output1, output2, i):
-    if name in ["reshape", "squeeze", "unsqueeze"]:
+    if name in ["reshape", "squeeze", "unsqueeze", "transpose"]:
         assert output1.shape == output2.shape, "The %d-the output's shape is different, %s vs %s." % (
             i, str(output1.shape), str(output2.shape))
         return output1, output2
@@ -144,16 +146,32 @@ def _check_shape(name, output1, output2, i):
     if output1.shape != output2.shape:
         output1_squeezed = np.squeeze(output1)
         output2_squeezed = np.squeeze(output2)
-        if output1_squeezed.shape != output2_squeezed.shape:
+        shape1_permutations = list(
+            itertools.permutations(output1_squeezed.shape,
+                                   len(output1_squeezed.shape)))
+        if output1_squeezed.shape != output2_squeezed.shape and output2_squeezed.shape not in shape1_permutations:
             raise RuntimeError(
                 "The %d-the output's shape is different, %s vs %s." % (
                     i, str(output1.shape), str(output2.shape)))
         else:
             print(
-                "The %d-the output's shape is compatible (same after squeezed), %s vs %s."
+                "---- The %d-th output's shape is compatible (same after squeezed/permuted), %s vs %s."
                 % (i, str(output1.shape), str(output2.shape)))
         return output1_squeezed, output2_squeezed
     return output1, output2
+
+
+def _permute_order(output1, output2):
+    numbers = list(range(len(output2.shape)))
+    all_permutations = list(itertools.permutations(numbers, len(numbers)))
+    choosed_permutations = []
+    for permutation in all_permutations:
+        permuted_shape2 = []
+        for pos in permutation:
+            permuted_shape2.append(output2.shape[pos])
+        if permuted_shape2 == list(output1.shape):
+            choosed_permutations.append(permutation)
+    return choosed_permutations
 
 
 def check_outputs(list1,
@@ -196,7 +214,25 @@ def check_outputs(list1,
                     "---- The %d-the output's data type is different, %s vs %s."
                     % (i, str(output1.dtype), str(output2.dtype)))
 
-            max_diff_i, offset_i = _compare(output1, output2, atol)
+            if output1.shape != output2.shape:
+                choosed_permutations = _permute_order(output1, output2)
+                max_diff_i_posible = []
+                offset_i_posible = []
+                for permutation in choosed_permutations:
+                    output2_transposed = np.transpose(output2, permutation)
+                    max_diff_i, offset_i = _compare(output1,
+                                                    output2_transposed, atol)
+                    max_diff_i_posible.append(max_diff_i)
+                    offset_i_posible.append(offset_i)
+                index = np.argmin(max_diff_i_posible)
+                max_diff_i = max_diff_i_posible[index]
+                offset_i = offset_i_posible[index]
+                print(
+                    "---- The %d-th output need permute. The permutation is %s, outputs shape are %s vs %s."
+                    % (i, str(choosed_permutations[index]), str(output1.shape),
+                       str(output2.shape)))
+            else:
+                max_diff_i, offset_i = _compare(output1, output2, atol)
             if max_diff_i > 1E-6:
                 print(
                     "---- The %d-th output (shape: %s, data type: %s) has diff. "
