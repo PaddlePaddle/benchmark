@@ -34,7 +34,7 @@ dy_mobilenet(){
     do
         echo "------------> begin to run ${model_name}"
         echo "index is speed, 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 1000 ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 1010 ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin"
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 800 ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1

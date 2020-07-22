@@ -26,7 +26,7 @@ function _set_params(){
     keyword="avg_speed:"
     separator=" "
     position=17
-    model_mode=1 # s/step -> steps/s
+    model_mode=1 # steps/s -> steps/s
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
