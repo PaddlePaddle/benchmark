@@ -204,6 +204,7 @@ function run(){
              cd ${benchmark_work_path}/baidu/paddle/benchmark/api;
              bash deploy/main_control.sh tests/configs ${logs_dir} ${CUDA_VISIBLE_DEVICES} gpu;
              bash deploy/main_control.sh tests/configs ${logs_dir} 0 cpu;
+             python deploy/post_log.py --server_path ${LOG_SERVER} --file_path ${logs_dir}
              unset http_proxy https_proxy;
              ln -s ${all_path}/env/bin/python /usr/local/bin/mypython;
              export LD_LIBRARY_PATH=/usr/lib64:/usr/lib/x86_64-linux-gnu:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${all_path}/env/lib/;
@@ -223,10 +224,6 @@ function run(){
             --shm-size=32G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
-
-    # todo 需要将当前的日志拷贝到result，才能访问日志
-    rm -rf ${result_dir}
-    cp -r ${logs_dir} ${result_dir}
 }
 
 build_paddle
