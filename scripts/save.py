@@ -395,7 +395,7 @@ def parse_logs(args):
                 elif job_info["index"] == 6:    # max BS
                     check_results(job_info["model_name"], job_info["index"], run_machine_type,
                                     result, html_results)
-                else
+                else:
                     print("--------------> please set a correct index(1|3|6)!")
     template.construct_email_content(html_results, args.log_path, args)
 
