@@ -194,6 +194,11 @@ function run(){
     export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
     export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
     RUN_IMAGE_NAME=paddlepaddle/paddle:latest-dev-cuda${cuda_version}-cudnn${cudnn_version}-gcc82
+    # 由于，deploy/main_control.sh 跑gpu和cpu的两个任务是同时在后台启动的，
+    # 因此，两个任务都需要绑到对应的CPU核上，避免CPU冲突，导致CPU数据不准。
+    # 具体绑核规则如下：
+    # - GPU任务：使用的CPU_VISIBLE_DEVICES 号和CUDA_VISIBLE_DEVICES 一致，即如果使用0-7个GPU卡，则对应使用0-7个CPU核。
+    # - CPU任务：请使用剩下的CPU核，假设有40个核，GPU任务用了前8个核，应该export CPU_VISIBLE_DEVICES="8-39"，即用剩下的32个CPU核。 
     run_cmd="python -m pip install --upgrade pip;
              pip install nvidia-ml-py;
              pip install psutil;
@@ -203,7 +208,7 @@ function run(){
              pip install ${all_path}/images/${IMAGE_NAME};
              cd ${benchmark_work_path}/baidu/paddle/benchmark/api;
              bash deploy/main_control.sh tests/configs ${logs_dir} ${CUDA_VISIBLE_DEVICES} gpu;
-             bash deploy/main_control.sh tests/configs ${logs_dir} 0 cpu;
+             bash deploy/main_control.sh tests/configs ${logs_dir} ${CPU_VISIBLE_DEVICES} cpu;
              unset http_proxy https_proxy;
              ln -s ${all_path}/env/bin/python /usr/local/bin/mypython;
              export LD_LIBRARY_PATH=/usr/lib64:/usr/lib/x86_64-linux-gnu:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${all_path}/env/lib/;
