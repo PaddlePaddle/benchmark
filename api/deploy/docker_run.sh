@@ -87,6 +87,11 @@ while [[ $# -gt 0 ]]; do
         implement_type=$2
         shift; shift
         ;;
+    -e|--email_address)
+        [[ "X$2" == "X" ]] && _fatal "option $1 needs an argument!"
+        email_address=$2
+        shift; shift
+        ;;
     *)
         _fatal "Unrecongnized option $1"
         ;;
