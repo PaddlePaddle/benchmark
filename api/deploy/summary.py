@@ -85,10 +85,20 @@ def _parse_speed(case_name, statistic_type, last_line):
 
     try:
         data = json.loads(last_line)
+        # May set following values:
+        #   paddle_cpu/gpu_speed_forward
+        #   paddle_cpu/gpu_speed_backward
+        #   tensorflow_cpu/gpu_speed_forward
+        #   tensorflow_cpu/gpu_speed_backward
         total = data["speed"]["total"]
         total_str = "%.5f" % total
         res[case_name][statistic_type] = total_str
         if gpu_time_key and data["speed"].get("gpu_time", None):
+            # May set following values:
+            #   gpu_time
+            #   gpu_time_backward
+            #   tf_gpu_time
+            #   tf_gpu_time_backward
             gpu_time = data["speed"]["gpu_time"]
             gpu_time_str = "%.5f" % gpu_time
             res[case_name][gpu_time_key] = gpu_time_str
