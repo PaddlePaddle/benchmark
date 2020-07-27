@@ -161,7 +161,10 @@ def _check_shape(name, output1, output2, i):
     return output1, output2
 
 
-def _permute_order(output1, output2):
+def _permute_order(name, output1, output2):
+    if name in ["reshape", "squeeze", "unsqueeze", "transpose"]:
+        return []
+
     numbers = list(range(len(output2.shape)))
     all_permutations = list(itertools.permutations(numbers, len(numbers)))
     choosed_permutations = []
@@ -214,32 +217,40 @@ def check_outputs(list1,
                     "---- The %d-the output's data type is different, %s vs %s."
                     % (i, str(output1.dtype), str(output2.dtype)))
 
-            if output1.shape != output2.shape:
-                choosed_permutations = _permute_order(output1, output2)
-                max_diff_i_posible = []
-                offset_i_posible = []
-                for permutation in choosed_permutations:
-                    output2_transposed = np.transpose(output2, permutation)
-                    max_diff_i, offset_i = _compare(output1,
-                                                    output2_transposed, atol)
-                    max_diff_i_posible.append(max_diff_i)
-                    offset_i_posible.append(offset_i)
-                index = np.argmin(max_diff_i_posible)
-                max_diff_i = max_diff_i_posible[index]
-                offset_i = offset_i_posible[index]
-                print(
-                    "---- The %d-th output need permute. The permutation is %s, outputs shape are %s vs %s."
-                    % (i, str(choosed_permutations[index]), str(output1.shape),
-                       str(output2.shape)))
-            else:
+            max_diff_i = None
+            offset_i = 0
+            if output1.shape == output2.shape:
                 max_diff_i, offset_i = _compare(output1, output2, atol)
+                output1_diff_value = output1.flatten()[offset_i]
+                output2_diff_value = output2.flatten()[offset_i]
+
+            if max_diff_i is None or max_diff_i > atol:
+                choosed_permutations = _permute_order(name, output1, output2)
+                permutation = None
+                for permutation_tmp in choosed_permutations:
+                    output2_transposed = np.transpose(output2, permutation_tmp)
+                    max_diff_i_tmp, offset_i_tmp = _compare(
+                        output1, output2_transposed, atol)
+                    if max_diff_i is None or max_diff_i > max_diff_i_tmp:
+                        max_diff_i = max_diff_i_tmp
+                        offset_i = offset_i_tmp
+                        permutation = permutation_tmp
+                        output1_diff_value = output1.flatten()[offset_i]
+                        output2_diff_value = output2_transposed.flatten()[
+                            offset_i]
+                if permutation is not None:
+                    print(
+                        "---- The %d-th output need permute. The permutation is %s, outputs shape are %s vs %s."
+                        % (i, str(permutation), str(output1.shape),
+                           str(output2.shape)))
+
             if max_diff_i > 1E-6:
                 print(
                     "---- The %d-th output (shape: %s, data type: %s) has diff. "
                     "The maximum diff is %e, offset is %d: %s vs %s. atol is %.2e."
                     % (i, str(output1.shape), str(output1.dtype), max_diff_i,
-                       offset_i, str(output1.flatten()[offset_i]),
-                       str(output2.flatten()[offset_i]), atol))
+                       offset_i, str(output1_diff_value),
+                       str(output2_diff_value), atol))
 
             max_diff = max_diff_i if max_diff_i > max_diff else max_diff
             if max_diff > atol:
