@@ -169,8 +169,7 @@ function save(){
                  --paddle_version ${paddle_version} \
                  --job_type ${job_type} \
                  --device_type ${device_type} \
-                 --implement_type ${implement_type} \
-                 --docker_images ${RUN_IMAGE_NAME}
+                 --implement_type ${implement_type}
 
     echo "******************** end insert to sql!! *****************"
 }

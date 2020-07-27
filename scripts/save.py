@@ -91,11 +91,6 @@ parser.add_argument(
     default="static_graph",
     help="The benchmark model implement method, static_graph | dynamic_graph")
 
-parser.add_argument(
-    "--docker_images",
-    type=str,
-    help="The benchmark run images")
-
 DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU',
                          '4': 'FOUR_GPU',
                          '8': 'MULTI_GPU',
@@ -412,7 +407,7 @@ def parse_logs(args):
     title = "frame_benchmark"
     env = dict(paddle_branch=args.image_branch, paddle_commit_id=args.image_commit_id,
                benchmark_commit_id=args.code_commit_id, device_type=args.device_type,
-               implement_type=args.implement_type, docker_images=args.docker_images)
+               implement_type=args.implement_type, docker_images=os.getenv('RUN_IMAGE_NAME'))
     if args.device_type.upper() in ("P40", "V100"):
         env["cuda_version"] = args.cuda_version
         env["cudnn_version"] = args.cudnn_version
