@@ -28,6 +28,7 @@ function _print_usage(){
     _message "    -t  job_type  benchmark_daliy | models test | pr_test"
     _message "    -p  all_path contains dir of images such as /ssd1/ljh"
     _message "    -s  implement_type of model static | dynamic"
+    _message "    -e  benchmark alarm email address"
 }
 
 function _init_parameters(){
@@ -84,6 +85,11 @@ while [[ $# -gt 0 ]]; do
     -s|--implement_type)
         [[ "X$2" == "X" ]] && _fatal "option $1 needs an argument!"
         implement_type=$2
+        shift; shift
+        ;;
+    -e|--email_address)
+        [[ "X$2" == "X" ]] && _fatal "option $1 needs an argument!"
+        email_address=$2
         shift; shift
         ;;
     *)
@@ -188,8 +194,6 @@ function run(){
     # Determine if the whl exists
     if [[ -s ${all_path}/images/${IMAGE_NAME} ]]; then echo "image found"; else exit 1; fi
     logs_dir=${all_path}/logs/logs_op_benchmark/${PADDLE_VERSION}
-    # todo 当前web-server寻找日志是固定目录，后续优化
-    result_dir=${all_path}/logs/logs_op_benchmark/result_test
     mkdir -p ${logs_dir}
     export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
     export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
@@ -219,6 +223,10 @@ function run(){
             -e "http_proxy=${HTTP_PROXY}" \
             -e "https_proxy=${HTTP_PROXY}" \
             -e "PADDLE_VERSION=${PADDLE_VERSION}" \
+            -e "CUDA_VERSION=${cuda_version}" \
+            -e "CUDNN_VERSION=${cudnn_version}" \
+            -e "RUN_IMAGE_NAME=${RUN_IMAGE_NAME}" \
+            -e "PADDLE_COMMIT_ID=${image_commit_id}" \
             --net=host \
             --privileged \
             --shm-size=32G \
@@ -226,5 +234,13 @@ function run(){
             /bin/bash -c "${run_cmd}"
 }
 
+#Send alarm email
+function send_email(){
+    if [[ -e ${logs_dir}/mail.html ]]; then
+        cat ${logs_dir}/mail.html |sendmail -t ${email_address}
+    fi
+}
+
 build_paddle
 run
+send_email
