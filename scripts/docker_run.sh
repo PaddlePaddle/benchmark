@@ -168,6 +168,7 @@ function run_models(){
             -e "BENCHMARK_WEBSITE=${BENCHMARK_WEBSITE}" \
             -e "http_proxy=${HTTP_PROXY}" \
             -e "https_proxy=${HTTP_PROXY}" \
+            -e "RUN_IMAGE_NAME=${RUN_IMAGE_NAME}" \
             --net=host \
             --privileged \
             --shm-size=32G \
@@ -183,6 +184,7 @@ function run_models(){
             -e "BENCHMARK_WEBSITE=${BENCHMARK_WEBSITE}" \
             -e "http_proxy=${HTTP_PROXY}" \
             -e "https_proxy=${HTTP_PROXY}" \
+            -e "RUN_IMAGE_NAME=${RUN_IMAGE_NAME}" \
             --net=host \
             --privileged \
             --shm-size=32G \

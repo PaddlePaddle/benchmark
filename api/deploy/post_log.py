@@ -39,12 +39,8 @@ if __name__ == "__main__":
     if os.path.isdir(args.file_path):
         for dir_path, dir_names, file_names in os.walk(args.file_path):
             for file_name in file_names:
-                file_list.append({
-                                       'abs_path': os.path.join(dir_path, file_name),
-                                       'file_path': 'op_benchmark/{}'.format(
-                                           os.path.basename(args.file_path)
-                                       )
-                                       })
+                file_list.append(dict(abs_path=os.path.join(dir_path, file_name),
+                                      file_path='op_benchmark/{}'.format(os.path.basename(args.file_path))))
     elif os.path.exists(args.file_path):
         file_list.append(args.file_path)
     else:
