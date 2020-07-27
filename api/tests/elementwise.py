@@ -32,6 +32,13 @@ class ElementwiseConfig(APIConfig):
         }
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
+    def disabled(self):
+        if self.api_name in [
+                "elementwise_max", "elementwise_min", "elementwise_pow"
+        ] and self.x_dtype == "float16":
+            return True
+        return False
+
     def to_tensorflow(self):
         tf_config = super(ElementwiseConfig, self).to_tensorflow()
         if len(self.x_shape) > len(self.y_shape) and self.y_shape != [1]:
