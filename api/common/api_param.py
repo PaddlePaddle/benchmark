@@ -209,6 +209,9 @@ class APIConfig(object):
         else:
             return self
 
+    def disabled(self):
+        return False
+
     def init_from_json(self, filename, config_id=0):
         if hasattr(self, "alias_config"):
             self.alias_config.init_from_json(
