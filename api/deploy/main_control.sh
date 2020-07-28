@@ -137,7 +137,6 @@ function execute_one_case() {
     for device in ${DEVICE_SET[@]}; do 
         if [ ${device} = "gpu" ]; then
             local actual_gpu_id="${gpu_id}"
-            local actual_cpu_id="${gpu_id}"
             local use_gpu="True"
             local repeat=1000
         else
@@ -182,11 +181,19 @@ function execute_one_case() {
                         logfile=${OUTPUT_DIR}/${api_name}"_"${i}"-"${framework}"_"${device}"_"${task}"_"${direction}".txt"
                         # Set maxmimum runtime to 10min, or it will be considered
                         #  hanged and will be killed.
-                        CUDA_VISIBLE_DEVICES="${actual_gpu_id}" taskset -c ${actual_cpu_id} timeout 600s ${run_cmd} > $logfile 2>&1
+                        if [ ${device} = "gpu" ]; then
+                            CUDA_VISIBLE_DEVICES="${actual_gpu_id}" timeout 600s ${run_cmd} > $logfile 2>&1
+                        else
+                            CUDA_VISIBLE_DEVICES="${actual_gpu_id}" taskset -c ${actual_cpu_id} timeout 600s ${run_cmd} > $logfile 2>&1
+                        fi
                         return_status=$?
                     else
                         logfile=""
-                        CUDA_VISIBLE_DEVICES="${actual_gpu_id}" taskset -c ${actual_cpu_id} ${run_cmd}
+                        if [ ${device} = "gpu" ]; then
+                            CUDA_VISIBLE_DEVICES="${actual_gpu_id}" ${run_cmd}
+                        else
+                            CUDA_VISIBLE_DEVICES="${actual_gpu_id}" taskset -c ${actual_cpu_id} ${run_cmd}
+                        fi
                         return_status=$?
                     fi
                     run_end=`date +%s%N`;

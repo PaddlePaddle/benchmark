@@ -198,11 +198,7 @@ function run(){
     export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
     export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
     RUN_IMAGE_NAME=paddlepaddle/paddle:latest-dev-cuda${cuda_version}-cudnn${cudnn_version}-gcc82
-    # 由于，deploy/main_control.sh 跑gpu和cpu的两个任务是同时在后台启动的，
-    # 因此，两个任务都需要绑到对应的CPU核上，避免CPU冲突，导致CPU数据不准。
-    # 具体绑核规则如下：
-    # - GPU任务：使用的CPU_VISIBLE_DEVICES 号和CUDA_VISIBLE_DEVICES 一致，即如果使用0-7个GPU卡，则对应使用0-7个CPU核。
-    # - CPU任务：请使用剩下的CPU核，假设有40个核，GPU任务用了前8个核，应该export CPU_VISIBLE_DEVICES="8-39"，即用剩下的32个CPU核。 
+    # CPU任务：export CPU_VISIBLE_DEVICES="0,1,2,3,4"，即并行开启5个CPU任务，用了第0-4个核。 
     run_cmd="python -m pip install --upgrade pip;
              pip install nvidia-ml-py;
              pip install psutil;
