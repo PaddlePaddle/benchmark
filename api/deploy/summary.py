@@ -248,11 +248,11 @@ def check_results(op_record, check_key):
 
 
 def dump_mysql(data):
-    import models.benchmark_server.helper as helper
-    from benchmark_op import models
     """
     dump data to mysql database
     """
+    import models.benchmark_server.helper as helper
+    from benchmark_op import models
     timestamp = os.getenv("PADDLE_VERSION", time.time())
     for i in range(len(data)):
         dic = data[i]
