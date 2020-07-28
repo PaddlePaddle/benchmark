@@ -35,7 +35,10 @@ from common import utils
 import op_benchmark_unit
 
 res = {}
-TABLE_HEADER = ["op", "case_name", "指标", "标准值", "当前值", "波动范围", "config"]
+TABLE_HEADER = ["case_name", "指标", "标准值", "当前值", "波动范围", "config"]
+html_results = OrderedDict()
+html_results["gpu_performance"] = {"header": TABLE_HEADER, "data": []}
+html_results["cpu_performance"] = {"header": TABLE_HEADER, "data": []}
 
 def _read_last_line(inputfile):
     filesize = os.path.getsize(inputfile)
@@ -179,11 +182,10 @@ def get_job_res(inputfile, specified_op_list=None):
         _parse_accuracy(case_name, statistic_type, last_line)
 
 
-def check_results(op_record, index, html_results, check_key):
+def check_results(op_record, check_key):
     """
     Args:
         op_record(models.OpRecord2):
-        html_results(list):
     """
 
     from benchmark_op import models
@@ -224,14 +226,16 @@ def check_results(op_record, index, html_results, check_key):
             color = "red"
         elif ranges <= -0.05:
             color = "green"
-        current_html_result = [dict(value='_'.join(str(op_record.case_name).split('_')[:-1])),
-                               dict(value=op_record.case_name),
+        current_html_result = [dict(value=op_record.case_name),
                                dict(value=verbose),
                                dict(value=avg_values),
                                dict(value=getattr(op_record, key)),
                                dict(value=ranges, color=color),
                                dict(value=op_record.config)]
-        html_results[index]["data"].append(current_html_result)
+        if 'cpu' in key.lower():
+            html_results["cpu_performance"]["data"].append(current_html_result)
+        elif 'gpu' in key.lower():
+            html_results["gpu_performance"]["data"].append(current_html_result)
 
 
 def dump_mysql(data):
@@ -240,12 +244,6 @@ def dump_mysql(data):
     """
     dump data to mysql database
     """
-    html_results = OrderedDict()
-    index = "performance"
-    html_results[index] = {}
-    html_results[index]["header"] = TABLE_HEADER
-    html_results[index]["data"] = []
-
     timestamp = os.getenv("PADDLE_VERSION", time.time())
     for i in range(len(data)):
         dic = data[i]
@@ -283,8 +281,9 @@ def dump_mysql(data):
                          paddle_gpu_perf_backwards="GPU后向",
                          gpu_time="GPU正向内核",
                          gpu_time_backward="GPU反向内核")
-        check_results(op_record, index, html_results, check_key)
-    if html_results[index]["data"]:
+        check_results(op_record, check_key)
+
+    if html_results:
         import scripts.template as template
         title = "op_benchmark"
         env = dict(PADDLE_VERSION=timestamp,
@@ -294,7 +293,6 @@ def dump_mysql(data):
                    PADDLE_COMMIT_ID=os.getenv('PADDLE_COMMIT_ID'))
         email_t = template.EmailTemplate(title, env, html_results, args.op_result_dir)
         email_t.construct_email_content()
-
 
 
 if __name__ == '__main__':
