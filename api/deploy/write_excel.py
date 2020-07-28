@@ -225,8 +225,9 @@ def dump_excel(benchmark_result_list,
                             ws.write(row, col, op_time, cell_formats[color])
                         col += 1
 
-                    ws.write(row, col, result["compare"][key],
-                             cell_formats[color])
+                    compare_result = COMPARE_RESULT_SHOWS.get(
+                        result["compare"][key], "--")
+                    ws.write(row, col, compare_result, cell_formats[color])
                     col += 1
 
                 op_acc_path = _op_result_path(op_result_dir, op_unit.case_name,
