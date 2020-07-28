@@ -88,7 +88,7 @@ class PDConv2dTranspose(PaddleAPIBenchmarkBase):
         self.feed_vars = [input, filter]
         self.fetch_vars = [result]
         if config.backward:
-            self.append_gradients(result, [input])
+            self.append_gradients(result, [input, filter])
 
 
 class TFConv2dTranspose(TensorflowAPIBenchmarkBase):
@@ -109,7 +109,7 @@ class TFConv2dTranspose(TensorflowAPIBenchmarkBase):
         self.feed_list = [input, filter]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [input])
+            self.append_gradients(result, [input, filter])
 
 
 if __name__ == '__main__':
