@@ -113,4 +113,50 @@
         }
     },
     "repeat": 5000
+}, {
+    "op": "elementwise",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[512L, 896L, 4L, 12L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[512L, 896L, 4L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "elementwise",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[512L, 896L, 4L, 12L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[512L, 896L, 4L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
 }]

@@ -17,12 +17,12 @@ import os
 import sys
 import time
 import uuid
-import subprocess
 import numpy as np
 import template
 import socket
 import json
 import traceback
+from collections import OrderedDict
 
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 sys.path.append(base_path)
@@ -91,8 +91,12 @@ parser.add_argument(
     default="static_graph",
     help="The benchmark model implement method, static_graph | dynamic_graph")
 
-DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU', '4': 'FOUR_GPU',
-                         '8': 'MULTI_GPU', '8mp': 'MULTI_GPU_MULTI_PROCESS'}
+DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU',
+                         '4': 'FOUR_GPU',
+                         '8': 'MULTI_GPU',
+                         '8mp': 'MULTI_GPU_MULTI_PROCESS'}
+
+TABLE_HEADER = ["模型", "运行环境", "指标", "标准值", "当前值", "波动范围"]
 DICT_INDEX = {1: "Speed", 2: "Memory", 3: "Profiler_info", 6: "Max_bs"}
 # todo config the log_server port
 LOG_SERVER = "http://" + socket.gethostname() + ":8777/"
@@ -158,19 +162,6 @@ def get_image_id():
     return pi.image_id
 
 
-def send_email(title, mailto, cc, content):
-    """send email"""
-    try:
-        p = subprocess.Popen(['mail', '-s', title, '-c', cc, mailto],
-                             stdout=subprocess.PIPE,
-                             stdin=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        out, err = p.communicate(input=content.encode('utf8'))
-        print out, err
-    except Exception as e:
-        print e
-
-
 def check_results(model_name, index, run_machine_type, cur_value, html_results, check_key=None):
     """
     check current results in range[-0.05, 0.05]
@@ -193,7 +184,6 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
                                               model_implement_type=args.implement_type,
                                               frame_name="paddlepaddle",
                                               run_machine_type=run_machine_type).order_by('-version')
-
     results_list = []
     count = 0
     for result in results:
@@ -229,11 +219,24 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
         print "range solve error {}".format(rw)
         traceback.print_exc()
         ranges = -1
-    if ranges > 0.05 or ranges < -0.05:
-        current_html_result = [model_name, run_machine_type,
-                               check_key if check_key else DICT_INDEX[index],
-                               avg_values, cur_value, ranges]
-        html_results[index].append(current_html_result)
+
+    if -0.05 < ranges < 0.05:
+        return
+    if ranges >= 0.05 and index in [1, 6]:
+        color = "green"
+    elif ranges <= -0.05 and index in [1, 6]:
+        color = "red"
+    elif ranges >= 0.05 and index in [2, 3]:
+        color = "red"
+    elif ranges <= -0.05 and index in [2, 3]:
+        color = "greed"
+    current_html_result = [dict(value=model_name),
+                           dict(value=run_machine_type),
+                           dict(value=check_key if check_key else DICT_INDEX[index]),
+                           dict(value=avg_values),
+                           dict(value=cur_value),
+                           dict(value=ranges, color=color)]
+    html_results[DICT_INDEX[index]]["data"].append(current_html_result)
 
 
 def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0):
@@ -303,9 +306,11 @@ def parse_logs(args):
     """
     image_id = get_image_id()
     file_list = load_folder_files(os.path.join(args.log_path, "index"))
-    html_results = {}
-    for k in DICT_INDEX:
-        html_results[k] = []
+    html_results = OrderedDict()
+    for k in DICT_INDEX.values():
+        html_results[k] = {}
+        html_results[k]["header"] = TABLE_HEADER
+        html_results[k]["data"] = []
     for job_file in file_list:
         result = 0
         with open(job_file, 'r+') as file_obj:
@@ -395,9 +400,19 @@ def parse_logs(args):
                 elif job_info["index"] == 6:    # max BS
                     check_results(job_info["model_name"], job_info["index"], run_machine_type,
                                     result, html_results)
-                else
+                else:
                     print("--------------> please set a correct index(1|3|6)!")
-    template.construct_email_content(html_results, args.log_path, args)
+
+    # generate email file
+    title = "frame_benchmark"
+    env = dict(paddle_branch=args.image_branch, paddle_commit_id=args.image_commit_id,
+               benchmark_commit_id=args.code_commit_id, device_type=args.device_type,
+               implement_type=args.implement_type, docker_images=os.getenv('RUN_IMAGE_NAME'))
+    if args.device_type.upper() in ("P40", "V100"):
+        env["cuda_version"] = args.cuda_version
+        env["cudnn_version"] = args.cudnn_version
+    email_t = template.EmailTemplate(title, env, html_results, args.log_path)
+    email_t.construct_email_content()
 
 
 if __name__ == '__main__':

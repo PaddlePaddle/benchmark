@@ -4,20 +4,20 @@ set -xe
 if [[ $# -lt 3 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|3|6 sp|mp 1000(max_iter) model_name(MobileNetV1|MobileNetV2)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|3|6 sp|mp 1(num_epoch) model_name(MobileNetV1|MobileNetV2|resnet)"
     exit
 fi
 
 function _set_params(){
     index=$1
-    base_batch_size=128                                                      # 单卡的batch_size，如果固定的，可以写死                                                            (必填)
-    if [ ${4} != "MobileNetV1" ] && [ ${4} != "MobileNetV2" ]; then
+    base_batch_size=128                                                       # 单卡的batch_size，如果固定的，可以写死                                                            (必填)
+    model_name=${4}                                                          # 当model_name唯一时可写死                                                                          (必填)
+    if [ ${model_name} != "MobileNetV1" ] && [ ${model_name} != "MobileNetV2" ] && [ ${model_name} != "resnet" ]; then
         echo "------------> please check the model name!"
         exit 1
     fi
-    model_name=${4}                                                          # 当model_name唯一时可写死                                                                          (必填)
-    run_mode=${2:-"sp"}
-    max_iter=${3:-"1000"}                                                    # 该参数为训练最大的step数，需在该模型内添加相关变量，当训练step >= max_iter 时，结束训练           (必填)
+    run_mode=${2}   # Use sp for single GPU and mp for multiple GPUs.
+    num_epoch=${3}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi      # 动态图benchmark当前暂未添加profiler，该参数可暂不处理
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -28,7 +28,7 @@ function _set_params(){
     skip_steps=5                                                             # 解析日志，有些模型前几个step耗时长，需要跳过                                                      (必填)
     keyword="batch_cost:"                                                    # 解析日志，筛选出数据所在行的关键字                                                                (必填)
     separator=" "                                                            # 解析日志，数据所在行的分隔符                                                                      (必填)
-    position=11                                                              # 解析日志，按照分隔符分割后形成的数组索引                                                          (必填)
+    position=9                                                               # 解析日志，按照分隔符分割后形成的数组索引                                                          (必填)
     #range=0:9                                                               # 解析日志，取得列表索引的值后，切片[0：range], 默认最后一位可以不用填, 或者 3:10格式               (选填)
     model_mode=0 # s/step -> samples/s                                       # 解析日志，具体参考benchmark/scripts/analysis.py.                                                  (必填)
 
@@ -44,30 +44,30 @@ function _set_params(){
 }
 
 function _train(){
-    train_cmd="--batch_size=${base_batch_size} \
-               --total_images=1281167 \
-               --class_dim=1000 \
-               --image_shape=3,224,224 \
-               --model_save_dir=output \
-               --lr_strategy=piecewise_decay \
-               --lr=0.1 \
-               --data_dir=./data/ILSVRC2012_Pytorch/dataset_100/ \
-               --l2_decay=3e-5 \
-               --model=${model_name} \
-               --max_iter=${max_iter} \
-               --num_epochs=2 "
-    if [ ${run_mode} = "sp" ]; then
-        train_cmd="python -u train.py "${train_cmd}
+    if [ ${model_name} = "resnet" ]; then
+        model_name_arg="ResNet50"
+        num_workers=8
+        data_dir="./data/ILSVRC2012"
     else
-        rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog train.py --use_data_parallel=1 "${train_cmd}
-        log_parse_file="mylog/workerlog.0"
+        model_name_arg=${model_name}
+        num_workers=10
+        data_dir="./data/ILSVRC2012_Pytorch/dataset_100"
     fi
-    ${train_cmd} > ${log_file} 2>&1
-    if [ ${run_mode} != "sp"  -a -d mylog ]; then
-        rm ${log_file}
-        cp mylog/workerlog.0 ${log_file}
+    train_cmd="--batch_size=${base_batch_size} \
+               --workers=${num_workers} \
+               --data_dir=${data_dir} \
+               --model=${model_name_arg} \
+               --epochs=${num_epoch}"
+    if [ ${run_mode} = "sp" ]; then
+        train_cmd="python -u train_pytorch.py "${train_cmd}
+    else
+        train_cmd="python3 -m torch.distributed.launch --nproc_per_node=${num_gpu_devices} --use_env train_pytorch.py "${train_cmd}
     fi
+    ${train_cmd} > ${log_file} 2>&1 &
+
+    train_pid=$!
+    sleep 1200
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh

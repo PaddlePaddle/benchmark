@@ -500,10 +500,10 @@ transformer(){
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 ${model_type} sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_1gpus 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 ${model_type} sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_8gpus 2>&1
     sleep 60
     echo "model_type is ${model_type}, index is speed, 8gpus, run_mode is multi_process, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_type} mp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus8p 2>&1

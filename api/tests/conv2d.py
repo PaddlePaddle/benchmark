@@ -28,12 +28,13 @@ class Conv2dConfig(APIConfig):
             }  # filters
         ]
 
+    def disabled(self):
+        if self.input_dtype == "float16" and self.use_cudnn == False:
+            return True
+        return False
+
     def init_from_json(self, filename, config_id=0):
         super(Conv2dConfig, self).init_from_json(filename, config_id)
-        if self.input_dtype == "float16" and self.use_cudnn == False:
-            self.disabled = True
-            return
-
         if isinstance(self.padding, int):
             self.padding = [self.padding, self.padding]
         if self.data_format == "NCHW":
@@ -108,7 +109,7 @@ class PDConv2d(PaddleAPIBenchmarkBase):
         self.feed_vars = [input, filter]
         self.fetch_vars = [result]
         if config.backward:
-            self.append_gradients(result, [input])
+            self.append_gradients(result, [input, filter])
 
 
 class TFConv2d(TensorflowAPIBenchmarkBase):
@@ -138,7 +139,7 @@ class TFConv2d(TensorflowAPIBenchmarkBase):
         self.feed_list = [input, filter]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [input])
+            self.append_gradients(result, [input, filter])
 
 
 if __name__ == '__main__':

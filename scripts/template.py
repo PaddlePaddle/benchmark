@@ -13,28 +13,28 @@
 @Date: 2019/5/30 19:26
 """
 import os
-import save
 
-MAIL_HEAD_CONTENT = """
-From:paddle_benchmark@baidu.com
+MAIL_HEAD_CONTENT = """From:paddle_benchmark@baidu.com
 To:test@benchmark.com
 Subject:benchmark运行结果报警，请检查
 content-type:text/html
 <html>
     <body>
-        <h3 align=center>benchmark alarm email</h3>
+        <h3 align=center>TITLE_HOLDER alarm email</h3>
         <HR align=center width="80%" SIZE=1>         
         <table border="1" align=center>
         <caption bgcolor="#989898">环境配置</caption>
-RUN_ENV_HOLDER 
-        </table>            
+RUN_ENV_HOLDER
+        </table>             
 """
 
 MAIL_MID_CONTENT = """
         <HR align=center width="80%" SIZE=1>
         <table border="1" align=center>
         <caption>报警结果_INDEX_HOLDER</caption>
-            <tr bgcolor="#989898" ><td>模型</td><td>运行环境</td><td>指标</td><td>标准值</td><td>当前值</td><td>波动范围</td>JOB_LINK_HOLDER</tr>
+            <tr bgcolor="#989898" >
+TABLE_HEADER_HOLDER
+            </tr>
 ALARM_INFO_HOLDER
         </table>
 """
@@ -47,105 +47,83 @@ MAIL_TAIL_CONTENT = """
 """
 
 
-def construct_mid_content(results, single=True):
-    """the list not satify condition
-    Args:
-        results(dict): {1:[[], []], 2:[[], []]}
-        single(bool):
-    returns:
-        alarm_info_holder(str)
+class EmailTemplate(object):
+    """construct email for benchmark result.
     """
-    def get_alarm_info(alarm_list):
-        """construnct alarm info for each restult.
-        Args: alarm_list(list):[[],[]]
+    def __init__(self, title, env, results, log_path):
         """
-        alarm_info = ""
-        for each_res in alarm_list:
-            if not each_res:
+        Args:
+            title(str): benchmark | op_benchmark | benchmark_distribute
+            env(dict): running environment.
+            results(dict):
+                {"Speed": {"header": [table_header0, table_header1, table_header2,]
+                           "data": [[{'value':, 'color':, }, {'value':, 'color':, }, {'value':, 'color':, }]
+                           ...]}
+                "Mem": {"header": [table_header0, table_header1, table_header2,]
+                        "data": [[{'value':, 'color':, }, {'value':, 'color':, }, {'value':, 'color':, }]
+                        ...]}
+                ...}
+            log_path(str): mail path
+        """
+        self.title = title
+        self.env_content = ""
+        self.alarm_info = ""
+        self.log_path = log_path
+        self.__construct_mail_env(env)
+        self.__construct_alarm_info(results)
+
+    def __construct_mail_env(self, env):
+        """
+        construct email env content.
+        """
+
+        if isinstance(env, dict):
+            for k, v in env.items():
+                self.env_content += """
+                    <tr><td>{}</td><td>{}</td></tr>
+                    """.format(k, v)
+        return self.env_content
+
+    def __construct_alarm_info(self, results):
+        """
+        construct email env content.
+        """
+        print("html_results is: {}".format(results))
+        for report_index, alarm in results.items():
+            table_header_info = ""
+            table_alarm_info = ""
+            if not alarm.get("data"):
                 continue
-            range_index = len(each_res) - 1 if single else len(each_res) - 2
-            alarm_info += "            <tr>"
-            index_type = each_res[2]
-            for i in range(len(each_res)):
-                if i == range_index and each_res[i] > 0 and index_type != "Memory":
-                    alarm_info += "<td bgcolor=green>{}</td>".format(each_res[i])
-                elif i == range_index and each_res[i] > 0 and index_type == "Memory":
-                    alarm_info += "<td bgcolor=red>{}</td>".format(each_res[i])
-                elif i == range_index and each_res[i] < 0 and index_type != "Memory":
-                    alarm_info += "<td bgcolor=red>{}</td>".format(each_res[i])
-                elif i == range_index and each_res[i] < 0 and index_type == "Memory":
-                    alarm_info += "<td bgcolor=green>{}</td>".format(each_res[i])
-                else:
-                    alarm_info += "<td>{}</td>".format(each_res[i])
-            alarm_info += "</tr>\n"
-        return alarm_info
+            for header_td in alarm["header"]:
+                table_header_info += """
+                    <td>{}</td>
+                    """.format(header_td)
+            for single_info in alarm["data"]:
+                if not single_info:
+                    continue
+                table_alarm_info += "\t\t\t<tr>"
+                for info_td in single_info:
+                    table_alarm_info += """
+                    <td bgcolor={}>{}</td>
+                    """.format(info_td.get('color', 'white'), info_td.get('value'))
+                table_alarm_info += "</tr>\n"
+            if table_alarm_info:
+                self.alarm_info += MAIL_MID_CONTENT.replace('TABLE_HEADER_HOLDER', table_header_info).replace(
+                    'ALARM_INFO_HOLDER', table_alarm_info).replace('INDEX_HOLDER', report_index)
 
-    job_link = "" if single else "<td>job_link</td>"
-    base_info = MAIL_MID_CONTENT.replace("JOB_LINK_HOLDER", job_link)
-    res_info = ""
-    if isinstance(results, list):
-        alarm_info = get_alarm_info(results)
-        res_info += base_info.replace("ALARM_INFO_HOLDER", alarm_info).replace("INDEX_HOLDER", "")
-        return res_info if alarm_info else ""
+    def construct_email_content(self):
+        """
+        construct email full content.
+        """
+        # Construct header of the message
+        content = MAIL_HEAD_CONTENT.replace("TITLE_HOLDER", self.title).replace('RUN_ENV_HOLDER',
+                                                                                self.env_content)
+        if not self.alarm_info:
+            return
+        # Construct alarm content
+        content += self.alarm_info
+        # Construct the tail of the message
+        content += MAIL_TAIL_CONTENT.replace("BENCHMARK_WEBSITE", os.getenv("BENCHMARK_WEBSITE", "")).strip()
 
-    for index, values in results.items():
-        alarm_info = get_alarm_info(values)
-        if alarm_info:
-            res_info += base_info.replace("ALARM_INFO_HOLDER",
-                                          alarm_info).replace("INDEX_HOLDER", save.DICT_INDEX[index])
-    return res_info
-
-
-def construct_email_content(results, log_path, args, single=True):
-    """construct email content.
-    Args:
-        results(dict): {1:[[], []], 2:[[], []]}
-        log_path(str): email save path
-        args(ArgParser): run args
-        single(bool): single or multi_machine
-    """
-    print("html_results is {}".format(results))
-    run_env = """
-            <tr><td>paddle_branch</td><td>{}</td></tr>
-            <tr><td>paddle_commit_id</td><td>{}</td></tr>
-            <tr><td>benchmark_commit_id</td><td>{}</td></tr>
-            <tr><td>device_type</td><td>{}</td></tr>
-            <tr><td>implement_type</td><td>{}</td></tr>
-             """.format(args.image_branch,
-                        args.image_commit_id,
-                        args.code_commit_id,
-                        args.device_type,
-                        args.implement_type, )
-
-    if single and str(args.device_type).upper() in ("P40", "V100"):
-        run_env += """
-            <tr><td>cuda_version</td><td>{0}</td></tr>
-            <tr><td>cudnn_version</td><td>{1}</td></tr>         
-            <tr><td>docker_image</td><td>paddlepaddle/paddle:latest-gpu-cuda{0}-cudnn{1}</td></tr>     
-            """.format(args.cuda_version, args.cudnn_version)
-    elif single and str(args.device_type).upper() == "CPU":
-        run_env += """
-            <tr><td>docker_image</td><td>paddlepaddle/paddle:latest</td></tr>     
-            """
-    elif not single and str(args.device_type).upper() in ("P40", "V100"):
-        run_env += """
-            <tr><td>cuda_version</td><td>{0}</td></tr>
-            <tr><td>cudnn_version</td><td>{1}</td></tr>         
-            <tr><td>paddle_cloud_cluster</td><td>dltp-0-yq01-k8s-gpu-v100-8</td></tr>     
-            """.format(args.cuda_version, args.cudnn_version)
-    elif not single and str(args.device_type).upper() == "CPU":
-        run_env += """   
-            <tr><td>paddle_cloud_cluster</td><td>paddle_benchmark</td></tr>
-            """
-    alarm_info = construct_mid_content(results, single)
-    if not alarm_info:
-        return
-    # Construct header of the message
-    content = MAIL_HEAD_CONTENT.replace("RUN_ENV_HOLDER", run_env).strip()
-    # Construct alarm content
-    content += alarm_info
-    # Construct the tail of the message
-    content += MAIL_TAIL_CONTENT.replace("BENCHMARK_WEBSITE", os.getenv("BENCHMARK_WEBSITE", "")).strip()
-
-    with open(os.path.join(log_path, "mail.html"), "w") as f_object:
-        f_object.write(content)
+        with open(os.path.join(self.log_path, "mail.html"), "w") as f_object:
+            f_object.write(content)
