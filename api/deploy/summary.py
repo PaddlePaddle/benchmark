@@ -35,10 +35,14 @@ from common import utils
 import op_benchmark_unit
 
 res = {}
-TABLE_HEADER = ["case_name", "指标", "标准值", "当前值", "波动范围", "config"]
-html_results = OrderedDict()
-html_results["gpu_performance"] = {"header": TABLE_HEADER, "data": []}
-html_results["cpu_performance"] = {"header": TABLE_HEADER, "data": []}
+TABLE_HEADER = ["case_name", "指标", "标准值", "当前值", "波动范围"]
+CHECK_KEY = OrderedDict()
+CHECK_KEY["gpu_time"] = "GPU正向内核"
+CHECK_KEY["gpu_time_backward"] = "GPU反向内核"
+CHECK_KEY["paddle_gpu_perf"] = "GPU正向"
+CHECK_KEY["paddle_gpu_perf_backwards"] = "GPU反向"
+CHECK_KEY["paddle_cpu_perf"] = "CPU正向"
+CHECK_KEY["paddle_cpu_perf_backwards"] = "CPU反向"
 
 
 def _read_last_line(inputfile):
@@ -191,25 +195,26 @@ def get_job_res(inputfile, specified_op_list=None):
         _parse_accuracy(case_name, statistic_type, last_line)
 
 
-def check_results(op_record, check_key):
+def check_results(op_record, alarm_results):
     """
     Args:
         op_record(models.OpRecord2):
+        alarm_results(dict):
     """
 
     from benchmark_op import models
     results = models.OpRecord2.objects.filter(case_name=op_record.case_name).order_by('-timestamp')[:10:1]
-    for key, verbose in check_key.items():
+    for key, verbose in CHECK_KEY.items():
         results_list = []
         count = 0
         for result in results:
             if count == 0:
                 count += 1
                 continue
-            if len(results_list) == 3:
+            if len(results_list) == 5:
                 break
             try:
-                if result:  # json.loads("") throws excetion
+                if result and getattr(result, key) != '--':
                     result = json.loads(getattr(result, key))
                     result = float(result)
                     results_list.append(result)
@@ -218,11 +223,11 @@ def check_results(op_record, check_key):
 
         # 如果历史数据一直为空，则不报警
         if not results_list:
-            return
+            continue
         try:
             avg_values = round(np.array(results_list).mean(), 4)
             if not avg_values:
-                return
+                continue
             ranges = round((float(getattr(op_record, key)) - avg_values) / avg_values, 4)
         except Exception as rw:
             print("range solve error {}".format(rw))
@@ -230,7 +235,7 @@ def check_results(op_record, check_key):
             ranges = -1
 
         if -0.05 < ranges < 0.05:
-            return
+            continue
         if ranges >= 0.05:
             color = "red"
         elif ranges <= -0.05:
@@ -239,12 +244,33 @@ def check_results(op_record, check_key):
                                dict(value=verbose),
                                dict(value=avg_values),
                                dict(value=getattr(op_record, key)),
-                               dict(value=ranges, color=color),
-                               dict(value=op_record.config)]
-        if 'cpu' in key.lower():
-            html_results["cpu_performance"]["data"].append(current_html_result)
-        elif 'gpu' in key.lower():
-            html_results["gpu_performance"]["data"].append(current_html_result)
+                               dict(value='%.2f%%' % (ranges * 100), color=color)]
+        alarm_results[verbose]["data"].append(current_html_result)
+
+
+def construct_alarm_email(timestamp, alarm_results):
+    """
+    Args:
+        timestamp(str): paddle version
+        alarm_results(dict): alarm data
+    """
+    import scripts.template as template
+    flag = False
+    for k, v in alarm_results.items():
+        if alarm_results[k]["data"]:
+            flag = True
+            break
+    if flag:
+        title = "op_benchmark"
+        env = dict(
+            PADDLE_VERSION=timestamp,
+            DOCKER_IMAGES=os.getenv('RUN_IMAGE_NAME'),
+            CUDA_VERSION=os.getenv('CUDA_VERSION'),
+            CUDNN_VERSION=os.getenv('CUDNN_VERSION'),
+            PADDLE_COMMIT_ID=os.getenv('PADDLE_COMMIT_ID'))
+        email_t = template.EmailTemplate(title, env, alarm_results,
+                                         args.op_result_dir)
+        email_t.construct_email_content()
 
 
 def dump_mysql(data):
@@ -254,6 +280,9 @@ def dump_mysql(data):
     import models.benchmark_server.helper as helper
     from benchmark_op import models
     timestamp = os.getenv("PADDLE_VERSION", time.time())
+    alarm_results = OrderedDict()
+    for k, v in CHECK_KEY.items():
+        alarm_results[v] = {"header": TABLE_HEADER, "data": []}
     for i in range(len(data)):
         dic = data[i]
         op_record = models.OpRecord2()
@@ -285,26 +314,9 @@ def dump_mysql(data):
         op_record.tf_gpu_time_backward = dic.get("tf_gpu_time_backward", "--")
         op_record.tf_gpu_time = dic.get("tf_gpu_time", "--")
         op_record.save()
-        check_key = dict(
-            paddle_cpu_perf="CPU正向",
-            paddle_gpu_perf="GPU正向",
-            paddle_gpu_perf_backwards="GPU后向",
-            gpu_time="GPU正向内核",
-            gpu_time_backward="GPU反向内核")
-        check_results(op_record, check_key)
+        check_results(op_record, alarm_results)
+    construct_alarm_email(timestamp, alarm_results)
 
-    if html_results:
-        import scripts.template as template
-        title = "op_benchmark"
-        env = dict(
-            PADDLE_VERSION=timestamp,
-            DOCKER_IMAGES=os.getenv('RUN_IMAGE_NAME'),
-            CUDA_VERSION=os.getenv('CUDA_VERSION'),
-            CUDNN_VERSION=os.getenv('CUDNN_VERSION'),
-            PADDLE_COMMIT_ID=os.getenv('PADDLE_COMMIT_ID'))
-        email_t = template.EmailTemplate(title, env, html_results,
-                                         args.op_result_dir)
-        email_t.construct_email_content()
 
 
 if __name__ == '__main__':
