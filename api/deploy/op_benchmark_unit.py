@@ -29,6 +29,16 @@ def parse_op_type(case_name):
     return re.sub("_[0-9]*$", "", case_name)
 
 
+def parse_case_id(case_name):
+    return case_name.split("_")[-1]
+
+
+def unify_case_name(case_name):
+    op_type = parse_op_type(case_name)
+    case_id = int(parse_case_id(case_name))
+    return "%s_%02d" % (op_type, case_id)
+
+
 def _compare(time1, time2):
     try:
         ratio = float(time1) / float(time2)
@@ -85,9 +95,10 @@ class OpBenchmarkUnit(object):
                     "gpu_time": _compare(paddle_gpu_time, tf_gpu_time)
                 }
 
-                accuracy = self._get_case_value(case_detail, "paddle", device,
-                                                "accuracy", direction)
+                accuracy, difference = self._get_case_value(
+                    case_detail, "paddle", device, "accuracy", direction)
                 result["accuracy"] = str(accuracy)
+                result["difference"] = str(difference)
 
     def __str__(self):
         debug_str = "case_name    : " + self.case_name + "\n"
@@ -146,8 +157,9 @@ class OpBenchmarkUnit(object):
 
         if task == "accuracy":
             try:
-                key = "paddle_" + device + "_accuracy_" + direction
-                return case_detail[key]
+                accuracy_key = "paddle_" + device + "_accuracy_" + direction
+                difference_key = "paddle_" + device + "_difference_" + direction
+                return case_detail[accuracy_key], case_detail[difference_key]
             except Exception:
                 return "--"
         else:

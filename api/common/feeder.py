@@ -123,10 +123,7 @@ class FeederAdapter(object):
                 if self.__feed_spec is not None and self.__feed_spec[i].get(
                         "permute", None) is not None:
                     permute_paddle2tf = self.__feed_spec[i]["permute"]
-                    # In Python 3.x, 'range' object does not support item assignment.
-                    permute_tf2paddle = []
-                    for i in range(len(permute_paddle2tf)):
-                        permute_tf2paddle.append(i)
+                    permute_tf2paddle = [0] * len(permute_paddle2tf)
                     for pos in range(len(permute_paddle2tf)):
                         permute_tf2paddle[permute_paddle2tf[pos]] = pos
                     value = np.transpose(value, permute_tf2paddle)
