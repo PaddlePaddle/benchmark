@@ -377,7 +377,9 @@ if __name__ == '__main__':
 
     data = []
     benchmark_result_list = []
-    for key, value in sorted(res.items()):
+    for key, value in sorted(
+            res.items(),
+            key=lambda t: op_benchmark_unit.unify_case_name(t[0])):
         case_detail = value.copy()
         case_detail['name'] = key
         data.append(case_detail)

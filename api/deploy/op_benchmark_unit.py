@@ -29,6 +29,16 @@ def parse_op_type(case_name):
     return re.sub("_[0-9]*$", "", case_name)
 
 
+def parse_case_id(case_name):
+    return case_name.split("_")[-1]
+
+
+def unify_case_name(case_name):
+    op_type = parse_op_type(case_name)
+    case_id = int(parse_case_id(case_name))
+    return "%s_%02d" % (op_type, case_id)
+
+
 def _compare(time1, time2):
     try:
         ratio = float(time1) / float(time2)
