@@ -85,9 +85,10 @@ class OpBenchmarkUnit(object):
                     "gpu_time": _compare(paddle_gpu_time, tf_gpu_time)
                 }
 
-                accuracy = self._get_case_value(case_detail, "paddle", device,
-                                                "accuracy", direction)
+                accuracy, difference = self._get_case_value(
+                    case_detail, "paddle", device, "accuracy", direction)
                 result["accuracy"] = str(accuracy)
+                result["difference"] = str(difference)
 
     def __str__(self):
         debug_str = "case_name    : " + self.case_name + "\n"
@@ -146,8 +147,9 @@ class OpBenchmarkUnit(object):
 
         if task == "accuracy":
             try:
-                key = "paddle_" + device + "_accuracy_" + direction
-                return case_detail[key]
+                accuracy_key = "paddle_" + device + "_accuracy_" + direction
+                difference_key = "paddle_" + device + "_difference_" + direction
+                return case_detail[accuracy_key], case_detail[difference_key]
             except Exception:
                 return "--"
         else:

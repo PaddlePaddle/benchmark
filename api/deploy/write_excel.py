@@ -25,6 +25,16 @@ if not six.PY3:
     reload(sys)
     sys.setdefaultencoding("utf8")
 
+COMPARE_RESULT_SHOWS = {
+    "Better": "优于",
+    "Equal": "打平",
+    "Less": "差于",
+    "Unknown": "未知",
+    "Unsupport": "不支持",
+    "Others": "其他",
+    "Total": "汇总"
+}
+
 
 def _op_filename(case_name, framework, device, task, direction):
     filename = case_name + "-" + framework + "_" + device + "_" + task + "_" + direction + ".txt"
@@ -44,23 +54,13 @@ def _op_result_url(url_prefix, case_name, framework, device, task, direction):
 
 def _write_summary_worksheet(benchmark_result_list, workbook, title_format,
                              cell_formats):
-    compare_result_titles = {
-        "Better": "优于",
-        "Equal": "打平",
-        "Less": "差于",
-        "Unknown": "未知",
-        "Unsupport": "不支持",
-        "Others": "其他",
-        "Total": "汇总"
-    }
-
     def _write_summary_unit(compare_result, category, worksheet, row):
         compare_result_keys = compare_result.compare_result_keys
         compare_result_colors = {"Better": "green", "Less": "red"}
         if category is not None:
             worksheet.write(row, 0, category, title_format)
         for col in range(len(compare_result_keys)):
-            title = compare_result_titles[compare_result_keys[col]]
+            title = COMPARE_RESULT_SHOWS[compare_result_keys[col]]
             worksheet.write(row, col + 1, title, title_format)
 
         row += 1
@@ -232,6 +232,9 @@ def dump_excel(benchmark_result_list,
                 op_acc_path = _op_result_path(op_result_dir, op_unit.case_name,
                                               "paddle", device, "accuracy",
                                               direction)
+                difference = result["difference"]
+                if difference != "--" and difference != "-" and difference != "0.0":
+                    difference = "%.2E" % (float(difference))
                 if url_prefix and os.path.exists(op_acc_path):
                     op_acc_url = _op_result_url(url_prefix, op_unit.case_name,
                                                 "paddle", device, "accuracy",
@@ -240,10 +243,9 @@ def dump_excel(benchmark_result_list,
                         row,
                         col,
                         url=op_acc_url,
-                        string=result["accuracy"],
+                        string=difference,
                         cell_format=cell_formats["black_underline"])
                 else:
-                    ws.write(row, col, result["accuracy"],
-                             cell_formats["black"])
+                    ws.write(row, col, difference, cell_formats["black"])
                 ws.write(row, col + 1, op_unit.parameters)
     wb.close()
