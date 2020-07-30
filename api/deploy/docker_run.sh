@@ -198,6 +198,7 @@ function run(){
     export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
     export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
     RUN_IMAGE_NAME=paddlepaddle/paddle:latest-dev-cuda${cuda_version}-cudnn${cudnn_version}-gcc82
+    # CPU任务：export CPU_VISIBLE_DEVICES="0,1,2,3,4"，即并行开启5个CPU任务，用了第0-4个核。 
     run_cmd="python -m pip install --upgrade pip;
              pip install nvidia-ml-py;
              pip install psutil;
@@ -207,7 +208,7 @@ function run(){
              pip install ${all_path}/images/${IMAGE_NAME};
              cd ${benchmark_work_path}/baidu/paddle/benchmark/api;
              bash deploy/main_control.sh tests/configs ${logs_dir} ${CUDA_VISIBLE_DEVICES} gpu;
-             bash deploy/main_control.sh tests/configs ${logs_dir} 0 cpu;
+             bash deploy/main_control.sh tests/configs ${logs_dir} ${CPU_VISIBLE_DEVICES} cpu;
              python deploy/post_log.py --server_path ${LOG_SERVER} --file_path ${logs_dir}
              unset http_proxy https_proxy;
              ln -s ${all_path}/env/bin/python /usr/local/bin/mypython;
