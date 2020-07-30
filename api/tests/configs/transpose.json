@@ -34,7 +34,7 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1, 128L, 256L]",
+            "shape": "[-1L, 128L, 256L]",
             "type": "Variable"
         }
     },
@@ -95,61 +95,4 @@
        }
    },
    "repeat": 5000
-}, {
-    "op": "transpose",
-    "param_info": {
-        "perm": {
-            "type": "list",
-            "value": "[0, 2, 1, 3]"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[512L, 896L, 4L, 2L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 5000
-}, {
-      "op": "transpose",
-      "param_info": {
-          "perm": {
-              "type": "list",
-              "value": "[0, 2, 1, 3]"
-          },
-          "x": {
-              "dtype": "float16",
-              "shape": "[512L, 896L, 4L, 2L]",
-              "type": "Variable"
-          }
-      },
-      "repeat": 5000
-}, {
-    "op": "transpose",
-    "param_info": {
-        "perm": {
-            "type": "list",
-            "value": "[3, 0, 1, 2]"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[4L, 12L, 64L, 512L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 5000
-}, {
-    "op": "transpose",
-    "param_info": {
-        "perm": {
-            "type": "list",
-            "value": "[3, 0, 1, 2]"
-        },
-        "x": {
-            "dtype": "float16",
-            "shape": "[4L, 12L, 64L, 512L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 5000
-}
-]   
+}]   
