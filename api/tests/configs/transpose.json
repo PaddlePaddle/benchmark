@@ -39,4 +39,60 @@
         }
     },
     "repeat": 5000
-}]
+}, {
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[2, 3, 0, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4L, 12L, 512L, 896L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[2, 3, 0, 1]"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[4L, 12L, 512L, 896L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[1, 2, 0, 3]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4L, 512L, 512L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+},{
+   "op": "transpose",
+   "param_info": {
+       "perm": {
+           "type": "list",
+           "value": "[1, 2, 0, 3]"
+       },
+       "x": {
+           "dtype": "float16",
+           "shape": "[4L, 512L, 512L, 1L]",
+           "type": "Variable"
+       }
+   },
+   "repeat": 5000
+}]   
