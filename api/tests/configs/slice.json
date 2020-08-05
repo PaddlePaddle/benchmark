@@ -62,4 +62,46 @@
             "value": "[0]"
         }
     }
+}, {
+    "op": "slice", 
+    "param_info": {
+        "axes": {
+            "type": "list", 
+            "value": "[0, 1, 2, 3]"
+        }, 
+        "ends": {
+            "type": "list", 
+            "value": "[100000000, 896L, 100000000, 100000000]"
+        }, 
+        "input": {
+            "dtype": "float32", 
+            "shape": "[512L, 1407L, 4L, 12L]", 
+            "type": "Variable"
+        }, 
+        "starts": {
+            "type": "list", 
+            "value": "[0, 0, 0, 0]"
+        }
+    }
+}, {
+    "op": "slice", 
+    "param_info": {
+        "axes": {
+            "type": "list", 
+            "value": "[0, 1, 2, 3]"
+        }, 
+        "ends": {
+            "type": "list", 
+            "value": "[100000000, 896L, 100000000, 100000000]"
+        }, 
+        "input": {
+            "dtype": "float16", 
+            "shape": "[512L, 1407L, 4L, 12L]", 
+            "type": "Variable"
+        }, 
+        "starts": {
+            "type": "list", 
+            "value": "[0, 0, 0, 0]"
+        }
+    }
 }]
