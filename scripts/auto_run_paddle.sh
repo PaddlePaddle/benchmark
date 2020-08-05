@@ -43,13 +43,6 @@ origin_path=$(pwd)
 function prepare(){
     echo "*******prepare benchmark***********"
 
-    # this is for image paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
-    # export LD_LIBRARY_PATH=/opt/_internal/cpython-2.7.11-ucs4/lib:${LD_LIBRARY_PATH#/opt/_internal/cpython-2.7.11-ucs2/lib:}
-    # export PATH=/opt/python/cp27-cp27mu/bin/:${PATH}
-    # yum install mysql-devel -y
-    # pip install MySQL-python
-    
-    
     # this is for image paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
     if [ '10.0' = ${cuda_version} -o "p40" = ${device_type} ] ; then
         export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
@@ -108,6 +101,15 @@ function prepare(){
     cd ${BENCHMARK_ROOT}
     benchmark_commit_id=$(git log|head -n1|awk '{print $2}')
     echo "benchmark_commit_id is: "${benchmark_commit_id}
+
+    # 动态图升级到cuda10.1 python3.7，静态图依然为cuda10.0 python2.7
+    if [[ 'dynamic_graph' == ${implement_type} ]]; then
+        rm -rf run_env
+        mkdir run_env
+        ln -s $(which python3.7) run_env/python
+        ln -s $(which pip3.7) run_env/pip
+        export PATH=$(pwd)/run_env:${PATH}
+    fi
     pip uninstall paddlepaddle-gpu -y
     pip install ${image_name}
     echo "*******prepare end!***********"
