@@ -52,19 +52,24 @@ function construnct_version(){
     echo "image_commit_id is: "${image_commit_id}
     version=`date -d @$(git log -1 --pretty=format:%ct) "+%Y.%m%d.%H%M%S"`
     image_branch=$(echo ${image_branch} | rev | cut -d'/' -f 1 | rev)
+    python_abi='cp27-cp27mu'
+    with_gpu='ON'
     if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
         PADDLE_VERSION=${version}".${image_branch//-/_}"
         IMAGE_NAME=paddlepaddle-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
         with_gpu="OFF"
         cuda_version="10.0"
         cudnn_version=7
+    elif [[ 'dynamic_graph' == ${implement_type} ]]; then
+        python_abi='cp37-cp37m'
+        PADDLE_VERSION=${version}'.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
+        IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp37-cp37m-linux_x86_64.whl
     else
         PADDLE_VERSION=${version}'.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
-        with_gpu='ON'
     fi
-    PADDLE_DEV_NAME=docker.io/paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
-    echo "IMAGE_NAME is: "${IMAGE_NAME}
+    PADDLE_DEV_NAME=paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
+    echo "IMAGE_NAME is: ${IMAGE_NAME}"
 }
 
 #build paddle whl and put it to ${all_path}/images
@@ -83,7 +88,7 @@ function build_paddle(){
       -w /paddle \
       --net=host \
       -e "CMAKE_BUILD_TYPE=Release" \
-      -e "PYTHON_ABI=cp27-cp27mu" \
+      -e "PYTHON_ABI=${python_abi}" \
       -e "PADDLE_VERSION=0.0.0.${PADDLE_VERSION}" \
       -e "WITH_DOC=OFF" \
       -e "WITH_AVX=ON" \
@@ -160,7 +165,7 @@ function run_models(){
         -s ${implement_type}"
 
     if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
-        RUN_IMAGE_NAME=hub.baidubce.com/paddlepaddle/paddle:latest
+        RUN_IMAGE_NAME=paddlepaddle/paddle:latest
         docker run -i --rm \
             -v /home/work:/home/work \
             -v ${all_path}:${all_path} \
