@@ -58,3 +58,6 @@
 	path = PaddleDetection 
 	url = https://github.com/PaddlePaddle/PaddleDetection.git 
 	branch = master
+[submodule "PaddleGAN"]
+	path = PaddleGAN
+	url = https://github.com/PaddlePaddle/PaddleGAN.git
