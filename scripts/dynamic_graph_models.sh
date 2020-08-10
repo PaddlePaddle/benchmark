@@ -119,6 +119,7 @@ dy_gan(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleGAN
     cd ${cur_model_path}
 
+    pip install tqdm
     # Prepare data
     mkdir -p data
     ln -s ${data_path}/dygraph_data/cityscapes_gan_mini ${cur_model_path}/data/cityscapes
@@ -132,6 +133,6 @@ dy_gan(){
     do
         echo "index is speed, ${model_item} 1gpu begin"
         CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 1 | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
-    sleep 10
+        sleep 10
     done
 }
