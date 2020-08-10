@@ -61,3 +61,4 @@
 [submodule "PaddleGAN"]
 	path = PaddleGAN
 	url = https://github.com/PaddlePaddle/PaddleGAN.git
+  branch = master
