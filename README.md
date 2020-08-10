@@ -653,7 +653,7 @@ Transformer模型单卡训练速度与TensorFlow**持平**；多卡训练速度�
 | 强化学习 | DDPG Deep Explore |	[benchmark/DDPG_Deep_Explore/Fluid_version](https://github.com/PaddlePaddle/benchmark/tree/master/DDPG_Deep_Explore/Fluid_version) | [benchmark/DDPG_Deep_Explore/TF_version](https://github.com/PaddlePaddle/benchmark/tree/master/DDPG_Deep_Explore/TF_version) | - | 测试数据 | 100 |
 
 ### DDPG
-DDPG模型不支持多卡训练，其训练速度与竞品持平，显存占用**优于**TensorFlow。
+DDPG模型不支持多卡训练，其训练速度与竞品持平，显存占用**优于**TensorFlow。 
 
 - 训练速度（单位：epoch/s）
 
