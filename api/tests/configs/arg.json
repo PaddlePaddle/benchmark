@@ -12,4 +12,46 @@
         }
     },
     "repeat": 2000
+}, {
+    "op": "arg",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 513L, 513L, 19L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 2000
+}, {
+    "op": "arg",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1000L, 1000L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 2000
+}, {
+    "op": "arg",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1000L, 1000L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 2000
 }]
