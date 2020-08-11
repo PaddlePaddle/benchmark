@@ -10,7 +10,7 @@
 
 #************ note that you neet the images of pytorch which name contains devel***********#
 
-cur_model_list=(detection pix2pix stargan image_classification dy_image_class dy_sequence dy_ptb)
+cur_model_list=(detection pix2pix stargan image_classification dy_image_class dy_sequence dy_ptb dy_gan)
 
 ######################
 environment(){
@@ -248,23 +248,6 @@ dy_gan(){
     done
 }
 
-
-run(){
-       for model_name in ${cur_model_list[@]}
-       do
-           begin_timestaps=$(date "+%Y_%m_%d#%H-%M-%S")
-           echo "=====================${model_name} run begin==================${begin_timestaps}"
-           $model_name
-           sleep 60
-           end_timestaps=$(date "+%Y_%m_%d#%H-%M-%S")
-           echo "*********************${model_name} run end!!******************${end_timestaps}"
-       done
-}
-environment # according to the actual condition
-prepare
-run
-
-sh ${PYTORCH_BENCHMARK_ROOT}/scripts/py_final_ana.sh ${CUR_DIR}
 
 run(){
        for model_name in ${cur_model_list[@]}
