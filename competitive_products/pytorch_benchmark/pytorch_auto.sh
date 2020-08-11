@@ -228,8 +228,44 @@ dy_ptb(){
     ln -s ${datapath}/dygraph_data/ptb/simple-examples/ ./
     cp ${BENCHMARK_ROOT}/dynamic_graph/ptb/pytorch/run_benchmark.sh ./
     echo "begin to train dynamic ptb"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark_ptb.sh 1 3 > ${RES_DIR_DY}/ptb.res 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 3 > ${RES_DIR_DY}/ptb.res 2>&1
 }
+
+# pix2pix and cyclegan
+dy_gan(){
+    curl_model_path=${MODEL_PATH}
+    cd ${curl_model_path}
+    git clone https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix.git
+
+    cd ${curl_model_path}/pytorch-CycleGAN-and-pix2pix
+    ln -s ${datapath}/dygraph_data/cityscapes_gan_mini/ ./dataset/cityscapes
+    cp ${BENCHMARK_ROOT}/dynamic_graph/gan_models/pytorch/run_benchmark.sh ./
+    model_list=(cyclegan pix2pix)
+    for model_item in ${model_list[@]}
+    do
+        echo "begin to train dynamic ${model_item} 1gpu index is speed"
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp ${model_item}  > ${RES_DIR_DY}/${model_item}.res 2>&1
+    done
+}
+
+
+run(){
+       for model_name in ${cur_model_list[@]}
+       do
+           begin_timestaps=$(date "+%Y_%m_%d#%H-%M-%S")
+           echo "=====================${model_name} run begin==================${begin_timestaps}"
+           $model_name
+           sleep 60
+           end_timestaps=$(date "+%Y_%m_%d#%H-%M-%S")
+           echo "*********************${model_name} run end!!******************${end_timestaps}"
+       done
+}
+environment # according to the actual condition
+prepare
+run
+
+sh ${PYTORCH_BENCHMARK_ROOT}/scripts/py_final_ana.sh ${CUR_DIR}
+
 run(){
        for model_name in ${cur_model_list[@]}
        do
