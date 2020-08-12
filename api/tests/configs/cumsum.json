@@ -38,7 +38,7 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[1700971L, 200L]",
+            "shape": "[1700971L, 100L]",
             "type": "Variable"
         }
     },
