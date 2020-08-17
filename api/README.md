@@ -4,7 +4,7 @@
 
 # 准备
 
-1. 框架
+1. 安装框架
 
     请使用相同版本的python安装 paddlepaddle 和 tensorflow-gpu。比如，你使用的是`python3.7`，那么请使用`pip3.7`安装`paddle`和`tf`。如果你是从源码或其他途径安装，请确保所以用python版本前后一致。确保两者正确安装且正确执行:
 
@@ -15,7 +15,7 @@
     >>> tf.__version__
     ```
 
-2. OP Benchmark 源码
+2. 下载 OP Benchmark 源码
 
     从[这里](https://github.com/PaddlePaddle/benchmark)下载完整的Benchmark源文件，到你的`YOUR_PATH`路径下，进入`YOUR_PATH/benchmark/api/`目录（以下称这个目录为**当前目录**）。
 
@@ -35,7 +35,7 @@
 <div align=center><img src="./assets/benchmark.png" width=900></div>
 <div align=center>Benchmark 平台表格局部</div>
 
-在链接的表格中，凡是以“--”为值的单元格，表示不支持该计算。比如表格中算子`batch_norm`，在 paddle 有实现，而 tf 没有实现，所以在所有 tf 列，全部标示为“--”。而且由于两者无法比较，diff 列和前向反向一致性，同样全部标记为“--”。
+在链接的表格中，凡是以“--”为值的单元格，表示不支持该计算。比如表格中算子`batch_norm`，在 paddle 有实现，而 tf 没有实现，所以在所有 tf 列，全部标示为“--”。而且由于两者无法比较，`diff`列以及前向反向一致性，同样全部标记为“--”。
 
 而对于算子`concat`，paddle 和 tf 均有实现，且均需要反向计算，所以`concat`所有列均有实际值。
 
@@ -81,18 +81,18 @@ python3.7 -m tests.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py ${run_args}
 
     参数解释：
     * `--task`: 所测试的任务，可选 accuracy 和 speed。请先测试accuracy，确保一致性，再测试 speed 性能。
-    * `--api_name`: 将要测试的OP名称，与所对应的 .py 文件名对应。
+    * `--api_name`: 将要测试的OP名称，与所对应的 `.py`文件名对应。
     * `--framework`: 可选 paddle，tensorflow，tf，both。
     * `--json_file`: OP对应的配置文件，文件名为 `OP.json`。为这个OP的非学习参数。几乎每一个OP都有对应的`.json`脚本，位于当前目录下的`configs`目录下。
     * `--config_id`: 使用 `OP.json` 中第几个配置方案。`json` 文件的格式：`[{0号配置}, {1号配置}, {2号配置}, ...]`
 
     * `--check_output`: 是否返回OP对输出结果对说明。
     * `--profiler`: 选择profiler。选项"none"，"Default"，"OpDetail"，"AllOpDetail"，"pyprof"。
-    * `--backward`: 是否需要反向计算。若False，只进行正向计算；若True，进行正向很反向计算。
+    * `--backward`: 是否需要反向计算。若False，只进行正向计算；若True，进行正向和反向计算。
     * `--use_gpu`: 是否测试GPU。
     * `--repeat`: 执行次数。
     * `--allow_adaptive_repeat`: 是使用这里的`repeat`还是使用对应json脚本中的`repeat`，具体如何设置。见当前目录下的 [tests/main.py](https://github.com/PaddlePaddle/benchmark/blob/master/api/tests/main.py) 中`_adaptive_repeat()`函数。
-    * `--log_level`:
+    * `--log_level`: 日志层级
 
     **注意**：
     * 若使用CPU，需要在`run.sh`修改两处：其一，置`--use-gpu`为False；其二，设置变量`export CUDA_VISIBLE_DEVICES=""`。`run.sh`脚本中也有说明。
@@ -100,7 +100,7 @@ python3.7 -m tests.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py ${run_args}
     
     请自定义任务配置，若未自定义，则会使用`tests/run.sh`中的默认的配置。
 
-这个`run.sh`脚本是你唯一需要更改的。对于测试OP*你需要做的事*见下。
+这个`run.sh`脚本是你唯一需要更改的。了解了`run.sh`之后，对于测试OP*你需要做的事*见下。
 
 # 你需要做的事
 
@@ -109,7 +109,6 @@ python3.7 -m tests.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py ${run_args}
 2. 选择所测试的OP名称，如`batch_norm`。`configs`中找到OP对应的配置文件，如`batch_norm.json`，选择所需的配置，如第4号配置。
 
 3. 进入`tests/`目录，在`run.sh`中更改自己的python版本，配置所需`run_args`（可使用默认配置）。
-
 
 4. 执行脚本，你有两个选择：
 
@@ -136,15 +135,16 @@ python3.7 -m tests.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py ${run_args}
 ## 1. 环境：
 
 * Linux 3.10 x86_64
-* CUDA 10.1，cudnn 7
-* Paddlepaddle 2.0-alpha 
-* tensorflow-gpu 2.3
+* CUDA 10.0，cudnn 7
+* Paddlepaddle 1.8 
+* tensorflow-gpu 2.3.0
 * python3.7
 
+## 2. 一致性accuracy测试、
 
-## 2. 一致性accuracy测试
+对于一致性任务`accuracy`，无论`run.sh`中`framework=""`的赋值是什么，都会输出 paddle 和 tf 的对比结果，这里注意了。
 
-* 第一步，选择OP及OP配置
+* 第一步，选择OP及配置
 
     选择`resize_bilinear`，第5个配置。
 
@@ -215,11 +215,11 @@ python3.7 -m tests.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py ${run_args}
     ```
 * 对结果进行说明：
 
-    1. 第一部分，实际执行对命令
+    * 第一部分，实际执行对命令
 
-        `run command` 后是实际执行的命令，从这条命令可以看出这是我需要的**配置信息**。注意，无论`run.sh`中`framework=""`的赋值是什么，对于任务`accuracy`，都会输出 paddle 和 tf 的对比结果。
+        `run command` 后是实际执行的命令，从这条命令可以看出这是我需要的**配置信息**。
 
-    2. 第二部分，是两个框架的配置和性能
+    * 第二部分，是两个框架的配置和性能
 
         对输出结果做解释：
 
@@ -233,6 +233,8 @@ python3.7 -m tests.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py ${run_args}
 
 
 ## 3. 性能speed测试
+
+对于性能测试，请分别对"paddle"和"tensorflow"进行测试，"both"对比测试有待完善。
 
 * 第一步，选择OP及其配置
 
@@ -331,4 +333,4 @@ python3.7 -m tests.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py ${run_args}
 
 # 结束
 
-根据上述步骤，读者可自行探索测试。
+根据上述步骤，读者可进一步探索测试。
