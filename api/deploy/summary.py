@@ -203,7 +203,8 @@ def check_results(op_record, alarm_results):
     """
 
     from benchmark_op import models
-    results = models.OpRecord2.objects.filter(case_name=op_record.case_name).order_by('-timestamp')[:10:1]
+    results = models.OpRecord2.objects.filter(
+        case_name=op_record.case_name).order_by('-timestamp')[:10:1]
     for key, verbose in CHECK_KEY.items():
         results_list = []
         count = 0
@@ -228,7 +229,8 @@ def check_results(op_record, alarm_results):
             avg_values = round(np.array(results_list).mean(), 4)
             if not avg_values:
                 continue
-            ranges = round((float(getattr(op_record, key)) - avg_values) / avg_values, 4)
+            ranges = round(
+                (float(getattr(op_record, key)) - avg_values) / avg_values, 4)
         except Exception as rw:
             print("range solve error {}".format(rw))
             traceback.print_exc()
@@ -240,11 +242,11 @@ def check_results(op_record, alarm_results):
             color = "red"
         elif ranges <= -0.05:
             color = "green"
-        current_html_result = [dict(value=op_record.case_name),
-                               dict(value=verbose),
-                               dict(value=avg_values),
-                               dict(value=getattr(op_record, key)),
-                               dict(value='%.2f%%' % (ranges * 100), color=color)]
+        current_html_result = [
+            dict(value=op_record.case_name), dict(value=verbose),
+            dict(value=avg_values), dict(value=getattr(op_record, key)), dict(
+                value='%.2f%%' % (ranges * 100), color=color)
+        ]
         alarm_results[verbose]["data"].append(current_html_result)
 
 
