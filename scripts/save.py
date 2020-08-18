@@ -367,7 +367,9 @@ def parse_logs(args):
                 if job_info["index"] == 1:
                     insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result, '%')
                     insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%')
-                    insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 0)
+                    pjr2 = insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 1)
+                    bm.JobResultsLog.objects.create(
+                        result_id=pjr2.result_id, log_path=json.dumps(log_save_dict)).save()
                     if int(job_info["gpu_num"]) == 1:
                         profiler_log = job_info["log_with_profiler"].split("/")[-1]
                         profiler_path = job_info["profiler_path"].split("/")[-1]
@@ -376,10 +378,7 @@ def parse_logs(args):
                         log_save_dict["profiler_log_path"] = profiler_log_path
                         log_save_dict["profiler_path"] = profiler_path
 
-                pjrl = bm.JobResultsLog()
-                pjrl.result_id = pjr.result_id
-                pjrl.log_path = json.dumps(log_save_dict)
-                pjrl.save()
+                bm.JobResultsLog.objects.create(result_id=pjr.result_id, log_path=json.dumps(log_save_dict)).save()
 
             except Exception as pfe:
                 print pfe
