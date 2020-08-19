@@ -44,9 +44,7 @@ function prepare(){
     echo "*******prepare benchmark***********"
 
     # this is for image paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
-    if [ '10.0' = ${cuda_version} -o "p40" = ${device_type} ] ; then
-        export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
-    fi
+    export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
 
     # NOTE: this path is for profiler
     # export LD_LIBRARY_PATH=/home/work/cuda-9.0/extras/CUPTI/lib64/:$LD_LIBRARY_PATH
