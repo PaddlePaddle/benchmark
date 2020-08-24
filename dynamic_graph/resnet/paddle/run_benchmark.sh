@@ -4,17 +4,17 @@ set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|2|3 sp|mp 600(max_iter)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|2|3 batch_size model_name(ResNet50_bs32|ResNet50_bs128) sp|mp 600(max_iter)"
     exit
 fi
 
 function _set_params(){
     index=$1
-    base_batch_size=128
-    model_name="resnet"
+    base_batch_size=${2}
+    model_name=${3}
 
-    run_mode=${2:-"sp"} # Use sp for single GPU and mp for multiple GPU.
-    max_iter=${3:-"1000"}
+    run_mode=${4:-"sp"} # Use sp for single GPU and mp for multiple GPU.
+    max_iter=${5:-"1000"}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
