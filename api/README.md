@@ -6,7 +6,7 @@
 
 1. 安装框架
 
-    请使用相同版本的python安装 paddlepaddle 和 tensorflow-gpu。比如，你使用的是`python3.7`，那么请使用`pip3.7`安装`paddle`和`tf`。如果你是从源码或其他途径安装，请确保所以用python版本前后一致。确保两者正确安装且正确执行:
+    请使用相同版本的python安装 paddle 和 tf。比如，你使用的是`python3.7`，那么请使用`pip3.7`安装`paddle`和`tf`。如果你是从源码或其他途径安装，请确保所以用python版本前后一致。确保两者正确安装且正确执行:
 
     ```python
     >>> import paddle as pd
@@ -29,6 +29,7 @@
 
 2. 一些OP不存在反向计算操作，所以，没有反向计算测试。
 
+3. 对于OP的性能测试，先要保证其正确性（task: "accuracy"），即一致性通过后，对性能（task: "speed"）测试才有意义。task 配置见下文。
 
 因此，对于一个你想要测试OP，需要提前明确该OP在 paddle 和 tf 中是否有实现，且是否需要反向计算。参考[Benchmark平台](http://yq01-page-powerbang-table1077.yq01.baidu.com:8988/benchmarks/op)：
 
@@ -38,8 +39,6 @@
 在链接的表格中，凡是以“--”为值的单元格，表示不支持该计算。比如表格中算子`batch_norm`，在 paddle 有实现，而 tf 没有实现，所以在所有 tf 列，全部标示为“--”。而且由于两者无法比较，diff 列和前向反向一致性，同样全部标记为“--”。
 
 而对于算子`concat`，paddle 和 tf 均有实现，且均需要反向计算，所以`concat`所有列均有实际值。
-
-3. 对于OP的性能测试，先要保证其正确性（task: "accuracy"），即一致性通过后，对性能（task: "speed"）测试才有意义。task 配置见下文。
 
 测试之前请查阅该平台，对所测试任务进行恰当配置。（如何配置，见下文*测试入口*）
 
@@ -83,7 +82,7 @@ python3.7 -m tests.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py ${run_args}
     * `--task`: 所测试的任务，可选 accuracy 和 speed。请先测试 accuracy，确保一致性，再测试 speed 性能。
     * `--api_name`: 将要测试的OP名称，与所对应的 `.py` 文件名对应。
     * `--framework`: 可选 paddle，tensorflow，tf，both。
-    * `--json_file`: OP对应的配置文件，文件名为 `OP.json`。为这个OP的非学习参数。几乎每一个OP都有对应的`.json`脚本，位于当前目录下的`configs`目录下。
+    * `--json_file`: OP对应的配置文件，即这个OP的参数配置方案，文件名为 `OP.json`。几乎每一个OP都有对应的`.json`脚本，位于当前目录下的`configs`目录下。具体内容可查看相应的`.json`脚本。
     * `--config_id`: 使用 `OP.json` 中第几个配置方案。`json` 文件的格式：`[{0号配置}, {1号配置}, {2号配置}, ...]`
 
     * `--check_output`: 是否返回OP对输出结果对说明。
