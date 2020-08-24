@@ -1,5 +1,5 @@
 #!bin/bash
-set -x
+set -xe
 
 if [[ $# -lt 4 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
