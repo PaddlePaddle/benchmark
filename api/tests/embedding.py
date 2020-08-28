@@ -19,8 +19,9 @@ class EmbeddingConfig(APIConfig):
     def __init__(self):
         super(EmbeddingConfig, self).__init__('embedding')
 
-    def init_from_json(self, filename, config_id=0):
-        super(EmbeddingConfig, self).init_from_json(filename, config_id)
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(EmbeddingConfig, self).init_from_json(filename, config_id,
+                                                    unknown_dim)
         self.feed_spec = [
             {
                 "range": [0, self.size[0]]

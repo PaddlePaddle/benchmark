@@ -33,16 +33,15 @@ class Conv2dConfig(APIConfig):
             return True
         return False
 
-    def init_from_json(self, filename, config_id=0):
-        super(Conv2dConfig, self).init_from_json(filename, config_id)
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(Conv2dConfig, self).init_from_json(filename, config_id,
+                                                 unknown_dim)
         if isinstance(self.padding, int):
             self.padding = [self.padding, self.padding]
         if self.data_format == "NCHW":
             self.num_channels = self.input_shape[1]
         elif self.data_format == "NHWC":
             self.num_channels = self.input_shape[3]
-        if self.input_shape[0] == -1:
-            self.input_shape[0] = 64
         if isinstance(self.filter_size, int):
             self.filter_size = [self.filter_size, self.filter_size]
         if self.groups is None:

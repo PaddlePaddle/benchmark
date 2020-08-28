@@ -19,8 +19,9 @@ class AccuracyConfig(APIConfig):
     def __init__(self):
         super(AccuracyConfig, self).__init__('accuracy')
 
-    def init_from_json(self, filename, config_id=0):
-        super(AccuracyConfig, self).init_from_json(filename, config_id)
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(AccuracyConfig, self).init_from_json(filename, config_id,
+                                                   unknown_dim)
         input_rank = len(self.input_shape)
         self.num_classes = self.input_shape[input_rank - 1]
         self.feed_spec = [
