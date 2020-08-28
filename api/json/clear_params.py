@@ -92,6 +92,7 @@ def check_and_clear_params(api_name, params, print_detail=False):
                 if print_detail:
                     print("   Argument %s is not set." % (arg_name))
 
+        non_params = []
         for name, content in params.items():
             if name not in argspec.args or name in no_need_args:
                 if print_detail:
@@ -102,7 +103,9 @@ def check_and_clear_params(api_name, params, print_detail=False):
                     else:
                         print("   Remove %s (type: %s, value: %s)." %
                               (name, content["type"], content["value"]))
-                params.pop(name)
+                non_params.append(name)
+        for name in non_params:
+            params.pop(name)
 
         no_need_args.remove("name")
 
