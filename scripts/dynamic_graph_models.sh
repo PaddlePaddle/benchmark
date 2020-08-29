@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_gan dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
+cur_model_list=(dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
 
 # MobileNet
 dy_mobilenet(){
@@ -142,5 +142,30 @@ dy_gan(){
         echo "index is speed, ${model_item} 1gpu begin"
         CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 1 | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
         sleep 10
+    done
+}
+
+#deeplabv3 and HRnet
+# HRnet 单卡速度八卡速度不符合预期，deeplabv3 八卡速度不符合预期
+dy_seg(){
+    cur_model_path=${BENCHMARK_ROOT}/PaddleSeg
+    cd ${cur_model_path}
+    
+    apt-get install lsb-core
+    # Prepare data
+    ln -s ${data_path}/dygraph_data/cityscapes_hrnet_torch ${cur_model_path}/cityscape
+    
+    # Running
+    rm -f ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/seg_models/paddle/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    model_list=(deeplabv3) # HRnet  
+    do
+        echo "index is speed, ${model_item} 1gpu begin"
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 200 | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
+        sleep 10
+#        echo "index is speed, ${model_item} 8gpu begin"
+#        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp ${model_item} 200 | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
+#        sleep 10
     done
 }
