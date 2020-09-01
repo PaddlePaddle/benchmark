@@ -199,10 +199,10 @@ function run(){
     export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
     RUN_IMAGE_NAME=paddlepaddle/paddle:latest-dev-cuda${cuda_version}-cudnn${cudnn_version}-gcc82
     # CPU任务：export CPU_VISIBLE_DEVICES="0,1,2,3,4"，即并行开启5个CPU任务，用了第0-4个核。 
-    run_cmd="rm -rf /usr/local/python2.7.15/bin/python
-             rm -rf /usr/local/python2.7.15/bin/pip
-             ln -s /usr/local/bin/python3.7 /usr/local/python2.7.15/bin/python
-             ln -s /usr/local/bin/pip3.7 /usr/local/python2.7.15/bin/pip
+    run_cmd="rm -rf /usr/local/python2.7.15/bin/python;
+             rm -rf /usr/local/python2.7.15/bin/pip;
+             ln -s /usr/local/bin/python3.7 /usr/local/python2.7.15/bin/python;
+             ln -s /usr/local/bin/pip3.7 /usr/local/python2.7.15/bin/pip;
              python -m pip install --upgrade pip;
              pip install nvidia-ml-py;
              pip install psutil;
