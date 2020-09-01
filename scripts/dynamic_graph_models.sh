@@ -151,7 +151,8 @@ dy_seg(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg
     cd ${cur_model_path}
     
-    apt-get install lsb-core
+    apt-get install lsb-core -y
+    pip install  visualdl
     # Prepare data
     ln -s ${data_path}/dygraph_data/cityscapes_hrnet_torch ${cur_model_path}/cityscape
     
