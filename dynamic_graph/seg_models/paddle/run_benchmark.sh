@@ -44,7 +44,8 @@ function _train(){
         input_size="1024 512"
         model_script="hrnet.py"
     elif [ ${model_item} = "deeplabv3" ]; then
-        model_name="deeplabv3p_resnet50_vd"
+        model_name="deeplabv3p_resnet50_vd_os8"
+        #model_name="deeplabv3p_resnet50_vd"
         input_size="769 769"
         model_script="deeplabv3p.py"
     else
