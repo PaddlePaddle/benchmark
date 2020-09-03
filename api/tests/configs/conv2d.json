@@ -999,4 +999,94 @@
             "value": "False"
         }
     }
+}, {
+    "op": "conv2d",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(16, 16)"
+        },
+        "filter_size": {
+            "type": "tuple",
+            "value": "(3, 3)"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[2L, 512L, 129L, 129L]",
+            "type": "Variable"
+        },
+        "num_filters": {
+            "type": "int",
+            "value": "512"
+        },
+        "padding": {
+            "type": "tuple",
+            "value": "(0, 0)"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "True"
+        }
+    }
+}, {
+    "op": "conv2d",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(16, 16)"
+        },
+        "filter_size": {
+            "type": "tuple",
+            "value": "(3, 3)"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[2L, 512L, 129L, 129L]",
+            "type": "Variable"
+        },
+        "num_filters": {
+            "type": "int",
+            "value": "512"
+        },
+        "padding": {
+            "type": "tuple",
+            "value": "(0, 0)"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
 }]
