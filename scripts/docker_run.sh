@@ -60,7 +60,7 @@ function construnct_version(){
         with_gpu="OFF"
         cuda_version="10.0"
         cudnn_version=7
-    elif [[ 'dynamic_graph' == ${implement_type} ]]; then
+    elif [[ 'dynamic_graph' == ${implement_type} ]] || [[ 'static_graph' == ${implement_type} ]]; then
         python_abi='cp37-cp37m'
         PADDLE_VERSION=${version}'.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp37-cp37m-linux_x86_64.whl
