@@ -21,9 +21,9 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
               self).__init__("softmax_with_cross_entropy")
         self.atol = 1e-3
 
-    def init_from_json(self, filename, config_id=0):
-        super(SoftmaxWithCrossEntropyConfig, self).init_from_json(filename,
-                                                                  config_id)
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(SoftmaxWithCrossEntropyConfig, self).init_from_json(
+            filename, config_id, unknown_dim)
         logits_rank = len(self.logits_shape)
         self.num_classes = self.logits_shape[logits_rank - 1]
         self.feed_spec = [
