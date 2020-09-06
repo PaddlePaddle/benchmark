@@ -19,8 +19,9 @@ class SequenceMaskConfig(APIConfig):
     def __init__(self):
         super(SequenceMaskConfig, self).__init__('sequence_mask')
 
-    def init_from_json(self, filename, config_id=0):
-        super(SequenceMaskConfig, self).init_from_json(filename, config_id)
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(SequenceMaskConfig, self).init_from_json(filename, config_id,
+                                                       unknown_dim)
         if hasattr(self, "maxlen_shape"):
             self.maxlen = 3
 

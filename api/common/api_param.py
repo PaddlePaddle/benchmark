@@ -212,7 +212,7 @@ class APIConfig(object):
     def disabled(self):
         return False
 
-    def init_from_json(self, filename, config_id=0):
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
         if hasattr(self, "alias_config"):
             self.alias_config.init_from_json(
                 self.alias_filename(filename), config_id)
@@ -244,12 +244,12 @@ class APIConfig(object):
         for var in self.variable_list:
             for i in range(len(var.shape)):
                 if var.shape[i] == -1:
-                    var.shape[i] = 16
+                    var.shape[i] = unknown_dim
                 var_temp = var.shape[i]
                 if type(var_temp) == list:
                     for j in range(len(var_temp)):
                         if var_temp[j] == -1:
-                            var_temp[j] = 16
+                            var_temp[j] = unknown_dim
             setattr(self, var.name + '_shape', var.shape)
             setattr(self, var.name + '_dtype', var.dtype)
         return self
