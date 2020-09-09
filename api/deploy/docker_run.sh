@@ -230,6 +230,8 @@ function run(){
             -e "PADDLE_VERSION=${PADDLE_VERSION}" \
             -e "RUN_IMAGE_NAME=${RUN_IMAGE_NAME}" \
             -e "PADDLE_COMMIT_ID=${image_commit_id}" \
+            -e "START_TIME=$(date "+%Y%m%d")" \
+            -e "BENCHMARK_TYPE=${BENCHMARK_TYPE}" \
             --net=host \
             --privileged \
             --shm-size=32G \
