@@ -232,6 +232,7 @@ function run(){
             -e "PADDLE_COMMIT_ID=${image_commit_id}" \
             -e "START_TIME=$(date "+%Y%m%d")" \
             -e "BENCHMARK_TYPE=${BENCHMARK_TYPE}" \
+            -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             --net=host \
             --privileged \
             --shm-size=32G \
