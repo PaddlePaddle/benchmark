@@ -193,6 +193,9 @@ function run_models(){
             -e "http_proxy=${HTTP_PROXY}" \
             -e "https_proxy=${HTTP_PROXY}" \
             -e "RUN_IMAGE_NAME=${RUN_IMAGE_NAME}" \
+            -e "START_TIME=$(date "+%Y%m%d")" \
+            -e "BENCHMARK_TYPE=${BENCHMARK_TYPE}" \
+            -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             --net=host \
             --privileged \
             --shm-size=32G \
