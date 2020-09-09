@@ -139,8 +139,6 @@ class EmailTemplate(object):
         construct email full content.
         """
         # Construct header of the message
-        print('time_holder'.format(os.getenv("START_TIME")))
-        print('graph_holder'.format(os.getenv("BENCHMARK_GRAPH")))
         content = MAIL_HEAD_CONTENT.replace("TITLE_HOLDER", self.title).replace('FAIL_JOB_HOLDER',
                                                                                 self.fail_job_content).replace(
             "TIME_HOLDER", os.getenv("START_TIME")).replace("GRAPH_HOLDER", os.getenv("BENCHMARK_GRAPH")).replace(
