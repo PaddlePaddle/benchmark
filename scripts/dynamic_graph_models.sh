@@ -160,6 +160,7 @@ dy_seg(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/seg_models/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     model_list=(deeplabv3 HRnet)
+    for model_item in ${model_list[@]}
     do
         echo "index is speed, ${model_item} 1gpu begin"
         CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 200 | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
