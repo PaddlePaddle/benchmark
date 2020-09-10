@@ -85,7 +85,7 @@ function _train(){
                    --profiler_path=${profiler_path}"
         position=13
     elif [[ ${model_name} = "cascade_rcnn_fpn" ]];then
-        train_cmd="-c configs/cascade_rcnn_r50_fpn_1.yml --opt LearningRate.base_lr=${learning_rate} max_iters=${max_iter} \
+        train_cmd="-c configs/cascade_rcnn_r50_fpn_1x.yml --opt LearningRate.base_lr=${learning_rate} max_iters=${max_iter} \
                    --is_profiler=${is_profiler} \
                    --profiler_path=${profiler_path}"
         position=25
