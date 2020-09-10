@@ -91,10 +91,10 @@ parser.add_argument(
     default="static_graph",
     help="The benchmark model implement method, static_graph | dynamic_graph")
 
-DICT_RUN_MACHINE_TYPE = {'1': '1_GPU',
-                         '4': '4_GPUS',
-                         '8': '8_GPUS',
-                         '8mp': '8_GPUS_8_PROCESSES'}
+DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU',
+                         '4': 'FOUR_GPU',
+                         '8': 'MULTI_GPU',
+                         '8mp': 'MULTI_GPU_MULTI_PROCESS'}
 
 TABLE_HEADER = ["模型", "运行环境", "指标", "当前值", "标准Benchmark值", "相对标准值波幅", "前5次平均值", "相对前5次值波幅"]
 TABLE_PROFILE_HEADER = ["模型", "运行环境", "指标", "当前值", "前5次平均值", "相对前5次值波幅"]
@@ -267,15 +267,23 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
         return
     # show detail info only when job success
     if not check_fail(model_name, run_machine_type):
+        if run_machine_type == 'ONE_GPU':
+            print_machine_type = '1_GPU'
+        elif run_machine_type == 'FOUR_GPU':
+            print_machine_type = '4_GPUS'
+        elif run_machine_type == 'MULTI_GPU':
+            print_machine_type = '8_GPUS'
+        else: 
+            print_machine_type = '8_GPUS_8_PROCESSES'
         if is_profile:
-            current_html_result = [dict(value=model_name), dict(value=run_machine_type),
+            current_html_result = [dict(value=model_name), dict(value=print_machine_type),
                                    dict(value=check_key if check_key else DICT_INDEX[index]),
                                    dict(value="{:.4f}".format(cur_value[check_key]) if check_key 
                                         else "{:.4f}".format(cur_value)),
                                    dict(value="{:.4f}".format(avg_value)),
                                    dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
         else:
-            current_html_result = [dict(value=model_name), dict(value=run_machine_type),
+            current_html_result = [dict(value=model_name), dict(value=print_machine_type),
                                    dict(value=check_key if check_key else DICT_INDEX[index]),
                                    dict(value="{:.4f}{}".format(cur_value[check_key], unit) if check_key 
                                         else "{:.4f}{}".format(cur_value, unit)),
