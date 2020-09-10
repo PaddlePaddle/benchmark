@@ -97,11 +97,14 @@ DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU',
                          '8mp': 'MULTI_GPU_MULTI_PROCESS'}
 
 TABLE_HEADER = ["模型", "运行环境", "指标", "当前值", "标准Benchmark值", "相对标准值波幅", "前5次平均值", "相对前5次值波幅"]
+TABLE_PROFILE_HEADER = ["模型", "运行环境", "指标", "当前值", "前5次平均值", "相对前5次值波幅"]
 DICT_INDEX = {1: "Speed", 2: "Memory", 3: "Profiler_info", 6: "Max_bs"}
 # todo config the log_server port
 LOG_SERVER = "http://" + socket.gethostname() + ":8777/"
 WAVE_THRESHOLD = 0.05
 CHECK_TIMES = 5
+# fail model list
+FAIL_LIST = []
 
 
 def load_folder_files(folder_path, recursive=True):
@@ -207,7 +210,8 @@ def compute_results(results_list, check_key, cur_value, index, sign=1):
     return avg_value, ranges, color
 
 
-def check_results(model_name, index, run_machine_type, cur_value, html_results, sign=1, check_key=None):
+def check_results(model_name, index, run_machine_type, cur_value, html_results, sign=1, check_key=None,
+                  is_profile=False, unit=""):
     """
     check current results in range[-0.05, 0.05]
     Args:
@@ -261,13 +265,33 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
 
     if abs(avg_range) < WAVE_THRESHOLD and abs(benchmark_range) < WAVE_THRESHOLD:
         return
-    current_html_result = [dict(value=model_name), dict(value=run_machine_type),
-                           dict(value=check_key if check_key else DICT_INDEX[index]),
-                           dict(value=cur_value[check_key] if check_key else cur_value),
-                           dict(value=benchmark_value[check_key] if check_key else benchmark_value),
-                           dict(value="{}%".format(round(benchmark_range * 100, 2)), color=benchmark_color),
-                           dict(value=avg_value),
-                           dict(value="{}%".format(round(avg_range * 100, 2)), color=avg_color)]
+    # show detail info only when job success
+    if not check_fail(model_name, run_machine_type):
+        if run_machine_type == 'ONE_GPU':
+            print_machine_type = '1_GPU'
+        elif run_machine_type == 'FOUR_GPU':
+            print_machine_type = '4_GPUS'
+        elif run_machine_type == 'MULTI_GPU':
+            print_machine_type = '8_GPUS'
+        else: 
+            print_machine_type = '8_GPUS_8_PROCESSES'
+        if is_profile:
+            current_html_result = [dict(value=model_name), dict(value=print_machine_type),
+                                   dict(value=check_key if check_key else DICT_INDEX[index]),
+                                   dict(value="{:.4f}".format(cur_value[check_key]) if check_key 
+                                        else "{:.4f}".format(cur_value)),
+                                   dict(value="{:.4f}".format(avg_value)),
+                                   dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
+        else:
+            current_html_result = [dict(value=model_name), dict(value=print_machine_type),
+                                   dict(value=check_key if check_key else DICT_INDEX[index]),
+                                   dict(value="{:.4f}{}".format(cur_value[check_key], unit) if check_key 
+                                        else "{:.4f}{}".format(cur_value, unit)),
+                                   dict(value="{:.4f}{}".format(benchmark_value[check_key], unit) 
+                                        if check_key else "{:.4f}{}".format(benchmark_value, unit)),
+                                   dict(value="{:.2f}%".format(round(benchmark_range * 100, 2)), color=benchmark_color),
+                                   dict(value="{:.4f}{}".format(avg_value, unit)),
+                                   dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
 
     html_results[DICT_INDEX[index]]["data"].append(current_html_result)
 
@@ -331,6 +355,16 @@ def insert_job(image_id, run_machine_type, job_info, args):
     return pj
 
 
+def check_fail(model_name, run_machine_type):
+    """
+    check whether the specific job is failed, if fail returns True
+    """
+    for job in FAIL_LIST:
+        if model_name == job[0] and run_machine_type == job[1]:
+            return True
+    return False
+
+
 def parse_logs(args):
     """
     parse log files and insert to db
@@ -342,7 +376,10 @@ def parse_logs(args):
     html_results = OrderedDict()
     for k in DICT_INDEX.values():
         html_results[k] = {}
-        html_results[k]["header"] = TABLE_HEADER
+        if k == 'Profiler_info':
+            html_results[k]["header"] = TABLE_PROFILE_HEADER
+        else:
+            html_results[k]["header"] = TABLE_HEADER
         html_results[k]["data"] = []
     for job_file in file_list:
         result = 0
@@ -419,17 +456,19 @@ def parse_logs(args):
                 print("models: {}, run_machine_type: {}, index: {}, result: {}".format(
                     job_info["model_name"], run_machine_type, job_info["index"], result))
 
-                if job_info["index"] == 1:    # speed
+                if job_info["index"] == 1:  # speed
+                    if int(result) == 0:
+                        FAIL_LIST.append([job_info["model_name"], run_machine_type])
                     check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                  result, html_results, -1 if args.device_type.lower() == 'cpu' else 1)
+                                  result, html_results, -1 if args.device_type.lower() == 'cpu' else 1, unit=unit)
                     check_results(job_info["model_name"], 2, run_machine_type,
                                   mem_result, html_results, -1)  # mem
-                elif job_info["index"] == 3:    # profiler
+                elif job_info["index"] == 3:  # profiler
                     check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                  json.loads(result), html_results, -1, "Framework_Total")
+                                  json.loads(result), html_results, -1, "Framework_Total", is_profile=True)
                     check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                  json.loads(result), html_results, -1, "GpuMemcpy_Total")
-                elif job_info["index"] == 6:    # max BS
+                                  json.loads(result), html_results, -1, "GpuMemcpy_Total", is_profile=True)
+                elif job_info["index"] == 6:  # max BS
                     check_results(job_info["model_name"], job_info["index"], run_machine_type,
                                   result, html_results, 1)
                 else:
@@ -443,7 +482,7 @@ def parse_logs(args):
     if args.device_type.upper() in ("P40", "V100"):
         env["cuda_version"] = args.cuda_version
         env["cudnn_version"] = args.cudnn_version
-    email_t = template.EmailTemplate(title, env, html_results, args.log_path)
+    email_t = template.EmailTemplate(title, env, FAIL_LIST, html_results, args.log_path)
     email_t.construct_email_content()
 
 
