@@ -265,16 +265,9 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
 
     if abs(avg_range) < WAVE_THRESHOLD and abs(benchmark_range) < WAVE_THRESHOLD:
         return
+    print_machine_type = machine_type_to_print(run_machine_type)
     # show detail info only when job success
-    if not check_fail(model_name, run_machine_type):
-        if run_machine_type == 'ONE_GPU':
-            print_machine_type = '1_GPU'
-        elif run_machine_type == 'FOUR_GPU':
-            print_machine_type = '4_GPUS'
-        elif run_machine_type == 'MULTI_GPU':
-            print_machine_type = '8_GPUS'
-        else: 
-            print_machine_type = '8_GPUS_8_PROCESSES'
+    if not check_fail(model_name, print_machine_type):
         if is_profile:
             current_html_result = [dict(value=model_name), dict(value=print_machine_type),
                                    dict(value=check_key if check_key else DICT_INDEX[index]),
@@ -293,7 +286,7 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
                                    dict(value="{:.4f}{}".format(avg_value, unit)),
                                    dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
 
-    html_results[DICT_INDEX[index]]["data"].append(current_html_result)
+        html_results[DICT_INDEX[index]]["data"].append(current_html_result)
 
 
 def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0):
@@ -355,15 +348,28 @@ def insert_job(image_id, run_machine_type, job_info, args):
     return pj
 
 
-def check_fail(model_name, run_machine_type):
+def check_fail(model_name, print_machine_type):
     """
     check whether the specific job is failed, if fail returns True
     """
     for job in FAIL_LIST:
-        if model_name == job[0] and run_machine_type == job[1]:
+        if model_name == job[0] and print_machine_type == job[1]:
             return True
     return False
 
+def machine_type_to_print(run_machine_type):
+    """
+    change machine type to print style
+    """
+    if run_machine_type == 'ONE_GPU':
+        print_machine_type = '1_GPU'
+    elif run_machine_type == 'FOUR_GPU':
+        print_machine_type = '4_GPUS'
+    elif run_machine_type == 'MULTI_GPU':
+        print_machine_type = '8_GPUS'
+    else:
+        print_machine_type = '8_GPUS_8_PROCESSES'
+    return print_machine_type
 
 def parse_logs(args):
     """
@@ -458,7 +464,8 @@ def parse_logs(args):
 
                 if job_info["index"] == 1:  # speed
                     if int(result) == 0:
-                        FAIL_LIST.append([job_info["model_name"], run_machine_type])
+                        print_machine_type = machine_type_to_print(run_machine_type)
+                        FAIL_LIST.append([job_info["model_name"], print_machine_type])
                     check_results(job_info["model_name"], job_info["index"], run_machine_type,
                                   result, html_results, -1 if args.device_type.lower() == 'cpu' else 1, unit=unit)
                     check_results(job_info["model_name"], 2, run_machine_type,
