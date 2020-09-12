@@ -166,7 +166,7 @@ dy_seg(){
         CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 200 | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
         sleep 10
         echo "index is speed, ${model_item} 8gpu begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 200 | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 200 | tee ${log_path}/dynamic_${model_item}_speed_8gpus 2>&1
         sleep 10
     done
 }
