@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_gan dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
+cur_model_list=(dy_tsn dy_gan dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
 
 # MobileNet
 dy_mobilenet(){
@@ -121,6 +121,25 @@ dy_transformer(){
     echo "index is speed, 8gpus begin, mp"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 3000 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
 }
+
+# transformer
+dy_tsn(){
+    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/tsn
+    cd ${cur_model_path}
+
+    pip install wget
+    # Prepare data
+    ln -s ${data_path}/dygraph_data/TSN/data ${cur_model_path}/
+
+    # Running ...
+    rm -f ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/TSN/paddle/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    echo "index is speed, 1gpu begin"
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 32 TSN sp 1 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
+    echo "index is speed, 8gpus begin, mp"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 32 TSN mp 1 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
 
 # cyclegan and pix2pix
 dy_gan(){
