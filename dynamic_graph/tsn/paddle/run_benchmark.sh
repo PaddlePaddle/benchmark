@@ -19,7 +19,7 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
-    mission_name="图像分类"
+    mission_name="视频分类"
     direction_id=0
     skip_steps=5
     keyword="batch_cost:"
