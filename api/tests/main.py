@@ -59,6 +59,11 @@ def parse_args():
         help='Only import params of API from json file in the specified position [0|1|...]'
     )
     parser.add_argument(
+        '--unknown_dim',
+        type=int,
+        default=16,
+        help='Specify the unknown dimension.')
+    parser.add_argument(
         '--check_output',
         type=utils.str2bool,
         default=False,
@@ -112,8 +117,8 @@ def parse_args():
 def test_main(pd_obj=None, tf_obj=None, config=None):
     assert config is not None, "API config must be set."
 
-    def _test_with_json_impl(filename, config_id):
-        config.init_from_json(filename, config_id)
+    def _test_with_json_impl(filename, config_id, unknown_dim):
+        config.init_from_json(filename, config_id, unknown_dim)
         if hasattr(config, "api_list"):
             if args.api_name != None:
                 assert args.api_name in config.api_list, "api_name should be one value in %s, but recieved %s." % (
@@ -132,13 +137,13 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
         # Set the filename to alias config's filename, when there is a alias config.
         filename = config.alias_filename(args.json_file)
         if args.config_id is not None and args.config_id >= 0:
-            _test_with_json_impl(filename, args.config_id)
+            _test_with_json_impl(filename, args.config_id, args.unknown_dim)
         else:
             num_configs = 0
             with open(filename, 'r') as f:
                 num_configs = len(json.load(f))
             for config_id in range(0, num_configs):
-                _test_with_json_impl(filename, config_id)
+                _test_with_json_impl(filename, config_id, args.unknown_dim)
     else:
         test_main_without_json(pd_obj, tf_obj, config)
 

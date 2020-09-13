@@ -19,10 +19,9 @@ class BatchNormConfig(APIConfig):
     def __init__(self):
         super(BatchNormConfig, self).__init__('batch_norm')
 
-    def init_from_json(self, filename, config_id=0):
-        super(BatchNormConfig, self).init_from_json(filename, config_id)
-        if self.input_shape[0] == -1:
-            self.input_shape[0] = 16
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(BatchNormConfig, self).init_from_json(filename, config_id,
+                                                    unknown_dim)
         # TFBatchNorm does not have data_layout param, it only support NHWC format.
         if self.data_layout == "NCHW":
             self.run_tf = False

@@ -19,8 +19,9 @@ class OneHotConfig(APIConfig):
     def __init__(self):
         super(OneHotConfig, self).__init__('one_hot')
 
-    def init_from_json(self, filename, config_id=0):
-        super(OneHotConfig, self).init_from_json(filename, config_id)
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(OneHotConfig, self).init_from_json(filename, config_id,
+                                                 unknown_dim)
         self.feed_spec = {"range": [0, self.depth]}
 
 

@@ -17,7 +17,6 @@ from __future__ import print_function
 import six
 import collections
 import numpy as np
-import paddle.fluid as fluid
 
 if six.PY3:
     from . import paddle_api_benchmark as paddle_api
@@ -101,6 +100,8 @@ class FeederAdapter(object):
         self.__feed_list = feed_list
 
     def to_paddle(self, feed_vars):
+        import paddle.fluid as fluid
+
         if self.__framework == "paddle":
             return self.__feed_list
         else:  # self.__framework == "tensorflow"

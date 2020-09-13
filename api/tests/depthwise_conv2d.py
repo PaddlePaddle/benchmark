@@ -21,8 +21,9 @@ class DepthwiseConv2dConfig(Conv2dConfig):
         super(DepthwiseConv2dConfig, self).__init__("depthwise_conv2d")
         self.run_tf = False
 
-    def init_from_json(self, filename, config_id=0):
-        super(DepthwiseConv2dConfig, self).init_from_json(filename, config_id)
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(DepthwiseConv2dConfig, self).init_from_json(filename, config_id,
+                                                          unknown_dim)
         assert self.num_channels == self.groups and self.num_filters % self.num_channels == 0
         if isinstance(self.dilation, int):
             self.dilation = [self.dilation, self.dilation]

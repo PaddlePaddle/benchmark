@@ -45,23 +45,47 @@ CHECK_KEY["paddle_cpu_perf"] = "CPU正向"
 CHECK_KEY["paddle_cpu_perf_backwards"] = "CPU反向"
 
 
+def _is_json(line):
+    try:
+        json.loads(line)
+    except ValueError:
+        return False
+    return True
+
+
 def _read_last_line(inputfile):
+    def _read_last_block(f, filesize, blocksize):
+        if filesize > blocksize:
+            maxseekpoint = filesize // blocksize
+            f.seek((maxseekpoint - 1) * blocksize)
+        elif filesize:
+            f.seek(0, 0)
+
+        last_line = None
+        lines = f.readlines()
+        if len(lines) >= 2:
+            for line in reversed(lines):
+                if _is_json(line.strip("\n")):
+                    last_line = line.strip("\n")
+                    break
+        return last_line
+
     filesize = os.path.getsize(inputfile)
     f = open(inputfile, 'r')
 
+    last_line = None
     blocksize = 1024
-    if filesize > blocksize:
-        maxseekpoint = filesize // blocksize
-        f.seek((maxseekpoint - 1) * blocksize)
-    elif filesize:
-        f.seek(0, 0)
+    while blocksize < filesize:
+        last_line = _read_last_block(f, filesize, blocksize)
+        if last_line is not None:
+            break
 
-    lines = f.readlines()
-    if len(lines) >= 2:
-        last_line = lines[-2].strip("\n")
-    else:
-        last_line = None
+        blocksize *= 2
+    if last_line is None:
+        last_line = _read_last_block(f, filesize, blocksize)
+
     f.close()
+    #print(last_line)
     return last_line
 
 
@@ -183,7 +207,6 @@ def get_job_res(inputfile, specified_op_list=None):
     statistic_beg_idx = file_name.find("-")
     statistic_type = file_name[statistic_beg_idx + 1:]
     last_line = _read_last_line(inputfile)
-    # print(last_line)
 
     # Parse parameters of current case from the result dict.
     _parse_parameters(case_name, last_line)
@@ -203,7 +226,8 @@ def check_results(op_record, alarm_results):
     """
 
     from benchmark_op import models
-    results = models.OpRecord2.objects.filter(case_name=op_record.case_name).order_by('-timestamp')[:10:1]
+    results = models.OpRecord2.objects.filter(
+        case_name=op_record.case_name).order_by('-timestamp')[:10:1]
     for key, verbose in CHECK_KEY.items():
         results_list = []
         count = 0
@@ -228,7 +252,8 @@ def check_results(op_record, alarm_results):
             avg_values = round(np.array(results_list).mean(), 4)
             if not avg_values:
                 continue
-            ranges = round((float(getattr(op_record, key)) - avg_values) / avg_values, 4)
+            ranges = round(
+                (float(getattr(op_record, key)) - avg_values) / avg_values, 4)
         except Exception as rw:
             print("range solve error {}".format(rw))
             traceback.print_exc()
@@ -240,11 +265,11 @@ def check_results(op_record, alarm_results):
             color = "red"
         elif ranges <= -0.05:
             color = "green"
-        current_html_result = [dict(value=op_record.case_name),
-                               dict(value=verbose),
-                               dict(value=avg_values),
-                               dict(value=getattr(op_record, key)),
-                               dict(value='%.2f%%' % (ranges * 100), color=color)]
+        current_html_result = [
+            dict(value=op_record.case_name), dict(value=verbose),
+            dict(value=avg_values), dict(value=getattr(op_record, key)), dict(
+                value='%.2f%%' % (ranges * 100), color=color)
+        ]
         alarm_results[verbose]["data"].append(current_html_result)
 
 

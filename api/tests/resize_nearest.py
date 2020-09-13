@@ -19,8 +19,9 @@ class ResizeNearestConfig(APIConfig):
     def __init__(self, op_type="resize_nearest"):
         super(ResizeNearestConfig, self).__init__(op_type)
 
-    def init_from_json(self, filename, config_id=0):
-        super(ResizeNearestConfig, self).init_from_json(filename, config_id)
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(ResizeNearestConfig, self).init_from_json(filename, config_id,
+                                                        unknown_dim)
         if self.data_format == "NCHW":
             # tf only support NHWC
             if len(self.input_shape) == 4:

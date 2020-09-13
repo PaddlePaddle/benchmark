@@ -19,8 +19,9 @@ class GatherConfig(APIConfig):
     def __init__(self):
         super(GatherConfig, self).__init__('gather')
 
-    def init_from_json(self, filename, config_id=0):
-        super(GatherConfig, self).init_from_json(filename, config_id)
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(GatherConfig, self).init_from_json(filename, config_id,
+                                                 unknown_dim)
         self.feed_spec = [
             {
                 "range": [-10, 10]

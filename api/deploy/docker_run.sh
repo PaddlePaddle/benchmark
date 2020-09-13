@@ -112,7 +112,7 @@ function construnct_version(){
         cudnn_version=7
     else
         PADDLE_VERSION=${version}'.gcc82.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
-        IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
+        IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp37-cp37m-linux_x86_64.whl
         with_gpu='ON'
     fi
     PADDLE_DEV_NAME=paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
@@ -135,7 +135,7 @@ function build_paddle(){
       -w /paddle \
       --net=host \
       -e "CMAKE_BUILD_TYPE=Release" \
-      -e "PYTHON_ABI=cp27-cp27mu-gcc82" \
+      -e "PYTHON_ABI=cp37-cp37m" \
       -e "PADDLE_VERSION=0.0.0.${PADDLE_VERSION}" \
       -e "WITH_AVX=ON" \
       -e "WITH_GPU=${with_gpu}" \
@@ -152,7 +152,7 @@ function build_paddle(){
       -e "http_proxy=${HTTP_PROXY}" \
       -e "https_proxy=${HTTP_PROXY}" \
       ${PADDLE_DEV_NAME} \
-       /bin/bash -c "paddle/scripts/paddle_build.sh build"
+       /bin/bash -c "paddle/scripts/paddle_build.sh build cp37-cp37m"
      build_name=${IMAGE_NAME}
 
     if [[ -d ${all_path}/images ]]; then
@@ -199,10 +199,14 @@ function run(){
     export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
     RUN_IMAGE_NAME=paddlepaddle/paddle:latest-dev-cuda${cuda_version}-cudnn${cudnn_version}-gcc82
     # CPU任务：export CPU_VISIBLE_DEVICES="0,1,2,3,4"，即并行开启5个CPU任务，用了第0-4个核。 
-    run_cmd="python -m pip install --upgrade pip;
+    run_cmd="rm -rf /usr/local/python2.7.15/bin/python;
+             rm -rf /usr/local/python2.7.15/bin/pip;
+             ln -s /usr/local/bin/python3.7 /usr/local/python2.7.15/bin/python;
+             ln -s /usr/local/bin/pip3.7 /usr/local/python2.7.15/bin/pip;
+             python -m pip install --upgrade pip;
              pip install nvidia-ml-py;
              pip install psutil;
-             pip install tensorflow==2.1;
+             pip install tensorflow==2.3;
              pip uninstall paddlepaddle -y;
              pip uninstall paddlepaddle-gpu -y;
              pip install ${all_path}/images/${IMAGE_NAME};
@@ -226,6 +230,9 @@ function run(){
             -e "PADDLE_VERSION=${PADDLE_VERSION}" \
             -e "RUN_IMAGE_NAME=${RUN_IMAGE_NAME}" \
             -e "PADDLE_COMMIT_ID=${image_commit_id}" \
+            -e "START_TIME=$(date "+%Y%m%d")" \
+            -e "BENCHMARK_TYPE=${BENCHMARK_TYPE}" \
+            -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             --net=host \
             --privileged \
             --shm-size=32G \
