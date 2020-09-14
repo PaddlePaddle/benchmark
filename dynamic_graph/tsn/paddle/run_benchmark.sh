@@ -1,5 +1,6 @@
 #!bin/bash
-set -xe
+
+set -x
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
@@ -40,9 +41,19 @@ function _set_params(){
 }
 
 function _train(){
-    train_cmd="--epoch ${max_epoch}
-               --batch_size=${batch_size} 
-               --config=single_tsn_frame.yaml
+    if [ ${run_mode} == "sp" ]; then
+        config_files="./single_tsn_frame.yaml"
+    elif [ ${run_mode} == "mp" ]; then
+        config_files="./multi_tsn_frame.yaml"
+        sed -i "s/learning_rate: 0.001/learning_rate: 0.002/g" ${config_files} # RD 暂未支持传LR
+    else
+        echo "------not support"
+        exit
+    fi
+
+    train_cmd="--epoch ${max_epoch} \
+               --batch_size=${batch_size} \
+               --config=${config_files} \
                --use_gpu=True \
                --validate=False \
                "
