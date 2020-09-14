@@ -15,25 +15,36 @@
 from common_import import *
 
 
-class PDLogicalNot(PaddleAPIBenchmarkBase):
+class AbsConfig(APIConfig):
+    def __init__(self):
+        super(AbsConfig, self).__init__("abs")
+        self.feed_spec = {"range": [-1, 1]}
+        self.alias_config = APIConfig("activation")
+
+
+class PDAbs(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        data = self.variable(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = fluid.layers.logical_not(x=data)
+        x = self.variable(
+            name="x", shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        result = paddle.abs(x=x)
 
-        self.feed_vars = [data]
+        self.feed_vars = [x]
         self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
-class TFLogicalNot(TensorflowAPIBenchmarkBase):
+class TFAbs(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        data = self.variable(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.math.logical_not(x=data)
+        x = self.variable(
+            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        result = tf.abs(x=x)
 
-        self.feed_list = [data]
+        self.feed_list = [x]
         self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(PDLogicalNot(), TFLogicalNot(), config=APIConfig("logical_not"))
+    test_main(PDAbs(), TFAbs(), config=AbsConfig())

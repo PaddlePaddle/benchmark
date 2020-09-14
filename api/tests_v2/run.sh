@@ -17,8 +17,9 @@ name=${1:-"abs"}
 config_id=${2:-"0"}
 
 task="accuracy"     # "accuracy" or "speed"
+#task="speed"     # "accuracy" or "speed"
 framework="paddle"  # "paddle" or "tensorflow"
-filename="${OP_BENCHMARK_ROOT}/tests/configs/${name}.json"
+filename="${OP_BENCHMARK_ROOT}/tests_v2/configs/${name}.json"
 
 run_args="--task ${task} \
           --framework ${framework} \
@@ -38,5 +39,5 @@ if [ $# -ge 3 ]; then
             --api_name ${api_name}"
 fi
 
-python -m tests.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py \
+python -m tests_v2.launch ${OP_BENCHMARK_ROOT}/tests_v2/${name}.py \
          ${run_args}
