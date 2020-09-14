@@ -60,7 +60,7 @@ function fetch_upstream_master_if_not_exist() {
 
 function run_api(){
     fetch_upstream_master_if_not_exist
-    HAS_MODIFIED_API_TEST=`git diff --name-status upstream/$BRANCH | awk '$1!="D" {print $2}' | grep "api/tests.*.py$" || true`
+    HAS_MODIFIED_API_TEST=`git diff --name-status upstream/$BRANCH | awk '$1!="D" {print $2}' | grep "api/tests_v2.*.py$" || true`
     API_NAMES=(abs elementwise fc)
     if [ "${HAS_MODIFIED_API_TEST}" != "" ] ; then
         for api in ${HAS_MODIFIED_API_TEST[@]}; do
@@ -82,7 +82,7 @@ function run_api(){
 
     fail_name=()
     for name in ${API_NAMES[@]}; do
-        bash ${BENCHMARK_ROOT}/api/tests/run.sh $name -1
+        bash ${BENCHMARK_ROOT}/api/tests_v2/run.sh $name -1
         if [ $? -ne 0 ]; then
             fail_name[${#fail_name[@]}]="$name.py"
         fi
