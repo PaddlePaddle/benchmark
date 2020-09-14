@@ -47,7 +47,7 @@ class PDAccuracy(PaddleAPIBenchmarkBase):
             name='input', shape=config.input_shape, dtype=config.input_dtype)
         label = self.variable(
             name='label', shape=config.label_shape, dtype=config.label_dtype)
-        result = fluid.layers.accuracy(
+        result = paddle.metric.accuracy(
             input=input, label=label, k=1, correct=None, total=None)
 
         self.feed_vars = [input, label]
