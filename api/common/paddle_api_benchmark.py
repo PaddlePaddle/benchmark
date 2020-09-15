@@ -132,6 +132,12 @@ class PaddleAPIBenchmarkBase(object):
         result = func(**kwargs)
         return result
 
+    def paddle(self, name, **kwargs):
+        module = importlib.import_module("paddle")
+        func = getattr(module, name)
+        result = func(**kwargs)
+        return result
+
     @property
     def backward(self):
         if hasattr(self, "_PaddleAPIBenchmarkBase__backward"):
