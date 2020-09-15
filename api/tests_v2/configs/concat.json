@@ -1,0 +1,1128 @@
+[{
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[-1L, 256L, 129L, 129L]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[-1L, 48L, 129L, 129L]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, 1L]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, 1L]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, 1L]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, 1L]",
+                "type": "Variable"
+            },
+            "x4": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, 1L]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "0"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x10": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x100": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x101": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x102": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x103": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x104": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x105": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x106": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x107": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x108": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x109": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x11": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x110": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x111": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x112": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x113": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x114": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x115": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x116": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x117": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x118": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x119": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x12": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x120": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x121": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x122": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x123": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x124": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x125": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x126": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x127": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x128": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x129": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x13": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x130": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x131": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x132": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x133": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x134": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x135": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x136": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x137": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x138": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x139": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x14": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x140": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x141": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x142": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x143": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x144": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x145": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x146": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x147": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x148": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x149": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x15": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x150": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x151": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x152": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x153": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x154": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x155": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x156": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x157": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x158": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x159": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x16": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x160": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x161": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x162": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x163": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x164": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x165": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x166": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x167": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x168": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x169": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x17": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x170": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x171": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x172": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x173": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x174": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x175": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x176": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x177": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x178": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x179": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x18": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x180": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x181": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x182": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x183": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x184": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x185": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x186": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x187": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x188": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x189": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x19": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x190": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x191": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x192": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x193": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x194": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x195": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x196": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x197": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x198": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x199": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x20": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x200": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x21": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x22": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x23": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x24": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x25": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x26": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x27": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x28": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x29": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x30": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x31": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x32": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x33": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x34": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x35": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x36": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x37": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x38": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x39": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x4": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x40": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x41": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x42": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x43": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x44": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x45": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x46": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x47": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x48": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x49": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x5": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x50": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x51": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x52": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x53": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x54": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x55": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x56": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x57": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x58": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x59": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x6": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x60": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x61": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x62": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x63": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x64": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x65": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x66": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x67": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x68": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x69": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x7": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x70": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x71": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x72": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x73": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x74": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x75": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x76": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x77": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x78": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x79": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x8": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x80": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x81": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x82": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x83": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x84": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x85": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x86": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x87": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x88": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x89": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x9": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x90": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x91": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x92": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x93": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x94": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x95": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x96": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x97": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x98": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "x99": {
+                "dtype": "float32",
+                "shape": "[1L]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "0"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1L, -1L, 200L]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1L, -1L, 200L]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "0"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[-1L, 256L, 14L, 14L]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[-1L, 256L, 14L, 14L]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[-1L, 256L, 14L, 14L]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[-1L, 256L, 14L, 14L]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}]
