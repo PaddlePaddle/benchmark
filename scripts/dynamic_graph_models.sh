@@ -129,11 +129,12 @@ dy_tsn(){
 
     pip install wget
     # Prepare data
+    rm -rf data
     ln -s ${data_path}/dygraph_data/TSN/data ${cur_model_path}/
 
     # Running ...
     rm -f ./run_benchmark.sh
-    cp ${BENCHMARK_ROOT}/dynamic_graph/TSN/paddle/run_benchmark.sh ./
+    cp ${BENCHMARK_ROOT}/dynamic_graph/tsn/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
     CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 32 TSN sp 1 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
