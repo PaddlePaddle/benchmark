@@ -230,6 +230,10 @@ class TensorflowAPIBenchmarkBase(object):
         result = func(**kwargs)
         return result
 
+    def default_layers(self, api_name, module_name=None, **kwargs):
+        result = self.layers(api_name, module_name, **kwargs)
+        return result
+
     @property
     def backward(self):
         if hasattr(self, "_TensorflowAPIBenchmarkBase__backward"):

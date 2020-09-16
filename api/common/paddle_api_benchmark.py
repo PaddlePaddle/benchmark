@@ -132,7 +132,7 @@ class PaddleAPIBenchmarkBase(object):
         result = func(**kwargs)
         return result
 
-    def paddle(self, name, **kwargs):
+    def default_layers(self, name, **kwargs):
         module = importlib.import_module("paddle")
         func = getattr(module, name)
         result = func(**kwargs)
