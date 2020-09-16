@@ -44,8 +44,13 @@ MAIL_TAIL_CONTENT = """
         <caption bgcolor="#989898">环境配置</caption>
 RUN_ENV_HOLDER
         </table>
-        <h4 align=center>报警规则：当前运行结果与benchmark标准值及前5次非0数据平均值做比较，如果波动不在（-5%，5%）之间则报警。</h4>
-        <h4 align=center>历史详细数据 BENCHMARK_WEBSITE</h4> 
+        <HR align=center width="80%" SIZE=1>
+        <div style="text-align:center;">
+        <a align=center href="BENCHMARK_WEBSITE1">报警规则</a><br/><br/>
+        <a align=center href="BENCHMARK_WEBSITE2">问题复现指南</a><br/><br/>
+        <a align=center href="BENCHMARK_WEBSITE3">历史详细数据</a><br/><br/>
+        <a align=center href="BENCHMARK_WEBSITE4">异常值和标准值</a>
+        </div>
     </body>
 </html>
 """
@@ -55,7 +60,7 @@ class EmailTemplate(object):
     """construct email for benchmark result.
     """
 
-    def __init__(self, title, env, fail_jobs, results, log_path):
+    def __init__(self, title, env, results, log_path, fail_jobs=[]):
         """
         Args:
             title(str): benchmark | op_benchmark | benchmark_distribute
@@ -149,8 +154,10 @@ class EmailTemplate(object):
         # Construct alarm content
         content += self.alarm_info
         # Construct the tail of the message
-        content += MAIL_TAIL_CONTENT.replace("BENCHMARK_WEBSITE", os.getenv("BENCHMARK_WEBSITE", "")).strip().replace(
-            'RUN_ENV_HOLDER', self.env_content)
+        content += MAIL_TAIL_CONTENT.replace("BENCHMARK_WEBSITE1", os.getenv("BENCHMARK_WEBSITE1", "")).strip().replace(
+            'RUN_ENV_HOLDER', self.env_content).replace("BENCHMARK_WEBSITE2", os.getenv("BENCHMARK_WEBSITE2")).replace(
+            "BENCHMARK_WEBSITE3", os.getenv("BENCHMARK_WEBSITE3")).replace("BENCHMARK_WEBSITE4",
+                                                                           os.getenv("BENCHMARK_WEBSITE4"))
 
         with open(os.path.join(self.log_path, "mail.html"), "w") as f_object:
             f_object.write(content)
