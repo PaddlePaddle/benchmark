@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_tsn dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
+cur_model_list=(dy_slowfast dy_tsn dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
 
 # MobileNet
 dy_mobilenet(){
