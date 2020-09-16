@@ -23,8 +23,7 @@ from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase
 from common.api_param import APIConfig
 
 try:
-    import paddle
-    import paddle.tensor as tensor
+    import paddle as paddle
     import paddle.fluid as fluid
 except ImportError:
     sys.stderr.write(

@@ -19,21 +19,6 @@ class LinearConfig(APIConfig):
     def __init__(self):
         super(LinearConfig, self).__init__('linear')
 
-    def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(LinearConfig, self).init_from_json(filename, config_id,
-                                                 unknown_dim)
-        self.feed_spec = [
-            {
-                "range": [0, 10]
-            },  # x
-            {
-                "range": [0.5, 0.5]
-            },  # weight
-            {
-                "range": [0.1, 0.1]
-            }  # bias
-        ]
-
     def to_tensorflow(self):
         tf_config = super(LinearConfig, self).to_tensorflow()
         tf_config.size = self.weight_shape[-1]
@@ -43,29 +28,29 @@ class LinearConfig(APIConfig):
 class PDLinear(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        weight = self.variable(
-            name="weight",
+        weight = paddle.create_parameter(
             shape=config.weight_shape,
-            dtype=config.weight_dtype)
-        bias = self.variable(
-            name="bias", shape=config.bias_shape, dtype=config.bias_dtype)
+            dtype=config.weight_dtype,
+            name="weight",
+            attr=fluid.ParamAttr(
+                initializer=paddle.fluid.initializer.ConstantInitializer(0.5)))
+        bias = paddle.create_parameter(
+            shape=config.bias_shape,
+            dtype=config.bias_dtype,
+            name="bias",
+            attr=fluid.ParamAttr(
+                initializer=paddle.fluid.initializer.ConstantInitializer(0.1)))
         result = paddle.nn.functional.linear(x=x, weight=weight, bias=bias)
 
-        self.feed_vars = [x, weight, bias]
+        self.feed_vars = [x]
         self.fetch_vars = [result]
         if config.backward:
-            self.append_gradients(result, [x, weight, bias])
+            self.append_gradients(result, [x])
 
 
 class TFLinear(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        weight = self.variable(
-            name="weight",
-            shape=config.weight_shape,
-            dtype=config.weight_dtype)
-        bias = self.variable(
-            name="bias", shape=config.bias_shape, dtype=config.bias_dtype)
         result = tf.compat.v1.layers.dense(
             inputs=x,
             units=config.size,
@@ -74,10 +59,10 @@ class TFLinear(TensorflowAPIBenchmarkBase):
             kernel_initializer=tf.constant_initializer(0.5),
             bias_initializer=tf.constant_initializer(0.1))
 
-        self.feed_list = [x, weight, bias]
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, weight, bias])
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
