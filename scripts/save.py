@@ -489,7 +489,7 @@ def parse_logs(args):
     if args.device_type.upper() in ("P40", "V100"):
         env["cuda_version"] = args.cuda_version
         env["cudnn_version"] = args.cudnn_version
-    email_t = template.EmailTemplate(title, env, FAIL_LIST, html_results, args.log_path)
+    email_t = template.EmailTemplate(title, env, html_results, args.log_path, FAIL_LIST)
     email_t.construct_email_content()
 
 
