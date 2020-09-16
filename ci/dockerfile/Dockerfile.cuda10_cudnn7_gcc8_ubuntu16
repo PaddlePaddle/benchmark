@@ -1,0 +1,79 @@
+# A image for building benchmark environment
+# Use cuda devel base image for both cpu and gpu environment
+# When you modify it, please be aware of cudnn-runtime version
+FROM nvidia/cuda:10.1-cudnn7-devel-ubuntu16.04
+MAINTAINER PaddlePaddle Authors <paddle-dev@baidu.com>
+
+ARG UBUNTU_MIRROR
+RUN /bin/bash -c 'if [[ -n ${UBUNTU_MIRROR} ]]; then sed -i 's#http://archive.ubuntu.com/ubuntu#${UBUNTU_MIRROR}#g' /etc/apt/sources.list; fi'
+
+ENV HOME /root
+
+ENV PATH=/usr/local/gcc-8.2/bin:$PATH
+RUN rm -rf /temp_gcc82 && rm -rf /gcc-8.2.0.tar.xz && rm -rf /gcc-8.2.0
+
+# Prepare packages for Python
+# apt install openmpi: In order to run a single test of pslib coverage
+RUN apt-get update && \
+    apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev \
+    libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+    xz-utils tk-dev libffi-dev liblzma-dev openmpi-bin openmpi-doc libopenmpi-dev
+
+# gcc8.2
+RUN wget -q https://paddle-docker-tar.bj.bcebos.com/home/users/tianshuo/bce-python-sdk-0.8.27/gcc-8.2.0.tar.xz && \
+  tar -xvf gcc-8.2.0.tar.xz && \
+  cd gcc-8.2.0 && \
+  sed -i 's#ftp://gcc.gnu.org/pub/gcc/infrastructure/#https://paddle-ci.gz.bcebos.com/#g' ./contrib/download_prerequisites && \
+  unset LIBRARY_PATH CPATH C_INCLUDE_PATH PKG_CONFIG_PATH CPLUS_INCLUDE_PATH INCLUDE && \
+  ./contrib/download_prerequisites && \
+  cd .. && mkdir temp_gcc82 && cd temp_gcc82 && \
+  ../gcc-8.2.0/configure --prefix=/usr/local/gcc-8.2 --enable-threads=posix --disable-checking --disable-multilib && \
+  make -j8 && make install
+
+ENV PATH=/usr/local/gcc-8.2/bin:$PATH
+ENV LD_LIBRARY_PATH=/usr/local/gcc-8.2/lib64:$LD_LIBRARY_PATH
+RUN rm -rf /temp_gcc82 && rm -rf /gcc-8.2.0.tar.xz && rm -rf /gcc-8.2.0
+
+# Install Python3.7.8
+RUN mkdir -p /root/python_build/ && wget -q https://www.python.org/ftp/python/3.7.8/Python-3.7.8.tgz && \
+    tar -xzf Python-3.7.8.tgz && cd Python-3.7.8 && \
+    CFLAGS="-Wformat" ./configure --prefix=/usr/local/Python-3.7.8 --enable-shared > /dev/null && \
+    make -j8 > /dev/null && make altinstall > /dev/null
+RUN rm -r /root/python_build
+
+RUN echo "export PATH=/usr/local/Python-3.7.8/include:${PATH}" >> ~/.bashrc
+RUN echo "export PATH=/usr/local/Python-3.7.8/bin:${PATH}" >> ~/.bashrc
+RUN echo "export LD_LIBRARY_PATH=/usr/local/Python-3.7.8/lib:${LD_LIBRARY_PATH}" >> ~/.bashrc
+RUN echo "export CPLUS_INCLUDE_PATH=/usr/local/Python-3.7.8/include/python3.7:$CPLUS_INCLUDE_PATH" >> ~/.bashrc
+ENV PATH=/usr/local/Python-3.7.8/include:${PATH}
+ENV PATH=/usr/local/Python-3.7.8/bin:${PATH}
+ENV LD_LIBRARY_PATH=/usr/local/Python-3.7.8/lib:${LD_LIBRARY_PATH}
+ENV CPLUS_INCLUDE_PATH=/usr/local/Python-3.7.8/include/python3.7:$CPLUS_INCLUDE_PATH
+RUN mv /usr/bin/python /usr/bin/python.bak
+RUN ln -s /usr/local/Python-3.7.8/bin/python3.7 /usr/local/bin/python
+RUN ln -s /usr/local/Python-3.7.8/bin/python3.7 /usr/bin/python
+WORKDIR /home
+RUN wget https://files.pythonhosted.org/packages/b0/d1/8acb42f391cba52e35b131e442e80deffbb8d0676b93261d761b1f0ef8fb/setuptools-40.6.2.zip
+RUN apt-get -y install unzip
+RUN unzip setuptools-40.6.2.zip
+WORKDIR /home/setuptools-40.6.2
+RUN python setup.py build
+RUN python setup.py install
+WORKDIR /home
+
+RUN wget https://files.pythonhosted.org/packages/69/81/52b68d0a4de760a2f1979b0931ba7889202f302072cc7a0d614211bc7579/pip-18.0.tar.gz && tar -zxvf pip-18.0.tar.gz
+WORKDIR pip-18.0
+RUN python setup.py install
+
+WORKDIR /home
+RUN rm Python-$version.tgz setuptools-40.6.2.zip pip-18.0.tar.gz && \
+    rm -r Python-$version setuptools-40.6.2 pip-18.0
+
+# git credential to skip password typing
+RUN git config --global credential.helper store
+
+# Fix locales to en_US.UTF-8
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8
+
+CMD source ~/.bashrc
+EXPOSE 22
