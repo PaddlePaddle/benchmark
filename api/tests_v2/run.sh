@@ -15,9 +15,8 @@ export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 
 name=${1:-"abs"}
 config_id=${2:-"0"}
+task=${3:-"accuracy"} # "accuracy" or "speed"
 
-task="accuracy"     # "accuracy" or "speed"
-#task="speed"     # "accuracy" or "speed"
 framework="paddle"  # "paddle" or "tensorflow"
 filename="${OP_BENCHMARK_ROOT}/tests_v2/configs/${name}.json"
 

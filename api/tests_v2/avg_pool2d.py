@@ -38,9 +38,19 @@ class AvgPool2dConfig(APIConfig):
                 self.padding, str) and self.padding != [0, 0]:
             self.run_tf = False
 
+        # tf only support NHWC 
+        if not self.global_pooling and self.data_format == "NCHW":
+            self.feed_spec = {"permute": [0, 2, 3, 1]}
+
     def to_tensorflow(self):
         tf_config = super(AvgPool2dConfig, self).to_tensorflow()
         tf_config.padding = self._convert_padding(self.padding)
+        # tf only support NHWC
+        if not self.global_pooling and self.data_format == "NCHW":
+            tf_config.x_shape = [
+                self.x_shape[0], self.x_shape[2], self.x_shape[3],
+                self.x_shape[1]
+            ]
         return tf_config
 
     def _convert_padding(self, padding):
@@ -86,7 +96,7 @@ class TFAvgPool2d(TensorflowAPIBenchmarkBase):
                 pooling_type="AVG",
                 strides=config.stride,
                 padding=config.padding,
-                data_format=config.data_format)
+                data_format="NHWC")
 
         self.feed_list = [x]
         self.fetch_list = [result]
