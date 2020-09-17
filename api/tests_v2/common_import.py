@@ -23,8 +23,7 @@ from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase
 from common.api_param import APIConfig
 
 try:
-    import paddle as paddle
-    import paddle.fluid as fluid
+    import paddle
 except ImportError:
     sys.stderr.write(
         "Cannot import paddle or paddle.fluid, maybe paddle is not installed.\n"

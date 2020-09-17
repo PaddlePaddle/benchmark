@@ -32,13 +32,13 @@ class PDLinear(PaddleAPIBenchmarkBase):
             shape=config.weight_shape,
             dtype=config.weight_dtype,
             name="weight",
-            attr=fluid.ParamAttr(
+            attr=paddle.ParamAttr(
                 initializer=paddle.fluid.initializer.ConstantInitializer(0.5)))
         bias = paddle.create_parameter(
             shape=config.bias_shape,
             dtype=config.bias_dtype,
             name="bias",
-            attr=fluid.ParamAttr(
+            attr=paddle.ParamAttr(
                 initializer=paddle.fluid.initializer.ConstantInitializer(0.1)))
         result = paddle.nn.functional.linear(x=x, weight=weight, bias=bias)
 
