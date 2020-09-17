@@ -24,8 +24,6 @@ from common.api_param import APIConfig
 
 try:
     import paddle
-    import paddle.tensor as tensor
-    import paddle.fluid as fluid
 except ImportError:
     sys.stderr.write(
         "Cannot import paddle or paddle.fluid, maybe paddle is not installed.\n"
