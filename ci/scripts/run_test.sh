@@ -24,7 +24,7 @@ if [ -z ${BRANCH} ]; then
     BRANCH="master"
 fi
 
-BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/.." && pwd )"
+BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../.." && pwd )"
 echo ${BENCHMARK_ROOT}
 
 function prepare_env(){
