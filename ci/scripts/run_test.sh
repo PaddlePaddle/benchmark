@@ -36,7 +36,7 @@ function prepare_env(){
     wget -q ${PADDLE_URL}
     pip install -U ${PADDLE_WHL}
     # Install tensorflow and other packages
-    pip install tensorflow-gpu==2.3 pre-commit==1.21 pylint==1.9.5 pytest==4.6.9
+    pip install tensorflow==2.3 pre-commit==1.21 pylint==1.9.5 pytest==4.6.9
     python -c "import tensorflow as tf; print(tf.__version__)"
     apt-get update
     apt-get install -y git
