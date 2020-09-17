@@ -1,0 +1,78 @@
+[{
+    "op": "linear",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 36864L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[36864L, 2048L]",
+            "type": "Variable"
+        },
+        "bias": {
+            "dtype": "float32",
+            "shape": "[2048L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "linear",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, -1L, 1024L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[1024L,1024L]",
+            "type": "Variable"
+        },
+        "bias": {
+            "dtype": "float32",
+            "shape": "[1024L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "linear",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 7L, 7L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[7L, 1024L]",
+            "type": "Variable"
+        },
+        "bias": {
+            "dtype": "float32",
+            "shape": "[1024L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 2000
+}, {
+    "op": "linear",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 16L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[16L, 256L]",
+            "type": "Variable"
+        },
+        "bias": {
+            "dtype": "float32",
+            "shape": "[256L]",
+            "type": "Variable"
+        }
+    }
+}]
