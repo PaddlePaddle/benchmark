@@ -1,4 +1,5 @@
 import os
+import ast
 import sys
 import argparse
 import subprocess
@@ -25,7 +26,7 @@ def parse_args():
     )
     parser.add_argument(
         '--is_perf',
-        type=bool,
+        type=ast.literal_eval,
         default=True,
         help='find pr with performance problem or function problem, default is performance problem.'
     )
