@@ -1,6 +1,6 @@
-import argparse
 import os
 import sys
+import argparse
 import subprocess
 import numpy as np
 
@@ -26,26 +26,32 @@ def parse_args():
     parser.add_argument(
         '--is_perf',
         type=bool,
-        default=False,
-        help='find pr with performance problem or function problem, default is function problem'
+        default=True,
+        help='find pr with performance problem or function problem, default is performance problem.'
     )
     parser.add_argument(
         '--command',
         type=str,
         default='CUDA_VISIBLE_DEVICES=7 bash run_benchmark.sh 1 sp 300',
-        help='command of running the script'
+        help='command of running the script.'
     )
     parser.add_argument(
         '--standard_value',
         type=float,
         default=65.906,
-        help='the standard value, only needed when is_perf=True'
+        help='the standard value, only needed when is_perf=True.'
     )
     parser.add_argument(
         '--threshold',
         type=float,
         default=0.05,
-        help='the threshold of alarming, default is 0.05'
+        help='the threshold of alarming, default is 0.05.'
+    )
+    parser.add_argument(
+        '--model_name',
+        type=str,
+        default='STGAN',
+        help='the model name'
     )
     args = parser.parse_args()
     return args
@@ -61,7 +67,7 @@ def compile(commit_id):
     build_path = os.path.join(paddle_path, 'build')
     os.chdir(build_path)
     print('commit {} build start'.format(commit_id))
-    cmake_command = 'cmake .. -DPY_VERSION=3.7 -DWITH_GPU=ON -DWITH_DISTRIBUTE=OFF -DWITH_TESTING=OFF -DWITH_INFERENCE_API_TEST=OFF -DON_INFER=OFF -DCMAKE_BUILD_TYPE=Release'
+    cmake_command = 'cmake .. -DPY_VERSION=3.7 -DWITH_GPU=ON -DWITH_DISTRIBUTE=ON -DWITH_AMD_GPU=OFF -DWITH_MKL=ON -DWITH_NGRAPH=OFF -DWITH_AVX=ON -DWITH_GOLANG=OFF -DWITH_CONTRIB=ON -DWITH_INFERENCE_API_TEST=ON -DWITH_HIGH_LEVEL_API_TEST=OFF -DWITH_GRPC=ON -DWITH_TESTING=OFF -DWITH_INFERENCE_API_TEST=OFF -DON_INFER=OFF -DCMAKE_BUILD_TYPE=Release'
     build_command = 'make -j12'
     os.system(cmake_command)
     build_res = os.system(build_command)
@@ -76,6 +82,16 @@ def compile(commit_id):
     return 0
 
 
+def save(commit_id):
+    # dir named commit_id is used to save paddle_wheel and model_log
+    mkdir_cmd = 'mkdir {}'.format(commit_id)
+    os.system(mkdir_cmd)
+    mv_log_cmd = 'mv {}* {}'.format(args.model_name, commit_id)
+    mv_wheel_cmd = 'mv paddle/build/python/dist/paddlepaddle* {}'.format(commit_id)
+    os.system(mv_log_cmd)
+    os.system(mv_wheel_cmd)
+
+
 def check_success(commit_id):
     os.chdir(paddle_path)
     compile(commit_id)
@@ -83,13 +99,16 @@ def check_success(commit_id):
     print('base_path:{}'.format(base_path))
     if not args.is_perf:
         cmd = args.command
-        if os.system(cmd) == 0:
+        cmd_res = os.system(cmd)
+        save(commit_id)
+        if cmd_res == 0:
             return True
         else:
             return False
     else:
         cmd = args.command
         log = subprocess.getstatusoutput(cmd)
+        save(commit_id)
         print('log:{}'.format(log[1]))
         f = open('log.txt', 'w')
         f.writelines(log[1])
@@ -141,12 +160,13 @@ def binary_search(commits):
             # right = mid
             print('mid value:{}'.format(mid))
             selected_commits = commits[:mid + 1]
-            binary_search(selected_commits)
+            res = binary_search(selected_commits)
         else:
             print('the commit {} is failed'.format(commit))
             # left = mid
             selected_commits = commits[mid:]
-            binary_search(selected_commits)
+            res = binary_search(selected_commits)
+    return res
 
 
 if __name__ == '__main__':
