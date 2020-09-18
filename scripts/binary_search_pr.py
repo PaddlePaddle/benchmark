@@ -77,8 +77,8 @@ def compile(commit_id):
 
 
 def check_success(commit_id):
-    # os.chdir(paddle_path)
-    # compile(commit_id)
+    os.chdir(paddle_path)
+    compile(commit_id)
     os.chdir(base_path)
     print('base_path:{}'.format(base_path))
     if not args.is_perf:
