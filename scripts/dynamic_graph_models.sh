@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_mask_rcnn dy_slowfast dy_tsn dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
+cur_model_list=(dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
 
 # MobileNet
 dy_mobilenet(){
@@ -229,7 +229,7 @@ dy_mask_rcnn(){
         cd cocoapi/PythonAPI/
         pip install Cython
         make install
-        python2 setup.py install --user
+        python setup.py install --user
         echo "cocoapi installed"
     fi
     if python -c "import tb_paddle" >/dev/null 2>&1;
@@ -259,4 +259,36 @@ dy_mask_rcnn(){
     sleep 60
     echo "index is speed, 8gpus begin, mp"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
+}
+
+dy_yolov3(){
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
+    cd ${cur_model_path}
+    git checkout dygraph
+    pip install -r requirements.txt 
+   
+    if python -c "import pycocotools" >/dev/null 2>&1
+    then
+        echo "cocoapi have already installed"
+    else
+        echo "cocoapi NOT FOUND"
+        cp -r ${prepare_path}/cocoapi/ ./
+        cd cocoapi/PythonAPI/
+        pip install Cython
+        make install
+        python setup.py install --user
+        echo "cocoapi installed"
+    fi
+
+    ln -s ${prepare_path}/yolov3/DarkNet53_pretrained ~/.cache/paddle/weights
+    rm -rf dataset/coco
+    ln -s ${data_path}/coco ./dataset/coco
+    rm -rf run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/yolov3/paddle/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    echo "index is speed, 1gpu, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
+    echo "index is speed, 8gpu, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
 }
