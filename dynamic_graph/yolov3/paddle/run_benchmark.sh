@@ -50,17 +50,12 @@ function _set_env(){
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-    if [[ ${run_mode} == "sp" && ${num_gpu_devices} -eq 8 ]]; then
-        num_workers=32
-    else
-        num_workers=8
-    fi
 
     WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     export PYTHONPATH=${WORK_ROOT}:${PYTHONPATH}
 
     train_cmd="-c configs/yolov3_darknet.yml \
-     --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} TrainReader.worker_num=${num_workers}"
+     --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} TrainReader.worker_num=8"
     case ${run_mode} in
     sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)
