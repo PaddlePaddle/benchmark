@@ -8,7 +8,7 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 1L]",
+            "shape": "[-1L, 100L]",
             "type": "Variable"
         },
         "axis": {
@@ -21,7 +21,7 @@
     "param_info": {
         "index": {
             "dtype": "int32",
-            "shape": "[-1L, 4L]",
+            "shape": "[4L]",
             "type": "Variable"
         },
         "x": {
