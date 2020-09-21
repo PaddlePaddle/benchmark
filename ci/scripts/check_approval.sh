@@ -33,7 +33,7 @@ LOG "[INFO] Get approval list ..."
 declare -A APPROVALED_USER_MAP
 approval_line=$(curl -H "Authorization: token ${GITHUB_API_TOKEN}" https://api.github.com/repos/PaddlePaddle/benchmark/pulls/${AGILE_PULL_ID}/reviews?per_page=10000 2> /dev/null)
 [ $? -ne 0 ] && LOG "[FATAL] Get review information from github faied" && exit -1
-for user in $(echo $approval_line | jq .[].user.login)
+for user in $(echo $approval_line | jq .[].user.login | sed 's|"||g')
 do
   APPROVALED_USER_MAP[$user]="approvaled"
   LOG "[INFO] ${user} approval this PR."
@@ -52,7 +52,7 @@ do
     done
     if [ $need_approval -ne 0 ]
     then
-      EXIT_CODE=1
+      EXIT_CODE=6
       LOG "[FATAL] You must have one RD (${approval_user%,*}) approval for the ${file}"
     fi
   fi
