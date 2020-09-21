@@ -86,7 +86,7 @@ class TFElementwise(TensorflowAPIBenchmarkBase):
             y_reshape = tf.reshape(tensor=y, shape=config.y_shape_unsqueezed)
         else:
             y_reshape = y
-        result = self.fluid_layers(config.api_name, x=x_reshape, y=y_reshape)
+        result = self.layers(config.api_name, x=x_reshape, y=y_reshape)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]
