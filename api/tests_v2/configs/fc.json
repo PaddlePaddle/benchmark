@@ -1,0 +1,86 @@
+[{
+    "op": "fc",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 36864L]",
+            "type": "Variable"
+        },
+        "num_flatten_dims": {
+            "type": "int",
+            "value": "1"
+        },
+        "size": {
+            "type": "int",
+            "value": "2048"
+        }
+    }
+}, {
+    "op": "fc",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "tanh"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, -1L, 1024L]",
+            "type": "Variable"
+        },
+        "num_flatten_dims": {
+            "type": "int",
+            "value": "2"
+        },
+        "size": {
+            "type": "int",
+            "value": "1024"
+        }
+    }
+}, {
+    "op": "fc",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "relu"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 7L, 7L]",
+            "type": "Variable"
+        },
+        "num_flatten_dims": {
+            "type": "int",
+            "value": "1"
+        },
+        "size": {
+            "type": "int",
+            "value": "1024"
+        }
+    },
+    "repeat": 2000
+}, {
+    "op": "fc",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "sigmoid"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 16L]",
+            "type": "Variable"
+        },
+        "num_flatten_dims": {
+            "type": "int",
+            "value": "1"
+        },
+        "size": {
+            "type": "int",
+            "value": "256"
+        }
+    }
+}]

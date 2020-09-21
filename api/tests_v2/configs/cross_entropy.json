@@ -1,0 +1,19 @@
+[{
+    "op": "cross_entropy",
+    "param_info": {
+        "ignore_index": {
+            "type": "int",
+            "value": "-100"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 1000L]",
+            "type": "Variable"
+        },
+        "label": {
+            "dtype": "int64",
+            "shape": "[-1L, 1L]",
+            "type": "Variable"
+        }
+    }
+}]

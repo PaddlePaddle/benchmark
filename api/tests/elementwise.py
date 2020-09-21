@@ -65,7 +65,7 @@ class PDElementwise(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        result = self.layers(
+        result = self.fluid_layers(
             config.api_name, x=x, y=y, axis=config.axis, act=None)
 
         self.feed_vars = [x, y]
@@ -86,7 +86,7 @@ class TFElementwise(TensorflowAPIBenchmarkBase):
             y_reshape = tf.reshape(tensor=y, shape=config.y_shape_unsqueezed)
         else:
             y_reshape = y
-        result = self.layers(config.api_name, x=x_reshape, y=y_reshape)
+        result = self.fluid_layers(config.api_name, x=x_reshape, y=y_reshape)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]
