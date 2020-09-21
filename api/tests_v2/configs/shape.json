@@ -1,0 +1,10 @@
+[{
+    "op": "shape",
+    "param_info": {
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 1L]",
+            "type": "Variable"
+        }
+    }
+}]

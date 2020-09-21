@@ -1,0 +1,27 @@
+[{
+    "op": "topk",
+    "param_info": {
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 1000L]",
+            "type": "Variable"
+        },
+        "k": {
+            "type": "int",
+            "value": "5"
+        }
+    }
+}, {
+    "op": "topk",
+    "param_info": {
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L]",
+            "type": "Variable"
+        },
+        "k": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}]

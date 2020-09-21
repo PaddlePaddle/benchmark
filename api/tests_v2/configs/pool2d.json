@@ -1,0 +1,369 @@
+[{
+    "op": "pool2d",
+    "param_info": {
+        "ceil_mode": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "exclusive": {
+            "type": "bool",
+            "value": "True"
+        },
+        "global_pooling": {
+            "type": "bool",
+            "value": "True"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, 7L, 7L]",
+            "type": "Variable"
+        },
+        "pool_padding": {
+            "type": "list",
+            "value": "[0, 0]"
+        },
+        "pool_size": {
+            "type": "list",
+            "value": "[-1, -1]"
+        },
+        "pool_stride": {
+            "type": "list",
+            "value": "[1, 1]"
+        },
+        "pool_type": {
+            "type": "string",
+            "value": "avg"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "False"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "pool2d",
+    "param_info": {
+        "ceil_mode": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "exclusive": {
+            "type": "bool",
+            "value": "True"
+        },
+        "global_pooling": {
+            "type": "bool",
+            "value": "True"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, 7L, 7L]",
+            "type": "Variable"
+        },
+        "pool_padding": {
+            "type": "list",
+            "value": "[0, 0]"
+        },
+        "pool_size": {
+            "type": "list",
+            "value": "[-1, -1]"
+        },
+        "pool_stride": {
+            "type": "list",
+            "value": "[1, 1]"
+        },
+        "pool_type": {
+            "type": "string",
+            "value": "avg"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "True"
+        }
+    },
+    "repeat": 10000
+}, {
+    "op": "pool2d",
+    "param_info": {
+        "ceil_mode": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "exclusive": {
+            "type": "bool",
+            "value": "True"
+        },
+        "global_pooling": {
+            "type": "bool",
+            "value": "False"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 64L, 112L, 112L]",
+            "type": "Variable"
+        },
+        "pool_padding": {
+            "type": "list",
+            "value": "[1, 1]"
+        },
+        "pool_size": {
+            "type": "list",
+            "value": "[3, 3]"
+        },
+        "pool_stride": {
+            "type": "list",
+            "value": "[2, 2]"
+        },
+        "pool_type": {
+            "type": "string",
+            "value": "max"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "False"
+        }
+    },
+    "repeat": 10000
+}, {
+    "op": "pool2d",
+    "param_info": {
+        "ceil_mode": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "exclusive": {
+            "type": "bool",
+            "value": "True"
+        },
+        "global_pooling": {
+            "type": "bool",
+            "value": "False"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 64L, 112L, 112L]",
+            "type": "Variable"
+        },
+        "pool_padding": {
+            "type": "list",
+            "value": "[1, 1]"
+        },
+        "pool_size": {
+            "type": "list",
+            "value": "[3, 3]"
+        },
+        "pool_stride": {
+            "type": "list",
+            "value": "[2, 2]"
+        },
+        "pool_type": {
+            "type": "string",
+            "value": "max"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "True"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "pool2d",
+    "param_info": {
+        "ceil_mode": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "exclusive": {
+            "type": "bool",
+            "value": "True"
+        },
+        "global_pooling": {
+            "type": "bool",
+            "value": "False"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, -1L, -1L]",
+            "type": "Variable"
+        },
+        "pool_padding": {
+            "type": "list",
+            "value": "[0, 0]"
+        },
+        "pool_size": {
+            "type": "list",
+            "value": "[2, 2]"
+        },
+        "pool_stride": {
+            "type": "list",
+            "value": "[2, 2]"
+        },
+        "pool_type": {
+            "type": "string",
+            "value": "avg"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "True"
+        }
+    },
+    "repeat": 10000
+}, {
+    "op": "pool2d",
+    "param_info": {
+        "ceil_mode": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "exclusive": {
+            "type": "bool",
+            "value": "True"
+        },
+        "global_pooling": {
+            "type": "bool",
+            "value": "False"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, -1L, -1L]",
+            "type": "Variable"
+        },
+        "pool_padding": {
+            "type": "list",
+            "value": "[0, 0]"
+        },
+        "pool_size": {
+            "type": "list",
+            "value": "[2, 2]"
+        },
+        "pool_stride": {
+            "type": "list",
+            "value": "[2, 2]"
+        },
+        "pool_type": {
+            "type": "string",
+            "value": "avg"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "False"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "pool2d",
+    "param_info": {
+        "ceil_mode": {
+            "type": "bool",
+            "value": "True"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "exclusive": {
+            "type": "bool",
+            "value": "True"
+        },
+        "global_pooling": {
+            "type": "bool",
+            "value": "False"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L, -1L, -1L]",
+            "type": "Variable"
+        },
+        "pool_padding": {
+            "type": "list",
+            "value": "[0, 0]"
+        },
+        "pool_size": {
+            "type": "list",
+            "value": "[2, 2]"
+        },
+        "pool_stride": {
+            "type": "list",
+            "value": "[2, 2]"
+        },
+        "pool_type": {
+            "type": "string",
+            "value": "avg"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "True"
+        }
+    },
+    "repeat": 10000
+}, {
+    "op": "pool2d",
+    "param_info": {
+        "ceil_mode": {
+            "type": "bool",
+            "value": "True"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "exclusive": {
+            "type": "bool",
+            "value": "True"
+        },
+        "global_pooling": {
+            "type": "bool",
+            "value": "False"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L, -1L, -1L]",
+            "type": "Variable"
+        },
+        "pool_padding": {
+            "type": "list",
+            "value": "[0, 0]"
+        },
+        "pool_size": {
+            "type": "list",
+            "value": "[2, 2]"
+        },
+        "pool_stride": {
+            "type": "list",
+            "value": "[2, 2]"
+        },
+        "pool_type": {
+            "type": "string",
+            "value": "avg"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "False"
+        }
+    },
+    "repeat": 5000
+}]

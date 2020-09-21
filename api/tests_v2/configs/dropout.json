@@ -1,0 +1,104 @@
+[{
+    "op": "dropout",
+    "param_info": {
+        "dropout_implementation": {
+            "type": "string",
+            "value": "downgrade_in_infer"
+        },
+        "dropout_prob": {
+            "type": "float",
+            "value": "0.5"
+        },
+        "is_test": {
+            "type": "bool",
+            "value": "False"
+        },
+        "seed": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 36864L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 2000
+}, {
+    "op": "dropout",
+    "param_info": {
+        "dropout_implementation": {
+            "type": "string",
+            "value": "downgrade_in_infer"
+        },
+        "dropout_prob": {
+            "type": "float",
+            "value": "0.1"
+        },
+        "is_test": {
+            "type": "bool",
+            "value": "False"
+        },
+        "seed": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 16L, -1L, -1L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 2000
+}, {
+    "op": "dropout",
+    "param_info": {
+        "dropout_implementation": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "dropout_prob": {
+            "type": "float",
+            "value": "0.65"
+        },
+        "is_test": {
+            "type": "bool",
+            "value": "False"
+        },
+        "seed": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 35L, 1500L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 2000
+}, {
+    "op": "dropout",
+    "param_info": {
+        "dropout_implementation": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "dropout_prob": {
+            "type": "float",
+            "value": "0.1"
+        },
+        "is_test": {
+            "type": "bool",
+            "value": "False"
+        },
+        "seed": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 16L, -1L, -1L]",
+            "type": "Variable"
+        }
+    }
+}]
