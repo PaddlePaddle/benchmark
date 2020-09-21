@@ -1,0 +1,41 @@
+[{
+    "op": "linspace",
+    "param_info": {
+        "start_dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "stop_dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "num": {
+            "type": "int",
+            "value": "5"
+        },
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        }
+    }
+}, {
+    "op": "linspace",
+    "param_info": {
+        "start_dtype": {
+            "type": "string",
+            "value": "float64"
+        },
+        "stop_dtype": {
+            "type": "string",
+            "value": "float64"
+        },
+        "num": {
+            "type": "int",
+            "value": "20"
+        },
+        "dtype": {
+            "type": "string",
+            "value": "float64"
+        }
+    }
+}]
