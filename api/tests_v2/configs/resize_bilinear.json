@@ -1,0 +1,175 @@
+[{
+    "op": "resize_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "True"
+        },
+        "align_mode": {
+            "type": "int",
+            "value": "1"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 64L, 402L]",
+            "type": "Variable"
+        },
+        "out_shape": {
+            "type": "list",
+            "value": "[128L, 402L]"
+        },
+        "scale": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "resize_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "True"
+        },
+        "align_mode": {
+            "type": "int",
+            "value": "1"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 64L, 402L, 512L]",
+            "type": "Variable"
+        },
+        "out_shape": {
+            "type": "list",
+            "value": "[128L, 402L]"
+        },
+        "scale": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "resize_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "True"
+        },
+        "align_mode": {
+            "type": "int",
+            "value": "1"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "out_shape": {
+            "type": "tuple",
+            "value": "(33L, 33L)"
+        },
+        "scale": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "resize_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "True"
+        },
+        "align_mode": {
+            "type": "int",
+            "value": "1"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 1L, 1L, 256L]",
+            "type": "Variable"
+        },
+        "out_shape": {
+            "type": "tuple",
+            "value": "(33L, 33L)"
+        },
+        "scale": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "resize_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "True"
+        },
+        "align_mode": {
+            "type": "int",
+            "value": "1"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 19L, 129L, 129L]",
+            "type": "Variable"
+        },
+        "out_shape": {
+            "type": "tuple",
+            "value": "(513L, 513L)"
+        },
+        "scale": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "resize_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "True"
+        },
+        "align_mode": {
+            "type": "int",
+            "value": "1"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 129L, 129L, 19L]",
+            "type": "Variable"
+        },
+        "out_shape": {
+            "type": "tuple",
+            "value": "(513L, 513L)"
+        },
+        "scale": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}]

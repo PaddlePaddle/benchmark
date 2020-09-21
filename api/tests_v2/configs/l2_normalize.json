@@ -1,0 +1,18 @@
+[{
+    "op": "l2_normalize",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-12"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 128L]",
+            "type": "Variable"
+        }
+    }
+}]
