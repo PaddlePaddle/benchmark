@@ -15,11 +15,6 @@
 from common_import import *
 
 
-class LogSoftmaxConfig(APIConfig):
-    def __init__(self):
-        super(LogSoftmaxConfig, self).__init__("log_softmax")
-
-
 class PDLogSoftmax(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
@@ -43,4 +38,4 @@ class TFLogSoftmax(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDLogSoftmax(), TFLogSoftmax(), config=LogSoftmaxConfig())
+    test_main(PDLogSoftmax(), TFLogSoftmax(), config=APIConfig("log_softmax"))
