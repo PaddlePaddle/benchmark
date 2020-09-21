@@ -1,13 +1,13 @@
 [{
     "op": "linspace",
     "param_info": {
-        "start_dtype": {
-            "type": "string",
-            "value": "float64"
+        "start": {
+            "type": "int",
+            "value": "-100"
         },
-        "stop_dtype": {
-            "type": "string",
-            "value": "float64"
+        "stop": {
+            "type": "int",
+            "value": "100"
         },
         "num": {
             "type": "int",
@@ -21,13 +21,13 @@
 }, {
     "op": "linspace",
     "param_info": {
-        "start_dtype": {
-            "type": "string",
-            "value": "float64"
+        "start": {
+            "type": "float32",
+            "value": "32"
         },
-        "stop_dtype": {
-            "type": "string",
-            "value": "float64"
+        "stop": {
+            "type": "float32",
+            "value": "1345"
         },
         "num": {
             "type": "int",
