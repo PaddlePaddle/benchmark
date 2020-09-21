@@ -25,8 +25,8 @@ class ArgConfig(APIConfig):
 class PDArg(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        # self.default_layers can import "paddle." 
-        result = self.default_layers(config.api_name, x=x, axis=config.axis)
+        # self.layers can import "paddle." 
+        result = self.layers(config.api_name, x=x, axis=config.axis)
 
         self.feed_vars = [x]
         self.fetch_vars = [result]
@@ -35,9 +35,8 @@ class PDArg(PaddleAPIBenchmarkBase):
 class TFArg(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        #self.default_layers can import "tensorflow.", "tensorflow.math.", "tensorflow.nn."
-        result = self.default_layers(
-            config.api_name, input=x, axis=config.axis)
+        #self.layers can import "tensorflow.", "tensorflow.math.", "tensorflow.nn."
+        result = self.layers(config.api_name, input=x, axis=config.axis)
 
         self.feed_list = [x]
         self.fetch_list = [result]
