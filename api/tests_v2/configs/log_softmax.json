@@ -1,0 +1,27 @@
+[{
+    "op": "log_softmax",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 64L]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    }
+}, {
+    "op": "log_softmax",
+    "param_info": {
+        "x": {
+            "dtype": "float64",
+            "shape": "[-1L, 64L]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    }
+}]
