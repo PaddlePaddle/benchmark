@@ -3,11 +3,11 @@
     "param_info": {
         "start_dtype": {
             "type": "string",
-            "value": "float32"
+            "value": "float64"
         },
         "stop_dtype": {
             "type": "string",
-            "value": "float32"
+            "value": "float64"
         },
         "num": {
             "type": "int",
@@ -15,7 +15,7 @@
         },
         "dtype": {
             "type": "string",
-            "value": "float32"
+            "value": "float64"
         }
     }
 }, {
