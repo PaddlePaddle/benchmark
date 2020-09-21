@@ -126,8 +126,14 @@ class PaddleAPIBenchmarkBase(object):
             self._feed_dict[var] = feed_value
         return var
 
-    def layers(self, name, **kwargs):
+    def fluid_layers(self, name, **kwargs):
         module = importlib.import_module("paddle.fluid.layers")
+        func = getattr(module, name)
+        result = func(**kwargs)
+        return result
+
+    def layers(self, name, **kwargs):
+        module = importlib.import_module("paddle")
         func = getattr(module, name)
         result = func(**kwargs)
         return result

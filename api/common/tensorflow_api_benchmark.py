@@ -206,7 +206,7 @@ class TensorflowAPIBenchmarkBase(object):
             self._feed_dict[var] = feed_value
         return var
 
-    def layers(self, api_name, module_name=None, **kwargs):
+    def fluid_layers(self, api_name, module_name=None, **kwargs):
         def _import_func(tf_module_name, api_name):
             try:
                 module = importlib.import_module(tf_module_name)
@@ -228,6 +228,10 @@ class TensorflowAPIBenchmarkBase(object):
 
         assert func is not None, "Need to specify module_name to import %s." % api_name
         result = func(**kwargs)
+        return result
+
+    def layers(self, api_name, module_name=None, **kwargs):
+        result = self.fluid_layers(api_name, module_name, **kwargs)
         return result
 
     @property
