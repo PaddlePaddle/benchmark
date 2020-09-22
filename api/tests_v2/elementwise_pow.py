@@ -15,6 +15,39 @@
 from common_import import *
 
 
+class ElementwisePowConfig(APIConfig):
+    def __init__(self):
+        super(ElementwisePowConfig, self).__init__('elementwise')
+        self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
+        self.alias_config = APIConfig("elementwise")
+
+    def disabled(self):
+        if self.x_dtype == "float16":
+            return True
+        return False
+
+    def to_tensorflow(self):
+        tf_config = super(ElementwisePowConfig, self).to_tensorflow()
+        if len(self.x_shape) > len(self.y_shape) and self.y_shape != [1]:
+            tf_config.y_shape_unsqueezed = self._unsqueeze_short(
+                short=self.y_shape, long=self.x_shape)
+        elif len(self.x_shape) < len(self.y_shape) and self.x_shape != [1]:
+            tf_config.x_shape_unsqueezed = self._unsqueeze_short(
+                short=self.x_shape, long=self.y_shape)
+        return tf_config
+
+    def _unsqueeze_short(self, short, long):
+        short_extend = np.ones([len(long)], dtype=np.int32).tolist()
+        start = 0
+        for value in short:
+            for i in range(start, len(long)):
+                if long[i] == value:
+                    short_extend[i] = value
+                    start = i
+                    break
+        return short_extend
+
+
 class PDElementwisePow(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
@@ -49,6 +82,4 @@ class TFElementwisePow(TensorflowAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        PDElementwisePow(),
-        TFElementwisePow(),
-        config=APIConfig("elementwise_pow"))
+        PDElementwisePow(), TFElementwisePow(), config=ElementwisePowConfig())
