@@ -15,7 +15,7 @@
         },
         "dtype": {
             "type": "string",
-            "value": "float64"
+            "value": "float32"
         }
     }
 }, {
@@ -31,11 +31,11 @@
         },
         "num": {
             "type": "int",
-            "value": "10"
+            "value": "11"
         },
         "dtype": {
             "type": "string",
-            "value": "float64"
+            "value": "float32"
         }
     }
 }]
