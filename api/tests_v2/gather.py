@@ -29,7 +29,7 @@ class PDGather(PaddleAPIBenchmarkBase):
         x = self.variable(
             name="x", shape=config.x_shape, dtype=config.x_dtype)
         index = self.variable(
-            name="index", shape=config.index_shape, dtype='int32')
+            name="index", shape=config.index_shape, dtype=config.index_dtype)
         result = paddle.gather(x=x, index=index, axis=config.axis)
 
         self.feed_vars = [x, index]
@@ -43,7 +43,7 @@ class TFGather(TensorflowAPIBenchmarkBase):
         params = self.variable(
             name="x", shape=config.x_shape, dtype=config.x_dtype)
         indices = self.variable(
-            name="index", shape=config.index_shape, dtype='int32')
+            name="index", shape=config.index_shape, dtype=config.index_dtype)
         result = tf.gather(params=params, indices=indices, axis=config.axis)
 
         self.feed_list = [params, indices]
