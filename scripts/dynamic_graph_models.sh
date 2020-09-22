@@ -280,9 +280,10 @@ dy_yolov3(){
         echo "cocoapi installed"
     fi
 
+    mkdir -p ~/.cache/paddle/weights
     ln -s ${prepare_path}/yolov3/DarkNet53_pretrained ~/.cache/paddle/weights
     rm -rf dataset/coco
-    ln -s ${data_path}/coco ./dataset/coco
+    ln -s ${data_path}/coco ./dataset/
     rm -rf run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/yolov3/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
