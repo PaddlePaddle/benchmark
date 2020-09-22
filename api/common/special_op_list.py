@@ -50,3 +50,4 @@ ALIAS_OP_MAP = {
     "hierarchical_sigmoid": "hsigmoid",
     "sample_logits": "sampled_softmax_with_cross_entropy"
 }
+
