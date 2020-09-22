@@ -6,7 +6,7 @@
 
 - 从Paddle官网下载发布的[预测库](https://www.paddlepaddle.org.cn/documentation/docs/zh/1.5/advanced_usage/deploy/inference/build_and_install_lib_cn.html#id1)。您需要根据需要部署的服务器的硬件配置（是否支持avx、是否使用mkl、CUDA版本、cuDNN版本），来下载对应的版本。
 
-你可以将准备好的预测库重命名为`fluid_inference`，放置在该测试项目下面，也可以在cmake时通过设置`PADDLE_ROOT`来指定Paddle预测库的位置。
+你可以将准备好的预测库重命名为`paddle_inference`，放置在该测试项目下面，也可以在cmake时通过设置`PADDLE_ROOT`来指定Paddle预测库的位置。
 
 ## 编译推理测试代码
 

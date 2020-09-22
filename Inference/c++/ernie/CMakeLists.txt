@@ -11,7 +11,7 @@ set(USE_SHARED OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 if(NOT PADDLE_ROOT)
-  set(PADDLE_ROOT ${DEMO_SOURCE_DIR}/fluid_inference)
+  set(PADDLE_ROOT ${DEMO_SOURCE_DIR}/paddle_inference)
 endif()
 find_package(Fluid)
 
