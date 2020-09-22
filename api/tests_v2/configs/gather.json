@@ -6,14 +6,14 @@
             "shape": "[-1L]",
             "type": "Variable"
         },
-        "x": {
+        "input": {
             "dtype": "float32",
-            "shape": "[-1L, 100L]",
+            "shape": "[-1L, 1L]",
             "type": "Variable"
         },
-        "axis": {
-            "type": "int32",
-            "value": "0"
+        "overwrite": {
+            "type": "bool",
+            "value": "True"
         }
     }
 }, {
@@ -21,17 +21,17 @@
     "param_info": {
         "index": {
             "dtype": "int32",
-            "shape": "[4L]",
+            "shape": "[-1L, 1L]",
             "type": "Variable"
         },
-        "x": {
+        "input": {
             "dtype": "float32",
             "shape": "[-1L, 256L, 14L, 14L]",
             "type": "Variable"
         },
-        "axis": {
-            "type": "int32",
-            "value": "2"
+        "overwrite": {
+            "type": "bool",
+            "value": "True"
         }
     },
     "repeat": 5000
