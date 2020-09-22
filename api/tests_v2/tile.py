@@ -38,4 +38,4 @@ class TFTile(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDExpand(), TFExpand(), config=APIConfig("tile"))
+    test_main(PDTile(), TFTile(), config=APIConfig("tile"))

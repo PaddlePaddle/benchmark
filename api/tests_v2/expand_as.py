@@ -48,4 +48,4 @@ class TFExpandAs(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDExpand(), TFExpand(), config=APIConfig("expand"))
+    test_main(PDExpandAs(), TFExpandAs(), config=APIConfig("expand_as"))
