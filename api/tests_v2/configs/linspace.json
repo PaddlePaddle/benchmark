@@ -2,12 +2,12 @@
     "op": "linspace",
     "param_info": {
         "start": {
-            "type": "int",
-            "value": "-100"
+            "type": "float64",
+            "value": "-100.0"
         },
         "stop": {
-            "type": "int",
-            "value": "100"
+            "type": "float64",
+            "value": "100.0"
         },
         "num": {
             "type": "int",
@@ -22,16 +22,16 @@
     "op": "linspace",
     "param_info": {
         "start": {
-            "type": "float32",
-            "value": "32"
+            "type": "float64",
+            "value": "32.0"
         },
         "stop": {
-            "type": "float32",
-            "value": "1345"
+            "type": "float64",
+            "value": "82.0"
         },
         "num": {
             "type": "int",
-            "value": "20"
+            "value": "10"
         },
         "dtype": {
             "type": "string",
