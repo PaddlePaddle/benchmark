@@ -25,7 +25,7 @@ BENCHMARK_ROOT=$(cd $(dirname $0)/../../ && pwd)
 
 declare -A FILE_APPROVAL_USER_MAP
 FILE_APPROVAL_USER_MAP=(
-  ["api/common/special_op_list.py"]="Xreki GaoWei8"
+  ["api/common/special_op_list.py"]="GaoWei8 wangchaochaohu zhangting2020"
 )
 
 LOG "[INFO] Get approval list ..."
