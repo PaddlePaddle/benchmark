@@ -1,0 +1,29 @@
+[{
+    "op": "is_v2",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[3L, 7L, 10L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "is_v2",
+    "param_info": {
+        "x": {
+            "dtype": "float16",
+            "shape": "[3L, 7L, 10L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "is_v2",
+    "param_info": {
+        "x": {
+            "dtype": "float64",
+            "shape": "[3L, 7L, 10L]",
+            "type": "Variable"
+        }
+    }
+}
+]
