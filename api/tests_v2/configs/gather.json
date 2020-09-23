@@ -26,12 +26,12 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[-1L, 256L, 16L, 16L]",
+            "shape": "[-1L, 256L, 14L, 14L]",
             "type": "Variable"
         },
         "axis": {
             "type": "int32",
-            "value": "1"
+            "value": "0"
         }
     },
     "repeat": 5000
