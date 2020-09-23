@@ -15,34 +15,29 @@
 from common_import import *
 
 
-
-class PDMaskedSelect(PaddleAPIBenchmarkBase):
+class PDReshape(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name="x", shape=config.x_shape, dtype=config.x_dtype)
-        mask = self.variable(
-            name="mask", shape=config.x_shape, dtype=config.mask_dtype)
-        result = paddle.masked_select(x, mask)
+        data = self.variable(
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.reshape(x=data, shape=config.shape)
 
-        self.feed_vars = [x, mask]
+        self.feed_vars = [data]
         self.fetch_vars = [result]
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(result, [data])
 
 
-class TFMaskedSelect(TensorflowAPIBenchmarkBase):
+class TFReshape(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        tensor = self.variable(
-            name="x", shape=config.x_shape, dtype=config.x_dtype)
-        mask = self.variable(
-            name="mask", shape=config.x_shape, dtype=config.mask_dtype)
-        result = tf.boolean_mask(tensor=tensor, mask=mask)
+        data = self.variable(
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.reshape(tensor=data, shape=config.shape)
 
-        self.feed_list = [tensor, mask]
+        self.feed_list = [data]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [tensor])
+            self.append_gradients(result, [data])
 
 
 if __name__ == '__main__':
-    test_main(PDMaskedSelect(), TFMaskedSelect(), config=APIConfig("masked_select"))
+    test_main(PDReshape(), TFReshape(), config=APIConfig("reshape"))

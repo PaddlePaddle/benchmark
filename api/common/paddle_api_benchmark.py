@@ -21,6 +21,7 @@ import contextlib
 import importlib
 import logging
 import numpy as np
+import sys
 
 if six.PY3:
     from . import utils
