@@ -67,6 +67,7 @@ function run_api(){
     [ -f "${BENCHMARK_ROOT}/api/${api}.py" ] && API_NAMES[${#API_NAMES[@]}]=$api
     if [[ "$file" =~ ".json" ]]
     then
+      [ -f "${BENCHMARK_ROOT}/api/${api/configs\//}.py" ] && API_NAMES[${#API_NAMES[@]}]=${api/configs\//}
       for sub_file in $(grep -l "APIConfig(.${api##*/}.)" ${BENCHMARK_ROOT}/api/tests_v2/*.py)
       do
         sub_api=${sub_file#*api/} && sub_api=${sub_api%.*}
