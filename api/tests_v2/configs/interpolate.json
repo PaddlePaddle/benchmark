@@ -36,7 +36,7 @@
         },
         "data_format": {
             "type": "string",
-            "value": "NHWC"
+            "value": "NCHW"
         },
         "interp_mode": {
             "type": "string",
@@ -137,6 +137,35 @@
         "size": {
             "type": "list",
             "value": "[8L,8L]"
+        },
+        "scale": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interpolate",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "True"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NDHWC"
+        },
+        "interp_mode": {
+            "type": "string",
+            "value": "TRILINEAR"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 4L, 8L, 64L, 64L]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "list",
+            "value": "[16L, 8L, 32L]"
         },
         "scale": {
             "type": "string",
