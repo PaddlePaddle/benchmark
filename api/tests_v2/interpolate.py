@@ -27,7 +27,7 @@ class PDInterpolate(PaddleAPIBenchmarkBase):
         out = paddle.nn.functional.interpolate(
             x,
             size=config.size,
-            mode=config.interp_mode,
+            mode=str.lower(config.interp_mode),
             align_corners=config.align_corners,
             data_format=config.data_format)
         self.feed_vars = [x]
