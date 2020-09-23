@@ -27,7 +27,7 @@ class PDMaskedSelect(PaddleAPIBenchmarkBase):
         self.feed_vars = [x, mask]
         self.fetch_vars = [result]
         if config.backward:
-            self.append_gradients(result, [x, mask])
+            self.append_gradients(result, [x])
 
 
 class TFMaskedSelect(TensorflowAPIBenchmarkBase):
@@ -41,7 +41,7 @@ class TFMaskedSelect(TensorflowAPIBenchmarkBase):
         self.feed_list = [tensor, mask]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [tensor, mask])
+            self.append_gradients(result, [tensor])
 
 
 if __name__ == '__main__':
