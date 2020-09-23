@@ -1,14 +1,6 @@
 [{
     "op": "reshape",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
-        "actual_shape": {
-            "type": "string",
-            "value": "None"
-        },
         "shape": {
             "type": "list",
             "value": "[-1, 19]"
@@ -23,14 +15,6 @@
 }, {
     "op": "reshape",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
-        "actual_shape": {
-            "type": "string",
-            "value": "None"
-        },
         "shape": {
             "type": "list",
             "value": "[-1, 1]"
