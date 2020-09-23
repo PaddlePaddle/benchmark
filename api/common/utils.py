@@ -213,6 +213,9 @@ def check_outputs(list1,
             if isinstance(
                     output2,
                     tf.python.framework.indexed_slices.IndexedSlicesValue):
+                print(
+                    "Warning: The type of tensorflow output is IndexedSlicesValue, Skip all check, It will be fixed later."
+                )
                 break
 
             output1, output2 = _check_type(output1, output2)
