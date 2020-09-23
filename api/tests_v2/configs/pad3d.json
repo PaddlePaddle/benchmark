@@ -1,0 +1,53 @@
+[{
+    "op": "pad3d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCDHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L, 64L, 64L, 64L]",
+            "type": "Variable"
+        },
+        "mode": {
+            "type": "string",
+            "value": "constant"
+        },
+        "pad_value": {
+            "type": "float",
+            "value": "0.0"
+        },
+        "paddings": {
+            "type": "list",
+            "value": "[1, 2, 3, 4, 5, 6]"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "pad3d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCDHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L, 64L, 64L, 64L]",
+            "type": "Variable"
+        },
+        "mode": {
+            "type": "string",
+            "value": "reflect"
+        },
+        "pad_value": {
+            "type": "float",
+            "value": "0.0"
+        },
+        "paddings": {
+            "type": "list",
+            "value": "[1, 2, 3, 4, 5, 6]"
+        }
+    },
+    "repeat": 5000
+}]

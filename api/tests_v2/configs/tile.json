@@ -1,35 +1,35 @@
 [{
-    "op": "expand",
+    "op": "tile",
     "param_info": {
-        "expand_shape": {
+        "repeat_times": {
             "type": "list",
-            "value": "[1785L, 128L]"
+            "value": "[1, 1, 2]"
         },
         "x": {
             "dtype": "float32",
-            "shape": "[1785L, 1L]",
+            "shape": "[-1L, 1785L, 1L]",
             "type": "Variable"
         }
     }
 }, {
-    "op": "expand",
+    "op": "tile",
     "param_info": {
-        "expand_shape": {
+        "repeat_times": {
             "type": "list",
-            "value": "[5L, 128L, 128L]"
+            "value": "[1, 1, 128L, 128L]"
         },
         "x": {
             "dtype": "float32",
-            "shape": "[5L, 1L, 1L]",
+            "shape": "[-1L, 5L, 1L, 1L]",
             "type": "Variable"
         }
     }
 }, {
-    "op": "expand",
+    "op": "tile",
     "param_info": {
-        "expand_shape": {
+        "repeat_times": {
             "type": "list",
-            "value": "[32L, 807L, 807L]"
+            "value": "[4, 1, 807]"
         },
         "x": {
             "dtype": "float32",
