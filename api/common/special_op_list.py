@@ -25,6 +25,9 @@ NO_BACKWARD_OPS = [
     "null", "one_hot", "scale", "sequence_mask", "shape", "zeros_like"
 ]
 
+# length of tf gradient length is different with paddle.
+BACKWARD_CHECK_DIFF_OPS = ["TFTopK"]
+
 NO_NEED_ARGS = {
     "batch_norm": ["moving_mean_name", "moving_variance_name"],
     "embedding": ["is_distributed"]
@@ -50,4 +53,3 @@ ALIAS_OP_MAP = {
     "hierarchical_sigmoid": "hsigmoid",
     "sample_logits": "sampled_softmax_with_cross_entropy"
 }
-
