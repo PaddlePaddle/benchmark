@@ -12,13 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from common_import import test_main
-from common_import import APIConfig
-from common_import import PaddleAPIBenchmarkBase
-from common_import import TensorflowAPIBenchmarkBase
-
-import paddle
-import tensorflow as tf
+from common_import import *
 
 
 class PDTranspose(PaddleAPIBenchmarkBase):
