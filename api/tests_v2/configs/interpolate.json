@@ -32,7 +32,7 @@
     "param_info": {
         "align_corners": {
             "type": "bool",
-            "value": "True"
+            "value": "False"
         },
         "data_format": {
             "type": "string",
