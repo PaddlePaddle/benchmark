@@ -44,3 +44,4 @@ class TFArg(TensorflowAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(PDArg(), TFArg(), config=ArgConfig())
+
