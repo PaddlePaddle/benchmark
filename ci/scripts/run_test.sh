@@ -18,8 +18,10 @@
 #                   Utils
 #=================================================
 
+set +ex
+
 function LOG {
-  echo [$(basename $0):${BASH_LINENO[0]}] $* >&2
+  echo [$0:${BASH_LINENO[0]}] $* >&2
 }
 
 LOG "[INFO] Start run op benchmark test ..."
@@ -35,8 +37,8 @@ function prepare_env(){
   # Install latest paddle
   PADDLE_WHL="paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl"
   PADDLE_URL="https://paddle-wheel.bj.bcebos.com/0.0.0-gpu-cuda10-cudnn7-mkl/${PADDLE_WHL}"
-  LOG "[INFO] Downloading paddle wheel from ${PADDLE_URL} ..."
-  wget -q ${PADDLE_URL}
+  LOG "[INFO] Downloading paddle wheel from ${PADDLE_URL}, this could take a few minutes ..."
+  wget -q -O ${PADDLE_WHL} ${PADDLE_URL}
   [ $? -ne 0 ] && LOG "[FATAL] Download paddle wheel failed!" && exit -1
   LOG "[INFO] Installing paddle, this could take a few minutes ..."
   pip install -U ${PADDLE_WHL} > /dev/null
@@ -57,18 +59,18 @@ function prepare_env(){
 
 function run_api(){
   LOG "[INFO] Start run api test ..."
-  git checkout . > /dev/null 2>&1
-  API_NAMES=()
-  for file in $(git diff --name-only upstream/master | grep -E "tests_v2/(.*\.py|configs/.*\.json)")
+  API_NAMES=(tests_v2/abs)
+  for file in $(git diff --name-only upstream/master | grep -E "api/tests(_v2)?/(.*\.py|configs/.*\.json)")
   do
     LOG "[INFO] Found ${file} modified."
-    api=${file##*/} && api=${api%.*}
-    [ -f "${BENCHMARK_ROOT}/api/tests_v2/${api}.py" ] && API_NAMES[${#API_NAMES[@]}]=$api
+    api=${file#*api/} && api=${api%.*}
+    [ -f "${BENCHMARK_ROOT}/api/${api}.py" ] && API_NAMES[${#API_NAMES[@]}]=$api
     if [[ "$file" =~ ".json" ]]
     then
-      for sub_file in $(grep -l "APIConfig(.${api}.)" ${BENCHMARK_ROOT}/api/tests_v2/*.py)
+      for sub_file in $(grep -l "APIConfig(.${api##*/}.)" ${BENCHMARK_ROOT}/api/tests_v2/*.py)
       do
-        sub_api=${sub_file##*/} && sub_api=${sub_api%.*}
+        sub_api=${sub_file#*api/} && sub_api=${sub_api%.*}
+        LOG "[INFO] Found API $sub_api use config $file"
         API_NAMES[${#API_NAMES[@]}]=$sub_api
       done
     fi
@@ -78,7 +80,7 @@ function run_api(){
   fail_name=()
   for name in ${API_NAMES[@]}
   do
-    bash ${BENCHMARK_ROOT}/api/tests_v2/run.sh $name -1
+    bash ${BENCHMARK_ROOT}/api/${name%/*}/run.sh ${name##*/} -1 >&2
     [ $? -ne 0 ] && fail_name[${#fail_name[@]}]=$name
   done
   if [ ${#fail_name[@]} -ne 0 ]
@@ -94,11 +96,11 @@ function check_style(){
 	pre-commit install > /dev/null
 	commit_files=on
   LOG "[INFO] Check code style via per-commit, this could take a few minutes ..."
-  for file_name in $(git diff --name-only)
+  for file_name in $(git diff --name-only upstream/master)
   do
     pre-commit run --files $file_name >&2 || commit_files=off
   done
-  [ $commit_files == 'off' ] && git diff && exit -1
+  [ $commit_files == 'off' ] && git diff && return -1 || return 0
 }
 
 function summary_problems(){
@@ -139,7 +141,7 @@ function main(){
   check_style_code=$?
   run_api_info=$(run_api)
   run_api_code=$?
-  summary_info $check_style_code "$check_style_info" $run_api_code "$run_api_info"
+  summary_problems $check_style_code "$check_style_info" $run_api_code "$run_api_info"
   LOG "[INFO] Op benchmark run success and no error!"
 }
 
