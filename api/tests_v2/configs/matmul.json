@@ -1,10 +1,6 @@
 [{
     "op": "matmul",
     "param_info": {
-        "alpha": {
-            "type": "float",
-            "value": "1.0"
-        },
         "transpose_x": {
             "type": "bool",
             "value": "False"
@@ -27,10 +23,6 @@
 }, {
     "op": "matmul",
     "param_info": {
-        "alpha": {
-            "type": "float",
-            "value": "1.0"
-        },
         "transpose_x": {
             "type": "bool",
             "value": "False"
@@ -54,10 +46,6 @@
 }, {
     "op": "matmul",
     "param_info": {
-        "alpha": {
-            "type": "float",
-            "value": "1.0"
-        },
         "transpose_x": {
             "type": "bool",
             "value": "False"
@@ -81,10 +69,6 @@
 }, {
     "op": "matmul",
     "param_info": {
-        "alpha": {
-            "type": "float",
-            "value": "1.0"
-        },
         "transpose_x": {
             "type": "bool",
             "value": "False"
@@ -108,10 +92,6 @@
 }, {
     "op": "matmul",
     "param_info": {
-        "alpha": {
-            "type": "float",
-            "value": "1.0"
-        },
         "transpose_x": {
             "type": "bool",
             "value": "False"
@@ -135,10 +115,6 @@
 }, {
     "op": "matmul",
     "param_info": {
-        "alpha": {
-            "type": "float",
-            "value": "1.0"
-        },
         "transpose_x": {
             "type": "bool",
             "value": "False"
@@ -161,10 +137,6 @@
 }, {
     "op": "matmul",
     "param_info": {
-        "alpha": {
-            "type": "float",
-            "value": "1.0"
-        },
         "transpose_x": {
             "type": "bool",
             "value": "False"
@@ -187,10 +159,6 @@
 }, {
     "op": "matmul",
     "param_info": {
-        "alpha": {
-            "type": "float",
-            "value": "1.0"
-        },
         "transpose_x": {
             "type": "bool",
             "value": "False"
@@ -213,10 +181,6 @@
 }, {
     "op": "matmul",
     "param_info": {
-        "alpha": {
-            "type": "float",
-            "value": "1.0"
-        },
         "transpose_x": {
             "type": "bool",
             "value": "False"
@@ -239,10 +203,6 @@
 }, {
     "op": "matmul",
     "param_info": {
-        "alpha": {
-            "type": "float",
-            "value": "1.0"
-        },
         "transpose_x": {
             "type": "bool",
             "value": "False"
@@ -265,10 +225,6 @@
 }, {
     "op": "matmul",
     "param_info": {
-        "alpha": {
-            "type": "float",
-            "value": "1.0"
-        },
         "transpose_x": {
             "type": "bool",
             "value": "False"
