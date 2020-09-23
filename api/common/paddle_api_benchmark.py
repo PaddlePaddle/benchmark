@@ -20,7 +20,9 @@ import traceback
 import contextlib
 import importlib
 import logging
+import warnings
 import numpy as np
+from common import special_op_list
 
 if six.PY3:
     from . import utils
@@ -284,9 +286,11 @@ class PaddleAPIBenchmarkBase(object):
                                                      feeder_adapter)
         if self.__backward != args.backward:
             print(
-                "Warning: Backward is not surported for %s. The tests are all forward."
+                "Backward is not surported for %s in Paddle. It is actually running the forward test."
                 % self.name)
-        # assert self.__backward == args.backward, "Backward is not surported for %s." % self.name
+        if self.name not in special_op_list.NO_BACKWARD_OPS:
+            assert self.__backward == True, "If backward is not surported for %s." \
+                " Please add the \'%s\' in NO_BACKWARD_OPS of api/common/special_op_list.py." % (self.name, self.name)
 
         feed_list = feeder_adapter.to_paddle(self.feed_vars)
         assert len(feed_list) == len(self.feed_vars)
