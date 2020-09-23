@@ -90,7 +90,7 @@
     "param_info": {
         "align_corners": {
             "type": "bool",
-            "value": "True"
+            "value": "False"
         },
         "data_format": {
             "type": "string",
@@ -98,7 +98,7 @@
         },
         "interp_mode": {
             "type": "string",
-            "value": "TRILINEAR"
+            "value": "NEAREST"
         },
         "x": {
             "dtype": "float32",
