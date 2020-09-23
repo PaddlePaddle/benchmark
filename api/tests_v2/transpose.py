@@ -20,6 +20,7 @@ from common_import import TensorflowAPIBenchmarkBase
 import paddle
 import tensorflow as tf
 
+
 class PDTranspose(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
@@ -44,4 +45,3 @@ class TFTranspose(TensorflowAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(PDTranspose(), TFTranspose(), config=APIConfig('transpose'))
-
