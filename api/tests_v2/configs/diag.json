@@ -1,0 +1,69 @@
+[{
+    "op": "diag",
+    "param_info": {
+        "offset": {
+            "type": "int",
+            "value": "0"
+        },
+        "padding_value": {
+            "type": "int",
+            "value": "0"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1000L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "diag",
+    "param_info": {
+        "offset": {
+            "type": "int",
+            "value": "0"
+        },
+        "padding_value": {
+            "type": "int",
+            "value": "0"
+        },
+        "x": {
+            "dtype": "int64",
+            "shape": "[2000L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "diag",
+    "param_info": {
+        "offset": {
+            "type": "int",
+            "value": "5"
+        },
+        "padding_value": {
+            "type": "int",
+            "value": "0"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2000L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "diag",
+    "param_info": {
+        "offset": {
+            "type": "int",
+            "value": "0"
+        },
+        "padding_value": {
+            "type": "int",
+            "value": "9"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2000L]",
+            "type": "Variable"
+        }
+    }
+}]
