@@ -209,8 +209,11 @@ def check_outputs(list1,
         for i in range(num_outputs):
             output1 = list1[i]
             output2 = list2[i]
-            if isinstance(output2, tf.python.framework.indexed_slices.IndexedSlicesValue):
-                break;
+
+            if isinstance(
+                    output2,
+                    tf.python.framework.indexed_slices.IndexedSlicesValue):
+                break
 
             output1, output2 = _check_type(output1, output2)
             output1, output2 = _check_shape(name, output1, output2, i)
