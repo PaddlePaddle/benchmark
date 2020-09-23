@@ -20,7 +20,6 @@ class PDConcat(PaddleAPIBenchmarkBase):
         xs = []
         for i in range(len(config.x_shape)):
             x_i = self.variable(
-
                 name='input_' + str(i),
                 shape=config.x_shape[i],
                 dtype=config.x_dtype[i])

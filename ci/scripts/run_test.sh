@@ -94,8 +94,8 @@ function run_api(){
 
 function check_style(){
   LOG "[INFO] Start check code style ..."
-	pre-commit install > /dev/null
-	commit_files=on
+  pre-commit install > /dev/null
+  commit_files=on
   LOG "[INFO] Check code style via per-commit, this could take a few minutes ..."
   for file_name in $(git diff --name-only upstream/master)
   do
