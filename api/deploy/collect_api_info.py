@@ -22,6 +22,7 @@ import importlib
 package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
 sys.path.append(os.path.join(package_path, "tests"))
+sys.path.append(os.path.join(package_path, "tests_v2"))
 
 from tests.common_import import *
 from common import special_op_list
@@ -35,14 +36,14 @@ SUB_CONFIG_LIST = []
 REGISTER_API_INFO = {}
 
 
-def collect_subconfig_info():
+def collect_subconfig_info(info_dir):
     subclass_list = APIConfig.__subclasses__()
     for i in range(len(subclass_list)):
         class_name = subclass_list[i].__name__
         module_name = hump_to_underline(class_name.replace('Config', ''))
         SUB_CONFIG_LIST.append(module_name)
 
-        module = import_api(module_name)
+        module = import_api(module_name, info_dir)
         obj_class_name = getattr(module, class_name)
         obj = obj_class_name()
 
@@ -81,46 +82,31 @@ def collect_config_info():
         REGISTER_API_INFO[api] = [api, json_file, backward]
 
 
-def write_api_info():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        '--info_file',
-        type=str,
-        default="api_info.txt",
-        help='The file is used to collect API information to automatically run the entire APIs.'
-    )
-    parser.add_argument(
-        '--support_api_file',
-        type=str,
-        default=None,
-        help='The file includes all APIs currently supported by the benchmark system.'
-    )
-
-    args = parser.parse_args()
-    with open(args.info_file, 'w') as f:
+def write_api_info(info_file, support_api_file):
+    with open(info_file, 'w') as f:
         for api in sorted(REGISTER_API_INFO.keys()):
             f.writelines(api + ',' + str(REGISTER_API_INFO[api][0]) + ',' +
                          str(REGISTER_API_INFO[api][1]) + ',' + str(
                              REGISTER_API_INFO[api][2]) + '\n')
 
-    if args.support_api_file:
-        with open(args.support_api_file, 'w') as fo:
+    if support_api_file:
+        with open(support_api_file, 'w') as fo:
             for api in REGISTER_API_INFO.keys():
                 fo.writelines(str(api) + '\n')
 
 
-def import_module():
-    tests_path = os.path.join(package_path, 'tests')
+def import_module(info_dir):
+    tests_path = os.path.join(package_path, info_dir)
     for filename in os.listdir(tests_path):
         api_name = os.path.splitext(filename)[0]
         file_extension = os.path.splitext(filename)[1]
         if file_extension == '.py' and api_name not in NOT_API:
-            module = import_api(api_name)
+            module = import_api(api_name, info_dir)
 
 
-def import_api(api_name):
+def import_api(api_name, info_dir):
     try:
-        module = importlib.import_module("tests." + api_name)
+        module = importlib.import_module(info_dir + "." + api_name)
         module_name = module.__name__.split('.')
         API_LIST.append(module_name[1])
         print("Import {} successfully.".format(module.__name__))
@@ -137,7 +123,27 @@ def hump_to_underline(hunp_str):
 
 
 if __name__ == '__main__':
-    import_module()
-    collect_subconfig_info()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        '--info_dir',
+        type=str,
+        default="tests",
+        help='The direction of op tests.')
+    parser.add_argument(
+        '--info_file',
+        type=str,
+        default="api_info.txt",
+        help='The file is used to collect API information to automatically run the entire APIs.'
+    )
+    parser.add_argument(
+        '--support_api_file',
+        type=str,
+        default=None,
+        help='The file includes all APIs currently supported by the benchmark system.'
+    )
+
+    args = parser.parse_args()
+    import_module(args.info_dir)
+    collect_subconfig_info(args.info_dir)
     collect_config_info()
-    write_api_info()
+    write_api_info(args.info_file, args.support_api_file)

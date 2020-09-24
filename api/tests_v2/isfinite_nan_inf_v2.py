@@ -15,9 +15,9 @@
 from common_import import *
 
 
-class IsFiniteNanInfV2Config(APIConfig):
+class IsfiniteNanInfV2Config(APIConfig):
     def __init__(self):
-        super(IsFiniteNanInfV2Config, self).__init__("isfinite_nan_inf_v2")
+        super(IsfiniteNanInfV2Config, self).__init__("isfinite_nan_inf_v2")
         self.api_name = 'isfinite'
         self.api_list = {
             'isfinite': 'is_finite',
@@ -26,7 +26,7 @@ class IsFiniteNanInfV2Config(APIConfig):
         }
 
 
-class PDIsFiniteNanInfV2(PaddleAPIBenchmarkBase):
+class PDIsfiniteNanInfV2(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = self.layers(config.api_name, x=x)
@@ -35,7 +35,7 @@ class PDIsFiniteNanInfV2(PaddleAPIBenchmarkBase):
         self.fetch_vars = [out]
 
 
-class TFIsFiniteNanInfV2(TensorflowAPIBenchmarkBase):
+class TFIsfiniteNanInfV2(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = self.layers(config.api_name, x=x)
@@ -46,6 +46,6 @@ class TFIsFiniteNanInfV2(TensorflowAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        PDIsFiniteNanInfV2(),
-        TFIsFiniteNanInfV2(),
-        config=IsFiniteNanInfV2Config())
+        PDIsfiniteNanInfV2(),
+        TFIsfiniteNanInfV2(),
+        config=IsfiniteNanInfV2Config())
