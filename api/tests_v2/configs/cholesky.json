@@ -6,13 +6,13 @@
             "shape": "[-1L, 1L, 3L, 3L]",
             "type": "Variable"
         },
-        "upper":{
+        "upper": {
             "dtype": "string",
             "value": "False",
             "type": "bool"
         }
     }
-},{
+}, {
     "op": "cholesky",
     "param_info": {
         "x": {
@@ -20,7 +20,7 @@
             "shape": "[-1L, 1L, 2L, 3L]",
             "type": "Variable"
         },
-        "upper":{
+        "upper": {
             "dtype": "string",
             "value": "False",
             "type": "bool"
