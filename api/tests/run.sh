@@ -26,7 +26,7 @@ run_args="--task ${task} \
           --config_id ${config_id} \
           --check_output False \
           --profiler none \
-          --backward False \
+          --backward True \
           --use_gpu True \
           --repeat 1 \
           --allow_adaptive_repeat False \

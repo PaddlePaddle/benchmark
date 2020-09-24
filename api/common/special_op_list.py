@@ -26,6 +26,9 @@ NO_BACKWARD_OPS = [
     "unique"
 ]
 
+# length of tf gradient length is different with paddle.
+BACKWARD_CHECK_DIFF_OPS = ["TFTopK"]
+
 NO_NEED_ARGS = {
     "batch_norm": ["moving_mean_name", "moving_variance_name"],
     "embedding": ["is_distributed"]
