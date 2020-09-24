@@ -20,8 +20,8 @@ class PDPixelShuffle(PaddleAPIBenchmarkBase):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = paddle.nn.functional.pixel_shuffle(
             x=x,
-            upscale_factor=self.upscale_factor,
-            data_format=self.data_format)
+            upscale_factor=config.upscale_factor,
+            data_format=config.data_format)
 
         self.feed_vars = [x]
         self.fetch_vars = [out]
