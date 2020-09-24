@@ -15,7 +15,7 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 512L, 12L, 32L, 64L]",
+            "shape": "[-1L, 25L, 12L, 32L, 64L]",
             "type": "Variable"
         },
         "size": {
@@ -44,7 +44,7 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 218L, 7L, 8L, 9L]",
+            "shape": "[-1L, 25L, 7L, 8L, 9L]",
             "type": "Variable"
         },
         "size": {
@@ -73,7 +73,7 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 5L, 64L, 64L, 64L]",
+            "shape": "[-1L, 5L, 12L, 24L, 8L]",
             "type": "Variable"
         },
         "size": {
