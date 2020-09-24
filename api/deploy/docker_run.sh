@@ -226,8 +226,6 @@ function run(){
             -v /usr/bin/monquery:/usr/bin/monquery \
             -e "BENCHMARK_WEBSITE1=${BENCHMARK_WEBSITE1}" \
             -e "BENCHMARK_WEBSITE2=${BENCHMARK_WEBSITE2}" \
-            -e "BENCHMARK_WEBSITE3=${BENCHMARK_WEBSITE3}" \
-            -e "BENCHMARK_WEBSITE4=${BENCHMARK_WEBSITE4}" \
             -e "http_proxy=${HTTP_PROXY}" \
             -e "https_proxy=${HTTP_PROXY}" \
             -e "PADDLE_VERSION=${PADDLE_VERSION}" \
