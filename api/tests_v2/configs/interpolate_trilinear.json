@@ -1,0 +1,88 @@
+[{
+    "op": "interp_trilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCDHW"
+        },
+        "interp_mode": {
+            "type": "string",
+            "value": "trilinear"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 12L, 32L, 64L]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "list",
+            "value": "[64L, 16L, 32L]"
+        },
+        "scale": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_trilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "True"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCDHW"
+        },
+        "interp_mode": {
+            "type": "string",
+            "value": "trilinear"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 218L, 7L, 8L, 9L]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "string",
+            "value": "None"
+        },
+        "scale": {
+            "type": "float32",
+            "value": "2.0"
+        }
+    }
+}, {
+    "op": "interp_trilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCDHW"
+        },
+        "interp_mode": {
+            "type": "string",
+            "value": "trilinear"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 5L, 64L, 64L, 64L]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "string",
+            "value": "None"
+        },
+        "scale": {
+            "type": "list",
+            "value": "[2L,3L,4L]"
+        }
+    }
+}]

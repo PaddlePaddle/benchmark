@@ -15,20 +15,21 @@
 from common_import import *
 
 
-class InterpolateConfig(APIConfig):
+class InterpTrilinearConfig(APIConfig):
     def __init__(self):
-        super(InterpolateConfig, self).__init__("interpolate")
+        super(InterpTrilinearConfig, self).__init__("interp_trilinear")
         self.run_tf = False
 
 
-class PDInterpolate(PaddleAPIBenchmarkBase):
+class PDInterpTrilinear(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = paddle.nn.functional.interpolate(
             x,
             size=config.size,
-            mode=str.lower(config.interp_mode),
+            mode="trilinear",
             align_corners=config.align_corners,
+            scale_factor=config.scale,
             data_format=config.data_format)
         self.feed_vars = [x]
         self.fetch_vars = [out]
@@ -37,4 +38,4 @@ class PDInterpolate(PaddleAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDInterpolate(), config=InterpolateConfig())
+    test_main(PDInterpTrilinear(), config=InterpTrilinearConfig())
