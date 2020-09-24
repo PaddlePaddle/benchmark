@@ -41,8 +41,7 @@ class PDGather(PaddleAPIBenchmarkBase):
             shape=config.index_shape,
             dtype=config.index_dtype,
             stop_gradient=True)
-        result = paddle.gather(
-            x=x, index=index, axis=config.axis)
+        result = paddle.gather(x=x, index=index, axis=config.axis)
 
         self.feed_vars = [x, index]
         self.fetch_vars = [result]
