@@ -22,7 +22,8 @@ NO_BACKWARD_OPS = [
     "clip_by_norm", "cumsum", "equal", "feed", "fetch", "fill_constant",
     "greater_equal", "greater_than", "increment", "isfinite", "less_equal",
     "less_than", "logical_not", "logical_and", "logical_or", "not_equal",
-    "null", "one_hot", "scale", "sequence_mask", "shape", "zeros_like"
+    "null", "one_hot", "scale", "sequence_mask", "shape", "zeros_like",
+    "floor_divide"
 ]
 
 NO_NEED_ARGS = {
