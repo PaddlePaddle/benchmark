@@ -20,10 +20,10 @@ NO_FETCHES_OPS = ["feed", "null"]
 NO_BACKWARD_OPS = [
     "accuracy", "argmax", "argmin", "argsort", "assign", "cast",
     "clip_by_norm", "cumsum", "equal", "feed", "fetch", "fill_constant",
-    "greater_equal", "greater_than", "increment", "isfinite", "isnan", "isinf",
+    "greater_equal", "greater_than", "increment", "isfinite", "isinf", "isnan",
     "less_equal", "less_than", "logical_not", "logical_and", "logical_or",
     "not_equal", "null", "one_hot", "scale", "sequence_mask", "shape",
-    "zeros_like"
+    "zeros_like", "unique"
 ]
 
 NO_NEED_ARGS = {
