@@ -14,9 +14,6 @@
 
 from common_import import *
 
-# import paddle
-# import tensorflow as tf
-
 
 class PDElementwisePow(PaddleAPIBenchmarkBase):
     def build_program(self, config):
