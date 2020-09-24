@@ -1,14 +1,6 @@
 [{
     "op": "elementwise_pow",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
         "x": {
             "dtype": "float32",
             "shape": "[50L, 128L, 1000L]",
