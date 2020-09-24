@@ -1,0 +1,85 @@
+[{
+  "op": "histogram",
+  "param_info": {
+      "input": {
+        "dtype": "int32",
+        "shape": "[-1L, 64L]",
+        "type": "Variable"
+      },
+      "bins": {
+          "type": "int32",
+          "value": "100"
+      },
+      "min": {
+        "type": "int32",
+        "value": "0"
+      },
+      "max": {
+        "type": "int32",
+        "value": "0"
+      }
+  }
+},{
+  "op": "histogram",
+  "param_info": {
+      "input": {
+        "dtype": "int64",
+        "shape": "[-1L, 64L]",
+        "type": "Variable"
+      },
+      "bins": {
+          "type": "int32",
+          "value": "100"
+      },
+      "min": {
+        "type": "int32",
+        "value": "0"
+      },
+      "max": {
+        "type": "int32",
+        "value": "0"
+      }
+  }
+},{
+  "op": "histogram",
+  "param_info": {
+      "input": {
+        "dtype": "float32",
+        "shape": "[-1L, 64L]",
+        "type": "Variable"
+      },
+      "bins": {
+          "type": "int32",
+          "value": "100"
+      },
+      "min": {
+        "type": "int32",
+        "value": "0"
+      },
+      "max": {
+        "type": "int32",
+        "value": "0"
+      }
+  }
+},{
+  "op": "histogram",
+  "param_info": {
+      "input": {
+        "dtype": "float64",
+        "shape": "[-1L, 64L]",
+        "type": "Variable"
+      },
+      "bins": {
+          "type": "int32",
+          "value": "100"
+      },
+      "min": {
+        "type": "int32",
+        "value": "0"
+      },
+      "max": {
+        "type": "int32",
+        "value": "0"
+      }
+  }
+}]

@@ -28,7 +28,7 @@
         },
         "x": {
             "dtype": "int64",
-            "shape": "[2000L]",
+            "shape": "[1000L]",
             "type": "Variable"
         }
     }
@@ -45,7 +45,7 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[2000L]",
+            "shape": "[1000L]",
             "type": "Variable"
         }
     }
@@ -62,7 +62,7 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[2000L]",
+            "shape": "[1000L]",
             "type": "Variable"
         }
     }
