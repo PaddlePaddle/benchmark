@@ -22,7 +22,6 @@ import json
 import collections
 import subprocess
 import itertools
-import tensorflow as tf
 
 if six.PY3:
     from . import special_op_list
@@ -184,6 +183,7 @@ def check_outputs(list1,
                   atol=1E-6,
                   backward=False,
                   config_params=None):
+    import tensorflow as tf
     if not isinstance(list1, list) or not isinstance(list2, list):
         raise TypeError(
             "input argument's type should be list of numpy.ndarray.")
@@ -216,7 +216,7 @@ def check_outputs(list1,
                 print(
                     "Warning: The type of tensorflow output is IndexedSlicesValue,"
                     "Skip all check, It will be fixed later.")
-                break
+                continue
 
             output1, output2 = _check_type(output1, output2)
             output1, output2 = _check_shape(name, output1, output2, i)
