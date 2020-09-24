@@ -18,141 +18,132 @@
 #                   Utils
 #=================================================
 
-set -ex
+set +ex
 
-if [ -z ${BRANCH} ]; then
-    BRANCH="master"
-fi
-
-BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../.." && pwd )"
-echo ${BENCHMARK_ROOT}
-
-function prepare_env(){
-    # Update pip
-    python -m pip install --upgrade pip
-    # Install latest paddle
-    PADDLE_WHL="paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl"
-    PADDLE_URL="https://paddle-wheel.bj.bcebos.com/0.0.0-gpu-cuda10-cudnn7-mkl/${PADDLE_WHL}"
-    wget -q ${PADDLE_URL}
-    pip install -U ${PADDLE_WHL}
-    # Install tensorflow and other packages
-    pip install tensorflow==2.3.0 pre-commit==1.21 pylint==1.9.4 pytest==4.6.9
-    python -c "import tensorflow as tf; print(tf.__version__)"
-    apt-get update
-    apt-get install -y git
+function LOG {
+  echo [$0:${BASH_LINENO[0]}] $* >&2
 }
 
-function fetch_upstream_master_if_not_exist() {
-    UPSTREAM_URL='https://github.com/PaddlePaddle/benchmark'
-    origin_upstream_url=`git remote -v | awk '{print $1, $2}' | uniq | grep upstream | awk '{print $2}'` 
-    if [ "$origin_upstream_url" == "" ]; then
-        git remote add upstream $UPSTREAM_URL.git
-    elif [ "$origin_upstream_url" != "$UPSTREAM_URL" ] \
-            && [ "$origin_upstream_url" != "$UPSTREAM_URL.git" ]; then
-        git remote remove upstream
-        git remote add upstream $UPSTREAM_URL.git
-    fi
-    
-    if [ ! -e "$PADDLE_ROOT/.git/refs/remotes/upstream/$BRANCH" ]; then 
-        git fetch upstream 
-    fi
+LOG "[INFO] Start run op benchmark test ..."
+
+BENCHMARK_ROOT=$(cd $(dirname $0)/../.. && pwd)
+
+function prepare_env(){
+  # Update pip
+  LOG "[INFO] Update pip ..."
+  python -m pip install --upgrade pip > /dev/null
+  [ $? -ne 0 ] && LOG "[FATAL] Update pip failed!" && exit -1
+
+  # Install latest paddle
+  PADDLE_WHL="paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl"
+  PADDLE_URL="https://paddle-wheel.bj.bcebos.com/0.0.0-gpu-cuda10-cudnn7-mkl/${PADDLE_WHL}"
+  LOG "[INFO] Downloading paddle wheel from ${PADDLE_URL}, this could take a few minutes ..."
+  wget -q -O ${PADDLE_WHL} ${PADDLE_URL}
+  [ $? -ne 0 ] && LOG "[FATAL] Download paddle wheel failed!" && exit -1
+  LOG "[INFO] Installing paddle, this could take a few minutes ..."
+  pip install -U ${PADDLE_WHL} > /dev/null
+  [ $? -ne 0 ] && LOG "[FATAL] Install paddle failed!" && exit -1
+  
+  # Install tensorflow and other packages
+  for package in "tensorflow==2.3.0" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9"
+  do
+    LOG "[INFO] Installing $package, this could take a few minutes ..."
+    pip install $package > /dev/null
+    [ $? -ne 0 ] && LOG "[FATAL] Install $package failed!" && exit -1
+  done
+  python -c "import tensorflow as tf; print(tf.__version__)" > /dev/null
+  [ $? -ne 0 ] && LOG "[FATAL] Install tensorflow success, but it can't work!" && exit -1
+  
+  apt-get update > /dev/null 2> /dev/null
 }
 
 function run_api(){
-    fetch_upstream_master_if_not_exist
-    HAS_MODIFIED_API_TEST=`git diff --name-status upstream/$BRANCH | awk '$1!="D" {print $2}' | grep "api/tests_v2.*.py$" || true`
-    #API_NAMES=(abs elementwise fc)
-    API_NAMES=(abs)
-    if [ "${HAS_MODIFIED_API_TEST}" != "" ] ; then
-        for api in ${HAS_MODIFIED_API_TEST[@]}; do
-            new_name=`echo $api |awk -F "/" '{print $NF}' |awk -F "." '{print $NR}'`
-            if [[ "$new_name" != "main" && "$new_name" != "common_ops" && "$new_name" != "launch" ]]; then
-                need_append="yes"
-                for name in ${API_NAMES[@]}; do
-                    if [ "${name}" == "${new_name}" ]; then
-                        need_append="no"
-                        break
-                    fi
-                done
-                if [ "$need_append" == "yes" ]; then
-                    API_NAMES[${#API_NAMES[@]}]=${new_name}
-                fi
-            fi
-        done
+  LOG "[INFO] Start run api test ..."
+  API_NAMES=(tests_v2/abs)
+  for file in $(git diff --name-only upstream/master | grep -E "api/tests(_v2)?/(.*\.py|configs/.*\.json)")
+  do
+    LOG "[INFO] Found ${file} modified."
+    api=${file#*api/} && api=${api%.*}
+    [ -f "${BENCHMARK_ROOT}/api/${api}.py" ] && API_NAMES[${#API_NAMES[@]}]=$api
+    if [[ "$file" =~ ".json" ]]
+    then
+      [ -f "${BENCHMARK_ROOT}/api/${api/configs\//}.py" ] && API_NAMES[${#API_NAMES[@]}]=${api/configs\//}
+      for sub_file in $(grep -l "APIConfig(.${api##*/}.)" ${BENCHMARK_ROOT}/api/tests_v2/*.py)
+      do
+        sub_api=${sub_file#*api/} && sub_api=${sub_api%.*}
+        LOG "[INFO] Found API $sub_api use config $file"
+        API_NAMES[${#API_NAMES[@]}]=$sub_api
+      done
     fi
-
-    fail_name=()
-    for name in ${API_NAMES[@]}; do
-        bash ${BENCHMARK_ROOT}/api/tests_v2/run.sh $name -1
-        if [ $? -ne 0 ]; then
-            fail_name[${#fail_name[@]}]="$name.py"
-        fi
-    done
-    len=${#fail_name[@]}
-    if [ $len -ne 0 ]; then
-        echo "Failed API TESTS: ${fail_name[@]}"
-        exit 1
-    fi
+  done
+  API_NAMES=($(for api in ${API_NAMES[@]}; do echo $api; done | sort | uniq))
+  LOG "[INFO] These APIs will run: ${API_NAMES[@]}"
+  fail_name=()
+  for name in ${API_NAMES[@]}
+  do
+    bash ${BENCHMARK_ROOT}/api/${name%/*}/run.sh ${name##*/} -1 >&2
+    [ $? -ne 0 ] && fail_name[${#fail_name[@]}]=$name
+  done
+  if [ ${#fail_name[@]} -ne 0 ]
+  then
+    LOG "[FATAL] Failed API tests: ${fail_name[@]}"
+    echo ${fail_name[@]}
+    exit -1
+  fi
 }
-
-
-function abort(){
-    echo "Your change doesn't follow benchmark's code style." 1>&2
-    echo "Please use pre-commit to check what is wrong." 1>&2
-    exit 1
-}
-
 
 function check_style(){
-	trap 'abort' 0
-	pre-commit install
-	commit_files=on
-    	for file_name in `git diff --numstat | awk '{print $NF}'`;do
-        	if [ ! pre-commit run --files $file_name ]; then
-            		git diff
-            		commit_files=off
-        	fi
-    	done
-    	if [ $commit_files == 'off' ];then
-        	echo "code format error"
-        	exit 1
-    	fi
-    	trap 0
+  LOG "[INFO] Start check code style ..."
+  pre-commit install > /dev/null
+  commit_files=on
+  LOG "[INFO] Check code style via per-commit, this could take a few minutes ..."
+  for file_name in $(git diff --name-only upstream/master)
+  do
+    pre-commit run --files $file_name >&2 || commit_files=off
+  done
+  [ $commit_files == 'off' ] && git diff && return -1 || return 0
 }
 
-function build_and_test(){
-    apt_mirror='s#http://archive.ubuntu.com/ubuntu#mirror://mirrors.ubuntu.com/mirrors.txt#g'
-    PADDLE_DEV_NAME='hub.baidubce.com/paddlepaddle/paddle:latest-gpu-cuda10.0-cudnn7'
-    docker pull ${PADDLE_DEV_NAME}
-    nvidia-docker run --net=host $SHM -i --rm -v $PWD:/benchmark -w /benchmark \
-        -v ${GIT_PATH}:${GIT_PATH} \
-        -e "APT_MIRROR=${apt_mirror}" \
-        -e "http_proxy=${http_proxy}" \
-        -e "https_proxy=${https_proxy}" \
-        -e "GITHUB_API_TOKEN=${github_api_token}" \
-        -e "BRANCH=${branch}" \
-        ${PADDLE_DEV_NAME} \
-        bash scripts/run_test.sh run_api_test
+function summary_problems(){
+  local check_style_code=$1
+  local check_style_info=$2
+  local run_api_code=$3
+  local run_api_info=$4
+  if [ $check_style_code -ne 0 -o $run_api_code -ne 0 ]
+  then
+    LOG "[FATAL] ============================================"
+    LOG "[FATAL] Summary problems:"
+    if [ $check_style_code -ne 0 -a $run_api_code -ne 0 ]
+    then
+      LOG "[FATAL] There are 1 errors: Code style error and API test error."
+    else
+      [ $check_style_code -ne 0 ] && LOG "[FATAL] There is 1 error: Code style error."
+      [ $run_api_code -ne 0 ] && LOG "[FATAL] There is 1 error: API test error."
+    fi
+    LOG "[FATAL] ============================================"
+    if [ $check_style_code -ne 0 ]
+    then
+      LOG "[FATAL] === Code style error - Please fix it according to the diff information:"
+      echo "$check_style_info"
+    fi
+    if [ $run_api_code -ne 0 ]
+    then
+      LOG "[FATAL] === API test error - Please fix the failed API tests accroding to fatal log:"
+      LOG "[FATAL] $run_api_info"
+    fi
+    [ $check_style_code -ne 0 ] && exit $check_style_code
+    [ $run_api_code -ne 0 ] && exit $run_api_code
+  fi
 }
 
 function main(){
-    local CMD=$1
-    case $CMD in
-      run_api_test)
-        prepare_env
-        check_style
-        run_api
-        ;;
-      build_test)
-        build_and_test
-        ;;
-	*)
-        echo "Sorry, $CMD not recognized."
-        exit 1
-        ;;
-      esac
-      echo "runtest script finished as expected"
+  prepare_env
+  check_style_info=$(check_style)
+  check_style_code=$?
+  run_api_info=$(run_api)
+  run_api_code=$?
+  summary_problems $check_style_code "$check_style_info" $run_api_code "$run_api_info"
+  LOG "[INFO] Op benchmark run success and no error!"
 }
 
-main $@
-
+main

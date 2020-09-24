@@ -20,6 +20,7 @@ import time
 import abc, six
 import importlib
 import numpy as np
+from common import special_op_list
 
 if six.PY3:
     from . import utils
@@ -247,8 +248,11 @@ class TensorflowAPIBenchmarkBase(object):
         self.__backward = True
         # print("Gradients: ", gradients)
         if isinstance(gradients, list):
-            for grad in gradients:
-                self.fetch_list.append(grad)
+            grad_length = len(gradients)
+            if self.name in special_op_list.BACKWARD_CHECK_DIFF_OPS:
+                grad_length -= 1
+            for i in range(grad_length):
+                self.fetch_list.append(gradients[i])
         else:
             self.fetch_list.append(gradients)
 
@@ -362,7 +366,13 @@ class TensorflowAPIBenchmarkBase(object):
         self.name = config.api_name
         feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
                                                      feeder_adapter)
-        # assert self.__backward == args.backward, "Backward is not surported for %s." % self.name
+        if self.__backward != args.backward:
+            print(
+                "Backward is not surported for %s in Tensorflow. It is actually running the forward test."
+                % self.name)
+            if self.name not in special_op_list.NO_BACKWARD_OPS:
+                assert False, "If backward is not surported for %s. " \
+                    "Please add the \'%s\' in NO_BACKWARD_OPS of api/common/special_op_list.py." % (self.name, self.name)
 
         feed_list = feeder_adapter.to_tensorflow(self.feed_list)
         assert len(feed_list) == len(self.feed_list)

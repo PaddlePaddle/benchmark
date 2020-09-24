@@ -23,8 +23,11 @@ NO_BACKWARD_OPS = [
     "greater_equal", "greater_than", "increment", "isfinite", "less_equal",
     "less_than", "logical_not", "logical_and", "logical_or", "not_equal",
     "null", "one_hot", "scale", "sequence_mask", "shape", "zeros_like",
-    "floor_divide"
+    "unique", "floor_divide"
 ]
+
+# length of tf gradient length is different with paddle.
+BACKWARD_CHECK_DIFF_OPS = ["TFTopK"]
 
 NO_NEED_ARGS = {
     "batch_norm": ["moving_mean_name", "moving_variance_name"],
