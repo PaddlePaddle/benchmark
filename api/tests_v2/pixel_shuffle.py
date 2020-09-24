@@ -34,8 +34,8 @@ class TFPixelShuffle(TensorflowAPIBenchmarkBase):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = tf.nn.depth_to_space(
             input=x,
-            block_size=self.upscale_factor,
-            data_format=self.data_format)
+            block_size=config.upscale_factor,
+            data_format=config.data_format)
 
         self.feed_list = [x]
         self.fetch_list = [out]
