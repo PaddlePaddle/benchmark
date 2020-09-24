@@ -11,7 +11,7 @@
             "value": "3"
         },
         "data_format": {
-            "type": "str",
+            "type": "string",
             "value": "NCHW"
         }
     }
@@ -28,10 +28,9 @@
             "value": "3"
         },
         "data_format": {
-            "type": "str",
+            "type": "string",
             "value": "NHWC"
         }
-
     }
 }, {
     "op": "pixel_shuffle",
@@ -46,7 +45,7 @@
             "value": "3"
         },
         "data_format": {
-            "type": "str",
+            "type": "string",
             "value": "NHWC"
         }
     }
