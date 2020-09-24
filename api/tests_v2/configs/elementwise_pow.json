@@ -3,12 +3,12 @@
     "param_info": {
         "x": {
             "dtype": "float32",
-            "shape": "[50L, 128L, 1000L]",
+            "shape": "[50L, 12L, 100L]",
             "type": "Variable"
         },
         "y": {
             "dtype": "float32",
-            "shape": "[128L, 1000L]",
+            "shape": "[50L, 12L, 100L]",
             "type": "Variable"
         }
     },
@@ -16,22 +16,14 @@
 }, {
     "op": "elementwise_pow",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
-        "axis": {
-            "type": "int",
-            "value": "0"
-        },
         "x": {
             "dtype": "float32",
-            "shape": "[50L, 128L, 1000L]",
+            "shape": "[-1L, 128L, 100L]",
             "type": "Variable"
         },
         "y": {
             "dtype": "float32",
-            "shape": "[1L, 128L, 1000L]",
+            "shape": "[-1L, 128L, 100L]",
             "type": "Variable"
         }
     },
@@ -39,14 +31,6 @@
 }, {
     "op": "elementwise_pow",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
-        "axis": {
-            "type": "int",
-            "value": "0"
-        },
         "x": {
             "dtype": "float32",
             "shape": "[-1L, 2048L, 7L, 7L]",
@@ -62,14 +46,6 @@
 }, {
     "op": "elementwise_pow",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "relu"
-        },
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
         "x": {
             "dtype": "float32",
             "shape": "[-1L, 2048L, -1L, -1L]",
@@ -85,37 +61,6 @@
 }, {
     "op": "elementwise_pow",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[-1L, 1L, 513L, 513L]",
-            "type": "Variable"
-        },
-        "y": {
-            "dtype": "float32",
-            "shape": "[1L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 5000
-}, {
-    "op": "elementwise_pow",
-    "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
         "x": {
             "dtype": "float32",
             "shape": "[512L, 896L, 4L, 12L]",
@@ -123,7 +68,7 @@
         },
         "y": {
             "dtype": "float32",
-            "shape": "[512L, 896L, 4L, 1L]",
+            "shape": "[512L, 896L, 4L, 12L]",
             "type": "Variable"
         }
     },

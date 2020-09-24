@@ -32,15 +32,8 @@ class TFElementwisePow(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        if hasattr(config, "x_shape_unsqueezed"):
-            x_reshape = tf.reshape(tensor=x, shape=config.x_shape_unsqueezed)
-        else:
-            x_reshape = x
-        if hasattr(config, "y_shape_unsqueezed"):
-            y_reshape = tf.reshape(tensor=y, shape=config.y_shape_unsqueezed)
-        else:
-            y_reshape = y
-        result = tf.math.pow(x=x_reshape, y=y_reshape)
+
+        result = tf.math.pow(x=x, y=y)
         self.feed_list = [x, y]
         self.fetch_list = [result]
         if config.backward:
