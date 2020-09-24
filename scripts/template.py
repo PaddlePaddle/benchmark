@@ -46,10 +46,8 @@ RUN_ENV_HOLDER
         </table>
         <HR align=center width="80%" SIZE=1>
         <div style="text-align:center;">
-        <a align=center href="BENCHMARK_WEBSITE1">报警规则</a><br/><br/>
-        <a align=center href="BENCHMARK_WEBSITE2">问题复现指南</a><br/><br/>
-        <a align=center href="BENCHMARK_WEBSITE3">历史详细数据</a><br/><br/>
-        <a align=center href="BENCHMARK_WEBSITE4">异常值和标准值</a>
+        <a align=center href="BENCHMARK_WEBSITE1">参考链接</a><br/><br/>
+        <a align=center href="BENCHMARK_WEBSITE2">Benchmark网站历史详细数据</a><br/><br/>
         </div>
     </body>
 </html>
@@ -155,9 +153,7 @@ class EmailTemplate(object):
         content += self.alarm_info
         # Construct the tail of the message
         content += MAIL_TAIL_CONTENT.replace("BENCHMARK_WEBSITE1", os.getenv("BENCHMARK_WEBSITE1", "")).strip().replace(
-            'RUN_ENV_HOLDER', self.env_content).replace("BENCHMARK_WEBSITE2", os.getenv("BENCHMARK_WEBSITE2")).replace(
-            "BENCHMARK_WEBSITE3", os.getenv("BENCHMARK_WEBSITE3")).replace("BENCHMARK_WEBSITE4",
-                                                                           os.getenv("BENCHMARK_WEBSITE4"))
+            'RUN_ENV_HOLDER', self.env_content).replace("BENCHMARK_WEBSITE2", os.getenv("BENCHMARK_WEBSITE2"))
 
         with open(os.path.join(self.log_path, "mail.html"), "w") as f_object:
             f_object.write(content)
