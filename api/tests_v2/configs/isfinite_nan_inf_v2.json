@@ -1,5 +1,5 @@
 [{
-    "op": "is_v2",
+    "op": "isfinite_nan_inf_v2",
     "param_info": {
         "x": {
             "dtype": "float32",
@@ -8,7 +8,7 @@
         }
     }
 }, {
-    "op": "is_v2",
+    "op": "isfinite_nan_inf_v2",
     "param_info": {
         "x": {
             "dtype": "float16",
@@ -17,7 +17,7 @@
         }
     }
 }, {
-    "op": "is_v2",
+    "op": "isfinite_nan_inf_v2",
     "param_info": {
         "x": {
             "dtype": "float64",
@@ -25,5 +25,4 @@
             "type": "Variable"
         }
     }
-}
-]
+}]
