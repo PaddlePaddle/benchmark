@@ -23,7 +23,7 @@ NO_BACKWARD_OPS = [
     "greater_equal", "greater_than", "increment", "isfinite", "isinf", "isnan",
     "is_finite", "is_inf", "is_nan", "less_equal", "less_than", "logical_not",
     "logical_and", "logical_or", "not_equal", "null", "one_hot", "scale",
-    "sequence_mask", "shape", "zeros_like", "unique"
+    "sequence_mask", "shape", "zeros_like", "unique", "floor_divide"
 ]
 
 # length of tf gradient length is different with paddle.
