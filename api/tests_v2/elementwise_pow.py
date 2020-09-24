@@ -14,11 +14,19 @@
 
 from common_import import *
 
+# import paddle
+# import tensorflow as tf
+
 
 class PDElementwisePow(PaddleAPIBenchmarkBase):
     def build_program(self, config):
+
+        # x = paddle.data(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        # y = paddle.data(name="y", shape=config.y_shape, dtype=config.y_dtype)
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        # print(paddle.pow.__doc__)
+        # print("--------------------------------------",paddle.pow(x, 2))
         result = paddle.pow(x, y)
 
         self.feed_vars = [x, y]
