@@ -11,12 +11,12 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 512L, 64L, 402L]",
+            "shape": "[-1L, 48L, 64L, 256L]",
             "type": "Variable"
         },
         "size": {
             "type": "list",
-            "value": "[128L, 402L]"
+            "value": "[32L, 402L]"
         },
         "scale": {
             "type": "string",
@@ -41,7 +41,7 @@
         },
         "size": {
             "type": "list",
-            "value": "[128L, 402L]"
+            "value": "[32L, 402L]"
         },
         "scale": {
             "type": "string",
@@ -116,7 +116,7 @@
         },
         "size": {
             "type": "tuple",
-            "value": "(513L, 513L)"
+            "value": "(256L, 256L)"
         },
         "scale": {
             "type": "string",
@@ -141,7 +141,7 @@
         },
         "size": {
             "type": "tuple",
-            "value": "(513L, 513L)"
+            "value": "(256L, 256L)"
         },
         "scale": {
             "type": "string",
