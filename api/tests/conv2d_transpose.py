@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from common_import import *
-from ..tests.conv2d import Conv2dConfig
+from tests.conv2d import Conv2dConfig
 
 
 class Conv2dTransposeConfig(Conv2dConfig):

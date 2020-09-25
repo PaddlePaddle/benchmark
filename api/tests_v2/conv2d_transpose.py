@@ -13,12 +13,19 @@
 # limitations under the License.
 
 from common_import import *
-from ..tests.conv2d import Conv2dConfig
 
-
-class Conv2dTransposeConfig(Conv2dConfig):
+class Conv2dTransposeConfig(APIConfig):
     def __init__(self):
         super(Conv2dTransposeConfig, self).__init__("conv2d_transpose")
+        self.feed_spec = [
+            {
+                "range": [-1, 1]
+            },  # input
+            {
+                "range": [-1, 1],
+                "permute": [2, 3, 1, 0]
+            }  # filters
+        ]
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(Conv2dTransposeConfig, self).init_from_json(filename, config_id,
