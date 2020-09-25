@@ -1,0 +1,51 @@
+[{
+    "op": "interp_nearest",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 16L, 16L]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "list",
+            "value": "[32L, 32L]"
+        },
+        "scale": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_nearest",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 16L, 16L, 256L]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "string",
+            "value": "None"
+        },
+        "scale": {
+            "type": "float",
+            "value": "2.0"
+        }
+    }
+}]
