@@ -14,10 +14,15 @@
 from common_import import *
 
 
+class DataNormConfig(APIConfig):
+    def __init__(self):
+        super(DataNormConfig, self).__init__("data_norm")
+        self.run_tf = False
+
+
 class PDDataNorm(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = paddle.data_norm(input=x)
 
         self.feed_vars = [x]
@@ -27,4 +32,4 @@ class PDDataNorm(PaddleAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(pd_obj=PDDataNorm(), config=APIConfig("data_norm"))
+    test_main(pd_obj=PDDataNorm(), config=DataNormConfig())
