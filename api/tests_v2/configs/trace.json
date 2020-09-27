@@ -1,0 +1,22 @@
+[{
+    "op": "trace",
+    "param_info": {
+        "axis1": {
+            "type": "int",
+            "value": 0
+        },
+        "axis2": {
+            "type": "int",
+            "value": 1
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[100L, 1785L]",
+            "type": "Variable"
+        },
+        "offset": {
+            "type": "int",
+            "value": 0
+        }
+    }
+}]
