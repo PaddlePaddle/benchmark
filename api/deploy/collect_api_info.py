@@ -22,122 +22,120 @@ import importlib
 package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
 sys.path.append(os.path.join(package_path, "tests"))
+sys.path.append(os.path.join(package_path, "tests_v2"))
 
-from tests.common_import import *
-from common import special_op_list
-
-NOT_API = ["main", "common_import", "launch"]
-NO_JSON_API = ["feed", "fetch", "null"]
-
-API_LIST = []
-SUB_CONFIG_LIST = []
-
-REGISTER_API_INFO = {}
+from common import api_param, special_op_list
 
 
-def collect_subconfig_info():
-    subclass_list = APIConfig.__subclasses__()
-    for i in range(len(subclass_list)):
-        class_name = subclass_list[i].__name__
-        module_name = hump_to_underline(class_name.replace('Config', ''))
-        SUB_CONFIG_LIST.append(module_name)
+class APITestInfo(object):
+    def __init__(self, api_name, py_filename, json_filename):
+        self.api_name = api_name
+        self.py_filename = py_filename
+        self.json_filename = json_filename
+        self.has_backward = False if api_name in special_op_list.NO_BACKWARD_OPS else True
 
-        module = import_api(module_name)
-        obj_class_name = getattr(module, class_name)
-        obj = obj_class_name()
+    def to_string(self):
+        return self.api_name + ',' + self.py_filename + ',' + self.json_filename + ',' + str(
+            self.has_backward)
 
-        if hasattr(obj, "api_list"):
-            api_list = obj.api_list.keys()
+
+def collect_subclass_dict(test_cases_dict):
+    """
+    Collect the test cases which declares a subclass of APIConfig.
+    """
+    subclass_list = api_param.APIConfig.__subclasses__()
+    subclass_dict = {}
+    for item in subclass_list:
+        config = item()
+        subclass_dict[config.name] = item.__name__
+    return subclass_dict
+
+
+def import_all_tests(test_module_name):
+    test_cases_dict = {}
+    special_module_list = ["__init__", "main", "common_import", "launch"]
+
+    def _import_api(test_module_name, basename):
+        try:
+            module = importlib.import_module(test_module_name + "." + basename)
+            print("Import {} successfully.".format(module.__name__))
+            return module
+        except Exception as e:
+            print("Failed to import {}: {}".format(basename, e))
+            return None
+
+    tests_path = os.path.join(package_path, test_module_name)
+    for filename in os.listdir(tests_path):
+        api_name = os.path.splitext(filename)[0]
+        file_extension = os.path.splitext(filename)[1]
+        if file_extension == '.py' and api_name not in special_module_list:
+            module = _import_api(test_module_name, api_name)
+            if module:
+                test_cases_dict[api_name] = module
+
+    return test_cases_dict
+
+
+def main(args):
+    # Need to import all modules first
+    test_cases_dict = import_all_tests(args.test_module_name)
+    subclass_dict = collect_subclass_dict(test_cases_dict)
+
+    op_test_info_list = []
+    for py_filename in sorted(test_cases_dict.keys()):
+        if py_filename in subclass_dict.keys():
+            # Define an object of special APIConfig.
+            module = test_cases_dict[py_filename]
+            class_name = subclass_dict[py_filename]
+            config = getattr(module, class_name)()
+
+            if hasattr(config, "api_list"):
+                api_list = config.api_list.keys()
+            else:
+                api_list = [config.name]
+
+            if hasattr(config, "alias_config"):
+                json_filename = config.alias_config.name + '.json'
+            else:
+                json_filename = config.name + '.json'
+
+            for api_name in api_list:
+                info = APITestInfo(
+                    api_name=api_name,
+                    py_filename=config.name,
+                    json_filename=json_filename)
+                op_test_info_list.append(info)
         else:
-            api_list = [obj.name]
+            json_filename = py_filename + ".json" if py_filename not in [
+                "feed", "fetch", "null"
+            ] else None
+            info = APITestInfo(
+                api_name=py_filename,
+                py_filename=py_filename,
+                json_filename=json_filename)
+            op_test_info_list.append(info)
 
-        if hasattr(obj, "alias_config"):
-            json_file = obj.alias_config.name + '.json'
-        else:
-            json_file = obj.name + '.json'
-
-        if obj.api_name in special_op_list.NO_BACKWARD_OPS:
-            backward = False
-        else:
-            backward = True
-
-        for api in api_list:
-            REGISTER_API_INFO[api] = [obj.name, json_file, backward]
-
-
-def collect_config_info():
-    CONFIG_LIST = list(set(API_LIST).difference(set(SUB_CONFIG_LIST)))
-    CONFIG_LIST.remove('__init__')
-    for api in CONFIG_LIST:
-        if api in special_op_list.NO_BACKWARD_OPS:
-            backward = False
-        else:
-            backward = True
-        if api in NO_JSON_API:
-            json_file = None
-        else:
-            json_file = api + '.json'
-
-        REGISTER_API_INFO[api] = [api, json_file, backward]
+    # Write to filesystem.
+    with open(args.info_file, 'w') as f:
+        for info in op_test_info_list:
+            f.writelines(info.to_string() + "\n")
 
 
-def write_api_info():
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        '--test_module_name',
+        type=str,
+        default="tests",
+        help='The module_name under benchmark/api (tests|tests_v2).')
     parser.add_argument(
         '--info_file',
         type=str,
         default="api_info.txt",
         help='The file is used to collect API information to automatically run the entire APIs.'
     )
-    parser.add_argument(
-        '--support_api_file',
-        type=str,
-        default=None,
-        help='The file includes all APIs currently supported by the benchmark system.'
-    )
-
     args = parser.parse_args()
-    with open(args.info_file, 'w') as f:
-        for api in sorted(REGISTER_API_INFO.keys()):
-            f.writelines(api + ',' + str(REGISTER_API_INFO[api][0]) + ',' +
-                         str(REGISTER_API_INFO[api][1]) + ',' + str(
-                             REGISTER_API_INFO[api][2]) + '\n')
-
-    if args.support_api_file:
-        with open(args.support_api_file, 'w') as fo:
-            for api in REGISTER_API_INFO.keys():
-                fo.writelines(str(api) + '\n')
-
-
-def import_module():
-    tests_path = os.path.join(package_path, 'tests')
-    for filename in os.listdir(tests_path):
-        api_name = os.path.splitext(filename)[0]
-        file_extension = os.path.splitext(filename)[1]
-        if file_extension == '.py' and api_name not in NOT_API:
-            module = import_api(api_name)
-
-
-def import_api(api_name):
-    try:
-        module = importlib.import_module("tests." + api_name)
-        module_name = module.__name__.split('.')
-        API_LIST.append(module_name[1])
-        print("Import {} successfully.".format(module.__name__))
-        return module
-    except Exception as e:
-        print("Failed to import {}: {}".format(api_name, e))
-        return None
-
-
-def hump_to_underline(hunp_str):
-    p = re.compile(r'([a-z]|\d)([A-Z])')
-    sub = re.sub(p, r'\1_\2', hunp_str).lower()
-    return sub
-
-
-if __name__ == '__main__':
-    import_module()
-    collect_subconfig_info()
-    collect_config_info()
-    write_api_info()
+    assert args.test_module_name in [
+        "tests", "tests_v2"
+    ], "Please set test_module_name to \"tests\" or \"tests_v2\"."
+    main(args)
