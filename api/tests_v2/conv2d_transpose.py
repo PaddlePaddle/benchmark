@@ -98,7 +98,7 @@ class PDConv2dTranspose(PaddleAPIBenchmarkBase):
         result = paddle.nn.functional.conv_transpose2d(
             x=input,
             weight=filter,
-            output_shape=config.output_size,
+            output_size=config.output_size,
             strides=config.stride,
             padding=config.padding,
             data_format=config.data_format,
