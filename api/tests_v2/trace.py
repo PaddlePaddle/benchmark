@@ -19,7 +19,11 @@ class PDTrace(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         data = self.variable(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.trace(x=data, offset=config.offset, axis1=config.axis1, axis2=config.axis2)
+        result = paddle.trace(
+            x=data,
+            offset=config.offset,
+            axis1=config.axis1,
+            axis2=config.axis2)
 
         self.feed_vars = [data]
         self.fetch_vars = [result]

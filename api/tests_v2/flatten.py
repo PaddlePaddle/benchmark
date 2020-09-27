@@ -19,7 +19,8 @@ class PDFlatten(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         data = self.variable(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.trace(x=data, start_axis=config.start_axis, stop_axis=config.stop_axis)
+        result = paddle.trace(
+            x=data, start_axis=config.start_axis, stop_axis=config.stop_axis)
 
         self.feed_vars = [data]
         self.fetch_vars = [result]
@@ -29,7 +30,7 @@ class TFFlatten(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.variable(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
-        
+
         tf_flatten = tf.keras.layers.Flatten()
         result = tf_flatten(x=data)
 
