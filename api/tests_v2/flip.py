@@ -14,6 +14,7 @@
 
 from common_import import *
 
+
 class PDFlip(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         data = self.variable(
@@ -22,6 +23,7 @@ class PDFlip(PaddleAPIBenchmarkBase):
 
         self.feed_vars = [data]
         self.fetch_vars = [result]
+
 
 class TFFlip(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
