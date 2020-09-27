@@ -16,11 +16,11 @@ from common_import import *
 
 class PDDataNorm(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        data = self.variable(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.data_norm(input=data)
+        x = self.variable(
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.data_norm(input=x)
 
-        self.feed_vars = [data]
+        self.feed_vars = [x]
         self.fetch_vars = [result]
         if config.backward:
             self.append_gradients(result, [x])
