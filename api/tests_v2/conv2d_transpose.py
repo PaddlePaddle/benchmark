@@ -35,6 +35,8 @@ class Conv2dTransposeConfig(APIConfig):
             self.padding = [self.padding, self.padding]
         if self.data_format == "NCHW":
             self.num_channels = self.input_shape[1]
+            # self.run_tf = False
+            # self.data_format == "NHWC"
         elif self.data_format == "NHWC":
             self.num_channels = self.input_shape[3]
         if isinstance(self.filter_size, int):
@@ -59,24 +61,35 @@ class Conv2dTransposeConfig(APIConfig):
                 str) and self.padding != [0, 0] and self.padding != [1, 1]:
             self.run_tf = False
 
+        if self.data_format == "NCHW":
+            self.feed_spec[0]["permute"] = [0, 2, 3, 1]
+
     def to_tensorflow(self):
         assert self.output_size is not None
         tf_config = super(Conv2dTransposeConfig, self).to_tensorflow()
+        tf_config.filter_shape = [
+            self.filter_size[0], self.filter_size[1],
+            self.num_channels // self.groups, self.num_filters
+        ]
+        tf_config.padding = self._convert_padding(self.padding)
+
         tf_config.filter_shape = [
             self.filter_size[0], self.filter_size[1], self.num_filters,
             self.num_channels // self.groups
         ]
         if self.data_format == "NCHW":
-            tf_config.output_size = [
-                self.input_shape[0], self.num_filters, self.output_size[0],
-                self.output_size[1]
-            ]
-        elif self.data_format == "NHWC":
-            tf_config.output_size = [
-                self.input_shape[0], self.output_size[0], self.output_size[1],
-                self.num_filters
-            ]
+            tf_config.data_format = "NHWC"
+
+        tf_config.input_shape = [
+            self.input_shape[0], self.input_shape[2], self.input_shape[3],
+            self.input_shape[1]
+        ]
+        tf_config.output_size = [
+            self.input_shape[0], self.output_size[0], self.output_size[1],
+            self.num_filters
+        ]
         tf_config.padding = self._convert_padding(self.padding)
+
         return tf_config
 
     def _convert_padding(self, padding):
@@ -95,6 +108,7 @@ class PDConv2dTranspose(PaddleAPIBenchmarkBase):
             name='input', shape=config.input_shape, dtype=config.input_dtype)
         filter = self.variable(
             name='filter', shape=config.filter_shape, dtype=config.input_dtype)
+
         result = paddle.nn.functional.conv_transpose2d(
             x=input,
             weight=filter,
