@@ -20,7 +20,7 @@ import tensorflow_probability as tfp
 class BernoulliConfig(APIConfig):
     def __init__(self):
         super(BernoulliConfig, self).__init__('bernoulli')
-        self.feed_spec = {"range": [-10, 10]}
+        self.feed_spec = {"range": [0, 1]}
 
 
 class PDBernoulli(PaddleAPIBenchmarkBase):
