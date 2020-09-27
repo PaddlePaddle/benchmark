@@ -23,8 +23,8 @@ class PDTopKV2(PaddleAPIBenchmarkBase):
 
         self.feed_vars = [data]
         self.fetch_vars = [value, indices]
-        if config.backward:
-            self.append_gradients([value], [data])
+        #if config.backward:
+        #    self.append_gradients([value], [data])
 
 
 class TFTopKV2(TensorflowAPIBenchmarkBase):
@@ -35,8 +35,8 @@ class TFTopKV2(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [data]
         self.fetch_list = [value, indices]
-        if config.backward:
-            self.append_gradients([value], [data])
+        #if config.backward:
+        #    self.append_gradients([value], [data])
 
 
 if __name__ == '__main__':
