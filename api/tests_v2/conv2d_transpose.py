@@ -29,7 +29,23 @@ class Conv2dTransposeConfig(APIConfig):
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(Conv2dTransposeConfig, self).init_from_json(filename, config_id,
-                                                          unknown_dim)
+                                                 unknown_dim)
+        if isinstance(self.padding, int):
+            self.padding = [self.padding, self.padding]
+        if self.data_format == "NCHW":
+            self.num_channels = self.input_shape[1]
+        elif self.data_format == "NHWC":
+            self.num_channels = self.input_shape[3]
+        if isinstance(self.filter_size, int):
+            self.filter_size = [self.filter_size, self.filter_size]
+        if self.groups is None:
+            self.groups = 1
+        if self.num_channels % self.groups != 0:
+            raise ValueError(
+                "the channel of input must be divisible by groups,"
+                "received: the channel of input is {}, the shape of input is {}"
+                ", the groups is {}".format(self.num_channels,
+                                            self.input_shape, self.groups))
         self.filter_shape = [
             self.num_channels // self.groups, self.num_filters,
             self.filter_size[0], self.filter_size[1]
