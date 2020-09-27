@@ -58,9 +58,6 @@ function _train(){
         num_workers=8
     fi
 
-    WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    export PYTHONPATH=${WORK_ROOT}:${PYTHONPATH}
-
     train_cmd="-c configs/yolov3_darknet.yml \
      --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} TrainReader.worker_num=${num_workers} \
      --is_profiler=${is_profiler} \
