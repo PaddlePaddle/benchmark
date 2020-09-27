@@ -23,6 +23,6 @@ class PDDataNorm(PaddleAPIBenchmarkBase):
         self.feed_vars = [data]
         self.fetch_vars = [result]
 
+
 if __name__ == '__main__':
     test_main(pd_obj=PDDataNorm(), config=APIConfig("data_norm"))
-
