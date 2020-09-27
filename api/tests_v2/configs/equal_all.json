@@ -1,0 +1,57 @@
+[{
+    "op": "equal_all",
+    "param_info": {
+        "x": {
+            "dtype": "float64",
+            "shape": "[-1L, 1000L, 2000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float64",
+            "shape": "[-1L, 1000L, 2000L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "equal_all",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 1000L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "equal_all",
+    "param_info": {
+        "x": {
+            "dtype": "int32",
+            "shape": "[-1L, 1000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "int32",
+            "shape": "[-1L, 1000L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "equal_all",
+    "param_info": {
+        "x": {
+            "dtype": "int64",
+            "shape": "[-1L, 1000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "int64",
+            "shape": "[-1L, 1000L]",
+            "type": "Variable"
+        }
+    }
+}]
