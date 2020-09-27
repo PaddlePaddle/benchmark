@@ -14,6 +14,7 @@
 
 from common_import import *
 
+
 class Conv2dTransposeConfig(APIConfig):
     def __init__(self):
         super(Conv2dTransposeConfig, self).__init__("conv2d_transpose")
@@ -29,7 +30,7 @@ class Conv2dTransposeConfig(APIConfig):
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(Conv2dTransposeConfig, self).init_from_json(filename, config_id,
-                                                 unknown_dim)
+                                                          unknown_dim)
         if isinstance(self.padding, int):
             self.padding = [self.padding, self.padding]
         if self.data_format == "NCHW":
