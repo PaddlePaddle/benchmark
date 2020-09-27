@@ -68,26 +68,4 @@
         }
     },
     "atol": 1E-4
-}, {
-    "op": "p_norm",
-    "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "1"
-        },
-        "porder": {
-            "type": "float",
-            "value": "inf"
-        },
-        "keepdim": {
-            "type": "bool",
-            "value": "False"
-        },
-        "x": {
-            "dtype": "float64",
-            "shape": "[300L, 128L, 128L]",
-            "type": "Variable"
-        }
-    },
-    "atol": 1E-4
 }]
