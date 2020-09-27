@@ -31,7 +31,7 @@ class TFRoll(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(
             name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.roll(x=x, shift=config.shifts, axis=config.axis)
+        result = tf.roll(x, shift=config.shifts, axis=config.axis)
 
         self.feed_list = [x]
         self.fetch_list = [result]

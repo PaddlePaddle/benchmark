@@ -31,7 +31,7 @@ class TFFlip(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(
             name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.reverse(x=x, axis=config.axis)
+        result = tf.reverse(x, axis=config.axis)
 
         self.feed_list = [x]
         self.fetch_list = [result]

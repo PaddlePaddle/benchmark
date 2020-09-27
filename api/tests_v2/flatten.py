@@ -34,7 +34,7 @@ class TFFlatten(TensorflowAPIBenchmarkBase):
             name='x', shape=config.x_shape, dtype=config.x_dtype)
 
         tf_flatten = tf.keras.layers.Flatten()
-        result = tf_flatten(x=x)
+        result = tf_flatten(x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
