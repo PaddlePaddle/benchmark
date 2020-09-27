@@ -1,0 +1,10 @@
+[{
+    "op": "trace",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[100L, 1785L]",
+            "type": "Variable"
+        }
+    }
+}]
