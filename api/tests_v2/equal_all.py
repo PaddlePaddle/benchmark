@@ -31,8 +31,6 @@ class PDEqualAll(PaddleAPIBenchmarkBase):
 
         self.feed_vars = [data_x, data_y]
         self.fetch_vars = [out]
-        #if config.backward:
-        #    self.append_gradients([out], [data_x, data_y])
 
 
 if __name__ == '__main__':
