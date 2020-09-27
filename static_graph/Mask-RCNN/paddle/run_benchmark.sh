@@ -53,8 +53,6 @@ function _set_env(){
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-    WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    export PYTHONPATH=${WORK_ROOT}:${PYTHONPATH}
 
     train_cmd=" -c configs/mask_rcnn_r50_1x.yml \
      --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} \
