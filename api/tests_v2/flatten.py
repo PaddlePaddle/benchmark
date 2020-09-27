@@ -18,7 +18,7 @@ from common_import import *
 class PDFlatten(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.trace(
+        result = paddle.flatten(
             x=x, start_axis=config.start_axis, stop_axis=config.stop_axis)
 
         self.feed_vars = [x]
