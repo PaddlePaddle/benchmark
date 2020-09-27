@@ -99,10 +99,10 @@ class PDConv2dTranspose(PaddleAPIBenchmarkBase):
             x=input,
             weight=filter,
             output_size=config.output_size,
-            strides=config.stride,
+            stride=config.stride,
             padding=config.padding,
             data_format=config.data_format,
-            dilations=config.dilation)
+            dilation=config.dilation)
 
         self.feed_vars = [input, filter]
         self.fetch_vars = [result]
