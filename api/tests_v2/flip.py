@@ -29,7 +29,9 @@ class PDFlip(PaddleAPIBenchmarkBase):
 class TFFlip(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.reverse(x, axis=config.axis)
+        dims = []
+        dims.append(config.axis)
+        result = tf.reverse(tensor=x, axis=dims)
 
         self.feed_list = [x]
         self.fetch_list = [result]
