@@ -17,8 +17,7 @@ from common_import import *
 
 class PDRoll(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = paddle.roll(x=x, shifts=config.shifts, axis=config.axis)
 
         self.feed_vars = [x]
@@ -29,8 +28,7 @@ class PDRoll(PaddleAPIBenchmarkBase):
 
 class TFRoll(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.roll(x, shift=config.shifts, axis=config.axis)
 
         self.feed_list = [x]

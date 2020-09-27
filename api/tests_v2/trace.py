@@ -17,13 +17,9 @@ from common_import import *
 
 class PDTrace(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = paddle.trace(
-            x=x,
-            offset=config.offset,
-            axis1=config.axis1,
-            axis2=config.axis2)
+            x=x, offset=config.offset, axis1=config.axis1, axis2=config.axis2)
 
         self.feed_vars = [x]
         self.fetch_vars = [result]
@@ -33,8 +29,7 @@ class PDTrace(PaddleAPIBenchmarkBase):
 
 class TFTrace(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.linalg.trace(x=x)
 
         self.feed_list = [x]
