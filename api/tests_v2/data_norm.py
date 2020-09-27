@@ -22,6 +22,8 @@ class PDDataNorm(PaddleAPIBenchmarkBase):
 
         self.feed_vars = [data]
         self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':

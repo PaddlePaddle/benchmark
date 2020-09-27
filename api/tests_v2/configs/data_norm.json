@@ -1,5 +1,5 @@
 [{
-    "op": "trace",
+    "op": "data_norm",
     "param_info": {
         "x": {
             "dtype": "float32",
