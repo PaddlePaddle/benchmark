@@ -2,9 +2,10 @@
 
 function print_usage() {
     echo "Usage:"
-    echo "    bash ${0} json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file"
+    echo "    bash ${0} test_dir json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file"
     echo ""
     echo "Arguments:"
+    echo "  test_dir                - the directory of tests case"
     echo "  json_config_dir         - the directory of json configs"
     echo "  output_dir              - the output directory"
     echo "  gpu_id (optional)       - the GPU id. Only one GPU can be specified."
@@ -17,6 +18,7 @@ function print_arguments() {
     echo "Arguments:"
     echo "  $*"
     echo ""
+    echo "test_dir        : ${TEST_DIR}"
     echo "json_config_dir : ${JSON_CONFIG_DIR}"
     echo "output_dir      : ${OUTPUT_DIR}" 
     echo "gpu_ids         : ${GPU_IDS}"
@@ -30,21 +32,23 @@ export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
 
 OP_BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../" && pwd )"
 DEPLOY_DIR="${OP_BENCHMARK_ROOT}/deploy"
-TEST_DIR="${OP_BENCHMARK_ROOT}/tests"
 export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 
-if [ $# -lt 2 ]; then
+if [ $# -lt 3 ]; then
     print_usage
     exit
 fi
 
-JSON_CONFIG_DIR=${1}
-OUTPUT_DIR=${2}
+TEST_DIR=${1}
+TEST_MODULE_NAME=${TEST_DIR##*/}
+
+JSON_CONFIG_DIR=${2}
+OUTPUT_DIR=${3}
 if [ ! -d ${OUTPUT_DIR} ]; then
     mkdir -p ${OUTPUT_DIR}
 fi
 
-GPU_IDS=${3:-"0"}
+GPU_IDS=${4:-"0"}
 GPU_IDS_ARRAY=(${GPU_IDS//,/ })
 NUM_GPU_DEVICES=${#GPU_IDS_ARRAY[*]}
 if [ ${NUM_GPU_DEVICES} -le 0 ]; then
@@ -53,24 +57,26 @@ if [ ${NUM_GPU_DEVICES} -le 0 ]; then
 fi
 
 DEVICE_SET=("gpu" "cpu")
-if [ $# -ge 4 ]; then
-    if [[ ${4} == "cpu" || ${4} == "gpu" ]]; then
-        DEVICE_SET=(${4})
+if [ $# -ge 5 ]; then
+    if [[ ${5} == "cpu" || ${5} == "gpu" ]]; then
+        DEVICE_SET=(${5})
     fi
 fi
 
 TASK_SET=("speed" "accuracy")
-if [ $# -ge 5 ]; then
-    if [[ ${5} == "speed" || ${5} == "accuracy" ]]; then
-        TASK_SET=(${5})
+if [ $# -ge 6 ]; then
+    if [[ ${6} == "speed" || ${6} == "accuracy" ]]; then
+        TASK_SET=(${6})
     fi
 fi
 
-if [ $# -ge 6 ]; then
-    OP_LIST_FILE=${6}
+if [ $# -ge 7 ]; then
+    OP_LIST_FILE=${7}
 else
     OP_LIST_FILE=${OUTPUT_DIR}/api_info.txt
-    python ${DEPLOY_DIR}/collect_api_info.py --info_file ${OP_LIST_FILE}
+    python ${DEPLOY_DIR}/collect_api_info.py \
+        --test_module_name ${TEST_MODULE_NAME} \
+        --info_file ${OP_LIST_FILE}
     return_status=$?
     if [ ${return_status} -ne 0 ] || [ ! -f "${OP_LIST_FILE}" ]; then
         OP_LIST_FILE=${DEPLOY_DIR}/api_info.txt
@@ -162,7 +168,7 @@ function execute_one_case() {
                     fi
 
                     case_id=$[$case_id+1]
-                    run_cmd="python -m tests.launch ${TEST_DIR}/${name}.py \
+                    run_cmd="python -m ${TEST_MODULE_NAME}.launch ${TEST_DIR}/${name}.py \
                           --api_name ${api_name} \
                           --task ${task} \
                           --framework ${framework} \
