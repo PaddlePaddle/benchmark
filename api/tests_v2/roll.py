@@ -33,3 +33,7 @@ class TFRoll(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [data]
         self.fetch_list = [result]
+
+
+if __name__ == '__main__':
+    test_main(PDRoll(), TFRoll(), config=APIConfig("roll"))

@@ -36,3 +36,7 @@ class TFFlatten(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [data]
         self.fetch_list = [result]
+
+
+if __name__ == '__main__':
+    test_main(PDFlatten(), TFFlatten(), config=APIConfig("flatten"))

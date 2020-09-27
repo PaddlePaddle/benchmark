@@ -33,3 +33,7 @@ class TFFlip(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [data]
         self.fetch_list = [result]
+
+
+if __name__ == '__main__':
+    test_main(PDFlip(), TFFlip(), config=APIConfig("flip"))

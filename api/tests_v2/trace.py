@@ -37,3 +37,7 @@ class TFTrace(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [data]
         self.fetch_list = [result]
+
+
+if __name__ == '__main__':
+    test_main(PDTrace(), TFTrace(), config=APIConfig("trace"))
