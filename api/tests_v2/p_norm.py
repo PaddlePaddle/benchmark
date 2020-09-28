@@ -15,37 +15,38 @@
 from common_import import *
 
 
-class IsfiniteNanInfV2Config(APIConfig):
+class PnormConfig(APIConfig):
     def __init__(self):
-        super(IsfiniteNanInfV2Config, self).__init__("isfinite_nan_inf_v2")
-        self.api_name = 'isfinite'
-        self.api_list = {
-            'isfinite': 'is_finite',
-            'isnan': 'is_nan',
-            'isinf': 'is_inf'
-        }
+        super(PnormConfig, self).__init__("p_norm")
+        self.feed_spec = [{"range": [-1, 1]}]
 
 
-class PDIsfiniteNanInfV2(PaddleAPIBenchmarkBase):
+class PDPnorm(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        out = self.layers(config.api_name, x=x)
+        result = paddle.norm(
+            x=x, p=config.porder, axis=config.axis, keepdim=config.keepdim)
 
         self.feed_vars = [x]
-        self.fetch_vars = [out]
+        self.fetch_vars = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
-class TFIsfiniteNanInfV2(TensorflowAPIBenchmarkBase):
+class TFPnorm(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        out = self.layers(config.api_name, x=x)
+        result = tf.norm(
+            tensor=x,
+            ord=config.porder,
+            axis=config.axis,
+            keepdims=config.keepdim)
 
         self.feed_list = [x]
-        self.fetch_list = [out]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(
-        PDIsfiniteNanInfV2(),
-        TFIsfiniteNanInfV2(),
-        config=IsfiniteNanInfV2Config())
+    test_main(PDPnorm(), TFPnorm(), config=PnormConfig())

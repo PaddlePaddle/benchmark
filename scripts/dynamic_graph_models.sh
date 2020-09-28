@@ -170,13 +170,14 @@ dy_gan(){
 
 #deeplabv3 and HRnet
 dy_seg(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleSeg
+    cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/dygraph
     cd ${cur_model_path}
     
     apt-get install lsb-core -y
     pip install  visualdl
     # Prepare data
-    ln -s ${data_path}/dygraph_data/cityscapes_hrnet_torch ${cur_model_path}/cityscape
+    mkdir -p ${cur_model_path}/data
+    ln -s ${data_path}/dygraph_data/cityscapes_hrnet_torch ${cur_model_path}/data/cityscapes
     
     # Running
     rm -f ./run_benchmark.sh

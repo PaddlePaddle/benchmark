@@ -15,37 +15,38 @@
 from common_import import *
 
 
-class IsfiniteNanInfV2Config(APIConfig):
+class Relu6Config(APIConfig):
     def __init__(self):
-        super(IsfiniteNanInfV2Config, self).__init__("isfinite_nan_inf_v2")
-        self.api_name = 'isfinite'
-        self.api_list = {
-            'isfinite': 'is_finite',
-            'isnan': 'is_nan',
-            'isinf': 'is_inf'
-        }
+        super(Relu6Config, self).__init__("relu6")
+        self.feed_spec = {"range": [-1, 1]}
+        # relu6 belongs to activation op series which only has one variable
+        # thus abs can reuse activation parameters 
+        self.alias_config = APIConfig("activation")
 
 
-class PDIsfiniteNanInfV2(PaddleAPIBenchmarkBase):
+class PDRelu6(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        out = self.layers(config.api_name, x=x)
+        x = self.variable(
+            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        out = paddle.nn.functional.relu6(x=x)
 
         self.feed_vars = [x]
         self.fetch_vars = [out]
+        if config.backward:
+            self.append_gradients(out, [x])
 
 
-class TFIsfiniteNanInfV2(TensorflowAPIBenchmarkBase):
+class TFRelu6(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        out = self.layers(config.api_name, x=x)
+        x = self.variable(
+            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        out = tf.nn.relu6(features=x)
 
         self.feed_list = [x]
         self.fetch_list = [out]
+        if config.backward:
+            self.append_gradients(out, [x])
 
 
 if __name__ == '__main__':
-    test_main(
-        PDIsfiniteNanInfV2(),
-        TFIsfiniteNanInfV2(),
-        config=IsfiniteNanInfV2Config())
+    test_main(PDRelu6(), TFRelu6(), config=Relu6Config())
