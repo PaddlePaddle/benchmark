@@ -28,15 +28,13 @@ class Conv2dTransposeConfig(APIConfig):
             }  # filters
         ]
 
-    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+    def init_from_json(self, filename, config_id=0, unknown_dim=2):
         super(Conv2dTransposeConfig, self).init_from_json(filename, config_id,
                                                           unknown_dim)
         if isinstance(self.padding, int):
             self.padding = [self.padding, self.padding]
         if self.data_format == "NCHW":
             self.num_channels = self.input_shape[1]
-            # self.run_tf = False
-            # self.data_format == "NHWC"
         elif self.data_format == "NHWC":
             self.num_channels = self.input_shape[3]
         if isinstance(self.filter_size, int):
