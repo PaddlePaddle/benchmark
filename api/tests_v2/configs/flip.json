@@ -2,8 +2,8 @@
     "op": "flip",
     "param_info": {
         "axis": {
-            "type": "list",
-            "value": [1]
+            "type": "int",
+            "value": 1
         },
         "x": {
             "dtype": "float32",
