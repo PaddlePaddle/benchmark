@@ -26,12 +26,12 @@ class PDLstm(PaddleAPIBenchmarkBase):
         input = self.variable(
             name="input", shape=config.input_shape, dtype=config.input_dtype)
 
-        init_h = fluid.layers.fill_constant(
+        init_h = paddle.fluid.layers.fill_constant(
             shape=config.init_h_shape, dtype=config.init_h_dtype, value=0.0)
-        init_c = fluid.layers.fill_constant(
+        init_c = paddle.fluid.layers.fill_constant(
             shape=config.init_c_shape, dtype=config.init_c_dtype, value=0.0)
 
-        rnn_out, last_h, last_c = fluid.layers.lstm(
+        rnn_out, last_h, last_c = paddle.fluid.layers.lstm(
             input=input,
             init_h=init_h,
             init_c=init_c,
