@@ -23,16 +23,16 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[-1L, 1549L, 8L, 8L]",
+            "shape": "[-1L, 1549L, 2L, 2L]",
             "type": "Variable"
         },
         "num_filters": {
             "type": "int",
-            "value": "512"
+            "value": "256"
         },
         "output_size": {
             "type": "list",
-            "value": "[16L, 16L]"
+            "value": "[4L, 4L]"
         },
         "padding": {
             "type": "list",
@@ -73,7 +73,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[-1L, 1549L, 8L, 8L]",
+            "shape": "[-1L, 1549L, 2L, 2L]",
             "type": "Variable"
         },
         "num_filters": {
@@ -82,7 +82,7 @@
         },
         "output_size": {
             "type": "list",
-            "value": "[16L, 16L]"
+            "value": "[4L, 4L]"
         },
         "padding": {
             "type": "list",
@@ -123,7 +123,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[-1L, 128L, 64L, 64L]",
+            "shape": "[-1L, 128L, 8L, 8L]",
             "type": "Variable"
         },
         "num_filters": {
@@ -132,7 +132,7 @@
         },
         "output_size": {
             "type": "list",
-            "value": "[127L, 127L]"
+            "value": "[15L, 15L]"
         },
         "padding": {
             "type": "list",
@@ -173,7 +173,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[-1L, 128L, 64L, 64L]",
+            "shape": "[-1L, 128L, 8L, 8L]",
             "type": "Variable"
         },
         "num_filters": {
@@ -182,7 +182,7 @@
         },
         "output_size": {
             "type": "list",
-            "value": "[127L, 127L]"
+            "value": "[15L, 15L]"
         },
         "padding": {
             "type": "list",
@@ -322,7 +322,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[32L, 256L, 14L, 14L]",
+            "shape": "[32L, 256L, 4L, 4L]",
             "type": "Variable"
         },
         "num_filters": {
@@ -331,7 +331,7 @@
         },
         "output_size": {
             "type": "list",
-            "value": "[28L, 28L]"
+            "value": "[8L, 8L]"
         },
         "padding": {
             "type": "int",
@@ -371,7 +371,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[32L, 256L, 14L, 14L]",
+            "shape": "[32L, 256L, 4L, 4L]",
             "type": "Variable"
         },
         "num_filters": {
@@ -380,7 +380,7 @@
         },
         "output_size": {
             "type": "list",
-            "value": "[28L, 28L]"
+            "value": "[8L, 8L]"
         },
         "padding": {
             "type": "int",
@@ -421,7 +421,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[1L, 1L, 80L, 63L]",
+            "shape": "[1L, 1L, 40L, 63L]",
             "type": "Variable"
         },
         "num_filters": {
@@ -470,7 +470,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[1L, 1L, 80L, 63L]",
+            "shape": "[1L, 1L, 40L, 63L]",
             "type": "Variable"
         },
         "num_filters": {
