@@ -263,7 +263,6 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
     benchmark_results = [float(i.report_result) for i in benchmark_results[:1]] if benchmark_results else []
     benchmark_value, benchmark_range, benchmark_color = compute_results(benchmark_results, check_key,
                                                                         cur_value, index, sign)
-    print('benchmark_value:{}'.format(benchmark_value))
     if cur_value < benchmark_value and sign == -1:
         benchmark = 1
     elif cur_value > benchmark_value and sign == 1:
@@ -278,17 +277,19 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
         if is_profile:
             current_html_result = [dict(value=model_name), dict(value=print_machine_type),
                                    dict(value=check_key if check_key else DICT_INDEX[index]),
-                                   dict(value="{:.4f}".format(cur_value[check_key]) if check_key
-                                   else "{:.4f}".format(cur_value)),
+                                   dict(value="{:.4f}".format(cur_value[check_key]) if check_key else "{:.4f}".format(
+                                       cur_value)),
                                    dict(value="{:.4f}".format(avg_value)),
                                    dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
         else:
             current_html_result = [dict(value=model_name), dict(value=print_machine_type),
                                    dict(value=check_key if check_key else DICT_INDEX[index]),
-                                   dict(value="{:.4f}{}".format(cur_value[check_key], unit) if check_key
-                                   else "{:.4f}{}".format(cur_value, unit)),
-                                   dict(value="{:.4f}{}".format(benchmark_value[check_key], unit)
-                                   if check_key else "{:.4f}{}".format(benchmark_value, unit)),
+                                   dict(value="{:.4f}{}".format(cur_value[check_key],
+                                                                unit) if check_key else "{:.4f}{}".format(cur_value,
+                                                                                                          unit)),
+                                   dict(value="{:.4f}{}".format(benchmark_value[check_key],
+                                                                unit) if check_key else "{:.4f}{}".format(
+                                       benchmark_value, unit)),
                                    dict(value="{:.2f}%".format(round(benchmark_range * 100, 2)), color=benchmark_color),
                                    dict(value="{:.4f}{}".format(avg_value, unit)),
                                    dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
