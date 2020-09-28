@@ -23,7 +23,7 @@ class DataNormConfig(APIConfig):
 class PDDataNorm(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.data_norm(input=x)
+        result = paddle.static.nn.data_norm(input=x)
 
         self.feed_vars = [x]
         self.fetch_vars = [result]
