@@ -6,7 +6,8 @@
             "shape": "[-1L, 1785L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "bernoulli",
     "param_info": {
@@ -15,14 +16,11 @@
             "shape": "[-1L, 1785L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "bernoulli",
     "param_info": {
-        "dtype": {
-            "type": "string",
-            "value": "float32"
-        },
         "x": {
             "dtype": "float32",
             "shape": "[-1L, 1L, 513L, 513L]",
