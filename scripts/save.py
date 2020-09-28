@@ -223,21 +223,23 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
         sign(int):
         check_key(str):
     return:
+        benchmark(int)
     """
     # 包括pr需要对比的job_type
     check_job_type = 2 if args.job_type in [1, 2] else 3
     results = bm.ViewJobResult.objects.filter(
         model_name=model_name, report_index_id=index, job_type=check_job_type, cuda_version=args.cuda_version,
         cudnn_version=args.cudnn_version, device_type=args.device_type, model_implement_type=args.implement_type,
-        frame_name="paddlepaddle", run_machine_type=run_machine_type).order_by('-version')
+        frame_name="paddlepaddle", run_machine_type=run_machine_type, outlier=0).order_by('-version')
 
     benchmark_results = bm.ViewJobResult.objects.filter(
         model_name=model_name, report_index_id=index, job_type=check_job_type, cuda_version=args.cuda_version,
         cudnn_version=args.cudnn_version, device_type=args.device_type, model_implement_type=args.implement_type,
-        frame_name="paddlepaddle", run_machine_type=run_machine_type, benchmark=1).order_by('-version')
+        frame_name="paddlepaddle", run_machine_type=run_machine_type, benchmark=1, outlier=0).order_by('-version')
 
     results_list = []
     count = 0
+    benchmark = 0
     for result in results:
         if count == 0:
             count += 1
@@ -257,39 +259,45 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
 
     # 如果历史数据和benchmark结果一直为空，则不报警
     if not results_list and not benchmark_results:
-        return
+        return benchmark
     benchmark_results = [float(i.report_result) for i in benchmark_results[:1]] if benchmark_results else []
     benchmark_value, benchmark_range, benchmark_color = compute_results(benchmark_results, check_key,
                                                                         cur_value, index, sign)
+    print('benchmark_value:{}'.format(benchmark_value))
+    if cur_value < benchmark_value and sign == -1:
+        benchmark = 1
+    elif cur_value > benchmark_value and sign == 1:
+        benchmark = 1
     avg_value, avg_range, avg_color = compute_results(results_list, check_key, cur_value, index, sign)
 
     if abs(avg_range) < WAVE_THRESHOLD and abs(benchmark_range) < WAVE_THRESHOLD:
-        return
+        return benchmark
     print_machine_type = machine_type_to_print(run_machine_type)
     # show detail info only when job success
     if not check_fail(model_name, print_machine_type):
         if is_profile:
             current_html_result = [dict(value=model_name), dict(value=print_machine_type),
                                    dict(value=check_key if check_key else DICT_INDEX[index]),
-                                   dict(value="{:.4f}".format(cur_value[check_key]) if check_key 
-                                        else "{:.4f}".format(cur_value)),
+                                   dict(value="{:.4f}".format(cur_value[check_key]) if check_key
+                                   else "{:.4f}".format(cur_value)),
                                    dict(value="{:.4f}".format(avg_value)),
                                    dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
         else:
             current_html_result = [dict(value=model_name), dict(value=print_machine_type),
                                    dict(value=check_key if check_key else DICT_INDEX[index]),
-                                   dict(value="{:.4f}{}".format(cur_value[check_key], unit) if check_key 
-                                        else "{:.4f}{}".format(cur_value, unit)),
-                                   dict(value="{:.4f}{}".format(benchmark_value[check_key], unit) 
-                                        if check_key else "{:.4f}{}".format(benchmark_value, unit)),
+                                   dict(value="{:.4f}{}".format(cur_value[check_key], unit) if check_key
+                                   else "{:.4f}{}".format(cur_value, unit)),
+                                   dict(value="{:.4f}{}".format(benchmark_value[check_key], unit)
+                                   if check_key else "{:.4f}{}".format(benchmark_value, unit)),
                                    dict(value="{:.2f}%".format(round(benchmark_range * 100, 2)), color=benchmark_color),
                                    dict(value="{:.4f}{}".format(avg_value, unit)),
                                    dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
 
         html_results[DICT_INDEX[index]]["data"].append(current_html_result)
+    return benchmark
 
 
-def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0):
+def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0, benchmark=0):
     """insert job results to db"""
     pjr = bm.JobResults()
     pjr.job_id = job_id
@@ -297,6 +305,7 @@ def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0
     pjr.report_index_id = report_index_id
     pjr.report_result = result
     pjr.unit = unit
+    pjr.benchmark = benchmark
     pjr.train_log_path = log_path
     pjr.save()
     return pjr
@@ -357,19 +366,33 @@ def check_fail(model_name, print_machine_type):
             return True
     return False
 
+
 def machine_type_to_print(run_machine_type):
     """
     change machine type to print style
     """
     if run_machine_type == 'ONE_GPU':
-        print_machine_type = '1_GPU'
+        if os.getenv("BENCHMARK_TYPE") == 'CPU_Benchmark':
+            print_machine_type = '1_THREAD'
+        else:
+            print_machine_type = '1_GPU'
     elif run_machine_type == 'FOUR_GPU':
-        print_machine_type = '4_GPUS'
+        if os.getenv("BENCHMARK_TYPE") == 'CPU_Benchmark':
+            print_machine_type == '4_THREADS'
+        else:
+            print_machine_type = '4_GPUS'
     elif run_machine_type == 'MULTI_GPU':
-        print_machine_type = '8_GPUS'
+        if os.getenv("BENCHMARK_TYPE") == 'CPU_Benchmark':
+            print_machine_type = '8_THREADS'
+        else:
+            print_machine_type = '8_GPUS'
     else:
-        print_machine_type = '8_GPUS_8_PROCESSES'
+        if os.getenv("BENCHMARK_TYPE") == 'CPU_Benchmark':
+            print_machine_type = '8_THREADS'
+        else:
+            print_machine_type = '8_GPUS_8_PROCESSES'
     return print_machine_type
+
 
 def parse_logs(args):
     """
@@ -412,38 +435,64 @@ def parse_logs(args):
             gpu_utilization_result = 0
             unit = ''
             mem_result = 0
+            benchmark = 0
+            if job_info["index"] == 1:
+                result = job_info['FINAL_RESULT']
+                unit = job_info['UNIT']
+                for line in file_lines:
+                    if 'AVG_CPU_USE' in line:
+                        cpu_utilization_result = line.strip().split('=')[1]
+                    if 'AVG_GPU_USE' in line:
+                        gpu_utilization_result = line.strip().split('=')[1]
+                    if "MAX_GPU_MEMORY_USE" in line:
+                        value = line.strip().split("=")[1].strip()
+                        mem_result = int(value) if str.isdigit(value) else 0
+
+            elif job_info["index"] == 3:
+                result = json.dumps(job_info['FINAL_RESULT'])
+            else:
+                for line in file_lines:
+                    if "MAX_BATCH_SIZE" in line:
+                        value = line.strip().split("=")[1].strip()
+                        result = int(value) if str.isdigit(value) else 0
+                        break
+
+            print("models: {}, run_machine_type: {}, index: {}, result: {}".format(
+                job_info["model_name"], run_machine_type, job_info["index"], result))
+            # check_results and send alarm email
+            if job_info["index"] == 1:  # speed
+                if int(result) == 0:
+                    print_machine_type = machine_type_to_print(run_machine_type)
+                    FAIL_LIST.append([job_info["model_name"], print_machine_type])
+                benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type, result,
+                                          html_results, -1 if args.device_type.lower() == 'cpu' else 1, unit=unit)
+                benchmark = check_results(job_info["model_name"], 2, run_machine_type, mem_result, html_results,
+                                          -1)  # mem
+            elif job_info["index"] == 3:  # profiler
+                benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type,
+                                          json.loads(result),
+                                          html_results, -1, "Framework_Total", is_profile=True)
+                benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type,
+                                          json.loads(result),
+                                          html_results, -1, "GpuMemcpy_Total", is_profile=True)
+            elif job_info["index"] == 6:  # max BS
+                benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type,
+                                          result, html_results, 1)
+            else:
+                print("--------------> please set a correct index(1|3|6)!")
+
             try:
-                if job_info["index"] == 1:
-                    result = job_info['FINAL_RESULT']
-                    unit = job_info['UNIT']
-                    for line in file_lines:
-                        if 'AVG_CPU_USE' in line:
-                            cpu_utilization_result = line.strip().split('=')[1]
-                        if 'AVG_GPU_USE' in line:
-                            gpu_utilization_result = line.strip().split('=')[1]
-                        if "MAX_GPU_MEMORY_USE" in line:
-                            value = line.strip().split("=")[1].strip()
-                            mem_result = int(value) if str.isdigit(value) else 0
-
-                elif job_info["index"] == 3:
-                    result = json.dumps(job_info['FINAL_RESULT'])
-                else:
-                    for line in file_lines:
-                        if "MAX_BATCH_SIZE" in line:
-                            value = line.strip().split("=")[1].strip()
-                            result = int(value) if str.isdigit(value) else 0
-                            break
-
                 # save job results
-                pjr = insert_results(job_id, job_info["model_name"], job_info["index"], result, unit, 1)
+                pjr = insert_results(job_id, job_info["model_name"], job_info["index"], result, unit, 1,
+                                     benchmark=benchmark)
                 log_file = job_info["log_file"].split("/")[-1]
                 log_base = args.paddle_version + "/" + args.implement_type
                 train_log_path = LOG_SERVER + os.path.join(log_base, "train_log", log_file)
                 log_save_dict = {"train_log_path": train_log_path}
                 if job_info["index"] == 1:
-                    insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result, '%')
-                    insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%')
-                    pjr2 = insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 1)
+                    insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result, '%', benchmark=benchmark)
+                    insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%', benchmark=benchmark)
+                    pjr2 = insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 1, benchmark=benchmark)
                     bm.JobResultsLog.objects.create(
                         result_id=pjr2.result_id, log_path=json.dumps(log_save_dict)).save()
                     if int(job_info["gpu_num"]) == 1:
@@ -455,31 +504,8 @@ def parse_logs(args):
                         log_save_dict["profiler_path"] = profiler_path
 
                 bm.JobResultsLog.objects.create(result_id=pjr.result_id, log_path=json.dumps(log_save_dict)).save()
-
             except Exception as pfe:
                 print pfe
-            else:
-                print("models: {}, run_machine_type: {}, index: {}, result: {}".format(
-                    job_info["model_name"], run_machine_type, job_info["index"], result))
-
-                if job_info["index"] == 1:  # speed
-                    if int(result) == 0:
-                        print_machine_type = machine_type_to_print(run_machine_type)
-                        FAIL_LIST.append([job_info["model_name"], print_machine_type])
-                    check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                  result, html_results, -1 if args.device_type.lower() == 'cpu' else 1, unit=unit)
-                    check_results(job_info["model_name"], 2, run_machine_type,
-                                  mem_result, html_results, -1)  # mem
-                elif job_info["index"] == 3:  # profiler
-                    check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                  json.loads(result), html_results, -1, "Framework_Total", is_profile=True)
-                    check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                  json.loads(result), html_results, -1, "GpuMemcpy_Total", is_profile=True)
-                elif job_info["index"] == 6:  # max BS
-                    check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                  result, html_results, 1)
-                else:
-                    print("--------------> please set a correct index(1|3|6)!")
 
     # generate email file
     title = "frame_benchmark"
