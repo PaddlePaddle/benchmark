@@ -47,7 +47,7 @@
             "value": "True"
         }
     },
-    "atol": 1E-4
+    "atol": 1E-3
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -147,7 +147,7 @@
             "value": "True"
         }
     },
-    "atol": 1E-4
+    "atol": 1E-3
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -197,7 +197,7 @@
             "value": "False"
         }
     },
-    "atol": 1E-4
+    "atol": 1E-3
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -297,7 +297,7 @@
             "value": "False"
         }
     },
-    "atol": 1E-4
+    "atol": 1E-3
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -347,7 +347,7 @@
             "value": "True"
         }
     },
-    "atol": 1E-4
+    "atol": 1E-3
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -397,7 +397,7 @@
             "value": "False"
         }
     },
-    "atol": 1E-4
+    "atol": 1E-3
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -447,7 +447,7 @@
             "value": "True"
         }
     },
-    "atol": 1E-4
+    "atol": 1E-3
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -497,5 +497,5 @@
             "value": "False"
         }
     },
-    "atol": 1E-4
+    "atol": 1E-3
 }]
