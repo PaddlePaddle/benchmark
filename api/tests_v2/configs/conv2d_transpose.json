@@ -147,7 +147,7 @@
             "value": "True"
         }
     },
-    "atol": 1E-5
+    "atol": 1E-4
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -197,7 +197,7 @@
             "value": "False"
         }
     },
-    "atol": 1E-5
+    "atol": 1E-4
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -246,7 +246,8 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "atol": 1E-3
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -345,7 +346,8 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "atol": 1E-4
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -444,7 +446,8 @@
             "type": "bool",
             "value": "True"
         }
-    }
+    },
+    "atol": 1E-4
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -493,5 +496,6 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 1E-4
 }]
