@@ -16,7 +16,6 @@ from common_import import *
 import tensorflow_probability as tfp
 
 
-
 class BernoulliConfig(APIConfig):
     def __init__(self):
         super(BernoulliConfig, self).__init__('bernoulli')
