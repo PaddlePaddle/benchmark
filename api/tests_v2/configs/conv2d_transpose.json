@@ -23,12 +23,12 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[-1L, 1549L, 2L, 2L]",
+            "shape": "[-1L, 256L, 2L, 2L]",
             "type": "Variable"
         },
         "num_filters": {
             "type": "int",
-            "value": "256"
+            "value": "128"
         },
         "output_size": {
             "type": "list",
@@ -73,12 +73,12 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[-1L, 1549L, 2L, 2L]",
+            "shape": "[-1L, 256L, 2L, 2L]",
             "type": "Variable"
         },
         "num_filters": {
             "type": "int",
-            "value": "512"
+            "value": "128"
         },
         "output_size": {
             "type": "list",
