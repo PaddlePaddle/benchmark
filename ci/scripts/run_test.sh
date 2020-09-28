@@ -45,7 +45,7 @@ function prepare_env(){
   [ $? -ne 0 ] && LOG "[FATAL] Install paddle failed!" && exit -1
   
   # Install tensorflow and other packages
-  for package in "tensorflow==2.3.0" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9"
+  for package in "tensorflow==2.3.0" "tensorflow-probability" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9"
   do
     LOG "[INFO] Installing $package, this could take a few minutes ..."
     pip install $package > /dev/null
