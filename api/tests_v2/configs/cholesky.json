@@ -3,7 +3,7 @@
     "param_info": {
         "x": {
             "dtype": "float64",
-            "shape": "[-1L, 1L, 3L, 3L]",
+            "shape": "[200L, 200L]",
             "type": "Variable"
         },
         "upper": {
@@ -17,7 +17,7 @@
     "param_info": {
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 1L, 2L, 3L]",
+            "shape": "[-1L, 10L, 20L]",
             "type": "Variable"
         },
         "upper": {
