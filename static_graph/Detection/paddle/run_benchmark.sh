@@ -64,9 +64,6 @@ function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
-    WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    export PYTHONPATH=${WORK_ROOT}:${PYTHONPATH}
-
     if [[ ${model_name} = "mask_rcnn_fpn_resnet" ]]; then
         train_cmd="-c configs/mask_rcnn_r101_vd_fpn_1x.yml \
                    --opt LearningRate.base_lr=${learning_rate} TrainReader.batch_size=${base_batch_size} max_iters=${max_iter} \

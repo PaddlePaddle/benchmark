@@ -40,35 +40,25 @@ function _set_params(){
 function _train(){
     export PYTHONPATH=$(pwd):{PYTHONPATH}
     if [ ${model_name} = "HRnet" ]; then
-        model="fcn_hrnet_w18"
-        input_size="1024 512"
-        model_script="hrnet.py"
+        config="benchmark/hrnet.yml"
     elif [ ${model_name} = "deeplabv3" ]; then
-        model="deeplabv3p_resnet50_vd_os8"
-        #model_name="deeplabv3p_resnet50_vd"
-        input_size="769 769"
-        model_script="deeplabv3p.py"
+        config="benchmark/deeplabv3p.yml"
     else
         echo "------------------>model_name should be HRnet or deeplabv3!"
         exit 1
     fi
 
-    train_cmd="--model_name ${model}
-               --dataset Cityscapes
-               --dataset_root ./cityscape 
-               --input_size ${input_size}
-               --iters ${max_iter} 
-               --batch_size ${base_batch_size} 
-               --learning_rate 0.01 
-               --num_workers 2 
+    train_cmd="--config=${config}
+               --iters=${max_iter}
+               --batch_size ${base_batch_size}
+               --learning_rate 0.01
                --log_iters 5"
 
     if [ ${run_mode} = "sp" ]; then
-        #train_cmd="python -m paddle.distributed.launch --selected_gpus=$CUDA_VISIBLE_DEVICES dygraph/benchmark/${model_script} "${train_cmd}
-        train_cmd="python -u dygraph/benchmark/${model_script} "${train_cmd}
+        train_cmd="python -u train.py "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --selected_gpus=$CUDA_VISIBLE_DEVICES --log_dir ./mylog dygraph/benchmark/${model_script} "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --selected_gpus=$CUDA_VISIBLE_DEVICES --log_dir ./mylog train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
 
