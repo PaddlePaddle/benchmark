@@ -43,8 +43,8 @@ class PDLstm(PaddleAPIBenchmarkBase):
 
         self.feed_vars = [input]
         self.fetch_vars = [rnn_out]
-        if config.backward:
-            self.append_gradients(rnn_out, [input])
+        #if config.backward:
+        #    self.append_gradients(rnn_out, [input])
 
 
 class TFLstm(TensorflowAPIBenchmarkBase):
