@@ -23,16 +23,16 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[-1L, 256L, 2L, 2L]",
+            "shape": "[-1L, 1549L, 8L, 8L]",
             "type": "Variable"
         },
         "num_filters": {
             "type": "int",
-            "value": "128"
+            "value": "512"
         },
         "output_size": {
             "type": "list",
-            "value": "[4L, 4L]"
+            "value": "[16L, 16L]"
         },
         "padding": {
             "type": "list",
@@ -47,7 +47,7 @@
             "value": "True"
         }
     },
-    "atol": 1E-3
+    "atol": 1E-4
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -73,16 +73,16 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[-1L, 256L, 2L, 2L]",
+            "shape": "[-1L, 1549L, 8L, 8L]",
             "type": "Variable"
         },
         "num_filters": {
             "type": "int",
-            "value": "128"
+            "value": "512"
         },
         "output_size": {
             "type": "list",
-            "value": "[4L, 4L]"
+            "value": "[16L, 16L]"
         },
         "padding": {
             "type": "list",
@@ -123,7 +123,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[-1L, 128L, 8L, 8L]",
+            "shape": "[-1L, 128L, 64L, 64L]",
             "type": "Variable"
         },
         "num_filters": {
@@ -132,7 +132,7 @@
         },
         "output_size": {
             "type": "list",
-            "value": "[15L, 15L]"
+            "value": "[127L, 127L]"
         },
         "padding": {
             "type": "list",
@@ -147,7 +147,7 @@
             "value": "True"
         }
     },
-    "atol": 1E-3
+    "atol": 1E-5
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -173,7 +173,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[-1L, 128L, 8L, 8L]",
+            "shape": "[-1L, 128L, 64L, 64L]",
             "type": "Variable"
         },
         "num_filters": {
@@ -182,7 +182,7 @@
         },
         "output_size": {
             "type": "list",
-            "value": "[15L, 15L]"
+            "value": "[127L, 127L]"
         },
         "padding": {
             "type": "list",
@@ -197,7 +197,7 @@
             "value": "False"
         }
     },
-    "atol": 1E-3
+    "atol": 1E-5
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -246,8 +246,7 @@
             "type": "bool",
             "value": "True"
         }
-    },
-    "atol": 1E-3
+    }
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -297,7 +296,7 @@
             "value": "False"
         }
     },
-    "atol": 1E-3
+    "atol": 1E-4
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -323,7 +322,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[32L, 256L, 4L, 4L]",
+            "shape": "[32L, 256L, 14L, 14L]",
             "type": "Variable"
         },
         "num_filters": {
@@ -332,7 +331,7 @@
         },
         "output_size": {
             "type": "list",
-            "value": "[8L, 8L]"
+            "value": "[28L, 28L]"
         },
         "padding": {
             "type": "int",
@@ -346,8 +345,7 @@
             "type": "bool",
             "value": "True"
         }
-    },
-    "atol": 1E-3
+    }
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -373,7 +371,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[32L, 256L, 4L, 4L]",
+            "shape": "[32L, 256L, 14L, 14L]",
             "type": "Variable"
         },
         "num_filters": {
@@ -382,7 +380,7 @@
         },
         "output_size": {
             "type": "list",
-            "value": "[8L, 8L]"
+            "value": "[28L, 28L]"
         },
         "padding": {
             "type": "int",
@@ -397,7 +395,7 @@
             "value": "False"
         }
     },
-    "atol": 1E-3
+    "atol": 1E-4
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -423,7 +421,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[1L, 1L, 40L, 63L]",
+            "shape": "[1L, 1L, 80L, 63L]",
             "type": "Variable"
         },
         "num_filters": {
@@ -446,8 +444,7 @@
             "type": "bool",
             "value": "True"
         }
-    },
-    "atol": 1E-3
+    }
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -473,7 +470,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[1L, 1L, 40L, 63L]",
+            "shape": "[1L, 1L, 80L, 63L]",
             "type": "Variable"
         },
         "num_filters": {
@@ -496,6 +493,5 @@
             "type": "bool",
             "value": "False"
         }
-    },
-    "atol": 1E-3
+    }
 }]
