@@ -1,0 +1,51 @@
+[{
+    "op": "depthwise_conv2d_transpose",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "filter_size": {
+            "type": "int",
+            "value": "4"
+        },
+        "groups": {
+            "type": "int",
+            "value": "128"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 8L, 8L]",
+            "type": "Variable"
+        },
+        "num_filters": {
+            "type": "int",
+            "value": "128"
+        },
+        "output_size": {
+            "type": "list",
+            "value": "[16L, 16L]"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[1, 1]"
+        },
+        "stride": {
+            "type": "int",
+            "value": "2"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "True"
+        }
+    },
+    "atol": 1E-4
+}]
