@@ -10,15 +10,20 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.
 
 from common_import import *
 
 
-class PDRoll(PaddleAPIBenchmarkBase):
+class DataNormConfig(APIConfig):
+    def __init__(self):
+        super(DataNormConfig, self).__init__("data_norm")
+        self.run_tf = False
+
+
+class PDDataNorm(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.roll(x=x, shifts=config.shifts, axis=config.axis)
+        result = paddle.static.nn.data_norm(input=x)
 
         self.feed_vars = [x]
         self.fetch_vars = [result]
@@ -26,16 +31,5 @@ class PDRoll(PaddleAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TFRoll(TensorflowAPIBenchmarkBase):
-    def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.roll(x, shift=config.shifts, axis=config.axis)
-
-        self.feed_list = [x]
-        self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
-
-
 if __name__ == '__main__':
-    test_main(PDRoll(), TFRoll(), config=APIConfig("roll"))
+    test_main(pd_obj=PDDataNorm(), config=DataNormConfig())

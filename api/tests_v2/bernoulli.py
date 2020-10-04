@@ -13,29 +13,34 @@
 # limitations under the License.
 
 from common_import import *
+import tensorflow_probability as tfp
 
 
-class PDRoll(PaddleAPIBenchmarkBase):
+class BernoulliConfig(APIConfig):
+    def __init__(self):
+        super(BernoulliConfig, self).__init__('bernoulli')
+        self.feed_spec = {"range": [0, 1]}
+
+
+class PDBernoulli(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.roll(x=x, shifts=config.shifts, axis=config.axis)
+        data = self.variable(
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.bernoulli(x=data)
 
-        self.feed_vars = [x]
+        self.feed_vars = [data]
         self.fetch_vars = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
-class TFRoll(TensorflowAPIBenchmarkBase):
+class TFBernoulli(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.roll(x, shift=config.shifts, axis=config.axis)
-
-        self.feed_list = [x]
+        data = self.variable(
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
+        b = tfp.distributions.Bernoulli(probs=data)
+        result = b.sample()
+        self.feed_list = [data]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(PDRoll(), TFRoll(), config=APIConfig("roll"))
+    test_main(PDBernoulli(), TFBernoulli(), config=BernoulliConfig())

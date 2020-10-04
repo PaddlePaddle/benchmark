@@ -15,22 +15,28 @@
 from common_import import *
 
 
-class PDRoll(PaddleAPIBenchmarkBase):
+class PDCholesky(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.roll(x=x, shifts=config.shifts, axis=config.axis)
-
+        rank = len(config.x_shape)
+        x_t = paddle.transpose(x, list(range(rank - 2)) + [rank - 1, rank - 2])
+        y = paddle.matmul(x, x_t) + 1e-03
+        # x.stop_gradient = False
+        result = paddle.cholesky(y, upper=config.upper)
         self.feed_vars = [x]
         self.fetch_vars = [result]
         if config.backward:
             self.append_gradients(result, [x])
 
 
-class TFRoll(TensorflowAPIBenchmarkBase):
+class TFCholesky(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.roll(x, shift=config.shifts, axis=config.axis)
-
+        rank = len(config.x_shape)
+        x_t = tf.transpose(x, list(range(rank - 2)) + [rank - 1, rank - 2])
+        y = tf.linalg.matmul(x, x_t) + 1e-03
+        result = tf.linalg.cholesky(y)
+        loss = tf.math.reduce_sum(result)
         self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
@@ -38,4 +44,4 @@ class TFRoll(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDRoll(), TFRoll(), config=APIConfig("roll"))
+    test_main(PDCholesky(), TFCholesky(), config=APIConfig("cholesky"))

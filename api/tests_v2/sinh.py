@@ -15,10 +15,20 @@
 from common_import import *
 
 
-class PDRoll(PaddleAPIBenchmarkBase):
+class SinhConfig(APIConfig):
+    def __init__(self):
+        super(SinhConfig, self).__init__("sinh")
+        self.feed_spec = {"range": [-1, 1]}
+        # sinh belongs to activation op series which only has one variable
+        # thus sinh can reuse activation parameters
+        self.alias_config = APIConfig("activation")
+
+
+class PDSinh(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.roll(x=x, shifts=config.shifts, axis=config.axis)
+        x = self.variable(
+            name="x", shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        result = paddle.sinh(x=x)
 
         self.feed_vars = [x]
         self.fetch_vars = [result]
@@ -26,10 +36,11 @@ class PDRoll(PaddleAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TFRoll(TensorflowAPIBenchmarkBase):
+class TFSinh(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.roll(x, shift=config.shifts, axis=config.axis)
+        x = self.variable(
+            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        result = tf.math.sinh(x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -38,4 +49,4 @@ class TFRoll(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDRoll(), TFRoll(), config=APIConfig("roll"))
+    test_main(PDSinh(), TFSinh(), config=SinhConfig())

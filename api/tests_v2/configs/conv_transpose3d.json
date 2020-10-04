@@ -1,0 +1,51 @@
+[{
+    "op": "conv_transpose3d",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCDHW"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "filter_size": {
+            "type": "int",
+            "value": "3"
+        },
+        "groups": {
+            "type": "string",
+            "value": "None"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L, 8L, 8L, 8L]",
+            "type": "Variable"
+        },
+        "num_filters": {
+            "type": "int",
+            "value": "6"
+        },
+        "output_size": {
+            "type": "list",
+            "value": "[10L, 10L, 10L]"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        },
+        "use_cudnn": {
+            "type": "bool",
+            "value": "True"
+        }
+    },
+    "atol": 1E-4
+}]

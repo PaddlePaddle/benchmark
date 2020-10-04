@@ -1,0 +1,30 @@
+[{
+    "op": "cholesky",
+    "param_info": {
+        "x": {
+            "dtype": "float64",
+            "shape": "[200L, 200L]",
+            "type": "Variable"
+        },
+        "upper": {
+            "dtype": "string",
+            "value": "False",
+            "type": "bool"
+        }
+    }
+}, {
+    "op": "cholesky",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 10L, 20L]",
+            "type": "Variable"
+        },
+        "upper": {
+            "dtype": "string",
+            "value": "False",
+            "type": "bool"
+        }
+    },
+    "atol": 1e-4
+}]
