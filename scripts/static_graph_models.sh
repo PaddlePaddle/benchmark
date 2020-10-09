@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(seq2seq nextvlad detection mask_rcnn image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
+cur_model_list=(detection mask_rcnn seq2seq nextvlad image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
 
 #run_cycle_gan
 CycleGAN(){
@@ -325,6 +325,15 @@ image_classification(){
 detection(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
+    ## test dir
+    git branch
+    ## ls 
+    ls
+    ## ls tools
+    ls tools
+    ## mkdir dataset 
+    rm -rf dataset/coco/
+    mkdir -p dataset/coco/
     # Prepare data
     ln -s ${data_path}/COCO17/annotations ${cur_model_path}/dataset/coco/annotations
     ln -s ${data_path}/COCO17/train2017 ${cur_model_path}/dataset/coco/train2017
