@@ -246,13 +246,10 @@ class TensorflowAPIBenchmarkBase(object):
 
         gradients = tf.gradients(targets, inputs)
         self.__backward = True
-        # print("Gradients: ", gradients)
+        print("Gradients: ", gradients)
         if isinstance(gradients, list):
-            grad_length = len(gradients)
-            if self.name in special_op_list.BACKWARD_CHECK_DIFF_OPS:
-                grad_length -= 1
-            for i in range(grad_length):
-                self.fetch_list.append(gradients[i])
+            for grad in gradients:
+                self.fetch_list.append(grad)
         else:
             self.fetch_list.append(gradients)
 

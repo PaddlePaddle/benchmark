@@ -156,7 +156,7 @@ class PaddleAPIBenchmarkBase(object):
 
         gradients = fluid.backward.gradients(targets, inputs)
         self.__backward = True
-        # print("Gradients: ", gradients)
+        print("Gradients: ", gradients)
         if isinstance(gradients, list):
             for grad in gradients:
                 self.fetch_vars.append(grad)

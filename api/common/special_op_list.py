@@ -68,7 +68,6 @@ NO_BACKWARD_OPS = [
     "remainder",
 
     # Temporarily add to this list to pass CI.
-    "top_k_v2",
     "lstm",
 ]
 
@@ -82,9 +81,6 @@ def has_backward(config):
         ]
     return api_name not in NO_BACKWARD_OPS
 
-
-# length of tf gradient length is different with paddle.
-BACKWARD_CHECK_DIFF_OPS = ["TFTopK"]
 
 NO_NEED_ARGS = {
     "batch_norm": ["moving_mean_name", "moving_variance_name"],
