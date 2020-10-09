@@ -19,13 +19,12 @@ NO_FETCHES_OPS = ["feed", "null"]
 # operators without grad ops.
 NO_BACKWARD_OPS = [
     "accuracy", "argmax", "argmin", "argsort", "assign", "cast",
-    "clip_by_norm", "diag", "equal", "feed", "fetch", "fill_constant",
-    "greater_equal", "greater_than", "greater", "increment", "isfinite",
-    "isinf", "isnan", "is_finite", "is_inf", "is_nan", "less_equal",
-    "less_than", "less", "logical_not", "logical_and", "logical_or",
-    "not_equal", "null", "one_hot", "scale", "sequence_mask", "shape",
-    "zeros_like", "unique", "floor_divide", "remainder", "equal_all",
-    "bernoulli", "top_k_v2", "lstm"
+    "clip_by_norm", "diag", "equal", "feed", "fetch", "full", "greater_equal",
+    "greater_than", "greater", "increment", "isfinite", "isinf", "isnan",
+    "is_finite", "is_inf", "is_nan", "less_equal", "less_than", "less",
+    "logical_not", "logical_and", "logical_or", "not_equal", "null", "one_hot",
+    "scale", "sequence_mask", "shape", "zeros_like", "unique", "floor_divide",
+    "remainder", "equal_all", "bernoulli", "top_k_v2", "lstm"
 ]
 
 # length of tf gradient length is different with paddle.
