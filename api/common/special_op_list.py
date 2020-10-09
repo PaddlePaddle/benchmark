@@ -16,16 +16,72 @@ RANDOM_OP_LIST = ["dropout"]
 
 NO_FETCHES_OPS = ["feed", "null"]
 
+# operators with different names in v1.8 and v2.0.
+OPS_MAP_1TO2 = {
+    "fill_constant": "full",
+    "reduce_mean": "mean",
+    "reduce_prod": "prod",
+    "reduce_sum": "sum",
+}
+
 # operators without grad ops.
 NO_BACKWARD_OPS = [
-    "accuracy", "argmax", "argmin", "argsort", "assign", "cast",
-    "clip_by_norm", "diag", "equal", "feed", "fetch", "fill_constant",
-    "greater_equal", "greater_than", "increment", "isfinite", "isinf", "isnan",
-    "is_finite", "is_inf", "is_nan", "less_equal", "less_than", "logical_not",
-    "logical_and", "logical_or", "not_equal", "null", "one_hot", "scale",
-    "sequence_mask", "shape", "zeros_like", "unique", "floor_divide",
-    "remainder", "equal_all", "bernoulli", "top_k_v2", "lstm"
+    # fake APIs to test some framework overhead
+    "null",
+    "feed",
+    "fetch",
+
+    # paddle v1 APIs
+    "accuracy",
+    "argmax",
+    "argmin",
+    "argsort",
+    "assign",
+    "cast",
+    "clip_by_norm",
+    "diag",
+    "equal",
+    "fill_constant",
+    "greater_equal",
+    "greater_than",
+    "increment",
+    "isfinite",
+    "isinf",
+    "isnan",
+    "less_equal",
+    "less_than",
+    "logical_not",
+    "logical_and",
+    "logical_or",
+    "not_equal",
+    "one_hot",
+    "scale",
+    "sequence_mask",
+    "shape",
+    "zeros_like",
+
+    # paddle v2 APIs
+    "bernoulli",
+    "equal_all",
+    "floor_divide",
+    "unique",
+    "remainder",
+
+    # Temporarily add to this list to pass CI.
+    "top_k_v2",
+    "lstm",
 ]
+
+
+def has_backward(config):
+    if config.framework == "paddle" or not hasattr(config, "api_list"):
+        api_name = config.api_name
+    else:
+        api_name = [
+            k for k, v in config.api_list.items() if v == config.api_name
+        ]
+    return api_name not in NO_BACKWARD_OPS
+
 
 # length of tf gradient length is different with paddle.
 BACKWARD_CHECK_DIFF_OPS = ["TFTopK"]

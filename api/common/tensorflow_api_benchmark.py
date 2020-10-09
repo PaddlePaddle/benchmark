@@ -370,9 +370,10 @@ class TensorflowAPIBenchmarkBase(object):
             print(
                 "Backward is not surported for %s in Tensorflow. It is actually running the forward test."
                 % self.name)
-            if self.name not in special_op_list.NO_BACKWARD_OPS:
-                assert False, "If backward is not surported for %s. " \
-                    "Please add the \'%s\' in NO_BACKWARD_OPS of api/common/special_op_list.py." % (self.name, self.name)
+            assert not special_op_list.has_backward(
+                config
+            ), "If backward is not surported for %s, please add the \'%s\' to NO_BACKWARD_OPS in api/common/special_op_list.py." % (
+                self.name, self.name)
 
         feed_list = feeder_adapter.to_tensorflow(self.feed_list)
         assert len(feed_list) == len(self.feed_list)
