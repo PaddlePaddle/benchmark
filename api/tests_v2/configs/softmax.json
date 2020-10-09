@@ -9,10 +9,6 @@
             "dtype": "float32",
             "shape": "[-1L, 1000L]",
             "type": "Variable"
-        },
-        "use_cudnn": {
-            "type": "bool",
-            "value": "False"
         }
     }
 }, {
@@ -26,10 +22,6 @@
             "dtype": "float32",
             "shape": "[-1L, 1000L]",
             "type": "Variable"
-        },
-        "use_cudnn": {
-            "type": "bool",
-            "value": "True"
         }
     }
 }, {
@@ -43,10 +35,6 @@
             "dtype": "float32",
             "shape": "[-1L, 16L, -1L, -1L]",
             "type": "Variable"
-        },
-        "use_cudnn": {
-            "type": "bool",
-            "value": "False"
         }
     }
 }, {
@@ -60,10 +48,6 @@
             "dtype": "float32",
             "shape": "[-1L, 16L, -1L, -1L]",
             "type": "Variable"
-        },
-        "use_cudnn": {
-            "type": "bool",
-            "value": "True"
         }
     }
 }, {
@@ -77,10 +61,6 @@
             "dtype": "float32",
             "shape": "[128L, 128L, 16L, 16L]",
             "type": "Variable"
-        },
-        "use_cudnn": {
-            "type": "bool",
-            "value": "False"
         }
     }
 }, {
@@ -94,10 +74,6 @@
             "dtype": "float32",
             "shape": "[128L, 128L, 16L, 16L]",
             "type": "Variable"
-        },
-        "use_cudnn": {
-            "type": "bool",
-            "value": "True"
         }
     }
 }]
