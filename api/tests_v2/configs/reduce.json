@@ -1,16 +1,16 @@
 [{
     "op": "reduce",
     "param_info": {
-        "dim": {
+        "axis": {
             "type": "list",
             "value": "[2, 3]"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[-1L, 2048L, 33L, 33L]",
             "type": "Variable"
         },
-        "keep_dim": {
+        "keepdim": {
             "type": "bool",
             "value": "True"
         }
@@ -20,16 +20,16 @@
 }, {
     "op": "reduce",
     "param_info": {
-        "dim": {
+        "axis": {
             "type": "list",
             "value": "[1]"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[-1L, 8L, 128L]",
             "type": "Variable"
         },
-        "keep_dim": {
+        "keepdim": {
             "type": "bool",
             "value": "False"
         }
@@ -37,16 +37,16 @@
 }, {
     "op": "reduce",
     "param_info": {
-        "dim": {
+        "axis": {
             "type": "list",
             "value": "[0]"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[-1L, -1L, 1L, 1L]",
             "type": "Variable"
         },
-        "keep_dim": {
+        "keepdim": {
             "type": "bool",
             "value": "False"
         }
@@ -54,16 +54,16 @@
 }, {
     "op": "reduce",
     "param_info": {
-        "dim": {
+        "axis": {
             "type": "string",
             "value": "None"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[30522L, 1024L]",
             "type": "Variable"
         },
-        "keep_dim": {
+        "keepdim": {
             "type": "bool",
             "value": "False"
         }

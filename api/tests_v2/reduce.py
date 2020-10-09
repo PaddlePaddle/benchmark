@@ -21,21 +21,18 @@ class ReduceConfig(APIConfig):
         self.feed_spec = {"range": [-1, 1]}
         self.api_name = 'reduce_mean'
         self.api_list = {
-            'reduce_mean': 'reduce_mean',
-            'reduce_sum': 'reduce_sum',
-            'reduce_prod': 'reduce_prod'
+            'mean': 'reduce_mean',
+            'sum': 'reduce_sum',
+            'prod': 'reduce_prod'
         }
 
 
 class PDReduce(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         data = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = self.layers(
-            config.api_name,
-            input=data,
-            dim=config.dim,
-            keep_dim=config.keep_dim)
+            config.api_name, x=data, axis=config.axis, keepdim=config.keepdim)
 
         self.feed_vars = [data]
         self.fetch_vars = [result]
@@ -46,12 +43,12 @@ class PDReduce(PaddleAPIBenchmarkBase):
 class TFReduce(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = self.layers(
             config.api_name,
             input_tensor=data,
-            axis=config.dim,
-            keepdims=config.keep_dim)
+            axis=config.axis,
+            keepdims=config.keepdim)
 
         self.feed_list = [data]
         self.fetch_list = [result]
