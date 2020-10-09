@@ -1,11 +1,11 @@
 [{
     "op": "squeeze",
     "param_info": {
-        "axes": {
+        "axis": {
             "type": "list",
             "value": "[1]"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[-1L, 1L, 512L]",
             "type": "Variable"
