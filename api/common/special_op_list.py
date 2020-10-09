@@ -64,6 +64,9 @@ NO_BACKWARD_OPS = [
     "bernoulli",
     "equal_all",
     "floor_divide",
+    "full",
+    "greater",
+    "less",
     "unique",
     "remainder",
 
