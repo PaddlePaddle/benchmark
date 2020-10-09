@@ -327,6 +327,14 @@ detection(){
     cd ${cur_model_path}
     ## test dir
     git branch
+    # add_enable_static 暂未合入 https://github.com/PaddlePaddle/PaddleDetection/pull/1498/files
+    git checkout master
+    git reset --hard 5549e0831df602ae4deb08bd558c21c807ffcee7  # reset 到9月23的PR
+    git fetch origin pull/1498/head:add_enable_static_1498
+    git branch
+    git merge add_enable_static_1498
+    git branch
+
     ## ls 
     ls
     ## ls tools
@@ -340,6 +348,7 @@ detection(){
     ln -s ${data_path}/COCO17/test2017 ${cur_model_path}/dataset/coco/test2017
     ln -s ${data_path}/COCO17/val2017 ${cur_model_path}/dataset/coco/val2017
     #prepare pretrain_models
+    mkdir -p ~/.cache/paddle/weights
     ln -s ${prepare_path}/detection/ResNet101_vd_pretrained ~/.cache/paddle/weights
     ln -s ${prepare_path}/detection/ResNet50_cos_pretrained ~/.cache/paddle/weights
     ln -s ${prepare_path}/detection/ResNeXt101_vd_64x4d_pretrained ~/.cache/paddle/weights
@@ -379,6 +388,17 @@ detection(){
 mask_rcnn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
+    # 同上。防止跑单个模型情况。1498合入后可删除
+    ## test dir
+    git branch
+    # add_enable_static 暂未合入 https://github.com/PaddlePaddle/PaddleDetection/pull/1498/files
+    git checkout master
+    git reset --hard 5549e0831df602ae4deb08bd558c21c807ffcee7  # reset 到9月23的PR
+    git fetch origin pull/1498/head:add_enable_static_1498
+    git branch
+    git merge add_enable_static_1498
+    git branch
+
 
     # Install cocoapi
     if python -c "import pycocotools" >/dev/null 2>&1
@@ -402,6 +422,7 @@ mask_rcnn(){
         echo "tb_paddle installed"
     fi
     # Copy pretrained model
+    mkdir -p /root/.cache/paddle/weights
     ln -s ${prepare_path}/mask-rcnn/ResNet50_cos_pretrained  ~/.cache/paddle/weights
     cd ${cur_model_path}
     # Prepare data
@@ -585,6 +606,7 @@ yolov3(){
     cd ${BENCHMARK_ROOT}/PaddleDetection
 
     #sh ./weights/download.sh
+    mkdir -p ~/.cache/paddle/weights
     ln -s ${prepare_path}/yolov3/DarkNet53_pretrained ~/.cache/paddle/weights
     rm -rf dataset/coco
     ln -s ${data_path}/coco ./dataset/coco
