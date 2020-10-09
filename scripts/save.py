@@ -96,10 +96,15 @@ DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU',
                          '8': 'MULTI_GPU',
                          '8mp': 'MULTI_GPU_MULTI_PROCESS'}
 
-TABLE_HEADER = ["模型", "运行环境", "指标", "标准值", "当前值", "波动范围"]
+TABLE_HEADER = ["模型", "运行环境", "指标", "当前值", "标准Benchmark值", "相对标准值波幅", "前5次平均值", "相对前5次值波幅"]
+TABLE_PROFILE_HEADER = ["模型", "运行环境", "指标", "当前值", "前5次平均值", "相对前5次值波幅"]
 DICT_INDEX = {1: "Speed", 2: "Memory", 3: "Profiler_info", 6: "Max_bs"}
 # todo config the log_server port
 LOG_SERVER = "http://" + socket.gethostname() + ":8777/"
+WAVE_THRESHOLD = 0.05
+CHECK_TIMES = 5
+# fail model list
+FAIL_LIST = []
 
 
 def load_folder_files(folder_path, recursive=True):
@@ -162,35 +167,82 @@ def get_image_id():
     return pi.image_id
 
 
-def check_results(model_name, index, run_machine_type, cur_value, html_results, check_key=None):
+def compute_results(results_list, check_key, cur_value, index, sign=1):
+    """
+    compute avg_results, range and color.
+    Args:
+        results_list(list):[benchmark.models.ViewJobResult]
+        check_key(str): if the element of results_list is dict and we want to check some key
+        cur_value: the value in current version
+        index: check report_index_id
+        sign: range * sign
+    return:
+        avg_values(float):
+        ranges(float):
+        color(str):
+    """
+    if not results_list:
+        return cur_value, 0, "white"
+    try:
+        if isinstance(cur_value, dict) and check_key:
+            results_list = [float(x[check_key]) for x in results_list]
+            cur_value = float(cur_value[check_key])
+        avg_value = round(np.array(results_list).mean(), 4)
+        if not avg_value:
+            return cur_value, 0, "white"
+        ranges = round((float(cur_value) - avg_value) / avg_value, 4)
+    except Exception as rw:
+        print "range solve error {}".format(rw)
+        traceback.print_exc()
+        ranges = -1
+    ranges = ranges * sign
+    if ranges >= WAVE_THRESHOLD:
+        color = "green"
+    elif ranges <= -WAVE_THRESHOLD:
+        color = "red"
+    elif ranges >= WAVE_THRESHOLD:
+        color = "red"
+    elif ranges <= -WAVE_THRESHOLD:
+        color = "greed"
+    else:
+        color = "white"
+
+    return avg_value, ranges, color
+
+
+def check_results(model_name, index, run_machine_type, cur_value, html_results, sign=1, check_key=None,
+                  is_profile=False, unit=""):
     """
     check current results in range[-0.05, 0.05]
-    :param job_info
-    :param index
-    :param run_machine_type:
-    :param cur_value:
-    :param html_result:
-    :param check_key:
-    :return:
+    Args:
+        model_name(str):
+        index(int):
+        run_machine_type(str):
+        cur_value(dict or float):
+        html_result(dict):
+        sign(int):
+        check_key(str):
+    return:
     """
     # 包括pr需要对比的job_type
     check_job_type = 2 if args.job_type in [1, 2] else 3
-    results = bm.ViewJobResult.objects.filter(model_name=model_name,
-                                              report_index_id=index,
-                                              job_type=check_job_type,
-                                              cuda_version=args.cuda_version,
-                                              cudnn_version=args.cudnn_version,
-                                              device_type=args.device_type,
-                                              model_implement_type=args.implement_type,
-                                              frame_name="paddlepaddle",
-                                              run_machine_type=run_machine_type).order_by('-version')
+    results = bm.ViewJobResult.objects.filter(
+        model_name=model_name, report_index_id=index, job_type=check_job_type, cuda_version=args.cuda_version,
+        cudnn_version=args.cudnn_version, device_type=args.device_type, model_implement_type=args.implement_type,
+        frame_name="paddlepaddle", run_machine_type=run_machine_type).order_by('-version')
+
+    benchmark_results = bm.ViewJobResult.objects.filter(
+        model_name=model_name, report_index_id=index, job_type=check_job_type, cuda_version=args.cuda_version,
+        cudnn_version=args.cudnn_version, device_type=args.device_type, model_implement_type=args.implement_type,
+        frame_name="paddlepaddle", run_machine_type=run_machine_type, benchmark=1).order_by('-version')
+
     results_list = []
     count = 0
     for result in results:
         if count == 0:
             count += 1
             continue
-        if len(results_list) == 3:
+        if len(results_list) == CHECK_TIMES:
             break
         try:
             if result:  # json.loads("") throws excetion
@@ -203,40 +255,38 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
         except Exception as e:
             print "add history data error {}".format(e)
 
-    # 如果历史数据一直为空，则不报警
-    if not results_list:
+    # 如果历史数据和benchmark结果一直为空，则不报警
+    if not results_list and not benchmark_results:
         return
+    benchmark_results = [float(i.report_result) for i in benchmark_results[:1]] if benchmark_results else []
+    benchmark_value, benchmark_range, benchmark_color = compute_results(benchmark_results, check_key,
+                                                                        cur_value, index, sign)
+    avg_value, avg_range, avg_color = compute_results(results_list, check_key, cur_value, index, sign)
 
-    try:
-        if isinstance(results_list[0], dict) and check_key:
-            results_list = [float(x[check_key]) for x in results_list]
-            cur_value = float(json.loads(cur_value)[check_key])
-        avg_values = round(np.array(results_list).mean(), 4)
-        if not avg_values:
-            return
-        ranges = round((float(cur_value) - avg_values) / avg_values, 4)
-    except Exception as rw:
-        print "range solve error {}".format(rw)
-        traceback.print_exc()
-        ranges = -1
-
-    if -0.05 < ranges < 0.05:
+    if abs(avg_range) < WAVE_THRESHOLD and abs(benchmark_range) < WAVE_THRESHOLD:
         return
-    if ranges >= 0.05 and index in [1, 6]:
-        color = "green"
-    elif ranges <= -0.05 and index in [1, 6]:
-        color = "red"
-    elif ranges >= 0.05 and index in [2, 3]:
-        color = "red"
-    elif ranges <= -0.05 and index in [2, 3]:
-        color = "greed"
-    current_html_result = [dict(value=model_name),
-                           dict(value=run_machine_type),
-                           dict(value=check_key if check_key else DICT_INDEX[index]),
-                           dict(value=avg_values),
-                           dict(value=cur_value),
-                           dict(value=ranges, color=color)]
-    html_results[DICT_INDEX[index]]["data"].append(current_html_result)
+    print_machine_type = machine_type_to_print(run_machine_type)
+    # show detail info only when job success
+    if not check_fail(model_name, print_machine_type):
+        if is_profile:
+            current_html_result = [dict(value=model_name), dict(value=print_machine_type),
+                                   dict(value=check_key if check_key else DICT_INDEX[index]),
+                                   dict(value="{:.4f}".format(cur_value[check_key]) if check_key 
+                                        else "{:.4f}".format(cur_value)),
+                                   dict(value="{:.4f}".format(avg_value)),
+                                   dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
+        else:
+            current_html_result = [dict(value=model_name), dict(value=print_machine_type),
+                                   dict(value=check_key if check_key else DICT_INDEX[index]),
+                                   dict(value="{:.4f}{}".format(cur_value[check_key], unit) if check_key 
+                                        else "{:.4f}{}".format(cur_value, unit)),
+                                   dict(value="{:.4f}{}".format(benchmark_value[check_key], unit) 
+                                        if check_key else "{:.4f}{}".format(benchmark_value, unit)),
+                                   dict(value="{:.2f}%".format(round(benchmark_range * 100, 2)), color=benchmark_color),
+                                   dict(value="{:.4f}{}".format(avg_value, unit)),
+                                   dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
+
+        html_results[DICT_INDEX[index]]["data"].append(current_html_result)
 
 
 def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0):
@@ -298,6 +348,29 @@ def insert_job(image_id, run_machine_type, job_info, args):
     return pj
 
 
+def check_fail(model_name, print_machine_type):
+    """
+    check whether the specific job is failed, if fail returns True
+    """
+    for job in FAIL_LIST:
+        if model_name == job[0] and print_machine_type == job[1]:
+            return True
+    return False
+
+def machine_type_to_print(run_machine_type):
+    """
+    change machine type to print style
+    """
+    if run_machine_type == 'ONE_GPU':
+        print_machine_type = '1_GPU'
+    elif run_machine_type == 'FOUR_GPU':
+        print_machine_type = '4_GPUS'
+    elif run_machine_type == 'MULTI_GPU':
+        print_machine_type = '8_GPUS'
+    else:
+        print_machine_type = '8_GPUS_8_PROCESSES'
+    return print_machine_type
+
 def parse_logs(args):
     """
     parse log files and insert to db
@@ -309,7 +382,10 @@ def parse_logs(args):
     html_results = OrderedDict()
     for k in DICT_INDEX.values():
         html_results[k] = {}
-        html_results[k]["header"] = TABLE_HEADER
+        if k == 'Profiler_info':
+            html_results[k]["header"] = TABLE_PROFILE_HEADER
+        else:
+            html_results[k]["header"] = TABLE_HEADER
         html_results[k]["data"] = []
     for job_file in file_list:
         result = 0
@@ -367,7 +443,9 @@ def parse_logs(args):
                 if job_info["index"] == 1:
                     insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result, '%')
                     insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%')
-                    insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 0)
+                    pjr2 = insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 1)
+                    bm.JobResultsLog.objects.create(
+                        result_id=pjr2.result_id, log_path=json.dumps(log_save_dict)).save()
                     if int(job_info["gpu_num"]) == 1:
                         profiler_log = job_info["log_with_profiler"].split("/")[-1]
                         profiler_path = job_info["profiler_path"].split("/")[-1]
@@ -376,10 +454,7 @@ def parse_logs(args):
                         log_save_dict["profiler_log_path"] = profiler_log_path
                         log_save_dict["profiler_path"] = profiler_path
 
-                pjrl = bm.JobResultsLog()
-                pjrl.result_id = pjr.result_id
-                pjrl.log_path = json.dumps(log_save_dict)
-                pjrl.save()
+                bm.JobResultsLog.objects.create(result_id=pjr.result_id, log_path=json.dumps(log_save_dict)).save()
 
             except Exception as pfe:
                 print pfe
@@ -387,19 +462,22 @@ def parse_logs(args):
                 print("models: {}, run_machine_type: {}, index: {}, result: {}".format(
                     job_info["model_name"], run_machine_type, job_info["index"], result))
 
-                if job_info["index"] == 1:    # speed
+                if job_info["index"] == 1:  # speed
+                    if int(result) == 0:
+                        print_machine_type = machine_type_to_print(run_machine_type)
+                        FAIL_LIST.append([job_info["model_name"], print_machine_type])
                     check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                    result, html_results)    # speed, CPU, GPU
+                                  result, html_results, -1 if args.device_type.lower() == 'cpu' else 1, unit=unit)
                     check_results(job_info["model_name"], 2, run_machine_type,
-                                    mem_result, html_results)    # mem
-                elif job_info["index"] == 3:    # profiler
+                                  mem_result, html_results, -1)  # mem
+                elif job_info["index"] == 3:  # profiler
                     check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                    result, html_results, "Framework_Total")
+                                  json.loads(result), html_results, -1, "Framework_Total", is_profile=True)
                     check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                    result, html_results, "GpuMemcpy_Total")
-                elif job_info["index"] == 6:    # max BS
+                                  json.loads(result), html_results, -1, "GpuMemcpy_Total", is_profile=True)
+                elif job_info["index"] == 6:  # max BS
                     check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                    result, html_results)
+                                  result, html_results, 1)
                 else:
                     print("--------------> please set a correct index(1|3|6)!")
 
@@ -411,7 +489,7 @@ def parse_logs(args):
     if args.device_type.upper() in ("P40", "V100"):
         env["cuda_version"] = args.cuda_version
         env["cudnn_version"] = args.cudnn_version
-    email_t = template.EmailTemplate(title, env, html_results, args.log_path)
+    email_t = template.EmailTemplate(title, env, html_results, args.log_path, FAIL_LIST)
     email_t.construct_email_content()
 
 

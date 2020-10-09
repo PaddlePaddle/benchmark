@@ -1,6 +1,5 @@
 #!bin/bash
 set -xe
-
 if [[ $# -lt 4 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
@@ -56,10 +55,9 @@ function _train(){
     WORK_ROOT=$PWD
     num_epochs=2
     echo "${model_name}, batch_size: ${batch_size}"
-    if echo {ResNet50 ResNet101} | grep -w $model_name &>/dev/null
+    if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet101" ] || [ ${model_name} = "ResNet50_bs128" ];
     then
-       train_cmd="  --model=${model_name} \
-           --batch_size=${batch_size} \
+       train_cmd="--batch_size=${batch_size} \
            --total_images=1281167 \
            --class_dim=1000 \
            --model_save_dir=output/ \
@@ -71,10 +69,9 @@ function _train(){
            --is_profiler=${is_profiler} \
            --profiler_path=${profiler_path} \
            --l2_decay=1e-4"
-    elif echo {SE_ResNeXt50_32x4d} | grep -w $model_name &>/dev/null
+    elif [ ${model_name} = "SE_ResNeXt50_32x4d" ];
     then
-        train_cmd=" --model=${model_name} \
-           --batch_size=${batch_size} \
+        train_cmd="--batch_size=${batch_size} \
            --total_images=1281167 \
            --class_dim=1000 \
            --model_save_dir=output/ \
@@ -92,11 +89,22 @@ function _train(){
 	exit
     fi
 
+    if [ ${model_name} = "SE_ResNeXt50_32x4d" ] || [ ${model_name} = "ResNet101" ]; then
+        train_cmd="--model=${model_name} "${train_cmd}
+    else
+        train_cmd="--model=ResNet50 "${train_cmd}  # 必须这么写， 因模型有个内置的支持的model列表
+    fi
+
     case ${run_mode} in
     sp) train_cmd="python -u train.py "${train_cmd} ;;
     mp)
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES train.py "${train_cmd}
+        if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ]; then
+            export FLAGS_fraction_of_gpu_memory_to_use=0.8
+            train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES train.py --use_dali=True "${train_cmd}
+        else
+            train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES train.py "${train_cmd}
+        fi
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac

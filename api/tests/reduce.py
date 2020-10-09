@@ -31,7 +31,7 @@ class PDReduce(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         data = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
-        result = self.layers(
+        result = self.fluid_layers(
             config.api_name,
             input=data,
             dim=config.dim,

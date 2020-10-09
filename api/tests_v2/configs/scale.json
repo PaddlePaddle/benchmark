@@ -1,0 +1,52 @@
+[{
+    "op": "scale",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "bias": {
+            "type": "float",
+            "value": "-1.0"
+        },
+        "bias_after_scale": {
+            "type": "bool",
+            "value": "False"
+        },
+        "scale": {
+            "type": "float",
+            "value": "10000.0"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, -1L, -1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "scale",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "bias": {
+            "type": "float",
+            "value": "0.0"
+        },
+        "bias_after_scale": {
+            "type": "bool",
+            "value": "True"
+        },
+        "scale": {
+            "type": "float",
+            "value": "32.0"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, -1L, 1024L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}]

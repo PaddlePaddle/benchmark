@@ -44,9 +44,7 @@ function prepare(){
     echo "*******prepare benchmark***********"
 
     # this is for image paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
-    if [ '10.0' = ${cuda_version} -o "p40" = ${device_type} ] ; then
-        export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
-    fi
+    export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
 
     # NOTE: this path is for profiler
     # export LD_LIBRARY_PATH=/home/work/cuda-9.0/extras/CUPTI/lib64/:$LD_LIBRARY_PATH
@@ -102,8 +100,8 @@ function prepare(){
     benchmark_commit_id=$(git log|head -n1|awk '{print $2}')
     echo "benchmark_commit_id is: "${benchmark_commit_id}
 
-    # 动态图升级到cuda10.1 python3.7，静态图依然为cuda10.0 python2.7
-    if [[ 'dynamic_graph' == ${implement_type} ]]; then
+    # 动态图升级到cuda10.1 python3.7，静态图切cuda10.1 python3.7
+    if [[ 'dynamic_graph' == ${implement_type} ]] || [[ 'static_graph' == ${implement_type} ]]; then
         rm -rf run_env
         mkdir run_env
         ln -s $(which python3.7) run_env/python

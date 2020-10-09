@@ -20,7 +20,10 @@ import traceback
 import contextlib
 import importlib
 import logging
+import warnings
 import numpy as np
+import sys
+from common import special_op_list
 
 if six.PY3:
     from . import utils
@@ -126,8 +129,14 @@ class PaddleAPIBenchmarkBase(object):
             self._feed_dict[var] = feed_value
         return var
 
-    def layers(self, name, **kwargs):
+    def fluid_layers(self, name, **kwargs):
         module = importlib.import_module("paddle.fluid.layers")
+        func = getattr(module, name)
+        result = func(**kwargs)
+        return result
+
+    def layers(self, name, **kwargs):
+        module = importlib.import_module("paddle")
         func = getattr(module, name)
         result = func(**kwargs)
         return result
@@ -255,6 +264,15 @@ class PaddleAPIBenchmarkBase(object):
             with fluid.program_guard(self.main_program, self.startup_program):
                 self.build_program(config=config)
 
+            # For backward benchmark, the program is composed of:
+            #   xxx -> shape -> fill_constant -> xxx_grad
+            # The extra CUDA kernel of fill_constant will make the traced times
+            # larger than the actual, but tf can automatic optimize the execution
+            # of fill_constant. We call self._prune() to move the fill_constant op
+            # from main_program to startup_program for current benchmark and will
+            # optimize the execution strategy in the future.
+            self._prune(config)
+
         if feeder_adapter is None:
             feed_list = []
             for var in self.feed_vars:
@@ -267,7 +285,13 @@ class PaddleAPIBenchmarkBase(object):
         self.name = config.api_name
         feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
                                                      feeder_adapter)
-        # assert self.__backward == args.backward, "Backward is not surported for %s." % self.name
+        if self.__backward != args.backward:
+            print(
+                "Backward is not surported for %s in Paddle. It is actually running the forward test."
+                % self.name)
+            if self.name not in special_op_list.NO_BACKWARD_OPS:
+                assert False, "If backward is not surported for %s." \
+                    " Please add the \'%s\' in NO_BACKWARD_OPS of api/common/special_op_list.py." % (self.name, self.name)
 
         feed_list = feeder_adapter.to_paddle(self.feed_vars)
         assert len(feed_list) == len(self.feed_vars)
@@ -319,6 +343,53 @@ class PaddleAPIBenchmarkBase(object):
             cpu_tensor = tensor._copy(place)
             output.append(cpu_tensor)
         return output
+
+    def _prune(self, config):
+        if not config.backward or config.api_name in [
+                "while_loop", "case", "switch_case"
+        ]:
+            return
+
+        main_block = self.main_program.global_block()
+        startup_block = self.startup_program.global_block()
+
+        index = None
+        for i in range(len(main_block.ops) - 1):
+            if main_block.ops[i].type == "shape" and main_block.ops[
+                    i + 1].type == "fill_constant":
+                index = i
+                break
+        if index is None:
+            return
+
+        shape_op = main_block.ops[index]
+        fill_constant_op = main_block.ops[index + 1]
+        target_var = main_block.var(shape_op.input("Input")[0])
+        target_grad_var = main_block.var(fill_constant_op.output("Out")[0])
+        if -1 in target_var.shape:
+            return
+
+        dtype = target_grad_var.dtype
+        attrs = {
+            "shape": target_var.shape,
+            "value": 1.0,
+            "dtype": target_var.dtype
+        }
+        target_grad_var_copy = startup_block.create_var(
+            name=target_grad_var.name,
+            dtype=target_grad_var.dtype,
+            persistable=True)
+        startup_block.append_op(
+            type="fill_constant",
+            inputs=None,
+            outputs={"Out": [target_grad_var_copy]},
+            attrs=attrs,
+            stop_gradient=True)
+        target_grad_var.persistable = True
+
+        main_block._remove_var(shape_op.output("Out")[0])
+        main_block._remove_op(index + 1)
+        main_block._remove_op(index)
 
     def _check_consistency(self, fetches):
         def _self_check(output):

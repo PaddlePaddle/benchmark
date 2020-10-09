@@ -1,0 +1,38 @@
+[{
+    "op": "gather",
+    "param_info": {
+        "index": {
+            "dtype": "int32",
+            "shape": "[-1L]",
+            "type": "Variable"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 1L]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "0"
+        }
+    }
+}, {
+    "op": "gather",
+    "param_info": {
+        "index": {
+            "dtype": "int32",
+            "shape": "[-1L, 1L]",
+            "type": "Variable"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 14L, 14L]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "0"
+        }
+    },
+    "repeat": 5000
+}]

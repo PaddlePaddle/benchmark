@@ -1,0 +1,18 @@
+[{
+    "op": "one_hot",
+    "param_info": {
+        "allow_out_of_range": {
+            "type": "bool",
+            "value": "False"
+        },
+        "depth": {
+            "type": "int",
+            "value": "37007"
+        },
+        "input": {
+            "dtype": "int64",
+            "shape": "[-1L, 1L]",
+            "type": "Variable"
+        }
+    }
+}]

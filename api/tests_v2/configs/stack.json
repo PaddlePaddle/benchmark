@@ -1,0 +1,92 @@
+[{
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x10": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x11": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x12": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x13": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x14": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x15": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x4": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x5": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x6": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x7": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x8": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            },
+            "x9": {
+                "dtype": "float32",
+                "shape": "[-1L, -1L, -1L]",
+                "type": "Variable"
+            }
+        }
+    }
+}]

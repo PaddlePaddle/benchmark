@@ -1,0 +1,82 @@
+[{
+    "op": "affine_channel",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "relu"
+        },
+        "bias": {
+            "dtype": "float32",
+            "shape": "[32L]",
+            "type": "Variable"
+        },
+        "data_layout": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "scale": {
+            "dtype": "float32",
+            "shape": "[32L]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 32L, -1L, -1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "affine_channel",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "None"
+        },
+        "bias": {
+            "dtype": "float32",
+            "shape": "[512L]",
+            "type": "Variable"
+        },
+        "data_layout": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "scale": {
+            "dtype": "float32",
+            "shape": "[512L]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, -1L, -1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "affine_channel",
+    "param_info": {
+        "act": {
+            "type": "string",
+            "value": "relu"
+        },
+        "bias": {
+            "dtype": "float32",
+            "shape": "[2048L]",
+            "type": "Variable"
+        },
+        "data_layout": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "scale": {
+            "dtype": "float32",
+            "shape": "[2048L]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, -1L, -1L]",
+            "type": "Variable"
+        }
+    }
+}]

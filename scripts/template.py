@@ -16,16 +16,15 @@ import os
 
 MAIL_HEAD_CONTENT = """From:paddle_benchmark@baidu.com
 To:test@benchmark.com
-Subject:benchmark运行结果报警，请检查
+Subject:【GRAPH_HOLDER_JOB_HOLDER-TIME_HOLDER】运行结果报警，请检查
 content-type:text/html
 <html>
     <body>
         <h3 align=center>TITLE_HOLDER alarm email</h3>
-        <HR align=center width="80%" SIZE=1>         
-        <table border="1" align=center>
-        <caption bgcolor="#989898">环境配置</caption>
-RUN_ENV_HOLDER
-        </table>             
+        <table style="display:DISPLAY;" border="1" align=center>
+        <caption bgcolor="#989898">失败任务列表</caption>
+FAIL_JOB_HOLDER
+        </table>                      
 """
 
 MAIL_MID_CONTENT = """
@@ -41,7 +40,15 @@ ALARM_INFO_HOLDER
 
 MAIL_TAIL_CONTENT = """
         <HR align=center width="80%" SIZE=1>
-        <h4 align=center>历史详细数据 BENCHMARK_WEBSITE</h4> 
+        <table border="1" align=center>
+        <caption bgcolor="#989898">环境配置</caption>
+RUN_ENV_HOLDER
+        </table>
+        <HR align=center width="80%" SIZE=1>
+        <div style="text-align:center;">
+        <a align=center href="BENCHMARK_WEBSITE1">参考链接</a><br/><br/>
+        <a align=center href="BENCHMARK_WEBSITE2">Benchmark网站历史详细数据</a><br/><br/>
+        </div>
     </body>
 </html>
 """
@@ -50,7 +57,8 @@ MAIL_TAIL_CONTENT = """
 class EmailTemplate(object):
     """construct email for benchmark result.
     """
-    def __init__(self, title, env, results, log_path):
+
+    def __init__(self, title, env, results, log_path, fail_jobs=[]):
         """
         Args:
             title(str): benchmark | op_benchmark | benchmark_distribute
@@ -66,11 +74,15 @@ class EmailTemplate(object):
             log_path(str): mail path
         """
         self.title = title
+        self.fail_jobs = fail_jobs
+        self.job_display = 'none'
+        self.fail_job_content = ""
         self.env_content = ""
         self.alarm_info = ""
         self.log_path = log_path
         self.__construct_mail_env(env)
         self.__construct_alarm_info(results)
+        self.__construct_fail_job(fail_jobs)
 
     def __construct_mail_env(self, env):
         """
@@ -83,6 +95,20 @@ class EmailTemplate(object):
                     <tr><td>{}</td><td>{}</td></tr>
                     """.format(k, v)
         return self.env_content
+
+    def __construct_fail_job(self, fail_jobs):
+        """
+        construct fail job content.
+        """
+        if fail_jobs:
+            self.job_display = 'block'
+            for job in fail_jobs:
+                self.fail_job_content += """
+                     <tr><td>{}</td><td>{}</td></tr>
+                     """.format(job[0], job[1])
+        else:
+            self.job_display = 'none'
+        return self.fail_job_content
 
     def __construct_alarm_info(self, results):
         """
@@ -116,14 +142,18 @@ class EmailTemplate(object):
         construct email full content.
         """
         # Construct header of the message
-        content = MAIL_HEAD_CONTENT.replace("TITLE_HOLDER", self.title).replace('RUN_ENV_HOLDER',
-                                                                                self.env_content)
+        content = MAIL_HEAD_CONTENT.replace("TITLE_HOLDER", self.title).replace('FAIL_JOB_HOLDER',
+                                                                                self.fail_job_content).replace(
+            "TIME_HOLDER", os.getenv("START_TIME")).replace("GRAPH_HOLDER", os.getenv("BENCHMARK_GRAPH")).replace(
+            "JOB_HOLDER", os.getenv("BENCHMARK_TYPE")).replace('DISPLAY', self.job_display)
+
         if not self.alarm_info:
             return
         # Construct alarm content
         content += self.alarm_info
         # Construct the tail of the message
-        content += MAIL_TAIL_CONTENT.replace("BENCHMARK_WEBSITE", os.getenv("BENCHMARK_WEBSITE", "")).strip()
+        content += MAIL_TAIL_CONTENT.replace("BENCHMARK_WEBSITE1", os.getenv("BENCHMARK_WEBSITE1", "")).strip().replace(
+            'RUN_ENV_HOLDER', self.env_content).replace("BENCHMARK_WEBSITE2", os.getenv("BENCHMARK_WEBSITE2"))
 
         with open(os.path.join(self.log_path, "mail.html"), "w") as f_object:
             f_object.write(content)

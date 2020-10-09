@@ -1,0 +1,60 @@
+[{
+    "op": "remainder",
+    "param_info": {
+        "x": {
+            "dtype": "int64",
+            "shape": "[-1L, 128L, 8L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "int64",
+            "shape": "[-1L, 128L, 8L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "remainder",
+    "param_info": {
+        "x": {
+            "dtype": "int32",
+            "shape": "[300L, 128L, 100L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "int32",
+            "shape": "[300L, 128L, 100L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "op": "remainder",
+    "param_info": {
+        "x": {
+            "dtype": "int64",
+            "shape": "[300L, 128L, 100L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "int64",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "op": "remainder",
+    "param_info": {
+        "x": {
+            "dtype": "float64",
+            "shape": "[300L, 128L, 100L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float64",
+            "shape": "[300L, 128L, 100L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}]

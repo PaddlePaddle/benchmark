@@ -1,0 +1,44 @@
+[{
+    "op": "assign",
+    "param_info": {
+        "input": {
+            "dtype": "float32",
+            "shape": "[2L, 768L]",
+            "type": "Variable"
+        },
+        "output": {
+            "dtype": "float32",
+            "shape": "[2L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "assign",
+    "param_info": {
+        "input": {
+            "dtype": "float32",
+            "shape": "[30522L, 1024L]",
+            "type": "Variable"
+        },
+        "output": {
+            "dtype": "float32",
+            "shape": "[30522L, 1024L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "assign",
+    "param_info": {
+        "input": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        },
+        "output": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}]

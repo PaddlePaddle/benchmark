@@ -19,8 +19,9 @@ class Pool2dConfig(APIConfig):
     def __init__(self):
         super(Pool2dConfig, self).__init__('pool2d')
 
-    def init_from_json(self, filename, config_id=0):
-        super(Pool2dConfig, self).init_from_json(filename, config_id)
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(Pool2dConfig, self).init_from_json(filename, config_id,
+                                                 unknown_dim)
         self.pool_type = self.pool_type.lower()
         if isinstance(self.pool_padding, int):
             self.pool_size = [self.pool_padding, self.pool_padding]
