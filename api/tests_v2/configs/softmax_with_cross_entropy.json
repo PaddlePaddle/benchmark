@@ -65,6 +65,5 @@
             "type": "bool",
             "value": "False"
         }
-    },
-    "atol": 0.001
+    }
 }]
