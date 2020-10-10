@@ -19,7 +19,6 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
     def __init__(self):
         super(SoftmaxWithCrossEntropyConfig,
               self).__init__("softmax_with_cross_entropy")
-        self.atol = 1e-3
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(SoftmaxWithCrossEntropyConfig, self).init_from_json(
