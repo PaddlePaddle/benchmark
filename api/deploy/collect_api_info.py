@@ -35,8 +35,8 @@ class APITestInfo(object):
         self.has_backward = False if api_name in special_op_list.NO_BACKWARD_OPS else True
 
     def to_string(self):
-        return self.api_name + ',' + self.py_filename + ',' + self.json_filename + ',' + str(
-            self.has_backward)
+        return self.api_name + ',' + self.py_filename + ',' + str(
+            self.json_filename) + ',' + str(self.has_backward)
 
 
 def collect_subclass_dict(test_cases_dict):
@@ -53,7 +53,7 @@ def collect_subclass_dict(test_cases_dict):
 
 def import_all_tests(test_module_name):
     test_cases_dict = {}
-    special_module_list = ["__init__", "main", "common_import", "launch"]
+    special_module_list = ["__init__", "common_import"]
 
     def _import_api(test_module_name, basename):
         try:
@@ -81,8 +81,8 @@ def main(args):
     test_cases_dict = import_all_tests(args.test_module_name)
     subclass_dict = collect_subclass_dict(test_cases_dict)
 
-    op_test_info_list = []
-    for py_filename in sorted(test_cases_dict.keys()):
+    op_test_info_dict = {}
+    for py_filename in test_cases_dict.keys():
         if py_filename in subclass_dict.keys():
             # Define an object of special APIConfig.
             module = test_cases_dict[py_filename]
@@ -104,7 +104,7 @@ def main(args):
                     api_name=api_name,
                     py_filename=config.name,
                     json_filename=json_filename)
-                op_test_info_list.append(info)
+                op_test_info_dict[api_name] = info
         else:
             json_filename = py_filename + ".json" if py_filename not in [
                 "feed", "fetch", "null"
@@ -113,12 +113,14 @@ def main(args):
                 api_name=py_filename,
                 py_filename=py_filename,
                 json_filename=json_filename)
-            op_test_info_list.append(info)
+            op_test_info_dict[py_filename] = info
 
     # Write to filesystem.
+    write_str = ""
+    for key in sorted(op_test_info_dict.keys()):
+        write_str += op_test_info_dict[key].to_string() + "\n"
     with open(args.info_file, 'w') as f:
-        for info in op_test_info_list:
-            f.writelines(info.to_string() + "\n")
+        f.writelines(write_str)
 
 
 if __name__ == '__main__':
