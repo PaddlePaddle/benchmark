@@ -32,11 +32,11 @@ run_args="--task ${task} \
           --allow_adaptive_repeat False \
           --log_level 0"
 
-if [ $# -ge 3 ]; then
-  api_name=${3}
+if [ $# -ge 4 ]; then
+  api_name=${4}
   run_args="${run_args} \
             --api_name ${api_name}"
 fi
 
-python -m tests_v2.launch ${OP_BENCHMARK_ROOT}/tests_v2/${name}.py \
+python -m common.launch ${OP_BENCHMARK_ROOT}/tests_v2/${name}.py \
          ${run_args}

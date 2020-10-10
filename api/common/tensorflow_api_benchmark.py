@@ -246,13 +246,10 @@ class TensorflowAPIBenchmarkBase(object):
 
         gradients = tf.gradients(targets, inputs)
         self.__backward = True
-        # print("Gradients: ", gradients)
+        print("Gradients: ", gradients)
         if isinstance(gradients, list):
-            grad_length = len(gradients)
-            if self.name in special_op_list.BACKWARD_CHECK_DIFF_OPS:
-                grad_length -= 1
-            for i in range(grad_length):
-                self.fetch_list.append(gradients[i])
+            for grad in gradients:
+                self.fetch_list.append(grad)
         else:
             self.fetch_list.append(gradients)
 
@@ -370,9 +367,10 @@ class TensorflowAPIBenchmarkBase(object):
             print(
                 "Backward is not surported for %s in Tensorflow. It is actually running the forward test."
                 % self.name)
-            if self.name not in special_op_list.NO_BACKWARD_OPS:
-                assert False, "If backward is not surported for %s. " \
-                    "Please add the \'%s\' in NO_BACKWARD_OPS of api/common/special_op_list.py." % (self.name, self.name)
+            assert not special_op_list.has_backward(
+                config
+            ), "If backward is not surported for %s, please add the Paddle's \'%s\' to NO_BACKWARD_OPS in api/common/special_op_list.py." % (
+                self.name, self.name)
 
         feed_list = feeder_adapter.to_tensorflow(self.feed_list)
         assert len(feed_list) == len(self.feed_list)
