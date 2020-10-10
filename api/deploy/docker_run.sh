@@ -211,8 +211,8 @@ function run(){
              pip uninstall paddlepaddle-gpu -y;
              pip install ${all_path}/images/${IMAGE_NAME};
              cd ${benchmark_work_path}/baidu/paddle/benchmark/api;
-             bash deploy/main_control.sh tests/configs ${logs_dir} ${CUDA_VISIBLE_DEVICES} gpu;
-             bash deploy/main_control.sh tests/configs ${logs_dir} ${CPU_VISIBLE_DEVICES} cpu;
+             bash deploy/main_control.sh tests tests/configs ${logs_dir} ${CUDA_VISIBLE_DEVICES} gpu;
+             bash deploy/main_control.sh tests tests/configs ${logs_dir} ${CPU_VISIBLE_DEVICES} cpu;
              unset http_proxy https_proxy;
              python deploy/post_log.py --server_path ${LOG_SERVER} --file_path ${logs_dir}
              ln -s ${all_path}/env/bin/python /usr/local/bin/mypython;
