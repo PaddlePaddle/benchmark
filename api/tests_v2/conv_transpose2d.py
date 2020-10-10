@@ -15,9 +15,9 @@
 from common_import import *
 
 
-class Conv2dTransposeConfig(APIConfig):
+class ConvTranspose2dConfig(APIConfig):
     def __init__(self):
-        super(Conv2dTransposeConfig, self).__init__("conv2d_transpose")
+        super(ConvTranspose2dConfig, self).__init__("conv_transpose2d")
         self.feed_spec = [
             {
                 "range": [-1, 1]
@@ -29,7 +29,7 @@ class Conv2dTransposeConfig(APIConfig):
         ]
 
     def init_from_json(self, filename, config_id=0, unknown_dim=2):
-        super(Conv2dTransposeConfig, self).init_from_json(filename, config_id,
+        super(ConvTranspose2dConfig, self).init_from_json(filename, config_id,
                                                           unknown_dim)
         if isinstance(self.padding, int):
             self.padding = [self.padding, self.padding]
@@ -64,7 +64,7 @@ class Conv2dTransposeConfig(APIConfig):
 
     def to_tensorflow(self):
         assert self.output_size is not None
-        tf_config = super(Conv2dTransposeConfig, self).to_tensorflow()
+        tf_config = super(ConvTranspose2dConfig, self).to_tensorflow()
         tf_config.filter_shape = [
             self.filter_size[0], self.filter_size[1],
             self.num_channels // self.groups, self.num_filters
@@ -100,7 +100,7 @@ class Conv2dTransposeConfig(APIConfig):
         return "VALID" if padding == [0, 0] else "SAME"
 
 
-class PDConv2dTranspose(PaddleAPIBenchmarkBase):
+class PDConvTranspose2d(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
@@ -110,11 +110,14 @@ class PDConv2dTranspose(PaddleAPIBenchmarkBase):
         result = paddle.nn.functional.conv_transpose2d(
             x=input,
             weight=filter,
-            output_size=config.output_size,
+            bias=None,
             stride=config.stride,
             padding=config.padding,
-            data_format=config.data_format,
-            dilation=config.dilation)
+            output_padding=0,
+            dilation=config.dilation,
+            groups=config.groups,
+            output_size=config.output_size,
+            data_format=config.data_format)
 
         self.feed_vars = [input, filter]
         self.fetch_vars = [result]
@@ -122,7 +125,7 @@ class PDConv2dTranspose(PaddleAPIBenchmarkBase):
             self.append_gradients(result, [input, filter])
 
 
-class TFConv2dTranspose(TensorflowAPIBenchmarkBase):
+class TFConvTranspose2d(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
@@ -145,6 +148,6 @@ class TFConv2dTranspose(TensorflowAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        PDConv2dTranspose(),
-        TFConv2dTranspose(),
-        config=Conv2dTransposeConfig())
+        PDConvTranspose2d(),
+        TFConvTranspose2d(),
+        config=ConvTranspose2dConfig())
