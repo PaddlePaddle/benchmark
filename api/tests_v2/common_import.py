@@ -15,13 +15,6 @@
 import os, sys
 import numpy as np
 
-package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(package_path)
-
-from common.paddle_api_benchmark import PaddleAPIBenchmarkBase
-from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase
-from common.api_param import APIConfig
-
 try:
     import paddle
 except ImportError:
@@ -35,4 +28,10 @@ except ImportError:
     sys.stderr.write(
         "Cannot import tensorflow, maybe tensorflow is not installed.\n")
 
-from main import test_main, test_main_without_json
+package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(package_path)
+
+from common.paddle_api_benchmark import PaddleAPIBenchmarkBase
+from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase
+from common.api_param import APIConfig
+from common.main import test_main, test_main_without_json

@@ -15,13 +15,10 @@
 from __future__ import print_function
 
 import argparse
-import os, sys
+import os
 import json
 import sys
 import warnings
-
-package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(package_path)
 
 from common import utils
 from common import api_param
@@ -106,7 +103,6 @@ def parse_args():
 
     if args.task == "accuracy":
         args.repeat = 1
-        args.log_level = 0
         args.check_output = False
         args.profiler = "none"
 
@@ -216,6 +212,9 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
 
     if args.task == "accuracy":
         if config.run_tf:
+            if args.log_level == 1:
+                print("Output of Paddle: ", pd_outputs)
+                print("Output of TensorFlow: ", tf_outputs)
             utils.check_outputs(
                 pd_outputs,
                 tf_outputs,

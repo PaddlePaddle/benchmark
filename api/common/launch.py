@@ -14,11 +14,8 @@
 
 from __future__ import print_function
 
-import os, sys
+import sys
 import argparse
-
-package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(package_path)
 
 from common import utils
 from common import api_param
