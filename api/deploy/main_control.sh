@@ -164,7 +164,7 @@ function execute_one_case() {
                     fi
 
                     case_id=$[$case_id+1]
-                    run_cmd="python -m tests.launch ${TEST_DIR}/${name}.py \
+                    run_cmd="python -m common.launch ${TEST_DIR}/${name}.py \
                           --api_name ${api_name} \
                           --task ${task} \
                           --framework ${framework} \
