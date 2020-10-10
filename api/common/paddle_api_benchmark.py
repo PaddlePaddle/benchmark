@@ -23,6 +23,7 @@ import logging
 import warnings
 import numpy as np
 import sys
+
 from common import special_op_list
 
 if six.PY3:
@@ -40,6 +41,13 @@ try:
 except Exception as e:
     sys.stderr.write(
         "Cannot import paddle.fluid, maybe paddle is not installed.\n")
+
+try:
+    paddle.enable_static()
+except Exception:
+    print(
+        "The paddle version is less than 2.0, it can not use paddle.enable_static()"
+    )
 
 
 @contextlib.contextmanager
@@ -156,7 +164,7 @@ class PaddleAPIBenchmarkBase(object):
 
         gradients = fluid.backward.gradients(targets, inputs)
         self.__backward = True
-        # print("Gradients: ", gradients)
+        print("Gradients: ", gradients)
         if isinstance(gradients, list):
             for grad in gradients:
                 self.fetch_vars.append(grad)
@@ -289,9 +297,10 @@ class PaddleAPIBenchmarkBase(object):
             print(
                 "Backward is not surported for %s in Paddle. It is actually running the forward test."
                 % self.name)
-            if self.name not in special_op_list.NO_BACKWARD_OPS:
-                assert False, "If backward is not surported for %s." \
-                    " Please add the \'%s\' in NO_BACKWARD_OPS of api/common/special_op_list.py." % (self.name, self.name)
+            assert not special_op_list.has_backward(
+                config
+            ), "If backward is not surported for %s, please add the \'%s\' to NO_BACKWARD_OPS in api/common/special_op_list.py." % (
+                self.name, self.name)
 
         feed_list = feeder_adapter.to_paddle(self.feed_vars)
         assert len(feed_list) == len(self.feed_vars)

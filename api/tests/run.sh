@@ -38,5 +38,5 @@ if [ $# -ge 3 ]; then
             --api_name ${api_name}"
 fi
 
-python -m tests.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py \
+python -m common.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py \
          ${run_args}
