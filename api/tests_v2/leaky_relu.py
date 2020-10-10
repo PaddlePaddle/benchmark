@@ -20,7 +20,7 @@ class PDLeakyRelu(PaddleAPIBenchmarkBase):
         data = self.variable(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
         result = paddle.nn.functional.leaky_relu(
-            x=data, negative_slope=config.alpha)
+            x=data, negative_slope=config.negative_slope)
 
         self.feed_vars = [data]
         self.fetch_vars = [result]
@@ -32,7 +32,7 @@ class TFLeakyRelu(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.variable(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.nn.leaky_relu(features=data, alpha=config.alpha)
+        result = tf.nn.leaky_relu(features=data, alpha=config.negative_slope)
 
         self.feed_list = [data]
         self.fetch_list = [result]

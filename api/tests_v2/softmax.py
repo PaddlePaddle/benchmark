@@ -18,7 +18,7 @@ from common_import import *
 class PDSoftmax(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
+            name='input', shape=config.x_shape, dtype=config.x_dtype)
         result = paddle.nn.functional.softmax(x=input, axis=config.axis)
 
         self.feed_vars = [input]
@@ -30,7 +30,7 @@ class PDSoftmax(PaddleAPIBenchmarkBase):
 class TFSoftmax(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
+            name='input', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.nn.softmax(logits=input, axis=config.axis)
 
         self.feed_list = [input]

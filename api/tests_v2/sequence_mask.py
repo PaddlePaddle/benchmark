@@ -32,10 +32,10 @@ class PDSequenceMask(PaddleAPIBenchmarkBase):
             name='data', shape=config.x_shape, dtype=config.x_dtype)
         if hasattr(config, "maxlen_shape"):
             # maxlen is a Variable
-            maxlen = paddle.fill_constant(
+            maxlen = paddle.full(
                 shape=config.maxlen_shape,
-                dtype=config.maxlen_dtype,
-                value=config.maxlen)
+                fill_value=config.maxlen,
+                dtype=config.maxlen_dtype)
         else:
             maxlen = config.maxlen
 
