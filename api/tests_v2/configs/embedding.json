@@ -1,102 +1,90 @@
 [{
     "op": "embedding",
     "param_info": {
-        "dtype": {
-            "type": "string",
-            "value": "float16"
-        },
-        "input": {
+        "x": {
             "dtype": "int64",
             "shape": "[-1L, -1L]",
             "type": "Variable"
         },
-        "is_sparse": {
+        "weight": {
+            "dtype": "float16",
+            "shape": "[2L, 768L]",
+            "type": "Variable"
+        },
+        "sparse": {
             "type": "bool",
             "value": "False"
         },
         "padding_idx": {
             "type": "string",
             "value": "None"
-        },
-        "size": {
-            "type": "list",
-            "value": "[2, 768]"
         }
     }
 }, {
     "op": "embedding",
     "param_info": {
-        "dtype": {
-            "type": "string",
-            "value": "float32"
-        },
-        "input": {
+        "x": {
             "dtype": "int64",
             "shape": "[-1L, -1L]",
             "type": "Variable"
         },
-        "is_sparse": {
+        "weight": {
+            "dtype": "float32",
+            "shape": "[37007L, 1024L]",
+            "type": "Variable"
+        },
+        "sparse": {
             "type": "bool",
             "value": "False"
         },
         "padding_idx": {
             "type": "int",
             "value": "0"
-        },
-        "size": {
-            "type": "list",
-            "value": "[37007, 1024]"
         }
     }
 }, {
     "op": "embedding",
     "param_info": {
-        "dtype": {
-            "type": "string",
-            "value": "float32"
-        },
-        "input": {
+        "x": {
             "dtype": "int64",
             "shape": "[-1L, 35L, 1L]",
             "type": "Variable"
         },
-        "is_sparse": {
+        "weight": {
+            "dtype": "float32",
+            "shape": "[10000L, 1500L]",
+            "type": "Variable"
+        },
+        "sparse": {
             "type": "bool",
             "value": "False"
         },
         "padding_idx": {
             "type": "string",
             "value": "None"
-        },
-        "size": {
-            "type": "list",
-            "value": "[10000, 1500]"
         }
     },
     "repeat": 20000
 }, {
     "op": "embedding",
     "param_info": {
-        "dtype": {
-            "type": "string",
-            "value": "float32"
-        },
-        "input": {
+        "x": {
             "dtype": "int64",
             "shape": "[-1L, -1L]",
             "type": "Variable"
         },
-        "is_sparse": {
+        "weight": {
+            "dtype": "float32",
+            "shape": "[2L, 768L]",
+            "type": "Variable"
+        },
+        "sparse": {
             "type": "bool",
             "value": "False"
         },
         "padding_idx": {
             "type": "string",
             "value": "None"
-        },
-        "size": {
-            "type": "list",
-            "value": "[2, 768]"
         }
     }
 }]

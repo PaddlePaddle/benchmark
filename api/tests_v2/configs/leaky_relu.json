@@ -1,7 +1,7 @@
 [{
     "op": "leaky_relu",
     "param_info": {
-        "alpha": {
+        "negative_slope": {
             "type": "float",
             "value": "0.1"
         },
@@ -15,7 +15,7 @@
 }, {
     "op": "leaky_relu",
     "param_info": {
-        "alpha": {
+        "negative_slope": {
             "type": "float",
             "value": "0.2"
         },
