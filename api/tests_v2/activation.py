@@ -22,6 +22,7 @@ class ActivationConfig(APIConfig):
         self.api_list = {
             'cos': 'cos',
             'exp': 'exp',
+            'sqrt': 'sqrt',
             'sin': 'sin',
             'sinh': 'sinh',
             'square': 'square',
