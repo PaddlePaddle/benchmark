@@ -15,7 +15,7 @@
 from common_import import *
 
 
-class PDTopKV2(PaddleAPIBenchmarkBase):
+class PDTopK(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         data = self.variable(
             name='x', shape=config.x_shape, dtype=config.x_dtype)
@@ -23,11 +23,12 @@ class PDTopKV2(PaddleAPIBenchmarkBase):
 
         self.feed_vars = [data]
         self.fetch_vars = [value, indices]
-        #if config.backward:
-        #    self.append_gradients([value], [data])
+        if config.backward:
+            self.append_gradients([value], [data])
+        print(self.fetch_vars)
 
 
-class TFTopKV2(TensorflowAPIBenchmarkBase):
+class TFTopK(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.variable(
             name='x', shape=config.x_shape, dtype=config.x_dtype)
@@ -35,9 +36,10 @@ class TFTopKV2(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [data]
         self.fetch_list = [value, indices]
-        #if config.backward:
-        #    self.append_gradients([value], [data])
+        if config.backward:
+            self.append_gradients([value], [data])
+        print(self.fetch_list)
 
 
 if __name__ == '__main__':
-    test_main(PDTopKV2(), TFTopKV2(), config=APIConfig("top_k_v2"))
+    test_main(PDTopK(), TFTopK(), config=APIConfig("topk"))
