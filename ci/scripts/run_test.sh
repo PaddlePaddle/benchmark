@@ -29,6 +29,7 @@ LOG "[INFO] Start run op benchmark test ..."
 BENCHMARK_ROOT=$(cd $(dirname $0)/../.. && pwd)
 
 function prepare_env(){
+  LOG "[INFO] Device Id: ${CUDA_VISIBLE_DEVICES}"
   # Update pip
   LOG "[INFO] Update pip ..."
   python -m pip install --upgrade pip > /dev/null
