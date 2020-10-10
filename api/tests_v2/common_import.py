@@ -35,11 +35,4 @@ except ImportError:
     sys.stderr.write(
         "Cannot import tensorflow, maybe tensorflow is not installed.\n")
 
-try:
-    paddle.enable_static()
-except Exception:
-    print(
-        "The paddle version is less than 2.0, it can not use paddle.enable_static()\n"
-    )
-
 from main import test_main, test_main_without_json

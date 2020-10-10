@@ -41,6 +41,13 @@ except Exception as e:
     sys.stderr.write(
         "Cannot import paddle.fluid, maybe paddle is not installed.\n")
 
+try:
+    paddle.enable_static()
+except Exception:
+    print(
+        "The paddle version is less than 2.0, it can not use paddle.enable_static()"
+    )
+
 
 @contextlib.contextmanager
 def profile_context(name, use_gpu, profiler):
