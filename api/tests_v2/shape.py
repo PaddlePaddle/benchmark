@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,29 +15,25 @@
 from common_import import *
 
 
-class PDTopKV2(PaddleAPIBenchmarkBase):
+class PDShape(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         data = self.variable(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
-        value, indices = paddle.topk(x=data, k=config.k)
+            name='data', shape=config.input_shape, dtype=config.input_dtype)
+        result = paddle.shape(input=data)
 
         self.feed_vars = [data]
-        self.fetch_vars = [value, indices]
-        #if config.backward:
-        #    self.append_gradients([value], [data])
+        self.fetch_vars = [result]
 
 
-class TFTopKV2(TensorflowAPIBenchmarkBase):
+class TFShape(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.variable(
-            name='x', shape=config.x_shape, dtype=config.x_dtype)
-        value, indices = tf.math.top_k(input=data, k=config.k)
+            name='data', shape=config.input_shape, dtype=config.input_dtype)
+        result = tf.shape(input=data)
 
         self.feed_list = [data]
-        self.fetch_list = [value, indices]
-        #if config.backward:
-        #    self.append_gradients([value], [data])
+        self.fetch_list = [result]
 
 
 if __name__ == '__main__':
-    test_main(PDTopKV2(), TFTopKV2(), config=APIConfig("top_k_v2"))
+    test_main(PDShape(), TFShape(), config=APIConfig("shape"))
