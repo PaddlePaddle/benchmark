@@ -72,7 +72,6 @@ NO_BACKWARD_OPS = [
 
     # Temporarily add to this list to pass CI.
     "lstm",
-    "embedding",
 ]
 
 
