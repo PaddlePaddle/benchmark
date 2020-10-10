@@ -79,9 +79,11 @@ def has_backward(config):
     if config.framework == "paddle" or not hasattr(config, "api_list"):
         api_name = config.api_name
     else:
-        api_name = [
-            k for k, v in config.api_list.items() if v == config.api_name
-        ]
+        api_name = None
+        for k, v in config.api_list.items():
+            if v == config.api_name:
+                api_name = k
+                break
     return api_name not in NO_BACKWARD_OPS
 
 

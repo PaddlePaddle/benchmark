@@ -369,7 +369,7 @@ class TensorflowAPIBenchmarkBase(object):
                 % self.name)
             assert not special_op_list.has_backward(
                 config
-            ), "If backward is not surported for %s, please add the \'%s\' to NO_BACKWARD_OPS in api/common/special_op_list.py." % (
+            ), "If backward is not surported for %s, please add the Paddle's \'%s\' to NO_BACKWARD_OPS in api/common/special_op_list.py." % (
                 self.name, self.name)
 
         feed_list = feeder_adapter.to_tensorflow(self.feed_list)
