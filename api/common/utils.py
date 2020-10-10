@@ -223,7 +223,7 @@ def check_outputs(list1,
 
             if output1.dtype != output2.dtype:
                 print(
-                    "---- The %d-the output's data type is different, %s vs %s."
+                    "---- Warning: The %d-the output's data type is different, %s vs %s."
                     % (i, str(output1.dtype), str(output2.dtype)))
 
             max_diff_i = None
@@ -249,13 +249,13 @@ def check_outputs(list1,
                             offset_i]
                 if permutation is not None:
                     print(
-                        "---- The %d-th output need permute. The permutation is %s, outputs shape are %s vs %s."
+                        "---- Warning: The %d-th output need permute. The permutation is %s, outputs shape are %s vs %s."
                         % (i, str(permutation), str(output1.shape),
                            str(output2.shape)))
 
             if max_diff_i > 1E-6:
                 print(
-                    "---- The %d-th output (shape: %s, data type: %s) has diff. "
+                    "---- Error: The %d-th output (shape: %s, data type: %s) has diff. "
                     "The maximum diff is %e, offset is %d: %s vs %s. atol is %.2e."
                     % (i, str(output1.shape), str(output1.dtype), max_diff_i,
                        offset_i, str(output1_diff_value),
@@ -276,10 +276,10 @@ def check_outputs(list1,
     if not consistent:
         if name is not None and name in special_op_list.RANDOM_OP_LIST:
             print(
-                "---- The output is not consistent, but %s is in the white list."
+                "---- Warning: The output is not consistent, but %s is in the white list."
                 % name)
         elif not consistent:
-            print("The output is not consistent.")
+            print("Error: The output is not consistent!")
         print(json.dumps(status))
         if not consistent:
             sys.exit(1)

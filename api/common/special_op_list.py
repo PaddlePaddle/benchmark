@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-RANDOM_OP_LIST = ["dropout"]
-
 NO_FETCHES_OPS = ["feed", "null"]
+
+RANDOM_OP_LIST = ["bernoulli", "dropout"]
 
 # operators with different names in v1.8 and v2.0.
 OPS_MAP_1TO2 = {
