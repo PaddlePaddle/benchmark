@@ -115,7 +115,7 @@ function summary_problems(){
     LOG "[FATAL] Summary problems:"
     if [ $check_style_code -ne 0 -a $run_api_code -ne 0 ]
     then
-      LOG "[FATAL] There are 1 errors: Code style error and API test error."
+      LOG "[FATAL] There are 2 errors: Code style error and API test error."
     else
       [ $check_style_code -ne 0 ] && LOG "[FATAL] There is 1 error: Code style error."
       [ $run_api_code -ne 0 ] && LOG "[FATAL] There is 1 error: API test error."
