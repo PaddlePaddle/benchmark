@@ -12,36 +12,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import paddle
 from common_import import *
 
 
-class PDElementwisePow(PaddleAPIBenchmarkBase):
+class PDEmbedding(PaddleAPIBenchmarkBase):
     def build_program(self, config):
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
 
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        result = paddle.pow(x, y)
+        table = self.variable(
+            name='table', shape=config.size, dtype=config.dtype)
 
-        self.feed_vars = [x, y]
+        result = paddle.nn.functional.embedding(
+            x=x, weight=table, sparse=False)
+
+        self.feed_vars = [x, table]
         self.fetch_vars = [result]
+
         if config.backward:
-            self.append_gradients(result, [x, y])
+            self.append_gradients(result, [table])
 
 
-class TFElementwisePow(TensorflowAPIBenchmarkBase):
+class TFEmbedding(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
 
-        result = tf.math.pow(x=x, y=y)
-        self.feed_list = [x, y]
+        table = self.variable(
+            name='table', shape=config.size, dtype=config.dtype)
+
+        result = tf.nn.embedding_lookup(ids=x, params=table, max_norm=None)
+
+        self.feed_list = [x, table]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, y])
+            self.append_gradients(result, [table])
 
 
 if __name__ == '__main__':
-    test_main(
-        PDElementwisePow(),
-        TFElementwisePow(),
-        config=APIConfig("elementwise_pow"))
+    test_main(PDEmbedding(), TFEmbedding(), config=APIConfig("embedding"))

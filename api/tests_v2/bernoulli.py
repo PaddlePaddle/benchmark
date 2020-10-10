@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from common_import import *
-import tensorflow_probability as tfp
 
 
 class BernoulliConfig(APIConfig):
@@ -34,6 +33,8 @@ class PDBernoulli(PaddleAPIBenchmarkBase):
 
 class TFBernoulli(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
+        import tensorflow_probability as tfp
+
         data = self.variable(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
         b = tfp.distributions.Bernoulli(probs=data)
