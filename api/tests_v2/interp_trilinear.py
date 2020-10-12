@@ -29,7 +29,7 @@ class PDInterpTrilinear(PaddleAPIBenchmarkBase):
             size=config.size,
             mode="trilinear",
             align_corners=config.align_corners,
-            scale_factor=config.scale,
+            scale_factor=config.scale_factor,
             data_format=config.data_format)
         self.feed_vars = [x]
         self.fetch_vars = [out]

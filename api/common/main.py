@@ -19,6 +19,7 @@ import os
 import json
 import sys
 import warnings
+import numpy as np
 
 from common import utils
 from common import api_param
@@ -213,6 +214,13 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
     if args.task == "accuracy":
         if config.run_tf:
             if args.log_level == 1:
+                for i in range(len(pd_outputs)):
+                    out = pd_outputs[i]
+                    if isinstance(out, np.ndarray):
+                        print(
+                            "Paddle's {}-th output is a np.ndarray, the shape is {}.".
+                            format(i, out.shape))
+            if args.log_level == 2:
                 print("Output of Paddle: ", pd_outputs)
                 print("Output of TensorFlow: ", tf_outputs)
             utils.check_outputs(

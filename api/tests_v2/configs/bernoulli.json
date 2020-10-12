@@ -12,16 +12,6 @@
     "op": "bernoulli",
     "param_info": {
         "x": {
-            "dtype": "float64",
-            "shape": "[-1L, 1785L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 5000
-}, {
-    "op": "bernoulli",
-    "param_info": {
-        "x": {
             "dtype": "float32",
             "shape": "[-1L, 1L, 513L, 513L]",
             "type": "Variable"

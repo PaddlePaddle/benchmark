@@ -22,7 +22,7 @@
             "type": "list",
             "value": "[128L]"
         },
-        "scale": {
+        "scale_factor": {
             "type": "string",
             "value": "None"
         }
@@ -51,7 +51,7 @@
             "type": "string",
             "value": "None"
         },
-        "scale": {
+        "scale_factor": {
             "type": "float32",
             "value": "2.0"
         }
