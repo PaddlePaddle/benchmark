@@ -15,14 +15,31 @@
 from common_import import *
 
 
-class ElementwiseSubConfig(APIConfig):
+class ElementwiseWithAxisConfig(APIConfig):
     def __init__(self):
-        super(ElementwiseSubConfig, self).__init__('elementwise_sub')
+        super(ElementwiseWithAxisConfig,
+              self).__init__('elementwise_with_axis')
         self.alias_config = APIConfig("elementwise")
+        self.api_name = 'maximum'
+        self.api_list = {
+            'maximum': 'maximum',
+            'minimum': 'minimum',
+            'multiply': 'multiply'
+        }
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
+    def disabled(self):
+        if self.api_name in ["maximum", "minimum"
+                             ] and self.alias.x_dtype == "float16":
+            return True
+        return False
+
     def to_tensorflow(self):
-        tf_config = super(ElementwiseSubConfig, self).to_tensorflow()
+        tf_config = super(ElementwiseWithAxisConfig, self).to_tensorflow()
+        if self.api_name == 'multiply':
+            self.atol = 1e-5
+        else:
+            self.atol = 1e-6
         if len(self.alias.x_shape) > len(
                 self.alias.y_shape) and self.alias.y_shape != [1]:
             tf_config.y_shape_unsqueezed = self._unsqueeze_short(
@@ -30,7 +47,7 @@ class ElementwiseSubConfig(APIConfig):
         elif len(self.alias.x_shape) < len(
                 self.alias.y_shape) and self.alias.x_shape != [1]:
             tf_config.x_shape_unsqueezed = self._unsqueeze_short(
-                short=self.alias.x_shape, long=self.alias.y_shape)
+                short=self.x_shape, long=self.y_shape)
         return tf_config
 
     def _unsqueeze_short(self, short, long):
@@ -45,14 +62,13 @@ class ElementwiseSubConfig(APIConfig):
         return short_extend
 
 
-class PDElementwiseSub(PaddleAPIBenchmarkBase):
+class PDElementwiseWithAxis(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(
             name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
         y = self.variable(
             name='y', shape=config.alias.y_shape, dtype=config.alias.y_dtype)
-        result = paddle.elementwise_sub(
-            x=x, y=y, axis=config.alias.axis, act=None)
+        result = self.layers(config.api_name, x=x, y=y, axis=config.alias.axis)
 
         self.feed_vars = [x, y]
         self.fetch_vars = [result]
@@ -60,7 +76,7 @@ class PDElementwiseSub(PaddleAPIBenchmarkBase):
             self.append_gradients(result, [x, y])
 
 
-class TFElementwiseSub(TensorflowAPIBenchmarkBase):
+class TFElementwiseWithAxis(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(
             name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
@@ -74,7 +90,7 @@ class TFElementwiseSub(TensorflowAPIBenchmarkBase):
             y_reshape = tf.reshape(tensor=y, shape=config.y_shape_unsqueezed)
         else:
             y_reshape = y
-        result = tf.math.subtract(x=x_reshape, y=y_reshape)
+        result = self.layers(config.api_name, x=x_reshape, y=y_reshape)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]
@@ -84,4 +100,6 @@ class TFElementwiseSub(TensorflowAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        PDElementwiseSub(), TFElementwiseSub(), config=ElementwiseSubConfig())
+        PDElementwiseWithAxis(),
+        TFElementwiseWithAxis(),
+        config=ElementwiseWithAxisConfig())
