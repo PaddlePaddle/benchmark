@@ -29,6 +29,7 @@ LOG "[INFO] Start run op benchmark test ..."
 BENCHMARK_ROOT=$(cd $(dirname $0)/../.. && pwd)
 
 function prepare_env(){
+  LOG "[INFO] Device Id: ${CUDA_VISIBLE_DEVICES}"
   # Update pip
   LOG "[INFO] Update pip ..."
   python -m pip install --upgrade pip > /dev/null
@@ -115,7 +116,7 @@ function summary_problems(){
     LOG "[FATAL] Summary problems:"
     if [ $check_style_code -ne 0 -a $run_api_code -ne 0 ]
     then
-      LOG "[FATAL] There are 1 errors: Code style error and API test error."
+      LOG "[FATAL] There are 2 errors: Code style error and API test error."
     else
       [ $check_style_code -ne 0 ] && LOG "[FATAL] There is 1 error: Code style error."
       [ $run_api_code -ne 0 ] && LOG "[FATAL] There is 1 error: API test error."
