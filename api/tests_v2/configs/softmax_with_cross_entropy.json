@@ -65,5 +65,6 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 1e-3
 }]

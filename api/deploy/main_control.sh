@@ -2,10 +2,10 @@
 
 function print_usage() {
     echo "Usage:"
-    echo "    bash ${0} json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file"
+    echo "    bash ${0} test_dir json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file"
     echo ""
     echo "Arguments:"
-    echo "  test_dir                - the directory of tests"
+    echo "  test_dir                - the directory of tests case"
     echo "  json_config_dir         - the directory of json configs"
     echo "  output_dir              - the output directory"
     echo "  gpu_id (optional)       - the GPU id. Only one GPU can be specified."
@@ -34,12 +34,14 @@ OP_BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../" && pwd )"
 DEPLOY_DIR="${OP_BENCHMARK_ROOT}/deploy"
 export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 
-if [ $# -lt 2 ]; then
+if [ $# -lt 3 ]; then
     print_usage
     exit
 fi
 
 TEST_DIR=${1}
+TEST_MODULE_NAME=${TEST_DIR##*/}
+
 JSON_CONFIG_DIR=${2}
 OUTPUT_DIR=${3}
 if [ ! -d ${OUTPUT_DIR} ]; then
@@ -72,7 +74,9 @@ if [ $# -ge 7 ]; then
     OP_LIST_FILE=${7}
 else
     OP_LIST_FILE=${OUTPUT_DIR}/api_info.txt
-    python ${DEPLOY_DIR}/collect_api_info.py --info_file ${OP_LIST_FILE}
+    python ${DEPLOY_DIR}/collect_api_info.py \
+        --test_module_name ${TEST_MODULE_NAME} \
+        --info_file ${OP_LIST_FILE}
     return_status=$?
     if [ ${return_status} -ne 0 ] || [ ! -f "${OP_LIST_FILE}" ]; then
         OP_LIST_FILE=${DEPLOY_DIR}/api_info.txt
@@ -164,7 +168,7 @@ function execute_one_case() {
                     fi
 
                     case_id=$[$case_id+1]
-                    run_cmd="python -m tests.launch ${TEST_DIR}/${name}.py \
+                    run_cmd="python -m common.launch ${TEST_DIR}/${name}.py \
                           --api_name ${api_name} \
                           --task ${task} \
                           --framework ${framework} \

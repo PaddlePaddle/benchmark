@@ -50,9 +50,9 @@ def _compare(time1, time2):
             result_str = "Less"
         else:
             result_str = "Equal"
-        return result_str
+        return result_str, ratio
     except Exception:
-        return "--"
+        return "--", "--"
 
 
 class OpBenchmarkUnit(object):
@@ -90,9 +90,14 @@ class OpBenchmarkUnit(object):
                     "total": tf_total,
                     "gpu_time": tf_gpu_time
                 }
+                total_result, total_ratio = _compare(paddle_total, tf_total)
+                gpu_time_result, gpu_time_ratio = _compare(paddle_gpu_time,
+                                                           tf_gpu_time)
                 result["compare"] = {
-                    "total": _compare(paddle_total, tf_total),
-                    "gpu_time": _compare(paddle_gpu_time, tf_gpu_time)
+                    "total": total_result,
+                    "total_ratio": total_ratio,
+                    "gpu_time": gpu_time_result,
+                    "gpu_time_ratio": gpu_time_ratio
                 }
 
                 accuracy, difference = self._get_case_value(

@@ -1,21 +1,13 @@
 [{
     "op": "dropout",
     "param_info": {
-        "dropout_implementation": {
+        "mode": {
             "type": "string",
-            "value": "downgrade_in_infer"
+            "value": "downscale_in_infer"
         },
-        "dropout_prob": {
+        "p": {
             "type": "float",
             "value": "0.5"
-        },
-        "is_test": {
-            "type": "bool",
-            "value": "False"
-        },
-        "seed": {
-            "type": "string",
-            "value": "None"
         },
         "x": {
             "dtype": "float32",
@@ -27,21 +19,13 @@
 }, {
     "op": "dropout",
     "param_info": {
-        "dropout_implementation": {
+        "mode": {
             "type": "string",
-            "value": "downgrade_in_infer"
+            "value": "downscale_in_infer"
         },
-        "dropout_prob": {
+        "p": {
             "type": "float",
             "value": "0.1"
-        },
-        "is_test": {
-            "type": "bool",
-            "value": "False"
-        },
-        "seed": {
-            "type": "string",
-            "value": "None"
         },
         "x": {
             "dtype": "float32",
@@ -53,21 +37,13 @@
 }, {
     "op": "dropout",
     "param_info": {
-        "dropout_implementation": {
+        "mode": {
             "type": "string",
             "value": "upscale_in_train"
         },
-        "dropout_prob": {
+        "p": {
             "type": "float",
             "value": "0.65"
-        },
-        "is_test": {
-            "type": "bool",
-            "value": "False"
-        },
-        "seed": {
-            "type": "string",
-            "value": "None"
         },
         "x": {
             "dtype": "float32",
@@ -79,21 +55,13 @@
 }, {
     "op": "dropout",
     "param_info": {
-        "dropout_implementation": {
+        "mode": {
             "type": "string",
             "value": "upscale_in_train"
         },
-        "dropout_prob": {
+        "p": {
             "type": "float",
             "value": "0.1"
-        },
-        "is_test": {
-            "type": "bool",
-            "value": "False"
-        },
-        "seed": {
-            "type": "string",
-            "value": "None"
         },
         "x": {
             "dtype": "float32",

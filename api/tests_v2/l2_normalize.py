@@ -15,25 +15,11 @@
 from common_import import *
 
 
-class ActivationConfig(APIConfig):
-    def __init__(self):
-        super(ActivationConfig, self).__init__('activation')
-        self.api_name = 'cos'
-        self.api_list = {
-            'sqrt': 'sqrt',
-            'cos': 'cos',
-            'exp': 'exp',
-            'sin': 'sin',
-            'sinh': 'sinh',
-            'square': 'square',
-            'tanh': 'tanh'
-        }
-
-
-class PDActivation(PaddleAPIBenchmarkBase):
+class PDL2Normalize(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(config.api_name, x=x)
+        result = paddle.nn.functional.l2_normalize(
+            x=x, axis=config.axis, epsilon=config.epsilon)
 
         self.feed_vars = [x]
         self.fetch_vars = [result]
@@ -41,10 +27,11 @@ class PDActivation(PaddleAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TFActivation(TensorflowAPIBenchmarkBase):
+class TFL2Normalize(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(config.api_name, x=x)
+        result = tf.math.l2_normalize(
+            x, axis=config.axis, epsilon=config.epsilon)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -53,4 +40,5 @@ class TFActivation(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDActivation(), TFActivation(), config=ActivationConfig())
+    test_main(
+        PDL2Normalize(), TFL2Normalize(), config=APIConfig("l2_normalize"))
