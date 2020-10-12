@@ -18,9 +18,9 @@
             "type": "list",
             "value": "[32L, 32L]"
         },
-        "scale": {
-            "type": "string",
-            "value": "None"
+        "scale_factor": {
+            "type": "float",
+            "value": "2.0"
         }
     }
 }, {
@@ -40,10 +40,10 @@
             "type": "Variable"
         },
         "size": {
-            "type": "string",
-            "value": "None"
+            "type": "list",
+            "value": "[32L, 32L]"
         },
-        "scale": {
+        "scale_factor": {
             "type": "float",
             "value": "2.0"
         }
