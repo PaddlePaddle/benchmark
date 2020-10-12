@@ -15,30 +15,28 @@
 from common_import import *
 
 
-class PDL2Normalize(PaddleAPIBenchmarkBase):
+class PDIncrement(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.nn.functional.l2_normalize(
-            x=x, axis=config.axis, epsilon=config.epsilon)
+        x.stop_gradient = False
+        result = paddle.increment(x, value=config.value)
 
         self.feed_vars = [x]
         self.fetch_vars = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
-class TFL2Normalize(TensorflowAPIBenchmarkBase):
+class TFAssignAdd(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.math.l2_normalize(
-            x, axis=config.axis, epsilon=config.epsilon)
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        one_tensor = tf.Variable(
+            tf.ones(
+                shape=config.x_shape, dtype=config.x_dtype))
+
+        result = tf.compat.v1.assign_add(ref=x, value=one_tensor)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(
-        PDL2Normalize(), TFL2Normalize(), config=APIConfig("l2_normalize"))
+    test_main(PDIncrement(), TFAssignAdd(), config=APIConfig('increment'))

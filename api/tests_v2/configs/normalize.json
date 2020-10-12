@@ -1,6 +1,10 @@
 [{
-    "op": "l2_normalize",
+    "op": "normalize",
     "param_info": {
+        "p": {
+            "type": "int",
+            "value": "2"
+        },
         "axis": {
             "type": "int",
             "value": "1"
