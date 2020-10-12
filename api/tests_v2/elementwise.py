@@ -36,6 +36,8 @@ class ElementwiseConfig(APIConfig):
         tf_config = super(ElementwiseConfig, self).to_tensorflow()
         if self.api_name == 'multiply':
             self.atol = 1e-5
+        else:
+            self.atol = 1e-6
         if len(self.x_shape) > len(self.y_shape) and self.y_shape != [1]:
             tf_config.y_shape_unsqueezed = self._unsqueeze_short(
                 short=self.y_shape, long=self.x_shape)
