@@ -31,7 +31,7 @@
         },
         "num": {
             "type": "int",
-            "value": "11"
+            "value": "1000"
         },
         "dtype": {
             "type": "string",

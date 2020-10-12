@@ -16,7 +16,7 @@
     "param_info": {
         "repeat_times": {
             "type": "list",
-            "value": "[1, 1, 128L, 128L]"
+            "value": "[1, 1, 128, 128]"
         },
         "x": {
             "dtype": "float32",

@@ -1,10 +1,6 @@
 [{
-    "op": "depthwise_conv2d_transpose",
+    "op": "depthwise_conv_transpose2d",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
         "data_format": {
             "type": "string",
             "value": "NCHW"
@@ -41,10 +37,6 @@
         "stride": {
             "type": "int",
             "value": "2"
-        },
-        "use_cudnn": {
-            "type": "bool",
-            "value": "True"
         }
     },
     "atol": 1E-4

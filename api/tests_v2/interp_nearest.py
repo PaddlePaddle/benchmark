@@ -24,12 +24,13 @@ class InterpNearestConfig(APIConfig):
 class PDInterpNearest(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        # align_corners option can only be set with the interpolating modes: linear, bilinear, bicubic, trilinear
         out = paddle.nn.functional.interpolate(
-            x,
+            x=x,
             size=config.size,
             mode="nearest",
             align_corners=config.align_corners,
-            scale_factor=config.scale,
+            scale_factor=config.scale_factor,
             data_format=config.data_format)
         self.feed_vars = [x]
         self.fetch_vars = [out]

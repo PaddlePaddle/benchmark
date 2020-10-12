@@ -2,12 +2,12 @@
     "op": "equal_all",
     "param_info": {
         "x": {
-            "dtype": "float64",
+            "dtype": "float32",
             "shape": "[-1L, 1000L, 2000L]",
             "type": "Variable"
         },
         "y": {
-            "dtype": "float64",
+            "dtype": "float32",
             "shape": "[-1L, 1000L, 2000L]",
             "type": "Variable"
         }
