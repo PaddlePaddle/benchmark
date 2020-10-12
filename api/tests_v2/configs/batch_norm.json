@@ -16,7 +16,7 @@
         },
         "training": {
             "type": "bool",
-            "value": "False"
+            "value": "True"
         },
         "momentum": {
             "type": "float",
@@ -41,7 +41,7 @@
         },
         "training": {
             "type": "bool",
-            "value": "False"
+            "value": "True"
         },
         "momentum": {
             "type": "float",
@@ -66,7 +66,7 @@
         },
         "training": {
             "type": "bool",
-            "value": "False"
+            "value": "True"
         },
         "momentum": {
             "type": "float",
@@ -92,7 +92,7 @@
         },
         "training": {
             "type": "bool",
-            "value": "False"
+            "value": "True"
         },
         "momentum": {
             "type": "float",
@@ -117,7 +117,7 @@
         },
         "training": {
             "type": "bool",
-            "value": "False"
+            "value": "True"
         },
         "momentum": {
             "type": "float",
