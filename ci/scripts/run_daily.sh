@@ -177,7 +177,7 @@ function run_all_ops() {
                 device_limit="taskset -c ${device_id}"
               fi
               command="${device_limit} timeout 600s
-                       python -m common.launch ${OP_FILE_MAP[$op]}
+                       python -m api.common.launch ${OP_FILE_MAP[$op]}
                               --api_name ${op}
                               --task ${task}
                               --framework ${framework}
