@@ -44,12 +44,12 @@
     "op": "arg",
     "param_info": {
         "axis": {
-            "type": "int",
-            "value": "1"
+            "type": "string",
+            "value": "None"
         },
         "x": {
             "dtype": "float32",
-            "shape": "[1000L, 1000L]",
+            "shape": "[1000000L]",
             "type": "Variable"
         }
     },

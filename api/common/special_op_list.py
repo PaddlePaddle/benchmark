@@ -67,6 +67,7 @@ NO_BACKWARD_OPS = [
     "full",
     "greater",
     "less",
+    "linspace",
     "unique",
     "remainder",
 

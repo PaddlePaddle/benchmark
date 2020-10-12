@@ -19,28 +19,6 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 128L]",
-            "type": "Variable"
-        }
-    },
-    "atol": 1E-4
-}, {
-    "op": "p_norm",
-    "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
-        "porder": {
-            "type": "float",
-            "value": "2.0"
-        },
-        "keepdim": {
-            "type": "bool",
-            "value": "False"
-        },
-        "x": {
-            "dtype": "float64",
             "shape": "[300L, 128L, 128L]",
             "type": "Variable"
         }
@@ -62,7 +40,7 @@
             "value": "False"
         },
         "x": {
-            "dtype": "float64",
+            "dtype": "float32",
             "shape": "[300L, 128L, 128L]",
             "type": "Variable"
         }

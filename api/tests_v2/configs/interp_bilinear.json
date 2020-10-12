@@ -11,14 +11,14 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 48L, 64L, 256L]",
+            "shape": "[-1L, 512L, 64L, 402L]",
             "type": "Variable"
         },
         "size": {
             "type": "list",
-            "value": "[32L, 402L]"
+            "value": "[128L, 402L]"
         },
-        "scale": {
+        "scale_factor": {
             "type": "string",
             "value": "None"
         }
@@ -41,9 +41,9 @@
         },
         "size": {
             "type": "list",
-            "value": "[32L, 402L]"
+            "value": "[128L, 402L]"
         },
-        "scale": {
+        "scale_factor": {
             "type": "string",
             "value": "None"
         }
@@ -68,7 +68,7 @@
             "type": "tuple",
             "value": "(33L, 33L)"
         },
-        "scale": {
+        "scale_factor": {
             "type": "string",
             "value": "None"
         }
@@ -93,7 +93,7 @@
             "type": "tuple",
             "value": "(33L, 33L)"
         },
-        "scale": {
+        "scale_factor": {
             "type": "string",
             "value": "None"
         }
@@ -116,9 +116,9 @@
         },
         "size": {
             "type": "tuple",
-            "value": "(256L, 256L)"
+            "value": "(513L, 513L)"
         },
-        "scale": {
+        "scale_factor": {
             "type": "string",
             "value": "None"
         }
@@ -141,9 +141,9 @@
         },
         "size": {
             "type": "tuple",
-            "value": "(256L, 256L)"
+            "value": "(513L, 513L)"
         },
-        "scale": {
+        "scale_factor": {
             "type": "string",
             "value": "None"
         }
