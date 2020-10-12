@@ -44,7 +44,7 @@
     "op": "arg",
     "param_info": {
         "axis": {
-            "type": "str",
+            "type": "string",
             "value": "None"
         },
         "x": {

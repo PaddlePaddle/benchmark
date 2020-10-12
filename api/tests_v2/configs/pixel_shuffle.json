@@ -3,7 +3,7 @@
     "param_info": {
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 3L, 224L, 224L]",
+            "shape": "[-1L, 9L, 224L, 224L]",
             "type": "Variable"
         },
         "upscale_factor": {
@@ -20,7 +20,7 @@
     "param_info": {
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 224L, 224L, 3L]",
+            "shape": "[-1L, 224L, 224L, 9L]",
             "type": "Variable"
         },
         "upscale_factor": {
