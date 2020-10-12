@@ -142,6 +142,7 @@ function get_one_free_id() {
 }
 
 function run_all_ops() {
+  pushd $BENCHMARK_ROOT/api > /dev/null
   total_size=${#OP_FILE_MAP[*]}
   for place in "GPU" "CPU"
   do
@@ -174,10 +175,10 @@ function run_all_ops() {
               then
                 device_limit="env CUDA_VISIBLE_DEVICES=${device_id}"
               else
-                device_limit="taskset -c ${device_id}"
+                device_limit="env CUDA_VISIBLE_DEVICES= taskset -c ${device_id}"
               fi
               command="${device_limit} timeout 600s
-                       python -m api.common.launch ${OP_FILE_MAP[$op]}
+                       python -m common.launch ${OP_FILE_MAP[$op]}
                               --api_name ${op}
                               --task ${task}
                               --framework ${framework}
@@ -199,6 +200,7 @@ function run_all_ops() {
       op_index=$((op_index + 1))
     done
   done
+  popd > /dev/null
   for task_pid in ${DEVICE_TASK_PID_MAP[*]}
   do
     print_detail_status $task_pid
