@@ -15,20 +15,21 @@
 from common_import import *
 
 
-class Relu6Config(APIConfig):
+class ReluConfig(APIConfig):
     def __init__(self):
-        super(Relu6Config, self).__init__("relu6")
+        super(ReluConfig, self).__init__("relu")
         self.feed_spec = {"range": [-1, 1]}
-        # relu6 belongs to activation op series which only has one variable
-        # thus abs can reuse activation parameters 
+        self.api_list = {'relu': 'relu', 'relu6': 'relu6'}
+        # relu belongs to activation op series which only has one variable
+        # thus relu can reuse activation parameters 
         self.alias_config = APIConfig("activation")
 
 
-class PDRelu6(PaddleAPIBenchmarkBase):
+class PDRelu(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(
             name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
-        out = paddle.nn.functional.relu6(x=x)
+        out = self.layers(config.api_name, x=x)
 
         self.feed_vars = [x]
         self.fetch_vars = [out]
@@ -36,11 +37,11 @@ class PDRelu6(PaddleAPIBenchmarkBase):
             self.append_gradients(out, [x])
 
 
-class TFRelu6(TensorflowAPIBenchmarkBase):
+class TFRelu(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(
             name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
-        out = tf.nn.relu6(features=x)
+        out = self.layers(config.api_name, features=x)
 
         self.feed_list = [x]
         self.fetch_list = [out]
@@ -49,4 +50,4 @@ class TFRelu6(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDRelu6(), TFRelu6(), config=Relu6Config())
+    test_main(PDRelu(), TFRelu(), config=ReluConfig())
