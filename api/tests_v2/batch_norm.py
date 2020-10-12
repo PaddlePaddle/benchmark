@@ -52,12 +52,14 @@ class PDBatchNorm(PaddleAPIBenchmarkBase):
             dtype=config.x_dtype,
             attr=paddle.ParamAttr(
                 initializer=paddle.nn.initializer.Constant(0.5)))
+        running_mean.stop_gradient = True
         running_var = paddle.create_parameter(
             name='running_var',
             shape=[config.num_channels],
             dtype=config.x_dtype,
             attr=paddle.ParamAttr(
                 initializer=paddle.nn.initializer.Constant(0.1)))
+        running_var.stop_gradient = True
 
         scale = self.variable(
             name='scale', shape=[config.num_channels], dtype=config.x_dtype)
