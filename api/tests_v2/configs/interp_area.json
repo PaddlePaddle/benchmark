@@ -22,7 +22,7 @@
             "type": "list",
             "value": "[128L,128L]"
         },
-        "scale": {
+        "scale_factor": {
             "type": "string",
             "value": "None"
         }
@@ -51,7 +51,7 @@
             "type": "list",
             "value": "[32L, 64L]"
         },
-        "scale": {
+        "scale_factor": {
             "type": "string",
             "value": "None"
         }
@@ -80,7 +80,7 @@
             "type": "list",
             "value": "[10L, 6L, 4L]"
         },
-        "scale": {
+        "scale_factor": {
             "type": "string",
             "value": "None"
         }

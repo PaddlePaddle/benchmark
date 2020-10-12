@@ -19,8 +19,8 @@ class AbsConfig(APIConfig):
     def __init__(self):
         super(AbsConfig, self).__init__("abs")
         self.feed_spec = {"range": [-1, 1]}
-        # abs belongs to activation op series which only has one variable
-        # thus abs can reuse activation parameters 
+        # abs belongs to activation op series which only has one parameter
+        # thus abs can reuse activation.json. 
         self.alias_config = APIConfig("activation")
 
 

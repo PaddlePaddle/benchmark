@@ -12,14 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import division
 from common_import import *
+
+
+class ExpandConfig(APIConfig):
+    def __init__(self):
+        super(ExpandConfig, self).__init__('expand')
+
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(ExpandConfig, self).init_from_json(filename, config_id,
+                                                 unknown_dim)
+        if len(self.x_shape) == len(self.shape) + 1:
+            self.shape = [self.x_shape[0]] + self.shape
+        assert len(self.x_shape) == len(
+            self.shape
+        ), "The length of shape should be equal to the rank of input x."
+
+    def to_tensorflow(self):
+        tf_config = super(ExpandConfig, self).to_tensorflow()
+        tf_config.multiples = []
+        for i in range(len(self.x_shape)):
+            tf_config.multiples.append(self.shape[i] // self.x_shape[i])
+        return tf_config
 
 
 class PDExpand(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.expand(x=x, shape=config.expand_shape)
+        result = paddle.expand(x=x, shape=config.shape)
 
         self.feed_vars = [x]
         self.fetch_vars = [result]
@@ -30,14 +50,7 @@ class PDExpand(PaddleAPIBenchmarkBase):
 class TFExpand(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        assert len(config.x_shape) == len(config.expand_shape)
-        expand_times = []
-        for i in range(len(config.x_shape)):
-            if config.x_shape[i] == -1:
-                expand_times.append(1)
-            else:
-                expand_times.append(config.expand_shape[i] // config.x_shape[i])
-        result = tf.tile(input=x, multiples=expand_times)
+        result = tf.tile(input=x, multiples=config.multiples)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -46,4 +59,4 @@ class TFExpand(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDExpand(), TFExpand(), config=APIConfig("expand"))
+    test_main(PDExpand(), TFExpand(), config=ExpandConfig())
