@@ -30,7 +30,7 @@ class PDSwitchCase(PaddleAPIBenchmarkBase):
         def f3():
             return paddle.multiply(x=x, y=y)
 
-        result = paddle.nn.switch_case(
+        result = paddle.static.nn.switch_case(
             branch_index=zero, branch_fns={0: f1,
                                            1: f2}, default=f3)
         self.feed_vars = [x, y]
