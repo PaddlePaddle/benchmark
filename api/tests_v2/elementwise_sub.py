@@ -18,16 +18,19 @@ from common_import import *
 class ElementwiseSubConfig(APIConfig):
     def __init__(self):
         super(ElementwiseSubConfig, self).__init__('elementwise_sub')
+        self.alias_config = APIConfig("elementwise")
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
     def to_tensorflow(self):
         tf_config = super(ElementwiseSubConfig, self).to_tensorflow()
-        if len(self.x_shape) > len(self.y_shape) and self.y_shape != [1]:
+        if len(self.alias.x_shape) > len(
+                self.alias.y_shape) and self.alias.y_shape != [1]:
             tf_config.y_shape_unsqueezed = self._unsqueeze_short(
-                short=self.y_shape, long=self.x_shape)
-        elif len(self.x_shape) < len(self.y_shape) and self.x_shape != [1]:
+                short=self.alias.y_shape, long=self.alias.x_shape)
+        elif len(self.alias.x_shape) < len(
+                self.alias.y_shape) and self.alias.x_shape != [1]:
             tf_config.x_shape_unsqueezed = self._unsqueeze_short(
-                short=self.x_shape, long=self.y_shape)
+                short=self.alias.x_shape, long=self.alias.y_shape)
         return tf_config
 
     def _unsqueeze_short(self, short, long):
@@ -44,9 +47,12 @@ class ElementwiseSubConfig(APIConfig):
 
 class PDElementwiseSub(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        result = paddle.elementwise_sub(x=x, y=y, axis=config.axis, act=None)
+        x = self.variable(
+            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        y = self.variable(
+            name='y', shape=config.alias.y_shape, dtype=config.alias.y_dtype)
+        result = paddle.elementwise_sub(
+            x=x, y=y, axis=config.alias.axis, act=None)
 
         self.feed_vars = [x, y]
         self.fetch_vars = [result]
@@ -56,8 +62,10 @@ class PDElementwiseSub(PaddleAPIBenchmarkBase):
 
 class TFElementwiseSub(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        x = self.variable(
+            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        y = self.variable(
+            name='y', shape=config.alias.y_shape, dtype=config.alias.y_dtype)
         if hasattr(config, "x_shape_unsqueezed"):
             x_reshape = tf.reshape(tensor=x, shape=config.x_shape_unsqueezed)
         else:
