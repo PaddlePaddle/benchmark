@@ -100,7 +100,7 @@ function check_style(){
   LOG "[INFO] Check code style via per-commit, this could take a few minutes ..."
   for file_name in $(git diff --name-only upstream/master)
   do
-    pre-commit run --files $file_name >&2 || commit_files=off
+    env http_proxy="" https_proxy="" pre-commit run --files $file_name >&2 || commit_files=off
   done
   [ $commit_files == 'off' ] && git diff && return -1 || return 0
 }
