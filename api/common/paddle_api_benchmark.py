@@ -143,9 +143,29 @@ class PaddleAPIBenchmarkBase(object):
         result = func(**kwargs)
         return result
 
-    def layers(self, name, **kwargs):
-        module = importlib.import_module("paddle")
-        func = getattr(module, name)
+    def layers(self, api_name, module_name=None, **kwargs):
+        def _import_func(paddle_module_name, api_name):
+            try:
+                module = importlib.import_module(paddle_module_name)
+                func = getattr(module, api_name)
+                print("Successly import %s.%s" %
+                      (paddle_module_name, api_name))
+                return func
+            except Exception:
+                print("Failed to import %s.%s" %
+                      (paddle_module_name, api_name))
+            return None
+
+        paddle_module_names = ["paddle", "paddle.nn.functional"]
+        if module_name is not None and module_name not in paddle_module_names:
+            paddle_module_names.append(module_name)
+
+        for paddle_module_name in paddle_module_names:
+            func = _import_func(paddle_module_name, api_name)
+            if func is not None:
+                break
+
+        assert func is not None, "Need to specify module_name to import %s." % api_name
         result = func(**kwargs)
         return result
 
