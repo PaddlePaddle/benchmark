@@ -1,10 +1,6 @@
 [{
     "op": "elementwise",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
         "axis": {
             "type": "int",
             "value": "-1"
@@ -24,10 +20,6 @@
 }, {
     "op": "elementwise",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
         "axis": {
             "type": "int",
             "value": "0"
@@ -47,10 +39,6 @@
 }, {
     "op": "elementwise",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
         "axis": {
             "type": "int",
             "value": "0"
@@ -70,10 +58,6 @@
 }, {
     "op": "elementwise",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "relu"
-        },
         "axis": {
             "type": "int",
             "value": "-1"
@@ -93,10 +77,6 @@
 }, {
     "op": "elementwise",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
         "axis": {
             "type": "int",
             "value": "-1"
@@ -116,10 +96,6 @@
 }, {
     "op": "elementwise",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
         "axis": {
             "type": "int",
             "value": "-1"
@@ -139,10 +115,6 @@
 }, {
     "op": "elementwise",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
         "axis": {
             "type": "int",
             "value": "-1"
