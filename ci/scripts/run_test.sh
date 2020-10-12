@@ -32,7 +32,7 @@ function prepare_env(){
   LOG "[INFO] Device Id: ${CUDA_VISIBLE_DEVICES}"
   # Update pip
   LOG "[INFO] Update pip ..."
-  python -m pip install --upgrade pip > /dev/null
+  env http_proxy="" https_proxy="" pip install -U pip > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Update pip failed!" && exit -1
 
   # Install latest paddle
@@ -42,14 +42,14 @@ function prepare_env(){
   wget -q -O ${PADDLE_WHL} ${PADDLE_URL}
   [ $? -ne 0 ] && LOG "[FATAL] Download paddle wheel failed!" && exit -1
   LOG "[INFO] Installing paddle, this could take a few minutes ..."
-  pip install -U ${PADDLE_WHL} > /dev/null
+  env http_proxy="" https_proxy="" pip install -U ${PADDLE_WHL} > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install paddle failed!" && exit -1
   
   # Install tensorflow and other packages
   for package in "tensorflow==2.3.0" "tensorflow-probability" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9"
   do
     LOG "[INFO] Installing $package, this could take a few minutes ..."
-    pip install $package > /dev/null
+    env http_proxy="" https_proxy="" pip install $package > /dev/null
     [ $? -ne 0 ] && LOG "[FATAL] Install $package failed!" && exit -1
   done
   python -c "import tensorflow as tf; print(tf.__version__)" > /dev/null
