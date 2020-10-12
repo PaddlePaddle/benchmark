@@ -13,23 +13,7 @@
 # limitations under the License.
 
 from common_import import *
-
-
-def unsqueeze_short(short, long):
-    """
-    Unsqueeze the short shape to the same length of the long's.
-    For example: short is [16, 2048] and long is [16, 2048, 7, 7],
-    it will return [16, 2048, 1, 1].
-    """
-    short_extend = np.ones([len(long)], dtype=np.int32).tolist()
-    start = 0
-    for value in short:
-        for i in range(start, len(long)):
-            if long[i] == value:
-                short_extend[i] = value
-                start = i
-                break
-    return short_extend
+from elementwise import unsqueeze_short
 
 
 class RemainderConfig(APIConfig):
