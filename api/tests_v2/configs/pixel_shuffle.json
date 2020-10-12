@@ -3,7 +3,7 @@
     "param_info": {
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 9L, 4L, 4L]",
+            "shape": "[-1L, 3L, 224L, 224L]",
             "type": "Variable"
         },
         "upscale_factor": {
@@ -19,25 +19,8 @@
     "op": "pixel_shuffle",
     "param_info": {
         "x": {
-            "dtype": "float64",
-            "shape": "[-1L, 9L, 4L, 4L]",
-            "type": "Variable"
-        },
-        "upscale_factor": {
-            "type": "int",
-            "value": "3"
-        },
-        "data_format": {
-            "type": "string",
-            "value": "NCHW"
-        }
-    }
-}, {
-    "op": "pixel_shuffle",
-    "param_info": {
-        "x": {
-            "dtype": "float64",
-            "shape": "[-1L, 4L, 4L, 9L]",
+            "dtype": "float32",
+            "shape": "[-1L, 224L, 224L, 3L]",
             "type": "Variable"
         },
         "upscale_factor": {

@@ -2,7 +2,7 @@
     "op": "cholesky",
     "param_info": {
         "x": {
-            "dtype": "float64",
+            "dtype": "float32",
             "shape": "[200L, 200L]",
             "type": "Variable"
         },
