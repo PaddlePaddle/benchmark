@@ -28,20 +28,18 @@ class ElementwiseConfig(APIConfig):
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
     def disabled(self):
-        if self.alias.api_name in ["pow"] and self.alias.x_dtype == "float16":
+        if self.api_name in ["pow"] and self.x_dtype == "float16":
             return True
         return False
 
     def to_tensorflow(self):
         tf_config = super(ElementwiseConfig, self).to_tensorflow()
-        if len(self.alias.x_shape) > len(
-                self.alias.y_shape) and self.alias.y_shape != [1]:
+        if len(self.x_shape) > len(self.y_shape) and self.y_shape != [1]:
             tf_config.y_shape_unsqueezed = self._unsqueeze_short(
-                short=self.alias.y_shape, long=self.alias.x_shape)
-        elif len(self.alias.x_shape) < len(
-                self.alias.y_shape) and self.alias.x_shape != [1]:
+                short=self.y_shape, long=self.x_shape)
+        elif len(self.x_shape) < len(self.y_shape) and self.x_shape != [1]:
             tf_config.x_shape_unsqueezed = self._unsqueeze_short(
-                short=self.alias.x_shape, long=self.alias.y_shape)
+                short=self.x_shape, long=self.y_shape)
         return tf_config
 
     def _unsqueeze_short(self, short, long):
@@ -58,10 +56,8 @@ class ElementwiseConfig(APIConfig):
 
 class PDElementwise(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
-        y = self.variable(
-            name='y', shape=config.alias.y_shape, dtype=config.alias.y_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
         result = self.layers(config.api_name, x=x, y=y)
 
         self.feed_vars = [x, y]
@@ -72,10 +68,8 @@ class PDElementwise(PaddleAPIBenchmarkBase):
 
 class TFElementwise(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
-        y = self.variable(
-            name='y', shape=config.alias.y_shape, dtype=config.alias.y_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
         if hasattr(config, "x_shape_unsqueezed"):
             x_reshape = tf.reshape(tensor=x, shape=config.x_shape_unsqueezed)
         else:
