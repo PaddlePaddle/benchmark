@@ -1,17 +1,17 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# ======================================================================
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
-# Copyright (c) 2017 Baidu.com, Inc. All Rights Reserved
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# ======================================================================
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-"""
-@Desc: db module
-@File: db.py
-@Author: liangjinhua
-@Date: 2019/5/5 19:30
-"""
 import argparse
 import os
 import sys
@@ -263,10 +263,13 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
     benchmark_results = [float(i.report_result) for i in benchmark_results[:1]] if benchmark_results else []
     benchmark_value, benchmark_range, benchmark_color = compute_results(benchmark_results, check_key,
                                                                         cur_value, index, sign)
-    if cur_value < benchmark_value and sign == -1:
-        benchmark = 1
-    elif cur_value > benchmark_value and sign == 1:
-        benchmark = 1
+    print('benchmark_value:{}'.format(benchmark_value))
+    print('current_value:{}'.format(cur_value))
+    if not isinstance(benchmark_value, dict):
+        if float(cur_value) < float(benchmark_value) and sign == -1:
+            benchmark = 1
+        elif float(cur_value) > float(benchmark_value) and sign == 1:
+            benchmark = 1
     avg_value, avg_range, avg_color = compute_results(results_list, check_key, cur_value, index, sign)
 
     if abs(avg_range) < WAVE_THRESHOLD and abs(benchmark_range) < WAVE_THRESHOLD:
@@ -277,19 +280,17 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
         if is_profile:
             current_html_result = [dict(value=model_name), dict(value=print_machine_type),
                                    dict(value=check_key if check_key else DICT_INDEX[index]),
-                                   dict(value="{:.4f}".format(cur_value[check_key]) if check_key else "{:.4f}".format(
-                                       cur_value)),
+                                   dict(value="{:.4f}".format(cur_value[check_key]) if check_key
+                                   else "{:.4f}".format(cur_value)),
                                    dict(value="{:.4f}".format(avg_value)),
                                    dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
         else:
             current_html_result = [dict(value=model_name), dict(value=print_machine_type),
                                    dict(value=check_key if check_key else DICT_INDEX[index]),
-                                   dict(value="{:.4f}{}".format(cur_value[check_key],
-                                                                unit) if check_key else "{:.4f}{}".format(cur_value,
-                                                                                                          unit)),
-                                   dict(value="{:.4f}{}".format(benchmark_value[check_key],
-                                                                unit) if check_key else "{:.4f}{}".format(
-                                       benchmark_value, unit)),
+                                   dict(value="{:.4f}{}".format(cur_value[check_key], unit) if check_key
+                                   else "{:.4f}{}".format(cur_value, unit)),
+                                   dict(value="{:.4f}{}".format(benchmark_value[check_key], unit)
+                                   if check_key else "{:.4f}{}".format(benchmark_value, unit)),
                                    dict(value="{:.2f}%".format(round(benchmark_range * 100, 2)), color=benchmark_color),
                                    dict(value="{:.4f}{}".format(avg_value, unit)),
                                    dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
@@ -437,6 +438,7 @@ def parse_logs(args):
             unit = ''
             mem_result = 0
             benchmark = 0
+            benchmark_mem = 0
             if job_info["index"] == 1:
                 result = job_info['FINAL_RESULT']
                 unit = job_info['UNIT']
@@ -467,18 +469,18 @@ def parse_logs(args):
                     FAIL_LIST.append([job_info["model_name"], print_machine_type])
                 benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type, result,
                                           html_results, -1 if args.device_type.lower() == 'cpu' else 1, unit=unit)
-                benchmark = check_results(job_info["model_name"], 2, run_machine_type, mem_result, html_results,
-                                          -1)  # mem
+                benchmark_mem = check_results(job_info["model_name"], 2, run_machine_type, mem_result, html_results,
+                                              -1)  # mem
             elif job_info["index"] == 3:  # profiler
-                benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                          json.loads(result),
-                                          html_results, -1, "Framework_Total", is_profile=True)
-                benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                          json.loads(result),
-                                          html_results, -1, "GpuMemcpy_Total", is_profile=True)
+                check_results(job_info["model_name"], job_info["index"], run_machine_type,
+                              json.loads(result),
+                              html_results, -1, "Framework_Total", is_profile=True)
+                check_results(job_info["model_name"], job_info["index"], run_machine_type,
+                              json.loads(result),
+                              html_results, -1, "GpuMemcpy_Total", is_profile=True)
             elif job_info["index"] == 6:  # max BS
-                benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type,
-                                          result, html_results, 1)
+                check_results(job_info["model_name"], job_info["index"], run_machine_type,
+                              result, html_results, 1)
             else:
                 print("--------------> please set a correct index(1|3|6)!")
 
@@ -491,9 +493,10 @@ def parse_logs(args):
                 train_log_path = LOG_SERVER + os.path.join(log_base, "train_log", log_file)
                 log_save_dict = {"train_log_path": train_log_path}
                 if job_info["index"] == 1:
-                    insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result, '%', benchmark=benchmark)
-                    insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%', benchmark=benchmark)
-                    pjr2 = insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 1, benchmark=benchmark)
+                    insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result, '%')
+                    insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%')
+                    pjr2 = insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 1,
+                                          benchmark=benchmark_mem)
                     bm.JobResultsLog.objects.create(
                         result_id=pjr2.result_id, log_path=json.dumps(log_save_dict)).save()
                     if int(job_info["gpu_num"]) == 1:
