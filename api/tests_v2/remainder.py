@@ -41,7 +41,7 @@ class RemainderConfig(APIConfig):
         self.alias_config = APIConfig("elementwise")
 
     def disabled(self):
-        return True if self.x_dtype == "float16" else False
+        return True if self.alias.x_dtype == "float16" else False
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(RemainderConfig, self).init_from_json(filename, config_id,
