@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export CUDA_VISIBLE_DEVICES="0"   # Set to "" if testing CPU
+[ -z "$CUDA_VISIBLE_DEVICES" ] && export CUDA_VISIBLE_DEVICES="0"   # Set to "" if testing CPU
 
 NVCC=`which nvcc`
 if [ ${NVCC} != "" ]; then
