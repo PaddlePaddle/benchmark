@@ -1,10 +1,6 @@
 [{
-    "op": "elementwise",
+    "op": "elementwise_two",
     "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
         "x": {
             "dtype": "float32",
             "shape": "[50L, 128L, 1000L]",
@@ -18,12 +14,8 @@
     },
     "repeat": 5000
 }, {
-    "op": "elementwise",
+    "op": "elementwise_two",
     "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "0"
-        },
         "x": {
             "dtype": "float32",
             "shape": "[50L, 128L, 1000L]",
@@ -37,12 +29,8 @@
     },
     "repeat": 5000
 }, {
-    "op": "elementwise",
+    "op": "elementwise_two",
     "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "0"
-        },
         "x": {
             "dtype": "float32",
             "shape": "[-1L, 2048L, 7L, 7L]",
@@ -56,12 +44,8 @@
     },
     "repeat": 5000
 }, {
-    "op": "elementwise",
+    "op": "elementwise_two",
     "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
         "x": {
             "dtype": "float32",
             "shape": "[-1L, 2048L, -1L, -1L]",
@@ -75,12 +59,8 @@
     },
     "repeat": 5000
 }, {
-    "op": "elementwise",
+    "op": "elementwise_two",
     "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
         "x": {
             "dtype": "float32",
             "shape": "[-1L, 1L, 513L, 513L]",
@@ -94,12 +74,8 @@
     },
     "repeat": 5000
 }, {
-    "op": "elementwise",
+    "op": "elementwise_two",
     "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
         "x": {
             "dtype": "float32",
             "shape": "[512L, 896L, 4L, 12L]",
@@ -113,12 +89,8 @@
     },
     "repeat": 5000
 }, {
-    "op": "elementwise",
+    "op": "elementwise_two",
     "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
         "x": {
             "dtype": "float16",
             "shape": "[512L, 896L, 4L, 12L]",
