@@ -20,7 +20,7 @@ class DivideConfig(APIConfig):
         super(DivideConfig, self).__init__('divide')
         self.alias_config = APIConfig("elementwise")
         self.feed_spec = [{"range": [1, 3]}, {"range": [1, 3]}]
-        self.alias.atol=0.1
+        self.alias.atol=0.2
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(DivideConfig, self).init_from_json(filename, config_id,
