@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from common_import import *
-from elementwise import unsqueeze_short
 
 
 class ElementwiseWithAxisConfig(APIConfig):
