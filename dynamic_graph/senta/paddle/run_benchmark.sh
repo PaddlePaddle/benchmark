@@ -27,7 +27,7 @@ function _set_params(){
     keyword="ips "
     separator=" "
     position=13 #18
-    model_mode=0 #1  # s/step -> steps/s
+    model_mode=0 #1
     range=1:6
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
