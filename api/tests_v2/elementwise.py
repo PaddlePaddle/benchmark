@@ -19,7 +19,7 @@ class ElementwiseConfig(APIConfig):
     def __init__(self):
         super(ElementwiseConfig, self).__init__('elementwise')
         self.api_name = 'add'
-        self.api_list = {'add': 'add', 'divide': 'divide', 'pow': 'pow'}
+        self.api_list = {'add': 'add', 'pow': 'pow'}
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
     def disabled(self):
@@ -36,7 +36,6 @@ class ElementwiseConfig(APIConfig):
         elif len(self.x_shape) < len(self.y_shape) and self.x_shape != [1]:
             self.x_shape_unsqueezed = unsqueeze_short(
                 short=self.x_shape, long=self.y_shape)
-
 
 class PDElementwise(PaddleAPIBenchmarkBase):
     def build_program(self, config):
