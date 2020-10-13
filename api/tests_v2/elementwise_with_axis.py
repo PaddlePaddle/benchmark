@@ -43,24 +43,13 @@ class ElementwiseWithAxisConfig(APIConfig):
             self.atol = 1e-6
         if len(self.alias.x_shape) > len(
                 self.alias.y_shape) and self.alias.y_shape != [1]:
-            tf_config.y_shape_unsqueezed = self._unsqueeze_short(
+            tf_config.y_shape_unsqueezed = unsqueeze_short(
                 short=self.alias.y_shape, long=self.alias.x_shape)
         elif len(self.alias.x_shape) < len(
                 self.alias.y_shape) and self.alias.x_shape != [1]:
-            tf_config.x_shape_unsqueezed = self._unsqueeze_short(
+            tf_config.x_shape_unsqueezed = unsqueeze_short(
                 short=self.x_shape, long=self.y_shape)
         return tf_config
-
-    def _unsqueeze_short(self, short, long):
-        short_extend = np.ones([len(long)], dtype=np.int32).tolist()
-        start = 0
-        for value in short:
-            for i in range(start, len(long)):
-                if long[i] == value:
-                    short_extend[i] = value
-                    start = i
-                    break
-        return short_extend
 
 
 class PDElementwiseWithAxis(PaddleAPIBenchmarkBase):

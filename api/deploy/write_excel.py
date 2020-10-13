@@ -156,7 +156,7 @@ def dump_excel(benchmark_result_list,
             ws = wb.add_worksheet(worksheet_name)
 
             title_names = ["case_name"]
-            column_width = [40]
+            column_width = [36]
             if op_frequency_dict is not None:
                 title_names.append("frequency")
                 column_width.append(10)
@@ -166,8 +166,8 @@ def dump_excel(benchmark_result_list,
                 title_names.append("Paddle(%s)" % key)
                 title_names.append("Tensorflow(%s)" % key)
                 title_names.append("compare result")
-                column_width.append(20)
-                column_width.append(20)
+                column_width.append(16)
+                column_width.append(16)
                 column_width.append(16)
             title_names.append("accuracy")
             title_names.append("parameters")
