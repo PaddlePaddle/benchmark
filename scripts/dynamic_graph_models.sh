@@ -368,8 +368,10 @@ dy_senta(){
         echo "net is ${net_item}, index is speed, 1gpu begin"
         model_name="Senta"_${net_item}
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${net_item} sp 2 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
+        kill -9 `ps -ef|grep python |awk '{print $2}'`
         sleep 60
         echo "net is ${net_item}, index is speed, 8gpu begin"
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${net_item} mp 2 | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+        kill -9 `ps -ef|grep python |awk '{print $2}'`
     done
 }
