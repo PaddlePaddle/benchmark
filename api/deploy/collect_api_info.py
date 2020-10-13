@@ -65,7 +65,7 @@ def import_all_tests(test_module_name):
             return None
 
     tests_path = os.path.join(package_path, test_module_name)
-    for filename in os.listdir(tests_path):
+    for filename in sorted(os.listdir(tests_path)):
         api_name = os.path.splitext(filename)[0]
         file_extension = os.path.splitext(filename)[1]
         if file_extension == '.py' and api_name not in special_module_list:

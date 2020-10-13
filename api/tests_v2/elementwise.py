@@ -27,32 +27,22 @@ class ElementwiseConfig(APIConfig):
             return True
         return False
 
-    def to_tensorflow(self):
-        tf_config = super(ElementwiseConfig, self).to_tensorflow()
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(ElementwiseConfig, self).init_from_json(filename, config_id,
+                                                      unknown_dim)
         if len(self.x_shape) > len(self.y_shape) and self.y_shape != [1]:
-            tf_config.y_shape_unsqueezed = self._unsqueeze_short(
+            self.y_shape = unsqueeze_short(
                 short=self.y_shape, long=self.x_shape)
         elif len(self.x_shape) < len(self.y_shape) and self.x_shape != [1]:
-            tf_config.x_shape_unsqueezed = self._unsqueeze_short(
+            self.x_shape_unsqueezed = unsqueeze_short(
                 short=self.x_shape, long=self.y_shape)
-        return tf_config
-
-    def _unsqueeze_short(self, short, long):
-        short_extend = np.ones([len(long)], dtype=np.int32).tolist()
-        start = 0
-        for value in short:
-            for i in range(start, len(long)):
-                if long[i] == value:
-                    short_extend[i] = value
-                    start = i
-                    break
-        return short_extend
 
 
 class PDElementwise(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+
         result = self.layers(config.api_name, x=x, y=y)
 
         self.feed_vars = [x, y]
@@ -65,15 +55,8 @@ class TFElementwise(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        if hasattr(config, "x_shape_unsqueezed"):
-            x_reshape = tf.reshape(tensor=x, shape=config.x_shape_unsqueezed)
-        else:
-            x_reshape = x
-        if hasattr(config, "y_shape_unsqueezed"):
-            y_reshape = tf.reshape(tensor=y, shape=config.y_shape_unsqueezed)
-        else:
-            y_reshape = y
-        result = self.layers(config.api_name, x=x_reshape, y=y_reshape)
+
+        result = self.layers(config.api_name, x=x, y=y)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]

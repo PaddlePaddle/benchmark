@@ -44,8 +44,8 @@
     "op": "arg",
     "param_info": {
         "axis": {
-            "type": "string",
-            "value": "None"
+            "type": "int",
+            "value": "0"
         },
         "x": {
             "dtype": "float32",
