@@ -64,7 +64,7 @@ class PDWhileLoop(PaddleAPIBenchmarkBase):
         self.feed_vars = [x]
         self.fetch_vars = [results]
         if config.backward:
-            self.append_gradients(results, [x])
+            self.append_gradients([results, x], [x])
 
 
 class TFWhileLoop(TensorflowAPIBenchmarkBase):
