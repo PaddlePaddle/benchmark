@@ -20,22 +20,27 @@ class DivideConfig(APIConfig):
         super(DivideConfig, self).__init__('divide')
         self.alias_config = APIConfig("elementwise")
         self.feed_spec = [{"range": [1, 3]}, {"range": [1, 3]}]
-        self.alias.atol=0.2
+        self.alias.atol = 0.2
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(DivideConfig, self).init_from_json(filename, config_id,
-                                                      unknown_dim)
-        if len(self.alias.x_shape) > len(self.alias.y_shape) and self.alias.y_shape != [1]:
+                                                 unknown_dim)
+        if len(self.alias.x_shape) > len(
+                self.alias.y_shape) and self.alias.y_shape != [1]:
             self.alias.y_shape = unsqueeze_short(
                 short=self.alias.y_shape, long=self.alias.x_shape)
-        elif len(self.alias.x_shape) < len(self.alias.y_shape) and self.alias.x_shape != [1]:
+        elif len(self.alias.x_shape) < len(
+                self.alias.y_shape) and self.alias.x_shape != [1]:
             self.x_shape_unsqueezed = unsqueeze_short(
                 short=self.alias.x_shape, long=self.alias.y_shape)
 
+
 class PDDivide(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
-        y = self.variable(name='y', shape=config.alias.y_shape, dtype=config.alias.y_dtype)
+        x = self.variable(
+            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        y = self.variable(
+            name='y', shape=config.alias.y_shape, dtype=config.alias.y_dtype)
 
         result = paddle.divide(x=x, y=y)
 
@@ -47,8 +52,10 @@ class PDDivide(PaddleAPIBenchmarkBase):
 
 class TFDivide(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
-        y = self.variable(name='y', shape=config.alias.y_shape, dtype=config.alias.y_dtype)
+        x = self.variable(
+            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        y = self.variable(
+            name='y', shape=config.alias.y_shape, dtype=config.alias.y_dtype)
 
         result = tf.math.divide(x=x, y=y)
 

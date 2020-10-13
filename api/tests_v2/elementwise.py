@@ -37,6 +37,7 @@ class ElementwiseConfig(APIConfig):
             self.x_shape_unsqueezed = unsqueeze_short(
                 short=self.x_shape, long=self.y_shape)
 
+
 class PDElementwise(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
