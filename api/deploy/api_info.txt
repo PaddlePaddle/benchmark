@@ -48,7 +48,7 @@ less_than,compare,compare.json,False
 logical_and,logical,logical.json,False
 logical_not,logical_not,logical_not.json,False
 logical_or,logical,logical.json,False
-lstm,lstm,lstm.json,False
+lstm,lstm,lstm.json,True
 matmul,matmul,matmul.json,True
 mean,mean,mean.json,True
 not_equal,compare,compare.json,False
