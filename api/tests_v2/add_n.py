@@ -15,7 +15,7 @@
 from common_import import *
 
 
-class PDElementwiseSum(PaddleAPIBenchmarkBase):
+class PDAddN(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         inputs = []
         for i in range(len(config.inputs_shape)):
@@ -24,7 +24,7 @@ class PDElementwiseSum(PaddleAPIBenchmarkBase):
                 shape=config.inputs_shape[i],
                 dtype=config.inputs_dtype[i])
             inputs.append(input_i)
-        result = paddle.elementwise_sum(inputs=inputs)
+        result = paddle.add_n(inputs=inputs)
 
         self.feed_vars = inputs
         self.fetch_vars = [result]
@@ -32,7 +32,7 @@ class PDElementwiseSum(PaddleAPIBenchmarkBase):
             self.append_gradients(result, inputs)
 
 
-class TFElementwiseSum(TensorflowAPIBenchmarkBase):
+class TFAddN(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         inputs = []
         for i in range(len(config.inputs_shape)):
@@ -50,7 +50,4 @@ class TFElementwiseSum(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(
-        PDElementwiseSum(),
-        TFElementwiseSum(),
-        config=APIConfig("elementwise_sum"))
+    test_main(PDAddN(), TFAddN(), config=APIConfig("add_n"))

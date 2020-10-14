@@ -1,6 +1,7 @@
 abs,abs,activation.json,True
 accuracy,accuracy,accuracy.json,False
 add,elementwise,elementwise.json,True
+add_n,add_n,add_n.json,True
 affine_grid,affine_grid,affine_grid.json,True
 argmax,arg,arg.json,False
 argmin,arg,arg.json,False
@@ -28,7 +29,6 @@ diag,diag,diag.json,False
 divide,elementwise,elementwise.json,True
 dropout,dropout,dropout.json,True
 elementwise_sub,elementwise_with_axis,elementwise.json,True
-elementwise_sum,elementwise_sum,elementwise_sum.json,True
 embedding,embedding,embedding.json,True
 equal,compare,compare.json,False
 equal_all,equal_all,equal_all.json,False
@@ -98,7 +98,7 @@ shape,shape,shape.json,False
 sigmoid,sigmoid,activation.json,True
 sigmoid_cross_entropy_with_logits,sigmoid_cross_entropy_with_logits,sigmoid_cross_entropy_with_logits.json,True
 sin,activation,activation.json,True
-sinh,sinh,activation.json,True
+sinh,activation,activation.json,True
 slice,slice,slice.json,True
 softmax,softmax,softmax.json,True
 softmax_with_cross_entropy,softmax_with_cross_entropy,softmax_with_cross_entropy.json,True
