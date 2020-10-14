@@ -41,36 +41,6 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 2048L, 7L, 7L]",
-            "type": "Variable"
-        },
-        "padding": {
-            "type": "list",
-            "value": "[0, 0]"
-        },
-        "kernel_size": {
-            "type": "list",
-            "value": "[7L, 7L]"
-        },
-        "stride": {
-            "type": "list",
-            "value": "[1, 1]"
-        }
-    },
-    "repeat": 10000
-}, {
-    "op": "avg_pool2d",
-    "param_info": {
-        "ceil_mode": {
-            "type": "bool",
-            "value": "False"
-        },
-        "data_format": {
-            "type": "string",
-            "value": "NCHW"
-        },
-        "x": {
-            "dtype": "float32",
             "shape": "[-1L, 256L, -1L, -1L]",
             "type": "Variable"
         },
