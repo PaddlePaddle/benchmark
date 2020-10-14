@@ -1,5 +1,5 @@
 [{
-    "op": "elementwise_sum",
+    "op": "add_n",
     "param_info": {
         "inputs": {
             "inputs0": {
@@ -16,7 +16,7 @@
         }
     }
 }, {
-    "op": "elementwise_sum",
+    "op": "add_n",
     "param_info": {
         "inputs": {
             "inputs0": {
@@ -63,7 +63,7 @@
         }
     }
 }, {
-    "op": "elementwise_sum",
+    "op": "add_n",
     "param_info": {
         "inputs": {
             "inputs0": {
