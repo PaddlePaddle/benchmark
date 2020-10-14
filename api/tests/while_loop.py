@@ -53,6 +53,7 @@ class PDWhileLoop(PaddleAPIBenchmarkBase):
         result = fluid.layers.zeros(
             shape=[config.alias.input_shape[0], config.alias.size],
             dtype=config.alias.input_dtype)
+        result.stop_gradient = False
         _, _, _, results = fluid.layers.while_loop(
             cond, body, [i, loop_len, input, result])
         self.feed_vars = [input]
