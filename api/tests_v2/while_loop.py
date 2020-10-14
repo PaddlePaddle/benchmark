@@ -59,12 +59,13 @@ class PDWhileLoop(PaddleAPIBenchmarkBase):
         result = paddle.zeros(
             shape=[config.alias.x_shape[0], config.alias.weight_shape[-1]],
             dtype=config.alias.x_dtype)
+        result.stop_gradient = False
         _, _, _, results = paddle.nn.while_loop(cond, body,
                                                 [i, loop_len, x, result])
         self.feed_vars = [x]
         self.fetch_vars = [results]
         if config.backward:
-            self.append_gradients([results, x], [x])
+            self.append_gradients(results, [x])
 
 
 class TFWhileLoop(TensorflowAPIBenchmarkBase):
