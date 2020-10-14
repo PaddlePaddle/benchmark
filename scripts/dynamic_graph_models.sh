@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
+cur_model_list=(dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
 
 # MobileNet
 dy_mobilenet(){
@@ -320,4 +320,58 @@ dy_tsm(){
     sleep 60
     echo "index is speed, 8gpus begin, mp"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 16 TSM mp 1 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
+}
+
+# wavenet
+dy_wavenet(){
+    rm -rf ${BENCHMARK_ROOT}/SL_models/
+    cp -r ${all_path}/SL_models/ ${BENCHMARK_ROOT}  # 当前SL 方向模型在gitlab托管，不对外开源。故而会在任务开始时克隆SL 代码
+    # 地址：http://gitlab.baidu.com/heya02/benchmark/
+    cur_model_path=${BENCHMARK_ROOT}/SL_models/benchmark/wavenet/paddle_implementation
+    cd ${cur_model_path}
+
+    # Prepare data
+    ln -s ${data_path}/dygraph_data/wavenet/ljspeech ${cur_model_path}/
+
+    apt-get install  libsndfile1 -y
+    pip install -r ${data_path}/dygraph_data/wavenet/requirement.txt
+    # Running ...
+    rm -f ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/wavenet/paddle/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    echo "index is speed, 1gpu begin"
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
+    sleep 60
+    echo "index is speed, 8gpus begin, mp"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
+}
+
+dy_senta(){
+    rm -rf ${BENCHMARK_ROOT}/SL_models/
+    cp -r ${all_path}/SL_models/ ${BENCHMARK_ROOT}  # 当前SL 方向模型在gitlab托管，不对外开源。故而会在任务开始时克隆SL 代码
+    # 地址：http://gitlab.baidu.com/heya02/benchmark/
+    cur_model_path=${BENCHMARK_ROOT}/SL_models/benchmark/senta/paddle2
+    cd ${cur_model_path}
+
+    # Prepare data
+    ln -s ${data_path}/dygraph_data/senta/senta_data ${cur_model_path}/
+
+    pip install tqdm
+
+    # Running ...
+    rm -f ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/senta/paddle/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    net_list=(bow lstm bilstm gru bigru rnn birnn cnn)
+    for net_item in ${net_list[@]}
+    do
+        echo "net is ${net_item}, index is speed, 1gpu begin"
+        model_name="Senta"_${net_item}
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${net_item} sp 2 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
+        kill -9 `ps -ef|grep python |awk '{print $2}'`
+        sleep 60
+        echo "net is ${net_item}, index is speed, 8gpu begin"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${net_item} mp 2 | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+        kill -9 `ps -ef|grep python |awk '{print $2}'`
+    done
 }
