@@ -1,6 +1,7 @@
 abs,abs,activation.json,True
 accuracy,accuracy,accuracy.json,False
 add,elementwise,elementwise.json,True
+add_n,add_n,add_n.json,True
 affine_grid,affine_grid,affine_grid.json,True
 argmax,arg,arg.json,False
 argmin,arg,arg.json,False
@@ -28,7 +29,6 @@ diag,diag,diag.json,False
 divide,divide,elementwise.json,True
 dropout,dropout,dropout.json,True
 elementwise_sub,elementwise_with_axis,elementwise.json,True
-elementwise_sum,elementwise_sum,elementwise_sum.json,True
 embedding,embedding,embedding.json,True
 equal,compare,compare.json,False
 equal_all,equal_all,equal_all.json,False
