@@ -16,6 +16,7 @@
 
 cur_model_list=(dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
 
+
 # MobileNet
 dy_mobilenet(){
     cur_model_path=${BENCHMARK_ROOT}/models/dygraph/mobilenet/
