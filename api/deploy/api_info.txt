@@ -14,7 +14,7 @@ conv2d,conv2d,conv2d.json,True
 conv2d_transpose,conv2d_transpose,conv2d_transpose.json,True
 cos,activation,activation.json,True
 cos_sim,cos_sim,cos_sim.json,True
-cumsum,cumsum,cumsum.json,False
+cumsum,cumsum,cumsum.json,True
 depthwise_conv2d,depthwise_conv2d,depthwise_conv2d.json,True
 dropout,dropout,dropout.json,True
 elementwise_add,elementwise,elementwise.json,True

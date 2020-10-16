@@ -20,6 +20,7 @@ import six
 import string
 import xlsxwriter as xlw
 import op_benchmark_unit
+from common import special_op_list
 
 if not six.PY3:
     reload(sys)
@@ -155,7 +156,7 @@ def dump_excel(benchmark_result_list,
             ws = wb.add_worksheet(worksheet_name)
 
             title_names = ["case_name"]
-            column_width = [40]
+            column_width = [36]
             if op_frequency_dict is not None:
                 title_names.append("frequency")
                 column_width.append(10)
@@ -164,10 +165,10 @@ def dump_excel(benchmark_result_list,
             for key in time_set:
                 title_names.append("Paddle(%s)" % key)
                 title_names.append("Tensorflow(%s)" % key)
-                title_names.append("status")
-                column_width.append(20)
-                column_width.append(20)
-                column_width.append(10)
+                title_names.append("compare result")
+                column_width.append(16)
+                column_width.append(16)
+                column_width.append(16)
             title_names.append("accuracy")
             title_names.append("parameters")
             column_width.append(10)
@@ -177,14 +178,18 @@ def dump_excel(benchmark_result_list,
                 col_char = chr(ord("A") + col)
                 ws.set_column(col_char + ":" + col_char, column_width[col])
 
+            row = 0
             for col in range(len(title_names)):
-                ws.write(0, col, title_names[col], title_format)
+                ws.write(row, col, title_names[col], title_format)
 
             for case_id in range(len(benchmark_result_list)):
                 op_unit = benchmark_result_list[case_id]
+                if direction == "backward" and op_unit.op_type in special_op_list.NO_BACKWARD_OPS:
+                    continue
+
                 result = op_unit.get(device, direction)
 
-                row = case_id + 1
+                row += 1
                 ws.write(row, 0, op_unit.case_name)
 
                 if op_frequency_dict is not None:
@@ -227,6 +232,18 @@ def dump_excel(benchmark_result_list,
 
                     compare_result = COMPARE_RESULT_SHOWS.get(
                         result["compare"][key], "--")
+                    compare_ratio = result["compare"][key + "_ratio"]
+                    if compare_ratio != "--":
+                        if compare_ratio > 2.0:
+                            compare_result += " (%.2fx)" % (
+                                compare_ratio - 1.0)
+                        elif compare_ratio < 0.5:
+                            compare_result += " (%.2fx)" % (
+                                1.0 / compare_ratio - 1.0)
+                        else:
+                            compare_percent = "%.2f" % (
+                                abs(1.0 - compare_ratio) * 100)
+                            compare_result += " (" + compare_percent + "%)"
                     ws.write(row, col, compare_result, cell_formats[color])
                     col += 1
 

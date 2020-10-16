@@ -57,10 +57,11 @@ class PDWhileLoop(PaddleAPIBenchmarkBase):
         i = paddle.zeros(shape=[1], dtype='int64')
         loop_len = paddle.ones(shape=[1], dtype='int64')
         result = paddle.zeros(
-            shape=[config.alias.x_shape[0], config.alias.weight_shape[-1]],
+            shape=config.alias.x_shape[:-1] + config.alias.weight_shape[-1:],
             dtype=config.alias.x_dtype)
-        _, _, _, results = paddle.nn.while_loop(cond, body,
-                                                [i, loop_len, x, result])
+        result.stop_gradient = False
+        _, _, _, results = paddle.static.nn.while_loop(
+            cond, body, [i, loop_len, x, result])
         self.feed_vars = [x]
         self.fetch_vars = [results]
         if config.backward:
@@ -97,7 +98,7 @@ class TFWhileLoop(TensorflowAPIBenchmarkBase):
         i = tf.constant(0)
         loop_len = tf.constant(1)
         result = tf.zeros(
-            shape=[config.alias.x_shape[0], config.size],
+            shape=config.alias.x_shape[:-1] + config.alias.weight_shape[-1:],
             dtype=config.alias.x_dtype)
         _, _, _, results = tf.while_loop(cond, body,
                                          [i, loop_len, input, result])
