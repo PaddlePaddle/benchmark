@@ -159,7 +159,7 @@ dy_gan(){
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/gan_models/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
-    model_list=(pix2pix cyclegan)
+    model_list=(Pix2pix CycleGAN)
     for model_item in ${model_list[@]}
     do
         echo "index is speed, ${model_item} 1gpu begin"

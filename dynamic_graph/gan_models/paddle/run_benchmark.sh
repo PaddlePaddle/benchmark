@@ -14,7 +14,7 @@ function _set_params(){
     run_mode=${2:-"sp"} # Use sp for single GPU and mp for multiple GPU.
     model_name=$3
     max_epoch=${4:-"1"}
-    if [ ${3} != "cyclegan" ] && [ ${3} != "pix2pix" ]; then
+    if [ ${3} != "CycleGAN" ] && [ ${3} != "Pix2pix" ]; then
         echo "------------> please check the model name! it should be cyclegan|pix2pix"
         exit 1
     fi
