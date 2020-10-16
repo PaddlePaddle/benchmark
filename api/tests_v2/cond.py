@@ -31,7 +31,7 @@ class PDCond(PaddleAPIBenchmarkBase):
         input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
         pred = paddle.less_than(input, ten_var)
-        result = paddle.nn.cond(pred, true_fn, false_fn)
+        result = paddle.static.nn.cond(pred, true_fn, false_fn)
 
         self.feed_vars = [x, y, input]
         self.fetch_vars = [result]
