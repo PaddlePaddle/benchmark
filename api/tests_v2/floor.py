@@ -21,13 +21,12 @@ class FloorConfig(APIConfig):
         self.feed_spec = {"range": [-1, 1]}
         # Floor belongs to activation op series which only has one variable
         # thus Floor can reuse activation parameters 
-        self.alias_config = APIConfig("activation")
+        self.alias_config = "activation"
 
 
 class PDFloor(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = paddle.floor(x=x)
 
         self.feed_vars = [x]
@@ -38,8 +37,7 @@ class PDFloor(PaddleAPIBenchmarkBase):
 
 class TFFloor(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = tf.math.floor(x=x)
 
         self.feed_list = [x]
