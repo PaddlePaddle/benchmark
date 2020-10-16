@@ -28,6 +28,10 @@ function print_arguments() {
     echo ""
 }
 
+declare -A DEVICE_TASK_PID_MAP
+declare -A TASK_PID_RUN_START_MAP
+declare -A TASK_PID_INFO_MAP
+
 export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
 
 OP_BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../" && pwd )"
@@ -49,6 +53,9 @@ fi
 GPU_IDS=${4:-"0"}
 GPU_IDS_ARRAY=(${GPU_IDS//,/ })
 NUM_GPU_DEVICES=${#GPU_IDS_ARRAY[*]}
+for((i=0;i<NUM_GPU_DEVICES;i++)); do
+    DEVICE_TASK_PID_MAP[$i]=0
+done
 if [ ${NUM_GPU_DEVICES} -le 0 ]; then
     echo "GPU devices (ids=${GPU_IDS}) should not be empty."
     exit
@@ -72,7 +79,7 @@ if [ $# -ge 7 ]; then
     OP_LIST_FILE=${7}
 else
     OP_LIST_FILE=${OUTPUT_DIR}/api_info.txt
-    python ${DEPLOY_DIR}/collect_api_info.py --info_file ${OP_LIST_FILE}
+    python ${DEPLOY_DIR}/collect_api_info.py --info_dir ${TEST_DIR%%/*} --info_file ${OP_LIST_FILE}
     return_status=$?
     if [ ${return_status} -ne 0 ] || [ ! -f "${OP_LIST_FILE}" ]; then
         OP_LIST_FILE=${DEPLOY_DIR}/api_info.txt
@@ -85,9 +92,9 @@ function print_detail_status() {
     local device=$3
     local backward=$4
     local logfile=$5
-    local runtime=$6
-    local return_status=$7
-    local gpu_id=$8
+    local gpu_id=$6
+    local runtime=$7
+    local return_status=$8
 
     if [ ${backward} = "False" ]; then
         local backward_shorten="F"
@@ -111,6 +118,30 @@ function print_detail_status() {
     else
         printf "  [%s][%d-%d][%s] %-120s ...... %s\n" "${gpu_id}" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     fi
+    cat ${logfile}
+}
+
+function print_finished_task_detail() {
+    local finished_task_pid=$1
+    local finished_run_end=$2
+    [ -z "${TASK_PID_INFO_MAP[$finished_task_pid]}" ] && return 0
+    finished_run_start=TASK_PID_RUN_START_MAP[$finished_task_pid]
+    runtime=$((finished_run_end-finished_run_start))
+    runtime=`expr $runtime / 1000000`
+    wait $finished_task_pid
+    return_status=$?
+    if [ ${return_status} -eq 0 ]; then
+        num_success_cases=$[$num_success_cases+1]
+    else
+        num_failed_cases=$[$num_failed_cases+1]
+    fi
+    if [ ${device} == "gpu" ]; then
+        gpu_runtime=`expr $gpu_runtime + $runtime`
+    else
+        cpu_runtime=`expr $cpu_runtime + $runtime`
+    fi
+    print_detail_status ${TASK_PID_INFO_MAP[$finished_task_pid]} ${runtime} ${return_status}
+    unset TASK_PID_INFO_MAP[$finished_task_pid]
 }
 
 function execute_one_case() {
@@ -118,7 +149,6 @@ function execute_one_case() {
     local line=$2
     local json_file_path=$3
     local i=$4
-    local gpu_id=$5
 
     local api_name=$(echo $line | cut -d ',' -f1)
     local name=$(echo $line | cut -d ',' -f2)
@@ -130,10 +160,7 @@ function execute_one_case() {
     fi
 
     local case_id=0
-    local case_log="[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}"
-    if [ ${NUM_GPU_DEVICES} -eq 1 ]; then
-        echo "${case_log}"
-    fi
+    echo "[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}"
 
     # DEVICE_SET is specified by argument: "gpu", "cpu"
     for device in ${DEVICE_SET[@]}; do 
@@ -175,75 +202,63 @@ function execute_one_case() {
                           --repeat $repeat \
                           --allow_adaptive_repeat True"
 
+                    while true
+                    do
+                        for device_id in ${!DEVICE_TASK_PID_MAP[*]}
+                        do
+                            task_pid=${DEVICE_TASK_PID_MAP[$device_id]}
+                            if [ $task_pid -eq 0 -o -z "$(ps -opid | grep $task_pid)" ]
+                            then
+                                gpu_id=$device_id
+                                finished_task_pid=$task_pid
+                                break 2
+                            fi
+                        done
+                        sleep 1s
+                    done
+
                     run_start=`date +%s%N`
                     if [ "${OUTPUT_DIR}" != "" ]; then
                         logfile=${OUTPUT_DIR}/${api_name}"_"${i}"-"${framework}"_"${device}"_"${task}"_"${direction}".txt"
                         # Set maxmimum runtime to 10min, or it will be considered
                         #  hanged and will be killed.
                         if [ ${device} = "gpu" ]; then
-                            CUDA_VISIBLE_DEVICES="${gpu_id}" timeout 600s ${run_cmd} > $logfile 2>&1
+                            CUDA_VISIBLE_DEVICES="${gpu_id}" timeout 600s ${run_cmd} > $logfile 2>&1 &
                         else
-                            CUDA_VISIBLE_DEVICES="" taskset -c ${gpu_id} timeout 600s ${run_cmd} > $logfile 2>&1
+                            CUDA_VISIBLE_DEVICES="" taskset -c ${gpu_id} timeout 600s ${run_cmd} > $logfile 2>&1 &
                         fi
-                        return_status=$?
+                        task_pid=$!
                     else
                         logfile=""
                         if [ ${device} = "gpu" ]; then
-                            CUDA_VISIBLE_DEVICES="${gpu_id}" ${run_cmd}
+                            CUDA_VISIBLE_DEVICES="${gpu_id}" ${run_cmd} &
                         else
-                            CUDA_VISIBLE_DEVICES="" taskset -c ${gpu_id} ${run_cmd}
+                            CUDA_VISIBLE_DEVICES="" taskset -c ${gpu_id} ${run_cmd} &
                         fi
-                        return_status=$?
+                        task_pid=$!
                     fi
-                    run_end=`date +%s%N`;
-                    runtime=$((run_end-run_start))
-                    runtime=`expr $runtime / 1000000`
-
-                    if [ ${return_status} -eq 0 ]; then
-                        num_success_cases=$[$num_success_cases+1]
-                    else
-                        num_failed_cases=$[$num_failed_cases+1]
-                    fi
-                    if [ ${device} == "gpu" ]; then
-                        gpu_runtime=`expr $gpu_runtime + $runtime`
-                    else
-                        cpu_runtime=`expr $cpu_runtime + $runtime`
-                    fi
-                    local case_log_detail=`print_detail_status ${config_id} ${case_id} "${device}" "${backward}" "${logfile}" ${runtime} ${return_status} ${gpu_id}`
-                    if [ ${NUM_GPU_DEVICES} -eq 1 ]; then
-                        printf ${case_log_detail}
-                    else
-                        case_log="${case_log}\n${case_log_detail}"
-                    fi
+                    TASK_PID_RUN_START_MAP[$task_pid]=$run_start
+                    DEVICE_TASK_PID_MAP[$gpu_id]=$task_pid
+                    TASK_PID_INFO_MAP[$task_pid]="${config_id} ${case_id} ${device} ${backward} ${logfile} ${gpu_id}"
+                    [ $finished_task_pid -ne 0 ] && print_finished_task_detail $finished_task_pid $run_start
                  done
             done
         done
     done
-    if [ ${NUM_GPU_DEVICES} -gt 1 ]; then
-        echo -e "${case_log}\n"
-    fi
 }
 
 function run_all_cases() {
-    local gpu_ids_array_index=$1
-
     local op_info_str=`cat ${OP_LIST_FILE}`
     local op_info_array=(${op_info_str/\\n/ })
     local num_ops=${#op_info_array[*]}
 
-    local num_ops_each_gpu=$((num_ops+NUM_GPU_DEVICES-1))
-    local num_ops_each_gpu=$((num_ops_each_gpu/NUM_GPU_DEVICES))
-    local config_index_begin=$((gpu_ids_array_index*num_ops_each_gpu))
-    local config_index_end=$((config_index_begin+num_ops_each_gpu))
-    if [ ${config_index_end} -gt ${num_ops} ]; then
-        config_index_end=${num_ops}
-    fi
+    local config_index_begin=0
+    local config_index_end=${num_ops}
 
     local config_id=0
-    local gpu_id=${GPU_IDS_ARRAY[${gpu_ids_array_index}]}
 
-    echo "config_index_begin: ${config_index_begin}; config_index_end: ${config_index_end}; gpu_id: ${gpu_id}"
-    local line_id=${config_index_begin}
+    echo "config_index_begin: ${config_index_begin}; config_index_end: ${config_index_end};"
+    local line_id=0
     while [ ${line_id} -lt ${config_index_end} ]; do
         local line=${op_info_array[line_id]}
         local json_file=$(echo $line | cut -d ',' -f3)
@@ -261,6 +276,23 @@ function run_all_cases() {
         done
         line_id=$((line_id+1))
     done
+
+    while ${#DEVICE_TASK_PID_MAP[*]}
+    do
+        for device_id in ${!DEVICE_TASK_PID_MAP[*]}
+        do
+            task_pid=${DEVICE_TASK_PID_MAP[$device_id]}
+            if [ $task_pid -eq 0 ]
+            then
+                unset DEVICE_TASK_PID_MAP[$device_id]
+            elif [ -z "$(ps -opid | grep $task_pid)" ]
+            then
+                print_finished_task_detail $task_pid $(date +%s%N)
+                unset DEVICE_TASK_PID_MAP[$device_id]
+            fi
+        done
+        sleep 1s
+    done
 }
 
 print_arguments $*
@@ -269,10 +301,8 @@ cpu_runtime=0
 gpu_runtime=0
 num_success_cases=0
 num_failed_cases=0
-for((index=0;index<NUM_GPU_DEVICES;index++)); do
-    run_all_cases ${index} &
-done
-wait
+
+run_all_cases
 
 echo "===================================================================="
 echo "Summary:"
