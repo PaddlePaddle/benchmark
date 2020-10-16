@@ -55,7 +55,7 @@ function build_paddle() {
       BUILD_TYPE=Release                      \
       WITH_DISTRIBUTE=OFF                     \
       CMAKE_VERBOSE_MAKEFILE=OFF              \
-      /bin/bash paddle/scripts/paddle_build.sh build 12
+      /bin/bash paddle/scripts/paddle_build.sh build $(nproc)
   if [ $? -eq 0 -o ! -f build/python/dist/${IMAGE_NAME} ]
   then
     LOG "[INFO] Build Paddle success!"
