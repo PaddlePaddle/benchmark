@@ -196,13 +196,6 @@ class APIConfig(object):
     def framework(self):
         return self.__framework
 
-    @property
-    def alias(self):
-        if hasattr(self, "alias_config"):
-            return self.alias_config
-        else:
-            return self
-
     def disabled(self):
         return False
 
