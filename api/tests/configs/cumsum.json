@@ -19,9 +19,8 @@
             "type": "Variable"
         }
     },
-    "atol": 0.05
+    "atol": 5e-3
 }, {
-    "atol": 0.05,
     "op": "cumsum",
     "param_info": {
         "axis": {
@@ -42,5 +41,5 @@
             "type": "Variable"
         }
     },
-    "atol": 0.05
+    "atol": 0.1
 }]
