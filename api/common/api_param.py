@@ -178,13 +178,13 @@ class APIConfig(object):
     def alias_filename(self, filename):
         """
         Get the filename of alias config.
-        If self.name = a, self.alias_config = b, the filename should be "dir/a.json",
-        the filename of alias config will be "dir/b.json".
+        If self.name = a, self.alias_name = b, the filename should be "dir/a.json",
+        the filename of config will be "dir/b.json".
         """
-        if hasattr(self, "alias_config"):
+        if hasattr(self, "alias_name"):
             dirname = os.path.dirname(filename)
             basename = os.path.basename(filename)
-            basename = basename.replace(self.name, self.alias_config)
+            basename = basename.replace(self.name, self.alias_name)
             return os.path.join(dirname, basename)
         return filename
 
@@ -200,17 +200,16 @@ class APIConfig(object):
         return False
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        if hasattr(self, "alias_config"):
-            filename = self.alias_filename(filename)
+        filename = self.alias_filename(filename)
 
         print("---- Initialize APIConfig from %s, config_id = %d.\n" %
               (filename, config_id))
         with open(filename, 'r') as f:
             data = json.load(f)
             op = data[config_id]["op"]
-            assert op == self.name or op == self.alias_config, "The op type (%s) in json file is different from the name (%s) and the alias name (%s). " \
+            assert op == self.name or op == self.alias_name, "The op type (%s) in json file is different from the name (%s) and the alias name (%s). " \
                 "The filename: %s, config_id: %d." % (
-                    op, self.name, self.alias_config, filename, config_id)
+                    op, self.name, self.alias_name, filename, config_id)
             self.params = data[config_id]["param_info"]
 
             if data[config_id].get("atol", None) is not None:
@@ -260,16 +259,9 @@ class APIConfig(object):
     def __str__(self):
         exclude_attrs = [
             '_APIConfig__name', '_APIConfig__framework', 'params', 'api_name',
-            'api_list', 'variable_list', 'params_list', 'backward',
-            'feed_spec', 'is_alias_of_other'
+            'api_list', 'variable_list', 'params_list', 'backward', 'feed_spec'
         ]
-        if hasattr(self, "is_alias_of_other") and self.is_alias_of_other:
-            prefix = "  "
-            for name in ["run_tf", "atol", "repeat"]:
-                exclude_attrs.append(name)
-        else:
-            prefix = ""
-
+        prefix = ""
         debug_str = ('[%s][%s] %s {\n') % (self.framework, self.name,
                                            self.api_name)
         for name, value in vars(self).items():

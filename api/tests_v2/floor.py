@@ -21,7 +21,7 @@ class FloorConfig(APIConfig):
         self.feed_spec = {"range": [-1, 1]}
         # Floor belongs to activation op series which only has one variable
         # thus Floor can reuse activation parameters 
-        self.alias_config = "activation"
+        self.alias_name = "activation"
 
 
 class PDFloor(PaddleAPIBenchmarkBase):
