@@ -16,7 +16,7 @@ from common_import import *
 from elementwise import ElementwiseConfig, PDElementwise, TFElementwise
 
 
-class DivideConfig(APIConfig):
+class DivideConfig(ElementwiseConfig):
     def __init__(self):
         super(DivideConfig, self).__init__('divide')
         self.feed_spec = [{"range": [1, 3]}, {"range": [1, 3]}]
