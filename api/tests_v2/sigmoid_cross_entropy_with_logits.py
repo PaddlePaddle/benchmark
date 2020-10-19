@@ -23,7 +23,7 @@ class PDSigmoidCrossEntropyWithLogits(PaddleAPIBenchmarkBase):
             shape=config.label_shape,
             dtype=config.label_dtype,
             stop_gradient=True)
-        result = paddle.nn.functional.sigmoid_cross_entropy_with_logits(
+        result = paddle.fluid.layers.sigmoid_cross_entropy_with_logits(
             x=x, label=label, ignore_index=config.ignore_index)
 
         self.feed_vars = [x, label]
