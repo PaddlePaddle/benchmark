@@ -21,30 +21,26 @@ class RemainderConfig(APIConfig):
         self.feed_spec = [{"range": [-1000, 1000]}, {"range": [1, 1000]}]
         # abs belongs to activation op series which only has one parameter
         # thus abs can reuse activation.json. 
-        self.alias_config = APIConfig("elementwise")
+        self.alias_config = "elementwise"
 
     def disabled(self):
-        return True if self.alias.x_dtype == "float16" else False
+        return True if self.x_dtype == "float16" else False
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(RemainderConfig, self).init_from_json(filename, config_id,
                                                     unknown_dim)
-        if len(self.alias.x_shape) > len(
-                self.alias.y_shape) and self.alias.y_shape != [1]:
-            self.alias.y_shape = unsqueeze_short(
-                short=self.alias.y_shape, long=self.alias.x_shape)
-        elif len(self.alias.x_shape) < len(
-                self.alias.y_shape) and self.alias.x_shape != [1]:
-            self.alias.x_shape = unsqueeze_short(
-                short=self.alias.x_shape, long=self.alias.y_shape)
+        if len(self.x_shape) > len(self.y_shape) and self.y_shape != [1]:
+            self.y_shape = unsqueeze_short(
+                short=self.y_shape, long=self.x_shape)
+        elif len(self.x_shape) < len(self.y_shape) and self.x_shape != [1]:
+            self.x_shape = unsqueeze_short(
+                short=self.x_shape, long=self.y_shape)
 
 
 class PDRemainder(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
-        y = self.variable(
-            name='y', shape=config.alias.y_shape, dtype=config.alias.y_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
         result = paddle.remainder(x=x, y=y)
 
         self.feed_vars = [x, y]
@@ -53,10 +49,8 @@ class PDRemainder(PaddleAPIBenchmarkBase):
 
 class TFRemainder(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
-        y = self.variable(
-            name='y', shape=config.alias.y_shape, dtype=config.alias.y_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
 
         result = tf.math.floormod(x=x, y=y)
 
