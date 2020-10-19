@@ -31,7 +31,7 @@ class PDCase(PaddleAPIBenchmarkBase):
             return paddle.add(x=x, y=y)
 
         def f2():
-            return paddle.elementwise_sub(x=x, y=y)
+            return paddle.fluid.layers.elementwise_sub(x=x, y=y)
 
         def f3():
             return paddle.multiply(x=x, y=y)

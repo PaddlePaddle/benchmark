@@ -16,11 +16,8 @@ from common_import import *
 
 
 class ElementwiseConfig(APIConfig):
-    def __init__(self, op_type=None):
-        if op_type != None:
-            super(ElementwiseConfig, self).__init__(op_type)
-        else:
-            super(ElementwiseConfig, self).__init__('elementwise')
+    def __init__(self, op_type="elementwise"):
+        super(ElementwiseConfig, self).__init__(op_type)
         self.api_name = 'add'
         self.api_list = {'add': 'add', 'pow': 'pow'}
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]

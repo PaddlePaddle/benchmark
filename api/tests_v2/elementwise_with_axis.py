@@ -25,7 +25,7 @@ class ElementwiseWithAxisConfig(APIConfig):
             'maximum': 'maximum',
             'minimum': 'minimum',
             'multiply': 'multiply',
-            'elementwise_sub': 'subtract'
+            'subtract': 'subtract'
         }
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
@@ -54,7 +54,11 @@ class PDElementwiseWithAxis(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        result = self.layers(config.api_name, x=x, y=y, axis=config.axis)
+        if config.api_name == 'subtract':
+            result = self.fluid_layers(
+                'elementwise_sub', x=x, y=y, axis=config.axis)
+        else:
+            result = self.layers(config.api_name, x=x, y=y, axis=config.axis)
 
         self.feed_vars = [x, y]
         self.fetch_vars = [result]
