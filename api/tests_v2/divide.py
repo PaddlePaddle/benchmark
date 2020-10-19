@@ -21,6 +21,10 @@ class DivideConfig(ElementwiseConfig):
         super(DivideConfig, self).__init__('divide')
         self.feed_spec = [{"range": [1, 3]}, {"range": [1, 3]}]
         self.alias_name = 'elementwise'
+
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(DivideConfig, self).init_from_json(filename, config_id,
+                                                 unknown_dim)
         if self.x_dtype == 'float32':
             self.atol = 1e-4
         else:
