@@ -21,7 +21,10 @@ class DivideConfig(ElementwiseConfig):
         super(DivideConfig, self).__init__('divide')
         self.feed_spec = [{"range": [1, 3]}, {"range": [1, 3]}]
         self.alias_name = 'elementwise'
-        self.atol = 0.5
+        if self.x_dtype == 'float32':
+            self.atol = 1e-4
+        else:
+            self.atol = 0.5
 
 
 if __name__ == '__main__':
