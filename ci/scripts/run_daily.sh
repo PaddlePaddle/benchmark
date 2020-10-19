@@ -57,7 +57,7 @@ function build_paddle() {
       WITH_DISTRIBUTE=OFF                     \
       CMAKE_VERBOSE_MAKEFILE=OFF              \
       /bin/bash paddle/scripts/paddle_build.sh build $(nproc)
-  if [ $? -eq 0 -o ! -f build/python/dist/${IMAGE_NAME} ]
+  if [ $? -eq 0 -a -f build/python/dist/${IMAGE_NAME} ]
   then
     LOG "[INFO] Build Paddle success!"
   else
@@ -69,7 +69,7 @@ function build_paddle() {
 }
 
 function run(){
-  [ -f Paddle/build/python/dist/${IMAGE_NAME} ] || exit -1
+  [ -f paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl ] || exit -1
   mkdir -p logs
   logs_dir=$(pwd)/logs
   for package in "paddlepaddle" "paddlepaddle-gpu"
@@ -83,8 +83,7 @@ function run(){
     pip install $package > /dev/null
   done
   pushd api > /dev/null
-  bash deploy/main_control.sh tests_v2 tests_v2/configs ${logs_dir} "${CUDA_VISIBLE_DEVICES}" gpu
-  bash deploy/main_control.sh tests_v2 tests_v2/configs ${logs_dir} "${CUDA_VISIBLE_DEVICES}" cpu
+  bash deploy/main_control.sh tests_v2 tests_v2/configs ${logs_dir} "${VISIBLE_DEVICES}" "${DEVICES_TYPE}"
   popd > /dev/null
 }
 
