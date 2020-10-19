@@ -46,9 +46,10 @@ function _train(){
     export PYTHONPATH=$PWD:$PYTHONPATH
    
     # 暂不支持传入epochs，暂时用sed 的方式 
-    sed -i "1c epochs: ${max_epoch}" configs/${model_name}_cityscapes.yaml
+    sed -i "1c epochs: ${max_epoch}" configs/$(echo $model_name | tr '[A-Z]' '[a-z]')_cityscapes.yaml
+    #sed -i "1c epochs: ${max_epoch}" configs/${model_name}_cityscapes.yaml
    
-    train_cmd="--config-file configs/${model_name}_cityscapes.yaml"
+    train_cmd="--config-file configs/$(echo $model_name | tr '[A-Z]' '[a-z]')_cityscapes.yaml"
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u tools/main.py "${train_cmd}
     else
