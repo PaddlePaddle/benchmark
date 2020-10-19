@@ -21,7 +21,7 @@ class AbsConfig(APIConfig):
         self.feed_spec = {"range": [-1, 1]}
         # abs belongs to activation op series which only has one parameter
         # thus abs can reuse activation.json. 
-        self.alias_config = "activation"
+        self.alias_name = "activation"
 
 
 class PDAbs(PaddleAPIBenchmarkBase):

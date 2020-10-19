@@ -21,7 +21,7 @@ class SigmoidConfig(APIConfig):
         self.feed_spec = {"range": [-1, 1]}
         # Sigmoid belongs to activation op series which only has one variable
         # thus Sigmoid can reuse activation parameters 
-        self.alias_config = "activation"
+        self.alias_name = "activation"
 
 
 class PDSigmoid(PaddleAPIBenchmarkBase):
