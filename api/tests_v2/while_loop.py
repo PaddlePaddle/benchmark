@@ -22,7 +22,7 @@ except Exception:
 class WhileLoopConfig(APIConfig):
     def __init__(self):
         super(WhileLoopConfig, self).__init__('while_loop')
-        self.alias_config = "linear"
+        self.alias_name = "linear"
 
     def to_tensorflow(self):
         tf_config = super(WhileLoopConfig, self).to_tensorflow()
