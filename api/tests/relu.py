@@ -18,7 +18,7 @@ from common_import import *
 class ReluConfig(APIConfig):
     def __init__(self):
         super(ReluConfig, self).__init__("relu")
-        self.alias_config = "activation"
+        self.alias_name = "activation"
 
 
 class PDRelu(PaddleAPIBenchmarkBase):
