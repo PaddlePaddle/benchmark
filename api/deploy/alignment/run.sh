@@ -15,4 +15,3 @@ python summary.py \
     --output_path ${output_path} \
     --url_prefix1 ${url_prefix1} \
     --url_prefix2 ${url_prefix2} \
-#    --output_path ${output_path}
