@@ -21,13 +21,12 @@ class AbsConfig(APIConfig):
         self.feed_spec = {"range": [-1, 1]}
         # abs belongs to activation op series which only has one parameter
         # thus abs can reuse activation.json. 
-        self.alias_config = APIConfig("activation")
+        self.alias_config = "activation"
 
 
 class PDAbs(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name="x", shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
         result = paddle.abs(x=x)
 
         self.feed_vars = [x]
@@ -38,8 +37,7 @@ class PDAbs(PaddleAPIBenchmarkBase):
 
 class TFAbs(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.abs(x=x)
 
         self.feed_list = [x]

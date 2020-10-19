@@ -22,13 +22,12 @@ class ReluConfig(APIConfig):
         self.api_list = {'relu': 'relu', 'relu6': 'relu6'}
         # relu belongs to activation op series which only has one variable
         # thus relu can reuse activation parameters 
-        self.alias_config = APIConfig("activation")
+        self.alias_config = "activation"
 
 
 class PDRelu(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = self.layers(config.api_name, x=x)
 
         self.feed_vars = [x]
@@ -39,8 +38,7 @@ class PDRelu(PaddleAPIBenchmarkBase):
 
 class TFRelu(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = self.layers(config.api_name, features=x)
 
         self.feed_list = [x]

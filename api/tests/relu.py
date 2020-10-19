@@ -18,15 +18,13 @@ from common_import import *
 class ReluConfig(APIConfig):
     def __init__(self):
         super(ReluConfig, self).__init__("relu")
-        self.alias_config = APIConfig("activation")
+        self.alias_config = "activation"
 
 
 class PDRelu(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         data = self.variable(
-            name='data',
-            shape=config.alias.x_shape,
-            dtype=config.alias.x_dtype)
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
         result = fluid.layers.relu(x=data)
 
         self.feed_vars = [data]
@@ -38,9 +36,7 @@ class PDRelu(PaddleAPIBenchmarkBase):
 class TFRelu(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.variable(
-            name='data',
-            shape=config.alias.x_shape,
-            dtype=config.alias.x_dtype)
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.nn.relu(features=data)
 
         self.feed_list = [data]

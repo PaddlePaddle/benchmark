@@ -22,11 +22,11 @@ except Exception:
 class WhileLoopConfig(APIConfig):
     def __init__(self):
         super(WhileLoopConfig, self).__init__('while_loop')
-        self.alias_config = APIConfig("linear")
+        self.alias_config = "linear"
 
     def to_tensorflow(self):
         tf_config = super(WhileLoopConfig, self).to_tensorflow()
-        tf_config.size = self.alias.weight_shape[-1]
+        tf_config.size = self.weight_shape[-1]
         return tf_config
 
 
@@ -40,25 +40,24 @@ class PDWhileLoop(PaddleAPIBenchmarkBase):
             paddle.increment(i)
             return [i, loop_len, x, result]
 
-        x = self.variable(
-            name="x", shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
         weight = paddle.create_parameter(
-            shape=config.alias.weight_shape,
-            dtype=config.alias.weight_dtype,
+            shape=config.weight_shape,
+            dtype=config.weight_dtype,
             name="weight",
             attr=paddle.ParamAttr(
                 initializer=paddle.nn.initializer.Constant(0.5)))
         bias = paddle.create_parameter(
-            shape=config.alias.bias_shape,
-            dtype=config.alias.bias_dtype,
+            shape=config.bias_shape,
+            dtype=config.bias_dtype,
             name="bias",
             attr=paddle.ParamAttr(
                 initializer=paddle.nn.initializer.Constant(0.1)))
         i = paddle.zeros(shape=[1], dtype='int64')
         loop_len = paddle.ones(shape=[1], dtype='int64')
         result = paddle.zeros(
-            shape=config.alias.x_shape[:-1] + config.alias.weight_shape[-1:],
-            dtype=config.alias.x_dtype)
+            shape=config.x_shape[:-1] + config.weight_shape[-1:],
+            dtype=config.x_dtype)
         result.stop_gradient = False
         _, _, _, results = paddle.static.nn.while_loop(
             cond, body, [i, loop_len, x, result])
@@ -92,14 +91,12 @@ class TFWhileLoop(TensorflowAPIBenchmarkBase):
             return [i + 1, loop_len, input, result]
 
         input = self.variable(
-            name="input",
-            shape=config.alias.x_shape,
-            dtype=config.alias.x_dtype)
+            name="input", shape=config.x_shape, dtype=config.x_dtype)
         i = tf.constant(0)
         loop_len = tf.constant(1)
         result = tf.zeros(
-            shape=config.alias.x_shape[:-1] + config.alias.weight_shape[-1:],
-            dtype=config.alias.x_dtype)
+            shape=config.x_shape[:-1] + config.weight_shape[-1:],
+            dtype=config.x_dtype)
         _, _, _, results = tf.while_loop(cond, body,
                                          [i, loop_len, input, result])
         self.feed_list = [input]
