@@ -57,7 +57,7 @@ function _set_params(){
         config_file="configs/mask_rcnn_x101_vd_64x4d_fpn_1x.yml"
         position=21
     elif [[ ${model_name} = "retinanet_rcnn_fpn" ]];then
-        config_file="configs/retinanet_r50_fpn_1x.ym"l
+        config_file="configs/retinanet_r50_fpn_1x.yml"
         position=15
     elif [[ ${model_name} = "cascade_rcnn_fpn" ]];then
         config_file="configs/cascade_rcnn_r50_fpn_1x.yml"
