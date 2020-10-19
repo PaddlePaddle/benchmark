@@ -21,13 +21,12 @@ class SoftplusConfig(APIConfig):
         self.feed_spec = {"range": [-1, 1]}
         # softplus belongs to activation op series which only has one variable
         # thus abs can reuse activation parameters 
-        self.alias_config = APIConfig("activation")
+        self.alias_config = "activation"
 
 
 class PDSoftplus(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = paddle.nn.functional.softplus(x=x)
 
         self.feed_vars = [x]
@@ -38,8 +37,7 @@ class PDSoftplus(PaddleAPIBenchmarkBase):
 
 class TFSoftplus(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = tf.math.softplus(features=x)
 
         self.feed_list = [x]

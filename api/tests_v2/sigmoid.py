@@ -21,13 +21,12 @@ class SigmoidConfig(APIConfig):
         self.feed_spec = {"range": [-1, 1]}
         # Sigmoid belongs to activation op series which only has one variable
         # thus Sigmoid can reuse activation parameters 
-        self.alias_config = APIConfig("activation")
+        self.alias_config = "activation"
 
 
 class PDSigmoid(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = paddle.nn.functional.sigmoid(x=x)
 
         self.feed_vars = [x]
@@ -38,8 +37,7 @@ class PDSigmoid(PaddleAPIBenchmarkBase):
 
 class TFSigmoid(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x', shape=config.alias.x_shape, dtype=config.alias.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = tf.math.sigmoid(x=x)
 
         self.feed_list = [x]

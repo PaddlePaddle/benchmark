@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from common_import import *
-from fc import FCConfig
 try:
     tf.compat.v1.disable_v2_behavior()
 except Exception:
@@ -23,7 +22,7 @@ except Exception:
 class WhileLoopConfig(APIConfig):
     def __init__(self):
         super(WhileLoopConfig, self).__init__('while_loop')
-        self.alias_config = FCConfig()
+        self.alias_config = "fc"
 
 
 class PDWhileLoop(PaddleAPIBenchmarkBase):
@@ -34,25 +33,23 @@ class PDWhileLoop(PaddleAPIBenchmarkBase):
         def body(i, loop_len, input, result):
             result = fluid.layers.fc(
                 input=input,
-                size=config.alias.size,
+                size=config.size,
                 num_flatten_dims=-1,
                 param_attr=fluid.ParamAttr(
                     initializer=fluid.initializer.ConstantInitializer(0.5)),
                 bias_attr=fluid.ParamAttr(
                     initializer=fluid.initializer.ConstantInitializer(0.1)),
-                act=config.alias.act)
+                act=config.act)
             fluid.layers.increment(i)
             return [i, loop_len, input, result]
 
         input = self.variable(
-            name="input",
-            shape=config.alias.input_shape,
-            dtype=config.alias.input_dtype)
+            name="input", shape=config.input_shape, dtype=config.input_dtype)
         i = fluid.layers.zeros(shape=[1], dtype='int64')
         loop_len = fluid.layers.ones(shape=[1], dtype='int64')
         result = fluid.layers.zeros(
-            shape=[config.alias.input_shape[0], config.alias.size],
-            dtype=config.alias.input_dtype)
+            shape=config.input_shape[:-1] + [config.size],
+            dtype=config.input_dtype)
         result.stop_gradient = False
         _, _, _, results = fluid.layers.while_loop(
             cond, body, [i, loop_len, input, result])
@@ -71,29 +68,27 @@ class TFWhileLoop(TensorflowAPIBenchmarkBase):
             if tf.__version__ <= "1.15.0":
                 result = tf.contrib.layers.fully_connected(
                     inputs=input,
-                    num_outputs=config.alias.size,
+                    num_outputs=config.size,
                     weights_initializer=tf.constant_initializer(0.5),
                     biases_initializer=tf.constant_initializer(0.1),
-                    activation_fn=config.alias.act)
+                    activation_fn=config.act)
             else:
                 result = tf.compat.v1.layers.dense(
                     inputs=input,
-                    units=config.alias.size,
-                    activation=config.alias.act,
+                    units=config.size,
+                    activation=config.act,
                     use_bias=True,
                     kernel_initializer=tf.constant_initializer(0.5),
                     bias_initializer=tf.constant_initializer(0.1))
             return [i + 1, loop_len, input, result]
 
         input = self.variable(
-            name="input",
-            shape=config.alias.input_shape,
-            dtype=config.alias.input_dtype)
+            name="input", shape=config.input_shape, dtype=config.input_dtype)
         i = tf.constant(0)
         loop_len = tf.constant(1)
         result = tf.zeros(
-            shape=[config.alias.input_shape[0], config.alias.size],
-            dtype=config.alias.input_dtype)
+            shape=config.input_shape[:-1] + [config.size],
+            dtype=config.input_dtype)
         _, _, _, results = tf.while_loop(cond, body,
                                          [i, loop_len, input, result])
         self.feed_list = [input]
