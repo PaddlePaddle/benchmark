@@ -18,7 +18,7 @@ from common_import import *
 class SoftsignConfig(APIConfig):
     def __init__(self):
         super(SoftsignConfig, self).__init__("softsign")
-        self.alias_config = "activation"
+        self.alias_name = "activation"
 
 
 class PDSoftsign(PaddleAPIBenchmarkBase):

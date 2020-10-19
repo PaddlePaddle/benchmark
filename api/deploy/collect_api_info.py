@@ -94,10 +94,7 @@ def main(args):
             else:
                 api_list = [config.name]
 
-            if hasattr(config, "alias_config"):
-                json_filename = config.alias_config + '.json'
-            else:
-                json_filename = config.name + '.json'
+            json_filename = config.alias_filename(config.name + '.json')
 
             for api_name in api_list:
                 info = APITestInfo(

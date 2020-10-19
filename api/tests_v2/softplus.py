@@ -21,7 +21,7 @@ class SoftplusConfig(APIConfig):
         self.feed_spec = {"range": [-1, 1]}
         # softplus belongs to activation op series which only has one variable
         # thus abs can reuse activation parameters 
-        self.alias_config = "activation"
+        self.alias_name = "activation"
 
 
 class PDSoftplus(PaddleAPIBenchmarkBase):
