@@ -24,7 +24,7 @@ class PDElementwiseSum(PaddleAPIBenchmarkBase):
                 shape=config.inputs_shape[i],
                 dtype=config.inputs_dtype[i])
             inputs.append(input_i)
-        result = fluid.layers.sum(inputs=inputs)
+        result = fluid.layers.sums(inputs=inputs)
 
         self.feed_vars = inputs
         self.fetch_vars = [result]

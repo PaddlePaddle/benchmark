@@ -25,7 +25,7 @@ class ElementwiseWithAxisConfig(APIConfig):
             'maximum': 'maximum',
             'minimum': 'minimum',
             'multiply': 'multiply',
-            'subtract': 'subtract'
+            'elementwise_sub': 'subtract'
         }
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
