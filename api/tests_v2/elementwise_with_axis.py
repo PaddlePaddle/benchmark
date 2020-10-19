@@ -19,7 +19,7 @@ class ElementwiseWithAxisConfig(APIConfig):
     def __init__(self):
         super(ElementwiseWithAxisConfig,
               self).__init__('elementwise_with_axis')
-        self.alias_config = "elementwise"
+        self.alias_name = "elementwise"
         self.api_name = 'maximum'
         self.api_list = {
             'maximum': 'maximum',

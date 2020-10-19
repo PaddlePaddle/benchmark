@@ -22,7 +22,7 @@ class ReluConfig(APIConfig):
         self.api_list = {'relu': 'relu', 'relu6': 'relu6'}
         # relu belongs to activation op series which only has one variable
         # thus relu can reuse activation parameters 
-        self.alias_config = "activation"
+        self.alias_name = "activation"
 
 
 class PDRelu(PaddleAPIBenchmarkBase):

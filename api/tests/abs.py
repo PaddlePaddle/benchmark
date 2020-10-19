@@ -19,7 +19,7 @@ class AbsConfig(APIConfig):
     def __init__(self):
         super(AbsConfig, self).__init__("abs")
         self.feed_spec = {"range": [-1, 1]}
-        self.alias_config = "activation"
+        self.alias_name = "activation"
 
 
 class PDAbs(PaddleAPIBenchmarkBase):

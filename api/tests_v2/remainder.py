@@ -21,7 +21,7 @@ class RemainderConfig(APIConfig):
         self.feed_spec = [{"range": [-1000, 1000]}, {"range": [1, 1000]}]
         # abs belongs to activation op series which only has one parameter
         # thus abs can reuse activation.json. 
-        self.alias_config = "elementwise"
+        self.alias_name = "elementwise"
 
     def disabled(self):
         return True if self.x_dtype == "float16" else False
