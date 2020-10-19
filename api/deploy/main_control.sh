@@ -300,7 +300,7 @@ function run_all_cases() {
     local config_id=0
 
     echo "config_index_begin: ${config_index_begin}; config_index_end: ${config_index_end};"
-    local line_id=0
+    local line_id=${config_index_begin}
     while [ ${line_id} -lt ${config_index_end} ]; do
         local line=${op_info_array[line_id]}
         local json_file=$(echo $line | cut -d ',' -f3)
