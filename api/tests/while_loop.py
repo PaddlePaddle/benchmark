@@ -48,7 +48,7 @@ class PDWhileLoop(PaddleAPIBenchmarkBase):
         i = fluid.layers.zeros(shape=[1], dtype='int64')
         loop_len = fluid.layers.ones(shape=[1], dtype='int64')
         result = fluid.layers.zeros(
-            shape=[config.input_shape[0], config.size],
+            shape=config.input_shape[:-1] + [config.size],
             dtype=config.input_dtype)
         result.stop_gradient = False
         _, _, _, results = fluid.layers.while_loop(
@@ -87,7 +87,7 @@ class TFWhileLoop(TensorflowAPIBenchmarkBase):
         i = tf.constant(0)
         loop_len = tf.constant(1)
         result = tf.zeros(
-            shape=[config.input_shape[0], config.size],
+            shape=config.input_shape[:-1] + [config.size],
             dtype=config.input_dtype)
         _, _, _, results = tf.while_loop(cond, body,
                                          [i, loop_len, input, result])
