@@ -35,6 +35,9 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
             }  # label
         ]
 
+        if self.label_dtype == 'float32' or self.label_dtype == 'float64':
+            self.run_tf = False
+
     def to_tensorflow(self):
         tf_config = super(SoftmaxWithCrossEntropyConfig, self).to_tensorflow()
         label_rank = len(tf_config.label_shape)

@@ -39,6 +39,7 @@ NO_BACKWARD_OPS = [
     "assign",
     "cast",
     "clip_by_norm",
+    "cumsum",
     "diag",
     "equal",
     "fill_constant",

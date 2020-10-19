@@ -18,15 +18,13 @@ from common_import import *
 class SoftsignConfig(APIConfig):
     def __init__(self):
         super(SoftsignConfig, self).__init__("softsign")
-        self.alias_config = APIConfig("activation")
+        self.alias_config = "activation"
 
 
 class PDSoftsign(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         data = self.variable(
-            name='data',
-            shape=config.alias.x_shape,
-            dtype=config.alias.x_dtype)
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
         result = paddle.nn.functional.softsign(x=data)
 
         self.feed_vars = [data]
@@ -38,9 +36,7 @@ class PDSoftsign(PaddleAPIBenchmarkBase):
 class TFSoftsign(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.variable(
-            name='data',
-            shape=config.alias.x_shape,
-            dtype=config.alias.x_dtype)
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.nn.softsign(features=data)
 
         self.feed_list = [data]

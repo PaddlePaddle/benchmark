@@ -178,13 +178,13 @@ class APIConfig(object):
     def alias_filename(self, filename):
         """
         Get the filename of alias config.
-        If self.name = a, self.alias_config.name = b, the filename should be "dir/a.json",
+        If self.name = a, self.alias_config = b, the filename should be "dir/a.json",
         the filename of alias config will be "dir/b.json".
         """
         if hasattr(self, "alias_config"):
             dirname = os.path.dirname(filename)
             basename = os.path.basename(filename)
-            basename = basename.replace(self.name, self.alias_config.name)
+            basename = basename.replace(self.name, self.alias_config)
             return os.path.join(dirname, basename)
         return filename
 
@@ -196,40 +196,21 @@ class APIConfig(object):
     def framework(self):
         return self.__framework
 
-    @property
-    def alias_name(self):
-        if hasattr(self, "alias_config"):
-            return self.alias_config.name
-        else:
-            return self.name
-
-    @property
-    def alias(self):
-        if hasattr(self, "alias_config"):
-            return self.alias_config
-        else:
-            return self
-
     def disabled(self):
         return False
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         if hasattr(self, "alias_config"):
-            self.alias_config.init_from_json(
-                self.alias_filename(filename), config_id)
-            if hasattr(self.alias_config, "repeat"):
-                self.repeat = self.alias_config.repeat
-            self.atol = self.alias_config.atol
-            return self
+            filename = self.alias_filename(filename)
 
         print("---- Initialize APIConfig from %s, config_id = %d.\n" %
               (filename, config_id))
         with open(filename, 'r') as f:
             data = json.load(f)
             op = data[config_id]["op"]
-            assert op == self.name or op == self.alias_name, "The op type (%s) in json file is different from the name (%s) and the alias name (%s). " \
+            assert op == self.name or op == self.alias_config, "The op type (%s) in json file is different from the name (%s) and the alias name (%s). " \
                 "The filename: %s, config_id: %d." % (
-                    op, self.name, self.alias_name, filename, config_id)
+                    op, self.name, self.alias_config, filename, config_id)
             self.params = data[config_id]["param_info"]
 
             if data[config_id].get("atol", None) is not None:
@@ -260,30 +241,23 @@ class APIConfig(object):
         tf_config.__framework = "tensorflow"
         if hasattr(self, "api_list"):
             tf_config.api_name = self.api_list[self.api_name]
-        if hasattr(tf_config, "alias_config"):
-            tf_config.alias_config = tf_config.alias_config.to_tensorflow()
         return tf_config
 
     def to_string(self):
-        if self.alias.params_list is None and self.alias.variable_list is None:
-            self.alias._parse_params()
-        if self.alias.variable_list is None and self.alias.params_list is None:
+        if self.params_list is None and self.variable_list is None:
+            self._parse_params()
+        if self.variable_list is None and self.params_list is None:
             return "None"
         params_str = ""
-        self.alias.variable_list = sorted(
-            self.alias.variable_list, key=attrgetter('name'))
-        self.alias.params_list = sorted(
-            self.alias.params_list, key=attrgetter('name'))
-        for var in self.alias.variable_list:
+        self.variable_list = sorted(self.variable_list, key=attrgetter('name'))
+        self.params_list = sorted(self.params_list, key=attrgetter('name'))
+        for var in self.variable_list:
             params_str = params_str + var.to_string() + "\n"
-        for attr in self.alias.params_list:
+        for attr in self.params_list:
             params_str = params_str + attr.to_string() + "\n"
         return params_str
 
     def __str__(self):
-        if hasattr(self, "alias_config"):
-            self.alias_config.is_alias_of_other = True
-
         exclude_attrs = [
             '_APIConfig__name', '_APIConfig__framework', 'params', 'api_name',
             'api_list', 'variable_list', 'params_list', 'backward',

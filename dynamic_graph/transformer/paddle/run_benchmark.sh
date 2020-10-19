@@ -11,7 +11,7 @@ fi
 function _set_params(){
     index=$1
     base_batch_size=4096
-    model_name="transformer"
+    model_name="Transformer"
 
     run_mode=${2}
     max_iter=${3}
