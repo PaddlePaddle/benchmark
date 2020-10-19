@@ -31,6 +31,12 @@ function print_arguments() {
 declare -A DEVICE_TASK_PID_MAP
 declare -A TASK_PID_RUN_START_MAP
 declare -A TASK_PID_INFO_MAP
+declare -A TASK_PID_DETAIL_CONTENT_MAP
+declare -A TASK_PID_DETAIL_KEY_MAP
+declare -A DETAIL_KEY_TASK_PIDS_MAP
+declare -A DETAIL_KEY_TOTAL_TASK_NUM_MAP
+declare -A DETAIL_KEY_FINISHED_TASK_NUM_MAP
+declare -A DETAIL_KEY_CONTENT_MAP
 
 export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
 
@@ -55,7 +61,7 @@ fi
 GPU_IDS=${4:-"0"}
 GPU_IDS_ARRAY=(${GPU_IDS//,/ })
 NUM_GPU_DEVICES=${#GPU_IDS_ARRAY[*]}
-for((i=0;i<NUM_GPU_DEVICES;i++)); do
+for i in ${GPU_IDS_ARRAY[*]}; do
     DEVICE_TASK_PID_MAP[$i]=0
 done
 if [ ${NUM_GPU_DEVICES} -le 0 ]; then
@@ -122,12 +128,12 @@ function print_detail_status() {
     else
         printf "  [%s][%d-%d][%s] %-120s ...... %s\n" "${gpu_id}" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     fi
-    cat ${logfile}
 }
 
 function print_finished_task_detail() {
     local finished_task_pid=$1
     local finished_run_end=$2
+    local detail_key=${TASK_PID_DETAIL_KEY_MAP[$finished_task_pid]}
     [ -z "${TASK_PID_INFO_MAP[$finished_task_pid]}" ] && return 0
     finished_run_start=TASK_PID_RUN_START_MAP[$finished_task_pid]
     runtime=$((finished_run_end-finished_run_start))
@@ -144,8 +150,25 @@ function print_finished_task_detail() {
     else
         cpu_runtime=`expr $cpu_runtime + $runtime`
     fi
-    print_detail_status ${TASK_PID_INFO_MAP[$finished_task_pid]} ${runtime} ${return_status}
+    TASK_PID_DETAIL_CONTENT_MAP[$finished_task_pid]=$(print_detail_status ${TASK_PID_INFO_MAP[$finished_task_pid]} ${runtime} ${return_status})
+    DETAIL_KEY_FINISHED_TASK_NUM_MAP[$detail_key]=$[${DETAIL_KEY_FINISHED_TASK_NUM_MAP[$detail_key]}+1]
+    if [ ${DETAIL_KEY_FINISHED_TASK_NUM_MAP[$detail_key]} -eq ${DETAIL_KEY_TOTAL_TASK_NUM_MAP[$detail_key]} ]
+    then
+        detail_content="${DETAIL_KEY_CONTENT_MAP[$detail_key]}"
+        for task_pid in ${DETAIL_KEY_TASK_PIDS_MAP[$detail_key]}
+        do
+            detail_content="${detail_content}\n${TASK_PID_DETAIL_CONTENT_MAP[$task_pid]}"
+            unset TASK_PID_DETAIL_CONTENT_MAP[$task_pid]
+        done
+        echo -e "${detail_content}\n"
+        unset DETAIL_KEY_CONTENT_MAP[$detail_key]
+        unset DETAIL_KEY_TASK_PIDS_MAP[$detail_key]
+        unset DETAIL_KEY_TOTAL_TASK_NUM_MAP[$detail_key]
+        unset DETAIL_KEY_FINISHED_TASK_NUM_MAP[$detail_key]
+    fi
     unset TASK_PID_INFO_MAP[$finished_task_pid]
+    unset TASK_PID_RUN_START_MAP[$finished_task_pid]
+    unset TASK_PID_DETAIL_KEY_MAP[$finished_task_pid]
 }
 
 function execute_one_case() {
@@ -164,7 +187,11 @@ function execute_one_case() {
     fi
 
     local case_id=0
-    echo "[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}"
+    local detail_key="${config_id}-${i}"
+    local task_pids=""
+    DETAIL_KEY_TOTAL_TASK_NUM_MAP[$detail_key]=-1
+    DETAIL_KEY_FINISHED_TASK_NUM_MAP[$detail_key]=0
+    DETAIL_KEY_CONTENT_MAP[$detail_key]="[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}"
 
     # DEVICE_SET is specified by argument: "gpu", "cpu"
     for device in ${DEVICE_SET[@]}; do 
@@ -241,14 +268,18 @@ function execute_one_case() {
                         fi
                         task_pid=$!
                     fi
+                    task_pids="${task_pids} ${task_pid}"
                     TASK_PID_RUN_START_MAP[$task_pid]=$run_start
                     DEVICE_TASK_PID_MAP[$gpu_id]=$task_pid
                     TASK_PID_INFO_MAP[$task_pid]="${config_id} ${case_id} ${device} ${backward} ${logfile} ${gpu_id}"
+                    TASK_PID_DETAIL_KEY_MAP[$task_pid]=$detail_key
                     [ $finished_task_pid -ne 0 ] && print_finished_task_detail $finished_task_pid $run_start
                  done
             done
         done
     done
+    DETAIL_KEY_TOTAL_TASK_NUM_MAP[$detail_key]=$case_id
+    DETAIL_KEY_TASK_PIDS_MAP[$detail_key]="$task_pids"
 }
 
 function run_all_cases() {
@@ -256,8 +287,15 @@ function run_all_cases() {
     local op_info_array=(${op_info_str/\\n/ })
     local num_ops=${#op_info_array[*]}
 
-    local config_index_begin=0
-    local config_index_end=${num_ops}
+    [ -z "$WORKER_NODE_TOTAL" ] && WORKER_NODE_TOTAL=1
+    [ -z "$WORKER_NODE_INDEX" ] && WORKER_NODE_INDEX=0
+    local num_ops_each_gpu=$((num_ops+WORKER_NODE_TOTAL-1))
+    local num_ops_each_gpu=$((num_ops_each_gpu/WORKER_NODE_TOTAL))
+    local config_index_begin=$((WORKER_NODE_INDEX*num_ops_each_gpu))
+    local config_index_end=$((config_index_begin+num_ops_each_gpu))
+    if [ ${config_index_end} -gt ${num_ops} ]; then
+        config_index_end=${num_ops}
+    fi
 
     local config_id=0
 
@@ -281,7 +319,7 @@ function run_all_cases() {
         line_id=$((line_id+1))
     done
 
-    while ${#DEVICE_TASK_PID_MAP[*]}
+    while [ ${#DEVICE_TASK_PID_MAP[*]} -gt 0 ]
     do
         for device_id in ${!DEVICE_TASK_PID_MAP[*]}
         do

@@ -25,13 +25,14 @@ function prepare_env() {
   ln -sf /usr/local/bin/python /opt/_internal/cpython-3.7.0/bin/python3.7
   ln -sf /usr/local/lib/libpython3.so /opt/_internal/cpython-3.7.0/lib/python3.so
   ln -sf /usr/local/include/python3.7m /opt/_internal/cpython-3.7.0/include/python3.7m
-  [ -d Paddle ] || git clone https://github.com/PaddlePaddle/Paddle.git
   pip install -U pip > /dev/null 2> /dev/null
 }
 
 #build paddle whl and put it to /Paddle/images
 function build_paddle() {
+  [ -d Paddle ] || git clone https://github.com/PaddlePaddle/Paddle.git
   pushd Paddle > /dev/null || exit
+  git pull
   LOG "[INFO] IMAGE COMMIT ID: $(git log | head -n1 | awk '{print $2}')"
   version=$(date -d @$(git log -1 --pretty=format:%ct) "+%Y.%m%d.%H%M%S")
   branch="develop"
@@ -64,6 +65,7 @@ function build_paddle() {
     exit -1
   fi
   popd > /dev/null
+  mv Paddle/build/python/dist/${IMAGE_NAME} paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl
 }
 
 function run(){
@@ -75,7 +77,7 @@ function run(){
     LOG "[INFO] Uninstall $package ..."
     pip uninstall -y $package > /dev/null
   done
-  for package in "nvidia-ml-py" "tensorflow==2.3.0" "Paddle/build/python/dist/${IMAGE_NAME}"
+  for package in "nvidia-ml-py" "tensorflow==2.3.0" "paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl"
   do
     LOG "[INFO] Install $package ..."
     pip install $package > /dev/null
@@ -87,5 +89,5 @@ function run(){
 }
 
 prepare_env
-build_paddle
+[ -f paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl ] || build_paddle
 run
