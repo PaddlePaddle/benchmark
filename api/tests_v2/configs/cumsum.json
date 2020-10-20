@@ -25,5 +25,6 @@
             "type": "Variable"
         }
     },
-    "atol": 0.1
+    "atol": 0.1,
+    "repeat": 100
 }]

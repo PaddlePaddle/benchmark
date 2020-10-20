@@ -26,9 +26,8 @@ data_norm,data_norm,data_norm.json,True
 depthwise_conv2d,depthwise_conv2d,depthwise_conv2d.json,True
 depthwise_conv_transpose2d,depthwise_conv_transpose2d,depthwise_conv_transpose2d.json,True
 diag,diag,diag.json,False
-divide,divide,divide.json,True
+divide,divide,elementwise.json,True
 dropout,dropout,dropout.json,True
-elementwise_sub,elementwise_with_axis,elementwise.json,True
 embedding,embedding,embedding.json,True
 equal,compare,compare.json,False
 equal_all,equal_all,equal_all.json,False
@@ -109,6 +108,7 @@ sqrt,activation,activation.json,True
 square,activation,activation.json,True
 squeeze,squeeze,squeeze.json,True
 stack,stack,stack.json,True
+subtract,elementwise_with_axis,elementwise.json,True
 sum,reduce,reduce.json,True
 switch_case,switch_case,switch_case.json,True
 tanh,activation,activation.json,True

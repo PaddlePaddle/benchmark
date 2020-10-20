@@ -175,6 +175,14 @@ class APIConfig(object):
         self.feed_spec = None
         self.run_tf = True
 
+    @classmethod
+    def get_all_subclasses(self):
+        all_subclasses = []
+        for subclass in self.__subclasses__():
+            all_subclasses.append(subclass)
+            all_subclasses.extend(subclass.get_all_subclasses())
+        return all_subclasses
+
     def alias_filename(self, filename):
         """
         Get the filename of alias config.
