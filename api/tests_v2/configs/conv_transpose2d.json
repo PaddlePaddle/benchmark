@@ -81,7 +81,7 @@
             "value": "2"
         }
     },
-    "atol": 1E-5
+    "atol": 1E-3
 }, {
     "op": "conv_transpose2d",
     "param_info": {
@@ -163,7 +163,8 @@
             "type": "int",
             "value": "2"
         }
-    }
+    },
+    "atol": 1E-4
 }, {
     "op": "conv_transpose2d",
     "param_info": {

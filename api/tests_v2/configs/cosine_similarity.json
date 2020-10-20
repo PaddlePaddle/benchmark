@@ -1,15 +1,23 @@
 [{
-    "op": "cos_sim",
+    "op": "cosine_similarity",
     "param_info": {
-        "X": {
+        "x1": {
             "dtype": "float32",
             "shape": "[-1L, 256L]",
             "type": "Variable"
         },
-        "Y": {
+        "x2": {
             "dtype": "float32",
             "shape": "[-1L, 256L]",
             "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "eps": {
+            "type": "float",
+            "value": "1e-08"
         }
     }
 }]

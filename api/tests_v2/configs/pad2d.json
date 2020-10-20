@@ -5,7 +5,7 @@
             "type": "string",
             "value": "NCHW"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[-1L, 32L, 255L, 255L]",
             "type": "Variable"
@@ -14,11 +14,11 @@
             "type": "string",
             "value": "constant"
         },
-        "pad_value": {
+        "value": {
             "type": "float",
             "value": "0.0"
         },
-        "paddings": {
+        "pad": {
             "type": "list",
             "value": "[0, 1, 0, 1]"
         }
@@ -31,7 +31,7 @@
             "type": "string",
             "value": "NCHW"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[-1L, 3L, 256L, 256L]",
             "type": "Variable"
@@ -40,11 +40,11 @@
             "type": "string",
             "value": "reflect"
         },
-        "pad_value": {
+        "value": {
             "type": "float",
             "value": "0.0"
         },
-        "paddings": {
+        "pad": {
             "type": "list",
             "value": "[3, 3, 3, 3]"
         }
