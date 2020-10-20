@@ -85,6 +85,24 @@ class Conv2dConfig(APIConfig):
                     [0, 0]]
 
 
+def compute_flop(backward, data_format, filter_shape, output_shape):
+    if data_format == "NCHW":
+        M = output_shape[0] * output_shape[2] * output_shape[3]
+        N = output_shape[1]
+    elif data_format == "NHWC":
+        M = output_shape[0] * output_shape[1] * output_shape[2]
+        N = output_shape[3]
+    K = filter_shape[1] * filter_shape[2] * filter_shape[3]
+    forward_flop = 2 * M * N * K
+    print("Forward: M = %d, N = %d, K = %d, gflop = %.5f" %
+          (M, N, K, float(forward_flop) * 1E-9))
+
+    if not backward:
+        return forward_flop
+    else:
+        return 0
+
+
 class PDConv2d(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         input = self.variable(
@@ -109,6 +127,10 @@ class PDConv2d(PaddleAPIBenchmarkBase):
         self.fetch_vars = [result]
         if config.backward:
             self.append_gradients(result, [input, filter])
+
+        # flop is used as a metric for op's performance and is optional.
+        config.flop = compute_flop(config.backward, config.data_format,
+                                   config.filter_shape, result.shape)
 
 
 class TFConv2d(TensorflowAPIBenchmarkBase):
