@@ -31,8 +31,7 @@ class TFCosSim(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.X_shape, dtype=config.X_dtype)
         y = self.variable(name='y', shape=config.Y_shape, dtype=config.Y_dtype)
-        result = tf.compat.v1.losses.cosine_distance(
-            labels=x, predictions=y, axis=-1, weights=1.0, scope=None)
+        result = -tf.keras.losses.cosine_similarity(y_true=x, y_pred=y)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]

@@ -34,7 +34,8 @@
             "type": "int",
             "value": "1"
         }
-    }
+    },
+    "atol": 0.01
 }, {
     "op": "conv2d",
     "param_info": {
@@ -110,7 +111,7 @@
             "value": "(2, 1)"
         }
     },
-    "atol": 0.001
+    "atol": 0.05
 }, {
     "op": "conv2d",
     "param_info": {
