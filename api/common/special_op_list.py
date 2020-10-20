@@ -60,6 +60,7 @@ NO_BACKWARD_OPS = [
     "sequence_mask",
     "shape",
     "zeros_like",
+    "empty",
 
     # paddle v2 APIs
     "bernoulli",
