@@ -23,7 +23,7 @@ function _set_params(){
     skip_steps=5                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
     keyword="batch_cost: "                  # 解析日志，筛选出数据所在行的关键字                                             (必填)
     separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
-    position=24                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
+    position=21                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
     model_mode=0                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
 
 
@@ -71,7 +71,7 @@ function _train(){
 
     if [ $run_mode = "mp" -a -d mylog ]; then
         rm ${log_file}
-        cp mylog/workerlog.0 ${log_file}
+        cp mylog/`ls -l mylog/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ./${log_file} 
     fi
 }
 
