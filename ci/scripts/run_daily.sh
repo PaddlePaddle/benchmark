@@ -28,7 +28,6 @@ function prepare_env() {
   pip install -U pip > /dev/null 2> /dev/null
 }
 
-#build paddle whl and put it to /Paddle/images
 function build_paddle() {
   [ -d Paddle ] || git clone https://github.com/PaddlePaddle/Paddle.git
   pushd Paddle > /dev/null || exit
