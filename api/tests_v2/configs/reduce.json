@@ -68,6 +68,6 @@
             "value": "False"
         }
     },
-    "atol": 0.001,
+    "atol": 0.01,
     "repeat": 10000
 }]

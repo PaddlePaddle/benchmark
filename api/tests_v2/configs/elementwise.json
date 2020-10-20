@@ -92,6 +92,7 @@
             "type": "Variable"
         }
     },
+    "atol": 1E-3,
     "repeat": 5000
 }, {
     "op": "elementwise",
@@ -130,5 +131,6 @@
             "type": "Variable"
         }
     },
+    "atol": 0.01,
     "repeat": 5000
 }]

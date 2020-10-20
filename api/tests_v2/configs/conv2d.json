@@ -109,7 +109,8 @@
             "type": "tuple",
             "value": "(2, 1)"
         }
-    }
+    },
+    "atol": 0.001
 }, {
     "op": "conv2d",
     "param_info": {
@@ -147,6 +148,7 @@
             "value": "1"
         }
     },
+    "atol": 0.01,
     "repeat": 5000
 }, {
     "op": "conv2d",
@@ -221,7 +223,8 @@
             "type": "int",
             "value": "2"
         }
-    }
+    },
+    "atol": 0.001
 }, {
     "op": "conv2d",
     "param_info": {
@@ -259,6 +262,7 @@
             "value": "2"
         }
     },
+    "atol": 0.01,
     "repeat": 2000
 }, {
     "op": "conv2d",
@@ -296,7 +300,8 @@
             "type": "tuple",
             "value": "(2, 1)"
         }
-    }
+    },
+    "atol": 0.01
 }, {
     "op": "conv2d",
     "param_info": {
@@ -333,7 +338,8 @@
             "type": "int",
             "value": "2"
         }
-    }
+    },
+    "atol": 1E-4
 }, {
     "op": "conv2d",
     "param_info": {
@@ -370,8 +376,7 @@
             "type": "int",
             "value": "1"
         }
-    },
-    "atol": 0.01
+    }
 }, {
     "op": "conv2d",
     "param_info": {
@@ -408,7 +413,8 @@
             "type": "tuple",
             "value": "(1, 16)"
         }
-    }
+    },
+    "atol": 0.5
 }, {
     "op": "conv2d",
     "param_info": {
@@ -445,5 +451,6 @@
             "type": "tuple",
             "value": "(1, 1)"
         }
-    }
+    },
+    "atol": 0.001
 }]

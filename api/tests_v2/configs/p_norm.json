@@ -23,7 +23,7 @@
             "type": "Variable"
         }
     },
-    "atol": 1E-4
+    "atol": 1E-5
 }, {
     "op": "p_norm",
     "param_info": {
@@ -44,6 +44,5 @@
             "shape": "[300L, 128L, 128L]",
             "type": "Variable"
         }
-    },
-    "atol": 1E-4
+    }
 }]

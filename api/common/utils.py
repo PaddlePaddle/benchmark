@@ -255,7 +255,7 @@ def check_outputs(list1,
 
             if max_diff_i > 1E-6:
                 print(
-                    "---- Error: The %d-th output (shape: %s, data type: %s) has diff. "
+                    "---- Warning: The %d-th output (shape: %s, data type: %s) has diff. "
                     "The maximum diff is %e, offset is %d: %s vs %s. atol is %.2e."
                     % (i, str(output1.shape), str(output1.dtype), max_diff_i,
                        offset_i, str(output1_diff_value),

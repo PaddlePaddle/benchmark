@@ -155,7 +155,8 @@
             "shape": "[512L, 4L, 12L, 2L]",
             "type": "Variable"
         }
-    }
+    },
+    "atol": 1
 }, {
     "op": "matmul",
     "param_info": {
@@ -177,7 +178,8 @@
             "shape": "[512L, 4L, 16L, 8L]",
             "type": "Variable"
         }
-    }
+    },
+    "atol": 1
 }, {
     "op": "matmul",
     "param_info": {
@@ -221,7 +223,8 @@
             "shape": "[4L, 12L, 85L, 512L]",
             "type": "Variable"
         }
-    }
+    },
+    "atol": 1
 }, {
     "op": "matmul",
     "param_info": {
@@ -243,5 +246,6 @@
             "shape": "[4L, 12L, 88L, 512L]",
             "type": "Variable"
         }
-    }
+    },
+    "atol": 1
 }]
