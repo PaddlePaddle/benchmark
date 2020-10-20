@@ -152,7 +152,7 @@ function build_paddle(){
       -e "http_proxy=${HTTP_PROXY}" \
       -e "https_proxy=${HTTP_PROXY}" \
       ${PADDLE_DEV_NAME} \
-       /bin/bash -c "paddle/scripts/paddle_build.sh build cp37-cp37m"
+       /bin/bash -c "paddle/scripts/paddle_build.sh build $(nproc)"
      build_name=${IMAGE_NAME}
 
     if [[ -d ${all_path}/images ]]; then
