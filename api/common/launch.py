@@ -64,18 +64,30 @@ def _parse_nvprof_logs(logs):
         for i in range(line_from, line_to):
             print(logs[i])
         print("")
-        return _parse_gpu_time(logs[line_from + 1])
+        return True, _parse_gpu_time(logs[line_from + 1])
     else:
-        return 0.0
+        return False, 0.0
 
 
 def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
+    """
+    If with_nvprof is True, it will launch the following command firstly to
+    get the gpu_time:
+        nvprof python benchmark_script benchmark_script_args
+
+    Then the normal testing command will be launched:
+        python benchmark_script benchmark_script_args
+    """
     cmd = "{} {} {}".format(sys.executable, benchmark_script,
                             " ".join(benchmark_script_args))
     if with_nvprof:
         stdout, exit_code = _nvprof(cmd)
         if exit_code == 0:
-            return _parse_nvprof_logs(stdout.split("\n"))
+            parse_status, gpu_time = _parse_nvprof_logs(stdout.split("\n"))
+        else:
+            parse_status = False
+        if parse_status:
+            return gpu_time
         else:
             print("Runing Error:\n {}".format(stdout))
     else:
