@@ -21,8 +21,6 @@ import importlib
 
 package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
-sys.path.append(os.path.join(package_path, "tests"))
-sys.path.append(os.path.join(package_path, "tests_v2"))
 
 from common import api_param, special_op_list
 
@@ -43,11 +41,11 @@ def collect_subclass_dict(test_cases_dict):
     """
     Collect the test cases which declares a subclass of APIConfig.
     """
-    subclass_list = api_param.APIConfig.__subclasses__()
+    subclass_list = api_param.APIConfig.get_all_subclasses()
     subclass_dict = {}
-    for item in subclass_list:
-        config = item()
-        subclass_dict[config.name] = item.__name__
+    for subclass in subclass_list:
+        config = subclass()
+        subclass_dict[config.name] = subclass.__name__
     return subclass_dict
 
 
@@ -137,4 +135,5 @@ if __name__ == '__main__':
     assert args.test_module_name in [
         "tests", "tests_v2"
     ], "Please set test_module_name to \"tests\" or \"tests_v2\"."
+    sys.path.append(os.path.join(package_path, args.test_module_name))
     main(args)
