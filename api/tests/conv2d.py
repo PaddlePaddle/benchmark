@@ -30,12 +30,24 @@ class Conv2dConfig(APIConfig):
 
     def disabled(self):
         if self.input_dtype == "float16" and self.use_cudnn == False:
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s when use_cudnn is False.\n"
+                % (self.api_name))
             return True
-        return False
+        return super(Conv2dConfig, self).disabled()
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(Conv2dConfig, self).init_from_json(filename, config_id,
                                                  unknown_dim)
+        if not use_gpu() and self.data_format == "NCHW":
+            print(
+                "Warning:\n"
+                "  1. tf is disabled because the tf's conv ops currently only "
+                "supports the NHWC tensor format on the CPU. Please add a rule "
+                "to support it.\n")
+            self.run_tf = False
+
         if isinstance(self.padding, int):
             self.padding = [self.padding, self.padding]
         if self.data_format == "NCHW":

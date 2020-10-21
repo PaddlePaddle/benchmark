@@ -19,10 +19,12 @@ import os
 import json
 import sys
 import warnings
+import collections
 import numpy as np
 
 from common import utils
 from common import api_param
+from common import special_op_list
 
 
 def _check_gpu_device(use_gpu):
@@ -167,14 +169,27 @@ def _adaptive_repeat(config, args):
             args.repeat = config.repeat
 
 
+def _check_disabled(config, args):
+    if config.disabled():
+        status = collections.OrderedDict()
+        status["name"] = config.api_name
+        status["device"] = "GPU" if args.use_gpu else "CPU"
+        status["backward"] = args.backward if special_op_list.has_backward(
+            config) else False
+        status["disabled"] = True
+        status["parameters"] = config.to_string()
+        print(json.dumps(status))
+        return True
+    return False
+
+
 def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
     assert config is not None, "API config must be set."
-    if config.disabled():
-        warnings.simplefilter('always', UserWarning)
-        warnings.warn("This config is disabled.")
-        return
 
     args = parse_args()
+    if _check_disabled(config, args):
+        return
+
     _adaptive_repeat(config, args)
     config.backward = args.backward
     use_feed_fetch = True if args.task == "accuracy" else False
@@ -228,8 +243,6 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
                 tf_outputs,
                 name=config.api_name,
                 atol=config.atol,
+                use_gpu=args.use_gpu,
                 backward=pd_obj.backward,
                 config_params=config.to_string())
-        else:
-            warnings.simplefilter('always', UserWarning)
-            warnings.warn("This config is not supported by TensorFlow.")

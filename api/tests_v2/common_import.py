@@ -37,6 +37,10 @@ from common.api_param import APIConfig
 from common.main import test_main, test_main_without_json
 
 
+def use_gpu():
+    return os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""
+
+
 def unsqueeze_short(short, long):
     """
     Unsqueeze the short shape to the same length of the long's.

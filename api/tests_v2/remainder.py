@@ -24,7 +24,13 @@ class RemainderConfig(APIConfig):
         self.alias_name = "elementwise"
 
     def disabled(self):
-        return True if self.x_dtype == "float16" else False
+        if self.x_dtype == "float16":
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s.\n"
+                % (self.api_name))
+            return True
+        return super(RemainderConfig, self).disabled()
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(RemainderConfig, self).init_from_json(filename, config_id,
