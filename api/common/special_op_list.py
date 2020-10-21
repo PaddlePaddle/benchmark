@@ -71,6 +71,7 @@ NO_BACKWARD_OPS = [
     "linspace",
     "unique",
     "remainder",
+    'mv',
 
     # Temporarily add to this list to pass CI.
     "lstm",
