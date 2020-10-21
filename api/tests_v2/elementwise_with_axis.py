@@ -33,7 +33,7 @@ class ElementwiseWithAxisConfig(APIConfig):
         if self.api_name in ["maximum", "minimum"
                              ] and self.x_dtype == "float16":
             return True
-        return False
+        return super(ElementwiseWithAxisConfig, self).disabled()
 
     def to_tensorflow(self):
         tf_config = super(ElementwiseWithAxisConfig, self).to_tensorflow()

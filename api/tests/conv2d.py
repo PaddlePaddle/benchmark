@@ -31,7 +31,7 @@ class Conv2dConfig(APIConfig):
     def disabled(self):
         if self.input_dtype == "float16" and self.use_cudnn == False:
             return True
-        return False
+        return super(Conv2dConfig, self).disabled()
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(Conv2dConfig, self).init_from_json(filename, config_id,

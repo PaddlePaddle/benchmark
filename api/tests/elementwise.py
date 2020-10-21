@@ -37,7 +37,7 @@ class ElementwiseConfig(APIConfig):
                 "elementwise_max", "elementwise_min", "elementwise_pow"
         ] and self.x_dtype == "float16":
             return True
-        return False
+        return super(ElementwiseConfig, self).disabled()
 
     def to_tensorflow(self):
         tf_config = super(ElementwiseConfig, self).to_tensorflow()

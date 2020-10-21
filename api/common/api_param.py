@@ -205,6 +205,11 @@ class APIConfig(object):
         return self.__framework
 
     def disabled(self):
+        use_gpu = os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""
+        for name, value in vars(self).items():
+            # float16 is not supported for CPU.
+            if not use_gpu and name.endswith("_dtype") and value == "float16":
+                return True
         return False
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):

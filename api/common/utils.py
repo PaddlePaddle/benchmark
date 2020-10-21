@@ -181,6 +181,7 @@ def check_outputs(list1,
                   list2,
                   name,
                   atol=1E-6,
+                  use_gpu=True,
                   backward=False,
                   config_params=None):
     import tensorflow as tf
@@ -267,6 +268,7 @@ def check_outputs(list1,
 
     status = collections.OrderedDict()
     status["name"] = name
+    status["device"] = "GPU" if use_gpu else "CPU"
     status["backward"] = backward
     status["consistent"] = consistent
     status["num_outputs"] = num_outputs

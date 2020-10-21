@@ -85,8 +85,20 @@ def _read_last_line(inputfile):
         last_line = _read_last_block(f, filesize, blocksize)
 
     f.close()
-    #print(last_line)
     return last_line
+
+
+def _parse_disabled_status(case_name, last_line):
+    assert res.get(case_name, None) is not None
+
+    case_detail = res[case_name]
+    if case_detail.get("disabled", None) is None:
+        try:
+            data = json.loads(last_line)
+            disabled = data.get("disabled", False)
+            res[case_name]["disabled"] = disabled
+        except Exception:
+            pass
 
 
 def _parse_parameters(case_name, last_line):
@@ -104,16 +116,15 @@ def _parse_parameters(case_name, last_line):
 
 def _parse_speed(case_name, statistic_type, last_line):
     assert res.get(case_name, None) is not None
+    print(statistic_type)
 
-    gpu_time_key = None
-    if statistic_type == "paddle_gpu_speed_forward":
-        gpu_time_key = "gpu_time"
-    elif statistic_type == "paddle_gpu_speed_backward":
-        gpu_time_key = "gpu_time_backward"
-    elif statistic_type == "tensorflow_gpu_speed_forward":
-        gpu_time_key = "tf_gpu_time"
-    elif statistic_type == "tensorflow_gpu_speed_backward":
-        gpu_time_key = "tf_gpu_time_backward"
+    gpu_time_key_map = {
+        "paddle_gpu_speed_forward": "gpu_time",
+        "paddle_gpu_speed_backward": "gpu_time_backward",
+        "tensorflow_gpu_speed_forward": "tf_gpu_time",
+        "tensorflow_gpu_speed_backward": "tf_gpu_time_backward"
+    }
+    gpu_time_key = gpu_time_key_map.get(statistic_type, None)
 
     try:
         data = json.loads(last_line)
@@ -136,7 +147,8 @@ def _parse_speed(case_name, statistic_type, last_line):
             res[case_name][gpu_time_key] = gpu_time_str
     except Exception:
         res[case_name][statistic_type] = "--"
-        res[case_name][gpu_time_key] = "--"
+        if gpu_time_key:
+            res[case_name][gpu_time_key] = "--"
 
 
 def _parse_accuracy(case_name, statistic_type, last_line):
@@ -207,6 +219,9 @@ def get_job_res(inputfile, specified_op_list=None):
     statistic_beg_idx = file_name.find("-")
     statistic_type = file_name[statistic_beg_idx + 1:]
     last_line = _read_last_line(inputfile)
+
+    # Parse "disabled" status.
+    _parse_disabled_status(case_name, last_line)
 
     # Parse parameters of current case from the result dict.
     _parse_parameters(case_name, last_line)
@@ -418,7 +433,6 @@ if __name__ == '__main__':
         data.append(case_detail)
 
         op_unit = op_benchmark_unit.OpBenchmarkUnit(case_detail)
-        # print(op_unit)
         benchmark_result_list.append(op_unit)
 
     op_frequency_dict = None

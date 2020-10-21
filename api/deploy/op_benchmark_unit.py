@@ -59,6 +59,7 @@ class OpBenchmarkUnit(object):
     def __init__(self, case_detail):
         self.case_name = case_detail["name"]
         self.op_type = parse_op_type(self.case_name)
+        self.disabled = case_detail.get("disabled", False)
 
         if case_detail.get("parameters", None):
             parameters = api_param.parse_string(case_detail["parameters"])
