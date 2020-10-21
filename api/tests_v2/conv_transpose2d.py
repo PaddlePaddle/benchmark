@@ -57,6 +57,9 @@ class ConvTranspose2dConfig(APIConfig):
         if not isinstance(
                 self.padding,
                 str) and self.padding != [0, 0] and self.padding != [1, 1]:
+            print(
+                "The argument padding of tf's conv2d_transpose must be a string and the value is \"SAME\" or \"VALID\". Please add rule to convert this kind of padding to string."
+            )
             self.run_tf = False
 
         if self.data_format == "NCHW":
