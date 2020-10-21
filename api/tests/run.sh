@@ -13,8 +13,8 @@ export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 
 name=${1:-"abs"}
 config_id=${2:-"0"}
+task=${3:-"accuracy"} # "accuracy" or "speed"
 
-task="accuracy"     # "accuracy" or "speed"
 framework="paddle"  # "paddle" or "tensorflow"
 filename="${OP_BENCHMARK_ROOT}/tests/configs/${name}.json"
 
@@ -30,8 +30,8 @@ run_args="--task ${task} \
           --allow_adaptive_repeat False \
           --log_level 0"
 
-if [ $# -ge 3 ]; then
-  api_name=${3}
+if [ $# -ge 4 ]; then
+  api_name=${4}
   run_args="${run_args} \
             --api_name ${api_name}"
 fi
