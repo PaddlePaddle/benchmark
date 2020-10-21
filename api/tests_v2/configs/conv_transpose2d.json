@@ -17,7 +17,7 @@
             "type": "string",
             "value": "None"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[-1L, 1549L, 8L, 8L]",
             "type": "Variable"
@@ -59,7 +59,7 @@
             "type": "string",
             "value": "None"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[-1L, 128L, 64L, 64L]",
             "type": "Variable"
@@ -101,7 +101,7 @@
             "type": "string",
             "value": "None"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[-1L, 512L, 1L, 1L]",
             "type": "Variable"
@@ -142,7 +142,7 @@
             "type": "string",
             "value": "None"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[32L, 256L, 14L, 14L]",
             "type": "Variable"
@@ -184,7 +184,7 @@
             "type": "int",
             "value": "1"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[1L, 1L, 80L, 63L]",
             "type": "Variable"
