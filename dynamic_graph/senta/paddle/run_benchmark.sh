@@ -57,7 +57,7 @@ function _train(){
     ${train_cmd} > ${log_file} 2>&1
     if [ ${run_mode} != "sp"  -a -d mylog ]; then
         rm ${log_file}
-        cp mylog/`ls -l mylog/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ./${log_file}
+        cp mylog/`ls -l mylog/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ${log_file}
     fi
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 }

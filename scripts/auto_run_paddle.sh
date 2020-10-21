@@ -161,6 +161,7 @@ function save(){
     echo "           job_type = ${job_type}"
     echo "        device_type = ${device_type}"
 
+    mypython -m pip install PyMySQL==0.10.1
     mypython save.py --code_commit_id ${benchmark_commit_id} \
                  --image_commit_id ${image_commit_id} \
                  --image_branch ${image_branch} \

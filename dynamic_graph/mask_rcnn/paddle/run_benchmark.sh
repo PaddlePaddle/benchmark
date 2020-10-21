@@ -71,7 +71,7 @@ function _train(){
 
     if [ $run_mode = "mp" -a -d mylog ]; then
         rm ${log_file}
-        cp mylog/`ls -l mylog/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ./${log_file} 
+        cp mylog/`ls -l mylog/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ${log_file}
     fi
 }
 
