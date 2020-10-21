@@ -171,9 +171,6 @@ def _adaptive_repeat(config, args):
 
 def _check_disabled(config, args):
     if config.disabled():
-        warnings.simplefilter('always', UserWarning)
-        warnings.warn("This config is disabled.")
-
         status = collections.OrderedDict()
         status["name"] = config.api_name
         status["device"] = "GPU" if args.use_gpu else "CPU"
@@ -249,6 +246,3 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
                 use_gpu=args.use_gpu,
                 backward=pd_obj.backward,
                 config_params=config.to_string())
-        else:
-            warnings.simplefilter('always', UserWarning)
-            warnings.warn("This config is not supported by TensorFlow.")

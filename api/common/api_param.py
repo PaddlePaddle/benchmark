@@ -209,9 +209,10 @@ class APIConfig(object):
         for name, value in vars(self).items():
             # float16 is not supported for CPU.
             if not use_gpu and name.endswith("_dtype") and value == "float16":
-                print("Warning:\n"
-                      "  1. float16 is not supported for %s on CPU.\n" %
-                      (self.api_name))
+                print(
+                    "Warning:\n"
+                    "  1. This config is disabled because float16 is not supported for %s on CPU.\n"
+                    % (self.api_name))
                 return True
         return False
 

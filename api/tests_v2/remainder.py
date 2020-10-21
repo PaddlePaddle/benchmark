@@ -25,6 +25,10 @@ class RemainderConfig(APIConfig):
 
     def disabled(self):
         if self.x_dtype == "float16":
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s.\n"
+                % (self.api_name))
             return True
         return super(RemainderConfig, self).disabled()
 

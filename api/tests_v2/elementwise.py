@@ -24,6 +24,10 @@ class ElementwiseConfig(APIConfig):
 
     def disabled(self):
         if self.api_name in ["pow"] and self.x_dtype == "float16":
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s.\n"
+                % (self.api_name))
             return True
         return super(ElementwiseConfig, self).disabled()
 
