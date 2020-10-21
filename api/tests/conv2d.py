@@ -36,6 +36,13 @@ class Conv2dConfig(APIConfig):
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(Conv2dConfig, self).init_from_json(filename, config_id,
                                                  unknown_dim)
+        if use_gpu and self.data_format == "NCHW":
+            print(
+                "Warning:\n"
+                "  1. The tf's conv ops currently only supports the NHWC tensor "
+                "format on the CPU. Please add a rule to support it.\n")
+            self.run_tf = False
+
         if isinstance(self.padding, int):
             self.padding = [self.padding, self.padding]
         if self.data_format == "NCHW":

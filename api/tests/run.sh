@@ -17,6 +17,11 @@ task=${3:-"accuracy"} # "accuracy" or "speed"
 
 framework="paddle"  # "paddle" or "tensorflow"
 filename="${OP_BENCHMARK_ROOT}/tests/configs/${name}.json"
+if [ "$CUDA_VISIBLE_DEVICES" = "" ]; then
+    use_gpu=False
+else
+    use_gpu=True
+fi
 
 run_args="--task ${task} \
           --framework ${framework} \
@@ -25,7 +30,7 @@ run_args="--task ${task} \
           --check_output False \
           --profiler none \
           --backward True \
-          --use_gpu True \
+          --use_gpu ${use_gpu} \
           --repeat 1 \
           --allow_adaptive_repeat False \
           --log_level 0"

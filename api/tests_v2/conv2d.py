@@ -33,8 +33,9 @@ class Conv2dConfig(APIConfig):
                                                  unknown_dim)
         if use_gpu and self.data_format == "NCHW":
             print(
-                "The tf's conv2d op currently only supports the NHWC tensor format on the CPU. Please add a rule to support it."
-            )
+                "Warning:\n"
+                "  1. The tf's conv ops currently only supports the NHWC tensor "
+                "format on the CPU. Please add a rule to support it.\n")
             self.run_tf = False
 
         if isinstance(self.padding, int):
