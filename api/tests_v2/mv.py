@@ -35,8 +35,8 @@ class PDMv(PaddleAPIBenchmarkBase):
 
         self.feed_vars = [x, vec]
         self.fetch_vars = [result]
-        # if config.backward:
-        #     self.append_gradients(result, [x, vec])
+        if config.backward:
+            self.append_gradients(result, [x, vec])
 
 
 class TFMv(TensorflowAPIBenchmarkBase):
@@ -56,8 +56,8 @@ class TFMv(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [x, vec]
         self.fetch_list = [result]
-        # if config.backward:
-        #     self.append_gradients(result, [x, vec])
+        if config.backward:
+            self.append_gradients(result, [x, vec])
 
 
 if __name__ == '__main__':
