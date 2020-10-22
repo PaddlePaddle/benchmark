@@ -10,16 +10,4 @@
             "value": "[1]"
         }
     }
-},{
-    "op": "empty",
-    "param_info": {
-        "dtype": {
-            "type": "string",
-            "value": "int32"
-        },
-        "shape": {
-            "type": "list",
-            "value": "[1]"
-        }
-    }
 }]

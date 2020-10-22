@@ -18,32 +18,16 @@ from common_import import *
 class EmptyConfig(APIConfig):
     def __init__(self):
         super(EmptyConfig, self).__init__('empty')
+        self.run_tf = False
 
 
 class PDEmpty(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        result = paddle.empty(
-            shape=config.shape,
-            dtype=config.dtype)
+        result = paddle.empty(shape=config.shape, dtype=config.dtype)
 
         self.feed_vars = []
         self.fetch_vars = [result]
 
 
-# TensorFlow Core v2.3.0
-# tf.experimental.numpy.empty
-# Note: This API is new and only available in tf-nightly.
-class TFEmpty(TensorflowAPIBenchmarkBase):
-    def build_graph(self, config):
-        # result = tf.experimental.numpy.empty(
-        #     shape=config.shape,
-        #     dtype=tf.as_dtype(config.dtype))
-
-        self.feed_list = []
-        self.fetch_list = []
-        # self.fetch_list = [result]
-        
-
-
 if __name__ == '__main__':
-    test_main(PDEmpty(), TFEmpty(), config=APIConfig("empty"))
+    test_main(PDEmpty(), config=EmptyConfig())
