@@ -416,7 +416,7 @@ if __name__ == '__main__':
         '--construct_email',
         type=utils.str2bool,
         default=True,
-        help='Whether constructing alarm email [True|False]'))
+        help='Whether constructing alarm email [True|False]')
     args = parser.parse_args()
 
     op_result_dir = os.path.abspath(args.op_result_dir)
