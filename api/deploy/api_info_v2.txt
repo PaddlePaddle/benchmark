@@ -20,7 +20,7 @@ conv2d,conv2d,conv2d.json,True
 conv_transpose2d,conv_transpose2d,conv_transpose2d.json,True
 conv_transpose3d,conv_transpose3d,conv_transpose3d.json,True
 cos,activation,activation.json,True
-cos_sim,cos_sim,cos_sim.json,True
+cosine_similarity,cosine_similarity,cosine_similarity.json,True
 cumsum,cumsum,cumsum.json,False
 data_norm,data_norm,data_norm.json,True
 depthwise_conv2d,depthwise_conv2d,depthwise_conv2d.json,True
