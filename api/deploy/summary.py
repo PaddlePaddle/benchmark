@@ -313,7 +313,7 @@ def construct_alarm_email(timestamp, alarm_results):
         email_t.construct_email_content()
 
 
-def dump_mysql(data):
+def dump_mysql(data, version, construct_email):
     """
     dump data to mysql database
     """
@@ -353,9 +353,11 @@ def dump_mysql(data):
         op_record.gpu_time = dic.get("gpu_time", "--")
         op_record.tf_gpu_time_backward = dic.get("tf_gpu_time_backward", "--")
         op_record.tf_gpu_time = dic.get("tf_gpu_time", "--")
+        op_record.version = version
         op_record.save()
         check_results(op_record, alarm_results)
-    construct_alarm_email(timestamp, alarm_results)
+    if construct_email:
+        construct_alarm_email(timestamp, alarm_results)
 
 
 if __name__ == '__main__':
@@ -405,6 +407,16 @@ if __name__ == '__main__':
         type=utils.str2bool,
         default=True,
         help='Whether dumping summary data to mysql database [True|False]')
+    parser.add_argument(
+        '--version',
+        type=str,
+        default='1.8',
+        help='Specify the paddle version.')
+    parser.add_argument(
+        '--construct_email',
+        type=utils.str2bool,
+        default=True,
+        help='Whether constructing alarm email [True|False]'))
     args = parser.parse_args()
 
     op_result_dir = os.path.abspath(args.op_result_dir)
@@ -457,7 +469,7 @@ if __name__ == '__main__':
 
     if args.dump_to_mysql:
         try:
-            dump_mysql(data)
+            dump_mysql(data, args.version, args.construct_email)
         except Exception as e:
             print("dump data into mysql failed, please check reason!")
             print(e)
