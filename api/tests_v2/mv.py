@@ -20,11 +20,6 @@ class MvConfig(APIConfig):
         super(MvConfig, self).__init__("mv")
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
-    def to_tensorflow(self):
-        tf_config = super(MvConfig, self).to_tensorflow()
-        tf_config.vec_shape.append(1)
-        return tf_config
-
 
 class PDMv(PaddleAPIBenchmarkBase):
     def build_program(self, config):
@@ -44,13 +39,11 @@ class TFMv(TensorflowAPIBenchmarkBase):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         vec = self.variable(
             name='vec', shape=config.vec_shape, dtype=config.vec_dtype)
-        result = tf.matmul(
+        result = tf.linalg.matvec(
             a=x,
             b=vec,
             transpose_a=False,
-            transpose_b=False,
             adjoint_a=False,
-            adjoint_b=False,
             a_is_sparse=False,
             b_is_sparse=False)
 
