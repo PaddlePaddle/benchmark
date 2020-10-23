@@ -408,6 +408,11 @@ if __name__ == '__main__':
         default=True,
         help='Whether dumping summary data to mysql database [True|False]')
     parser.add_argument(
+        '--dump_to_json',
+        type=utils.str2bool,
+        default=False,
+        help='Whether dumping summary data to a json file [True|False]')
+    parser.add_argument(
         '--version',
         type=str,
         default='1.8',
@@ -466,6 +471,11 @@ if __name__ == '__main__':
         write_excel.dump_excel(benchmark_result_list, op_result_dir,
                                args.url_prefix, args.output_path,
                                op_frequency_dict)
+
+    if args.dump_to_json:
+        import write_json
+
+        write_json.dump_json(benchmark_result_list, args.output_path)
 
     if args.dump_to_mysql:
         try:
