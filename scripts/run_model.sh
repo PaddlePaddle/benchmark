@@ -46,22 +46,34 @@ function _run(){
         echo "Do nothing"
     fi
 
+    analysis_options=""
+    if [ -n "${separator}" ]; then
+        analysis_options="${analysis_options} --separator ${separator}"
+    fi
+    if [ -n "${position}" ]; then
+        analysis_options="${analysis_options} --position ${position}"
+    fi
+    if [ -n "${range}" ]; then
+        analysis_options="${analysis_options} --range ${range}"
+    fi
+    if [ -n "${model_mode}" ]; then
+        analysis_options="${analysis_options} --model_mode ${model_mode}"
+    fi
+    if [ -n "${ips_unit}" ]; then
+        analysis_options="${analysis_options} --ips_unit ${ips_unit}"
+    fi
     python ${BENCHMARK_ROOT}/scripts/analysis.py \
             --filename "${log_file}" \
             --log_with_profiler ${log_with_profiler:-"not found!"} \
             --profiler_path ${profiler_path:-"not found!"} \
-            --keyword "${keyword}" \
-            --separator "${separator}" \
-            --position ${position} \
-            --base_batch_size ${base_batch_size} \
-            --skip_steps ${skip_steps} \
-            --model_mode ${model_mode} \
             --model_name "${model_name}" \
             --mission_name "${mission_name}" \
             --direction_id "${direction_id}" \
             --run_mode ${run_mode} \
-            --index ${index} \
+            --keyword "${keyword}" \
+            --base_batch_size ${base_batch_size} \
+            --skip_steps ${skip_steps} \
             --gpu_num ${num_gpu_devices} \
-            --range ${range:-""}
+            --index ${index} ${analysis_options}
 }
 
