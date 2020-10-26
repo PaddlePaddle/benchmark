@@ -238,7 +238,7 @@ function execute_one_case() {
                         for device_id in ${!DEVICE_TASK_PID_MAP[*]}
                         do
                             task_pid=${DEVICE_TASK_PID_MAP[$device_id]}
-                            if [ $task_pid -eq 0 -o -z "$(ps -opid | grep $task_pid)" ]
+                            if [ $task_pid -eq 0 -o -z "$(ps -opid | grep -w $task_pid)" ]
                             then
                                 gpu_id=$device_id
                                 finished_task_pid=$task_pid
@@ -327,7 +327,7 @@ function run_all_cases() {
             if [ $task_pid -eq 0 ]
             then
                 unset DEVICE_TASK_PID_MAP[$device_id]
-            elif [ -z "$(ps -opid | grep $task_pid)" ]
+            elif [ -z "$(ps -opid | grep -w $task_pid)" ]
             then
                 print_finished_task_detail $task_pid $(date +%s%N)
                 unset DEVICE_TASK_PID_MAP[$device_id]
