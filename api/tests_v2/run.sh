@@ -23,7 +23,7 @@ run_args="--task ${task} \
           --json_file ${filename} \
           --config_id ${config_id} \
           --check_output False \
-          --profiler none \
+          --profiler OpDetail \
           --backward True \
           --use_gpu True \
           --repeat 1 \

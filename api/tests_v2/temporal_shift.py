@@ -29,6 +29,8 @@ class PDTemporalShift(PaddleAPIBenchmarkBase):
 
         self.feed_vars = [x]
         self.fetch_vars = [out]
+        if config.backward:
+            self.append_gradients(out, [x])
 
 
 if __name__ == '__main__':
