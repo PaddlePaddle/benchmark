@@ -1,0 +1,19 @@
+[{
+    "op": "temporal_shift",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[32, 64, 24, 42]",
+            "type": "Variable"
+        },
+        "seg_num": {
+            "type": "int",
+            "value": "2"
+        },
+        "shift_ratio": {
+            "type": "float",
+            "value": "0.2"
+        }
+    },
+    "repeat": 5000
+}]
