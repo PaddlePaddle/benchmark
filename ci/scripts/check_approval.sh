@@ -15,7 +15,7 @@
 # limitations under the License.
 
 function LOG {
-  echo [$(basename $0):${BASH_LINENO[-2]}] $* >&2
+  echo [$0:${BASH_LINENO[0]}] $* >&2
 }
 
 LOG "[INFO] Start check approval ..."
