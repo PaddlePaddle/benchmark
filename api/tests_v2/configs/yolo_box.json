@@ -10,7 +10,23 @@
             "dtype": "int32",
             "shape": "[32, 2]",
             "type": "Variable"
+        },
+        "anchors": {
+            "type": "list",
+            "value": "[10, 13, 16, 30, 33, 23]"
+        },
+        "downsample_ratio": {
+            "type": "int",
+            "value": "32"
+        },
+        "class_num": {
+            "type": "int",
+            "value": "2"
+        },
+        "conf_thresh": {
+            "type": "float",
+            "value": "0.01"
         }
-}, 
+    },
     "repeat": 5000
 }]
