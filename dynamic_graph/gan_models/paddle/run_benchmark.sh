@@ -25,10 +25,9 @@ function _set_params(){
     mission_name="图像生成"
     direction_id=0
     skip_steps=5
-    keyword="batch cost:"
+    keyword="batch_cost:"
     separator=" "
-    position=-1
-    range=0:6
+    position=19
     model_mode=0 # s/step -> samples/s
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
