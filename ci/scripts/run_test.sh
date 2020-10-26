@@ -27,6 +27,7 @@ function LOG {
 LOG "[INFO] Start run op benchmark test ..."
 
 BENCHMARK_ROOT=$(cd $(dirname $0)/../.. && pwd)
+[ -z "$CUDA_VISIBLE_DEVICES" ] && CUDA_VISIBLE_DEVICES="0"
 
 function prepare_env(){
   LOG "[INFO] Device Id: ${CUDA_VISIBLE_DEVICES}"
@@ -82,8 +83,16 @@ function run_api(){
   fail_name=()
   for name in ${API_NAMES[@]}
   do
-    bash ${BENCHMARK_ROOT}/api/${name%/*}/run.sh ${name##*/} -1 >&2
-    [ $? -ne 0 ] && fail_name[${#fail_name[@]}]=$name
+    for device_type in "GPU" "CPU"
+    do
+      if [ $device_type == "GPU" ]
+      then
+        bash ${BENCHMARK_ROOT}/api/${name%/*}/run.sh ${name##*/} -1 >&2
+      else
+        env CUDA_VISIBLE_DEVICES="" bash ${BENCHMARK_ROOT}/api/${name%/*}/run.sh ${name##*/} -1 >&2
+      fi
+      [ $? -ne 0 ] && fail_name[${#fail_name[@]}]="${name}(Run on ${device_type})"
+    done
   done
   if [ ${#fail_name[@]} -ne 0 ]
   then
