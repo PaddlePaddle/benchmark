@@ -20,6 +20,15 @@ class LstmConfig(APIConfig):
         super(LstmConfig, self).__init__("lstm")
         self.run_tf = False
 
+    def disabled(self):
+        if not use_gpu():
+            print(
+                "Warning:\n"
+                "  1. lstm is disabled because it is only supported run on GPU, now is CPU.\n"
+            )
+            return True
+        return super(LstmConfig, self).disabled()
+
 
 class PDLstm(PaddleAPIBenchmarkBase):
     def build_program(self, config):
