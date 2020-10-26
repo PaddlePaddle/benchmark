@@ -13,6 +13,10 @@
             "dtype": "float32",
             "shape": "[-1L, 36864L]",
             "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
         }
     },
     "repeat": 2000
@@ -31,6 +35,10 @@
             "dtype": "float32",
             "shape": "[-1L, 16L, -1L, -1L]",
             "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
         }
     },
     "repeat": 2000
@@ -49,6 +57,10 @@
             "dtype": "float32",
             "shape": "[-1L, 35L, 1500L]",
             "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
         }
     },
     "repeat": 2000
@@ -67,6 +79,10 @@
             "dtype": "float32",
             "shape": "[-1L, 16L, -1L, -1L]",
             "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
         }
     }
 }]
