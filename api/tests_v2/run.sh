@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ -z "$CUDA_VISIBLE_DEVICES" ] && export CUDA_VISIBLE_DEVICES="0"   # Set to "" if testing CPU
+[ -z "$(set | grep '^CUDA_VISIBLE_DEVICES=')" ] && export CUDA_VISIBLE_DEVICES="0"   # Set to "" if testing CPU
 
 NVCC=`which nvcc`
 if [ ${NVCC} != "" ]; then
@@ -14,12 +14,10 @@ export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 name=${1:-"abs"}
 config_id=${2:-"0"}
 task=${3:-"accuracy"} # "accuracy" or "speed"
-use_gpu=${4:-"True"}
 
 framework="paddle"  # "paddle" or "tensorflow"
 filename="${OP_BENCHMARK_ROOT}/tests_v2/configs/${name}.json"
-if [ -z "$CUDA_VISIBLE_DEVICES" -o "$use_gpu" == "False" ]; then
-    export CUDA_VISIBLE_DEVICES=""
+if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
     use_gpu=False
 else
     use_gpu=True
