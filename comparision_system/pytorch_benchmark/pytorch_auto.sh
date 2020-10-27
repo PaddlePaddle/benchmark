@@ -10,7 +10,7 @@
 
 #************ note that you neet the images of pytorch which name contains devel***********#
 
-cur_model_list=(detection pix2pix stargan image_classification dy_image_class dy_sequence dy_ptb dy_gan dy_wavenet dy_senta dy_senta)
+cur_model_list=(detection pix2pix stargan image_classification dy_image_class dy_sequence dy_ptb dy_gan dy_wavenet dy_senta)
 
 ######################
 environment(){
