@@ -53,7 +53,7 @@ class PDFC(PaddleAPIBenchmarkBase):
                 initializer=fluid.initializer.ConstantInitializer(0.5)),
             bias_attr=fluid.ParamAttr(
                 initializer=fluid.initializer.ConstantInitializer(0.1)),
-            act=config.act)
+            act=None)
 
         self.feed_vars = [input]
         self.fetch_vars = [result]
@@ -71,12 +71,12 @@ class TFFC(TensorflowAPIBenchmarkBase):
                 num_outputs=config.size,
                 weights_initializer=tf.constant_initializer(0.5),
                 biases_initializer=tf.constant_initializer(0.1),
-                activation_fn=config.act)
+                activation_fn=None)
         else:
             result = tf.compat.v1.layers.dense(
                 inputs=input,
                 units=config.size,
-                activation=config.act,
+                activation=None,
                 use_bias=True,
                 kernel_initializer=tf.constant_initializer(0.5),
                 bias_initializer=tf.constant_initializer(0.1))

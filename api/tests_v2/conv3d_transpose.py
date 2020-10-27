@@ -15,9 +15,9 @@
 from common_import import *
 
 
-class ConvTranspose3dConfig(APIConfig):
+class Conv3dTransposeConfig(APIConfig):
     def __init__(self):
-        super(ConvTranspose3dConfig, self).__init__("conv_transpose3d")
+        super(Conv3dTransposeConfig, self).__init__("conv3d_transpose")
         self.feed_spec = [
             {
                 "range": [-1, 1]
@@ -29,7 +29,7 @@ class ConvTranspose3dConfig(APIConfig):
         ]
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(ConvTranspose3dConfig, self).init_from_json(filename, config_id,
+        super(Conv3dTransposeConfig, self).init_from_json(filename, config_id,
                                                           unknown_dim)
         if isinstance(self.padding, int):
             self.padding = [self.padding, self.padding, self.padding]
@@ -67,7 +67,7 @@ class ConvTranspose3dConfig(APIConfig):
 
     def to_tensorflow(self):
         assert self.output_size is not None
-        tf_config = super(ConvTranspose3dConfig, self).to_tensorflow()
+        tf_config = super(Conv3dTransposeConfig, self).to_tensorflow()
         tf_config.filter_shape = [
             self.filter_size[0], self.filter_size[1], self.filter_size[2],
             self.num_channels // self.groups, self.num_filters
@@ -103,7 +103,7 @@ class ConvTranspose3dConfig(APIConfig):
         return "VALID" if padding == [0, 0, 0] else "SAME"
 
 
-class PDConvTranspose3d(PaddleAPIBenchmarkBase):
+class PDConv3dTranspose(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
@@ -125,7 +125,7 @@ class PDConvTranspose3d(PaddleAPIBenchmarkBase):
             self.append_gradients(result, [input, filter])
 
 
-class TFConvTranspose3d(TensorflowAPIBenchmarkBase):
+class TFConv3dTranspose(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
@@ -148,6 +148,6 @@ class TFConvTranspose3d(TensorflowAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        PDConvTranspose3d(),
-        TFConvTranspose3d(),
-        config=ConvTranspose3dConfig())
+        PDConv3dTranspose(),
+        TFConv3dTranspose(),
+        config=Conv3dTransposeConfig())
