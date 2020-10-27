@@ -1,7 +1,5 @@
 #!/bin/bash
 
-[ -z "$CUDA_VISIBLE_DEVICES" ] && export CUDA_VISIBLE_DEVICES="0"   # Set to "" if testing CPU
-
 NVCC=`which nvcc`
 if [ ${NVCC} != "" ]; then
   NVCC_VERSION=`nvcc --version | tail -n 1 | grep "[0-9][0-9]*\.[0-9]" -o | uniq`
