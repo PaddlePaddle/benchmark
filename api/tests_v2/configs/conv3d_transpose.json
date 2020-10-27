@@ -1,5 +1,5 @@
 [{
-    "op": "conv_transpose3d",
+    "op": "conv3d_transpose",
     "param_info": {
         "act": {
             "type": "string",
