@@ -85,12 +85,8 @@ function run_api(){
   do
     for device_type in "GPU" "CPU"
     do
-      if [ $device_type == "GPU" ]
-      then
-        bash ${BENCHMARK_ROOT}/api/${name%/*}/run.sh ${name##*/} -1 >&2
-      else
-        env CUDA_VISIBLE_DEVICES="" bash ${BENCHMARK_ROOT}/api/${name%/*}/run.sh ${name##*/} -1 >&2
-      fi
+      [ $device_type == "GPU" ] && device_limit="" || device_limit="env CUDA_VISIBLE_DEVICES="
+      ${device_limit} bash ${BENCHMARK_ROOT}/api/${name%/*}/run.sh ${name##*/} -1 >&2
       [ $? -ne 0 ] && fail_name[${#fail_name[@]}]="${name}(Run on ${device_type})"
     done
   done
