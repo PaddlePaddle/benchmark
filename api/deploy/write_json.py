@@ -35,29 +35,26 @@ COMPARE_RESULT_SHOWS = {
 
 
 def create_summary_json(compare_result, category):
+    summary_json_result = list()
     compare_result_colors = {"Better": "green", "Less": "red"}
 
     compare_result_keys = compare_result.compare_result_keys
-    titles = [category]
-    titles.extend(map(COMPARE_RESULT_SHOWS.get, compare_result_keys))
+    titles = {"title": 1, "row_0": category}
+    for (i, compare_result_key) in enumerate(compare_result_keys, 1):
+        titles["row_%i" % i] = COMPARE_RESULT_SHOWS[compare_result_key]
+    summary_json_result.append(titles)
 
-    colors = [None]
-    colors.extend(
-        map(lambda k: compare_result_colors.get(k, "black"),
-            compare_result_keys))
-
-    datas = list()
     for device in ["gpu", "cpu"]:
         for direction in ["forward", "backward"]:
             for method in ["total", "kernel"]:
                 if device == "cpu": continue
-                data = [
-                    "{} {} ({})".format(device.upper(),
-                                        direction.capitalize(), method)
-                ]
+                data = {
+                    "title": 0,
+                    "row_0": "{} {} ({})".format(device.upper(), direction.capitalize(), method)
+                }
                 value = compare_result.get(device, direction, method)
                 num_total_cases = value["Total"]
-                for compare_result_key in compare_result_keys:
+                for (i, compare_result_key) in enumerate(compare_result_keys, 1):
                     num_cases = value[compare_result_key]
                     if num_cases > 0:
                         ratio = float(num_cases) / float(num_total_cases)
@@ -65,10 +62,10 @@ def create_summary_json(compare_result, category):
                                                          ratio * 100)
                     else:
                         this_str = "--"
-                    data.append(this_str)
-                datas.append(data)
+                    data["row_%i" % i] = this_str
+                summary_json_result.append(data)
 
-    return {"title": titles, "color": colors, "data": datas}
+    return summary_json_result
 
 
 def dump_json(benchmark_result_list, output_path=None):
@@ -87,7 +84,6 @@ def dump_json(benchmark_result_list, output_path=None):
     with open(output_path, 'w') as f:
         summary_case_json = create_summary_json(compare_result_case_level,
                                                 "case_level")
-        f.write(json.dumps(summary_case_json) + '\n')
         summary_op_json = create_summary_json(compare_result_op_level,
                                               "case_level")
-        f.write(json.dumps(summary_op_json))
+        f.write(json.dumps(summary_case_json + summary_op_json))
