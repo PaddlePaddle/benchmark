@@ -19,6 +19,7 @@ use_gpu=${4:-"True"}
 framework="paddle"  # "paddle" or "tensorflow"
 filename="${OP_BENCHMARK_ROOT}/tests_v2/configs/${name}.json"
 if [ -z "$CUDA_VISIBLE_DEVICES" -o "$use_gpu" == "False" ]; then
+    export CUDA_VISIBLE_DEVICES=""
     use_gpu=False
 else
     use_gpu=True
