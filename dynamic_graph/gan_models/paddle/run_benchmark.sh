@@ -28,6 +28,10 @@ function _set_params(){
     keyword="batch_cost:"
     separator=" "
     position=19
+    if [ ${model_name} = "CycleGAN" ]; then
+        position=27
+    fi
+
     model_mode=0 # s/step -> samples/s
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
