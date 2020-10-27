@@ -8,8 +8,8 @@ function _collect_occupancy() {
         hostname=`echo $(hostname)|awk -F '.baidu.com' '{print $1}'`
         gpu_log_file=${log_file}_gpu
         cpu_log_file=${log_file}_cpu
-        monquery -n ${hostname} -i GPU_AVERAGE_UTILIZATION -s $job_bt -e $job_et -d 60 > ${gpu_log_file}
-        monquery -n ${hostname} -i CPU_USER -s $job_bt -e $job_et -d 60 > ${cpu_log_file}
+        monquery -n ${hostname} -i GPU_AVERAGE_UTILIZATION -s $job_bt -e $job_et -d 20 > ${gpu_log_file}
+        monquery -n ${hostname} -i CPU_USER -s $job_bt -e $job_et -d 20 > ${cpu_log_file}
         cpu_num=$(cat /proc/cpuinfo | grep processor | wc -l)
         gpu_num=$(nvidia-smi -L|wc -l)
 
@@ -20,6 +20,9 @@ function _collect_occupancy() {
 
 function _run(){
     # running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}
+    model_commit_id=$(git log|head -n1|awk '{print $2}')
+    echo "---------Model commit is ${model_commit_id}"
+
     if [[ ${index} -eq 1 ]]; then
         job_bt=`date '+%Y%m%d%H%M%S'`
         gpu_id=`echo $CUDA_VISIBLE_DEVICES | cut -c1`
@@ -46,7 +49,7 @@ function _run(){
         echo "Do nothing"
     fi
 
-    python ${BENCHMARK_ROOT}/scripts/analysis.py \
+    python3 ${BENCHMARK_ROOT}/scripts/analysis.py \
             --filename "${log_file}" \
             --log_with_profiler ${log_with_profiler:-"not found!"} \
             --profiler_path ${profiler_path:-"not found!"} \
