@@ -10,7 +10,7 @@
 
 #************ note that you neet the images of pytorch which name contains devel***********#
 
-cur_model_list=(detection pix2pix stargan image_classification dy_image_class dy_sequence dy_ptb dy_gan)
+cur_model_list=(detection pix2pix stargan image_classification dy_image_class dy_sequence dy_ptb dy_gan dy_wavenet dy_senta)
 
 ######################
 environment(){
@@ -248,6 +248,55 @@ dy_gan(){
     done
 }
 
+# wavenet
+dy_wavenet(){
+    curl_model_path=${MODEL_PATH}
+    cd ${curl_model_path}
+    cp -r /ssd1/ljh/SL_models/ ${curl_model_path} 
+
+    cd ${curl_model_path}/SL_models/benchmark/wavenet/paddle_implementation/
+    ln -s ${data_path}/dygraph_data/wavenet/ljspeech ${cur_model_path}/
+    cp ${BENCHMARK_ROOT}/dynamic_graph/wavenet/pytorch/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+
+    apt-get install  libsndfile1 -y
+    pip install -r ${data_path}/dygraph_data/wavenet/requirement.txt
+    
+    echo "begin to train dynamic ${model_item} 1gpu index is speed"
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp > ${RES_DIR_DY}/wavenet.res1 2>&1
+    sleep 60
+    echo "begin to train dynamic ${model_item} 8gpu index is speed"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh  1 sp > ${RES_DIR_DY}/wavenet.res8 2>&1
+}
+
+# senta 
+dy_senta(){
+    curl_model_path=${MODEL_PATH}
+    cd ${curl_model_path}
+    rm -rf SL_models/
+    cp -r /ssd1/ljh/SL_models/ ${curl_model_path} 
+
+    cd ${curl_model_path}/SL_models/benchmark/senta/pytorch/
+    
+    ln -s ${data_path}/dygraph_data/senta/senta_data ${cur_model_path}/
+    pip install tqdm
+
+    rm -f ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/senta/pytorch/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    net_list=(bow lstm bilstm gru bigru rnn birnn cnn)
+    for net_item in ${net_list[@]}
+    do
+        echo "net is ${net_item}, index is speed, 1gpu begin"
+        model_name="Senta"_${net_item}
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${net_item} sp 2 > ${RES_DIR_DY}/Senta_${net}.res1 2>&1 
+        kill -9 `ps -ef|grep python |awk '{print $2}'`
+        sleep 60
+        echo "net is ${net_item}, index is speed, 8gpu begin"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${net_item} mp 2 > ${RES_DIR_DY}/Senta_${net}.res8 2>&1 
+        kill -9 `ps -ef|grep python |awk '{print $2}'`
+    done    
+}
 
 run(){
        for model_name in ${cur_model_list[@]}
