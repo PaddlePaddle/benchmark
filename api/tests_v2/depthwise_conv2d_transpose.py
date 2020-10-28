@@ -15,10 +15,10 @@
 from common_import import *
 
 
-class DepthwiseConvTranspose2dConfig(APIConfig):
+class DepthwiseConv2dTransposeConfig(APIConfig):
     def __init__(self):
-        super(DepthwiseConvTranspose2dConfig,
-              self).__init__("depthwise_conv_transpose2d")
+        super(DepthwiseConv2dTransposeConfig,
+              self).__init__("depthwise_conv2d_transpose2d")
         self.feed_spec = [
             {
                 "range": [-1, 1]
@@ -29,7 +29,7 @@ class DepthwiseConvTranspose2dConfig(APIConfig):
         ]
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(DepthwiseConvTranspose2dConfig, self).init_from_json(
+        super(DepthwiseConv2dTransposeConfig, self).init_from_json(
             filename, config_id, unknown_dim)
         if isinstance(self.padding, int):
             self.padding = [self.padding, self.padding]
@@ -50,14 +50,14 @@ class DepthwiseConvTranspose2dConfig(APIConfig):
         self.run_tf = False
 
 
-class PDDepthwiseConvTranspose2d(PaddleAPIBenchmarkBase):
+class PDDepthwiseConv2dTranspose(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
         filter = self.variable(
             name='filter', shape=config.filter_shape, dtype=config.input_dtype)
 
-        result = paddle.nn.functional.conv_transpose2d(
+        result = paddle.nn.functional.conv2d_transpose(
             x=input,
             weight=filter,
             output_size=config.output_size,
@@ -75,4 +75,4 @@ class PDDepthwiseConvTranspose2d(PaddleAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        PDDepthwiseConvTranspose2d(), config=DepthwiseConvTranspose2dConfig())
+        PDDepthwiseConv2dTranspose(), config=DepthwiseConv2dTransposeConfig())

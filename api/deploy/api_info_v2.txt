@@ -24,7 +24,7 @@ cosine_similarity,cosine_similarity,cosine_similarity.json,True
 cumsum,cumsum,cumsum.json,False
 data_norm,data_norm,data_norm.json,True
 depthwise_conv2d,depthwise_conv2d,depthwise_conv2d.json,True
-depthwise_conv_transpose2d,depthwise_conv_transpose2d,depthwise_conv_transpose2d.json,True
+depthwise_conv2d_transpose,depthwise_conv2d_transpose,depthwise_conv2d_transpose.json,True
 diag,diag,diag.json,False
 divide,divide,elementwise.json,True
 dropout,dropout,dropout.json,True
