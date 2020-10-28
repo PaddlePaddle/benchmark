@@ -10,7 +10,7 @@
 
 #************ note that you neet the images of pytorch which name contains devel***********#
 
-cur_model_list=(detection pix2pix stargan image_classification dy_image_class dy_sequence dy_ptb dy_gan dy_wavenet dy_senta)
+cur_model_list=(detection pix2pix stargan image_classification dy_image_class dy_sequence dy_ptb dy_gan dy_wavenet dy_senta dy_slowfast)
 
 ######################
 environment(){
@@ -267,6 +267,27 @@ dy_wavenet(){
     sleep 60
     echo "begin to train dynamic ${model_item} 8gpu index is speed"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh  1 sp > ${RES_DIR_DY}/wavenet.res8 2>&1
+}
+
+# slowfast 
+dy_slowfast(){
+    curl_model_path=${MODEL_PATH}
+    cd ${curl_model_path}
+    git clone https://github.com/huangjun12/SlowFast.git
+    git checkout sf-benchmark
+
+    cd ${curl_model_path}/SlowFast
+    rm -rf data
+    ln -s ${data_path}/dygraph_data/slowfast/torch_data/ ${cur_model_path}/data
+    sh ${cur_model_path}/data/prepare_env.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/slowfast/pytorch/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+
+    echo "begin to train dynamic ${model_item} 1gpu index is speed"
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp > ${RES_DIR_DY}/slowfast.res1 2>&1
+    sleep 60
+    echo "begin to train dynamic ${model_item} 8gpu index is speed"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh  1 sp > ${RES_DIR_DY}/slowfast.res8 2>&1
 }
 
 # senta 
