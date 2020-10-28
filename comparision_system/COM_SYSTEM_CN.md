@@ -1,7 +1,5 @@
 (简体中文)
 
-
-
 <h2 align="center">motivatiaon</h2>
 
 为更好、更清晰地管理paddle竞品模型代码库，将当前benchmark 模型竞品框架选用、RD负责人以及对应代码库整理如下：
@@ -52,7 +50,7 @@
 | `pytorch` | resnet50_bs128 | 郭若愚 | https://github.com/phlrain/example.git |
 | `pytorch` | resnet50_bs32 | 郭若愚 | https://github.com/phlrain/example.git |
 | `pytorch` | cyclegan | 江列霖 | https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix.git |
-| `pytorch` | Pix2pix | 江列霖 | https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix |
+| `pytorch` | Pix2pix | 江列霖 | https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix.git |
 | `pytorch` | transformer |刘政锡 | https://github.com/phlrain/example.git |
 | `pytorch` | seq2seq | 郭晟 | https://github.com/phlrain/example.git |
 | `pytorch` | ptb | 刘佳琪 | https://github.com/phlrain/example.git |
