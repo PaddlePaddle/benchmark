@@ -18,7 +18,7 @@ from common_import import *
 class DepthwiseConv2dTransposeConfig(APIConfig):
     def __init__(self):
         super(DepthwiseConv2dTransposeConfig,
-              self).__init__("depthwise_conv2d_transpose2d")
+              self).__init__("depthwise_conv2d_transpose")
         self.feed_spec = [
             {
                 "range": [-1, 1]
