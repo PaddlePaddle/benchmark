@@ -50,11 +50,14 @@ def create_summary_json(compare_result, category):
                 if device == "cpu": continue
                 data = {
                     "title": 0,
-                    "row_0": "{} {} ({})".format(device.upper(), direction.capitalize(), method)
+                    "row_0": "{} {} ({})".format(device.upper(),
+                                                 direction.capitalize(),
+                                                 method)
                 }
                 value = compare_result.get(device, direction, method)
                 num_total_cases = value["Total"]
-                for (i, compare_result_key) in enumerate(compare_result_keys, 1):
+                for (i, compare_result_key) in enumerate(compare_result_keys,
+                                                         1):
                     num_cases = value[compare_result_key]
                     if num_cases > 0:
                         ratio = float(num_cases) / float(num_total_cases)
