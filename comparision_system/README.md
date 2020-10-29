@@ -10,7 +10,7 @@
 <center>
 
 | 框架 | 模型 | 代码库 |
-|--------------|------|-----------|--------------------------------|
+|--------------|------|--------------------------------|
 | `pytorch` | cascade_rcnn_fpn | https://github.com/zhaoweicai/Detectron-Cascade-RCNN.git |
 | `pytorch` | mask_rcnn | https://github.com/facebookresearch/maskrcnn-benchmark.git |
 | `pytorch` | mask_rcnn_fpn_resnet | https://github.com/facebookresearch/Detectron.git |
