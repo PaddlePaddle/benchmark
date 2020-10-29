@@ -48,7 +48,7 @@
             "value": "[37007, 1024]"
         }
     },
-    "repeat": 1000000
+    "repeat": 850000
 }, {
     "op": "embedding",
     "param_info": {
