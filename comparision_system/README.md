@@ -1,7 +1,7 @@
 
 <h2 align="center">motivatiaon</h2>
 
-为更好、更清晰地管理paddle竞品模型代码库，将当前benchmark 模型竞品框架选用、RD负责人以及对应代码库整理如下：
+    为更好、更清晰地管理paddle竞品模型代码库，将当前benchmark 模型竞品框架选用以及对应代码库整理如下：
 
 代码提供方：benchmark模型RD
 
