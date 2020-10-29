@@ -1,5 +1,5 @@
 [{
-    "op": "conv_transpose2d",
+    "op": "conv2d_transpose",
     "param_info": {
         "data_format": {
             "type": "string",
@@ -41,7 +41,7 @@
     },
     "atol": 1E-4
 }, {
-    "op": "conv_transpose2d",
+    "op": "conv2d_transpose",
     "param_info": {
         "data_format": {
             "type": "string",
@@ -83,7 +83,7 @@
     },
     "atol": 1E-3
 }, {
-    "op": "conv_transpose2d",
+    "op": "conv2d_transpose",
     "param_info": {
         "data_format": {
             "type": "string",
@@ -124,7 +124,7 @@
         }
     }
 }, {
-    "op": "conv_transpose2d",
+    "op": "conv2d_transpose",
     "param_info": {
         "data_format": {
             "type": "string",
@@ -166,7 +166,7 @@
     },
     "atol": 1E-4
 }, {
-    "op": "conv_transpose2d",
+    "op": "conv2d_transpose",
     "param_info": {
         "data_format": {
             "type": "string",

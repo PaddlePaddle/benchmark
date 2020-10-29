@@ -1,5 +1,5 @@
 [{
-    "op": "depthwise_conv_transpose2d",
+    "op": "depthwise_conv2d_transpose",
     "param_info": {
         "data_format": {
             "type": "string",
