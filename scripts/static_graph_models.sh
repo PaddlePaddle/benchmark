@@ -292,6 +292,7 @@ image_classification(){
     sed -i '/cd /d' run_benchmark.sh
     sed -i '/set\ -xe/d' run_benchmark.sh
     pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda100
+
     # running models cases
     model_list=(SE_ResNeXt50_32x4d ResNet101 ResNet50_bs32 ResNet50_bs128)
     run_batchsize=32
@@ -318,6 +319,19 @@ image_classification(){
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} mp 1000 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
         sleep 60
     done
+
+    # running model cases with amp
+    cp ${BENCHMARK_ROOT}/static_graph/image_classification/resnet50_fp/paddle/run_benchmark.sh ./fp16_run_benchmark.sh
+    sed -i '/set\ -xe/d' fp16_run_benchmark.sh
+    model_name="ResNet50_bs128_fp16"
+    echo "index is speed, 1gpus, run_mode is sp, begin"
+    CUDA_VISIBLE_DEVICES=0 bash fp16_run_benchmark.sh 1 128 sp 800 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+    sleep 60
+    echo "index is speed, 8gpus, run_mode is sp, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash fp16_run_benchmark.sh 1 128 sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+    sleep 60
+    echo "index is speed, 8gpus, run_mode is multi_process, begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash fp16_run_benchmark.sh 1 128 sp 1000  | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
 }
 
 
