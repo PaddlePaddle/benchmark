@@ -242,7 +242,8 @@ def check_results(op_record, alarm_results):
 
     from benchmark_op import models
     results = models.OpRecord2.objects.filter(
-        case_name=op_record.case_name).order_by('-timestamp')[:10:1]
+        case_name=op_record.case_name,
+        version=op_record.version).order_by('-timestamp')[:10:1]
     for key, verbose in CHECK_KEY.items():
         results_list = []
         count = 0
