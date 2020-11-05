@@ -11,7 +11,7 @@ fi
 function _set_params(){
     index=$1                         # 速度(speed)|显存占用(mem)|单卡最大支持batch_size(maxbs)                       (必填)
     base_batch_size=$2               # 单卡的batch_size，如果固定的，可以写死。                                       (必填）
-    model_name="ResNet50_bs128_fp16" # 模型名字如："SE-ResNeXt50"，如果是固定的，可以写死，如果需要其他参数可以参考bert实现（必填）
+    model_name="ResNet50_bs208_fp16" # 模型名字如："SE-ResNeXt50"，如果是固定的，可以写死，如果需要其他参数可以参考bert实现（必填）
     run_mode=${3:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程                                            （必填）
     mission_name="图像分类"          # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
     direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
