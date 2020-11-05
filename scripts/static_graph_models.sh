@@ -323,15 +323,15 @@ image_classification(){
     # running model cases with amp
     cp ${BENCHMARK_ROOT}/static_graph/image_classification/resnet50_fp/paddle/run_benchmark.sh ./fp16_run_benchmark.sh
     sed -i '/set\ -xe/d' fp16_run_benchmark.sh
-    model_name="ResNet50_bs128_fp16"
+    model_name="ResNet50_bs208_fp16"
     echo "index is speed, 1gpus, run_mode is sp, begin"
-    CUDA_VISIBLE_DEVICES=0 bash fp16_run_benchmark.sh 1 128 sp 800 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash fp16_run_benchmark.sh 1 208 sp 800 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, run_mode is sp, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash fp16_run_benchmark.sh 1 128 sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash fp16_run_benchmark.sh 1 208 sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash fp16_run_benchmark.sh 1 128 mp 1000  | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash fp16_run_benchmark.sh 1 208 mp 1000  | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
 }
 
 
