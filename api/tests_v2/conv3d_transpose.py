@@ -110,7 +110,7 @@ class PDConv3dTranspose(PaddleAPIBenchmarkBase):
         filter = self.variable(
             name='filter', shape=config.filter_shape, dtype=config.input_dtype)
 
-        result = paddle.nn.functional.conv_transpose3d(
+        result = paddle.nn.functional.conv3d_transpose(
             x=input,
             weight=filter,
             output_size=config.output_size,
