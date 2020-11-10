@@ -71,6 +71,13 @@ function _train(){
       --profiler_path=${profiler_path} \
       --batch_size ${batch_size}"
      python -u train.py ${train_cmd} > ${log_file} 2>&1
+     if [ $? -ne 0 ];then
+         echo -e "${model_name}, FAIL"
+         export job_fail_flag=1
+     else
+         echo -e "${model_name}, SUCCESS"
+         export job_fail_flag=0
+     fi
      kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
