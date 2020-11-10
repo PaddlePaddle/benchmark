@@ -109,7 +109,14 @@ function _train(){
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    ${train_cmd} > ${log_file} 2>&1 
+    ${train_cmd} > ${log_file} 2>&1
+    if [ $? -ne 0 ];then
+        echo -e "${model}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model}, SUCCESS"
+        export job_fail_flag=0
+    fi
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then

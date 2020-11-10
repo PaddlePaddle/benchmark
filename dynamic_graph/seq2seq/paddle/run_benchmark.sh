@@ -76,6 +76,13 @@ function _train(){
                      --model_path attention_models"
 
     python -u train.py ${train_cmd_de_en} > ${log_file} 2>&1
+    if [ $? -ne 0 ];then
+        echo -e "${model_name}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model_name}, SUCCESS"
+        export job_fail_flag=0
+    fi
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh

@@ -65,7 +65,13 @@ function _train(){
                     --max_iter=${max_iter} \
                     --output ./output/cyclegan/ > ${log_file} 2>&1
 
-
+    if [ $? -ne 0 ];then
+        echo -e "${model_name}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model_name}, SUCCESS"
+        export job_fail_flag=0
+    fi
 #    python train.py  --profile=${is_profiler} \
 #                --profiler_path=${profiler_path} \
 #                --max_iter=${max_iter} > ${log_file} 2>&1
