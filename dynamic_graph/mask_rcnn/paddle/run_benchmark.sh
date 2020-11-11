@@ -54,7 +54,7 @@ function _train(){
     WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     export PYTHONPATH=${WORK_ROOT}:${PYTHONPATH}
 
-    train_cmd=" -c configs/mask_rcnn_r50_fpn_1x.yml \
+    train_cmd=" -c configs/mask_rcnn_r50_fpn_1x_coco.yml 
      --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size}"
 
     case ${run_mode} in
