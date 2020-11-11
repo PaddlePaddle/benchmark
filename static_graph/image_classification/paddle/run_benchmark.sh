@@ -23,9 +23,9 @@ function _set_params(){
 
     skip_steps=8                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
     if [ ${run_mode} = "mp" ]; then skip_steps=31; fi
-    keyword="elapse"                 # 解析日志，筛选出数据所在行的关键字                                             (必填)
+    keyword="batch_cost"                 # 解析日志，筛选出数据所在行的关键字                                             (必填)
     separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
-    position=-2                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
+    position=14                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
     model_mode=0                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
     #range=-1                        # 解析日志，取得列表索引的值后，切片[0：range], 默认最后一位可以不用填, 或者 3:10格式
 
@@ -109,7 +109,14 @@ function _train(){
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    ${train_cmd} > ${log_file} 2>&1 
+    ${train_cmd} > ${log_file} 2>&1
+    if [ $? -ne 0 ];then
+        echo -e "${model}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model}, SUCCESS"
+        export job_fail_flag=0
+    fi
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then

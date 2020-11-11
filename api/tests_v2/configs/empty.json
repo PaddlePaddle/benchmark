@@ -1,0 +1,13 @@
+[{
+    "op": "empty",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "shape": {
+            "type": "list",
+            "value": "[1]"
+        }
+    }
+}]

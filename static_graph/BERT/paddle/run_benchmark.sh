@@ -25,7 +25,7 @@ function _set_params(){
     skip_steps=1                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
     keyword="speed:"                 # 解析日志，筛选出数据所在行的关键字                                             (必填)
     separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
-    position=-2                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
+    position=13                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
     model_mode=1                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -100,6 +100,13 @@ function _train(){
     fi
 
     ${train_cmd} > ${log_file} 2>&1
+    if [ $? -ne 0 ];then
+        echo -e "${model_name}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model_name}, SUCCESS"
+        export job_fail_flag=0
+    fi
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then

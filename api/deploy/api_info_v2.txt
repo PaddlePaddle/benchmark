@@ -17,14 +17,14 @@ clip_by_norm,clip_by_norm,clip_by_norm.json,False
 concat,concat,concat.json,True
 cond,cond,cond.json,True
 conv2d,conv2d,conv2d.json,True
-conv_transpose2d,conv_transpose2d,conv_transpose2d.json,True
-conv_transpose3d,conv_transpose3d,conv_transpose3d.json,True
+conv2d_transpose,conv2d_transpose,conv2d_transpose.json,True
+conv3d_transpose,conv3d_transpose,conv3d_transpose.json,True
 cos,activation,activation.json,True
-cos_sim,cos_sim,cos_sim.json,True
+cosine_similarity,cosine_similarity,cosine_similarity.json,True
 cumsum,cumsum,cumsum.json,False
 data_norm,data_norm,data_norm.json,True
 depthwise_conv2d,depthwise_conv2d,depthwise_conv2d.json,True
-depthwise_conv_transpose2d,depthwise_conv_transpose2d,depthwise_conv_transpose2d.json,True
+depthwise_conv2d_transpose,depthwise_conv2d_transpose,depthwise_conv2d_transpose.json,True
 diag,diag,diag.json,False
 divide,divide,elementwise.json,True
 dropout,dropout,dropout.json,True
@@ -76,6 +76,7 @@ maximum,elementwise_with_axis,elementwise.json,True
 mean,reduce,reduce.json,True
 minimum,elementwise_with_axis,elementwise.json,True
 multiply,elementwise_with_axis,elementwise.json,True
+mv,mv,mv.json,True
 normalize,normalize,normalize.json,True
 not_equal,compare,compare.json,False
 null,null,None,False

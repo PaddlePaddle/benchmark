@@ -47,6 +47,13 @@ function _train(){
                output"
     train_cmd="python -u train.py "${train_cmd}
     ${train_cmd} > ${log_file} 2>&1
+    if [ $? -ne 0 ];then
+        echo -e "${model_name}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model_name}, SUCCESS"
+        export job_fail_flag=0
+    fi
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh

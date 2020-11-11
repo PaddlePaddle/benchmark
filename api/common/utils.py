@@ -155,7 +155,7 @@ def _check_shape(name, output1, output2, i):
                     i, str(output1.shape), str(output2.shape)))
         else:
             print(
-                "---- The %d-th output's shape is compatible (same after squeezed/permuted), %s vs %s."
+                "---- Warning: The %d-th output's shape is compatible (same after squeezed/permuted), %s vs %s."
                 % (i, str(output1.shape), str(output2.shape)))
         return output1_squeezed, output2_squeezed
     return output1, output2
@@ -215,7 +215,7 @@ def check_outputs(list1,
                     output2,
                     tf.python.framework.indexed_slices.IndexedSlicesValue):
                 print(
-                    "Warning: The type of tensorflow output is IndexedSlicesValue,"
+                    "---- Warning: The type of tensorflow output is IndexedSlicesValue,"
                     "Skip all check, It will be fixed later.")
                 continue
 
@@ -280,13 +280,15 @@ def check_outputs(list1,
             print(
                 "---- Warning: The output is not consistent, but %s is in the white list."
                 % name)
-        elif not consistent:
-            print("Error: The output is not consistent!")
-        print(json.dumps(status))
-        if not consistent:
-            sys.exit(1)
-    else:
-        print(json.dumps(status))
+            print(json.dumps(status))
+            return
+        else:
+            print("Error: The output is not consistent!!!\n")
+
+    # Make sure the json result is the last line.
+    print(json.dumps(status))
+    if not consistent:
+        sys.exit(1)
 
 
 def print_benchmark_result(result, log_level=0, config_params=None):

@@ -50,11 +50,18 @@ function _train(){
         train_cmd="python -m paddle.distributed.launch  main.py "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch  --log_dir=./mylog main.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch  --started_port=9785 --log_dir=./mylog main.py "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
     
     ${train_cmd} > ${log_file} 2>&1
+    if [ $? -ne 0 ];then
+        echo -e "${model_name}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model_name}, SUCCESS"
+        export job_fail_flag=0
+    fi
     if [ ${run_mode} != "sp"  -a -d mylog ]; then
         rm ${log_file}
         cp mylog/`ls -l mylog/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ${log_file}

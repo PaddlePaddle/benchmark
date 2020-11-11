@@ -16,12 +16,12 @@ from common_import import *
 from conv2d import Conv2dConfig
 
 
-class ConvTranspose2dConfig(Conv2dConfig):
+class Conv2dTransposeConfig(Conv2dConfig):
     def __init__(self):
-        super(ConvTranspose2dConfig, self).__init__("conv_transpose2d")
+        super(Conv2dTransposeConfig, self).__init__("conv2d_transpose")
 
     def init_from_json(self, filename, config_id=0, unknown_dim=2):
-        super(ConvTranspose2dConfig, self).init_from_json(filename, config_id,
+        super(Conv2dTransposeConfig, self).init_from_json(filename, config_id,
                                                           unknown_dim)
         self.filter_shape = [
             self.num_channels // self.groups, self.num_filters,
@@ -43,7 +43,7 @@ class ConvTranspose2dConfig(Conv2dConfig):
 
     def to_tensorflow(self):
         assert self.output_size is not None
-        tf_config = super(ConvTranspose2dConfig, self).to_tensorflow()
+        tf_config = super(Conv2dTransposeConfig, self).to_tensorflow()
         tf_config.filter_shape = [
             self.filter_size[0], self.filter_size[1], self.num_filters,
             self.num_channels // self.groups
@@ -71,13 +71,13 @@ class ConvTranspose2dConfig(Conv2dConfig):
         return "VALID" if padding == [0, 0] else "SAME"
 
 
-class PDConvTranspose2d(PaddleAPIBenchmarkBase):
+class PDConv2dTranspose(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
             name="weight", shape=config.filter_shape, dtype=config.x_dtype)
 
-        result = paddle.nn.functional.conv_transpose2d(
+        result = paddle.nn.functional.conv2d_transpose(
             x=x,
             weight=weight,
             bias=None,
@@ -95,7 +95,7 @@ class PDConvTranspose2d(PaddleAPIBenchmarkBase):
             self.append_gradients(result, [x, weight])
 
 
-class TFConvTranspose2d(TensorflowAPIBenchmarkBase):
+class TFConv2dTranspose(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
             name='input', shape=config.x_shape, dtype=config.x_dtype)
@@ -118,6 +118,6 @@ class TFConvTranspose2d(TensorflowAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        PDConvTranspose2d(),
-        TFConvTranspose2d(),
-        config=ConvTranspose2dConfig())
+        PDConv2dTranspose(),
+        TFConv2dTranspose(),
+        config=Conv2dTransposeConfig())

@@ -19,7 +19,7 @@ class PDDropout(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = paddle.nn.functional.dropout(
-            x=x, p=config.p, mode=config.mode)
+            x=x, p=config.p, axis=config.axis, mode=config.mode)
 
         self.feed_vars = [x]
         self.fetch_vars = [result]
