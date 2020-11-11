@@ -33,6 +33,15 @@ class EmbeddingConfig(APIConfig):
         if self.is_sparse or self.padding_idx is not None:
             self.run_tf = False
 
+    def disabled(self):
+        if self.dtype == "float16" and not use_gpu():
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s on CPU.\n"
+                % (self.api_name))
+            return True
+        return super(EmbeddingConfig, self).disabled()
+
 
 class PDEmbedding(PaddleAPIBenchmarkBase):
     def build_program(self, config):
