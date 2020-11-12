@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
+cur_model_list=(dy_resnet152 dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
 
 
 # MobileNet
@@ -377,4 +377,21 @@ dy_senta(){
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${net_item} mp 2 | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
         kill -9 `ps -ef|grep python |awk '{print $2}'`
     done
+}
+
+dy_resnet152(){
+    cur_model_path=${BENCHMARK_ROOT}/PaddleClas
+    cd ${cur_model_path}
+    git checkout dygraph
+   
+    ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
+    rm -f ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./
+    sed -i '/set\ -xe/d' run_benchmark_resnet.sh
+    model_name=ResNet152
+    echo "model is ${model_name}, index is speed, 1gpu begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark_resnet.sh 1 32 ResNet152 sp 1 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
+    sleep 60
+    echo "model is ${model_name}, index is speed, 8gpu begin"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_resnet.sh 1 32 ResNet152 sp 1 | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
 }
