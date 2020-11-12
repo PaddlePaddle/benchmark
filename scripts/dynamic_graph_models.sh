@@ -388,7 +388,7 @@ dy_resnet152(){
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./
     sed -i '/set\ -xe/d' run_benchmark_resnet.sh
-    model_name=ResNet152
+    model_name="ResNet152"
     echo "model is ${model_name}, index is speed, 1gpu begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark_resnet.sh 1 32 ResNet152 sp 1 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
     sleep 60
