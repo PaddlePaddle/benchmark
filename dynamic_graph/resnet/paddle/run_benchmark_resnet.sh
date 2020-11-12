@@ -1,5 +1,6 @@
 #!bin/bash
-# for resent in PaddleClas
+# for resenet in PaddleClas
+
 set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
