@@ -1,4 +1,5 @@
 #!bin/bash
+
 set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
@@ -21,11 +22,10 @@ function _set_params(){
 
     mission_name="视频分类"
     direction_id=0
-    skip_steps=10
+    skip_steps=3
     keyword="batch_cost:"
-    separator=" "
-    position=11
     model_mode=0 # s/step -> samples/s
+    # ips_unit="samples/sec"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -63,7 +63,7 @@ function _train(){
 
     train_cmd="--use_gpu=True \
                --config=${config_files} \
-               --log_interval=2 \
+               --log_interval=10 \
                --epoch=${max_epoch} 
                "
     if [ ${run_mode} = "sp" ]; then
