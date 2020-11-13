@@ -75,11 +75,11 @@ class PDBatchNorm(PaddleAPIBenchmarkBase):
             x=x,
             running_mean=running_mean,
             running_var=running_var,
-            weight=scale,  # Scale
+            weight=scale,  # scale
             bias=bias,  # bias
             epsilon=config.epsilon,
             momentum=config.momentum,
-            training=False,
+            training=config.training,
             data_format=config.data_format)
 
         self.feed_vars = [x, scale, bias]
