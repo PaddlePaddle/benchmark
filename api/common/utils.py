@@ -291,7 +291,10 @@ def check_outputs(list1,
         sys.exit(1)
 
 
-def print_benchmark_result(result, log_level=0, config_params=None):
+def print_benchmark_result(result,
+                           log_level=0,
+                           config_params=None,
+                           is_complex=True):
     assert isinstance(result, dict), "Input result should be a dict."
 
     status = collections.OrderedDict()
@@ -330,7 +333,7 @@ def print_benchmark_result(result, log_level=0, config_params=None):
     begin = num_excepts
     end = repeat - num_excepts
     avg_runtime = np.average(sorted_runtimes[begin:end])
-    if walltimes is not None:
+    if walltimes is not None and is_complex:
         avg_walltime = np.average(np.sort(walltimes)[begin:end])
     else:
         avg_walltime = 0
@@ -353,20 +356,31 @@ def print_benchmark_result(result, log_level=0, config_params=None):
         print(
             "Average runtime (%.5f ms) is less than average walltime (%.5f ms)."
             % (avg_runtime, avg_walltime))
+
         total = 0.001
 
     if stable is not None and diff is not None:
         status["precision"] = collections.OrderedDict()
         status["precision"]["stable"] = stable
         status["precision"]["diff"] = diff
-    status["speed"] = collections.OrderedDict()
-    status["speed"]["repeat"] = repeat
-    status["speed"]["begin"] = begin
-    status["speed"]["end"] = end
-    status["speed"]["total"] = total
-    status["speed"]["wall_time"] = avg_walltime
-    status["speed"]["total_include_wall_time"] = avg_runtime
-    if gpu_time is not None:
-        status["speed"]["gpu_time"] = gpu_time / repeat
-    status["parameters"] = config_params
+
+    if is_complex:
+        status["speed"] = collections.OrderedDict()
+        status["speed"]["repeat"] = repeat
+        status["speed"]["begin"] = begin
+        status["speed"]["end"] = end
+        status["speed"]["total"] = total
+        status["speed"]["wall_time"] = avg_walltime
+        status["speed"]["total_include_wall_time"] = avg_runtime
+        if gpu_time is not None:
+            status["speed"]["gpu_time"] = gpu_time / repeat
+        status["parameters"] = config_params
+
+    else:
+        status["speed"] = collections.OrderedDict()
+        status["speed"]["repeat"] = repeat
+        status["speed"]["begin"] = begin
+        status["speed"]["end"] = end
+        status["speed"]["total"] = avg_runtime
+
     print(json.dumps(status))

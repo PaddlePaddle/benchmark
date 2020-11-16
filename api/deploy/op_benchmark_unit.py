@@ -56,10 +56,11 @@ def _compare(time1, time2):
 
 
 class OpBenchmarkUnit(object):
-    def __init__(self, case_detail):
+    def __init__(self, case_detail, compare_framwork):
         self.case_name = case_detail["name"]
         self.op_type = parse_op_type(self.case_name)
         self.disabled = case_detail.get("disabled", False)
+        self.framwork = compare_framwork
 
         if case_detail.get("parameters", None):
             parameters = api_param.parse_string(case_detail["parameters"])
@@ -86,8 +87,8 @@ class OpBenchmarkUnit(object):
                 }
 
                 tf_total, tf_gpu_time = self._get_case_value(
-                    case_detail, "tensorflow", device, "speed", direction)
-                result["tensorflow"] = {
+                    case_detail, self.framwork, device, "speed", direction)
+                result[self.framwork] = {
                     "total": tf_total,
                     "gpu_time": tf_gpu_time
                 }
@@ -123,7 +124,7 @@ class OpBenchmarkUnit(object):
         time_set = ["total"] if device == "cpu" else ["total", "gpu_time"]
         for key in time_set:
             case_line += "%s%s%s" % (result["paddle"][key].ljust(20),
-                                     result["tensorflow"][key].ljust(20),
+                                     result[self.framwork][key].ljust(20),
                                      result["compare"][key].ljust(10))
         case_line += "%s" % result["accuracy"].ljust(10)
         if with_parameters:
@@ -156,7 +157,7 @@ class OpBenchmarkUnit(object):
             return total, None
 
     def _get_case_value(self, case_detail, framework, device, task, direction):
-        assert framework in ["paddle", "tensorflow"]
+        assert framework in ["paddle", self.framwork]
         assert device in ["cpu", "gpu"]
         assert task in ["speed", "accuracy"]
         assert direction in ["forward", "backward"]

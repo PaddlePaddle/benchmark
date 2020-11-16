@@ -25,6 +25,8 @@ import numpy as np
 from common import utils
 from common import api_param
 from common import special_op_list
+from common import pytorch_api_benchmark
+from common import paddle_dynamic_api_benchmark
 
 
 def _check_gpu_device(use_gpu):
@@ -43,6 +45,11 @@ def parse_args():
         type=str,
         default="speed",
         help='Specify the task: [speed|accuracy]')
+    parser.add_argument(
+        '--graph',
+        type=str,
+        default="static",
+        help='Specify the kind of graph: [static|dynamic]')
     parser.add_argument(
         '--framework',
         type=str,
@@ -101,8 +108,13 @@ def parse_args():
     args = parser.parse_args()
     if args.task not in ["speed", "accuracy"]:
         raise ValueError("task should be speed, accuracy")
-    if args.framework not in ["paddle", "tensorflow", "tf", "both"]:
-        raise ValueError("task should be paddle, tensorflow, tf, both")
+    #print("pytorch")
+    if args.framework not in [
+            "paddle", "tensorflow", "tf", "pytorch", "torch", "both"
+    ]:
+        raise ValueError(
+            "task should be paddle, tensorflow, tf, pytorch, torch, both")
+    #print("pytorch test")
 
     if args.task == "accuracy":
         args.repeat = 1
@@ -113,7 +125,11 @@ def parse_args():
     return args
 
 
-def test_main(pd_obj=None, tf_obj=None, config=None):
+def test_main(pd_obj=None,
+              tf_obj=None,
+              pd_dy_obj=None,
+              torch_obj=None,
+              config=None):
     assert config is not None, "API config must be set."
 
     def _test_with_json_impl(filename, config_id, unknown_dim):
@@ -123,13 +139,16 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
                 assert args.api_name in config.api_list, "api_name should be one value in %s, but recieved %s." % (
                     config.api_list.keys(), args.api_name)
                 config.api_name = args.api_name
-                test_main_without_json(pd_obj, tf_obj, config)
+                test_main_without_json(pd_obj, tf_obj, pd_dy_obj, torch_obj,
+                                       config)
             else:
                 for api_name in config.api_list.keys():
                     config.api_name = api_name
-                    test_main_without_json(pd_obj, tf_obj, config)
+                    test_main_without_json(pd_obj, tf_obj, pd_dy_obj,
+                                           torch_obj, config)
         else:
-            test_main_without_json(pd_obj, tf_obj, config)
+            test_main_without_json(pd_obj, tf_obj, pd_dy_obj, torch_obj,
+                                   config)
 
     args = parse_args()
     if args.json_file is not None:
@@ -144,19 +163,36 @@ def test_main(pd_obj=None, tf_obj=None, config=None):
             for config_id in range(0, num_configs):
                 _test_with_json_impl(filename, config_id, args.unknown_dim)
     else:
-        test_main_without_json(pd_obj, tf_obj, config)
+        test_main_without_json(pd_obj, tf_obj, pd_dy_obj, torch_obj, config)
 
 
 def _is_paddle_enabled(args, config):
-    if args.task == "accuracy" or args.framework in ["paddle", "both"]:
-        return True
+    if args.graph == "static":
+        if args.task == "accuracy" or args.framework in ["paddle", "both"]:
+            return True
     return False
 
 
 def _is_tensorflow_enabled(args, config):
-    if config.run_tf:
+    if config.run_tf and args.graph == "static":
         if args.task == "accuracy" or args.framework in [
                 "tensorflow", "tf", "both"
+        ]:
+            return True
+    return False
+
+
+def _is_paddle_dynamic_enabled(args, config):
+    if args.graph == "dynamic":
+        if args.task == "accuracy" or args.framework in ["paddle", "both"]:
+            return True
+    return False
+
+
+def _is_torch_enabled(args, config):
+    if config.run_torch and args.graph == "dynamic":
+        if args.task == "accuracy" or args.framework in [
+                "torch", "pytorch", "both"
         ]:
             return True
     return False
@@ -183,7 +219,11 @@ def _check_disabled(config, args):
     return False
 
 
-def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
+def test_main_without_json(pd_obj=None,
+                           tf_obj=None,
+                           pd_dy_obj=None,
+                           torch_obj=None,
+                           config=None):
     assert config is not None, "API config must be set."
 
     args = parse_args()
@@ -226,23 +266,72 @@ def test_main_without_json(pd_obj=None, tf_obj=None, config=None):
         if pd_outputs == False:
             sys.exit(1)
 
+    if _is_torch_enabled(args, config):
+        assert torch_obj is not None, "Pytorch object is None."
+        #torch_config = config.to_pytorch()
+        torch_config = config
+        #print(torch_config)
+        #print("print before")
+        torch_outputs, torch_stats = pytorch_api_benchmark.run(
+            torch_obj, torch_config, args)
+        feeder_adapter = torch_obj.get_feeder()
+        #print(torch_outputs)
+        #print(torch_stats)
+
+        if args.task == "speed":
+            torch_stats["gpu_time"] = args.gpu_time
+            utils.print_benchmark_result(
+                torch_stats,
+                log_level=args.log_level,
+                config_params=config.to_string(),
+                is_complex=False)
+        #print("print after")
+
+    if _is_paddle_dynamic_enabled(args, config):
+        assert pd_dy_obj is not None, "Paddle dynamic object is None."
+        print(config)
+        pd_dy_outputs, pd_dy_stats = paddle_dynamic_api_benchmark.run(
+            pd_dy_obj, config, args, feeder_adapter)
+        #print(pd_dy_outputs)
+        #print(pd_dy_stats)
+
+        if args.task == "speed":
+            pd_dy_stats["gpu_time"] = args.gpu_time
+            utils.print_benchmark_result(
+                pd_dy_stats,
+                log_level=args.log_level,
+                config_params=config.to_string(),
+                is_complex=False)
+
+        if pd_dy_outputs == False:
+            sys.exit(1)
+
     if args.task == "accuracy":
-        if config.run_tf:
+        if config.run_tf and args.graph == "static":
+            base_outputs = pd_outputs
+            compare_outputs = tf_outputs
+            backward = pd_obj.backward
+        elif config.run_torch and args.graph == "dynamic":
+            base_outputs = pd_dy_outputs
+            compare_outputs = torch_outputs
+            backward = pd_dy_obj.backward
+
+        if config.run_tf or config.run_torch:
             if args.log_level == 1:
-                for i in range(len(pd_outputs)):
-                    out = pd_outputs[i]
+                for i in range(len(base_outputs)):
+                    out = base_outputs[i]
                     if isinstance(out, np.ndarray):
                         print(
                             "Paddle's {}-th output is a np.ndarray, the shape is {}.".
                             format(i, out.shape))
             if args.log_level == 2:
-                print("Output of Paddle: ", pd_outputs)
-                print("Output of TensorFlow: ", tf_outputs)
+                print("Output of Paddle: ", base_outputs)
+                print("Output of TensorFlow: ", compare_outputs)
             utils.check_outputs(
-                pd_outputs,
-                tf_outputs,
+                base_outputs,
+                compare_outputs,
                 name=config.api_name,
                 atol=config.atol,
                 use_gpu=args.use_gpu,
-                backward=pd_obj.backward,
+                backward=backward,
                 config_params=config.to_string())
