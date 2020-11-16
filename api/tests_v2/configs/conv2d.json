@@ -301,7 +301,7 @@
         },
         "weight": {
             "dtype": "float32",
-            "shape": "[256L, 256L, 3L, 3L]",
+            "shape": "[256L, 8L, 3L, 3L]",
             "type": "Variable"
         },
         "padding": {
