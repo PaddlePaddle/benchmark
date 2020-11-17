@@ -86,7 +86,9 @@ class PDConv2d(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
-            name='weight', shape=config.weight_shape, dtype=config.x_dtype)
+            name='weight',
+            shape=config.weight_shape,
+            dtype=config.weight_dtype)
         result = paddle.nn.functional.conv2d(
             x=x,
             weight=weight,
@@ -107,7 +109,9 @@ class TFConv2d(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
-            name='weight', shape=config.weight_shape, dtype=config.x_dtype)
+            name='weight',
+            shape=config.weight_shape,
+            dtype=config.weight_dtype)
         result = tf.nn.conv2d(
             input=x,
             filters=weight,

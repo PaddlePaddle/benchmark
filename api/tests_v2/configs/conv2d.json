@@ -369,7 +369,7 @@
             "type": "Variable"
         },
         "weight": {
-            "dtype": "float32",
+            "dtype": "float16",
             "shape": "[1L, 1L, 3L, 32L]",
             "type": "Variable"
         },
