@@ -38,7 +38,7 @@ function prepare_env(){
 
   # Install latest paddle
   PADDLE_WHL="paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl"
-  if [ ! -f "${PADDLE_URL}" ]
+  if [ ! -f "${PADDLE_WHL}" ]
   then
     PADDLE_URL="https://paddle-wheel.bj.bcebos.com/0.0.0-gpu-cuda10-cudnn7-mkl/${PADDLE_WHL}"
     LOG "[INFO] Downloading paddle wheel from ${PADDLE_URL}, this could take a few minutes ..."
