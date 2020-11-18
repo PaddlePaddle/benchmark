@@ -13,7 +13,7 @@ export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 
 name=${1:-"abs"}
 config_id=${2:-"0"}
-task=${3:-"speed"} # "accuracy" or "speed"
+task=${3:-"accuracy"} # "accuracy" or "speed"
 
 framework="paddle"  # "paddle" or "tensorflow"
 filename="${OP_BENCHMARK_ROOT}/tests/configs/${name}.json"
@@ -41,5 +41,5 @@ if [ $# -ge 4 ]; then
             --api_name ${api_name}"
 fi
 
-python3.6 -m common.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py \
+python -m common.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py \
          ${run_args}
