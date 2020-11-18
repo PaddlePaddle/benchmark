@@ -17,8 +17,7 @@ task=${3:-"accuracy"} # "accuracy" or "speed"
 
 graph="dynamic" # "static" or "dynamic"
 framework="paddle"  # "paddle" or "tensorflow" or "pytorch"
-#framework="pytorch"  # "paddle" or "tensorflow" or "pytorch"
-filename="${OP_BENCHMARK_ROOT}/dy_tests_v2/configs/${name}.json"
+filename="${OP_BENCHMARK_ROOT}/tests_v2/configs/${name}.json"
 if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
     use_gpu=False
 else
@@ -34,7 +33,7 @@ run_args="--task ${task} \
           --profiler none \
           --backward True \
           --use_gpu ${use_gpu} \
-          --repeat 10 \
+          --repeat 100 \
           --allow_adaptive_repeat False \
           --log_level 0"
 
@@ -44,5 +43,5 @@ if [ $# -ge 4 ]; then
             --api_name ${api_name}"
 fi
 
-python -m common.launch ${OP_BENCHMARK_ROOT}/dy_tests_v2/${name}.py \
+python -m common.launch ${OP_BENCHMARK_ROOT}/dynamic_tests_v2/${name}.py \
          ${run_args}

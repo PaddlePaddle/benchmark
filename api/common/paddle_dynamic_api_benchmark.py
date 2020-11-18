@@ -103,17 +103,10 @@ class PaddleDynamicAPIBenchmarkBase(object):
 
     def append_gradients(self, targets, inputs):
         self.__backward = True
-        #print(self.__backward)
-        #loss = paddle.sum(targets)
         loss = paddle.sum(targets)
-        #loss = paddle.ones(paddle.shape(targets))
         loss.backward()
-        #print(loss.gradient())
         for var in inputs:
-            #print(var)
-            #print("paddle Gradients: ", var.grad)
             self.fetch_list.append(var.grad)
-            #self.fetch_list.append(var.grad.detach())
 
 
 def run_impl(paddle_obj,
@@ -128,40 +121,27 @@ def run_impl(paddle_obj,
     fetches = []
     outputs = []
     if feeder_adapter is not None:
-        #print("feeder_adapter")
         paddle.disable_static()
         paddle_obj.feed_list = []
-        #print(len(feeder_adapter))
         for i in range(len(feeder_adapter)):
-            #print(feeder_adapter[i])
             var = paddle.to_tensor(feeder_adapter[i], stop_gradient=False)
             paddle_obj.feed_list.append(var)
     else:
         paddle_obj.build_graph(config=config)
-    #print("repeat:")
-    #print(repeat)
     for i in range(repeat):
         if use_gpu:
             begin = time.time()
-            #print("iteratable test")
             paddle_obj.run_graph(config=config)
-            #print("iteratable test 2")
             runtimes.append(time.time() - begin)
         else:
             begin = time.time()
             paddle_obj.run_graph(config=config)
             runtimes.append(time.time() - begin)
-    #print("iteratable test 3")
     for var in paddle_obj.fetch_list:
         if isinstance(var, np.ndarray):
-            # print(var.type())
             outputs.append(var)
-        #print(type(var))
         else:
-            # print(var)
             outputs.append(var.numpy())
-    #print(outputs)
-    #print("iteratable test 4")
 
     stats = {
         "framework": "paddle",
@@ -171,15 +151,12 @@ def run_impl(paddle_obj,
         "backward": paddle_obj.backward,
         "total": runtimes
     }
-    #print(stats)
-    #print("iteratable test 5")
     return outputs, stats
 
 
 def run(paddle_obj, config, args, feeder_adapter):
     paddle_obj.name = config.api_name
 
-    #print("run before")
     outputs, stats = run_impl(
         paddle_obj=paddle_obj,
         use_gpu=args.use_gpu,
@@ -188,5 +165,4 @@ def run(paddle_obj, config, args, feeder_adapter):
         check_output=args.check_output,
         profiler=args.profiler,
         feeder_adapter=feeder_adapter)
-    #print("run after")
     return outputs, stats

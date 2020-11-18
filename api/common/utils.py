@@ -382,5 +382,7 @@ def print_benchmark_result(result,
         status["speed"]["begin"] = begin
         status["speed"]["end"] = end
         status["speed"]["total"] = avg_runtime
+        if gpu_time is not None:
+            status["speed"]["gpu_time"] = gpu_time / repeat
 
     print(json.dumps(status))

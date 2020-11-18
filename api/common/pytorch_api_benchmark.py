@@ -60,17 +60,9 @@ class PytorchAPIBenchmarkBase(object):
     def variable(self, name, shape, dtype, value=None):
         assert shape is not None
 
-        #if value is None:
-        #    i = len(self._feed_list)
-        #    range = self._feed_list[i].get("range", None)
-        #else:
-        #    range = None
-
         feed_value = feeder.generate_random_data(
             shape, dtype, range=None, value=value)
         var = torch.tensor(feed_value, requires_grad=True)
-        #var.requires_grad_(True)
-        #print(var)
 
         if self.run_gpu and torch.cuda.is_available():
             device = torch.device("cuda")
@@ -78,7 +70,6 @@ class PytorchAPIBenchmarkBase(object):
         var.retain_grad()
 
         if value is None:
-            # When value is None, the variable is need to feed data.
             self._feed_list.append(feed_value)
         return var
 
@@ -115,28 +106,14 @@ class PytorchAPIBenchmarkBase(object):
 
     def get_feeder(self):
         return self._feed_list
-        #return self.feed_list
 
     def append_gradients(self, targets, inputs):
         self.__backward = True
-        #print(self.__backward)
-        #print(targets)
-        #loss = torch.ones(targets.shape)
         loss = targets.sum()
         loss.backward()
         loss.retain_grad()
         for var in self.feed_list:
-            #print("Var: ", var)
-            #print("Gradients: ", loss.grad)
-            #print("Gradients: ", var.grad)
             self.fetch_list.append(var.grad)
-        #print(loss.grad)
-        #print("Gradients: ", loss.grad)
-        #if isinstance(loss.grad, list):
-        #    for grad in loss.grad:
-        #        self.fetch_vars.append(grad)
-        #else:
-        #    self.fetch_vars.append(loss.grad)
 
 
 def run_impl(torch_obj,
@@ -150,24 +127,20 @@ def run_impl(torch_obj,
     fetches = []
     outputs = []
     torch_obj.build_graph(config=config)
-    #print("repeat:")
-    #print(repeat)
     for i in range(repeat):
         if use_gpu:
             begin = time.time()
-            #print("iteratable test")
             torch_obj.run_graph(config=config)
-            #print("iteratable test 2")
             runtimes.append(time.time() - begin)
         else:
             begin = time.time()
             torch_obj.run_graph(config=config)
             runtimes.append(time.time() - begin)
-    #print("iteratable test 3")
     for var in torch_obj.fetch_list:
-        outputs.append(var.to("cpu").detach().numpy())
-    #print(outputs)
-    #print("iteratable test 4")
+        if use_gpu:
+            outputs.append(var.to("cpu").detach().numpy())
+        else:
+            outputs.append(var.detach().numpy())
 
     stats = {
         "framework": "pytorch",
@@ -177,15 +150,12 @@ def run_impl(torch_obj,
         "backward": torch_obj.backward,
         "total": runtimes
     }
-    #print(stats)
-    #print("iteratable test 5")
     return outputs, stats
 
 
 def run(torch_obj, config, args):
     torch_obj.name = config.api_name
 
-    #print("run before")
     outputs, stats = run_impl(
         torch_obj=torch_obj,
         use_gpu=args.use_gpu,
@@ -193,5 +163,4 @@ def run(torch_obj, config, args):
         repeat=args.repeat,
         check_output=args.check_output,
         profiler=args.profiler)
-    #print("run after")
     return outputs, stats

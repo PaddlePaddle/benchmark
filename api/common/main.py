@@ -108,13 +108,11 @@ def parse_args():
     args = parser.parse_args()
     if args.task not in ["speed", "accuracy"]:
         raise ValueError("task should be speed, accuracy")
-    #print("pytorch")
     if args.framework not in [
             "paddle", "tensorflow", "tf", "pytorch", "torch", "both"
     ]:
         raise ValueError(
             "task should be paddle, tensorflow, tf, pytorch, torch, both")
-    #print("pytorch test")
 
     if args.task == "accuracy":
         args.repeat = 1
@@ -268,15 +266,10 @@ def test_main_without_json(pd_obj=None,
 
     if _is_torch_enabled(args, config):
         assert torch_obj is not None, "Pytorch object is None."
-        #torch_config = config.to_pytorch()
         torch_config = config
-        #print(torch_config)
-        #print("print before")
         torch_outputs, torch_stats = pytorch_api_benchmark.run(
             torch_obj, torch_config, args)
         feeder_adapter = torch_obj.get_feeder()
-        #print(torch_outputs)
-        #print(torch_stats)
 
         if args.task == "speed":
             torch_stats["gpu_time"] = args.gpu_time
@@ -285,15 +278,11 @@ def test_main_without_json(pd_obj=None,
                 log_level=args.log_level,
                 config_params=config.to_string(),
                 is_complex=False)
-        #print("print after")
 
     if _is_paddle_dynamic_enabled(args, config):
         assert pd_dy_obj is not None, "Paddle dynamic object is None."
-        print(config)
         pd_dy_outputs, pd_dy_stats = paddle_dynamic_api_benchmark.run(
             pd_dy_obj, config, args, feeder_adapter)
-        #print(pd_dy_outputs)
-        #print(pd_dy_stats)
 
         if args.task == "speed":
             pd_dy_stats["gpu_time"] = args.gpu_time
