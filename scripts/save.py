@@ -97,7 +97,9 @@ parser.add_argument(
 DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU',
                          '4': 'FOUR_GPU',
                          '8': 'MULTI_GPU',
-                         '8mp': 'MULTI_GPU_MULTI_PROCESS'}
+                         '8mp': 'MULTI_GPU_MULTI_PROCESS',
+                         '16': '16_THREADS',
+                         '24': '24_THREADS'}
 
 TABLE_HEADER = ["模型", "运行环境", "指标", "当前值", "标准Benchmark值", "相对标准值波幅", "前5次平均值", "相对前5次值波幅"]
 TABLE_PROFILE_HEADER = ["模型", "运行环境", "指标", "当前值", "前5次平均值", "相对前5次值波幅"]
@@ -302,7 +304,7 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
     return benchmark
 
 
-def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0, benchmark=0):
+def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0, benchmark=0, outlier=0):
     """insert job results to db"""
     pjr = bm.JobResults()
     pjr.job_id = job_id
@@ -310,6 +312,7 @@ def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0
     pjr.report_index_id = report_index_id
     pjr.report_result = result
     pjr.unit = unit
+    pjr.outlier = outlier
     pjr.benchmark = benchmark
     pjr.train_log_path = log_path
     pjr.save()
@@ -383,7 +386,7 @@ def machine_type_to_print(run_machine_type):
             print_machine_type = '1_GPU'
     elif run_machine_type == 'FOUR_GPU':
         if os.getenv("BENCHMARK_TYPE") == 'CPU_Benchmark':
-            print_machine_type == '4_THREADS'
+            print_machine_type = '4_THREADS'
         else:
             print_machine_type = '4_GPUS'
     elif run_machine_type == 'MULTI_GPU':
@@ -391,11 +394,10 @@ def machine_type_to_print(run_machine_type):
             print_machine_type = '8_THREADS'
         else:
             print_machine_type = '8_GPUS'
+    elif run_machine_type == 'MULTI_GPU_MULTI_PROCESS':
+        print_machine_type = '8_GPUS_8_PROCESSES'
     else:
-        if os.getenv("BENCHMARK_TYPE") == 'CPU_Benchmark':
-            print_machine_type = '8_THREADS'
-        else:
-            print_machine_type = '8_GPUS_8_PROCESSES'
+        print_machine_type = run_machine_type
     return print_machine_type
 
 
@@ -467,9 +469,13 @@ def parse_logs(args):
                 job_info["model_name"], run_machine_type, job_info["index"], result))
             # check_results and send alarm email
             if job_info["index"] == 1:  # speed
-                if int(result) == 0:
-                    print_machine_type = machine_type_to_print(run_machine_type)
+                print_machine_type = machine_type_to_print(run_machine_type)
+                if int(result) == 0 or os.getenv('job_fail_flag') == 1:
+                    print('job_fail_flag:{}'.format(os.getenv('job_fail_flag')))
                     FAIL_LIST.append([job_info["model_name"], print_machine_type])
+                    outlier = 1
+                if [job_info["model_name"], print_machine_type] in FAIL_LIST:
+                    outlier = 1
                 benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type, result,
                                           html_results, -1 if args.device_type.lower() == 'cpu' else 1, unit=unit)
                 benchmark_mem = check_results(job_info["model_name"], 2, run_machine_type, mem_result, html_results,
@@ -490,7 +496,7 @@ def parse_logs(args):
             try:
                 # save job results
                 pjr = insert_results(job_id, job_info["model_name"], job_info["index"], result, unit, 1,
-                                     benchmark=benchmark)
+                                     benchmark=benchmark, outlier=outlier)
                 log_file = job_info["log_file"].split("/")[-1]
                 log_base = args.paddle_version + "/" + args.implement_type
                 train_log_path = LOG_SERVER + os.path.join(log_base, "train_log", log_file)
