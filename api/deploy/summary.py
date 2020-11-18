@@ -121,10 +121,10 @@ def _parse_speed(case_name, statistic_type, last_line, compare_framwork):
     gpu_time_key_map = {
         "paddle_gpu_speed_forward": "gpu_time",
         "paddle_gpu_speed_backward": "gpu_time_backward",
-        compare_framwork + "_gpu_speed_forward":
-        compare_framwork + "_gpu_time",
-        compare_framwork + "_gpu_speed_backward":
-        compare_framwork + "_gpu_time_backward"
+        "tensorflow_gpu_speed_forward": "tf_gpu_time",
+        "tensorflow_gpu_speed_backward": "tf_gpu_time_backward",
+        "pytorch_gpu_speed_forward": "pytorch_gpu_time",
+        "pytorch_gpu_speed_backward": "pytorch_gpu_time_backward"
     }
     gpu_time_key = gpu_time_key_map.get(statistic_type, None)
 
@@ -244,7 +244,8 @@ def check_results(op_record, alarm_results):
 
     from benchmark_op import models
     results = models.OpRecord2.objects.filter(
-        case_name=op_record.case_name).order_by('-timestamp')[:10:1]
+        case_name=op_record.case_name,
+        version=op_record.version).order_by('-timestamp')[:10:1]
     for key, verbose in CHECK_KEY.items():
         results_list = []
         count = 0

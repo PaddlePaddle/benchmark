@@ -175,7 +175,11 @@ class OpBenchmarkUnit(object):
                 if device == "cpu":
                     return case_detail[total_key], "--"
 
-                framework_alias = "" if framework == "paddle" else "tf_"
+                framework_alias = "tf_"
+                if framework == "paddle":
+                    framework_alias = ""
+                elif framework == "pytorch":
+                    framework_alias = "pytorch_"
                 direction_alias = "" if direction == "forward" else "_backward"
                 gpu_time_key = framework_alias + "gpu_time" + direction_alias
                 return case_detail[total_key], case_detail[gpu_time_key]
