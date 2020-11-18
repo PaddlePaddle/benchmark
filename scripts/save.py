@@ -442,6 +442,7 @@ def parse_logs(args):
             gpu_utilization_result = 0
             unit = ''
             mem_result = 0
+            outlier = 0
             benchmark = 0
             benchmark_mem = 0
             if job_info["index"] == 1:
