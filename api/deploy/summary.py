@@ -114,15 +114,17 @@ def _parse_parameters(case_name, last_line):
             pass
 
 
-def _parse_speed(case_name, statistic_type, last_line):
+def _parse_speed(case_name, statistic_type, last_line, compare_framwork):
     assert res.get(case_name, None) is not None
     print(statistic_type)
 
     gpu_time_key_map = {
         "paddle_gpu_speed_forward": "gpu_time",
         "paddle_gpu_speed_backward": "gpu_time_backward",
-        "tensorflow_gpu_speed_forward": "tf_gpu_time",
-        "tensorflow_gpu_speed_backward": "tf_gpu_time_backward"
+        compare_framwork + "_gpu_speed_forward":
+        compare_framwork + "_gpu_time",
+        compare_framwork + "_gpu_speed_backward":
+        compare_framwork + "_gpu_time_backward"
     }
     gpu_time_key = gpu_time_key_map.get(statistic_type, None)
 
@@ -175,7 +177,7 @@ def _parse_accuracy(case_name, statistic_type, last_line):
         res[case_name][difference_key] = "--"
 
 
-def get_job_res(inputfile, specified_op_list=None):
+def get_job_res(inputfile, specified_op_list=None, compare_framwork=None):
     """
     implements within avoiding too large file
 
@@ -227,7 +229,7 @@ def get_job_res(inputfile, specified_op_list=None):
     _parse_parameters(case_name, last_line)
 
     if last_line and "_speed_" in statistic_type:
-        _parse_speed(case_name, statistic_type, last_line)
+        _parse_speed(case_name, statistic_type, last_line, compare_framwork)
 
     if last_line and "_accuracy_" in statistic_type:
         _parse_accuracy(case_name, statistic_type, last_line)
@@ -242,8 +244,7 @@ def check_results(op_record, alarm_results):
 
     from benchmark_op import models
     results = models.OpRecord2.objects.filter(
-        case_name=op_record.case_name,
-        version=op_record.version).order_by('-timestamp')[:10:1]
+        case_name=op_record.case_name).order_by('-timestamp')[:10:1]
     for key, verbose in CHECK_KEY.items():
         results_list = []
         count = 0
@@ -369,6 +370,11 @@ if __name__ == '__main__':
         default=None,
         help='Specify the result directory of operator benchmark.')
     parser.add_argument(
+        '--compare_framwork',
+        type=str,
+        default=None,
+        help='Specify the framwork (tensorflow, pytorch) of comparison.')
+    parser.add_argument(
         '--specified_op_list',
         type=str,
         default=None,
@@ -439,7 +445,9 @@ if __name__ == '__main__':
         specified_op_list = args.specified_op_list.split()
 
     for filename in sorted(filenames):
-        get_job_res(os.path.join(op_result_dir, filename), specified_op_list)
+        get_job_res(
+            os.path.join(op_result_dir, filename), specified_op_list,
+            args.compare_framwork)
 
     data = []
     benchmark_result_list = []
@@ -450,7 +458,8 @@ if __name__ == '__main__':
         case_detail['name'] = key
         data.append(case_detail)
 
-        op_unit = op_benchmark_unit.OpBenchmarkUnit(case_detail)
+        op_unit = op_benchmark_unit.OpBenchmarkUnit(case_detail,
+                                                    args.compare_framwork)
         benchmark_result_list.append(op_unit)
 
     op_frequency_dict = None
@@ -471,7 +480,7 @@ if __name__ == '__main__':
 
         write_excel.dump_excel(benchmark_result_list, op_result_dir,
                                args.url_prefix, args.output_path,
-                               op_frequency_dict)
+                               args.compare_framwork, op_frequency_dict)
 
     if args.dump_to_json:
         import write_json

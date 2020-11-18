@@ -2,11 +2,12 @@
 
 function print_usage() {
     echo "Usage:"
-    echo "    bash ${0} test_dir json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file"
+    echo "    bash ${0} test_dir json_config_dir graph output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file"
     echo ""
     echo "Arguments:"
     echo "  test_dir                - the directory of tests case"
     echo "  json_config_dir         - the directory of json configs"
+    echo "  graph                   - the graph of paddle"
     echo "  output_dir              - the output directory"
     echo "  gpu_id (optional)       - the GPU id. Only one GPU can be specified."
     echo "  device (optional)       - cpu, gpu, both"
@@ -20,6 +21,7 @@ function print_arguments() {
     echo ""
     echo "test_dir        : ${TEST_DIR}"
     echo "json_config_dir : ${JSON_CONFIG_DIR}"
+    echo "graph           : ${GRAPH}"
     echo "output_dir      : ${OUTPUT_DIR}" 
     echo "gpu_ids         : ${GPU_IDS}"
     echo "device_set      : ${DEVICE_SET[@]}"
@@ -53,12 +55,13 @@ TEST_DIR=${1}
 TEST_MODULE_NAME=${TEST_DIR##*/}
 
 JSON_CONFIG_DIR=${2}
-OUTPUT_DIR=${3}
+GRAPH=${3:-"static"}
+OUTPUT_DIR=${4}
 if [ ! -d ${OUTPUT_DIR} ]; then
     mkdir -p ${OUTPUT_DIR}
 fi
 
-GPU_IDS=${4:-"0"}
+GPU_IDS=${5:-"0"}
 GPU_IDS_ARRAY=(${GPU_IDS//,/ })
 NUM_GPU_DEVICES=${#GPU_IDS_ARRAY[*]}
 for i in ${GPU_IDS_ARRAY[*]}; do
@@ -70,21 +73,21 @@ if [ ${NUM_GPU_DEVICES} -le 0 ]; then
 fi
 
 DEVICE_SET=("gpu" "cpu")
-if [ $# -ge 5 ]; then
-    if [[ ${5} == "cpu" || ${5} == "gpu" ]]; then
-        DEVICE_SET=(${5})
+if [ $# -ge 6 ]; then
+    if [[ ${6} == "cpu" || ${6} == "gpu" ]]; then
+        DEVICE_SET=(${6})
     fi
 fi
 
 TASK_SET=("speed" "accuracy")
-if [ $# -ge 6 ]; then
-    if [[ ${6} == "speed" || ${6} == "accuracy" ]]; then
-        TASK_SET=(${6})
+if [ $# -ge 7 ]; then
+    if [[ ${7} == "speed" || ${7} == "accuracy" ]]; then
+        TASK_SET=(${7})
     fi
 fi
 
-if [ $# -ge 7 ]; then
-    OP_LIST_FILE=${7}
+if [ $# -ge 8 ]; then
+    OP_LIST_FILE=${8}
 else
     OP_LIST_FILE=${OUTPUT_DIR}/api_info.txt
     python ${DEPLOY_DIR}/collect_api_info.py \
@@ -207,8 +210,10 @@ function execute_one_case() {
         for task in "${TASK_SET[@]}"; do 
             if [ ${task} = "accuracy" ]; then
                 local framwork_set=("paddle")
-            else
+            elif [ ${GRAPH} = "static" ]; then
                 local framwork_set=("paddle" "tensorflow")
+            else
+                local framwork_set=("paddle" "pytorch")
             fi
             # framework_set: "paddle", "tensorflow"
             for framework in "${framwork_set[@]}"; do 
@@ -226,6 +231,7 @@ function execute_one_case() {
                           --api_name ${api_name} \
                           --task ${task} \
                           --framework ${framework} \
+                          --graph ${GRAPH} \
                           --json_file ${json_file_path} \
                           --config_id $i \
                           --backward ${backward} \
