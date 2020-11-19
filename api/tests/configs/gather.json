@@ -33,6 +33,42 @@
             "type": "bool",
             "value": "True"
         }
+    }
+}, {
+    "op": "gather",
+    "param_info": {
+        "index": {
+            "dtype": "int32",
+            "shape": "[-1L, 1L]",
+            "type": "Variable"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 14L, 14L]",
+            "type": "Variable"
+        },
+        "overwrite": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}, {
+    "op": "gather",
+    "param_info": {
+        "index": {
+            "dtype": "int32",
+            "shape": "[-1L, 1L]",
+            "type": "Variable"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 14L, 14L]",
+            "type": "Variable"
+        },
+        "overwrite": {
+            "type": "bool",
+            "value": "False"
+        }
     },
     "repeat": 5000
 }]

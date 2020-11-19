@@ -54,7 +54,8 @@ function _train(){
     WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     export PYTHONPATH=${WORK_ROOT}:${PYTHONPATH}
 
-    train_cmd=" -c configs/mask_rcnn_r50_fpn_1x_coco.yml 
+    #train_cmd=" -c configs/mask_rcnn_r50_fpn_1x_coco.yml
+    train_cmd=" -c configs/mask_rcnn_r50_fpn_1x.yml 
      --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size}"
 
     case ${run_mode} in
@@ -66,7 +67,7 @@ function _train(){
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    ${train_cmd} > ${log_file} 2>&1
+    timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
         export job_fail_flag=1

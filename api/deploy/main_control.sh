@@ -12,6 +12,7 @@ function print_usage() {
     echo "  device (optional)       - cpu, gpu, both"
     echo "  task (optional)         - speed, accuracy, both"
     echo "  op_list_file (optional) - the path which specified op list to test"
+    echo "  framework (optional)    - paddle, tensorflow, both"
 }
 
 function print_arguments() {
@@ -25,6 +26,7 @@ function print_arguments() {
     echo "device_set      : ${DEVICE_SET[@]}"
     echo "task_set        : ${TASK_SET[@]}"
     echo "op_list_file    : ${OP_LIST_FILE}"
+    echo "framework       : ${FRAMEWORK_SET[@]}"
     echo ""
 }
 
@@ -93,6 +95,13 @@ else
     return_status=$?
     if [ ${return_status} -ne 0 ] || [ ! -f "${OP_LIST_FILE}" ]; then
         OP_LIST_FILE=${DEPLOY_DIR}/api_info.txt
+    fi
+fi
+
+FRAMEWORK_SET=("paddle" "tensorflow")
+if [ $# -ge 8 ]; then
+    if [[ ${8} == "paddle" || ${8} == "tensorflow" ]]; then
+        FRAMEWORK_SET=(${8})
     fi
 fi
 
@@ -205,13 +214,9 @@ function execute_one_case() {
 
         # TASK_SET is specified by argument: "speed", "accuracy"
         for task in "${TASK_SET[@]}"; do 
-            if [ ${task} = "accuracy" ]; then
-                local framwork_set=("paddle")
-            else
-                local framwork_set=("paddle" "tensorflow")
-            fi
-            # framework_set: "paddle", "tensorflow"
-            for framework in "${framwork_set[@]}"; do 
+            # FRAMEWORK_SET is specified by argument: "paddle", "tensorflow"
+            for framework in "${FRAMEWORK_SET[@]}"; do 
+                [ "${task}" == "accuracy" -a "${framework}" == "tensorflow" ] && continue
                 # direction_set: "forward", "backward"
                 for direction in "${direction_set[@]}"; 
                 do

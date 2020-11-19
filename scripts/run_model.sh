@@ -21,6 +21,9 @@ function _collect_occupancy() {
 function _run(){
     # running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}
     ps -ef
+    killall -9 python
+    sleep 9
+    ps -ef
     model_commit_id=$(git log|head -n1|awk '{print $2}')
     echo "---------Model commit is ${model_commit_id}"
 

@@ -63,7 +63,7 @@ function _train(){
         train_cmd="python -m paddle.distributed.launch --started_port=9785 --log_dir=./mylog train.py --use_data_parallel=1 "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
-    ${train_cmd} > ${log_file} 2>&1
+    timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
         export job_fail_flag=1

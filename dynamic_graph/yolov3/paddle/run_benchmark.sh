@@ -50,7 +50,8 @@ function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
-    train_cmd="-c configs/yolov3_darknet53_270e_coco.yml 
+    #train_cmd="-c configs/yolov3_darknet53_270e_coco.yml
+    train_cmd="-c configs/yolov3_darknet.yml 
      --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} TrainReader.worker_num=8"
     case ${run_mode} in
     sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
@@ -61,7 +62,7 @@ function _train(){
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    ${train_cmd} > ${log_file} 2>&1
+    timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
         export job_fail_flag=1

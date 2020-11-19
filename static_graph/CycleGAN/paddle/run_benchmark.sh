@@ -47,7 +47,7 @@ function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=${base_batch_size}"
 
-    python train.py --model_net ${model_name} \
+    timeout 15m python train.py --model_net ${model_name} \
                     --dataset cityscapes \
                     --batch_size ${base_batch_size} \
                     --net_G resnet_9block \

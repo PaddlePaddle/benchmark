@@ -219,6 +219,7 @@ dy_mask_rcnn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     git checkout dygraph
+    git reset --hard 06e6afcf262ebd8cc843b7372e014a19ba4a2eca  # 动态图检测重构 
     pip install -r requirements.txt 
 
     # Install cocoapi
@@ -267,7 +268,8 @@ dy_yolov3(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     git checkout dygraph
-    pip install -r requirements.txt 
+    git reset --hard 06e6afcf262ebd8cc843b7372e014a19ba4a2eca  # 动态图检测重构 
+    pip install -r requirements.txt
    
     if python -c "import pycocotools" >/dev/null 2>&1
     then
