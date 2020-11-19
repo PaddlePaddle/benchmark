@@ -349,7 +349,7 @@ detection(){
     ## test dir
     git branch
     # add_enable_static 暂未合入 https://github.com/PaddlePaddle/PaddleDetection/pull/1498/files
-    git checkout master
+    #git checkout master
     #git reset --hard 5549e0831df602ae4deb08bd558c21c807ffcee7  # reset 到9月23的PR
     git fetch origin pull/1498/head:add_enable_static_1498
     git branch
@@ -413,7 +413,7 @@ mask_rcnn(){
     ## test dir
     git branch
     # add_enable_static 暂未合入 https://github.com/PaddlePaddle/PaddleDetection/pull/1498/files
-    git checkout master
+    #git checkout master
 #    git reset --hard 5549e0831df602ae4deb08bd558c21c807ffcee7  # reset 到9月23的PR
     git fetch origin pull/1498/head:add_enable_static_1498
     git branch
@@ -629,7 +629,7 @@ yolov3(){
     ## test dir
     git branch
     # add_enable_static 暂未合入 https://github.com/PaddlePaddle/PaddleDetection/pull/1498/files
-    git checkout master
+    #git checkout master
 #    git reset --hard 5549e0831df602ae4deb08bd558c21c807ffcee7  # reset 到9月23的PR
     git fetch origin pull/1498/head:add_enable_static_1498
     git branch
