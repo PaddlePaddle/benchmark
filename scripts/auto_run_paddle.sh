@@ -44,7 +44,7 @@ function prepare(){
     echo "*******prepare benchmark***********"
 
     # this is for image paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
-    export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
+    #export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH       # fixed nvidia-docker on 21, remove tempararily 
 
     # NOTE: this path is for profiler
     # export LD_LIBRARY_PATH=/home/work/cuda-9.0/extras/CUPTI/lib64/:$LD_LIBRARY_PATH
