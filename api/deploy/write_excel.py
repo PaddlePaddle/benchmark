@@ -17,6 +17,7 @@
 import os
 import sys
 import six
+import time
 import string
 import xlsxwriter as xlw
 import op_benchmark_unit
