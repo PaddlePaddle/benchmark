@@ -45,8 +45,6 @@ class Conv2dConfig(APIConfig):
             self.num_channels = self.x_shape[1]
         elif self.data_format == "NHWC":
             self.num_channels = self.x_shape[3]
-        if isinstance(self.filter_size, int):
-            self.filter_size = [self.filter_size, self.filter_size]
         if self.groups is None:
             self.groups = 1
         if self.num_channels % self.groups != 0:
@@ -55,16 +53,12 @@ class Conv2dConfig(APIConfig):
                 "received: the channel of input is {}, the shape of input is {}"
                 ", the groups is {}".format(self.num_channels, self.x_shape,
                                             self.groups))
-        self.weight_shape = [
-            self.num_filters, self.num_channels // self.groups,
-            self.filter_size[0], self.filter_size[1]
-        ]
 
     def to_tensorflow(self):
         tf_config = super(Conv2dConfig, self).to_tensorflow()
         tf_config.weight_shape = [
-            self.filter_size[0], self.filter_size[1],
-            self.num_channels // self.groups, self.num_filters
+            self.weight_shape[2], self.weight_shape[3], self.weight_shape[1],
+            self.weight_shape[0]
         ]
         tf_config.padding = self._convert_padding(self.padding)
         return tf_config
@@ -92,7 +86,9 @@ class PDConv2d(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
-            name='weight', shape=config.weight_shape, dtype=config.x_dtype)
+            name='weight',
+            shape=config.weight_shape,
+            dtype=config.weight_dtype)
         result = paddle.nn.functional.conv2d(
             x=x,
             weight=weight,
@@ -113,7 +109,9 @@ class TFConv2d(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
-            name='weight', shape=config.weight_shape, dtype=config.x_dtype)
+            name='weight',
+            shape=config.weight_shape,
+            dtype=config.weight_dtype)
         result = tf.nn.conv2d(
             input=x,
             filters=weight,
