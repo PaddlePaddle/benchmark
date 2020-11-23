@@ -77,10 +77,6 @@
             "type": "int",
             "value": "1"
         },
-        "filter_size": {
-            "type": "int",
-            "value": "3"
-        },
         "groups": {
             "type": "long",
             "value": "128"
@@ -94,10 +90,6 @@
             "dtype": "float32",
             "shape": "[128L, 1L, 3L, 3L]",
             "type": "Variable"
-        },
-        "num_filters": {
-            "type": "long",
-            "value": "128"
         },
         "padding": {
             "type": "int",
