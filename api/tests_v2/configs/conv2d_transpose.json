@@ -9,10 +9,6 @@
             "type": "int",
             "value": "1"
         },
-        "filter_size": {
-            "type": "int",
-            "value": "4"
-        },
         "groups": {
             "type": "string",
             "value": "None"
@@ -22,9 +18,10 @@
             "shape": "[-1L, 1549L, 8L, 8L]",
             "type": "Variable"
         },
-        "num_filters": {
-            "type": "int",
-            "value": "512"
+        "weight": {
+            "dtype": "float32",
+            "shape": "[1549L, 512L, 4L, 4L]",
+            "type": "Variable"
         },
         "output_size": {
             "type": "list",
@@ -51,10 +48,6 @@
             "type": "int",
             "value": "1"
         },
-        "filter_size": {
-            "type": "int",
-            "value": "3"
-        },
         "groups": {
             "type": "string",
             "value": "None"
@@ -64,9 +57,10 @@
             "shape": "[-1L, 128L, 64L, 64L]",
             "type": "Variable"
         },
-        "num_filters": {
-            "type": "int",
-            "value": "64"
+        "weight": {
+            "dtype": "float32",
+            "shape": "[128L, 64L, 3L, 3L]",
+            "type": "Variable"
         },
         "output_size": {
             "type": "list",
@@ -93,10 +87,6 @@
             "type": "int",
             "value": "1"
         },
-        "filter_size": {
-            "type": "int",
-            "value": "4"
-        },
         "groups": {
             "type": "string",
             "value": "None"
@@ -106,9 +96,10 @@
             "shape": "[-1L, 512L, 1L, 1L]",
             "type": "Variable"
         },
-        "num_filters": {
-            "type": "int",
-            "value": "512"
+        "weight": {
+            "dtype": "float32",
+            "shape": "[512L, 512L, 4L, 4L]",
+            "type": "Variable"
         },
         "output_size": {
             "type": "list",
@@ -134,10 +125,6 @@
             "type": "int",
             "value": "1"
         },
-        "filter_size": {
-            "type": "int",
-            "value": "2"
-        },
         "groups": {
             "type": "string",
             "value": "None"
@@ -147,9 +134,10 @@
             "shape": "[32L, 256L, 14L, 14L]",
             "type": "Variable"
         },
-        "num_filters": {
-            "type": "int",
-            "value": "256"
+        "weight": {
+            "dtype": "float32",
+            "shape": "[256L, 256L, 2L, 2L]",
+            "type": "Variable"
         },
         "output_size": {
             "type": "list",
@@ -176,10 +164,6 @@
             "type": "list",
             "value": "[1, 1]"
         },
-        "filter_size": {
-            "type": "list",
-            "value": "[3, 32]"
-        },
         "groups": {
             "type": "int",
             "value": "1"
@@ -189,9 +173,10 @@
             "shape": "[1L, 1L, 80L, 63L]",
             "type": "Variable"
         },
-        "num_filters": {
-            "type": "int",
-            "value": "1"
+        "weight": {
+            "dtype": "float32",
+            "shape": "[1L, 1L, 3L, 32L]",
+            "type": "Variable"
         },
         "output_size": {
             "type": "string",
