@@ -57,6 +57,7 @@ def parse_args():
     parser.add_argument(
         '--gpu_num', type=int, default=1, help='nums of training gpus')
     args = parser.parse_args()
+    args.separator = None if args.separator == "None" else args.separator
     return args
 
 

@@ -53,20 +53,20 @@ function _run(){
         echo "Do nothing"
     fi
 
-    analysis_options=""
-    if [ -n "${separator}" ]; then
-        analysis_options="${analysis_options} --separator ${separator}"
+    if [ "${separator}" == "" ]; then
+        separator="None"
     fi
-    if [ -n "${position}" ]; then
+    analysis_options=""
+    if [ "${position}" != "" ]; then
         analysis_options="${analysis_options} --position ${position}"
     fi
-    if [ -n "${range}" ]; then
+    if [ "${range}" != "" ]; then
         analysis_options="${analysis_options} --range ${range}"
     fi
-    if [ -n "${model_mode}" ]; then
+    if [ "${model_mode}" != "" ]; then
         analysis_options="${analysis_options} --model_mode ${model_mode}"
     fi
-    if [ -n "${ips_unit}" ]; then
+    if [ "${ips_unit}" != "" ]; then
         analysis_options="${analysis_options} --ips_unit ${ips_unit}"
     fi
     python ${BENCHMARK_ROOT}/scripts/analysis.py \
@@ -81,6 +81,6 @@ function _run(){
             --base_batch_size ${base_batch_size} \
             --skip_steps ${skip_steps} \
             --gpu_num ${num_gpu_devices} \
-            --index ${index} ${analysis_options}
+            --index ${index} \
+            --separator "${separator}" ${analysis_options}
 }
-
