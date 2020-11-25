@@ -64,7 +64,6 @@ class PaddleDynamicAPIBenchmarkBase(object):
             shape, dtype, range=None, value=value)
         paddle.disable_static()
         var = paddle.to_tensor(feed_value, stop_gradient=False)
-        #var.stop_gradient = False
         #print(var.stop_gradient)
         return var
 

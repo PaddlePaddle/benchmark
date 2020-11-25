@@ -46,10 +46,10 @@ def parse_args():
         default="speed",
         help='Specify the task: [speed|accuracy]')
     parser.add_argument(
-        '--graph',
+        '--testing_mode',
         type=str,
         default="static",
-        help='Specify the kind of graph: [static|dynamic]')
+        help='Specify the kind of testing_mode: [static|dynamic]')
     parser.add_argument(
         '--framework',
         type=str,
@@ -165,14 +165,13 @@ def test_main(pd_obj=None,
 
 
 def _is_paddle_enabled(args, config):
-    if args.graph == "static":
-        if args.task == "accuracy" or args.framework in ["paddle", "both"]:
-            return True
+    if args.task == "accuracy" or args.framework in ["paddle", "both"]:
+        return True
     return False
 
 
 def _is_tensorflow_enabled(args, config):
-    if config.run_tf and args.graph == "static":
+    if config.run_tf and args.testing_mode == "static":
         if args.task == "accuracy" or args.framework in [
                 "tensorflow", "tf", "both"
         ]:
@@ -180,15 +179,8 @@ def _is_tensorflow_enabled(args, config):
     return False
 
 
-def _is_paddle_dynamic_enabled(args, config):
-    if args.graph == "dynamic":
-        if args.task == "accuracy" or args.framework in ["paddle", "both"]:
-            return True
-    return False
-
-
 def _is_torch_enabled(args, config):
-    if config.run_torch and args.graph == "dynamic":
+    if config.run_torch and args.testing_mode == "dynamic":
         if args.task == "accuracy" or args.framework in [
                 "torch", "pytorch", "both"
         ]:
@@ -248,7 +240,7 @@ def test_main_without_json(pd_obj=None,
                 log_level=args.log_level,
                 config_params=config.to_string())
 
-    if _is_paddle_enabled(args, config):
+    if _is_paddle_enabled(args, config) and args.testing_mode == "static":
         assert pd_obj is not None, "Paddle object is None."
         print(config)
         pd_outputs, pd_stats = pd_obj.run(config, args, use_feed_fetch,
@@ -276,10 +268,9 @@ def test_main_without_json(pd_obj=None,
             utils.print_benchmark_result(
                 torch_stats,
                 log_level=args.log_level,
-                config_params=config.to_string(),
-                is_complex=False)
+                config_params=config.to_string())
 
-    if _is_paddle_dynamic_enabled(args, config):
+    if _is_paddle_enabled(args, config) and args.testing_mode == "dynamic":
         assert pd_dy_obj is not None, "Paddle dynamic object is None."
         pd_dy_outputs, pd_dy_stats = paddle_dynamic_api_benchmark.run(
             pd_dy_obj, config, args, feeder_adapter)
@@ -289,18 +280,17 @@ def test_main_without_json(pd_obj=None,
             utils.print_benchmark_result(
                 pd_dy_stats,
                 log_level=args.log_level,
-                config_params=config.to_string(),
-                is_complex=False)
+                config_params=config.to_string())
 
         if pd_dy_outputs == False:
             sys.exit(1)
 
     if args.task == "accuracy":
-        if config.run_tf and args.graph == "static":
+        if config.run_tf and args.testing_mode == "static":
             base_outputs = pd_outputs
             compare_outputs = tf_outputs
             backward = pd_obj.backward
-        elif config.run_torch and args.graph == "dynamic":
+        elif config.run_torch and args.testing_mode == "dynamic":
             base_outputs = pd_dy_outputs
             compare_outputs = torch_outputs
             backward = pd_dy_obj.backward
