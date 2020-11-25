@@ -4,7 +4,7 @@ set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|2|3 sp|mp model_name(cyclegan|pix2pix) 1(max_epoch)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|2|3 sp|mp model_name(CycleGAN|Pix2pix) 1(max_epoch)"
     exit
 fi
 
@@ -15,7 +15,7 @@ function _set_params(){
     model_name=$3
     max_epoch=${4:-"1"}
     if [ ${3} != "CycleGAN" ] && [ ${3} != "Pix2pix" ]; then
-        echo "------------> please check the model name! it should be cyclegan|pix2pix"
+        echo "Please check the model name! it should be CycleGAN|Pix2pix"
         exit 1
     fi
 
@@ -24,15 +24,9 @@ function _set_params(){
 
     mission_name="图像生成"
     direction_id=0
+    keyword="ips:"
     skip_steps=5
-    keyword="batch_cost:"
-    separator=" "
-    position=19
-    if [ ${model_name} = "CycleGAN" ]; then
-        position=27
-    fi
-
-    model_mode=0 # s/step -> samples/s
+    ips_unit="images/sec"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -50,7 +44,6 @@ function _train(){
    
     # 暂不支持传入epochs，暂时用sed 的方式 
     sed -i "1c epochs: ${max_epoch}" configs/$(echo $model_name | tr '[A-Z]' '[a-z]')_cityscapes.yaml
-    #sed -i "1c epochs: ${max_epoch}" configs/${model_name}_cityscapes.yaml
    
     train_cmd="--config-file configs/$(echo $model_name | tr '[A-Z]' '[a-z]')_cityscapes.yaml"
     if [ ${run_mode} = "sp" ]; then
