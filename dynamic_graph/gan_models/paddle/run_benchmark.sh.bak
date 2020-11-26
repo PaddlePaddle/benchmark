@@ -4,7 +4,7 @@ set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|2|3 sp|mp model_name(CycleGAN|Pix2pix) 1(max_epoch)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|2|3 sp|mp model_name(cyclegan|pix2pix) 1(max_epoch)"
     exit
 fi
 
@@ -15,7 +15,7 @@ function _set_params(){
     model_name=$3
     max_epoch=${4:-"1"}
     if [ ${3} != "CycleGAN" ] && [ ${3} != "Pix2pix" ]; then
-        echo "Please check the model name! it should be CycleGAN|Pix2pix"
+        echo "------------> please check the model name! it should be cyclegan|pix2pix"
         exit 1
     fi
 
@@ -24,9 +24,11 @@ function _set_params(){
 
     mission_name="图像生成"
     direction_id=0
-    keyword="ips:"
     skip_steps=5
-    ips_unit="images/sec"
+    keyword="batch_cost:"
+    separator=" "
+    position=19
+    model_mode=0 # s/step -> samples/s
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -44,24 +46,18 @@ function _train(){
    
     # 暂不支持传入epochs，暂时用sed 的方式 
     sed -i "1c epochs: ${max_epoch}" configs/$(echo $model_name | tr '[A-Z]' '[a-z]')_cityscapes.yaml
+    #sed -i "1c epochs: ${max_epoch}" configs/${model_name}_cityscapes.yaml
    
     train_cmd="--config-file configs/$(echo $model_name | tr '[A-Z]' '[a-z]')_cityscapes.yaml"
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u tools/main.py "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --started_port=9785 --gpus=$CUDA_VISIBLE_DEVICES --log_dir ./mylog tools/main.py --use_data_parallel=1 "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --selected_gpus=$CUDA_VISIBLE_DEVICES --log_dir ./mylog tools/main.py --use_data_parallel=1 "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
     
-    timeout 15m ${train_cmd} > ${log_file} 2>&1
-    if [ $? -ne 0 ];then
-        echo -e "${model_name}, FAIL"
-        export job_fail_flag=1
-    else
-        echo -e "${model_name}, SUCCESS"
-        export job_fail_flag=0
-    fi
+    ${train_cmd} > ${log_file} 2>&1
     if [ ${run_mode} != "sp"  -a -d mylog ]; then
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
