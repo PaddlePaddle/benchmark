@@ -58,7 +58,7 @@ function _train(){
         train_cmd="python -u train.py "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --started_port=9785 --selected_gpus=$CUDA_VISIBLE_DEVICES --log_dir ./mylog train.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --started_port=9785 --gpus=$CUDA_VISIBLE_DEVICES --log_dir ./mylog train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
 
