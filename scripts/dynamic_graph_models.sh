@@ -58,34 +58,6 @@ dy_seq2seq(){
     CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 2 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
 }
 
-# resnet
-#dy_resnet(){
-#    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/resnet
-#    cd ${cur_model_path}
-#
-#    # Prepare data
-#    mkdir -p data
-#    ln -s ${data_path}/ILSVRC2012  ${cur_model_path}/data                         # 准备数据集,需要保证benchmark任务极其21 上对应目录下存在该数据集！
-#
-#    # Running ...
-#    rm -f ./run_benchmark.sh
-#    cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark.sh ./
-#    sed -i '/set\ -xe/d' run_benchmark.sh
-#    model_list=(ResNet50_bs32 ResNet50_bs128)
-#    run_batchsize=32
-#    for model_item in ${model_list[@]}
-#    do
-#        if [ ${model_item} = "ResNet50_bs128" ]; then
-#            run_batchsize=128
-#        fi
-#        echo "index is speed, 1gpu begin"
-#        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 ${run_batchsize} ${model_item} sp 800 | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
-#        sleep 60
-#        echo "index is speed, 8gpus begin"
-#        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_item} mp 500 | tee ${log_path}/dynamic_${model_item}_speed_8gpus 2>&1
-#    done
-#}
-
 # ptb
 dy_ptb_lm(){
     cur_model_path=${BENCHMARK_ROOT}/models/dygraph/ptb_lm
@@ -402,5 +374,6 @@ dy_resnet(){
         sleep 60
         echo "model is ${model_name}, index is speed, 8gpu begin"
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} mp 1 | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+        sleep 60
     done
 }
