@@ -48,6 +48,7 @@ function _train(){
         file_list="train_list_resnet152.txt"
     else
         config_file="ResNet50.yaml"
+        file_list="train_list.txt"
     fi 
     train_cmd="-c ./configs/ResNet/${config_file}
                -o print_interval=10  
@@ -74,7 +75,7 @@ function _train(){
         export job_fail_flag=0
     fi
 
-    if [ ${run_mode} != "sp"  -a -d mylog_${model_name} ]; then
+    if [ ${run_mode} != "sp"  -a -d mylog ]; then
         rm ${log_file}
         cp mylog/`ls -l mylog/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ${log_file}
     fi
