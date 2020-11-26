@@ -84,6 +84,8 @@ dy_resnet(){
         echo "index is speed, 8gpus begin"
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_item} mp 500 | tee ${log_path}/dynamic_${model_item}_speed_8gpus 2>&1
     done
+    ######
+    
 }
 
 # ptb
@@ -390,10 +392,17 @@ dy_resnet152(){
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./
     sed -i '/set\ -xe/d' run_benchmark_resnet.sh
-    model_name="ResNet152"
-    echo "model is ${model_name}, index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark_resnet.sh 1 32 ResNet152 sp 1 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
-    sleep 60
-    echo "model is ${model_name}, index is speed, 8gpu begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_resnet.sh 1 32 ResNet152 sp 1 | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+    batch_size=32
+    model_list=(ResNet152 ResNet50_bs32 ResNet50_bs128)
+    for model_name in ${model_list[@]}
+    do
+        if [ ${model_name} == "ResNet50_bs128" ]; then
+            batch_size=128
+        fi
+        echo "model is ${model_name}, index is speed, 1gpu begin"
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} sp 1 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "model is ${model_name}, index is speed, 8gpu begin"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} mp 1 | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+    done
 }

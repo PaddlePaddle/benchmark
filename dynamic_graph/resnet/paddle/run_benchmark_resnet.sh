@@ -48,6 +48,7 @@ function _train(){
         file_list="train_list_resnet152.txt"
     else
         config_file="ResNet50.yaml"
+        file_list="train_list.txt"
     fi 
     train_cmd="-c ./configs/ResNet/${config_file}
                -o print_interval=10  
