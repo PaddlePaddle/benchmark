@@ -73,7 +73,7 @@ function _train(){
         train_cmd="python -u train.py --use_data_parallel=False "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --started_port=38989 --log_dir ./mylog train.py --use_data_parallel=True "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch  --log_dir ./mylog train.py --use_data_parallel=True "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
     
