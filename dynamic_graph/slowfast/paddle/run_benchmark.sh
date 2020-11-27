@@ -1,4 +1,5 @@
 #!bin/bash
+
 set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
@@ -23,9 +24,8 @@ function _set_params(){
     direction_id=0
     skip_steps=10
     keyword="batch_cost:"
-    separator=" "
-    position=11
     model_mode=0 # s/step -> samples/s
+    # ips_unit="samples/sec"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
