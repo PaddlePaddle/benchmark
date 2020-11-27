@@ -32,6 +32,7 @@ sys.path.append(base_path)
 print sys.path
 import models.benchmark_server.helper as helper
 from benchmark_server import benchmark_models as bm
+import run_task_to_icafe as to_icafe
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
@@ -299,6 +300,9 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
                                    dict(value="{:.2f}%".format(round(benchmark_range * 100, 2)), color=benchmark_color),
                                    dict(value="{:.4f}{}".format(avg_value, unit)),
                                    dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
+            if avg_color == 'red' and index == 1:
+                item = to_icafe.get_alarm_content(model_name, print_machine_type, 'down')
+                to_icafe.write_icafe(item)
 
         html_results[DICT_INDEX[index]]["data"].append(current_html_result)
     return benchmark
@@ -475,6 +479,8 @@ def parse_logs(args):
                     print('job_fail_flag:{}'.format(os.getenv('job_fail_flag')))
                     FAIL_LIST.append([job_info["model_name"], print_machine_type])
                     outlier = 1
+                    item = to_icafe.get_alarm_content(job_info["model_name"], print_machine_type, 'fail')
+                    to_icafe.write_icafe(item)
                 if [job_info["model_name"], print_machine_type] in FAIL_LIST:
                     outlier = 1
                 benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type, result,
