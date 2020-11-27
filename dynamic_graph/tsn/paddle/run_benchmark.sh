@@ -53,6 +53,7 @@ function _train(){
     train_cmd="--epoch ${max_epoch} \
                --batch_size=${batch_size} \
                --config=${config_files} \
+               --log_interval=2 \
                --pretrain=./ResNet50_pretrained \
                --use_gpu=True \
                --validate=False \

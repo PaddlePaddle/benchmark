@@ -22,7 +22,7 @@ function _set_params(){
 
     mission_name="视频分类"
     direction_id=0
-    skip_steps=3
+    skip_steps=10
     keyword="batch_cost:"
     model_mode=0 # s/step -> samples/s
     # ips_unit="samples/sec"
@@ -63,7 +63,7 @@ function _train(){
 
     train_cmd="--use_gpu=True \
                --config=${config_files} \
-               --log_interval=10 \
+               --log_interval=2 \
                --epoch=${max_epoch} 
                "
     if [ ${run_mode} = "sp" ]; then
