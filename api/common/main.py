@@ -22,6 +22,7 @@ import warnings
 import collections
 import numpy as np
 
+from common import env
 from common import utils
 from common import api_param
 from common import special_op_list
@@ -222,7 +223,8 @@ def test_main_without_json(pd_obj=None,
 
     _adaptive_repeat(config, args)
     config.backward = args.backward
-    use_feed_fetch = True if args.task == "accuracy" else False
+    use_feed_fetch = True if args.task == "accuracy" else env.benchmark_use_feed_fetch(
+    )
 
     feeder_adapter = None
     if _is_tensorflow_enabled(args, config):

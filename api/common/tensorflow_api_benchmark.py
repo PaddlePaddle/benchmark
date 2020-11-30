@@ -23,10 +23,12 @@ import numpy as np
 from common import special_op_list
 
 if six.PY3:
+    from . import env
     from . import utils
     from . import api_param
     from . import feeder
 else:
+    import env
     import utils
     import api_param
     import feeder
@@ -401,6 +403,8 @@ class TensorflowAPIBenchmarkBase(object):
             config = tf.compat.v1.ConfigProto()
             if use_gpu:
                 config.gpu_options.allow_growth = self.allow_growth
+                if env.tf_use_xla():
+                    config.graph_options.optimizer_options.global_jit_level = tf.compat.v1.OptimizerOptions.ON_1
             else:
                 # In default, TF use full cpu cores, but Paddle use one cpu core.
                 # To make the same experiment, set TF use one cpu core as well.
