@@ -217,7 +217,7 @@ def compute_results(results_list, check_key, cur_value, index, sign=1):
 
 
 def check_results(model_name, index, run_machine_type, cur_value, html_results, sign=1, check_key=None,
-                  is_profile=False, unit=""):
+                  is_profile=False, unit="", outlier=0):
     """
     check current results in range[-0.05, 0.05]
     Args:
@@ -272,9 +272,9 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
     print('benchmark_value:{}'.format(benchmark_value))
     print('current_value:{}'.format(cur_value))
     if not isinstance(benchmark_value, dict):
-        if float(cur_value) < float(benchmark_value) and sign == -1:
+        if float(cur_value) < float(benchmark_value) and sign == -1 and outlier == 0:
             benchmark = 1
-        elif float(cur_value) > float(benchmark_value) and sign == 1:
+        elif float(cur_value) > float(benchmark_value) and sign == 1 and outlier == 0:
             benchmark = 1
     avg_value, avg_range, avg_color = compute_results(results_list, check_key, cur_value, index, sign)
 
@@ -485,9 +485,10 @@ def parse_logs(args):
                     item = to_icafe.get_alarm_content(job_info["model_name"], print_machine_type, 'fail')
                     to_icafe.write_icafe(item)
                 benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type, result,
-                                          html_results, -1 if args.device_type.lower() == 'cpu' else 1, unit=unit)
+                                          html_results, -1 if args.device_type.lower() == 'cpu' else 1, 
+                                          unit=unit, outlier=outlier)
                 benchmark_mem = check_results(job_info["model_name"], 2, run_machine_type, mem_result, html_results,
-                                              -1)  # mem
+                                              -1, outlier=outlier_mem)  # mem
             elif job_info["index"] == 3:  # profiler
                 check_results(job_info["model_name"], job_info["index"], run_machine_type,
                               json.loads(result),
