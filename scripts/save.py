@@ -445,6 +445,8 @@ def parse_logs(args):
             cpu_utilization_result = 0
             gpu_utilization_result = 0
             unit = ''
+            outlier = 0
+            outlier_mem = 0 
             mem_result = 0
             outlier = 0
             benchmark = 0
@@ -479,10 +481,9 @@ def parse_logs(args):
                     print('job_fail_flag:{}'.format(os.getenv('job_fail_flag')))
                     FAIL_LIST.append([job_info["model_name"], print_machine_type])
                     outlier = 1
+                    outlier_mem = 1
                     item = to_icafe.get_alarm_content(job_info["model_name"], print_machine_type, 'fail')
                     to_icafe.write_icafe(item)
-                if [job_info["model_name"], print_machine_type] in FAIL_LIST:
-                    outlier = 1
                 benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type, result,
                                           html_results, -1 if args.device_type.lower() == 'cpu' else 1, unit=unit)
                 benchmark_mem = check_results(job_info["model_name"], 2, run_machine_type, mem_result, html_results,
@@ -512,7 +513,7 @@ def parse_logs(args):
                     insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result, '%')
                     insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%')
                     pjr2 = insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 1,
-                                          benchmark=benchmark_mem)
+                                          benchmark=benchmark_mem, outlier=outlier_mem)
                     bm.JobResultsLog.objects.create(
                         result_id=pjr2.result_id, log_path=json.dumps(log_save_dict)).save()
                     if int(job_info["gpu_num"]) == 1:
