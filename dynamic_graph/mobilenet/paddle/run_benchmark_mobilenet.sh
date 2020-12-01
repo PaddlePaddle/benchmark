@@ -65,7 +65,7 @@ function _train(){
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ ${run_mode} != "sp"  -a -d mylog_${model_name} ]; then
         rm ${log_file}
-        cp mylog_${model_name}/workerlog.0 ${log_file}
+        cp mylog_${model_name}/`ls -l mylog_${model_name}/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ${log_file}
     fi
 }
 
