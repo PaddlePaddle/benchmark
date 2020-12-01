@@ -99,7 +99,7 @@ function _train(){
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    ${train_cmd} > ${log_file} 2>&1 
+    timeout 15m ${train_cmd} > ${log_file} 2>&1 
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then
