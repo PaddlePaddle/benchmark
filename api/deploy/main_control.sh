@@ -137,6 +137,7 @@ function print_detail_status() {
     else
         printf "  [%s][%d-%d][%s] %-120s ...... %s\n" "${gpu_id}" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     fi
+    [ "$BENCHMARK_PRINT_FAIL_LOG" == "1" ] && cat ${logfile}
 }
 
 function print_finished_task_detail() {
