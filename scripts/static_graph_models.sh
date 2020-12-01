@@ -348,19 +348,7 @@ detection(){
     cd ${cur_model_path}
     ## test dir
     git branch
-    # add_enable_static 暂未合入 https://github.com/PaddlePaddle/PaddleDetection/pull/1498/files
-    #git checkout master
-    #git reset --hard 5549e0831df602ae4deb08bd558c21c807ffcee7  # reset 到9月23的PR
-    git fetch origin pull/1498/head:add_enable_static_1498
-    git branch
-    git merge add_enable_static_1498
-    git branch
-
-    ## ls 
-    ls
-    ## ls tools
     ls tools
-    ## mkdir dataset 
     rm -rf dataset/coco/
     mkdir -p dataset/coco/
     # Prepare data
@@ -409,17 +397,7 @@ detection(){
 mask_rcnn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
-    # 同上。防止跑单个模型情况。1498合入后可删除
-    ## test dir
     git branch
-    # add_enable_static 暂未合入 https://github.com/PaddlePaddle/PaddleDetection/pull/1498/files
-    #git checkout master
-#    git reset --hard 5549e0831df602ae4deb08bd558c21c807ffcee7  # reset 到9月23的PR
-    git fetch origin pull/1498/head:add_enable_static_1498
-    git branch
-    git merge add_enable_static_1498
-    git branch
-
 
     # Install cocoapi
     if python -c "import pycocotools" >/dev/null 2>&1
@@ -625,17 +603,7 @@ yolov3(){
     fi
 
     cd ${BENCHMARK_ROOT}/PaddleDetection
-    # 同上。防止跑单个模型情况。1498合入后可删除
-    ## test dir
     git branch
-    # add_enable_static 暂未合入 https://github.com/PaddlePaddle/PaddleDetection/pull/1498/files
-    #git checkout master
-#    git reset --hard 5549e0831df602ae4deb08bd558c21c807ffcee7  # reset 到9月23的PR
-    git fetch origin pull/1498/head:add_enable_static_1498
-    git branch
-    git merge add_enable_static_1498
-    git branch
-
 
     #sh ./weights/download.sh
     mkdir -p ~/.cache/paddle/weights
