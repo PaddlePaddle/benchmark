@@ -19,26 +19,27 @@ cur_model_list=(dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy
 
 # MobileNet
 dy_mobilenet(){
-    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/mobilenet/
+    cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    git checkout dygraph
 
     # Prepare data
-    mkdir -p data
-    ln -s ${data_path}/dygraph_data/ILSVRC2012_Pytorch/  ${cur_model_path}/data                         # 准备数据集,需要保证benchmark任务极其21 上对应目录下存在该数据集！
+    ln -s ${data_path}/dygraph_data/ILSVRC2012_Pytorch/dataset_100  ${cur_model_path}/dataset/                         # 准备数据集,需要保证benchmark任务极其21 上对应目录下存在该数据集！
 
     # Running ...
-    rm -f ./run_benchmark.sh
-    cp ${BENCHMARK_ROOT}/dynamic_graph/mobilenet/paddle/run_benchmark.sh ./       # 拷贝脚本到当前目录
-    sed -i '/set\ -xe/d' run_benchmark.sh
+    rm -f ./run_benchmark_mobilenet.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/mobilenet/paddle/run_benchmark_mobilenet.sh ./       # 拷贝脚本到当前目录
+    sed -i '/set\ -xe/d' run_benchmark_mobilenet.sh
     modle_list=(MobileNetV2 MobileNetV1)
     for model_name in ${modle_list[@]}
     do
         echo "------------> begin to run ${model_name}"
         echo "index is speed, 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 1010 ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark_mobilenet.sh 1  sp 1  ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 800 ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mobilenet.sh 1  mp  1 ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+        sleep 60
     done
 }
 
