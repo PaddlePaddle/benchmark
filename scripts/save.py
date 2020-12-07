@@ -301,9 +301,10 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
                                    dict(value="{:.2f}%".format(round(benchmark_range * 100, 2)), color=benchmark_color),
                                    dict(value="{:.4f}{}".format(avg_value, unit)),
                                    dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
-            if avg_color == 'red' and index == 1:
-                item = to_icafe.get_alarm_content(model_name, print_machine_type, 'down')
-                to_icafe.write_icafe(item)
+            if benchmark_color == 'red' and index == 1:
+                current_icafe_result = [model_name, print_machine_type, 'down', current_html_result]
+                icafe_results.append(current_icafe_result)
+                print('icafe_results1:{}'.format(icafe_results))
 
         html_results[DICT_INDEX[index]]["data"].append(current_html_result)
     return benchmark
