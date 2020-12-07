@@ -304,7 +304,6 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
             if benchmark_color == 'red' and index == 1:
                 current_icafe_result = [model_name, print_machine_type, 'down', current_html_result]
                 icafe_results.append(current_icafe_result)
-                print('icafe_results1:{}'.format(icafe_results))
 
         html_results[DICT_INDEX[index]]["data"].append(current_html_result)
     return benchmark
