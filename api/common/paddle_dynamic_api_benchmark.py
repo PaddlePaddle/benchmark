@@ -46,9 +46,7 @@ AFTER_RUN = 2
 class PaddleDynamicAPIBenchmarkBase(object):
     def __init__(self):
         self.name = self.__class__.__name__
-        self.feed_list = None
-        self.fetch_list = None
-        self.__status = BEFORE_RUN
+        self._reset()
 
     @abc.abstractmethod
     def build_graph(self, config=None):
@@ -89,17 +87,20 @@ class PaddleDynamicAPIBenchmarkBase(object):
                       (paddle_module_name, api_name))
             return None
 
-        paddle_module_names = ["paddle", "paddle.nn.functional"]
-        if module_name is not None and module_name not in paddle_module_names:
-            paddle_module_names.append(module_name)
+        if self.__layers_function is None:
+            paddle_module_names = ["paddle", "paddle.nn.functional"]
+            if module_name is not None and module_name not in paddle_module_names:
+                paddle_module_names.append(module_name)
 
-        for paddle_module_name in paddle_module_names:
-            func = _import_func(paddle_module_name, api_name)
-            if func is not None:
-                break
+            for paddle_module_name in paddle_module_names:
+                func = _import_func(paddle_module_name, api_name)
+                if func is not None:
+                    break
 
-        assert func is not None, "Need to specify module_name to import %s." % api_name
-        result = func(**kwargs)
+            assert func is not None, "Need to specify module_name to import %s." % api_name
+            self.__layers_function = func
+
+        result = self.__layers_function(**kwargs)
         return result
 
     def append_gradients(self, targets, inputs):
@@ -158,12 +159,8 @@ class PaddleDynamicAPIBenchmarkBase(object):
         paddle.disable_static()
         self.name = config.api_name
 
-        self.feed_list = None
-        self.fetch_list = None
+        self._reset()
         self.__need_fetch = args.task == "accuracy"
-        self.__backward = False
-        self.__status = BEFORE_RUN
-        self.__feed_dict = {}
         # feeder_adapter is a list and need to be improved.
         self.__feed_values = feeder_adapter
         outputs, stats = self.run_impl(
@@ -174,3 +171,13 @@ class PaddleDynamicAPIBenchmarkBase(object):
             profiler=args.profiler,
             feeder_adapter=feeder_adapter)
         return outputs, stats
+
+    def _reset(self):
+        self.feed_list = None
+        self.fetch_list = None
+        self.__backward = False
+        self.__status = BEFORE_RUN
+        self.__feed_dict = {}
+        self.__layers_function = None
+        self.__feed_values = None
+        self._feed_list = []

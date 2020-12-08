@@ -46,9 +46,7 @@ AFTER_RUN = 2
 class PytorchAPIBenchmarkBase(object):
     def __init__(self):
         self.name = self.__class__.__name__
-        self.fetch_list = None
-        self.__status = BEFORE_RUN
-        self._feed_list = []
+        self._reset()
 
         try:
             import torch
@@ -94,17 +92,20 @@ class PytorchAPIBenchmarkBase(object):
                 print("Failed to import %s.%s" % (torch_module_name, api_name))
             return None
 
-        torch_module_names = ["torch"]
-        if module_name is not None and module_name not in torch_module_names:
-            torch_module_names.append(module_name)
+        if self.__layers_function is None:
+            torch_module_names = ["torch"]
+            if module_name is not None and module_name not in torch_module_names:
+                torch_module_names.append(module_name)
 
-        for torch_module_name in torch_module_names:
-            func = _import_func(torch_module_name, api_name)
-            if func is not None:
-                break
+            for torch_module_name in torch_module_names:
+                func = _import_func(torch_module_name, api_name)
+                if func is not None:
+                    break
 
-        assert func is not None, "Need to specify module_name to import %s." % api_name
-        result = func(**kwargs)
+            assert func is not None, "Need to specify module_name to import %s." % api_name
+            self.__layers_function = func
+
+        result = self.__layers_function(**kwargs)
         return result
 
     def get_feeder(self):
@@ -161,12 +162,8 @@ class PytorchAPIBenchmarkBase(object):
     def run(self, config, args):
         self.name = config.api_name
 
-        self.feed_list = None
-        self.fetch_list = None
+        self._reset()
         self.__need_fetch = args.task == "accuracy"
-        self.__backward = False
-        self.__status = BEFORE_RUN
-        self.__feed_dict = {}
         if args.use_gpu and torch.cuda.is_available():
             self.__device = torch.device("cuda")
         else:
@@ -178,3 +175,12 @@ class PytorchAPIBenchmarkBase(object):
             check_output=args.check_output,
             profiler=args.profiler)
         return outputs, stats
+
+    def _reset(self):
+        self.feed_list = None
+        self.fetch_list = None
+        self.__backward = False
+        self.__status = BEFORE_RUN
+        self.__feed_dict = {}
+        self.__layers_function = None
+        self._feed_list = []
