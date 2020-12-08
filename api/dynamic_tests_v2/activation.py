@@ -15,19 +15,25 @@
 from common_import import *
 
 
-class AbsConfig(APIConfig):
+class ActivationConfig(APIConfig):
     def __init__(self):
-        super(AbsConfig, self).__init__("abs")
-        self.feed_spec = {"range": [-1, 1]}
-        # abs belongs to activation op series which only has one parameter
-        # thus abs can reuse activation.json. 
-        self.alias_name = "activation"
+        super(ActivationConfig, self).__init__('activation')
+        self.api_name = 'cos'
+        self.api_list = {
+            'sqrt': 'sqrt',
+            'cos': 'cos',
+            'exp': 'exp',
+            'sin': 'sin',
+            'sinh': 'sinh',
+            'square': 'square',
+            'tanh': 'tanh'
+        }
 
 
-class PaddleAbs(PaddleDynamicAPIBenchmarkBase):
+class PDActivation(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.abs(x=x)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = self.layers(config.api_name, x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -35,10 +41,10 @@ class PaddleAbs(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchAbs(PytorchAPIBenchmarkBase):
+class TorchActivation(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.abs(x=x)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = self.layers(config.api_name, x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -47,4 +53,7 @@ class TorchAbs(PytorchAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(pd_dy_obj=PaddleAbs(), torch_obj=TorchAbs(), config=AbsConfig())
+    test_main(
+        pd_dy_obj=PDActivation(),
+        torch_obj=TorchActivation(),
+        config=ActivationConfig())

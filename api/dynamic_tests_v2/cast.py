@@ -15,36 +15,32 @@
 from common_import import *
 
 
-class AbsConfig(APIConfig):
+class CastConfig(APIConfig):
     def __init__(self):
-        super(AbsConfig, self).__init__("abs")
-        self.feed_spec = {"range": [-1, 1]}
-        # abs belongs to activation op series which only has one parameter
-        # thus abs can reuse activation.json. 
-        self.alias_name = "activation"
+        super(CastConfig, self).__init__('cast')
+        self.feed_spec = {"range": [-10, 10]}
 
 
-class PaddleAbs(PaddleDynamicAPIBenchmarkBase):
+class PDCast(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.abs(x=x)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.cast(x=x, dtype=config.dtype)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
-class TorchAbs(PytorchAPIBenchmarkBase):
+class TorchCast(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.abs(x=x)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        if config.dtype == "float16":
+            result = x.to(torch.float16)
+        else:
+            assert False, "Not supported yet!"
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(pd_dy_obj=PaddleAbs(), torch_obj=TorchAbs(), config=AbsConfig())
+    test_main(pd_dy_obj=PDCast(), torch_obj=TorchCast(), config=CastConfig())
