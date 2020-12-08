@@ -272,8 +272,8 @@ def test_main_without_json(pd_obj=None,
 
     if _is_paddle_enabled(args, config) and args.testing_mode == "dynamic":
         assert pd_dy_obj is not None, "Paddle dynamic object is None."
-        pd_dy_outputs, pd_dy_stats = paddle_dynamic_api_benchmark.run(
-            pd_dy_obj, config, args, feeder_adapter)
+        pd_dy_outputs, pd_dy_stats = pd_dy_obj.run(config, args,
+                                                   feeder_adapter)
 
         if args.task == "speed":
             pd_dy_stats["gpu_time"] = args.gpu_time

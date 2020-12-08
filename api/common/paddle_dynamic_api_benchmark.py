@@ -37,34 +37,29 @@ except Exception as e:
     sys.stderr.write(
         "Cannot import paddle.fluid, maybe paddle is not installed.\n")
 
+BEFORE_RUN = 0
+IN_RUN = 1
+AFTER_RUN = 2
+
 
 @six.add_metaclass(abc.ABCMeta)
 class PaddleDynamicAPIBenchmarkBase(object):
     def __init__(self):
         self.name = self.__class__.__name__
-        self.fetch_list = None
-        self.run_gpu = False
-        self.__backward = False
-        try:
-            import torch
-        except Exception as e:
-            sys.stderr.write(
-                "Cannot import pytorch, maybe pytorch is not installed.\n")
 
+    @abc.abstractmethod
     def build_graph(self, config=None):
         pass
 
-    def run_graph(self, config=None):
-        pass
-
     def variable(self, name, shape, dtype, value=None):
-        assert shape is not None
-
-        feed_value = feeder.generate_random_data(
-            shape, dtype, range=None, value=value)
-        paddle.disable_static()
-        var = paddle.to_tensor(feed_value, stop_gradient=False)
-        #print(var.stop_gradient)
+        if self.__status == BEFORE_RUN:
+            assert shape is not None
+            feed_value = feeder.generate_random_data(
+                shape, dtype, range=None, value=value)
+            var = paddle.to_tensor(feed_value, stop_gradient=False)
+            self.__feed_dict[name] = var
+        else:
+            var = self.__feed_dict[name]
         return var
 
     @property
@@ -107,61 +102,72 @@ class PaddleDynamicAPIBenchmarkBase(object):
         for var in inputs:
             self.fetch_list.append(var.grad)
 
+    def run_impl(self,
+                 use_gpu,
+                 config,
+                 repeat=1,
+                 check_output=False,
+                 profiler="none",
+                 feeder_adapter=None):
+        if feeder_adapter is not None:
+            # to be implement.
+            self.feed_list = []
+            for i in range(len(feeder_adapter)):
+                var = paddle.to_tensor(feeder_adapter[i], stop_gradient=False)
+                self.feed_list.append(var)
 
-def run_impl(paddle_obj,
-             use_gpu,
-             config,
-             repeat=1,
-             check_output=False,
-             profiler="none",
-             feeder_adapter=None):
+        def _run_main_iter():
+            self.build_graph(config=config)
+            if use_gpu:
+                paddle.fluid._cuda_synchronize(paddle.fluid.CUDAPlace(0))
 
-    runtimes = []
-    fetches = []
-    outputs = []
-    if feeder_adapter is not None:
+            outputs = None
+            if self.__need_fetch:
+                outputs = []
+                for var in self.fetch_list:
+                    if isinstance(var, np.ndarray):
+                        outputs.append(var)
+                    else:
+                        outputs.append(var.numpy())
+            return outputs
+
+        # warmup run
+        _run_main_iter()
+
+        runtimes = []
+        fetches = []
+
+        self.__status = IN_RUN
+        for i in range(repeat):
+            begin = time.time()
+            outputs = _run_main_iter()
+            runtimes.append(time.time() - begin)
+
+        self.__status = AFTER_RUN
+        stats = {
+            "framework": "paddle",
+            "version": paddle.__version__,
+            "name": self.name,
+            "device": "GPU" if use_gpu else "CPU",
+            "backward": self.__backward,
+            "total": runtimes
+        }
+        return outputs, stats
+
+    def run(self, config, args, feeder_adapter=None):
         paddle.disable_static()
-        paddle_obj.feed_list = []
-        for i in range(len(feeder_adapter)):
-            var = paddle.to_tensor(feeder_adapter[i], stop_gradient=False)
-            paddle_obj.feed_list.append(var)
-    else:
-        paddle_obj.build_graph(config=config)
-    for i in range(repeat):
-        if use_gpu:
-            begin = time.time()
-            paddle_obj.run_graph(config=config)
-            runtimes.append(time.time() - begin)
-        else:
-            begin = time.time()
-            paddle_obj.run_graph(config=config)
-            runtimes.append(time.time() - begin)
-    for var in paddle_obj.fetch_list:
-        if isinstance(var, np.ndarray):
-            outputs.append(var)
-        else:
-            outputs.append(var.numpy())
+        self.name = config.api_name
 
-    stats = {
-        "framework": "paddle",
-        "version": paddle.__version__,
-        "name": paddle_obj.name,
-        "device": "GPU" if use_gpu else "CPU",
-        "backward": paddle_obj.backward,
-        "total": runtimes
-    }
-    return outputs, stats
-
-
-def run(paddle_obj, config, args, feeder_adapter):
-    paddle_obj.name = config.api_name
-
-    outputs, stats = run_impl(
-        paddle_obj=paddle_obj,
-        use_gpu=args.use_gpu,
-        config=config,
-        repeat=args.repeat,
-        check_output=args.check_output,
-        profiler=args.profiler,
-        feeder_adapter=feeder_adapter)
-    return outputs, stats
+        self.fetch_list = None
+        self.__need_fetch = args.task == "accuracy"
+        self.__backward = False
+        self.__status = BEFORE_RUN
+        self.__feed_dict = {}
+        outputs, stats = self.run_impl(
+            use_gpu=args.use_gpu,
+            config=config,
+            repeat=args.repeat,
+            check_output=args.check_output,
+            profiler=args.profiler,
+            feeder_adapter=feeder_adapter)
+        return outputs, stats
