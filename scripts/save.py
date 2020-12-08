@@ -143,6 +143,7 @@ def load_folder_files(folder_path, recursive=True):
 
         if not recursive:
             break
+        file_list.sort()
 
     return file_list
 
@@ -216,8 +217,9 @@ def compute_results(results_list, check_key, cur_value, index, sign=1):
     return avg_value, ranges, color
 
 
-def check_results(model_name, index, run_machine_type, cur_value, html_results, sign=1, check_key=None,
-                  is_profile=False, unit=""):
+def check_results(model_name, index, run_machine_type, cur_value, html_results, sign=1,
+                  check_key=None,
+                  is_profile=False, unit="", outlier=0, icafe_results=[]):
     """
     check current results in range[-0.05, 0.05]
     Args:
@@ -272,9 +274,9 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
     print('benchmark_value:{}'.format(benchmark_value))
     print('current_value:{}'.format(cur_value))
     if not isinstance(benchmark_value, dict):
-        if float(cur_value) < float(benchmark_value) and sign == -1:
+        if float(cur_value) < float(benchmark_value) and sign == -1 and outlier == 0:
             benchmark = 1
-        elif float(cur_value) > float(benchmark_value) and sign == 1:
+        elif float(cur_value) > float(benchmark_value) and sign == 1 and outlier == 0:
             benchmark = 1
     avg_value, avg_range, avg_color = compute_results(results_list, check_key, cur_value, index, sign)
 
@@ -300,9 +302,9 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
                                    dict(value="{:.2f}%".format(round(benchmark_range * 100, 2)), color=benchmark_color),
                                    dict(value="{:.4f}{}".format(avg_value, unit)),
                                    dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
-            if avg_color == 'red' and index == 1:
-                item = to_icafe.get_alarm_content(model_name, print_machine_type, 'down')
-                to_icafe.write_icafe(item)
+            if benchmark_color == 'red' and index == 1:
+                current_icafe_result = [model_name, print_machine_type, 'down', current_html_result]
+                icafe_results.append(current_icafe_result)
 
         html_results[DICT_INDEX[index]]["data"].append(current_html_result)
     return benchmark
@@ -414,6 +416,7 @@ def parse_logs(args):
     image_id = get_image_id()
     file_list = load_folder_files(os.path.join(args.log_path, "index"))
     html_results = OrderedDict()
+    icafe_results = []
     for k in DICT_INDEX.values():
         html_results[k] = {}
         if k == 'Profiler_info':
@@ -448,7 +451,6 @@ def parse_logs(args):
             outlier = 0
             outlier_mem = 0 
             mem_result = 0
-            outlier = 0
             benchmark = 0
             benchmark_mem = 0
             if job_info["index"] == 1:
@@ -477,17 +479,21 @@ def parse_logs(args):
             # check_results and send alarm email
             if job_info["index"] == 1:  # speed
                 print_machine_type = machine_type_to_print(run_machine_type)
-                if int(result) == 0 or os.getenv('job_fail_flag') == 1:
-                    print('job_fail_flag:{}'.format(os.getenv('job_fail_flag')))
+                #record fail jobs
+                if float(result) == 0 or os.getenv('job_fail_flag') == 1:
                     FAIL_LIST.append([job_info["model_name"], print_machine_type])
                     outlier = 1
                     outlier_mem = 1
-                    item = to_icafe.get_alarm_content(job_info["model_name"], print_machine_type, 'fail')
-                    to_icafe.write_icafe(item)
-                benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type, result,
-                                          html_results, -1 if args.device_type.lower() == 'cpu' else 1, unit=unit)
-                benchmark_mem = check_results(job_info["model_name"], 2, run_machine_type, mem_result, html_results,
-                                              -1)  # mem
+                    icafe_results.append([job_info["model_name"], print_machine_type, 'fail', []])
+                benchmark = check_results(job_info["model_name"], job_info["index"],
+                                          run_machine_type, result,
+                                          html_results,
+                                          -1 if args.device_type.lower() == 'cpu' else 1,
+                                          unit=unit, outlier=outlier, icafe_results=icafe_results)
+                benchmark_mem = check_results(job_info["model_name"], 2, run_machine_type,
+                                              mem_result, html_results,
+                                              -1, outlier=outlier_mem,
+                                              icafe_results=icafe_results)  # mem
             elif job_info["index"] == 3:  # profiler
                 check_results(job_info["model_name"], job_info["index"], run_machine_type,
                               json.loads(result),
@@ -538,6 +544,10 @@ def parse_logs(args):
         env["cudnn_version"] = args.cudnn_version
     email_t = template.EmailTemplate(title, env, html_results, args.log_path, FAIL_LIST)
     email_t.construct_email_content()
+    print('icafe_results:{}'.format(icafe_results))
+    # build icafe card
+    item = to_icafe.get_alarm_content(icafe_results, env, TABLE_HEADER)
+    to_icafe.write_icafe(item)
 
 
 if __name__ == '__main__':

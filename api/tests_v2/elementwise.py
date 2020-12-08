@@ -19,11 +19,19 @@ class ElementwiseConfig(APIConfig):
     def __init__(self, op_type="elementwise"):
         super(ElementwiseConfig, self).__init__(op_type)
         self.api_name = 'add'
-        self.api_list = {'add': 'add', 'pow': 'pow'}
+        self.api_list = {
+            'add': 'add',
+            'maximum': 'maximum',
+            'minimum': 'minimum',
+            'multiply': 'multiply',
+            'pow': 'pow',
+            'subtract': 'subtract'
+        }
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
     def disabled(self):
-        if self.api_name in ["pow"] and self.x_dtype == "float16":
+        if self.api_name in ["pow", "maximum", "minimum"
+                             ] and self.x_dtype == "float16":
             print(
                 "Warning:\n"
                 "  1. This config is disabled because float16 is not supported for %s.\n"
