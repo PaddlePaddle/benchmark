@@ -285,16 +285,18 @@ def test_main_without_json(pd_obj=None,
             sys.exit(1)
 
     if args.task == "accuracy":
-        if config.run_tf and args.testing_mode == "static":
+        is_run_tf = config.run_tf and args.testing_mode == "static"
+        is_run_torch = config.run_torch and args.testing_mode == "dynamic"
+        if is_run_tf:
             base_outputs = pd_outputs
             compare_outputs = tf_outputs
             backward = pd_obj.backward
-        elif config.run_torch and args.testing_mode == "dynamic":
+        elif is_run_torch:
             base_outputs = pd_dy_outputs
             compare_outputs = torch_outputs
             backward = pd_dy_obj.backward
 
-        if config.run_tf or config.run_torch:
+        if is_run_tf or is_run_torch:
             if args.log_level == 1:
                 for i in range(len(base_outputs)):
                     out = base_outputs[i]
