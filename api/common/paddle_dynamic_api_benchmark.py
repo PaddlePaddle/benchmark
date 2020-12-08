@@ -56,9 +56,13 @@ class PaddleDynamicAPIBenchmarkBase(object):
 
     def variable(self, name, shape, dtype, value=None):
         if self.__status == BEFORE_RUN:
-            assert shape is not None
-            feed_value = feeder.generate_random_data(
-                shape, dtype, range=None, value=value)
+            if self.__feed_values is not None and value is None:
+                i = len(self.__feed_dict)
+                feed_value = self.__feed_values[i]
+            else:
+                assert shape is not None
+                feed_value = feeder.generate_random_data(
+                    shape, dtype, range=None, value=value)
             var = paddle.to_tensor(feed_value, stop_gradient=False)
             self.__feed_dict[name] = var
         else:
@@ -112,13 +116,6 @@ class PaddleDynamicAPIBenchmarkBase(object):
                  check_output=False,
                  profiler="none",
                  feeder_adapter=None):
-        if feeder_adapter is not None:
-            # to be implement.
-            self.feed_list = []
-            for i in range(len(feeder_adapter)):
-                var = paddle.to_tensor(feeder_adapter[i], stop_gradient=False)
-                self.feed_list.append(var)
-
         def _run_main_iter():
             self.build_graph(config=config)
             if use_gpu:
@@ -167,6 +164,8 @@ class PaddleDynamicAPIBenchmarkBase(object):
         self.__backward = False
         self.__status = BEFORE_RUN
         self.__feed_dict = {}
+        # feeder_adapter is a list and need to be improved.
+        self.__feed_values = feeder_adapter
         outputs, stats = self.run_impl(
             use_gpu=args.use_gpu,
             config=config,
