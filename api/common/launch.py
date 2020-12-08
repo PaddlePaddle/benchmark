@@ -59,7 +59,7 @@ def _parse_nvprof_logs(logs):
         if "GPU activities:" in line:
             line_from = i - 1
         if line_from is not None and "API calls:" in line:
-            line_to = i - 1
+            line_to = i
     if line_from is not None and line_to is not None:
         for i in range(line_from, line_to):
             print(logs[i])
