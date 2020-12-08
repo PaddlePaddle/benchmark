@@ -37,40 +37,43 @@ except Exception as e:
     sys.stderr.write(
         "Cannot import pytorch, maybe pytorch is not installed.\n")
 
+BEFORE_RUN = 0
+IN_RUN = 1
+AFTER_RUN = 2
+
 
 @six.add_metaclass(abc.ABCMeta)
 class PytorchAPIBenchmarkBase(object):
     def __init__(self):
         self.name = self.__class__.__name__
         self.fetch_list = None
-        self.run_gpu = True
+        self.__status = BEFORE_RUN
         self._feed_list = []
+
         try:
             import torch
         except Exception as e:
             sys.stderr.write(
                 "Cannot import pytorch, maybe pytorch is not installed.\n")
 
+    @abc.abstractmethod
     def build_graph(self, config=None):
         pass
 
-    def run_graph(self, config=None):
-        pass
-
     def variable(self, name, shape, dtype, value=None):
-        assert shape is not None
+        if self.__status == BEFORE_RUN:
+            assert shape is not None
+            feed_value = feeder.generate_random_data(
+                shape, dtype, range=None, value=value)
+            var = torch.tensor(
+                feed_value, requires_grad=True, device=self.__device)
+            var.retain_grad()
+            self.__feed_dict[name] = var
 
-        feed_value = feeder.generate_random_data(
-            shape, dtype, range=None, value=value)
-        var = torch.tensor(feed_value, requires_grad=True)
-
-        if self.run_gpu and torch.cuda.is_available():
-            device = torch.device("cuda")
-            var = var.to(device)
-        var.retain_grad()
-
-        if value is None:
-            self._feed_list.append(feed_value)
+            if value is None:
+                self._feed_list.append(feed_value)
+        else:
+            var = self.__feed_dict[name]
         return var
 
     @property
@@ -115,52 +118,63 @@ class PytorchAPIBenchmarkBase(object):
         for var in self.feed_list:
             self.fetch_list.append(var.grad)
 
+    def run_impl(self,
+                 use_gpu,
+                 config,
+                 repeat=1,
+                 check_output=False,
+                 profiler="none"):
+        def _run_main_iter():
+            self.build_graph(config=config)
+            if use_gpu:
+                torch.cuda.synchronize(self.__device)
 
-def run_impl(torch_obj,
-             use_gpu,
-             config,
-             repeat=1,
-             check_output=False,
-             profiler="none"):
+            outputs = None
+            if self.__need_fetch:
+                outputs = []
+                for var in self.fetch_list:
+                    outputs.append(var.to("cpu").detach().numpy())
+            return outputs
 
-    runtimes = []
-    fetches = []
-    outputs = []
-    torch_obj.build_graph(config=config)
-    for i in range(repeat):
-        if use_gpu:
+        # warmup run
+        _run_main_iter()
+
+        runtimes = []
+        fetches = []
+        self.__status = IN_RUN
+        for i in range(repeat):
             begin = time.time()
-            torch_obj.run_graph(config=config)
+            outputs = _run_main_iter()
             runtimes.append(time.time() - begin)
+
+        self.__status = AFTER_RUN
+        stats = {
+            "framework": "pytorch",
+            "version": torch.__version__,
+            "name": self.name,
+            "device": "GPU" if use_gpu else "CPU",
+            "backward": self.__backward,
+            "total": runtimes
+        }
+        return outputs, stats
+
+    def run(self, config, args):
+        self.name = config.api_name
+
+        self.feed_list = None
+        self.fetch_list = None
+        self.__need_fetch = args.task == "accuracy"
+        self.__backward = False
+        self.__status = BEFORE_RUN
+        self.__feed_dict = {}
+        if args.use_gpu and torch.cuda.is_available():
+            self.__device = torch.device("cuda")
         else:
-            begin = time.time()
-            torch_obj.run_graph(config=config)
-            runtimes.append(time.time() - begin)
-    for var in torch_obj.fetch_list:
-        if use_gpu:
-            outputs.append(var.to("cpu").detach().numpy())
-        else:
-            outputs.append(var.detach().numpy())
-
-    stats = {
-        "framework": "pytorch",
-        "version": torch.__version__,
-        "name": torch_obj.name,
-        "device": "GPU" if use_gpu else "CPU",
-        "backward": torch_obj.backward,
-        "total": runtimes
-    }
-    return outputs, stats
-
-
-def run(torch_obj, config, args):
-    torch_obj.name = config.api_name
-
-    outputs, stats = run_impl(
-        torch_obj=torch_obj,
-        use_gpu=args.use_gpu,
-        config=config,
-        repeat=args.repeat,
-        check_output=args.check_output,
-        profiler=args.profiler)
-    return outputs, stats
+            self.__device = torch.device("cpu")
+        outputs, stats = self.run_impl(
+            use_gpu=args.use_gpu,
+            config=config,
+            repeat=args.repeat,
+            check_output=args.check_output,
+            profiler=args.profiler)
+        return outputs, stats

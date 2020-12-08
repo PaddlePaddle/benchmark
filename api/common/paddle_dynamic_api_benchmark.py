@@ -46,6 +46,9 @@ AFTER_RUN = 2
 class PaddleDynamicAPIBenchmarkBase(object):
     def __init__(self):
         self.name = self.__class__.__name__
+        self.feed_list = None
+        self.fetch_list = None
+        self.__status = BEFORE_RUN
 
     @abc.abstractmethod
     def build_graph(self, config=None):
@@ -158,6 +161,7 @@ class PaddleDynamicAPIBenchmarkBase(object):
         paddle.disable_static()
         self.name = config.api_name
 
+        self.feed_list = None
         self.fetch_list = None
         self.__need_fetch = args.task == "accuracy"
         self.__backward = False
