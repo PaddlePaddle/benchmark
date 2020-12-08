@@ -38,7 +38,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 1E-05
 }, {
     "op": "batch_norm",
     "param_info": {
