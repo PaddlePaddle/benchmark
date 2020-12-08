@@ -23,32 +23,24 @@ class LayerNormConfig(APIConfig):
 class PaddleLayerNorm(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        self.feed_list = [x]
+        result = paddle.nn.functional.layer_norm(
+            x=x, normalized_shape=config.x_shape[1:], epsilon=config.epsilon)
 
-    def run_graph(self, config):
-        x = self.feed_list[0]
-        layer_norm = paddle.nn.LayerNorm(x.shape[1:])
-        result = layer_norm(self.feed_list[0])
-        # result = paddle.nn.functional.layer_norm(
-        #     x=self.feed_list[0], normalized_shape=config.x_shape[1:], epsilon=config.epsilon)
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, self.feed_list)
+            self.append_gradients(result, [x])
 
 
 class TorchLayerNorm(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        self.feed_list = [x]
-
-    def run_graph(self, config):
-        x = self.feed_list[0]
-        # layer_norm = torch.nn.LayerNorm(x.shape[1:])
-        # result = layer_norm(self.feed_list[0])
         result = torch.nn.functional.layer_norm(x, x.shape[1:])
+
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, self.feed_list)
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
