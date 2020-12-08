@@ -20,11 +20,9 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
     skip_steps=2                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
-    keyword="batch_cost: "                   # 解析日志，筛选出数据所在行的关键字                                             (必填)
-    separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
-    position=21                       # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
-    model_mode=0                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
-
+    keyword="ips:"                   # 解析日志，筛选出数据所在行的关键字                                             (必填)
+    model_mode=-1                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
+    ips_unit="images/sec"
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
@@ -52,16 +50,12 @@ function _set_params(){
 
     if [[ ${model_name} = "mask_rcnn_fpn_resnet" ]]; then
         config_file="configs/mask_rcnn_r101_vd_fpn_1x.yml"
-        position=21
     elif [[ ${model_name} = "mask_rcnn_fpn_resnext" ]];then
         config_file="configs/mask_rcnn_x101_vd_64x4d_fpn_1x.yml"
-        position=21
     elif [[ ${model_name} = "retinanet_rcnn_fpn" ]];then
         config_file="configs/retinanet_r50_fpn_1x.yml"
-        position=15
     elif [[ ${model_name} = "cascade_rcnn_fpn" ]];then
         config_file="configs/cascade_rcnn_r50_fpn_1x.yml"
-        position=27
     else
         echo "model_name must be mask_rcnn_fpn_resnet | mask_rcnn_fpn_resnext | retinanet_rcnn_fpn | cascade_rcnn_fpn"
         exit 1

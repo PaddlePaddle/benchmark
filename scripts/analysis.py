@@ -121,10 +121,14 @@ class TimeAnalyzer(object):
 
         print("Extract {} records: separator={}; position={}".format(len(self.records), self.separator, self.position))
 
-    def _get_fps(self, mode, batch_size, gpu_num, avg_of_records, unit=None):
-        if mode == -1:
+    def _get_fps(self, mode, batch_size, gpu_num, avg_of_records, run_mode, unit=None):
+        if mode == -1 and run_mode == 'sp':
             assert unit, "Please set the unit when mode is -1."
             fps = gpu_num * avg_of_records
+        elif mode == -1 and run_mode == 'mp':
+            assert unit, "Please set the unit when mode is -1."
+            fps = gpu_num * avg_of_records #temporarily, not used now
+            print("------------this is mp")
         elif mode == 0:
             # s/step -> samples/s
             fps = (batch_size * gpu_num) / avg_of_records
@@ -150,7 +154,7 @@ class TimeAnalyzer(object):
 
         return fps, unit
 
-    def analysis(self, batch_size, gpu_num=1, skip_steps=0, mode=-1, unit=None):
+    def analysis(self, batch_size, gpu_num=1, skip_steps=0, mode=-1, run_mode='sp', unit=None):
         if batch_size <= 0:
             print("base_batch_size should larger than 0.")
             return 0, ''
@@ -177,8 +181,8 @@ class TimeAnalyzer(object):
         avg_of_records = sum_of_records / float(count)
         avg_of_records_skipped = sum_of_records_skipped / float(count - skip_steps)
 
-        fps, fps_unit = self._get_fps(mode, batch_size, gpu_num, avg_of_records, unit)
-        fps_skipped, _ = self._get_fps(mode, batch_size, gpu_num, avg_of_records_skipped, unit)
+        fps, fps_unit = self._get_fps(mode, batch_size, gpu_num, avg_of_records, run_mode, unit)
+        fps_skipped, _ = self._get_fps(mode, batch_size, gpu_num, avg_of_records_skipped, run_mode, unit)
         if mode == -1:
             print("average ips of %d steps, skip 0 step:" % count)
             print("\tAvg: %.3f %s" % (avg_of_records, fps_unit))
@@ -236,6 +240,7 @@ if __name__ == "__main__":
                 gpu_num=args.gpu_num,
                 skip_steps=args.skip_steps,
                 mode=args.model_mode,
+                run_mode=args.run_mode,
                 unit=args.ips_unit)
         elif args.index == 3:
             run_info["FINAL_RESULT"] = {}

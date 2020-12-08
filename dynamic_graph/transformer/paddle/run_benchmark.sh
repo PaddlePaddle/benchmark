@@ -4,17 +4,17 @@ set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 100(max_iter)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 100(max_iter) base|big(model_type)"
     exit
 fi
 
 function _set_params(){
     index=$1
     base_batch_size=4096
-    model_name="Transformer"
 
     run_mode=${2}
     max_iter=${3}
+    model_name="transformer_"${4}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -22,11 +22,21 @@ function _set_params(){
 
     mission_name="机器翻译"
     direction_id=1
-    skip_steps=0
-    keyword="avg_speed:"
-    separator=" "
-    position=17
-    model_mode=1 # steps/s -> steps/s
+    if [ ${model_name} == "transformer_base" ]; then 
+        skip_steps=3
+        keyword="avg_speed:"
+        separator=" "
+        position=17
+        model_mode=1 # steps/s -> steps/s
+    elif [ ${model_name} == "transformer_big" ]; then
+        keyword="ips:"
+        skip_steps=3
+        model_mode=-1
+        ips_unit="words/sec"
+    else
+        echo "please check your model name!"
+        exit 1
+    fi
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -40,15 +50,20 @@ function _set_params(){
 }
 
 function _train(){
-   train_cmd="--max_iter ${max_iter} \
-              --src_vocab_fpath gen_data/iwslt14.tokenized.de-en/vocab.de \
-              --trg_vocab_fpath gen_data/iwslt14.tokenized.de-en/vocab.en \
-              --special_token  <s> <e> <unk> \
-              --training_file gen_data/iwslt14.tokenized.de-en/para_small.de-en \
-              --validation_file gen_data/wmt16_ende_data_bpe/newstest2014.tok.bpe.32000.en-de \
-              --predict_file gen_data/wmt16_ende_data_bpe/newstest2016.tok.bpe.32000.en-de \
-              --weight_sharing False \
-              --batch_size ${base_batch_size}"
+    if [ ${model_name} == "transformer_base" ]; then 
+        train_cmd="--max_iter ${max_iter} \
+                   --src_vocab_fpath gen_data/iwslt14.tokenized.de-en/vocab.de \
+                   --trg_vocab_fpath gen_data/iwslt14.tokenized.de-en/vocab.en \
+                   --special_token  <s> <e> <unk> \
+                   --training_file gen_data/iwslt14.tokenized.de-en/para_small.de-en \
+                   --validation_file gen_data/wmt16_ende_data_bpe/newstest2014.tok.bpe.32000.en-de \
+                   --predict_file gen_data/wmt16_ende_data_bpe/newstest2016.tok.bpe.32000.en-de \
+                   --weight_sharing False \
+                   --batch_size ${base_batch_size}"
+    else
+        sed -i "s/^max_iter.*/max_iter: ${max_iter}/g" ../configs/transformer.big.yaml #不支持传参修改
+        train_cmd="--config ../configs/transformer.big.yaml"
+    fi
 
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u train.py "${train_cmd}
