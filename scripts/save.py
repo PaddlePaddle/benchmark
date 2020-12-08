@@ -480,7 +480,6 @@ def parse_logs(args):
             if job_info["index"] == 1:  # speed
                 print_machine_type = machine_type_to_print(run_machine_type)
                 if float(result) == 0 or os.getenv('job_fail_flag') == 1:
-                    print('job_fail_flag:{}'.format(os.getenv('job_fail_flag')))
                     FAIL_LIST.append([job_info["model_name"], print_machine_type])
                     outlier = 1
                     outlier_mem = 1
