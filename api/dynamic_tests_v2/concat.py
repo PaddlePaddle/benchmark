@@ -24,13 +24,12 @@ class PaddleConcat(PaddleDynamicAPIBenchmarkBase):
                 shape=config.x_shape[i],
                 dtype=config.x_dtype[i])
             xs.append(x_i)
-        self.feed_list = xs
+        result = paddle.concat(x=xs, axis=config.axis)
 
-    def run_graph(self, config):
-        result = paddle.concat(x=self.feed_list, axis=config.axis)
+        self.feed_list = xs
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, self.feed_list)
+            self.append_gradients(result, xs)
 
 
 class TorchConcat(PytorchAPIBenchmarkBase):
@@ -42,13 +41,12 @@ class TorchConcat(PytorchAPIBenchmarkBase):
                 shape=config.x_shape[i],
                 dtype=config.x_dtype[i])
             xs.append(x_i)
-        self.feed_list = xs
+        result = torch.cat(tensors=xs, dim=config.axis)
 
-    def run_graph(self, config):
-        result = torch.cat(tensors=self.feed_list, dim=config.axis)
+        self.feed_list = xs
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, self.feed_list)
+            self.append_gradients(result, xs)
 
 
 if __name__ == '__main__':
