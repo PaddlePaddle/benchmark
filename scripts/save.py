@@ -143,6 +143,7 @@ def load_folder_files(folder_path, recursive=True):
 
         if not recursive:
             break
+        file_list.sort()
 
     return file_list
 
@@ -483,7 +484,7 @@ def parse_logs(args):
                     FAIL_LIST.append([job_info["model_name"], print_machine_type])
                     outlier = 1
                     outlier_mem = 1
-                    icafe_results.append(job_info["model_name"], print_machine_type, 'fail', [])
+                    icafe_results.append([job_info["model_name"], print_machine_type, 'fail', []])
                 benchmark = check_results(job_info["model_name"], job_info["index"],
                                           run_machine_type, result,
                                           html_results,
