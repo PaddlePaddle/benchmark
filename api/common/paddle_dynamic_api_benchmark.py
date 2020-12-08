@@ -53,24 +53,30 @@ class PaddleDynamicAPIBenchmarkBase(object):
         pass
 
     def variable(self, name, shape, dtype, value=None):
-        if self.__status == BEFORE_RUN:
-            if self.__feed_values is not None and value is None:
-                i = len(self.__feed_dict)
-                feed_value = self.__feed_values[i]
+        if self._status == BEFORE_RUN:
+            if self._feed_values is not None and value is None:
+                i = len(self._feed_dict)
+                feed_value = self._feed_values[i]
             else:
                 assert shape is not None
+
+                if self._feed_spec is not None and value is None:
+                    i = len(self._feed_dict)
+                    range = self._feed_spec[i].get("range", None)
+                else:
+                    range = None
                 feed_value = feeder.generate_random_data(
-                    shape, dtype, range=None, value=value)
+                    shape, dtype, range=range, value=value)
             var = paddle.to_tensor(feed_value, stop_gradient=False)
-            self.__feed_dict[name] = var
+            self._feed_dict[name] = var
         else:
-            var = self.__feed_dict[name]
+            var = self._feed_dict[name]
         return var
 
     @property
     def backward(self):
         if hasattr(self, "_PaddleDynamicAPIBenchmarkBase__backward"):
-            return self.__backward
+            return self._backward
         else:
             return False
 
@@ -87,7 +93,7 @@ class PaddleDynamicAPIBenchmarkBase(object):
                       (paddle_module_name, api_name))
             return None
 
-        if self.__layers_function is None:
+        if self._layers_function is None:
             paddle_module_names = ["paddle", "paddle.nn.functional"]
             if module_name is not None and module_name not in paddle_module_names:
                 paddle_module_names.append(module_name)
@@ -98,13 +104,13 @@ class PaddleDynamicAPIBenchmarkBase(object):
                     break
 
             assert func is not None, "Need to specify module_name to import %s." % api_name
-            self.__layers_function = func
+            self._layers_function = func
 
-        result = self.__layers_function(**kwargs)
+        result = self._layers_function(**kwargs)
         return result
 
     def append_gradients(self, targets, inputs):
-        self.__backward = True
+        self._backward = True
         loss = paddle.sum(targets)
         loss.backward()
         for var in inputs:
@@ -123,7 +129,7 @@ class PaddleDynamicAPIBenchmarkBase(object):
                 paddle.fluid._cuda_synchronize(paddle.fluid.CUDAPlace(0))
 
             outputs = None
-            if self.__need_fetch:
+            if self._need_fetch:
                 outputs = []
                 for var in self.fetch_list:
                     if isinstance(var, np.ndarray):
@@ -138,19 +144,19 @@ class PaddleDynamicAPIBenchmarkBase(object):
         runtimes = []
         fetches = []
 
-        self.__status = IN_RUN
+        self._status = IN_RUN
         for i in range(repeat):
             begin = time.time()
             outputs = _run_main_iter()
             runtimes.append(time.time() - begin)
 
-        self.__status = AFTER_RUN
+        self._status = AFTER_RUN
         stats = {
             "framework": "paddle",
             "version": paddle.__version__,
             "name": self.name,
             "device": "GPU" if use_gpu else "CPU",
-            "backward": self.__backward,
+            "backward": self._backward,
             "total": runtimes
         }
         return outputs, stats
@@ -160,9 +166,10 @@ class PaddleDynamicAPIBenchmarkBase(object):
         self.name = config.api_name
 
         self._reset()
-        self.__need_fetch = args.task == "accuracy"
+        self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
+        self._need_fetch = args.task == "accuracy"
         # feeder_adapter is a list and need to be improved.
-        self.__feed_values = feeder_adapter
+        self._feed_values = feeder_adapter
         outputs, stats = self.run_impl(
             use_gpu=args.use_gpu,
             config=config,
@@ -175,9 +182,10 @@ class PaddleDynamicAPIBenchmarkBase(object):
     def _reset(self):
         self.feed_list = None
         self.fetch_list = None
-        self.__backward = False
-        self.__status = BEFORE_RUN
-        self.__feed_dict = {}
-        self.__layers_function = None
-        self.__feed_values = None
+        self._feed_spec = None
+        self._feed_values = None
         self._feed_list = []
+        self._backward = False
+        self._status = BEFORE_RUN
+        self._feed_dict = {}
+        self._layers_function = None
