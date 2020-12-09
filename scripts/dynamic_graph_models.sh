@@ -14,31 +14,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet dy_resnet152)
+cur_model_list=(dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
 
 
 # MobileNet
 dy_mobilenet(){
-    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/mobilenet/
+    cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    git checkout dygraph
 
     # Prepare data
-    mkdir -p data
-    ln -s ${data_path}/dygraph_data/ILSVRC2012_Pytorch/  ${cur_model_path}/data                         # 准备数据集,需要保证benchmark任务极其21 上对应目录下存在该数据集！
+    ln -s ${data_path}/dygraph_data/ILSVRC2012_Pytorch/dataset_100  ${cur_model_path}/dataset/                         # 准备数据集,需要保证benchmark任务极其21 上对应目录下存在该数据集！
 
     # Running ...
-    rm -f ./run_benchmark.sh
-    cp ${BENCHMARK_ROOT}/dynamic_graph/mobilenet/paddle/run_benchmark.sh ./       # 拷贝脚本到当前目录
-    sed -i '/set\ -xe/d' run_benchmark.sh
+    rm -f ./run_benchmark_mobilenet.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/mobilenet/paddle/run_benchmark_mobilenet.sh ./       # 拷贝脚本到当前目录
+    sed -i '/set\ -xe/d' run_benchmark_mobilenet.sh
     modle_list=(MobileNetV2 MobileNetV1)
     for model_name in ${modle_list[@]}
     do
         echo "------------> begin to run ${model_name}"
         echo "index is speed, 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 1010 ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark_mobilenet.sh 1  sp 1  ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 800 ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mobilenet.sh 1  mp  1 ${model_name} | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+        sleep 60
     done
 }
 
@@ -56,34 +57,6 @@ dy_seq2seq(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
     CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 2 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
-}
-
-# resnet
-dy_resnet(){
-    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/resnet
-    cd ${cur_model_path}
-
-    # Prepare data
-    mkdir -p data
-    ln -s ${data_path}/ILSVRC2012  ${cur_model_path}/data                         # 准备数据集,需要保证benchmark任务极其21 上对应目录下存在该数据集！
-
-    # Running ...
-    rm -f ./run_benchmark.sh
-    cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark.sh ./
-    sed -i '/set\ -xe/d' run_benchmark.sh
-    model_list=(ResNet50_bs32 ResNet50_bs128)
-    run_batchsize=32
-    for model_item in ${model_list[@]}
-    do
-        if [ ${model_item} = "ResNet50_bs128" ]; then
-            run_batchsize=128
-        fi
-        echo "index is speed, 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 ${run_batchsize} ${model_item} sp 800 | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
-        sleep 60
-        echo "index is speed, 8gpus begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_item} mp 500 | tee ${log_path}/dynamic_${model_item}_speed_8gpus 2>&1
-    done
 }
 
 # ptb
@@ -219,6 +192,7 @@ dy_mask_rcnn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     git checkout dygraph
+    git reset --hard 06e6afcf262ebd8cc843b7372e014a19ba4a2eca  # 动态图检测重构 
     pip install -r requirements.txt 
 
     # Install cocoapi
@@ -267,7 +241,8 @@ dy_yolov3(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     git checkout dygraph
-    pip install -r requirements.txt 
+    git reset --hard 06e6afcf262ebd8cc843b7372e014a19ba4a2eca  # 动态图检测重构 
+    pip install -r requirements.txt
    
     if python -c "import pycocotools" >/dev/null 2>&1
     then
@@ -379,7 +354,7 @@ dy_senta(){
     done
 }
 
-dy_resnet152(){
+dy_resnet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
     git checkout dygraph
@@ -388,10 +363,18 @@ dy_resnet152(){
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./
     sed -i '/set\ -xe/d' run_benchmark_resnet.sh
-    model_name="ResNet152"
-    echo "model is ${model_name}, index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark_resnet.sh 1 32 ResNet152 sp 1 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
-    sleep 60
-    echo "model is ${model_name}, index is speed, 8gpu begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_resnet.sh 1 32 ResNet152 sp 1 | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+    batch_size=32
+    model_list=(ResNet152 ResNet50_bs32 ResNet50_bs128)
+    for model_name in ${model_list[@]}
+    do
+        if [ ${model_name} == "ResNet50_bs128" ]; then
+            batch_size=128
+        fi
+        echo "model is ${model_name}, index is speed, 1gpu begin"
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} sp 1 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "model is ${model_name}, index is speed, 8gpu begin"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} mp 1 | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+        sleep 60
+    done
 }

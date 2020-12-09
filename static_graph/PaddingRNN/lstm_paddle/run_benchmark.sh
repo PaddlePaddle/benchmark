@@ -70,7 +70,7 @@ function _train(){
       --profile ${is_profiler} \
       --profiler_path=${profiler_path} \
       --batch_size ${batch_size}"
-     python -u train.py ${train_cmd} > ${log_file} 2>&1
+     timeout 15m python -u train.py ${train_cmd} > ${log_file} 2>&1
      if [ $? -ne 0 ];then
          echo -e "${model_name}, FAIL"
          export job_fail_flag=1

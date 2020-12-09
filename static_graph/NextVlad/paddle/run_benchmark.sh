@@ -4,15 +4,15 @@ set -xe
 if [[ $# -lt 4 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|3|6 32 model_name sp|mp 2(max_epoch)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|3|6 32 nextvlad|CTCN sp|mp 2(max_epoch)"
     exit
 fi
 
 function _set_params(){
-    index=$1                         # 速度(speed)|显存占用(mem)|单卡最大支持batch_size(maxbs)                       (必填)
-    base_batch_size=$2               # 单卡的batch_size，如果固定的，可以写死                                        （必填）
+    index=$1                         # 速度(speed)|显存占用(mem)|单卡最大支持batch_size(maxbs)                        （必填）
+    base_batch_size=$2               # 单卡的batch_size，如果固定的，可以写死                                         （必填）
     model_name=$3                    # 模型名字如："SE-ResNeXt50"，如果是固定的，可以写死，如果需要其他参数可以参考bert实现（必填）
-    run_mode=${4:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程                                            （必填）
+    run_mode=${4:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程                                              （必填）
     max_epoch=${5}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
@@ -20,12 +20,11 @@ function _set_params(){
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     mission_name="视频分类"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
-    direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
-    skip_steps=1                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
-    keyword="finished"               # 解析日志，筛选出数据所在行的关键字                                             (必填)
-    separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
-    position=-1                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
-    model_mode=0                     # 解析日志，若数据单位是s/step，则为0，若数据单位是step/s,则为1                    (必填)
+    direction_id=0                    # 任务所属方向，0：CV，1：NLP，2：Rec。                                         （必填）
+    skip_steps=1                      # 解析日志，有些模型前几个step耗时长，需要跳过                                  （必填）
+    keyword="batch_cost:"             # 解析日志，筛选出数据所在行的关键字                                            （必填）
+    model_mode=0 # s/step -> samples/s
+    # ips_unit="samples/sec"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -75,12 +74,12 @@ function _train(){
     sp) train_cmd="python -u train.py "${train_cmd} ;;
     mp)
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES train.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --gpus=$CUDA_VISIBLE_DEVICES train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    ${train_cmd} > ${log_file} 2>&1
+    timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
         export job_fail_flag=1

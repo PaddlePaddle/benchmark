@@ -21,6 +21,9 @@ function _collect_occupancy() {
 function _run(){
     # running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}
     ps -ef
+    killall -9 python
+    sleep 9
+    ps -ef
     model_commit_id=$(git log|head -n1|awk '{print $2}')
     echo "---------Model commit is ${model_commit_id}"
 
@@ -50,22 +53,34 @@ function _run(){
         echo "Do nothing"
     fi
 
+    if [ "${separator}" == "" ]; then
+        separator="None"
+    fi
+    analysis_options=""
+    if [ "${position}" != "" ]; then
+        analysis_options="${analysis_options} --position ${position}"
+    fi
+    if [ "${range}" != "" ]; then
+        analysis_options="${analysis_options} --range ${range}"
+    fi
+    if [ "${model_mode}" != "" ]; then
+        analysis_options="${analysis_options} --model_mode ${model_mode}"
+    fi
+    if [ "${ips_unit}" != "" ]; then
+        analysis_options="${analysis_options} --ips_unit ${ips_unit}"
+    fi
     python ${BENCHMARK_ROOT}/scripts/analysis.py \
             --filename "${log_file}" \
             --log_with_profiler ${log_with_profiler:-"not found!"} \
             --profiler_path ${profiler_path:-"not found!"} \
-            --keyword "${keyword}" \
-            --separator "${separator}" \
-            --position ${position} \
-            --base_batch_size ${base_batch_size} \
-            --skip_steps ${skip_steps} \
-            --model_mode ${model_mode} \
             --model_name "${model_name}" \
             --mission_name "${mission_name}" \
             --direction_id "${direction_id}" \
             --run_mode ${run_mode} \
-            --index ${index} \
+            --keyword "${keyword}" \
+            --base_batch_size ${base_batch_size} \
+            --skip_steps ${skip_steps} \
             --gpu_num ${num_gpu_devices} \
-            --range ${range:-""}
+            --index ${index} \
+            --separator "${separator}" ${analysis_options}
 }
-

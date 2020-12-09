@@ -32,6 +32,7 @@ sys.path.append(base_path)
 print sys.path
 import models.benchmark_server.helper as helper
 from benchmark_server import benchmark_models as bm
+import run_task_to_icafe as to_icafe
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
@@ -97,7 +98,9 @@ parser.add_argument(
 DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU',
                          '4': 'FOUR_GPU',
                          '8': 'MULTI_GPU',
-                         '8mp': 'MULTI_GPU_MULTI_PROCESS'}
+                         '8mp': 'MULTI_GPU_MULTI_PROCESS',
+                         '16': '16_THREADS',
+                         '24': '24_THREADS'}
 
 TABLE_HEADER = ["模型", "运行环境", "指标", "当前值", "标准Benchmark值", "相对标准值波幅", "前5次平均值", "相对前5次值波幅"]
 TABLE_PROFILE_HEADER = ["模型", "运行环境", "指标", "当前值", "前5次平均值", "相对前5次值波幅"]
@@ -140,6 +143,7 @@ def load_folder_files(folder_path, recursive=True):
 
         if not recursive:
             break
+        file_list.sort()
 
     return file_list
 
@@ -213,8 +217,9 @@ def compute_results(results_list, check_key, cur_value, index, sign=1):
     return avg_value, ranges, color
 
 
-def check_results(model_name, index, run_machine_type, cur_value, html_results, sign=1, check_key=None,
-                  is_profile=False, unit=""):
+def check_results(model_name, index, run_machine_type, cur_value, html_results, sign=1,
+                  check_key=None,
+                  is_profile=False, unit="", outlier=0, icafe_results=[]):
     """
     check current results in range[-0.05, 0.05]
     Args:
@@ -269,9 +274,9 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
     print('benchmark_value:{}'.format(benchmark_value))
     print('current_value:{}'.format(cur_value))
     if not isinstance(benchmark_value, dict):
-        if float(cur_value) < float(benchmark_value) and sign == -1:
+        if float(cur_value) < float(benchmark_value) and sign == -1 and outlier == 0:
             benchmark = 1
-        elif float(cur_value) > float(benchmark_value) and sign == 1:
+        elif float(cur_value) > float(benchmark_value) and sign == 1 and outlier == 0:
             benchmark = 1
     avg_value, avg_range, avg_color = compute_results(results_list, check_key, cur_value, index, sign)
 
@@ -297,12 +302,15 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
                                    dict(value="{:.2f}%".format(round(benchmark_range * 100, 2)), color=benchmark_color),
                                    dict(value="{:.4f}{}".format(avg_value, unit)),
                                    dict(value="{:.2f}%".format(round(avg_range * 100, 2)), color=avg_color)]
+            if benchmark_color == 'red' and index == 1:
+                current_icafe_result = [model_name, print_machine_type, 'down', current_html_result]
+                icafe_results.append(current_icafe_result)
 
         html_results[DICT_INDEX[index]]["data"].append(current_html_result)
     return benchmark
 
 
-def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0, benchmark=0):
+def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0, benchmark=0, outlier=0):
     """insert job results to db"""
     pjr = bm.JobResults()
     pjr.job_id = job_id
@@ -310,6 +318,7 @@ def insert_results(job_id, model_name, report_index_id, result, unit, log_path=0
     pjr.report_index_id = report_index_id
     pjr.report_result = result
     pjr.unit = unit
+    pjr.outlier = outlier
     pjr.benchmark = benchmark
     pjr.train_log_path = log_path
     pjr.save()
@@ -383,7 +392,7 @@ def machine_type_to_print(run_machine_type):
             print_machine_type = '1_GPU'
     elif run_machine_type == 'FOUR_GPU':
         if os.getenv("BENCHMARK_TYPE") == 'CPU_Benchmark':
-            print_machine_type == '4_THREADS'
+            print_machine_type = '4_THREADS'
         else:
             print_machine_type = '4_GPUS'
     elif run_machine_type == 'MULTI_GPU':
@@ -391,11 +400,10 @@ def machine_type_to_print(run_machine_type):
             print_machine_type = '8_THREADS'
         else:
             print_machine_type = '8_GPUS'
+    elif run_machine_type == 'MULTI_GPU_MULTI_PROCESS':
+        print_machine_type = '8_GPUS_8_PROCESSES'
     else:
-        if os.getenv("BENCHMARK_TYPE") == 'CPU_Benchmark':
-            print_machine_type = '8_THREADS'
-        else:
-            print_machine_type = '8_GPUS_8_PROCESSES'
+        print_machine_type = run_machine_type
     return print_machine_type
 
 
@@ -408,6 +416,7 @@ def parse_logs(args):
     image_id = get_image_id()
     file_list = load_folder_files(os.path.join(args.log_path, "index"))
     html_results = OrderedDict()
+    icafe_results = []
     for k in DICT_INDEX.values():
         html_results[k] = {}
         if k == 'Profiler_info':
@@ -439,6 +448,8 @@ def parse_logs(args):
             cpu_utilization_result = 0
             gpu_utilization_result = 0
             unit = ''
+            outlier = 0
+            outlier_mem = 0 
             mem_result = 0
             benchmark = 0
             benchmark_mem = 0
@@ -467,13 +478,22 @@ def parse_logs(args):
                 job_info["model_name"], run_machine_type, job_info["index"], result))
             # check_results and send alarm email
             if job_info["index"] == 1:  # speed
-                if int(result) == 0:
-                    print_machine_type = machine_type_to_print(run_machine_type)
+                print_machine_type = machine_type_to_print(run_machine_type)
+                #record fail jobs
+                if float(result) == 0 or os.getenv('job_fail_flag') == 1:
                     FAIL_LIST.append([job_info["model_name"], print_machine_type])
-                benchmark = check_results(job_info["model_name"], job_info["index"], run_machine_type, result,
-                                          html_results, -1 if args.device_type.lower() == 'cpu' else 1, unit=unit)
-                benchmark_mem = check_results(job_info["model_name"], 2, run_machine_type, mem_result, html_results,
-                                              -1)  # mem
+                    outlier = 1
+                    outlier_mem = 1
+                    icafe_results.append([job_info["model_name"], print_machine_type, 'fail', []])
+                benchmark = check_results(job_info["model_name"], job_info["index"],
+                                          run_machine_type, result,
+                                          html_results,
+                                          -1 if args.device_type.lower() == 'cpu' else 1,
+                                          unit=unit, outlier=outlier, icafe_results=icafe_results)
+                benchmark_mem = check_results(job_info["model_name"], 2, run_machine_type,
+                                              mem_result, html_results,
+                                              -1, outlier=outlier_mem,
+                                              icafe_results=icafe_results)  # mem
             elif job_info["index"] == 3:  # profiler
                 check_results(job_info["model_name"], job_info["index"], run_machine_type,
                               json.loads(result),
@@ -490,7 +510,7 @@ def parse_logs(args):
             try:
                 # save job results
                 pjr = insert_results(job_id, job_info["model_name"], job_info["index"], result, unit, 1,
-                                     benchmark=benchmark)
+                                     benchmark=benchmark, outlier=outlier)
                 log_file = job_info["log_file"].split("/")[-1]
                 log_base = args.paddle_version + "/" + args.implement_type
                 train_log_path = LOG_SERVER + os.path.join(log_base, "train_log", log_file)
@@ -499,7 +519,7 @@ def parse_logs(args):
                     insert_results(job_id, job_info["model_name"], 7, cpu_utilization_result, '%')
                     insert_results(job_id, job_info["model_name"], 8, gpu_utilization_result, '%')
                     pjr2 = insert_results(job_id, job_info["model_name"], 2, mem_result, 'MiB', 1,
-                                          benchmark=benchmark_mem)
+                                          benchmark=benchmark_mem, outlier=outlier_mem)
                     bm.JobResultsLog.objects.create(
                         result_id=pjr2.result_id, log_path=json.dumps(log_save_dict)).save()
                     if int(job_info["gpu_num"]) == 1:
@@ -524,6 +544,10 @@ def parse_logs(args):
         env["cudnn_version"] = args.cudnn_version
     email_t = template.EmailTemplate(title, env, html_results, args.log_path, FAIL_LIST)
     email_t.construct_email_content()
+    print('icafe_results:{}'.format(icafe_results))
+    # build icafe card
+    item = to_icafe.get_alarm_content(icafe_results, env, TABLE_HEADER)
+    to_icafe.write_icafe(item)
 
 
 if __name__ == '__main__':

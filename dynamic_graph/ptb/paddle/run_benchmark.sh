@@ -43,7 +43,7 @@ function _train(){
     train_cmd="--data_path ./data/simple-examples/data/ \
                --max_iter ${max_iter} \
                --model_type small"
-    python -u ptb_dy.py ${train_cmd} > ${log_file} 2>&1
+    timeout 15m python -u ptb_dy.py ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
         export job_fail_flag=1

@@ -114,7 +114,7 @@ def _parse_parameters(case_name, last_line):
             pass
 
 
-def _parse_speed(case_name, statistic_type, last_line, compare_framwork):
+def _parse_speed(case_name, statistic_type, last_line):
     assert res.get(case_name, None) is not None
     print(statistic_type)
 
@@ -177,7 +177,7 @@ def _parse_accuracy(case_name, statistic_type, last_line):
         res[case_name][difference_key] = "--"
 
 
-def get_job_res(inputfile, specified_op_list=None, compare_framwork=None):
+def get_job_res(inputfile, specified_op_list=None):
     """
     implements within avoiding too large file
 
@@ -229,7 +229,7 @@ def get_job_res(inputfile, specified_op_list=None, compare_framwork=None):
     _parse_parameters(case_name, last_line)
 
     if last_line and "_speed_" in statistic_type:
-        _parse_speed(case_name, statistic_type, last_line, compare_framwork)
+        _parse_speed(case_name, statistic_type, last_line)
 
     if last_line and "_accuracy_" in statistic_type:
         _parse_accuracy(case_name, statistic_type, last_line)
@@ -446,9 +446,7 @@ if __name__ == '__main__':
         specified_op_list = args.specified_op_list.split()
 
     for filename in sorted(filenames):
-        get_job_res(
-            os.path.join(op_result_dir, filename), specified_op_list,
-            args.compare_framwork)
+        get_job_res(os.path.join(op_result_dir, filename), specified_op_list)
 
     data = []
     benchmark_result_list = []

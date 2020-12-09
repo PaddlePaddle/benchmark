@@ -1,21 +1,24 @@
 #!bin/bash
-# for resenet in PaddleClas
 
 set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|2|3 batch_size model_name(ResNet50_bs32|ResNet50_bs128|ReNet152) sp|mp 1(max_epoch)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|3|6 sp|mp 1(max_epoch) model_name(MobileNetV1|MobileNetV2)" 
     exit
 fi
 
 function _set_params(){
     index=$1
-    base_batch_size=${2}
-    model_name=${3}
+    base_batch_size=128
+    model_name=${4}
+    if [ ${4} != "MobileNetV1" ] && [ ${4} != "MobileNetV2" ]; then
+            echo "------------> please check the model name!"
+            exit 1
+    fi
 
-    run_mode=${4:-"sp"} # Use sp for single GPU and mp for multiple GPU.
-    max_epoch=${5:-"1"}
+    run_mode=${2:-"sp"} # Use sp for single GPU and mp for multiple GPU.
+    max_epoch=${3:-"1"}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -43,21 +46,14 @@ function _set_params(){
 }
 
 function _train(){
-    if [ ${model_name} = "ResNet152" ]; then
-        config_file="ResNet152.yaml"
-        file_list="train_list_resnet152.txt"
-    else
-        config_file="ResNet50.yaml"
-        file_list="train_list.txt"
-    fi 
-    train_cmd="-c ./configs/ResNet/${config_file}
-               -o print_interval=10  
-               -o TRAIN.batch_size=${batch_size} 
-               -o validate=False  
-               -o epochs=${max_epoch}  
-               -o TRAIN.data_dir=./dataset/imagenet100_data 
-               -o TRAIN.file_list=./dataset/imagenet100_data/${file_list}
-               -o TRAIN.num_workers=8" 
+    train_cmd="-c ./configs/${model_name}/${model_name}.yaml 
+               -o validate=False
+               -o epochs=${max_epoch}
+               -o print_interval=10
+               -o TRAIN.batch_size=${batch_size}
+               -o TRAIN.data_dir=./dataset/dataset_100
+               -o TRAIN.file_list=./dataset/dataset_100/train_list_mobile.txt
+               -o TRAIN.num_workers=8"
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u tools/train.py "${train_cmd}
     else
@@ -67,17 +63,9 @@ function _train(){
     fi
     
     timeout 15m ${train_cmd} > ${log_file} 2>&1
-    if [ $? -ne 0 ];then
-        echo -e "${model_name}, FAIL"
-        export job_fail_flag=1
-    else
-        echo -e "${model_name}, SUCCESS"
-        export job_fail_flag=0
-    fi
-
-    if [ ${run_mode} != "sp"  -a -d mylog ]; then
+    if [ ${run_mode} != "sp"  -a -d mylog_${model_name} ]; then
         rm ${log_file}
-        cp mylog/`ls -l mylog/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ${log_file}
+        cp mylog_${model_name}/`ls -l mylog_${model_name}/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ${log_file}
     fi
 }
 

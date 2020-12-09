@@ -54,19 +54,20 @@ function _train(){
     WORK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     export PYTHONPATH=${WORK_ROOT}:${PYTHONPATH}
 
-    train_cmd=" -c configs/mask_rcnn_r50_fpn_1x_coco.yml 
+    #train_cmd=" -c configs/mask_rcnn_r50_fpn_1x_coco.yml
+    train_cmd=" -c configs/mask_rcnn_r50_fpn_1x.yml 
      --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size}"
 
     case ${run_mode} in
     sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --started_port=9785 --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch  --log_dir=./mylog --gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    ${train_cmd} > ${log_file} 2>&1
+    timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
         export job_fail_flag=1

@@ -2,17 +2,18 @@
 
 function print_usage() {
     echo "Usage:"
-    echo "    bash ${0} test_dir json_config_dir graph output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file"
+    echo "    bash ${0} test_dir json_config_dir graph output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file framework testing_mode"
     echo ""
     echo "Arguments:"
     echo "  test_dir                - the directory of tests case"
     echo "  json_config_dir         - the directory of json configs"
-    echo "  graph                   - the graph of paddle"
     echo "  output_dir              - the output directory"
     echo "  gpu_id (optional)       - the GPU id. Only one GPU can be specified."
     echo "  device (optional)       - cpu, gpu, both"
     echo "  task (optional)         - speed, accuracy, both"
     echo "  op_list_file (optional) - the path which specified op list to test"
+    echo "  framework (optional)    - paddle, tensorflow, pytorch, both"
+    echo "  testing_mode (optional) - the testing_mode of paddle. static(default)|dynamic."
 }
 
 function print_arguments() {
@@ -21,12 +22,13 @@ function print_arguments() {
     echo ""
     echo "test_dir        : ${TEST_DIR}"
     echo "json_config_dir : ${JSON_CONFIG_DIR}"
-    echo "graph           : ${GRAPH}"
     echo "output_dir      : ${OUTPUT_DIR}" 
     echo "gpu_ids         : ${GPU_IDS}"
     echo "device_set      : ${DEVICE_SET[@]}"
     echo "task_set        : ${TASK_SET[@]}"
     echo "op_list_file    : ${OP_LIST_FILE}"
+    echo "framework       : ${FRAMEWORK_SET[@]}"
+    echo "testing_mode    : ${TESTING_MODE}"
     echo ""
 }
 
@@ -55,13 +57,12 @@ TEST_DIR=${1}
 TEST_MODULE_NAME=${TEST_DIR##*/}
 
 JSON_CONFIG_DIR=${2}
-GRAPH=${3:-"static"}
-OUTPUT_DIR=${4}
+OUTPUT_DIR=${3}
 if [ ! -d ${OUTPUT_DIR} ]; then
     mkdir -p ${OUTPUT_DIR}
 fi
 
-GPU_IDS=${5:-"0"}
+GPU_IDS=${4:-"0"}
 GPU_IDS_ARRAY=(${GPU_IDS//,/ })
 NUM_GPU_DEVICES=${#GPU_IDS_ARRAY[*]}
 for i in ${GPU_IDS_ARRAY[*]}; do
@@ -73,21 +74,21 @@ if [ ${NUM_GPU_DEVICES} -le 0 ]; then
 fi
 
 DEVICE_SET=("gpu" "cpu")
-if [ $# -ge 6 ]; then
-    if [[ ${6} == "cpu" || ${6} == "gpu" ]]; then
-        DEVICE_SET=(${6})
+if [ $# -ge 5 ]; then
+    if [[ ${5} == "cpu" || ${5} == "gpu" ]]; then
+        DEVICE_SET=(${5})
     fi
 fi
 
 TASK_SET=("speed" "accuracy")
-if [ $# -ge 7 ]; then
-    if [[ ${7} == "speed" || ${7} == "accuracy" ]]; then
-        TASK_SET=(${7})
+if [ $# -ge 6 ]; then
+    if [[ ${6} == "speed" || ${6} == "accuracy" ]]; then
+        TASK_SET=(${6})
     fi
 fi
 
-if [ $# -ge 8 ]; then
-    OP_LIST_FILE=${8}
+if [ $# -ge 7 ]; then
+    OP_LIST_FILE=${7}
 else
     OP_LIST_FILE=${OUTPUT_DIR}/api_info.txt
     python ${DEPLOY_DIR}/collect_api_info.py \
@@ -96,6 +97,22 @@ else
     return_status=$?
     if [ ${return_status} -ne 0 ] || [ ! -f "${OP_LIST_FILE}" ]; then
         OP_LIST_FILE=${DEPLOY_DIR}/api_info.txt
+    fi
+fi
+
+FRAMEWORK_SET=("paddle" "tensorflow")
+if [ $# -ge 8 ]; then
+    if [[ ${8} == "paddle"  || ${8} == "tensorflow" || ${8} == "pytorch" ]]; then
+        FRAMEWORK_SET=(${8})
+    fi
+fi
+
+TESTING_MODE={"static"}
+if [ $# -ge 9 ]; then
+    TESTING_MODE=${9}
+    if [[ ${9} == "dynamic" && ${8} == "both" ]]; then
+        FRAMEWORK_SET=("paddle" "pytorch")
+        echo "$FRAMEWORK_SET"
     fi
 fi
 
@@ -131,6 +148,7 @@ function print_detail_status() {
     else
         printf "  [%s][%d-%d][%s] %-120s ...... %s\n" "${gpu_id}" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     fi
+    [ "$BENCHMARK_PRINT_FAIL_LOG" == "1" ] && cat ${logfile}
 }
 
 function print_finished_task_detail() {
@@ -208,15 +226,10 @@ function execute_one_case() {
 
         # TASK_SET is specified by argument: "speed", "accuracy"
         for task in "${TASK_SET[@]}"; do 
-            if [ ${task} = "accuracy" ]; then
-                local framwork_set=("paddle")
-            elif [ ${GRAPH} = "static" ]; then
-                local framwork_set=("paddle" "tensorflow")
-            else
-                local framwork_set=("paddle" "pytorch")
-            fi
-            # framework_set: "paddle", "tensorflow"
-            for framework in "${framwork_set[@]}"; do 
+            # FRAMEWORK_SET is specified by argument: "paddle", "tensorflow"
+            for framework in "${FRAMEWORK_SET[@]}"; do 
+                [ "${task}" == "accuracy" -a "${framework}" == "tensorflow" ] && continue
+                [ "${task}" == "accuracy" -a "${framework}" == "pytorch" ] && continue
                 # direction_set: "forward", "backward"
                 for direction in "${direction_set[@]}"; 
                 do
@@ -231,7 +244,7 @@ function execute_one_case() {
                           --api_name ${api_name} \
                           --task ${task} \
                           --framework ${framework} \
-                          --graph ${GRAPH} \
+                          --testing_mode ${TESTING_MODE} \
                           --json_file ${json_file_path} \
                           --config_id $i \
                           --backward ${backward} \

@@ -174,6 +174,7 @@ class APIConfig(object):
         self.backward = False
         self.feed_spec = None
         self.run_tf = True
+        self.run_torch = True
 
     @classmethod
     def get_all_subclasses(self):
