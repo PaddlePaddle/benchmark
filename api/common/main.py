@@ -258,7 +258,8 @@ def test_main_without_json(pd_obj=None,
 
     if _is_torch_enabled(args, config):
         assert torch_obj is not None, "Pytorch object is None."
-        torch_config = config
+        torch_config = config.to_pytorch()
+        print(torch_config)
         torch_outputs, torch_stats = torch_obj.run(torch_config, args)
         feeder_adapter = torch_obj.get_feeder()
 
@@ -271,6 +272,7 @@ def test_main_without_json(pd_obj=None,
 
     if _is_paddle_enabled(args, config) and args.testing_mode == "dynamic":
         assert pd_dy_obj is not None, "Paddle dynamic object is None."
+        print(config)
         pd_dy_outputs, pd_dy_stats = pd_dy_obj.run(config, args,
                                                    feeder_adapter)
 

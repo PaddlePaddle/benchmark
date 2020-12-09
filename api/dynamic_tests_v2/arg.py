@@ -25,22 +25,18 @@ class ArgConfig(APIConfig):
 class PaddleArg(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        self.feed_list = [x]
+        result = self.layers(config.api_name, x=x, axis=config.axis)
 
-    def run_graph(self, config):
-        result = self.layers(
-            config.api_name, x=self.feed_list[0], axis=config.axis)
+        self.feed_list = [x]
         self.fetch_list = [result]
 
 
 class TorchArg(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        self.feed_list = [x]
+        result = self.layers(config.api_name, input=x, dim=config.axis)
 
-    def run_graph(self, config):
-        result = self.layers(
-            config.api_name, input=self.feed_list[0], dim=config.axis)
+        self.feed_list = [x]
         self.fetch_list = [result]
 
 

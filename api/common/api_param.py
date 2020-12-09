@@ -260,6 +260,14 @@ class APIConfig(object):
             tf_config.api_name = self.api_list[self.api_name]
         return tf_config
 
+    def to_pytorch(self):
+        assert self.__framework == "paddle"
+        torch_config = copy.deepcopy(self)
+        torch_config.__framework = "pytorch"
+        if hasattr(self, "api_list"):
+            torch_config.api_name = self.api_list[self.api_name]
+        return torch_config
+
     def to_string(self):
         if self.params_list is None and self.variable_list is None:
             self._parse_params()
