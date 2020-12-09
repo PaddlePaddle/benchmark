@@ -19,7 +19,7 @@ class ElementwiseConfig(APIConfig):
     def __init__(self, op_type="elementwise"):
         super(ElementwiseConfig, self).__init__(op_type)
         self.api_name = 'add'
-        self.api_list = {'add': 'add', 'subtract': 'subtract'}
+        self.api_list = {'add': 'add'}
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
@@ -37,11 +37,9 @@ class PDElementwise(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        self.feed_list = [x, y]
+        result = self.layers(config.api_name, x=x, y=y)
 
-    def run_graph(self, config):
-        result = self.layers(
-            config.api_name, x=self.feed_list[0], y=self.feed_list[1])
+        self.feed_list = [x, y]
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, self.feed_list)
@@ -51,11 +49,9 @@ class TorchElementwise(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        self.feed_list = [x, y]
+        result = self.layers(config.api_name, input=x, other=y)
 
-    def run_graph(self, config):
-        result = self.layers(
-            config.api_name, input=self.feed_list[0], other=self.feed_list[1])
+        self.feed_list = [x, y]
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, self.feed_list)

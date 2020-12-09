@@ -15,32 +15,37 @@
 from common_import import *
 
 
-class PDDropout(PaddleDynamicAPIBenchmarkBase):
+class ReluConfig(APIConfig):
+    def __init__(self):
+        super(ReluConfig, self).__init__("relu")
+        self.feed_spec = {"range": [-1, 1]}
+        # self.api_list = {'relu': 'relu', 'relu6': 'relu6'}
+        # relu belongs to activation op series which only has one variable
+        # thus relu can reuse activation parameters 
+        self.alias_name = "activation"
+
+
+class PDRelu(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        m = paddle.nn.Dropout(p=config.p, axis=config.axis, mode=config.mode)
-        result = m(x)
+        result = paddle.nn.functional.relu(x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, self.feed_list)
+            self.append_gradients(result, [x])
 
 
-class TorchDropout(PytorchAPIBenchmarkBase):
+class TorchRelu(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        m = torch.nn.Dropout(p=config.p)
-        result = m(x)
+        result = torch.nn.functional.relu(input=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, self.feed_list)
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PDDropout(),
-        torch_obj=TorchDropout(),
-        config=APIConfig("dropout"))
+    test_main(pd_dy_obj=PDRelu(), torch_obj=TorchRelu(), config=ReluConfig())

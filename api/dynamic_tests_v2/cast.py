@@ -15,32 +15,32 @@
 from common_import import *
 
 
-class PDDropout(PaddleDynamicAPIBenchmarkBase):
+class CastConfig(APIConfig):
+    def __init__(self):
+        super(CastConfig, self).__init__('cast')
+        self.feed_spec = {"range": [-10, 10]}
+
+
+class PDCast(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        m = paddle.nn.Dropout(p=config.p, axis=config.axis, mode=config.mode)
-        result = m(x)
+        result = paddle.cast(x=x, dtype=config.dtype)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, self.feed_list)
 
 
-class TorchDropout(PytorchAPIBenchmarkBase):
+class TorchCast(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        m = torch.nn.Dropout(p=config.p)
-        result = m(x)
+        if config.dtype == "float16":
+            result = x.to(torch.float16)
+        else:
+            assert False, "Not supported yet!"
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, self.feed_list)
 
 
 if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PDDropout(),
-        torch_obj=TorchDropout(),
-        config=APIConfig("dropout"))
+    test_main(pd_dy_obj=PDCast(), torch_obj=TorchCast(), config=CastConfig())

@@ -15,32 +15,45 @@
 from common_import import *
 
 
-class PDDropout(PaddleDynamicAPIBenchmarkBase):
+class ActivationConfig(APIConfig):
+    def __init__(self):
+        super(ActivationConfig, self).__init__('activation')
+        self.api_name = 'cos'
+        self.api_list = {
+            'sqrt': 'sqrt',
+            'cos': 'cos',
+            'exp': 'exp',
+            'sin': 'sin',
+            'sinh': 'sinh',
+            'square': 'square',
+            'tanh': 'tanh'
+        }
+
+
+class PDActivation(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        m = paddle.nn.Dropout(p=config.p, axis=config.axis, mode=config.mode)
-        result = m(x)
+        result = self.layers(config.api_name, x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, self.feed_list)
+            self.append_gradients(result, [x])
 
 
-class TorchDropout(PytorchAPIBenchmarkBase):
+class TorchActivation(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        m = torch.nn.Dropout(p=config.p)
-        result = m(x)
+        result = self.layers(config.api_name, x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, self.feed_list)
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDDropout(),
-        torch_obj=TorchDropout(),
-        config=APIConfig("dropout"))
+        pd_dy_obj=PDActivation(),
+        torch_obj=TorchActivation(),
+        config=ActivationConfig())

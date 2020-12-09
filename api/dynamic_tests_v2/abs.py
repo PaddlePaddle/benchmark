@@ -27,25 +27,23 @@ class AbsConfig(APIConfig):
 class PaddleAbs(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        self.feed_list = [x]
+        result = paddle.abs(x=x)
 
-    def run_graph(self, config):
-        result = paddle.abs(x=self.feed_list[0])
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, self.feed_list)
+            self.append_gradients(result, [x])
 
 
 class TorchAbs(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        self.feed_list = [x]
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        result = torch.abs(x=x)
 
-    def run_graph(self, config):
-        result = torch.abs(x=self.feed_list[0])
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, self.feed_list)
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
