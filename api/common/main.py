@@ -261,7 +261,7 @@ def test_main_without_json(pd_obj=None,
         torch_config = config.to_pytorch()
         print(torch_config)
         torch_outputs, torch_stats = torch_obj.run(torch_config, args)
-        feeder_adapter = torch_obj.get_feeder()
+        feeder_adapter = torch_obj.generate_random_feeder(torch_config)
 
         if args.task == "speed":
             torch_stats["gpu_time"] = args.gpu_time

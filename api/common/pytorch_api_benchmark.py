@@ -76,7 +76,7 @@ class PytorchAPIBenchmarkBase(object):
             self._feed_dict[name] = var
 
             if value is None:
-                self._feed_list.append(feed_value)
+                self._generated_feed_values.append(feed_value)
         else:
             var = self._feed_dict[name]
         return var
@@ -112,15 +112,25 @@ class PytorchAPIBenchmarkBase(object):
         result = self._layers_function(**kwargs)
         return result
 
-    def get_feeder(self):
-        return self._feed_list
+    def generate_random_feeder(self, config):
+        return feeder.FeederAdapter("pytorch", config.feed_spec,
+                                    self._generated_feed_values)
 
     def append_gradients(self, targets, inputs):
-        self._backward = True
-        loss = targets.sum()
-        loss.backward()
-        loss.retain_grad()
-        for var in self.feed_list:
+        if not isinstance(inputs, list):
+            inputs = [inputs]
+        for var in inputs:
+            var.grad = None
+
+        if not isinstance(targets, list):
+            ones_like_targets = torch.ones_like(targets)
+            targets.backward(gradient=ones_like_targets)
+            targets.retain_grad()
+            self._backward = True
+        else:
+            # torch.autograd.backward(tensors=inputs, grad_tensors=targets)
+            assert False, "Gradients of list is not supported now!"
+        for var in inputs:
             self.fetch_list.append(var.grad)
 
     def run_impl(self,
@@ -185,8 +195,8 @@ class PytorchAPIBenchmarkBase(object):
         self.feed_list = None
         self.fetch_list = None
         self._feed_spec = None
-        self._feed_list = []
+        self._generated_feed_values = []
+        self._feed_dict = {}
         self._backward = False
         self._status = BEFORE_RUN
-        self._feed_dict = {}
         self._layers_function = None
