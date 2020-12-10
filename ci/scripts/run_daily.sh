@@ -84,6 +84,8 @@ function run(){
   pushd api > /dev/null
   bash deploy/main_control.sh tests_v2 tests_v2/configs ${logs_dir} "${VISIBLE_DEVICES}" "${DEVICES_TYPE}"
   popd > /dev/null
+  # write to benchmark
+  python api/deploy/write_benchmark.py --logs_dir ${logs_dir}
 }
 
 prepare_env
