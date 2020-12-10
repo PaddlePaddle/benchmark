@@ -75,10 +75,7 @@ class PaddleDynamicAPIBenchmarkBase(object):
 
     @property
     def backward(self):
-        if hasattr(self, "_PaddleDynamicAPIBenchmarkBase__backward"):
-            return self._backward
-        else:
-            return False
+        return self._backward
 
     def layers(self, api_name, module_name=None, **kwargs):
         def _import_func(paddle_module_name, api_name):
@@ -110,11 +107,13 @@ class PaddleDynamicAPIBenchmarkBase(object):
         return result
 
     def append_gradients(self, targets, inputs):
+        gradients = paddle.grad(outputs=targets, inputs=inputs)
         self._backward = True
-        loss = paddle.sum(targets)
-        loss.backward()
-        for var in inputs:
-            self.fetch_list.append(var.grad)
+        if isinstance(gradients, list):
+            for grad in gradients:
+                self.fetch_list.append(grad)
+        else:
+            self.fetch_list.append(gradients)
 
     def run_impl(self,
                  use_gpu,

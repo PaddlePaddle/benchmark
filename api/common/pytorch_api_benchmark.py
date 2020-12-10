@@ -116,11 +116,20 @@ class PytorchAPIBenchmarkBase(object):
         return self._feed_list
 
     def append_gradients(self, targets, inputs):
-        self._backward = True
-        loss = targets.sum()
-        loss.backward()
-        loss.retain_grad()
-        for var in self.feed_list:
+        if not isinstance(inputs, list):
+            inputs = [inputs]
+        for var in inputs:
+            var.grad = None
+
+        if not isinstance(targets, list):
+            ones_like_targets = torch.ones_like(targets)
+            targets.backward(gradient=ones_like_targets)
+            targets.retain_grad()
+            self._backward = True
+        else:
+            # torch.autograd.backward(tensors=inputs, grad_tensors=targets)
+            assert False, "Gradients of list is not supported now!"
+        for var in inputs:
             self.fetch_list.append(var.grad)
 
     def run_impl(self,
