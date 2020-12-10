@@ -122,7 +122,9 @@ def _parse_speed(case_name, statistic_type, last_line):
         "paddle_gpu_speed_forward": "gpu_time",
         "paddle_gpu_speed_backward": "gpu_time_backward",
         "tensorflow_gpu_speed_forward": "tf_gpu_time",
-        "tensorflow_gpu_speed_backward": "tf_gpu_time_backward"
+        "tensorflow_gpu_speed_backward": "tf_gpu_time_backward",
+        "pytorch_gpu_speed_forward": "pytorch_gpu_time",
+        "pytorch_gpu_speed_backward": "pytorch_gpu_time_backward"
     }
     gpu_time_key = gpu_time_key_map.get(statistic_type, None)
 
@@ -369,6 +371,11 @@ if __name__ == '__main__':
         default=None,
         help='Specify the result directory of operator benchmark.')
     parser.add_argument(
+        '--compare_framework',
+        type=str,
+        default=None,
+        help='Specify the framework (tensorflow, pytorch) of comparison.')
+    parser.add_argument(
         '--specified_op_list',
         type=str,
         default=None,
@@ -450,7 +457,8 @@ if __name__ == '__main__':
         case_detail['name'] = key
         data.append(case_detail)
 
-        op_unit = op_benchmark_unit.OpBenchmarkUnit(case_detail)
+        op_unit = op_benchmark_unit.OpBenchmarkUnit(case_detail,
+                                                    args.compare_framework)
         benchmark_result_list.append(op_unit)
 
     op_frequency_dict = None
@@ -467,11 +475,16 @@ if __name__ == '__main__':
                              args.dump_with_parameters)
 
     if args.dump_to_excel:
+        if args.compare_framework not in ["tensorflow", "pytorch"]:
+            raise ValueError(
+                "The framework must be tensorflow or pytorch, but the framework is %s."
+                % args.compare_framework)
+
         import write_excel
 
         write_excel.dump_excel(benchmark_result_list, op_result_dir,
                                args.url_prefix, args.output_path,
-                               op_frequency_dict)
+                               args.compare_framework, op_frequency_dict)
 
     if args.dump_to_json:
         import write_json

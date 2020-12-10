@@ -2,7 +2,7 @@
 
 function print_usage() {
     echo "Usage:"
-    echo "    bash ${0} test_dir json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file"
+    echo "    bash ${0} test_dir json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file framework testing_mode"
     echo ""
     echo "Arguments:"
     echo "  test_dir                - the directory of tests case"
@@ -12,7 +12,8 @@ function print_usage() {
     echo "  device (optional)       - cpu, gpu, both"
     echo "  task (optional)         - speed, accuracy, both"
     echo "  op_list_file (optional) - the path which specified op list to test"
-    echo "  framework (optional)    - paddle, tensorflow, both"
+    echo "  framework (optional)    - paddle, tensorflow, pytorch, both"
+    echo "  testing_mode (optional) - the testing_mode of paddle. static(default)|dynamic."
 }
 
 function print_arguments() {
@@ -27,6 +28,7 @@ function print_arguments() {
     echo "task_set        : ${TASK_SET[@]}"
     echo "op_list_file    : ${OP_LIST_FILE}"
     echo "framework       : ${FRAMEWORK_SET[@]}"
+    echo "testing_mode    : ${TESTING_MODE}"
     echo ""
 }
 
@@ -98,10 +100,27 @@ else
     fi
 fi
 
+TESTING_MODE={"static"}
 FRAMEWORK_SET=("paddle" "tensorflow")
 if [ $# -ge 8 ]; then
-    if [[ ${8} == "paddle" || ${8} == "tensorflow" ]]; then
-        FRAMEWORK_SET=(${8})
+    if [ $# -ge 9 ]; then
+        TESTING_MODE=${9}
+    fi
+
+    if [ ${TESTING_MODE} == "static" ]; then
+        if [[ ${8} == "paddle"  || ${8} == "tensorflow" ]]; then
+            FRAMEWORK_SET=(${8})
+        elif [ ${8} != "both" ]; then
+           echo "The static testing mode only can test paddle or tensorflow."
+        fi
+    elif [ ${TESTING_MODE} == "dynamic" ]; then
+        if [[ ${8} == "paddle"  || ${8} == "pytorch" ]]; then
+            FRAMEWORK_SET=(${8})
+        elif [ ${8} == "both" ]; then
+            FRAMEWORK_SET=("paddle" "pytorch")
+        else
+            echo "The dynamic testing mode only can test paddle or pytorch."
+        fi
     fi
 fi
 
@@ -218,6 +237,7 @@ function execute_one_case() {
             # FRAMEWORK_SET is specified by argument: "paddle", "tensorflow"
             for framework in "${FRAMEWORK_SET[@]}"; do 
                 [ "${task}" == "accuracy" -a "${framework}" == "tensorflow" ] && continue
+                [ "${task}" == "accuracy" -a "${framework}" == "pytorch" ] && continue
                 # direction_set: "forward", "backward"
                 for direction in "${direction_set[@]}"; 
                 do
@@ -232,6 +252,7 @@ function execute_one_case() {
                           --api_name ${api_name} \
                           --task ${task} \
                           --framework ${framework} \
+                          --testing_mode ${TESTING_MODE} \
                           --json_file ${json_file_path} \
                           --config_id $i \
                           --backward ${backward} \
