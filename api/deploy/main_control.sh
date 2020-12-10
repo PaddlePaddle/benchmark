@@ -2,7 +2,7 @@
 
 function print_usage() {
     echo "Usage:"
-    echo "    bash ${0} test_dir json_config_dir graph output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file framework testing_mode"
+    echo "    bash ${0} test_dir json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file framework testing_mode"
     echo ""
     echo "Arguments:"
     echo "  test_dir                - the directory of tests case"
@@ -100,19 +100,27 @@ else
     fi
 fi
 
+TESTING_MODE={"static"}
 FRAMEWORK_SET=("paddle" "tensorflow")
 if [ $# -ge 8 ]; then
-    if [[ ${8} == "paddle"  || ${8} == "tensorflow" || ${8} == "pytorch" ]]; then
-        FRAMEWORK_SET=(${8})
+    if [ $# -ge 9 ]; then
+        TESTING_MODE=${9}
     fi
-fi
 
-TESTING_MODE={"static"}
-if [ $# -ge 9 ]; then
-    TESTING_MODE=${9}
-    if [[ ${9} == "dynamic" && ${8} == "both" ]]; then
-        FRAMEWORK_SET=("paddle" "pytorch")
-        echo "$FRAMEWORK_SET"
+    if [ ${TESTING_MODE} == "static" ]; then
+        if [[ ${8} == "paddle"  || ${8} == "tensorflow" ]]; then
+            FRAMEWORK_SET=(${8})
+        elif [ ${8} != "both" ]; then
+           echo "The static testing mode only can test paddle or tensorflow."
+        fi
+    elif [ ${TESTING_MODE} == "dynamic" ]; then
+        if [[ ${8} == "paddle"  || ${8} == "pytorch" ]]; then
+            FRAMEWORK_SET=(${8})
+        elif [ ${8} == "both" ]; then
+            FRAMEWORK_SET=("paddle" "pytorch")
+        else
+            echo "The dynamic testing mode only can test paddle or pytorch."
+        fi
     fi
 fi
 

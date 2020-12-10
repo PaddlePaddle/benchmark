@@ -119,7 +119,7 @@ def dump_excel(benchmark_result_list,
                op_result_dir,
                url_prefix=None,
                output_path=None,
-               compare_framwork=None,
+               compare_framework=None,
                op_frequency_dict=None):
     """
     dump data to a excel
@@ -129,10 +129,10 @@ def dump_excel(benchmark_result_list,
         output_path = "op_benchmark_summary-%s.xlsx" % timestamp
         print("Output path is not specified, use %s." % output_path)
 
-    if compare_framwork not in ["paddle", "tensorflow", "pytorch"]:
+    if compare_framework not in ["paddle", "tensorflow", "pytorch"]:
         raise ValueError(
             "The framework must be one of paddle, tensorflow, pytorch, but framework is %s."
-            % compare_framwork)
+            % compare_framework)
 
     wb = xlw.Workbook(output_path)
     align = wb.add_format({"align": "left"})
@@ -171,7 +171,7 @@ def dump_excel(benchmark_result_list,
             time_set = ["total"] if device == "cpu" else ["total", "kernel"]
             for key in time_set:
                 title_names.append("Paddle(%s)" % key)
-                title_names.append(compare_framwork + "(%s)" % key)
+                title_names.append(compare_framework + "(%s)" % key)
                 title_names.append("compare result")
                 column_width.append(16)
                 column_width.append(16)
@@ -218,7 +218,7 @@ def dump_excel(benchmark_result_list,
                     else:
                         color = "black"
 
-                    for framework in ["paddle", compare_framwork]:
+                    for framework in ["paddle", compare_framework]:
                         op_time = result[framework][key]
                         op_speed_path = _op_result_path(
                             op_result_dir, op_unit.case_name, framework,
