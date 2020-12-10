@@ -76,7 +76,7 @@ class PytorchAPIBenchmarkBase(object):
             self._feed_dict[name] = var
 
             if value is None:
-                self._feed_list.append(feed_value)
+                self._generated_feed_values.append(feed_value)
         else:
             var = self._feed_dict[name]
         return var
@@ -112,8 +112,9 @@ class PytorchAPIBenchmarkBase(object):
         result = self._layers_function(**kwargs)
         return result
 
-    def get_feeder(self):
-        return self._feed_list
+    def generate_random_feeder(self, config):
+        return feeder.FeederAdapter("pytorch", config.feed_spec,
+                                    self._generated_feed_values)
 
     def append_gradients(self, targets, inputs):
         if not isinstance(inputs, list):
@@ -194,8 +195,8 @@ class PytorchAPIBenchmarkBase(object):
         self.feed_list = None
         self.fetch_list = None
         self._feed_spec = None
-        self._feed_list = []
+        self._generated_feed_values = []
+        self._feed_dict = {}
         self._backward = False
         self._status = BEFORE_RUN
-        self._feed_dict = {}
         self._layers_function = None

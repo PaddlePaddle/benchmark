@@ -167,8 +167,8 @@ class PaddleDynamicAPIBenchmarkBase(object):
         self._reset()
         self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
         self._need_fetch = args.task == "accuracy"
-        # feeder_adapter is a list and need to be improved.
-        self._feed_values = feeder_adapter
+        if feeder_adapter:
+            self._feed_values = feeder_adapter.to_paddle()
         outputs, stats = self.run_impl(
             use_gpu=args.use_gpu,
             config=config,
