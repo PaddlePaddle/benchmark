@@ -457,7 +457,7 @@ mask_rcnn(){
 
 #run_bert
 bert(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/pretrain_language_models/BERT/
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/legacy/pretrain_language_models/BERT/
     cd ${cur_model_path}
     rm -rf data
     ln -s ${data_path}/Bert/data ${cur_model_path}/data
@@ -498,7 +498,7 @@ bert(){
 
 #run_transformer
 transformer(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/machine_translation/transformer/
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/legacy/machine_translation/transformer/
     cd ${cur_model_path}
     ln -s ${data_path}/transformer/data ${cur_model_path}/data
     cp -r ${prepare_path}/transformer/mosesdecoder ${cur_model_path}/mosesdecoder
@@ -564,7 +564,7 @@ ddpg_deep_explore(){
 
 #run_paddingrnn
 paddingrnn(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/language_model
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/legacy/language_model
     cd ${cur_model_path}
     # Prepare data.
     ln -s ${data_path}/simple-examples ${cur_model_path}/data/simple-examples
@@ -634,7 +634,7 @@ yolov3(){
 
 # seq2seq
 seq2seq(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/seq2seq/seq2seq/
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/legacy/seq2seq/seq2seq/
     cd ${cur_model_path}
 
     # Prepare data

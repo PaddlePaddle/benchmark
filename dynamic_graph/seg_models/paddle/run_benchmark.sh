@@ -52,6 +52,7 @@ function _train(){
                --iters=${max_iter}
                --batch_size ${base_batch_size}
                --learning_rate 0.01
+               --num_workers 2
                --log_iters 5"
 
     if [ ${run_mode} = "sp" ]; then
