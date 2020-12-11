@@ -431,6 +431,10 @@ if __name__ == '__main__':
         default=True,
         help='Whether constructing alarm email [True|False]')
     args = parser.parse_args()
+    if args.compare_framework not in ["tensorflow", "pytorch"]:
+        raise ValueError(
+            "The framework must be tensorflow or pytorch, but the framework is %s."
+            % args.compare_framework)
 
     op_result_dir = os.path.abspath(args.op_result_dir)
     assert os.path.exists(
@@ -475,11 +479,6 @@ if __name__ == '__main__':
                              args.dump_with_parameters)
 
     if args.dump_to_excel:
-        if args.compare_framework not in ["tensorflow", "pytorch"]:
-            raise ValueError(
-                "The framework must be tensorflow or pytorch, but the framework is %s."
-                % args.compare_framework)
-
         import write_excel
 
         write_excel.dump_excel(benchmark_result_list, op_result_dir,

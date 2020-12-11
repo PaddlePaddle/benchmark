@@ -129,11 +129,6 @@ def dump_excel(benchmark_result_list,
         output_path = "op_benchmark_summary-%s.xlsx" % timestamp
         print("Output path is not specified, use %s." % output_path)
 
-    if compare_framework not in ["paddle", "tensorflow", "pytorch"]:
-        raise ValueError(
-            "The framework must be one of paddle, tensorflow, pytorch, but framework is %s."
-            % compare_framework)
-
     wb = xlw.Workbook(output_path)
     align = wb.add_format({"align": "left"})
     title_format = wb.add_format({
