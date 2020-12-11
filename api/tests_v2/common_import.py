@@ -47,12 +47,24 @@ def unsqueeze_short(short, long):
     For example: short is [16, 2048] and long is [16, 2048, 7, 7],
     it will return [16, 2048, 1, 1].
     """
-    short_extend = np.ones([len(long)], dtype=np.int32).tolist()
+    # Extend short with 0s.
+    short_extend_zeros = np.zeros([len(long)], dtype=np.int32).tolist()
     start = 0
     for value in short:
         for i in range(start, len(long)):
             if long[i] == value:
-                short_extend[i] = value
+                short_extend_zeros[i] = value
                 start = i
                 break
+    # Remove the 0s on the front and change 0s on the middle to 1s, [0, M, 0, N] -> [M, 1, N]
+    short_extend = []
+    first_nonzero_idx = -1
+    for i in range(len(short_extend_zeros)):
+        if first_nonzero_idx == -1 and short_extend_zeros[i] != 0:
+            first_nonzero_idx = i
+        if first_nonzero_idx > -1:
+            if short_extend_zeros[i] == 0:
+                short_extend.append(1)
+            else:
+                short_extend.append(short_extend_zeros[i])
     return short_extend
