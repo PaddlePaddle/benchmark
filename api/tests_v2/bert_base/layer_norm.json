@@ -1,0 +1,27 @@
+[{
+    "op": "layer_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "layer_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        }
+    }
+}]
