@@ -373,7 +373,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--compare_framework',
         type=str,
-        default=None,
+        default="tensorflow",
         help='Specify the framework (tensorflow, pytorch) of comparison.')
     parser.add_argument(
         '--specified_op_list',
