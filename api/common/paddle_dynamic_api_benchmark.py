@@ -107,13 +107,25 @@ class PaddleDynamicAPIBenchmarkBase(object):
         return result
 
     def append_gradients(self, targets, inputs):
-        gradients = paddle.grad(outputs=targets, inputs=inputs)
+        if not isinstance(targets, list):
+            if len(self._ones_like_targets) == 0:
+                ones_like_targets = paddle.ones_like(targets)
+                self._ones_like_targets.append(ones_like_targets)
+            else:
+                ones_like_targets = self._ones_like_targets[0]
+        else:
+            ones_like_targets = None
+        gradients = paddle.grad(
+            outputs=targets, inputs=inputs, grad_outputs=ones_like_targets)
         self._backward = True
         if isinstance(gradients, list):
             for grad in gradients:
                 self.fetch_list.append(grad)
         else:
             self.fetch_list.append(gradients)
+
+        self._backward_targets = targets
+        self._backward_inputs = inputs
 
     def run_impl(self,
                  use_gpu,
@@ -188,3 +200,6 @@ class PaddleDynamicAPIBenchmarkBase(object):
         self._status = BEFORE_RUN
         self._feed_dict = {}
         self._layers_function = None
+        self._ones_like_targets = []
+        self._backward_targets = None
+        self._backward_inputs = None

@@ -123,7 +123,11 @@ class PytorchAPIBenchmarkBase(object):
             var.grad = None
 
         if not isinstance(targets, list):
-            ones_like_targets = torch.ones_like(targets)
+            if len(self._ones_like_targets) == 0:
+                ones_like_targets = torch.ones_like(targets)
+                self._ones_like_targets.append(ones_like_targets)
+            else:
+                ones_like_targets = self._ones_like_targets[0]
             targets.backward(gradient=ones_like_targets)
             targets.retain_grad()
             self._backward = True
@@ -132,6 +136,9 @@ class PytorchAPIBenchmarkBase(object):
             assert False, "Gradients of list is not supported now!"
         for var in inputs:
             self.fetch_list.append(var.grad)
+
+        self._backward_targets = targets
+        self._backward_inputs = inputs
 
     def run_impl(self,
                  use_gpu,
@@ -200,3 +207,6 @@ class PytorchAPIBenchmarkBase(object):
         self._backward = False
         self._status = BEFORE_RUN
         self._layers_function = None
+        self._ones_like_targets = []
+        self._backward_targets = None
+        self._backward_inputs = None
