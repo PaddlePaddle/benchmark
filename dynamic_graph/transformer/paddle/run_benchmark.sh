@@ -22,21 +22,11 @@ function _set_params(){
 
     mission_name="机器翻译"
     direction_id=1
-    if [ ${model_name} == "transformer_base" ]; then 
-        skip_steps=3
-        keyword="avg_speed:"
-        separator=" "
-        position=17
-        model_mode=1 # steps/s -> steps/s
-    elif [ ${model_name} == "transformer_big" ]; then
-        keyword="ips:"
-        skip_steps=3
-        model_mode=-1
-        ips_unit="words/sec"
-    else
-        echo "please check your model name!"
-        exit 1
-    fi
+    skip_steps=3
+    keyword="avg_speed:"
+    separator=" "
+    position=17
+    model_mode=1 # steps/s -> steps/s
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
