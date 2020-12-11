@@ -89,7 +89,12 @@ fi
 
 if [ $# -ge 7 ]; then
     OP_LIST_FILE=${7}
-else
+    if [ ! -f "${OP_LIST_FILE}" ]; then
+        echo "The specified OP_LIST_FILE (${OP_LIST_FILE}) does not exist in the filesystem!"
+        unset OP_LIST_FILE
+    fi
+fi
+if [ "${OP_LIST_FILE}" == "" ]; then
     OP_LIST_FILE=${OUTPUT_DIR}/api_info.txt
     python ${DEPLOY_DIR}/collect_api_info.py \
         --test_module_name ${TEST_MODULE_NAME} \
