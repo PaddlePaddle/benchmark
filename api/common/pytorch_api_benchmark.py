@@ -117,23 +117,33 @@ class PytorchAPIBenchmarkBase(object):
                                     self._generated_feed_values)
 
     def append_gradients(self, targets, inputs):
+        if self._forward_fetch_list is None:
+            self._forward_fetch_list = []
+            for var in self.fetch_list:
+                self._forward_fetch_list.append(var)
+
         if not isinstance(inputs, list):
             inputs = [inputs]
         for var in inputs:
             var.grad = None
 
         if not isinstance(targets, list):
+            targets.grad = None
             if len(self._ones_like_targets) == 0:
                 ones_like_targets = torch.ones_like(targets)
                 self._ones_like_targets.append(ones_like_targets)
             else:
                 ones_like_targets = self._ones_like_targets[0]
-            targets.backward(gradient=ones_like_targets)
+            targets.backward(gradient=ones_like_targets, retain_graph=True)
             targets.retain_grad()
             self._backward = True
         else:
             # torch.autograd.backward(tensors=inputs, grad_tensors=targets)
             assert False, "Gradients of list is not supported now!"
+
+        self.fetch_list = []
+        for var in self._forward_fetch_list:
+            self.fetch_list.append(var)
         for var in inputs:
             self.fetch_list.append(var.grad)
 
@@ -146,8 +156,15 @@ class PytorchAPIBenchmarkBase(object):
                  repeat=1,
                  check_output=False,
                  profiler="none"):
-        def _run_main_iter():
-            self.build_graph(config=config)
+        def _run_main_iter(backward=None):
+            if backward:
+                print("Call append_gradients")
+                self.append_gradients(
+                    targets=self._backward_targets,
+                    inputs=self._backward_inputs)
+            else:
+                print("Call build_graph")
+                self.build_graph(config=config)
             if use_gpu:
                 torch.cuda.synchronize(self._device)
 
@@ -166,7 +183,8 @@ class PytorchAPIBenchmarkBase(object):
         self._status = IN_RUN
         for i in range(repeat):
             begin = time.time()
-            outputs = _run_main_iter()
+            outputs = _run_main_iter(config.backward)
+            print(len(self.fetch_list))
             runtimes.append(time.time() - begin)
 
         self._status = AFTER_RUN
@@ -208,5 +226,6 @@ class PytorchAPIBenchmarkBase(object):
         self._status = BEFORE_RUN
         self._layers_function = None
         self._ones_like_targets = []
+        self._forward_fetch_list = None
         self._backward_targets = None
         self._backward_inputs = None
