@@ -105,7 +105,7 @@ if [ "${OP_LIST_FILE}" == "" ]; then
     fi
 fi
 
-TESTING_MODE={"static"}
+TESTING_MODE="static"
 FRAMEWORK_SET=("paddle" "tensorflow")
 if [ $# -ge 8 ]; then
     if [ $# -ge 9 ]; then
