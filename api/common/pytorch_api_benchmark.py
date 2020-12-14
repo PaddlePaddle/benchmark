@@ -137,9 +137,6 @@ class PytorchAPIBenchmarkBase(object):
         for var in inputs:
             self.fetch_list.append(var.grad)
 
-        self._backward_targets = targets
-        self._backward_inputs = inputs
-
     def run_impl(self,
                  use_gpu,
                  config,
@@ -208,5 +205,3 @@ class PytorchAPIBenchmarkBase(object):
         self._status = BEFORE_RUN
         self._layers_function = None
         self._ones_like_targets = []
-        self._backward_targets = None
-        self._backward_inputs = None
