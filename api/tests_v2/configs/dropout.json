@@ -77,7 +77,28 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 16L, -1L, -1L]",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "dropout",
+    "param_info": {
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 768L]",
             "type": "Variable"
         },
         "axis": {
