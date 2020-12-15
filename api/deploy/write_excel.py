@@ -115,6 +115,48 @@ def _write_summary_worksheet(benchmark_result_list, workbook, title_format,
         row = _write_summary_unit(op_compare_result, op_type, ws, row + 1)
 
 
+def _write_speed_accuracy_unit(ws,
+                               row,
+                               col,
+                               case_name,
+                               task,
+                               content,
+                               op_result_dir,
+                               framework,
+                               device,
+                               direction,
+                               cell_formats,
+                               color,
+                               url_prefix=None):
+    framework = "paddle" if task == "accuracy" else framework
+    op_result_path = _op_result_path(op_result_dir, case_name, framework,
+                                     device, task, direction)
+    if url_prefix and os.path.exists(op_result_path):
+        op_result_url = _op_result_url(url_prefix, case_name, framework,
+                                       device, task, direction)
+        ws.write_url(
+            row,
+            col,
+            url=op_result_url,
+            string=content,
+            cell_format=cell_formats[color + "_underline"])
+    else:
+        ws.write(row, col, content, cell_formats[color])
+
+
+def _write_compare_result_unit(ws, row, col, compare_result, compare_ratio,
+                               cell_formats, color):
+    if compare_ratio != "--":
+        if compare_ratio > 2.0:
+            compare_result += " (%.2fx)" % (compare_ratio - 1.0)
+        elif compare_ratio < 0.5:
+            compare_result += " (%.2fx)" % (1.0 / compare_ratio - 1.0)
+        else:
+            compare_percent = "%.2f" % (abs(1.0 - compare_ratio) * 100)
+            compare_result += " (" + compare_percent + "%)"
+    ws.write(row, col, compare_result, cell_formats[color])
+
+
 def dump_excel(benchmark_result_list,
                op_result_dir,
                url_prefix=None,
@@ -215,57 +257,27 @@ def dump_excel(benchmark_result_list,
 
                     for framework in ["paddle", compare_framework]:
                         op_time = result[framework][key]
-                        op_speed_path = _op_result_path(
-                            op_result_dir, op_unit.case_name, framework,
-                            device, "speed", direction)
-                        if url_prefix and os.path.exists(op_speed_path):
-                            op_speed_url = _op_result_url(
-                                url_prefix, op_unit.case_name, framework,
-                                device, "speed", direction)
-                            ws.write_url(
-                                row,
-                                col,
-                                url=op_speed_url,
-                                string=op_time,
-                                cell_format=cell_formats[color + "_underline"])
-                        else:
-                            ws.write(row, col, op_time, cell_formats[color])
+                        _write_speed_accuracy_unit(
+                            ws, row, col, op_unit.case_name, "speed", op_time,
+                            op_result_dir, framework, device, direction,
+                            cell_formats, color, url_prefix)
                         col += 1
 
                     compare_result = COMPARE_RESULT_SHOWS.get(
                         result["compare"][key], "--")
                     compare_ratio = result["compare"][key + "_ratio"]
-                    if compare_ratio != "--":
-                        if compare_ratio > 2.0:
-                            compare_result += " (%.2fx)" % (
-                                compare_ratio - 1.0)
-                        elif compare_ratio < 0.5:
-                            compare_result += " (%.2fx)" % (
-                                1.0 / compare_ratio - 1.0)
-                        else:
-                            compare_percent = "%.2f" % (
-                                abs(1.0 - compare_ratio) * 100)
-                            compare_result += " (" + compare_percent + "%)"
-                    ws.write(row, col, compare_result, cell_formats[color])
+                    _write_compare_result_unit(ws, row, col, compare_result,
+                                               compare_ratio, cell_formats,
+                                               color)
                     col += 1
 
-                op_acc_path = _op_result_path(op_result_dir, op_unit.case_name,
-                                              "paddle", device, "accuracy",
-                                              direction)
                 difference = result["difference"]
                 if difference != "--" and difference != "-" and difference != "0.0":
                     difference = "%.2E" % (float(difference))
-                if url_prefix and os.path.exists(op_acc_path):
-                    op_acc_url = _op_result_url(url_prefix, op_unit.case_name,
-                                                "paddle", device, "accuracy",
-                                                direction)
-                    ws.write_url(
-                        row,
-                        col,
-                        url=op_acc_url,
-                        string=difference,
-                        cell_format=cell_formats["black_underline"])
-                else:
-                    ws.write(row, col, difference, cell_formats["black"])
+                _write_speed_accuracy_unit(
+                    ws, row, col, op_unit.case_name, "accuracy", difference,
+                    op_result_dir, "paddle", device, direction, cell_formats,
+                    "black", url_prefix)
+
                 ws.write(row, col + 1, op_unit.parameters)
     wb.close()
