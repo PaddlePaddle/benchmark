@@ -271,13 +271,15 @@ def dump_excel(benchmark_result_list,
                                                color)
                     col += 1
 
+                color = "red" if result["accuracy"] in ["False", "false"
+                                                        ] else "black"
                 difference = result["difference"]
                 if difference != "--" and difference != "-" and difference != "0.0":
                     difference = "%.2E" % (float(difference))
                 _write_speed_accuracy_unit(
                     ws, row, col, op_unit.case_name, "accuracy", difference,
                     op_result_dir, "paddle", device, direction, cell_formats,
-                    "black", url_prefix)
+                    color, url_prefix)
 
                 ws.write(row, col + 1, op_unit.parameters)
     wb.close()
