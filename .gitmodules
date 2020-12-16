@@ -62,10 +62,6 @@
   path = PaddleGAN
   url = https://github.com/PaddlePaddle/PaddleGAN.git
   branch = master
-[submodule "distributed_training/FleetX"]
-  path = distributed_training/FleetX
-  url = https://github.com/PaddlePaddle/FleetX.git
-  branch = develop
 [submodule "PaddleClas"]
   path = PaddleClas
   url = https://github.com/PaddlePaddle/PaddleClas.git
