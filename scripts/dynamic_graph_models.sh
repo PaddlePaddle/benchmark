@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_lac dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
+cur_model_list=(dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_mobilenet dy_transformer dy_lac)
 
 
 # MobileNet
@@ -99,6 +99,10 @@ dy_transformer(){
 
     model_name="transformer_big"
     echo "###########pip install paddlenlp"
+    lsb_release -a
+    if [ $? -nq 0 ]; then
+        rm -rf /usr/bin/lsb_release
+    fi
     pip install paddlenlp
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/benchmark/transformer/dygraph
     cd ${cur_model_path}
@@ -406,6 +410,11 @@ dy_lac(){
     # Prepare data
     ln -s ${data_path}/dygraph_data/lac/lexical_analysis_dataset_tiny/ ${cur_model_path}/data
 
+    echo "###########pip install paddlenlp"
+    lsb_release -a
+    if [ $? -nq 0 ]; then
+        rm -rf /usr/bin/lsb_release
+    fi
     pip install paddlenlp 
     # Running ...
     rm -f ./run_benchmark.sh
