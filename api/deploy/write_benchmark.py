@@ -122,4 +122,11 @@ if __name__ == "__main__":
         log_request = parse_log_result(log_result)
         combine_benchmark_request(benchmark_requests, log_request)
 
-    requests.post(url, json=list(benchmark_requests.values()))
+    args = dict(
+        DOCKER_IMAGES=os.getenv("DOCKER_IMAGES"),
+        CUDA_VERSION=os.getenv("CUDA_VERSION"),
+        CUDNN_VERSION=os.getenv("CUDNN_VERSION"),
+        PADDLE_COMMIT_ID=os.getenv("PADDLE_COMMIT_ID"))
+    data = benchmark_requests.values()
+    r = requests.post(url, dict(args=args, data=data))
+    logging.info(r.ok)
