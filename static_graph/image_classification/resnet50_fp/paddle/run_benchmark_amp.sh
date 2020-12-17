@@ -4,14 +4,14 @@ set -xe
 if [[ $# -lt 4 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|3|6 128 sp|mp 600(max_iter)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|3|6 128 sp|mp 600(max_iter)"
     exit
 fi
 
 function _set_params(){
     index=$1                         # 速度(speed)|显存占用(mem)|单卡最大支持batch_size(maxbs)                       (必填)
     base_batch_size=$2               # 单卡的batch_size，如果固定的，可以写死。                                       (必填）
-    model_name="ResNet50_bs${base_batch_size}_fp16" # 模型名字如："SE-ResNeXt50"，如果是固定的，可以写死，如果需要其他参数可以参考bert实现（必填）
+    model_name="ResNet50_bs${base_batch_size}_amp_fp16" # 模型名字如："SE-ResNeXt50"，如果是固定的，可以写死，如果需要其他参数可以参考bert实现（必填）
     run_mode=${3:-"sp"}              # 单进程(sp)|多进程(mp)，默认单进程                                            （必填）
     mission_name="图像分类"          # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
     direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
@@ -51,7 +51,7 @@ function _train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
     
     DATA_FORMAT="NHWC"
-    USE_FP16=true #whether to use float16
+    USE_AMP=true #whether to use float16
     USE_DALI=true
     USE_ADDTO=true
     if ${USE_ADDTO} ;then
@@ -73,7 +73,7 @@ function _train(){
                --print_step=10 \
                --model_save_dir=output/ \
                --lr_strategy=piecewise_decay \
-               --use_fp16=${USE_FP16} \
+               --use_amp=${USE_AMP} \
                --scale_loss=128.0 \
                --use_dynamic_loss_scaling=true \
                --data_format=${DATA_FORMAT} \

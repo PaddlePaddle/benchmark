@@ -252,7 +252,7 @@ nextvlad(){
 
 #run_deeplabv3+
 deeplab(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleSeg
+    cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/legacy
     cd ${cur_model_path}
     # Prepare data and pretrained parameters.
     ln -s ${data_path}/cityscape ${cur_model_path}/dataset/cityscapes
@@ -320,24 +320,29 @@ image_classification(){
         sleep 60
     done
 
-    # running model cases with amp
-    cp ${BENCHMARK_ROOT}/static_graph/image_classification/resnet50_fp/paddle/run_benchmark.sh ./fp16_run_benchmark.sh
-    sed -i '/set\ -xe/d' fp16_run_benchmark.sh
-    bs_list=(128 208)
-    for bs_item in ${bs_list[@]}
+    # running model cases with fp16
+    mode_list=(amp pure)
+    for fp_mode in ${mode_list[@]}
     do
-        model_name="ResNet50_bs${bs_item}_fp16"
-        echo "bs=${bs_item}, index is speed, 1gpus, run_mode is sp, begin"
-        CUDA_VISIBLE_DEVICES=0 bash fp16_run_benchmark.sh 1 ${bs_item} sp 800 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
-        sleep 60
-        echo "bs=${bs_item}, index is speed, 8gpus, run_mode is sp, begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash fp16_run_benchmark.sh 1 ${bs_item} sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
-        if [ ${bs_item} == 128 ]; then
+        rm -rf ${fp_mode}_fp16_run_benchmark.sh
+        cp ${BENCHMARK_ROOT}/static_graph/image_classification/resnet50_fp/paddle/run_benchmark_${fp_mode}.sh ./${fp_mode}_fp16_run_benchmark.sh
+        sed -i '/set\ -xe/d' ${fp_mode}_fp16_run_benchmark.sh
+        bs_list=(128 208)
+        for bs_item in ${bs_list[@]}
+        do
+            model_name="ResNet50_bs${bs_item}_${fp_mode}_fp16"
+            echo "bs=${bs_item}, model is ${model_name}, index is speed, 1gpus, run_mode is sp, begin"
+            CUDA_VISIBLE_DEVICES=0 bash ${fp_mode}_fp16_run_benchmark.sh 1 ${bs_item} sp 800 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
             sleep 60
-            echo "bs=${bs_item}, index is speed, 8gpus, run_mode is multi_process, begin"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash fp16_run_benchmark.sh 1 ${bs_item} mp 1000  | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
-        fi
-        sleep 60
+            echo "bs=${bs_item}, model is ${model_name}, index is speed, 8gpus, run_mode is sp, begin"
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash ${fp_mode}_fp16_run_benchmark.sh 1 ${bs_item} sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+            if [ ${bs_item} == 128 ]; then
+                sleep 60
+                echo "bs=${bs_item}, model is ${model_name}, index is speed, 8gpus, run_mode is multi_process, begin"
+                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash ${fp_mode}_fp16_run_benchmark.sh 1 ${bs_item} mp 1000  | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+            fi
+            sleep 60
+        done
     done
 }
 
