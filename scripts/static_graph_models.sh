@@ -252,7 +252,7 @@ nextvlad(){
 
 #run_deeplabv3+
 deeplab(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleSeg
+    cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/legacy
     cd ${cur_model_path}
     # Prepare data and pretrained parameters.
     ln -s ${data_path}/cityscape ${cur_model_path}/dataset/cityscapes
