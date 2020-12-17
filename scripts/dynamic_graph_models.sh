@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
+cur_model_list=(dy_lac dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_transformer dy_mobilenet)
 
 
 # MobileNet
@@ -98,6 +98,7 @@ dy_transformer(){
     sleep 60
 
     model_name="transformer_big"
+    echo "###########pip install paddlenlp"
     pip install paddlenlp
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/benchmark/transformer/dygraph
     cd ${cur_model_path}
