@@ -98,6 +98,7 @@ dy_transformer(){
     sleep 60
 
     model_name="transformer_big"
+    echo "###########pip install paddlenlp"
     pip install paddlenlp
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/benchmark/transformer/dygraph
     cd ${cur_model_path}
