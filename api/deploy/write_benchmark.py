@@ -56,7 +56,7 @@ def parse_log_result(log_result):
     request["name"] = op_case_name
     request["frame"] = framework
     request["version"] = os.getenv("BENCHMARK_VERSION")
-    request["commit"] = os.getenv("%s_COMMIT_ID" % framework)
+    request["commit"] = os.getenv("%s_COMMIT_ID" % framework)[:32]
     request["processor"] = dict(cpu=1, gpu=2).get(processor)
     request["timestamp"] = os.getenv("PADDLE_COMMIT_TIME")
     if framework == "paddle":
@@ -122,11 +122,8 @@ if __name__ == "__main__":
         log_request = parse_log_result(log_result)
         combine_benchmark_request(benchmark_requests, log_request)
 
-    args = dict(
-        DOCKER_IMAGES=os.getenv("DOCKER_IMAGES"),
-        CUDA_VERSION=os.getenv("CUDA_VERSION"),
-        CUDNN_VERSION=os.getenv("CUDNN_VERSION"),
-        PADDLE_COMMIT_ID=os.getenv("PADDLE_COMMIT_ID"))
-    data = benchmark_requests.values()
-    r = requests.post(url, dict(args=args, data=data))
-    logging.info(r.ok)
+    datas = benchmark_requests.values()
+    for idx in range(0, len(datas), 10):
+        r = requests.post(url, json=datas[idx:idx + 10])
+        logging.info("request benchmark to write [%d, %d) is %s" %
+                     (idx, idx + 10, r.ok))
