@@ -56,7 +56,7 @@ def parse_log_result(log_result):
     request["name"] = op_case_name
     request["frame"] = framework
     request["version"] = os.getenv("BENCHMARK_VERSION")
-    request["commit"] = os.getenv("%s_COMMIT_ID" % framework)[:32]
+    request["commit"] = os.getenv("%s_COMMIT_ID" % framework.upper())[:32]
     request["processor"] = dict(cpu=1, gpu=2).get(processor)
     request["timestamp"] = os.getenv("PADDLE_COMMIT_TIME")
     if framework == "paddle":
