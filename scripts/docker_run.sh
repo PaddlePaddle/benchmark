@@ -106,7 +106,7 @@ function build_paddle(){
       -e "BUILD_TYPE=Release" \
       -e "WITH_DISTRIBUTE=ON" \
       -e "WITH_FLUID_ONLY=OFF" \
-      -e "CUDA_ARCH_NAME=Auto" \
+      -e "CUDA_ARCH_NAME=Volta" \
       -e "CMAKE_VERBOSE_MAKEFILE=OFF" \
       -e "http_proxy=${HTTP_PROXY}" \
       -e "https_proxy=${HTTP_PROXY}" \
