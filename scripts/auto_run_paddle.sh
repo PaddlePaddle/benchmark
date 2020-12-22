@@ -107,8 +107,9 @@ function prepare(){
         ln -s $(which python3.7) run_env/python
         ln -s $(which pip3.7) run_env/pip
         export PATH=$(pwd)/run_env:${PATH}
+        echo "before update pip version is -----"`pip -V`
         pip install --user --upgrade pip==20.2.4
-        pip -V
+        echo "after update pip version is -----"`pip -V`
     fi
     pip uninstall paddlepaddle-gpu -y
     pip install ${image_name}
