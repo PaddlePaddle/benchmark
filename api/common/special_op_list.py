@@ -116,3 +116,5 @@ ALIAS_OP_MAP = {
     "hierarchical_sigmoid": "hsigmoid",
     "sample_logits": "sampled_softmax_with_cross_entropy"
 }
+
+NO_ALIGN_TF_OPS = ["maximum", "minimum", "argsort"]

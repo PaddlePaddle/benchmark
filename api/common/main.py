@@ -309,11 +309,15 @@ def test_main_without_json(pd_obj=None,
             if args.log_level == 2:
                 print("Output of Paddle: ", base_outputs)
                 print("Output of TensorFlow: ", compare_outputs)
-            utils.check_outputs(
-                base_outputs,
-                compare_outputs,
-                name=config.api_name,
-                atol=config.atol,
-                use_gpu=args.use_gpu,
-                backward=backward,
-                config_params=config.to_string())
+            if is_run_tf and config.api_name in special_op_list.NO_ALIGN_TF_OPS:
+                print("The api (%s) is not aligned with tensorflow." %
+                      (config.api_name))
+            else:
+                utils.check_outputs(
+                    base_outputs,
+                    compare_outputs,
+                    name=config.api_name,
+                    atol=config.atol,
+                    use_gpu=args.use_gpu,
+                    backward=backward,
+                    config_params=config.to_string())
