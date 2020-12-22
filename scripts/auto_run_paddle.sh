@@ -104,11 +104,12 @@ function prepare(){
     if [[ 'dynamic_graph' == ${implement_type} ]] || [[ 'static_graph' == ${implement_type} ]]; then
         rm -rf run_env
         mkdir run_env
+        pip3.7 install --user --upgrade pip==20.2.4
         ln -s $(which python3.7) run_env/python
         ln -s $(which pip3.7) run_env/pip
         export PATH=$(pwd)/run_env:${PATH}
         echo "before update pip version is -----"`pip -V`
-        pip install --user --upgrade pip==20.2.4
+        pip3.7 install --user --upgrade pip==20.2.4
         echo "after update pip version is -----"`pip -V`
     fi
     pip uninstall paddlepaddle-gpu -y
