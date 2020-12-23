@@ -23,6 +23,8 @@ import collections
 import subprocess
 import itertools
 
+from common import special_op_list
+
 if six.PY3:
     from . import special_op_list
 else:
@@ -179,6 +181,7 @@ def _permute_order(name, output1, output2):
 
 def check_outputs(list1,
                   list2,
+                  testing_mode,
                   name,
                   atol=1E-6,
                   use_gpu=True,
@@ -264,7 +267,13 @@ def check_outputs(list1,
 
             max_diff = max_diff_i if max_diff_i > max_diff else max_diff
             if max_diff > atol:
-                consistent = False
+                is_special_op = name in special_op_list.DIFF_IMPLEMENTATION_TF_OPS or name in special_op_list.RANDOM_OP_LIST
+                if testing_mode == "static" and is_special_op:
+                    print(
+                        "----Warning: The api (%s) is not aligned with tensorflow."
+                        % (name))
+                else:
+                    consistent = False
 
     status = collections.OrderedDict()
     status["name"] = name
