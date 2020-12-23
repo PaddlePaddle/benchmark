@@ -99,15 +99,12 @@ dy_transformer(){
 
     model_name="transformer_big"
     echo "###########pip install paddlenlp"
-    lsb_release -a
-    if [ $? -nq 0 ]; then
-        rm -rf /usr/bin/lsb_release
-    fi
-    pip install paddlenlp
+    pip install paddlenlp attrdict
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/benchmark/transformer/dygraph
     cd ${cur_model_path}
     # prepare data
-    ln -s ${data_path}/dygraph_data/transformer/gen_data_trans/ ../gen_data   # 注意big 和base 数据有diff
+    mkdir -p /root/.paddlenlp/datasets/
+    ln -s ${data_path}/dygraph_data/transformer/big_mode/* /root/.paddlenlp/datasets/   # 注意big 和base 数据有diff. 目前复用 paddlenlp 的数据准备逻辑，所以数据位置需要改变
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/transformer/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
@@ -411,10 +408,6 @@ dy_lac(){
     ln -s ${data_path}/dygraph_data/lac/lexical_analysis_dataset_tiny/ ${cur_model_path}/data
 
     echo "###########pip install paddlenlp"
-    lsb_release -a
-    if [ $? -nq 0 ]; then
-        rm -rf /usr/bin/lsb_release
-    fi
     pip install paddlenlp 
     # Running ...
     rm -f ./run_benchmark.sh
