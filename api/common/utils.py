@@ -267,10 +267,15 @@ def check_outputs(list1,
 
             max_diff = max_diff_i if max_diff_i > max_diff else max_diff
             if max_diff > atol:
-                is_special_op = name in special_op_list.DIFF_IMPLEMENTATION_TF_OPS or name in special_op_list.RANDOM_OP_LIST
-                if testing_mode == "static" and is_special_op:
+                if testing_mode == "static" and name in special_op_list.DIFF_IMPLEMENTATION_TF_OPS:
                     print(
-                        "----Warning: The api (%s) is not aligned with tensorflow."
+                        "---- Warning: This situation is not a error. The implementation of api (%s) is different with tensorflow. "
+                        "When the value of inputs are same, Paddle choose the second value as the output and"
+                        "TF choose the first value as the output." % (name))
+
+                elif testing_mode == "static" and name in special_op_list.RANDOM_OP_LIST:
+                    print(
+                        "---- Warning: This situation is not a error. The api (%s) is random op and the value of outputs is random."
                         % (name))
                 else:
                     consistent = False
