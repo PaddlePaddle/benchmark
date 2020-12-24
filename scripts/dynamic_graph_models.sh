@@ -167,7 +167,7 @@ dy_seg(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/
     cd ${cur_model_path}
     
-    apt-get install lsb-core -y
+    #apt-get install lsb-core -y
     pip install  visualdl
     # Prepare data
     mkdir -p ${cur_model_path}/data
