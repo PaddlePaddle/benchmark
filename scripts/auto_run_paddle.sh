@@ -110,6 +110,13 @@ function prepare(){
     fi
     pip uninstall paddlepaddle-gpu -y
     pip install ${image_name}
+
+    # fix ssl temporarily
+    export LD_LIBRARY_PATH=${all_path}/tools/ssl/lib:${LD_LIBRARY_PATH}
+    if python -c "import paddle" >/dev/null 2>&1
+        echo "paddle import success!"
+    fi
+    
     echo "*******prepare end!***********"
 }
 
