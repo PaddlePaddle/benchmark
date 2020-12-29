@@ -114,6 +114,7 @@ function prepare(){
     # fix ssl temporarily
     export LD_LIBRARY_PATH=${all_path}/tools/ssl/lib:${LD_LIBRARY_PATH}
     if python -c "import paddle" >/dev/null 2>&1
+    then
         echo "paddle import success!"
     fi
     
