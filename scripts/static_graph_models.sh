@@ -313,32 +313,22 @@ image_classification(){
     done
 
     # running model cases with fp16
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/image_classification
-    cd ${cur_model_path}
-    # Prepare data
-    ln -s ${data_path}/ILSVRC2012/train ${cur_model_path}/data/ILSVRC2012/train
-    ln -s ${data_path}/ILSVRC2012/train_list.txt ${cur_model_path}/data/ILSVRC2012/train_list.txt
-    ln -s ${data_path}/ILSVRC2012/val ${cur_model_path}/data/ILSVRC2012/val
-    ln -s ${data_path}/ILSVRC2012/val_list.txt ${cur_model_path}/data/ILSVRC2012/val_list.txt
+    rm -rf run_benchmark_fp16.sh
+    cp ${BENCHMARK_ROOT}/static_graph/image_classification/resnet50_fp/paddle/run_benchmark_fp16.sh ./run_benchmark_fp16.sh
+    sed -i '/set\ -xe/d' run_benchmark_fp16.sh
     mode_list=(amp pure)
     for fp_mode in ${mode_list[@]}
     do
-        rm -rf ${fp_mode}_fp16_run_benchmark.sh
-        cp ${BENCHMARK_ROOT}/static_graph/image_classification/resnet50_fp/paddle/run_benchmark_${fp_mode}.sh ./${fp_mode}_fp16_run_benchmark.sh
-        sed -i '/set\ -xe/d' ${fp_mode}_fp16_run_benchmark.sh
         bs_list=(128 208)
         for bs_item in ${bs_list[@]}
         do
             model_name="ResNet50_bs${bs_item}_${fp_mode}_fp16"
             echo "bs=${bs_item}, model is ${model_name}, index is speed, 1gpus, run_mode is sp, begin"
-            CUDA_VISIBLE_DEVICES=0 bash ${fp_mode}_fp16_run_benchmark.sh 1 ${bs_item} sp 800 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
-            sleep 60
-            echo "bs=${bs_item}, model is ${model_name}, index is speed, 8gpus, run_mode is sp, begin"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash ${fp_mode}_fp16_run_benchmark.sh 1 ${bs_item} sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark_fp16.sh 1 ${bs_item} sp 1 ${fp_mode} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
             if [ ${bs_item} == 128 ]; then
                 sleep 60
                 echo "bs=${bs_item}, model is ${model_name}, index is speed, 8gpus, run_mode is multi_process, begin"
-                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash ${fp_mode}_fp16_run_benchmark.sh 1 ${bs_item} mp 1000  | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_fp16.sh 1 ${bs_item} mp 1 ${fp_mode}  | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
             fi
             sleep 60
         done
