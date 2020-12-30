@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(detection mask_rcnn seq2seq nextvlad image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
+cur_model_list=(image_classification detection mask_rcnn seq2seq nextvlad deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
 
 #run_cycle_gan
 CycleGAN(){
@@ -280,66 +280,55 @@ deeplab(){
 
 #run image_classification
 image_classification(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/image_classification
+    cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    git checkout dygraph
     # Prepare data
-    ln -s ${data_path}/ILSVRC2012/train ${cur_model_path}/data/ILSVRC2012/train
-    ln -s ${data_path}/ILSVRC2012/train_list.txt ${cur_model_path}/data/ILSVRC2012/train_list.txt
-    ln -s ${data_path}/ILSVRC2012/val ${cur_model_path}/data/ILSVRC2012/val
-    ln -s ${data_path}/ILSVRC2012/val_list.txt ${cur_model_path}/data/ILSVRC2012/val_list.txt
+    ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset/
     # Copy run_benchmark.sh and running ...
-    cp ${BENCHMARK_ROOT}/static_graph/image_classification/paddle/run_benchmark.sh ./run_benchmark.sh
-    sed -i '/cd /d' run_benchmark.sh
+    rm -rf ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/static_graph/image_classification/paddle/run_benchmark_resnet.sh ./run_benchmark.sh
     sed -i '/set\ -xe/d' run_benchmark.sh
     pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda100
 
     # running models cases
-    model_list=(SE_ResNeXt50_32x4d ResNet101 ResNet50_bs32 ResNet50_bs128)
-    run_batchsize=32
+    model_list=(SE_ResNeXt50_32x4d ResNet101 ResNet50_bs32 ResNet50_bs96)
     for model_name in ${model_list[@]}; do
-        if [ ${model_name} = "ResNet50_bs128" ]; then
-            run_batchsize=128
+        run_batchsize=32
+        if [ ${model_name} = "ResNet50_bs96" ]; then
+            run_batchsize=96
         fi
         echo "index is speed, 1gpu, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 800 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 1 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
         sleep 60
-        echo "index is speed, 1gpu, begin, profile is on, ${model_name}"
+#        echo "index is speed, 1gpu, begin, profile is on, ${model_name}"
 #        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${run_batchsize} ${model_name} sp 800 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
-        sleep 60
-        echo "index is speed, 8gpus, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
-        sleep 60
-        echo "index is maxbs, 1gpus, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 112 ${model_name} sp 500 | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
-        sleep 60
+#        sleep 60
         #echo "index is maxbs, 8gpus, begin, ${model_name}"
         #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 112 ${model_name} sp 500 | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
         #sleep 60
         echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} mp 1000 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} mp 1 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
         sleep 60
     done
 
     # running model cases with fp16
+    rm -rf run_benchmark_fp16.sh
+    cp ${BENCHMARK_ROOT}/static_graph/image_classification/resnet50_fp/paddle/run_benchmark_fp16.sh ./run_benchmark_fp16.sh
+    sed -i '/set\ -xe/d' run_benchmark_fp16.sh
     mode_list=(amp pure)
     for fp_mode in ${mode_list[@]}
     do
-        rm -rf ${fp_mode}_fp16_run_benchmark.sh
-        cp ${BENCHMARK_ROOT}/static_graph/image_classification/resnet50_fp/paddle/run_benchmark_${fp_mode}.sh ./${fp_mode}_fp16_run_benchmark.sh
-        sed -i '/set\ -xe/d' ${fp_mode}_fp16_run_benchmark.sh
         bs_list=(128 208)
         for bs_item in ${bs_list[@]}
         do
             model_name="ResNet50_bs${bs_item}_${fp_mode}_fp16"
             echo "bs=${bs_item}, model is ${model_name}, index is speed, 1gpus, run_mode is sp, begin"
-            CUDA_VISIBLE_DEVICES=0 bash ${fp_mode}_fp16_run_benchmark.sh 1 ${bs_item} sp 800 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
-            sleep 60
-            echo "bs=${bs_item}, model is ${model_name}, index is speed, 8gpus, run_mode is sp, begin"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash ${fp_mode}_fp16_run_benchmark.sh 1 ${bs_item} sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark_fp16.sh 1 ${bs_item} sp 1 ${fp_mode} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
             if [ ${bs_item} == 128 ]; then
                 sleep 60
                 echo "bs=${bs_item}, model is ${model_name}, index is speed, 8gpus, run_mode is multi_process, begin"
-                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash ${fp_mode}_fp16_run_benchmark.sh 1 ${bs_item} mp 1000  | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_fp16.sh 1 ${bs_item} mp 1 ${fp_mode}  | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
             fi
             sleep 60
         done
