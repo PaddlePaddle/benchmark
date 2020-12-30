@@ -87,9 +87,6 @@ function _train(){
             -o use_gpu=True
             -o image_shape=[4,224,224]
             "
-            #-o is_distributed=False \
-            #-o image_shape "[4, 224, 224]"
-    
 
     case ${run_mode} in
     sp) train_cmd="python -m paddle.distributed.launch tools/static/train.py "${train_cmd} ;;
