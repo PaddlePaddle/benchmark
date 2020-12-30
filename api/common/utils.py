@@ -57,6 +57,18 @@ def run_command(command, shell=True):
 
 def check_commit():
     try:
+        import tensorflow as tf
+        tf_version = tf.__version__
+    except Exception:
+        tf_version = None
+
+    try:
+        import torch
+        torch_version = torch.__version__
+    except Exception:
+        torch_version = None
+
+    try:
         current_dir = os.getcwd()
         print("-- Current directory: %s" % current_dir)
 
@@ -75,15 +87,18 @@ def check_commit():
         paddle_version = paddle.version.full_version
         paddle_commit = paddle.version.commit
 
-        import tensorflow as tf
-        tf_version = tf.__version__
-
         print(
             "==========================================================================="
         )
         print("-- paddle version             : %s" % paddle_version)
         print("-- paddle commit              : %s" % paddle_commit)
-        print("-- tensorflow version         : %s" % tf_version)
+
+        if tf_version:
+            print("-- tensorflow version         : %s" % tf_version)
+
+        if torch_version:
+            print("-- pytorch version            : %s" % torch_version)
+
         print("-- benchmark commit           : %s" % benchmark_commit)
         print("-- benchmark last update time : %s" % benchmark_update_time)
         print(
