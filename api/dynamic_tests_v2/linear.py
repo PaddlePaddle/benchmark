@@ -46,8 +46,11 @@ class PDLinear(PaddleDynamicAPIBenchmarkBase):
             name="weight",
             shape=config.weight_shape,
             dtype=config.weight_dtype)
-        bias = self.variable(
-            name="bias", shape=config.bias_shape, dtype=config.bias_dtype)
+        if hasattr(config, bias) and config.bias is None:
+            bias = None
+        else:
+            bias = self.variable(
+                name="bias", shape=config.bias_shape, dtype=config.bias_dtype)
         result = paddle.nn.functional.linear(x=x, weight=weight, bias=bias)
 
         self.feed_list = [x, weight, bias]
@@ -63,8 +66,11 @@ class TorchLinear(PytorchAPIBenchmarkBase):
             name="weight",
             shape=config.weight_shape,
             dtype=config.weight_dtype)
-        bias = self.variable(
-            name="bias", shape=config.bias_shape, dtype=config.bias_dtype)
+        if hasattr(config, bias) and config.bias is None:
+            bias = None
+        else:
+            bias = self.variable(
+                name="bias", shape=config.bias_shape, dtype=config.bias_dtype)
         result = torch.nn.functional.linear(input=x, weight=weight, bias=bias)
 
         self.feed_list = [x, weight, bias]
