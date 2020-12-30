@@ -107,11 +107,17 @@ function prepare(){
         ln -s $(which python3.7) run_env/python
         ln -s $(which pip3.7) run_env/pip
         export PATH=$(pwd)/run_env:${PATH}
-        pip install --user --upgrade pip==20.2.4
-        pip -V
     fi
     pip uninstall paddlepaddle-gpu -y
     pip install ${image_name}
+
+    # fix ssl temporarily
+    export LD_LIBRARY_PATH=${all_path}/tools/ssl/lib:${LD_LIBRARY_PATH}
+    if python -c "import paddle" >/dev/null 2>&1
+    then
+        echo "paddle import success!"
+    fi
+    
     echo "*******prepare end!***********"
 }
 

@@ -312,6 +312,7 @@ def test_main_without_json(pd_obj=None,
             utils.check_outputs(
                 base_outputs,
                 compare_outputs,
+                args.testing_mode,
                 name=config.api_name,
                 atol=config.atol,
                 use_gpu=args.use_gpu,
