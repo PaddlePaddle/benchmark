@@ -25,7 +25,6 @@ function _set_params(){
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     skip_steps=8                      # 解析日志，有些模型前几个step耗时长，需要跳过                                  (必填)
-#    if [ ${run_mode} = "mp" ]; then skip_steps=31; fi
     keyword="INFO: epoch:"              # 解析日志，筛选出数据所在行的关键字                                            (必填)
     separator=": "                     # 解析日志，数据所在行的分隔符                                                  (必填)
     position=6                      # 解析日志，按照分隔符分割后形成的数组索引                                      (必填)
@@ -48,9 +47,6 @@ function _set_env(){
     #开启gc
     export FLAGS_eager_delete_tensor_gb=0.0
     export FLAGS_fraction_of_gpu_memory_to_use=0.98
-    if [[ ${model_name} == "ResNet50" && ${num_gpu_devices} == 1 ]]; then
-        export FLAGS_cudnn_exhaustive_search=1
-    fi
 }
 
 function _train(){
