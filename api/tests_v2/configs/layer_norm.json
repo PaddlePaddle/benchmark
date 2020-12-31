@@ -7,8 +7,9 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, -1L, 768L]",
+            "shape": "[-1L, 128L, 768L]",
             "type": "Variable"
         }
-    }
+    },
+    "atol": 1e-5
 }]

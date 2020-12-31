@@ -23,7 +23,7 @@
 | `pytorch` | Pix2pix | https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix.git |
 | `pytorch` | stargan | https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix.git |
 | `pytorch` | bert | https://github.com/huggingface/transformers.git |
-| `tensorflow` | transformer | |
+| `tensorflow` | transformer | pip install tensor2tensor |
 | `tensorflow` | nextvlad | https://github.com/linrongc/youtube-8m.git |
 | `tensorflow` | deeplabv3 | https://github.com/tensorflow/models.git |
 | `tensorflow` | CycleGAN | |
@@ -31,6 +31,7 @@
 | `tensorflow` | seq2seq | https://github.com/tensorflow/nmt.git |
 | `tensorflow` | padding | |
 | `mxnet` | yolov3 | https://github.com/dmlc/gluon-cv.git |
+| `mxnet` | ResNet50_bs128_fp16 | https://github.com/NVIDIA/DeepLearningExamples.git | 
 
 </center>
 

@@ -1,4 +1,5 @@
 #!bin/bash
+
 set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
@@ -23,9 +24,8 @@ function _set_params(){
     direction_id=0
     skip_steps=10
     keyword="batch_cost:"
-    separator=" "
-    position=11
     model_mode=0 # s/step -> samples/s
+    # ips_unit="samples/sec"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -74,7 +74,14 @@ function _train(){
         log_parse_file="mylog/workerlog.0"
     fi
     
-    ${train_cmd} > ${log_file} 2>&1
+    timeout 15m ${train_cmd} > ${log_file} 2>&1
+    if [ $? -ne 0 ];then
+        echo -e "${model_name}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model_name}, SUCCESS"
+        export job_fail_flag=0
+    fi
     if [ ${run_mode} != "sp"  -a -d mylog ]; then
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}

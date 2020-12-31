@@ -31,9 +31,9 @@ def parse_args():
     parser.add_argument(
         "--keyword", type=str, help="Keyword to specify analysis data")
     parser.add_argument(
-        "--separator", type=str, default=" ", help="Separator of different field in log")
+        "--separator", type=str, default=None, help="Separator of different field in log")
     parser.add_argument(
-        '--position', type=int, default=-1, help='The position of data field')
+        '--position', type=int, default=None, help='The position of data field')
     parser.add_argument(
         '--range', type=str, default="", help='The range of data field to intercept')
     parser.add_argument(
@@ -41,7 +41,9 @@ def parse_args():
     parser.add_argument(
         '--skip_steps', type=int, default=0, help='The number of steps to be skipped')
     parser.add_argument(
-        '--model_mode', type=int, default=0, help='Analysis mode, 0')
+        '--model_mode', type=int, default=-1, help='Analysis mode, default value is -1')
+    parser.add_argument(
+        '--ips_unit', type=str, default=None, help='IPS unit')
     parser.add_argument(
         '--model_name', type=str, default=0, help='training model_name, transformer_base')
     parser.add_argument(
@@ -55,6 +57,7 @@ def parse_args():
     parser.add_argument(
         '--gpu_num', type=int, default=1, help='nums of training gpus')
     args = parser.parse_args()
+    args.separator = None if args.separator == "None" else args.separator
     return args
 
 
@@ -68,7 +71,7 @@ def _is_number(num):
 
 
 class TimeAnalyzer(object):
-    def __init__(self, filename, keyword=None, separator=" ", position=-1, range="-1"):
+    def __init__(self, filename, keyword=None, separator=None, position=None, range="-1"):
         if filename is None:
             raise Exception("Please specify the filename!")
 
@@ -91,11 +94,21 @@ class TimeAnalyzer(object):
                 if self.keyword not in line:
                     continue
                 try:
+                    result = None
+
+                    # Distil the string from a line.
                     line = line.strip()
-                    if self.separator:
-                        result = line.split(self.separator)[self.position]
+                    line_words = line.split(self.separator) if self.separator else line.split()
+                    if args.position:
+                        result = line_words[self.position]
                     else:
-                        result = line.split()[self.position]
+                        # Distil the string following the keyword.
+                        for i in range(len(line_words) - 1):
+                            if line_words[i] == self.keyword:
+                                result = line_words[i + 1]
+                                break
+    
+                    # Distil the result from the picked string.
                     if not self.range:
                         result = result[0:]
                     elif _is_number(self.range):
@@ -108,8 +121,15 @@ class TimeAnalyzer(object):
 
         print("Extract {} records: separator={}; position={}".format(len(self.records), self.separator, self.position))
 
-    def _get_fps(self, mode, batch_size, gpu_num, avg_of_records):
-        if mode == 0:
+    def _get_fps(self, mode, batch_size, gpu_num, avg_of_records, run_mode, unit=None):
+        if mode == -1 and run_mode == 'sp':
+            assert unit, "Please set the unit when mode is -1."
+            fps = gpu_num * avg_of_records
+        elif mode == -1 and run_mode == 'mp':
+            assert unit, "Please set the unit when mode is -1."
+            fps = gpu_num * avg_of_records #temporarily, not used now
+            print("------------this is mp")
+        elif mode == 0:
             # s/step -> samples/s
             fps = (batch_size * gpu_num) / avg_of_records
             unit = "samples/s"
@@ -134,7 +154,7 @@ class TimeAnalyzer(object):
 
         return fps, unit
 
-    def analysis(self, batch_size, gpu_num=1, skip_steps=0, mode=0):
+    def analysis(self, batch_size, gpu_num=1, skip_steps=0, mode=-1, run_mode='sp', unit=None):
         if batch_size <= 0:
             print("base_batch_size should larger than 0.")
             return 0, ''
@@ -161,9 +181,19 @@ class TimeAnalyzer(object):
         avg_of_records = sum_of_records / float(count)
         avg_of_records_skipped = sum_of_records_skipped / float(count - skip_steps)
 
-        fps, fps_unit = self._get_fps(mode, batch_size, gpu_num, avg_of_records)
-        fps_skipped, _ = self._get_fps(mode, batch_size, gpu_num, avg_of_records_skipped)
-        if mode == 1 or mode == 3:
+        fps, fps_unit = self._get_fps(mode, batch_size, gpu_num, avg_of_records, run_mode, unit)
+        fps_skipped, _ = self._get_fps(mode, batch_size, gpu_num, avg_of_records_skipped, run_mode, unit)
+        if mode == -1:
+            print("average ips of %d steps, skip 0 step:" % count)
+            print("\tAvg: %.3f %s" % (avg_of_records, fps_unit))
+            print("\tFPS: %.3f %s" % (fps, fps_unit))
+            if skip_steps > 0:
+                print("average ips of %d steps, skip %d steps:" % (count, skip_steps))
+                print("\tAvg: %.3f %s" % (avg_of_records_skipped, fps_unit))
+                print("\tMin: %.3f %s" % (skip_min, fps_unit))
+                print("\tMax: %.3f %s" % (skip_max, fps_unit))
+                print("\tFPS: %.3f %s" % (fps_skipped, fps_unit))
+        elif mode == 1 or mode == 3:
             print("average latency of %d steps, skip 0 step:" % count)
             print("\tAvg: %.3f steps/s" % avg_of_records)
             print("\tFPS: %.3f %s" % (fps, fps_unit))
@@ -205,8 +235,13 @@ if __name__ == "__main__":
                 run_info["log_with_profiler"] = args.log_with_profiler
                 run_info["profiler_path"] = args.profiler_path
             analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
-            run_info["FINAL_RESULT"], run_info["UNIT"] = analyzer.analysis(args.base_batch_size, args.gpu_num,
-                                                         args.skip_steps, args.model_mode)
+            run_info["FINAL_RESULT"], run_info["UNIT"] = analyzer.analysis(
+                batch_size=args.base_batch_size,
+                gpu_num=args.gpu_num,
+                skip_steps=args.skip_steps,
+                mode=args.model_mode,
+                run_mode=args.run_mode,
+                unit=args.ips_unit)
         elif args.index == 3:
             run_info["FINAL_RESULT"] = {}
             records_fo_total = TimeAnalyzer(args.filename, 'Framework overhead', None, 3, '').records

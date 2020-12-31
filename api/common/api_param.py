@@ -174,6 +174,7 @@ class APIConfig(object):
         self.backward = False
         self.feed_spec = None
         self.run_tf = True
+        self.run_torch = True
 
     @classmethod
     def get_all_subclasses(self):
@@ -258,6 +259,14 @@ class APIConfig(object):
         if hasattr(self, "api_list"):
             tf_config.api_name = self.api_list[self.api_name]
         return tf_config
+
+    def to_pytorch(self):
+        assert self.__framework == "paddle"
+        torch_config = copy.deepcopy(self)
+        torch_config.__framework = "pytorch"
+        if hasattr(self, "api_list"):
+            torch_config.api_name = self.api_list[self.api_name]
+        return torch_config
 
     def to_string(self):
         if self.params_list is None and self.variable_list is None:

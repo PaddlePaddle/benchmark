@@ -44,7 +44,7 @@ function prepare(){
     echo "*******prepare benchmark***********"
 
     # this is for image paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
-    export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH
+    #export LD_LIBRARY_PATH=/home/work/418.39/lib64/:$LD_LIBRARY_PATH       # fixed nvidia-docker, remove temporarily 
 
     # NOTE: this path is for profiler
     # export LD_LIBRARY_PATH=/home/work/cuda-9.0/extras/CUPTI/lib64/:$LD_LIBRARY_PATH
@@ -54,7 +54,7 @@ function prepare(){
     apt-get update
     apt-get install libmysqlclient-dev -y
     apt-get install git -y
-    apt-get install curl -y
+    apt-get install curl psmisc -y
     pip install MySQL-python
 
 
@@ -110,6 +110,15 @@ function prepare(){
     fi
     pip uninstall paddlepaddle-gpu -y
     pip install ${image_name}
+    pip install opencv-python
+
+    # fix ssl temporarily
+    export LD_LIBRARY_PATH=${all_path}/tools/ssl/lib:${LD_LIBRARY_PATH}
+    if python -c "import paddle" >/dev/null 2>&1
+    then
+        echo "paddle import success!"
+    fi
+    
     echo "*******prepare end!***********"
 }
 

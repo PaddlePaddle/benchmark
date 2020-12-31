@@ -7,7 +7,7 @@
 #                                        #
 ##########################################
 
-cur_model_list=(yolov3)
+cur_model_list=(yolov3 ResNet50_bs208_fp16)
 
 environment(){
 export LD_LIBRARY_PATH=/home/work/418.39/lib64/:/usr/local/cuda-10.0/compat/:$LD_LIBRARY_PATH
@@ -73,6 +73,25 @@ echo "----run 8 card----"
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_yolov3.sh train 1 ${LOG_DIR} > ${RES_DIR}/yolov3_8.res 2>&1 
 
 }
+
+ResNet50_bs208_fp16(){
+curl_model_path=${MODEL_PATH}
+cd ${curl_model_path}
+
+git clone https://github.com/NVIDIA/DeepLearningExamples.git 
+cd ${curl_model_path}/DeepLearningExamples/MxNet/Classification/RN50v1.5
+cp ${BENCHMARK_ROOT}/static_graph/image_classification/resnet50_fp/mxnet/run_benchmark.sh ${curl_model_path}/DeepLearningExamples/MxNet/Classification/RN50v1.5
+
+mkdir data
+ln -s ${data_path}/fusefp16_resnet50_mxnet/ILSVRC2012_mxnet_rec/ ./data
+echo "----run one card----"
+CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh  1 sp 208 1 ${LOG_DIR} > ${RES_DIR}/resnet50_fp16_1.res 2>&1 
+sleep 60
+echo "----run 8 card----"
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 208 1 ${LOG_DIR}  > ${RES_DIR}/resnet50_fp16_8.res 2>&1 
+
+}
+
 
 run(){
 for model_name in ${cur_model_list[@]}; do

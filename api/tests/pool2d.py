@@ -31,6 +31,13 @@ class Pool2dConfig(APIConfig):
         if not self.global_pooling and not isinstance(
                 self.pool_padding, str) and self.pool_padding != [0, 0]:
             self.run_tf = False
+        if not use_gpu(
+        ) and self.pool_type == 'avg' and self.data_format != 'NHWC':
+            self.run_tf = False
+            print(
+                "Warning:\n"
+                "  Tensorflow's AvgPoolingOp only supports NHWC on device type CPU.\n"
+            )
 
     def to_tensorflow(self):
         tf_config = super(Pool2dConfig, self).to_tensorflow()

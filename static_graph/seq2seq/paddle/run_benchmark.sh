@@ -68,11 +68,18 @@ function _train(){
               --max_epoch=${max_epoch}"
     
     if [[ ${is_profiler} -eq 1 ]]; then
-        python -u train.py \
+        timeout 15m python -u train.py \
                --profile \
                ${train_cmd} > ${log_file} 2>&1
     elif [[ ${is_profiler} -eq 0 ]]; then
-        python -u train.py ${train_cmd} > ${log_file} 2>&1
+        timeout 15m python -u train.py ${train_cmd} > ${log_file} 2>&1
+        if [ $? -ne 0 ];then
+            echo -e "${model_name}, FAIL"
+            export job_fail_flag=1
+        else
+            echo -e "${model_name}, SUCCESS"
+            export job_fail_flag=0
+        fi
     fi
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
