@@ -12,4 +12,124 @@
         }
     },
     "atol": 1e-5
+}, {
+    "op": "layer_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[98304L]",
+            "type": "Variable"
+        },
+        "bias": {
+            "dtype": "float32",
+            "shape": "[98304L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1e-5
+}, {
+    "op": "layer_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4096L, 768L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[768L]",
+            "type": "Variable"
+        },
+        "bias": {
+            "dtype": "float32",
+            "shape": "[768L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1e-5
+}, {
+    "op": "layer_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4096L, 1024L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[1024L]",
+            "type": "Variable"
+        },
+        "bias": {
+            "dtype": "float32",
+            "shape": "[1024L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1e-5
+}, {
+    "op": "layer_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2048L, 768L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[768L]",
+            "type": "Variable"
+        },
+        "bias": {
+            "dtype": "float32",
+            "shape": "[768L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1e-5
+}, {
+    "op": "layer_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2048L, 1024L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[1024L]",
+            "type": "Variable"
+        },
+        "bias": {
+            "dtype": "float32",
+            "shape": "[1024L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1e-5
 }]
