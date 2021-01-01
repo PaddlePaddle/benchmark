@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(image_classification detection mask_rcnn seq2seq nextvlad deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
+cur_model_list=(detection mask_rcnn seq2seq nextvlad image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
 
 #run_cycle_gan
 CycleGAN(){
