@@ -113,7 +113,7 @@ class BaseParamInfo(object):
             return int(value_str)
         elif self.type == "bool":
             return eval(value_str)
-        elif self.type == "string":
+        elif self.type in ["string", "str"]:
             return None if value_str == "None" else value_str
         elif self.type == "list":
             return parse_list(value_str, sub_dtype="int")
@@ -175,6 +175,7 @@ class APIConfig(object):
         self.feed_spec = None
         self.run_tf = True
         self.run_torch = True
+        self.alias_name = None
 
     @classmethod
     def get_all_subclasses(self):
@@ -190,7 +191,7 @@ class APIConfig(object):
         If self.name = a, self.alias_name = b, the filename should be "dir/a.json",
         the filename of config will be "dir/b.json".
         """
-        if hasattr(self, "alias_name"):
+        if hasattr(self, "alias_name") and self.alias_name is not None:
             dirname = os.path.dirname(filename)
             basename = os.path.basename(filename)
             basename = basename.replace(self.name, self.alias_name)
@@ -285,7 +286,8 @@ class APIConfig(object):
     def __str__(self):
         exclude_attrs = [
             '_APIConfig__name', '_APIConfig__framework', 'params', 'api_name',
-            'api_list', 'variable_list', 'params_list', 'backward', 'feed_spec'
+            'api_list', 'variable_list', 'params_list', 'backward',
+            'feed_spec', 'alias_name'
         ]
         prefix = ""
         debug_str = ('[%s][%s] %s {\n') % (self.framework, self.name,
