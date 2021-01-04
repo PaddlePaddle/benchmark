@@ -46,7 +46,7 @@ class PDLinear(PaddleDynamicAPIBenchmarkBase):
             name="weight",
             shape=config.weight_shape,
             dtype=config.weight_dtype)
-        if hasattr(config, bias) and config.bias is None:
+        if hasattr(config, "bias") and config.bias is None:
             bias = None
         else:
             bias = self.variable(
@@ -66,7 +66,7 @@ class TorchLinear(PytorchAPIBenchmarkBase):
             name="weight",
             shape=config.weight_shape,
             dtype=config.weight_dtype)
-        if hasattr(config, bias) and config.bias is None:
+        if hasattr(config, "bias") and config.bias is None:
             bias = None
         else:
             bias = self.variable(

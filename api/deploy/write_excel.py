@@ -146,7 +146,7 @@ def _write_speed_accuracy_unit(ws,
 
 def _write_compare_result_unit(ws, row, col, compare_result, compare_ratio,
                                cell_formats, color):
-    if compare_ratio != "--":
+    if compare_ratio != "--" and compare_ratio != 0.0:
         if compare_ratio > 2.0:
             compare_result += " (%.2fx)" % (compare_ratio - 1.0)
         elif compare_ratio < 0.5:

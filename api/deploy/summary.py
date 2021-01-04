@@ -47,10 +47,10 @@ CHECK_KEY["paddle_cpu_perf_backwards"] = "CPU反向"
 
 def _is_json(line):
     try:
-        json.loads(line)
-    except ValueError:
+        result = json.loads(line)
+    except Exception:
         return False
-    return True
+    return True if isinstance(result, dict) else False
 
 
 def _read_last_line(inputfile):
@@ -137,7 +137,7 @@ def _parse_speed(case_name, statistic_type, last_line):
         total = data["speed"]["total"]
         total_str = "%.5f" % total
         res[case_name][statistic_type] = total_str
-        if gpu_time_key and data["speed"].get("gpu_time", None):
+        if gpu_time_key and data["speed"].get("gpu_time", None) is not None:
             # May set following values:
             #   gpu_time
             #   gpu_time_backward
@@ -176,7 +176,7 @@ def _parse_accuracy(case_name, statistic_type, last_line):
         res[case_name][difference_key] = "--"
 
 
-def get_job_res(inputfile, specified_op_list=None, compare_framework=None):
+def get_job_res(inputfile, specified_op_list=None):
     """
     implements within avoiding too large file
 
@@ -209,7 +209,7 @@ def get_job_res(inputfile, specified_op_list=None, compare_framework=None):
     case_name = file_name.split("-")[0]
     op_type = op_benchmark_unit.parse_op_type(case_name)
     if specified_op_list and op_type not in specified_op_list:
-        return
+        return None
 
     print("-- Parse %s from %s" % (case_name, inputfile))
 
@@ -219,14 +219,7 @@ def get_job_res(inputfile, specified_op_list=None, compare_framework=None):
 
     statistic_beg_idx = file_name.find("-")
     statistic_type = file_name[statistic_beg_idx + 1:]
-    framework_parsed = statistic_type.split("_")[0]
-    if framework_parsed != "paddle":
-        if compare_framework:
-            assert framework_parsed == compare_framework, "Framework name parsed from result's filename is expected to be %s, but recieved %s." % (
-                compare_framework, framework_parsed)
-        else:
-            compare_framework = framework_parsed
-
+    framework = statistic_type.split("_")[0]
     last_line = _read_last_line(inputfile)
 
     # Parse "disabled" status.
@@ -236,12 +229,14 @@ def get_job_res(inputfile, specified_op_list=None, compare_framework=None):
     _parse_parameters(case_name, last_line)
 
     if last_line and "_speed_" in statistic_type:
+        if case_name == "tanh_0":
+            print(statistic_type, last_line)
         _parse_speed(case_name, statistic_type, last_line)
 
     if last_line and "_accuracy_" in statistic_type:
         _parse_accuracy(case_name, statistic_type, last_line)
 
-    return compare_framework
+    return framework
 
 
 def check_results(op_record, alarm_results):
@@ -451,9 +446,14 @@ if __name__ == '__main__':
 
     compare_framework = None
     for filename in sorted(filenames):
-        compare_framework = get_job_res(
-            os.path.join(op_result_dir, filename), specified_op_list,
-            compare_framework)
+        framework = get_job_res(
+            os.path.join(op_result_dir, filename), specified_op_list)
+        if framework is not None and framework != "paddle":
+            if compare_framework:
+                assert framework == compare_framework, "Framework name parsed from result's filename is expected to be %s, but recieved %s." % (
+                    compare_framework, framework)
+            else:
+                compare_framework = framework
 
     data = []
     benchmark_result_list = []
