@@ -116,7 +116,6 @@ def _parse_parameters(case_name, last_line):
 
 def _parse_speed(case_name, statistic_type, last_line):
     assert res.get(case_name, None) is not None
-    print(statistic_type)
 
     gpu_time_key_map = {
         "paddle_gpu_speed_forward": "gpu_time",
@@ -177,7 +176,7 @@ def _parse_accuracy(case_name, statistic_type, last_line):
         res[case_name][difference_key] = "--"
 
 
-def get_job_res(inputfile, specified_op_list=None):
+def get_job_res(inputfile, specified_op_list=None, compare_framework=None):
     """
     implements within avoiding too large file
 
@@ -220,6 +219,14 @@ def get_job_res(inputfile, specified_op_list=None):
 
     statistic_beg_idx = file_name.find("-")
     statistic_type = file_name[statistic_beg_idx + 1:]
+    framework_parsed = statistic_type.split("_")[0]
+    if framework_parsed != "paddle":
+        if compare_framework:
+            assert framework_parsed == compare_framework, "Framework name parsed from result's filename is expected to be %s, but recieved %s." % (
+                compare_framework, framework_parsed)
+        else:
+            compare_framework = framework_parsed
+
     last_line = _read_last_line(inputfile)
 
     # Parse "disabled" status.
@@ -233,6 +240,8 @@ def get_job_res(inputfile, specified_op_list=None):
 
     if last_line and "_accuracy_" in statistic_type:
         _parse_accuracy(case_name, statistic_type, last_line)
+
+    return compare_framework
 
 
 def check_results(op_record, alarm_results):
@@ -371,11 +380,6 @@ if __name__ == '__main__':
         default=None,
         help='Specify the result directory of operator benchmark.')
     parser.add_argument(
-        '--compare_framework',
-        type=str,
-        default="tensorflow",
-        help='Specify the framework (tensorflow, pytorch) of comparison.')
-    parser.add_argument(
         '--specified_op_list',
         type=str,
         default=None,
@@ -431,10 +435,6 @@ if __name__ == '__main__':
         default=True,
         help='Whether constructing alarm email [True|False]')
     args = parser.parse_args()
-    if args.compare_framework not in ["tensorflow", "pytorch"]:
-        raise ValueError(
-            "The framework must be tensorflow or pytorch, but the framework is %s."
-            % args.compare_framework)
 
     op_result_dir = os.path.abspath(args.op_result_dir)
     assert os.path.exists(
@@ -449,8 +449,11 @@ if __name__ == '__main__':
     if args.specified_op_list:
         specified_op_list = args.specified_op_list.split()
 
+    compare_framework = None
     for filename in sorted(filenames):
-        get_job_res(os.path.join(op_result_dir, filename), specified_op_list)
+        compare_framework = get_job_res(
+            os.path.join(op_result_dir, filename), specified_op_list,
+            compare_framework)
 
     data = []
     benchmark_result_list = []
@@ -462,7 +465,7 @@ if __name__ == '__main__':
         data.append(case_detail)
 
         op_unit = op_benchmark_unit.OpBenchmarkUnit(case_detail,
-                                                    args.compare_framework)
+                                                    compare_framework)
         benchmark_result_list.append(op_unit)
 
     op_frequency_dict = None
@@ -483,7 +486,7 @@ if __name__ == '__main__':
 
         write_excel.dump_excel(benchmark_result_list, op_result_dir,
                                args.url_prefix, args.output_path,
-                               args.compare_framework, op_frequency_dict)
+                               compare_framework, op_frequency_dict)
 
     if args.dump_to_json:
         import write_json

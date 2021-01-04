@@ -170,6 +170,7 @@ def dump_excel(benchmark_result_list,
         timestamp = time.strftime('%Y-%m-%d', time.localtime(int(time.time())))
         output_path = "op_benchmark_summary-%s.xlsx" % timestamp
         print("Output path is not specified, use %s." % output_path)
+    print("-- Write to %s." % output_path)
 
     wb = xlw.Workbook(output_path)
     align = wb.add_format({"align": "left"})
@@ -207,7 +208,7 @@ def dump_excel(benchmark_result_list,
 
             time_set = ["total"] if device == "cpu" else ["total", "kernel"]
             for key in time_set:
-                title_names.append("Paddle(%s)" % key)
+                title_names.append("paddle(%s)" % key)
                 title_names.append(compare_framework + "(%s)" % key)
                 title_names.append("compare result")
                 column_width.append(16)
