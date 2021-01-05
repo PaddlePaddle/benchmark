@@ -133,7 +133,7 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
     assert args.test_module_name in [
-        "tests", "tests_v2"
-    ], "Please set test_module_name to \"tests\" or \"tests_v2\"."
+        "tests", "tests_v2", "dynamic_tests_v2"
+    ], "Please set test_module_name to \"tests\", \"tests_v2\", \"dynamic_tests_v2\"."
     sys.path.append(os.path.join(package_path, args.test_module_name))
     main(args)
