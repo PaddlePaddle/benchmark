@@ -84,7 +84,9 @@ def combine_benchmark_request(benchmark_requests, log_request):
     if log_request is None:
         return
 
-    request_key = "%s-%s" % (log_request.get("name"), log_request.get("frame"))
+    request_key = "%s-%s-%s" % (log_request.get("name"),
+                                log_request.get("frame"),
+                                log_request.get("processor"))
 
     benchmark_request = benchmark_requests.get(request_key)
     if benchmark_request is None:
