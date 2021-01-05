@@ -129,3 +129,5 @@ if __name__ == "__main__":
         r = requests.post(url, json=datas[idx:idx + 10])
         logging.info("request benchmark to write [%d, %d) is %s" %
                      (idx, idx + 10, r.ok))
+        for data in datas:
+            logging.info(json.dumps(data))
