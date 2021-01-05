@@ -209,7 +209,7 @@ function run_models(){
             -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             --net=host \
             --privileged \
-            --shm-size=32G \
+            --shm-size=64G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
     fi
