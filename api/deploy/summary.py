@@ -47,10 +47,10 @@ CHECK_KEY["paddle_cpu_perf_backwards"] = "CPU反向"
 
 def _is_json(line):
     try:
-        result = json.loads(line)
-    except Exception:
+        json.loads(line)
+    except ValueError:
         return False
-    return True if isinstance(result, dict) else False
+    return True
 
 
 def _read_last_line(inputfile):
@@ -116,6 +116,7 @@ def _parse_parameters(case_name, last_line):
 
 def _parse_speed(case_name, statistic_type, last_line):
     assert res.get(case_name, None) is not None
+    print(statistic_type)
 
     gpu_time_key_map = {
         "paddle_gpu_speed_forward": "gpu_time",
@@ -137,7 +138,7 @@ def _parse_speed(case_name, statistic_type, last_line):
         total = data["speed"]["total"]
         total_str = "%.5f" % total
         res[case_name][statistic_type] = total_str
-        if gpu_time_key and data["speed"].get("gpu_time", None) is not None:
+        if gpu_time_key and data["speed"].get("gpu_time", None):
             # May set following values:
             #   gpu_time
             #   gpu_time_backward
@@ -209,7 +210,7 @@ def get_job_res(inputfile, specified_op_list=None):
     case_name = file_name.split("-")[0]
     op_type = op_benchmark_unit.parse_op_type(case_name)
     if specified_op_list and op_type not in specified_op_list:
-        return None
+        return
 
     print("-- Parse %s from %s" % (case_name, inputfile))
 
@@ -219,7 +220,6 @@ def get_job_res(inputfile, specified_op_list=None):
 
     statistic_beg_idx = file_name.find("-")
     statistic_type = file_name[statistic_beg_idx + 1:]
-    framework = statistic_type.split("_")[0]
     last_line = _read_last_line(inputfile)
 
     # Parse "disabled" status.
@@ -233,8 +233,6 @@ def get_job_res(inputfile, specified_op_list=None):
 
     if last_line and "_accuracy_" in statistic_type:
         _parse_accuracy(case_name, statistic_type, last_line)
-
-    return framework
 
 
 def check_results(op_record, alarm_results):
@@ -373,6 +371,11 @@ if __name__ == '__main__':
         default=None,
         help='Specify the result directory of operator benchmark.')
     parser.add_argument(
+        '--compare_framework',
+        type=str,
+        default="tensorflow",
+        help='Specify the framework (tensorflow, pytorch) of comparison.')
+    parser.add_argument(
         '--specified_op_list',
         type=str,
         default=None,
@@ -428,6 +431,10 @@ if __name__ == '__main__':
         default=True,
         help='Whether constructing alarm email [True|False]')
     args = parser.parse_args()
+    if args.compare_framework not in ["tensorflow", "pytorch"]:
+        raise ValueError(
+            "The framework must be tensorflow or pytorch, but the framework is %s."
+            % args.compare_framework)
 
     op_result_dir = os.path.abspath(args.op_result_dir)
     assert os.path.exists(
@@ -442,16 +449,8 @@ if __name__ == '__main__':
     if args.specified_op_list:
         specified_op_list = args.specified_op_list.split()
 
-    compare_framework = None
     for filename in sorted(filenames):
-        framework = get_job_res(
-            os.path.join(op_result_dir, filename), specified_op_list)
-        if framework is not None and framework != "paddle":
-            if compare_framework:
-                assert framework == compare_framework, "Framework name parsed from result's filename is expected to be %s, but recieved %s." % (
-                    compare_framework, framework)
-            else:
-                compare_framework = framework
+        get_job_res(os.path.join(op_result_dir, filename), specified_op_list)
 
     data = []
     benchmark_result_list = []
@@ -463,7 +462,7 @@ if __name__ == '__main__':
         data.append(case_detail)
 
         op_unit = op_benchmark_unit.OpBenchmarkUnit(case_detail,
-                                                    compare_framework)
+                                                    args.compare_framework)
         benchmark_result_list.append(op_unit)
 
     op_frequency_dict = None
@@ -484,7 +483,7 @@ if __name__ == '__main__':
 
         write_excel.dump_excel(benchmark_result_list, op_result_dir,
                                args.url_prefix, args.output_path,
-                               compare_framework, op_frequency_dict)
+                               args.compare_framework, op_frequency_dict)
 
     if args.dump_to_json:
         import write_json
