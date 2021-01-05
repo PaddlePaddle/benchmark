@@ -202,7 +202,11 @@ def check_outputs(list1,
                   use_gpu=True,
                   backward=False,
                   config_params=None):
-    import tensorflow as tf
+    try:
+        import tensorflow as tf
+    except ImportError:
+        pass
+
     if not isinstance(list1, list) or not isinstance(list2, list):
         raise TypeError(
             "input argument's type should be list of numpy.ndarray.")
@@ -229,13 +233,14 @@ def check_outputs(list1,
             output1 = list1[i]
             output2 = list2[i]
 
-            if isinstance(
-                    output2,
-                    tf.python.framework.indexed_slices.IndexedSlicesValue):
-                print(
-                    "---- Warning: The type of tensorflow output is IndexedSlicesValue,"
-                    "Skip all check, It will be fixed later.")
-                continue
+            if testing_mode == "static":
+                if isinstance(
+                        output2,
+                        tf.python.framework.indexed_slices.IndexedSlicesValue):
+                    print(
+                        "---- Warning: The type of tensorflow output is IndexedSlicesValue,"
+                        "Skip all check, It will be fixed later.")
+                    continue
 
             output1, output2 = _check_type(output1, output2)
             output1, output2 = _check_shape(name, output1, output2, i)
@@ -287,7 +292,6 @@ def check_outputs(list1,
                         "---- Warning: This situation is not a error. The implementation of api (%s) is different with tensorflow. "
                         "When the value of inputs are same, Paddle choose the second value as the output and"
                         "TF choose the first value as the output." % (name))
-
                 elif testing_mode == "static" and name in special_op_list.RANDOM_OP_LIST:
                     print(
                         "---- Warning: This situation is not a error. The api (%s) is random op and the value of outputs is random."

@@ -229,8 +229,6 @@ def get_job_res(inputfile, specified_op_list=None):
     _parse_parameters(case_name, last_line)
 
     if last_line and "_speed_" in statistic_type:
-        if case_name == "tanh_0":
-            print(statistic_type, last_line)
         _parse_speed(case_name, statistic_type, last_line)
 
     if last_line and "_accuracy_" in statistic_type:
