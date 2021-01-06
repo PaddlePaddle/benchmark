@@ -23,13 +23,13 @@ class IndexSelectConfig(APIConfig):
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(IndexSelectConfig, self).init_from_json(filename, config_id,
                                                       unknown_dim)
-        dim = self.axis_value
+        dim = self.axis
         self.feed_spec = [
             {
                 "range": [0, 10]
             },  # x
             {
-                "range": [0, self.input_shape[dim]]
+                "range": [0, self.x_shape[dim]]
             }  # index
         ]
 
@@ -48,4 +48,4 @@ class PDIndexSelect(PaddleAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDIndexSelect(), config=IndexSelectConfig("index_select"))
+    test_main(PDIndexSelect(), config=IndexSelectConfig())
