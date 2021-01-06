@@ -16,8 +16,7 @@
             "type": "Variable"
         }
     }
-},
-{
+}, {
     "op": "index_select",
     "param_info": {
         "axis": {
