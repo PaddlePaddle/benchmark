@@ -3,12 +3,12 @@
     "param_info": {
         "x": {
             "dtype": "int64",
-            "shape": "[-1L, 128L]",
+            "shape": "[150L, 34L]",
             "type": "Variable"
         },
         "weight": {
-            "dtype": "float16",
-            "shape": "[2L, 768L]",
+            "dtype": "float32",
+            "shape": "[1025L, 1024L]",
             "type": "Variable"
         },
         "sparse": {
@@ -25,35 +25,12 @@
     "param_info": {
         "x": {
             "dtype": "int64",
-            "shape": "[-1L, -1L]",
+            "shape": "[150L, 34L]",
             "type": "Variable"
         },
         "weight": {
-            "dtype": "float32",
-            "shape": "[37007L, 1024L]",
-            "type": "Variable"
-        },
-        "sparse": {
-            "type": "bool",
-            "value": "False"
-        },
-        "padding_idx": {
-            "type": "int",
-            "value": "0"
-        }
-    },
-    "repeat": 850000
-}, {
-    "op": "embedding",
-    "param_info": {
-        "x": {
-            "dtype": "int64",
-            "shape": "[-1L, 35L, 1L]",
-            "type": "Variable"
-        },
-        "weight": {
-            "dtype": "float32",
-            "shape": "[10000L, 1500L]",
+            "dtype": "float16",
+            "shape": "[1025L, 1024L]",
             "type": "Variable"
         },
         "sparse": {
@@ -64,19 +41,40 @@
             "type": "string",
             "value": "None"
         }
-    },
-    "repeat": 100000
+    }
 }, {
     "op": "embedding",
     "param_info": {
         "x": {
             "dtype": "int64",
-            "shape": "[-1L, 128L]",
+            "shape": "[150L, 34L]",
             "type": "Variable"
         },
         "weight": {
             "dtype": "float32",
-            "shape": "[2L, 768L]",
+            "shape": "[38506L, 1024L]",
+            "type": "Variable"
+        },
+        "sparse": {
+            "type": "bool",
+            "value": "False"
+        },
+        "padding_idx": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "embedding",
+    "param_info": {
+        "x": {
+            "dtype": "int64",
+            "shape": "[150L, 34L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[38506L, 1024L]",
             "type": "Variable"
         },
         "sparse": {

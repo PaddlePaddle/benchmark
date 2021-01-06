@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,46 +15,36 @@
 from common_import import *
 
 
-class ActivationConfig(APIConfig):
+class OneHotConfig(APIConfig):
     def __init__(self):
-        super(ActivationConfig, self).__init__('activation')
-        self.api_name = 'cos'
-        self.api_list = {
-            'cos': 'cos',
-            'exp': 'exp',
-            'log': 'log',
-            'sin': 'sin',
-            'sinh': 'sinh',
-            'sqrt': 'sqrt',
-            'square': 'square',
-            'tanh': 'tanh'
-        }
+        super(OneHotConfig, self).__init__('one_hot')
+
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(OneHotConfig, self).init_from_json(filename, config_id,
+                                                 unknown_dim)
+        self.feed_spec = {"range": [0, self.num_classes]}
 
 
-class PDActivation(PaddleDynamicAPIBenchmarkBase):
+class PDOneHot(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(config.api_name, x=x)
+        result = paddle.nn.functional.one_hot(
+            x=x, num_classes=config.num_classes)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
-class TorchActivation(PytorchAPIBenchmarkBase):
+class TorchOneHot(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(config.api_name, x=x)
+        result = torch.nn.functional.one_hot(
+            input=x, num_classes=config.num_classes)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDActivation(),
-        torch_obj=TorchActivation(),
-        config=ActivationConfig())
+        pd_dy_obj=PDOneHot(), torch_obj=TorchOneHot(), config=OneHotConfig())
