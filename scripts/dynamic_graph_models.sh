@@ -21,7 +21,7 @@ cur_model_list=(dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn
 dy_mobilenet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout dygraph
+    git checkout dygraph-dev
 
     # Prepare data
     ln -s ${data_path}/dygraph_data/ILSVRC2012_Pytorch/dataset_100  ${cur_model_path}/dataset/                         # 准备数据集,需要保证benchmark任务极其21 上对应目录下存在该数据集！
@@ -377,7 +377,7 @@ dy_senta(){
 dy_resnet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout dygraph
+    git checkout dygrap-dev
    
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
     rm -f ./run_benchmark.sh
