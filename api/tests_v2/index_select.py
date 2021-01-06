@@ -17,6 +17,7 @@ from common_import import *
 class IndexSelectConfig(APIConfig):
     def __init__(self):
         super(IndexSelectConfig, self).__init__('index_select')
+        self.run_tf = False
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(IndexSelectConfig, self).init_from_json(filename, config_id,
@@ -31,7 +32,7 @@ class IndexSelectConfig(APIConfig):
             }  # index
         ]
 
-class PDRoll(PaddleAPIBenchmarkBase):
+class PDIndexSelect(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         index = self.variable(name='index', shape=config.index_shape, dtype=config.index_dtype)
@@ -44,4 +45,4 @@ class PDRoll(PaddleAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDRoll(), config=APIConfig("index_select"))
+    test_main(PDIndexSelect(), config=APIConfig("index_select"))
