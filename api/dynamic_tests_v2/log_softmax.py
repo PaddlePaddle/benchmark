@@ -15,46 +15,38 @@
 from common_import import *
 
 
-class ActivationConfig(APIConfig):
+class LogSoftmaxConfig(APIConfig):
     def __init__(self):
-        super(ActivationConfig, self).__init__('activation')
-        self.api_name = 'cos'
-        self.api_list = {
-            'cos': 'cos',
-            'exp': 'exp',
-            'log': 'log',
-            'sin': 'sin',
-            'sinh': 'sinh',
-            'sqrt': 'sqrt',
-            'square': 'square',
-            'tanh': 'tanh'
-        }
+        super(LogSoftmaxConfig, self).__init__("log_softmax")
+        self.feed_spec = {"range": [-1, 1]}
+        # log_softmax is a combination of log and softmax, so that it can reuse softmax.json. 
+        self.alias_name = "softmax"
 
 
-class PDActivation(PaddleDynamicAPIBenchmarkBase):
+class PDLogSoftmax(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(config.api_name, x=x)
+        out = paddle.nn.functional.log_softmax(x=x, axis=config.axis)
 
         self.feed_list = [x]
-        self.fetch_list = [result]
+        self.fetch_list = [out]
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(out, [x])
 
 
-class TorchActivation(PytorchAPIBenchmarkBase):
+class TorchLogSoftmax(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(config.api_name, x=x)
+        out = torch.nn.functional.log_softmax(input=x, dim=config.axis)
 
         self.feed_list = [x]
-        self.fetch_list = [result]
+        self.fetch_list = [out]
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(out, [x])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDActivation(),
-        torch_obj=TorchActivation(),
-        config=ActivationConfig())
+        pd_dy_obj=PDLogSoftmax(),
+        torch_obj=TorchLogSoftmax(),
+        config=LogSoftmaxConfig())

@@ -15,39 +15,44 @@
 from common_import import *
 
 
-class ActivationConfig(APIConfig):
+class IndexSampleConfig(APIConfig):
     def __init__(self):
-        super(ActivationConfig, self).__init__('activation')
-        self.api_name = 'cos'
-        self.api_list = {
-            'cos': 'cos',
-            'exp': 'exp',
-            'log': 'log',
-            'sin': 'sin',
-            'sinh': 'sinh',
-            'sqrt': 'sqrt',
-            'square': 'square',
-            'tanh': 'tanh'
-        }
+        super(IndexSampleConfig, self).__init__("index_sample")
+
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(IndexSampleConfig, self).init_from_json(filename, config_id,
+                                                      unknown_dim)
+        self.feed_spec = [
+            {
+                "range": [0, 1]
+            },  # x
+            {
+                "range": [0, self.x_shape[-1]]
+            }  # index
+        ]
 
 
-class PDActivation(PaddleDynamicAPIBenchmarkBase):
+class PDIndexSample(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(config.api_name, x=x)
+        index = self.variable(
+            name='index', shape=config.index_shape, dtype=config.index_dtype)
+        result = paddle.index_sample(x=x, index=index)
 
-        self.feed_list = [x]
+        self.feed_list = [x, index]
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x])
 
 
-class TorchActivation(PytorchAPIBenchmarkBase):
+class TorchIndexSample(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(config.api_name, x=x)
+        index = self.variable(
+            name='index', shape=config.index_shape, dtype=config.index_dtype)
+        result = torch.gather(input=x, index=index, dim=1)
 
-        self.feed_list = [x]
+        self.feed_list = [x, index]
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x])
@@ -55,6 +60,6 @@ class TorchActivation(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDActivation(),
-        torch_obj=TorchActivation(),
-        config=ActivationConfig())
+        pd_dy_obj=PDIndexSample(),
+        torch_obj=TorchIndexSample(),
+        config=IndexSampleConfig())
