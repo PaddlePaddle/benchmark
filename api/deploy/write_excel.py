@@ -39,6 +39,8 @@ COMPARE_RESULT_SHOWS = {
 
 
 def _op_filename(case_name, framework, device, task, direction):
+    if direction == "backward_forward":
+        direction = "backward"
     filename = case_name + "-" + framework + "_" + device + "_" + task + "_" + direction + ".txt"
     return filename
 
@@ -198,10 +200,12 @@ def _write_detail_worksheet(benchmark_result_list, worksheet, device,
     _write_title_and_set_column_width(worksheet, device, compare_framework,
                                       title_format)
 
-    row = 1
+    row = 0
     for case_id in range(len(benchmark_result_list)):
         op_unit = benchmark_result_list[case_id]
-        if direction == "backward" and op_unit.op_type in special_op_list.NO_BACKWARD_OPS:
+        if direction in [
+                "backward", "backward_forward"
+        ] and op_unit.op_type in special_op_list.NO_BACKWARD_OPS:
             continue
 
         result = op_unit.get(device, direction)
@@ -294,7 +298,7 @@ def dump_excel(benchmark_result_list,
     if url_prefix:
         print("url prefix: ", url_prefix)
     for device in ["gpu", "cpu"]:
-        for direction in ["forward", "backward"]:
+        for direction in ["forward", "backward", "backward_forward"]:
             worksheet_name = device + "_" + direction
             ws = wb.add_worksheet(worksheet_name)
             _write_detail_worksheet(benchmark_result_list, ws, device,
