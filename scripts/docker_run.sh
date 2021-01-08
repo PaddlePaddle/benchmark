@@ -189,7 +189,7 @@ function run_models(){
             -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             --net=host \
             --privileged \
-            --shm-size=64G \
+            --shm-size=128G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
     else
@@ -209,7 +209,7 @@ function run_models(){
             -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             --net=host \
             --privileged \
-            --shm-size=64G \
+            --shm-size=128G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
     fi
