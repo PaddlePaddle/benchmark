@@ -23,7 +23,7 @@
             "type": "int",
             "value": "-100"
         },
-        "index": {
+        "label": {
             "dtype": "int64",
             "shape": "[5100L]",
             "type": "Variable"

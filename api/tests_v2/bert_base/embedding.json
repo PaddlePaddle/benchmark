@@ -29,6 +29,28 @@
             "type": "Variable"
         },
         "weight": {
+            "dtype": "float16",
+            "shape": "[30522L, 768L]",
+            "type": "Variable"
+        },
+        "sparse": {
+            "type": "bool",
+            "value": "False"
+        },
+        "padding_idx": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "embedding",
+    "param_info": {
+        "x": {
+            "dtype": "int64",
+            "shape": "[32L, 128L]",
+            "type": "Variable"
+        },
+        "weight": {
             "dtype": "float32",
             "shape": "[512L, 768L]",
             "type": "Variable"
@@ -51,7 +73,51 @@
             "type": "Variable"
         },
         "weight": {
+            "dtype": "float16",
+            "shape": "[512L, 768L]",
+            "type": "Variable"
+        },
+        "sparse": {
+            "type": "bool",
+            "value": "False"
+        },
+        "padding_idx": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "embedding",
+    "param_info": {
+        "x": {
+            "dtype": "int64",
+            "shape": "[32L, 128L]",
+            "type": "Variable"
+        },
+        "weight": {
             "dtype": "float32",
+            "shape": "[2L, 768L]",
+            "type": "Variable"
+        },
+        "sparse": {
+            "type": "bool",
+            "value": "False"
+        },
+        "padding_idx": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "embedding",
+    "param_info": {
+        "x": {
+            "dtype": "int64",
+            "shape": "[32L, 128L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
             "shape": "[2L, 768L]",
             "type": "Variable"
         },
