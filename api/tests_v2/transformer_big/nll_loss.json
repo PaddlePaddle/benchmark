@@ -1,26 +1,34 @@
 [{
-    "op": "index_sample",
+    "op": "nll_loss",
     "param_info": {
-        "index": {
+        "ignore_index": {
+            "type": "int",
+            "value": "-100"
+        },
+        "label": {
             "dtype": "int64",
-            "shape": "[5100L, 1L]",
+            "shape": "[5100L]",
             "type": "Variable"
         },
-        "x": {
+        "input": {
             "dtype": "float32",
             "shape": "[5100L, 38506L]",
             "type": "Variable"
         }
     }
 }, {
-    "op": "index_sample",
+    "op": "nll_loss",
     "param_info": {
-        "index": {
+        "ignore_index": {
+            "type": "int",
+            "value": "-100"
+        },
+        "label": {
             "dtype": "int64",
-            "shape": "[5100L, 1L]",
+            "shape": "[5100L]",
             "type": "Variable"
         },
-        "x": {
+        "input": {
             "dtype": "float16",
             "shape": "[5100L, 38506L]",
             "type": "Variable"

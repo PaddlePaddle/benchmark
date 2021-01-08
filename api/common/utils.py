@@ -57,6 +57,18 @@ def run_command(command, shell=True):
 
 def check_commit():
     try:
+        import tensorflow as tf
+        tf_version = tf.__version__
+    except Exception:
+        tf_version = None
+
+    try:
+        import torch
+        torch_version = torch.__version__
+    except Exception:
+        torch_version = None
+
+    try:
         current_dir = os.getcwd()
         print("-- Current directory: %s" % current_dir)
 
@@ -75,15 +87,18 @@ def check_commit():
         paddle_version = paddle.version.full_version
         paddle_commit = paddle.version.commit
 
-        import tensorflow as tf
-        tf_version = tf.__version__
-
         print(
             "==========================================================================="
         )
         print("-- paddle version             : %s" % paddle_version)
         print("-- paddle commit              : %s" % paddle_commit)
-        print("-- tensorflow version         : %s" % tf_version)
+
+        if tf_version:
+            print("-- tensorflow version         : %s" % tf_version)
+
+        if torch_version:
+            print("-- pytorch version            : %s" % torch_version)
+
         print("-- benchmark commit           : %s" % benchmark_commit)
         print("-- benchmark last update time : %s" % benchmark_update_time)
         print(
@@ -187,7 +202,11 @@ def check_outputs(list1,
                   use_gpu=True,
                   backward=False,
                   config_params=None):
-    import tensorflow as tf
+    try:
+        import tensorflow as tf
+    except ImportError:
+        pass
+
     if not isinstance(list1, list) or not isinstance(list2, list):
         raise TypeError(
             "input argument's type should be list of numpy.ndarray.")
@@ -214,13 +233,14 @@ def check_outputs(list1,
             output1 = list1[i]
             output2 = list2[i]
 
-            if isinstance(
-                    output2,
-                    tf.python.framework.indexed_slices.IndexedSlicesValue):
-                print(
-                    "---- Warning: The type of tensorflow output is IndexedSlicesValue,"
-                    "Skip all check, It will be fixed later.")
-                continue
+            if testing_mode == "static":
+                if isinstance(
+                        output2,
+                        tf.python.framework.indexed_slices.IndexedSlicesValue):
+                    print(
+                        "---- Warning: The type of tensorflow output is IndexedSlicesValue,"
+                        "Skip all check, It will be fixed later.")
+                    continue
 
             output1, output2 = _check_type(output1, output2)
             output1, output2 = _check_shape(name, output1, output2, i)
@@ -272,7 +292,6 @@ def check_outputs(list1,
                         "---- Warning: This situation is not a error. The implementation of api (%s) is different with tensorflow. "
                         "When the value of inputs are same, Paddle choose the second value as the output and"
                         "TF choose the first value as the output." % (name))
-
                 elif testing_mode == "static" and name in special_op_list.RANDOM_OP_LIST:
                     print(
                         "---- Warning: This situation is not a error. The api (%s) is random op and the value of outputs is random."

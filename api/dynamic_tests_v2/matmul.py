@@ -41,7 +41,19 @@ class TorchMatmul(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        result = torch.matmul(input=x, other=y)
+        if config.transpose_x:
+            rank_of_x = len(config.x_shape)
+            x_transposed = torch.transpose(
+                input=x, dim0=rank_of_x - 2, dim1=rank_of_x - 1)
+        else:
+            x_transposed = x
+        if config.transpose_y:
+            rank_of_y = len(config.y_shape)
+            y_transposed = torch.transpose(
+                input=y, dim0=rank_of_y - 2, dim1=rank_of_y - 1)
+        else:
+            y_transposed = y
+        result = torch.matmul(input=x_transposed, other=y_transposed)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]

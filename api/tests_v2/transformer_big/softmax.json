@@ -50,4 +50,30 @@
             "type": "Variable"
         }
     }
+}, {
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[150L, 34L, 38506L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[150L, 34L, 38506L]",
+            "type": "Variable"
+        }
+    }
 }]
