@@ -58,7 +58,7 @@ function _train(){
     fi
 
     train_cmd="-c configs/yolov3_darknet.yml \
-     --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} TrainReader.worker_num=${num_workers} \
+     --opt snapshot_iter=100000  max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} TrainReader.worker_num=${num_workers} \
      --is_profiler=${is_profiler} \
      --profiler_path=${profiler_path}"
 #     --batch_size=${base_batch_size} \

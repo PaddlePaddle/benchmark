@@ -377,7 +377,7 @@ dy_senta(){
 dy_resnet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout dygrap-dev
+    git checkout dygraph-dev
    
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
     rm -f ./run_benchmark.sh
