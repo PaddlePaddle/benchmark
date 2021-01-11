@@ -18,7 +18,6 @@ from common_import import *
 class TriuConfig(APIConfig):
     def __init__(self):
         super(TriuConfig, self).__init__("triu")
-        self.run_tf = False
 
 
 class PDTriu(PaddleAPIBenchmarkBase):

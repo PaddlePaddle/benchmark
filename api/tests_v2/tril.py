@@ -18,7 +18,6 @@ from common_import import *
 class TrilConfig(APIConfig):
     def __init__(self):
         super(TrilConfig, self).__init__("tril")
-        self.run_tf = False
 
 
 class PDTril(PaddleAPIBenchmarkBase):
