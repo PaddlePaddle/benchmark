@@ -176,7 +176,7 @@ function run_models(){
     if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
         RUN_IMAGE_NAME=paddlepaddle/paddle:latest
         docker run -i --rm \
-            -v /home/work:/home/work \
+            -v /home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/monquery:/usr/bin/monquery \
             -e "BENCHMARK_WEBSITE1=${BENCHMARK_WEBSITE1}" \
@@ -195,7 +195,7 @@ function run_models(){
     else
         RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
         nvidia-docker run -i --rm \
-            -v /home/work:/home/work \
+            -v /home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
             -v /usr/bin/monquery:/usr/bin/monquery \
