@@ -62,7 +62,3 @@
   path = PaddleGAN
   url = https://github.com/PaddlePaddle/PaddleGAN.git
   branch = master
-[submodule "PaddleClas"]
-  path = PaddleClas
-  url = https://github.com/PaddlePaddle/PaddleClas.git
-  branch = master
