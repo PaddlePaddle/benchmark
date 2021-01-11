@@ -1,0 +1,11 @@
+[{
+    "op": "triu",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L, 2048L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 2000
+}]
