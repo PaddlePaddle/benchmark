@@ -107,10 +107,15 @@ function prepare(){
         ln -s $(which python3.7) run_env/python
         ln -s $(which pip3.7) run_env/pip
         export PATH=$(pwd)/run_env:${PATH}
+        pip install -U pip
+        echo `pip --version`
     fi
     pip uninstall paddlepaddle-gpu -y
     pip install ${image_name}
     pip install -i https://pypi.tuna.tsinghua.edu.cn/simple opencv-python
+    if [ $? -ne 0 ]; then
+        pip install ${all_path}/tools/opencv_python-4.5.1.48-cp37-cp37m-manylinux2014_x86_64.whl
+    fi
 
     # fix ssl temporarily
     export LD_LIBRARY_PATH=${all_path}/tools/ssl/lib:${LD_LIBRARY_PATH}
