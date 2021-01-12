@@ -110,7 +110,7 @@ function prepare(){
     fi
     pip uninstall paddlepaddle-gpu -y
     pip install ${image_name}
-    pip install opencv-python
+    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple opencv-python
 
     # fix ssl temporarily
     export LD_LIBRARY_PATH=${all_path}/tools/ssl/lib:${LD_LIBRARY_PATH}
