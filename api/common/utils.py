@@ -15,12 +15,11 @@
 from __future__ import print_function
 
 import six
-import os, sys
+import sys
 import traceback
 import numpy as np
 import json
 import collections
-import subprocess
 import itertools
 
 from common import special_op_list
@@ -31,108 +30,39 @@ else:
     import special_op_list
 
 
-def str2bool(v):
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Unsupported value encountered.')
-
-
-def run_command(command, shell=True):
-    print("run command: %s" % command)
-    p = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell)
-
-    exit_code = None
-    stdout = ''
-    while exit_code is None or line:
-        exit_code = p.poll()
-        line = p.stdout.readline().decode('utf-8')
-        stdout += line
-
-    return stdout, exit_code
-
-
-def check_commit():
-    try:
-        import tensorflow as tf
-        tf_version = tf.__version__
-    except Exception:
-        tf_version = None
-
-    try:
-        import torch
-        torch_version = torch.__version__
-    except Exception:
-        torch_version = None
-
-    try:
-        current_dir = os.getcwd()
-        print("-- Current directory: %s" % current_dir)
-
-        dir_of_this_file = os.path.dirname(os.path.abspath(__file__))
-        print("-- Entering %s" % dir_of_this_file)
-        os.chdir(dir_of_this_file)
-        print("-- Current directory: %s" % os.getcwd())
-        benchmark_commit, _ = run_command("git rev-parse HEAD")
-        benchmark_commit = benchmark_commit.replace("\n", "")
-        benchmark_update_time, _ = run_command("git show -s --format=%ad")
-        benchmark_update_time = benchmark_update_time.replace("\n", "")
-        os.chdir(current_dir)
-        print("-- Current directory: %s" % os.getcwd())
-
-        import paddle
-        paddle_version = paddle.version.full_version
-        paddle_commit = paddle.version.commit
-
-        print(
-            "==========================================================================="
-        )
-        print("-- paddle version             : %s" % paddle_version)
-        print("-- paddle commit              : %s" % paddle_commit)
-
-        if tf_version:
-            print("-- tensorflow version         : %s" % tf_version)
-
-        if torch_version:
-            print("-- pytorch version            : %s" % torch_version)
-
-        print("-- benchmark commit           : %s" % benchmark_commit)
-        print("-- benchmark last update time : %s" % benchmark_update_time)
-        print(
-            "==========================================================================="
-        )
-    except Exception:
-        pass
-
-
-def _compare(output1, output2, atol):
-    max_diff = np.float32(-0.0)
+def _compare(output, target, atol):
+    max_absolute_diff = np.float32(-0.0)
     offset = -1
-    assert output1.shape == output2.shape, "Outputs' shape must be the same, but receieved %s vs %s." % (
-        str(output1.shape), str(output2.shape))
+    assert output.shape == target.shape, "The output's shape is expected be the same as target, but receieved %s vs %s." % (
+        str(output.shape), str(target.shape))
     try:
-        if output1.dtype == np.bool:
-            diff = np.array_equal(output1, output2)
-            max_diff = np.float32(np.logical_not(diff))
-            if diff == False:
-                for i in range(len(output1)):
-                    if output1[i] != output2[i]:
+        if output.dtype == np.bool:
+            absolute_diff = np.array_equal(output, target)
+            max_absolute_diff = np.float32(np.logical_not(absolute_diff))
+            if absolute_diff == False:
+                for i in range(len(output)):
+                    if output[i] != target[i]:
                         offset = i
-            assert np.array_equal(output1, output2)
+            max_relative_diff = max_absolute_diff
+            assert np.array_equal(output, target)
         else:
-            diff = np.abs(output1 - output2)
-            max_diff = np.max(diff)
-            offset = np.argmax(diff)
-            assert np.allclose(output1, output2, atol=atol)
+            # maximum absolute difference
+            absolute_diff = np.abs(output - target)
+            max_absolute_diff = np.max(absolute_diff)
+            offset = np.argmax(absolute_diff)
+            # maximum relative difference
+            max_target_value = np.max(np.abs(target))
+            if max_target_value != 0:
+                max_relative_diff = max_absolute_diff / max_target_value
+            else:
+                max_relative_diff = 0.0
+            assert np.allclose(output, target, atol=atol)
     except (AssertionError) as e:
         pass
-    return max_diff, offset
+    return max_absolute_diff, max_relative_diff, offset
 
 
-def _check_type(output1, output2):
+def _check_type(output, target):
     def _is_numpy_dtype(value):
         if type(value
                 ) in [np.float32, np.float16, np.int32, np.int64, np.bool]:
@@ -140,62 +70,62 @@ def _check_type(output1, output2):
         else:
             return False
 
-    if _is_numpy_dtype(output1):
-        output1 = np.array([output1])
+    if _is_numpy_dtype(output):
+        output = np.array([output])
 
-    if _is_numpy_dtype(output2):
-        output2 = np.array([output2])
+    if _is_numpy_dtype(target):
+        target = np.array([target])
 
-    if not isinstance(output1, np.ndarray) or not isinstance(output2,
-                                                             np.ndarray):
+    if not isinstance(output, np.ndarray) or not isinstance(target,
+                                                            np.ndarray):
         raise TypeError(
             "Output argument's type should be numpy.ndarray, but recieved: %s and %s."
-            % (str(type(output1)), str(type(output2))))
-    return output1, output2
+            % (str(type(output)), str(type(target))))
+    return output, target
 
 
-def _check_shape(name, output1, output2, i):
+def _check_shape(name, output, target, i):
     if name in ["reshape", "squeeze", "unsqueeze", "transpose"]:
-        assert output1.shape == output2.shape, "The %d-the output's shape is different, %s vs %s." % (
-            i, str(output1.shape), str(output2.shape))
-        return output1, output2
+        assert output.shape == target.shape, "The %d-the output's shape is different, %s vs %s." % (
+            i, str(output.shape), str(target.shape))
+        return output, target
 
-    if output1.shape != output2.shape:
-        output1_squeezed = np.squeeze(output1)
-        output2_squeezed = np.squeeze(output2)
-        shape1_permutations = list(
-            itertools.permutations(output1_squeezed.shape,
-                                   len(output1_squeezed.shape)))
-        if output1_squeezed.shape != output2_squeezed.shape and output2_squeezed.shape not in shape1_permutations:
+    if output.shape != target.shape:
+        output_squeezed = np.squeeze(output)
+        target_squeezed = np.squeeze(target)
+        output_shape_permutations = list(
+            itertools.permutations(output_squeezed.shape,
+                                   len(output_squeezed.shape)))
+        if output_squeezed.shape != target_squeezed.shape and target_squeezed.shape not in output_shape_permutations:
             raise RuntimeError(
                 "The %d-the output's shape is different, %s vs %s." % (
-                    i, str(output1.shape), str(output2.shape)))
+                    i, str(output.shape), str(target.shape)))
         else:
             print(
                 "---- Warning: The %d-th output's shape is compatible (same after squeezed/permuted), %s vs %s."
-                % (i, str(output1.shape), str(output2.shape)))
-        return output1_squeezed, output2_squeezed
-    return output1, output2
+                % (i, str(output.shape), str(target.shape)))
+        return output_squeezed, target_squeezed
+    return output, target
 
 
-def _permute_order(name, output1, output2):
+def _permute_order(name, output, target):
     if name in ["reshape", "squeeze", "unsqueeze", "transpose"]:
         return []
 
-    numbers = list(range(len(output2.shape)))
+    numbers = list(range(len(target.shape)))
     all_permutations = list(itertools.permutations(numbers, len(numbers)))
     choosed_permutations = []
     for permutation in all_permutations:
-        permuted_shape2 = []
+        permuted_target_shape = []
         for pos in permutation:
-            permuted_shape2.append(output2.shape[pos])
-        if permuted_shape2 == list(output1.shape):
+            permuted_target_shape.append(target.shape[pos])
+        if permuted_target_shape == list(output.shape):
             choosed_permutations.append(permutation)
     return choosed_permutations
 
 
-def check_outputs(list1,
-                  list2,
+def check_outputs(output_list,
+                  target_list,
                   testing_mode,
                   name,
                   atol=1E-6,
@@ -207,7 +137,7 @@ def check_outputs(list1,
     except ImportError:
         pass
 
-    if not isinstance(list1, list) or not isinstance(list2, list):
+    if not isinstance(output_list, list) or not isinstance(target_list, list):
         raise TypeError(
             "input argument's type should be list of numpy.ndarray.")
 
@@ -216,86 +146,90 @@ def check_outputs(list1,
     num_outputs = 0
 
     if name not in special_op_list.NO_FETCHES_OPS:
-        if len(list1) != len(list2):
-            if len(list1) > 1 and len(list2) == 1 and isinstance(list2[0],
-                                                                 list):
-                list2 = list2[0]
-            if len(list1) == 1 and len(list2) > 1 and isinstance(list1[0],
-                                                                 list):
-                list1 = list1[0]
-            assert len(list1) == len(
-                list2
+        if len(output_list) != len(target_list):
+            if len(output_list) > 1 and len(target_list) == 1 and isinstance(
+                    target_list[0], list):
+                target_list = target_list[0]
+            if len(output_list) == 1 and len(target_list) > 1 and isinstance(
+                    output_list[0], list):
+                output_list = output_list[0]
+            assert len(output_list) == len(
+                target_list
             ), "Expected the number of outputs to be equal, but recieved: %d vs %d." % (
-                len(list1), len(list2))
+                len(output_list), len(target_list))
 
-        num_outputs = len(list1)
+        num_outputs = len(output_list)
         for i in range(num_outputs):
-            output1 = list1[i]
-            output2 = list2[i]
+            output = output_list[i]
+            target = target_list[i]
 
             if testing_mode == "static":
                 if isinstance(
-                        output2,
+                        target,
                         tf.python.framework.indexed_slices.IndexedSlicesValue):
                     print(
-                        "---- Warning: The type of tensorflow output is IndexedSlicesValue,"
-                        "Skip all check, It will be fixed later.")
+                        "---- Warning: Th %d-th target's type is IndexedSlicesValue and the check is skipped. "
+                        "It will be fixed later." % i)
                     continue
 
-            output1, output2 = _check_type(output1, output2)
-            output1, output2 = _check_shape(name, output1, output2, i)
+            output, target = _check_type(output, target)
+            output, target = _check_shape(name, output, target, i)
 
-            if output1.dtype != output2.dtype:
+            if output.dtype != target.dtype:
                 print(
                     "---- Warning: The %d-the output's data type is different, %s vs %s."
-                    % (i, str(output1.dtype), str(output2.dtype)))
+                    % (i, str(output.dtype), str(target.dtype)))
 
             max_diff_i = None
             offset_i = 0
-            if output1.shape == output2.shape:
-                max_diff_i, offset_i = _compare(output1, output2, atol)
-                output1_diff_value = output1.flatten()[offset_i]
-                output2_diff_value = output2.flatten()[offset_i]
+            if output.shape == target.shape:
+                max_diff_i, max_relative_diff_i, offset_i = _compare(
+                    output, target, atol)
+                output_diff_value = output.flatten()[offset_i]
+                target_diff_value = target.flatten()[offset_i]
 
             if max_diff_i is None or max_diff_i > atol:
-                choosed_permutations = _permute_order(name, output1, output2)
+                # Try to compare output with permuted target.
+                choosed_permutations = _permute_order(name, output, target)
                 permutation = None
                 for permutation_tmp in choosed_permutations:
-                    output2_transposed = np.transpose(output2, permutation_tmp)
-                    max_diff_i_tmp, offset_i_tmp = _compare(
-                        output1, output2_transposed, atol)
+                    target_transposed = np.transpose(target, permutation_tmp)
+                    max_diff_i_tmp, max_relative_diff_i_tmp, offset_i_tmp = _compare(
+                        output, target_transposed, atol)
                     if max_diff_i is None or max_diff_i > max_diff_i_tmp:
                         max_diff_i = max_diff_i_tmp
+                        max_relative_diff_i = max_relative_diff_i_tmp
                         offset_i = offset_i_tmp
                         permutation = permutation_tmp
-                        output1_diff_value = output1.flatten()[offset_i]
-                        output2_diff_value = output2_transposed.flatten()[
+                        output_diff_value = output.flatten()[offset_i]
+                        target_diff_value = target_transposed.flatten()[
                             offset_i]
                 if permutation is not None:
                     print(
                         "---- Warning: The %d-th output need permute. The permutation is %s, outputs shape are %s vs %s."
-                        % (i, str(permutation), str(output1.shape),
-                           str(output2.shape)))
+                        % (i, str(permutation), str(output.shape),
+                           str(target.shape)))
 
             if max_diff_i > 1E-6:
                 print(
                     "---- Warning: The %d-th output (shape: %s, data type: %s) has diff. "
-                    "The maximum diff is %e, offset is %d: %s vs %s. atol is %.2e."
-                    % (i, str(output1.shape), str(output1.dtype), max_diff_i,
-                       offset_i, str(output1_diff_value),
-                       str(output2_diff_value), atol))
+                    "The maximum absolute diff is %e, maximum relative diff is %e, offset is %d: %s vs %s. atol is %.2e."
+                    % (i, str(output.shape), str(output.dtype), max_diff_i,
+                       max_relative_diff_i, offset_i, str(output_diff_value),
+                       str(target_diff_value), atol))
 
             max_diff = max_diff_i if max_diff_i > max_diff else max_diff
             if max_diff > atol:
-                if testing_mode == "static" and name in special_op_list.DIFF_IMPLEMENTATION_TF_OPS:
+                if name in special_op_list.RANDOM_OP_LIST:
                     print(
-                        "---- Warning: This situation is not a error. The implementation of api (%s) is different with tensorflow. "
-                        "When the value of inputs are same, Paddle choose the second value as the output and"
-                        "TF choose the first value as the output." % (name))
-                elif testing_mode == "static" and name in special_op_list.RANDOM_OP_LIST:
-                    print(
-                        "---- Warning: This situation is not a error. The api (%s) is random op and the value of outputs is random."
+                        "---- Warning: The %d-th output is not consistent, but %s is a random operator and we see it correct."
                         % (name))
+                elif testing_mode == "static" and name in special_op_list.DIFF_IMPLEMENTATION_TF_OPS:
+                    print(
+                        "---- Warning: The implementation of %s is different with tensorflow. "
+                        "When the value of inputs are same, paddle choose the second value as the output and "
+                        "tensorflow choose the first value as the output." %
+                        (name))
                 else:
                     consistent = False
 
@@ -309,14 +243,7 @@ def check_outputs(list1,
     status["parameters"] = config_params
 
     if not consistent:
-        if name is not None and name in special_op_list.RANDOM_OP_LIST:
-            print(
-                "---- Warning: The output is not consistent, but %s is in the white list."
-                % name)
-            print(json.dumps(status))
-            return
-        else:
-            print("Error: The output is not consistent!!!\n")
+        print("Error: The output is not consistent!!!\n")
 
     # Make sure the json result is the last line.
     print(json.dumps(status))

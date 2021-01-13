@@ -23,6 +23,7 @@ import collections
 import numpy as np
 
 from common import utils
+from common import system
 from common import api_param
 from common import special_op_list
 from common import pytorch_api_benchmark
@@ -72,7 +73,7 @@ def parse_args():
         help='Specify the unknown dimension.')
     parser.add_argument(
         '--check_output',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether checking the consistency of outputs [True|False]')
     parser.add_argument(
@@ -83,12 +84,12 @@ def parse_args():
     )
     parser.add_argument(
         '--backward',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether appending grad ops [True|False]')
     parser.add_argument(
         '--use_gpu',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether using gpu [True|False]')
     parser.add_argument(
@@ -100,7 +101,7 @@ def parse_args():
         '--repeat', type=int, default=1, help='Iterations of Repeat running')
     parser.add_argument(
         '--allow_adaptive_repeat',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether use the value repeat in json config [True|False]')
     parser.add_argument(

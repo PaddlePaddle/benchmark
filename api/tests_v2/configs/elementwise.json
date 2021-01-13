@@ -59,6 +59,7 @@
             "type": "Variable"
         }
     },
+    "atol": 1E-5,
     "repeat": 5000
 }, {
     "config_id": 3,
@@ -161,5 +162,6 @@
             "shape": "[32L, 1L, 1L, 128L]",
             "type": "Variable"
         }
-    }
+    },
+    "atol": 0.1
 }]
