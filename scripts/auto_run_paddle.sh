@@ -82,8 +82,14 @@ function prepare(){
 
     if [[ -e ${ROOT_PATH} ]]
     then
-        rm ${log_path}/*
-        cd ${ROOT_PATH}
+        
+        if [[ -e ${log_path} ]]
+        then
+            rm ${log_path}/*
+        else
+            mkdir -p ${log_path}
+        fi
+        cd ${BENCHMARK_ROOT}
         git pull
         echo "prepare had done"
     else
