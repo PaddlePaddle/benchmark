@@ -77,7 +77,7 @@ function _train(){
     fi
 
     case ${run_mode} in
-    sp) train_cmd="python -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES  tools/static/train.py "${train_cmd} ;;
+    sp) train_cmd="python -u tools/static/train.py "${train_cmd} ;;
     mp)
         rm -rf ./mylog_${model_name}
         if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs96" ]; then
