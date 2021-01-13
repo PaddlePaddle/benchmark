@@ -162,5 +162,6 @@
             "shape": "[32L, 1L, 1L, 128L]",
             "type": "Variable"
         }
-    }
+    },
+    "atol": 0.1
 }]
