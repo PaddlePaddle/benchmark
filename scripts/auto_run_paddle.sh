@@ -86,6 +86,7 @@ function prepare(){
     rm -rf *
     git clone https://github.com/PaddlePaddle/benchmark.git --recursive
     mkdir -p ${log_path}
+    echo "****************${implement_type} prepare had done*****************"
 
     cd ${BENCHMARK_ROOT}
     benchmark_commit_id=$(git log|head -n1|awk '{print $2}')
