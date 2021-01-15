@@ -291,11 +291,11 @@ image_classification(){
     pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda100
 
     # running models cases
-    model_list=(SE_ResNeXt50_32x4d ResNet101 ResNet50_bs32 ResNet50_bs96)
+    model_list=(SE_ResNeXt50_32x4d ResNet101 ResNet50_bs32 ResNet50_bs128)
     for model_name in ${model_list[@]}; do
         run_batchsize=32
-        if [ ${model_name} = "ResNet50_bs96" ]; then
-            run_batchsize=96
+        if [ ${model_name} = "ResNet50_bs128" ]; then
+            run_batchsize=128
         fi
         echo "index is speed, 1gpu, begin, ${model_name}"
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 1 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
