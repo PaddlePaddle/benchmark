@@ -80,21 +80,13 @@ function prepare(){
     data_path=${all_path}/dataset
     prepare_path=${all_path}/prepare
 
-    if [[ -e ${ROOT_PATH} ]]
-    then
-        rm ${log_path}/*
-        cd ${ROOT_PATH}
-        git pull
-        echo "prepare had done"
-    else
-        mkdir /home/crim
-        cd ${ROOT_PATH}
-        git clone https://github.com/PaddlePaddle/benchmark.git
-        cd ${BENCHMARK_ROOT}
-        git submodule init
-        git submodule update
-        mkdir -p ${log_path}
-    fi
+    # 每个任务每个模式均做创建处理，并删除上一次任务的残存文件，避免相同repo不通分支引入的bug
+    mkdir -p ${ROOT_PATH}
+    cd ${ROOT_PATH}
+    rm -rf *
+    git clone https://github.com/PaddlePaddle/benchmark.git --recursive
+    mkdir -p ${log_path}
+    echo "****************${implement_type} prepare had done*****************"
 
     cd ${BENCHMARK_ROOT}
     benchmark_commit_id=$(git log|head -n1|awk '{print $2}')
