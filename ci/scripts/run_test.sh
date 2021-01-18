@@ -50,7 +50,7 @@ function prepare_env(){
   [ $? -ne 0 ] && LOG "[FATAL] Install paddle failed!" && exit -1
   
   # Install tensorflow and other packages
-  for package in "tensorflow==2.3.0" "tensorflow-probability" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9"
+  for package in "tensorflow==2.3.0" "tensorflow-probability" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9" "torch==1.7.0+cu101" "torchvision==0.8.1+cu101" "torchaudio==0.7.0"
   do
     LOG "[INFO] Installing $package, this could take a few minutes ..."
     env http_proxy="" https_proxy="" pip install $package > /dev/null
@@ -64,8 +64,8 @@ function prepare_env(){
 
 function run_api(){
   LOG "[INFO] Start run api test ..."
-  API_NAMES=(tests_v2/abs)
-  for file in $(git diff --name-only upstream/master | grep -E "api/tests(_v2)?/(.*\.py|configs/.*\.json)")
+  API_NAMES=()
+  for file in $(git diff --name-only master | grep -E "api/(dynamic_)?tests(_v2)?/(.*\.py|configs/.*\.json)")
   do
     LOG "[INFO] Found ${file} modified."
     api=${file#*api/} && api=${api%.*}
@@ -82,6 +82,7 @@ function run_api(){
     fi
   done
   API_NAMES=($(for api in ${API_NAMES[@]}; do echo $api; done | sort | uniq))
+  [ ${#API_NAMES[@]} -eq 0 ] && API_NAMES=(tests_v2/abs dynamic_tests_v2/abs)
   LOG "[INFO] These APIs will run: ${API_NAMES[@]}"
   fail_name=()
   for name in ${API_NAMES[@]}
