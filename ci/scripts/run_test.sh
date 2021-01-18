@@ -85,8 +85,9 @@ function run_api(){
       done
     fi
   done
-  API_NAMES=($(for api in ${API_NAMES[@]}; do echo $api; done | sort | uniq))
-  [ ${#API_NAMES[@]} -eq 0 ] && API_NAMES=(tests_v2/abs dynamic_tests_v2/abs)
+  API_NAMES=($(echo ${API_NAMES[@]} | tr ' ' '\n' | sort | uniq))
+  [ -z "$(echo ${API_NAMES[@]} | grep -w 'tests_v2')" ] && API_NAMES[${#API_NAMES[@]}]=tests_v2/abs
+  [ -z "$(echo ${API_NAMES[@]} | grep -w 'dynamic_tests_v2')" ] && API_NAMES[${#API_NAMES[@]}]=dynamic_tests_v2/abs
   LOG "[INFO] These APIs will run: ${API_NAMES[@]}"
   fail_name=()
   for name in ${API_NAMES[@]}
