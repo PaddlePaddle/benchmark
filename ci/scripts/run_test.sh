@@ -50,12 +50,16 @@ function prepare_env(){
   [ $? -ne 0 ] && LOG "[FATAL] Install paddle failed!" && exit -1
   
   # Install tensorflow and other packages
-  for package in "tensorflow==2.3.0" "tensorflow-probability" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9" "torch==1.7.0+cu101" "torchvision==0.8.1+cu101" "torchaudio==0.7.0"
+  for package in "tensorflow==2.3.0" "tensorflow-probability" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9"
   do
     LOG "[INFO] Installing $package, this could take a few minutes ..."
     env http_proxy="" https_proxy="" pip install $package > /dev/null
     [ $? -ne 0 ] && LOG "[FATAL] Install $package failed!" && exit -1
   done
+  # Install pytorch
+  LOG "[INFO] Installing pytorch, this could take a few minutes ..."
+  pip install torch==1.7.0+cu101 torchvision==0.8.1+cu101 torchaudio==0.7.0 -f https://download.pytorch.org/whl/torch_stable.html
+  [ $? -ne 0 ] && LOG "[FATAL] Install pytorch failed!" && exit -1
   python -c "import tensorflow as tf; print(tf.__version__)" > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install tensorflow success, but it can't work!" && exit -1
   
