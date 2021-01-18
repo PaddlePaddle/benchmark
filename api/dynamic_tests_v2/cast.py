@@ -51,5 +51,4 @@ class TorchCast(PytorchAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-
     test_main(pd_dy_obj=PDCast(), torch_obj=TorchCast(), config=CastConfig())
