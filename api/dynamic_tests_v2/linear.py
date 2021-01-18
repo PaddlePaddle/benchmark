@@ -80,5 +80,6 @@ class TorchLinear(PytorchAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
+
     test_main(
         pd_dy_obj=PDLinear(), torch_obj=TorchLinear(), config=LinearConfig())
