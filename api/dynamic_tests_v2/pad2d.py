@@ -15,10 +15,6 @@
 from common_import import *
 
 
-class Pad2dConfig(APIConfig):
-    def __init__(self):
-        super(Pad2dConfig, self).__init__('pad2d')
-
 class PaddlePad2d(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
@@ -38,17 +34,18 @@ class TorchPad2d(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = torch.nn.functional.pad(input=x,
-                                          pad=config.pad,
-                                          mode=config.mode,
-                                          value=config.value)
+                                         pad=config.pad,
+                                         mode=config.mode,
+                                         value=config.value)
 
         self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x])
 
+
 if __name__ == '__main__':
     test_main(
         pd_dy_obj=PaddlePad2d(),
         torch_obj=TorchPad2d(),
-        config=Pad2dConfig())
+        config=APIConfig('pad2d'))

@@ -18,8 +18,8 @@ from common_import import *
 class ElementwiseConfig(APIConfig):
     def __init__(self, op_type="elementwise"):
         super(ElementwiseConfig, self).__init__(op_type)
-        self.api_name = 'multiply add'
-        self.api_list = {'add': 'add', 'multiply':'multiply'}
+        self.api_name = 'add'
+        self.api_list = {'add': 'add', 'multiply': 'multiply'}
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):

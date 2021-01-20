@@ -15,30 +15,38 @@
 from common_import import *
 
 
-class SumConfig(APIConfig):
+class ReduceConfig(APIConfig):
     def __init__(self):
-        super(SumConfig, self).__init__('sum')
+        super(ReduceConfig, self).__init__('reduce')
         self.feed_spec = {"range": [-1, 1]}
-        self.alias_name = "reduce"  
+        self.api_name = 'sum'
+        self.api_list = {'sum': 'sum'}
 
-class PDSum(PaddleDynamicAPIBenchmarkBase):
+
+class PDReduce(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.sum(x=x, axis=config.axis)
+        result = self.layers(
+            config.api_name, x=x, axis=config.axis, keepdim=config.keepdim)
 
         self.feed_list = [x]
         self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
-class TorchSum(PytorchAPIBenchmarkBase):
+class TorchReduce(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.sum(x=x, axis=config.axis)
+        result = self.layers(
+            config.api_name, input=x, dim=config.axis, keepdim=config.keepdim)
 
         self.feed_list = [x]
         self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDSum(), torch_obj=TorchSum(), config=SumConfig())
+        pd_dy_obj=PDReduce(), torch_obj=TorchReduce(), config=ReduceConfig())
