@@ -55,8 +55,8 @@
     "op": "reduce",
     "param_info": {
         "axis": {
-            "type": "list",
-            "value": "[]"
+            "type": "string",
+            "value": "None"
         },
         "x": {
             "dtype": "float32",
