@@ -22,6 +22,12 @@ class ReduceConfig(APIConfig):
         self.api_name = 'sum'
         self.api_list = {'sum': 'sum'}
 
+    def init_from_json(self, filename, config_id=3, unknown_dim=16):
+        super(ReduceConfig, self).init_from_json(filename, config_id,
+                                                 unknown_dim)
+        if self.axis == None:
+            self.run_torch = False
+
 
 class PDReduce(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
