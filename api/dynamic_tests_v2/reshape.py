@@ -29,7 +29,7 @@ class PDReshape(PaddleDynamicAPIBenchmarkBase):
 class TorchReshape(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result =  torch.reshape(x=x, shape=config.shape)
+        result = torch.reshape(x=x, shape=config.shape)
 
         self.feed_list = [x]
         self.fetch_list = [result]

@@ -14,6 +14,7 @@
 
 from common_import import *
 
+
 class SigmoidConfig(APIConfig):
     def __init__(self):
         super(SigmoidConfig, self).__init__("sigmoid")
