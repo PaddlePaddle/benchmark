@@ -30,36 +30,60 @@ else:
     import special_op_list
 
 
-def _compare(output, target, atol):
-    max_absolute_diff = np.float32(-0.0)
-    offset = -1
-    assert output.shape == target.shape, "The output's shape is expected be the same as target, but receieved %s vs %s." % (
-        str(output.shape), str(target.shape))
-    try:
+class ArrayComparator(object):
+    def __init__(self, output, target, atol):
+        assert output.shape == target.shape, "The output's shape is expected be the same as target, but receieved %s vs %s." % (
+            str(output.shape), str(target.shape))
+
+        self.max_absolute_diff = np.float32(-0.0)
+        self.offset = -1
+        self.max_relative_diff = np.float32(-0.0)
+        self.consistent = True
+
+        self._compare(output.flatten(), target.flatten(), atol)
+
+    def __lt__(self, other):
+        if isinstance(other, np.float32) or isinstance(other, float):
+            return self.max_absolute_diff < other
+        else:
+            return self.max_absolute_diff < other.max_absolute_diff
+
+    def __gt__(self, other):
+        if isinstance(other, np.float32) or isinstance(other, float):
+            return self.max_absolute_diff > other
+        else:
+            return self.max_absolute_diff > other.max_absolute_diff
+
+    def to_string(self):
+        return "max_absolute_diff = %.3e, max_relative_diff = %.3e, offset = %d, %s vs %s" % (
+            self.max_absolute_diff, self.max_relative_diff, self.offset,
+            str(self.output_diff_value), str(self.target_diff_value))
+
+    def _compare(self, output, target, atol):
         if output.dtype == np.bool:
             absolute_diff = np.array_equal(output, target)
-            max_absolute_diff = np.float32(np.logical_not(absolute_diff))
+            self.max_absolute_diff = np.float32(np.logical_not(absolute_diff))
             if absolute_diff == False:
                 for i in range(len(output)):
                     if output[i] != target[i]:
-                        offset = i
-            max_relative_diff = max_absolute_diff
-            assert np.array_equal(output, target)
+                        self.offset = i
+            self.max_relative_diff = self.max_absolute_diff
+            self.consistent = np.array_equal(output, target)
         else:
             # maximum absolute difference
             absolute_diff = np.abs(output - target)
-            max_absolute_diff = np.max(absolute_diff)
-            offset = np.argmax(absolute_diff)
+            self.max_absolute_diff = np.max(absolute_diff)
+            self.offset = np.argmax(absolute_diff)
             # maximum relative difference
             max_target_value = np.max(np.abs(target))
             if max_target_value != 0:
-                max_relative_diff = max_absolute_diff / max_target_value
+                self.max_relative_diff = self.max_absolute_diff / max_target_value
             else:
-                max_relative_diff = 0.0
-            assert np.allclose(output, target, atol=atol)
-    except (AssertionError) as e:
-        pass
-    return max_absolute_diff, max_relative_diff, offset
+                self.max_relative_diff = 0.0
+            self.consistent = np.allclose(output, target, atol=atol)
+
+        self.output_diff_value = output[self.offset]
+        self.target_diff_value = target[self.offset]
 
 
 def _check_type(output, target):
@@ -180,50 +204,39 @@ def check_outputs(output_list,
                     "---- Warning: The %d-the output's data type is different, %s vs %s."
                     % (i, str(output.dtype), str(target.dtype)))
 
-            max_diff_i = None
-            offset_i = 0
+            diff_comparator_i = None
             if output.shape == target.shape:
-                max_diff_i, max_relative_diff_i, offset_i = _compare(
-                    output, target, atol)
-                output_diff_value = output.flatten()[offset_i]
-                target_diff_value = target.flatten()[offset_i]
+                diff_comparator_i = ArrayComparator(output, target, atol)
 
-            if max_diff_i is None or max_diff_i > atol:
+            if diff_comparator_i is None or diff_comparator_i > atol:
                 # Try to compare output with permuted target.
                 choosed_permutations = _permute_order(name, output, target)
                 permutation = None
                 for permutation_tmp in choosed_permutations:
                     target_transposed = np.transpose(target, permutation_tmp)
-                    max_diff_i_tmp, max_relative_diff_i_tmp, offset_i_tmp = _compare(
+                    diff_comparator_i_tmp = ArrayComparator(
                         output, target_transposed, atol)
-                    if max_diff_i is None or max_diff_i > max_diff_i_tmp:
-                        max_diff_i = max_diff_i_tmp
-                        max_relative_diff_i = max_relative_diff_i_tmp
-                        offset_i = offset_i_tmp
+                    if diff_comparator_i is None or diff_comparator_i > diff_comparator_i_tmp:
+                        diff_comparator_i = diff_comparator_i_tmp
                         permutation = permutation_tmp
-                        output_diff_value = output.flatten()[offset_i]
-                        target_diff_value = target_transposed.flatten()[
-                            offset_i]
                 if permutation is not None:
                     print(
                         "---- Warning: The %d-th output need permute. The permutation is %s, outputs shape are %s vs %s."
                         % (i, str(permutation), str(output.shape),
                            str(target.shape)))
 
-            if max_diff_i > 1E-6:
+            if diff_comparator_i > 1E-6:
                 print(
-                    "---- Warning: The %d-th output (shape: %s, data type: %s) has diff. "
-                    "The maximum absolute diff is %e, maximum relative diff is %e, offset is %d: %s vs %s. atol is %.2e."
-                    % (i, str(output.shape), str(output.dtype), max_diff_i,
-                       max_relative_diff_i, offset_i, str(output_diff_value),
-                       str(target_diff_value), atol))
+                    "---- Warning: The %d-th output (shape: %s, data type: %s) has diff. Detail: %s, atol is %.2e."
+                    % (i, str(output.shape), str(output.dtype),
+                       diff_comparator_i.to_string(), atol))
 
-            max_diff = max_diff_i if max_diff_i > max_diff else max_diff
+            max_diff = diff_comparator_i.max_absolute_diff if diff_comparator_i > max_diff else max_diff
             if max_diff > atol:
                 if name in special_op_list.RANDOM_OP_LIST:
                     print(
                         "---- Warning: The %d-th output is not consistent, but %s is a random operator and we see it correct."
-                        % (name))
+                        % (i, name))
                 elif testing_mode == "static" and name in special_op_list.DIFF_IMPLEMENTATION_TF_OPS:
                     print(
                         "---- Warning: The implementation of %s is different with tensorflow. "
