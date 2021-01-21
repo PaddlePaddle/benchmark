@@ -168,7 +168,6 @@ class APIConfig(object):
         self.__framework = "paddle"
         self.api_name = self.name
         self.params = params
-        self.atol = 1e-6
         self.variable_list = None
         self.params_list = None
         self.backward = False
@@ -206,16 +205,25 @@ class APIConfig(object):
     def framework(self):
         return self.__framework
 
-    def disabled(self):
-        use_gpu = os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""
+    def compute_dtype(self):
+        dtype = None
         for name, value in vars(self).items():
             # float16 is not supported for CPU.
-            if not use_gpu and name.endswith("_dtype") and value == "float16":
-                print(
-                    "Warning:\n"
-                    "  1. This config is disabled because float16 is not supported for %s on CPU.\n"
-                    % (self.api_name))
-                return True
+            if name.endswith("_dtype"):
+                if value == "float16":
+                    dtype = "float16"
+                elif dtype is not None:
+                    dtype = value
+        return dtype
+
+    def disabled(self):
+        use_gpu = os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""
+        if not use_gpu and self.compute_dtype() == "float16":
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s on CPU.\n"
+                % (self.api_name))
+            return True
         return False
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
@@ -251,6 +259,9 @@ class APIConfig(object):
                             var_temp[j] = unknown_dim
             setattr(self, var.name + '_shape', var.shape)
             setattr(self, var.name + '_dtype', var.dtype)
+
+        if not hasattr(self, "atol"):
+            self.atol = 1e-3 if self.compute_dtype() == "float16" else 1e-6
         return self
 
     def to_tensorflow(self):

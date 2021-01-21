@@ -31,7 +31,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
-from common import utils
+from common import system
 import op_benchmark_unit
 
 res = {}
@@ -384,17 +384,17 @@ if __name__ == '__main__':
         help='Specify the path of operator frequency data.')
     parser.add_argument(
         '--dump_to_text',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether dumping the summary data to a text file [True|False]')
     parser.add_argument(
         '--dump_to_excel',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether dumping summary data to an excel [True|False]')
     parser.add_argument(
         '--dump_with_parameters',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether dumping summary data to an text [True|False]')
     parser.add_argument(
@@ -409,12 +409,12 @@ if __name__ == '__main__':
         help='Specify the output path.')
     parser.add_argument(
         '--dump_to_mysql',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=True,
         help='Whether dumping summary data to mysql database [True|False]')
     parser.add_argument(
         '--dump_to_json',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether dumping summary data to a json file [True|False]')
     parser.add_argument(
@@ -424,7 +424,7 @@ if __name__ == '__main__':
         help='Specify the paddle version.')
     parser.add_argument(
         '--construct_email',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=True,
         help='Whether constructing alarm email [True|False]')
     args = parser.parse_args()

@@ -101,7 +101,7 @@
             "type": "Variable"
         }
     },
-    "atol": 0.2,
+    "atol": 0.1,
     "repeat": 5000
 }, {
     "config_id": 5,
