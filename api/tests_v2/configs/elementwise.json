@@ -59,7 +59,7 @@
             "type": "Variable"
         }
     },
-    "atol": 1e-5,
+    "atol": 1E-5,
     "repeat": 5000
 }, {
     "config_id": 3,
