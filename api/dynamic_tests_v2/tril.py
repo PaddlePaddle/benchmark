@@ -15,7 +15,6 @@
 from common_import import *
 
 
-
 class PDTril(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
@@ -39,4 +38,5 @@ class TorchTril(PytorchAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-     test_main(pd_dy_obj=PDTril(), torch_obj=TorchTril(), config=APIConfig("tril"))
+    test_main(
+        pd_dy_obj=PDTril(), torch_obj=TorchTril(), config=APIConfig("tril"))
