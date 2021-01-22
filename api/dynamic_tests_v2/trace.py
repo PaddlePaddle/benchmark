@@ -15,7 +15,6 @@
 from common_import import *
 
 
-
 class PDTrace(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
@@ -37,4 +36,5 @@ class TorchTrace(PytorchAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-     test_main(pd_dy_obj=PDTrace(), torch_obj=TorchTrace(), config=APIConfig("trace"))
+    test_main(
+        pd_dy_obj=PDTrace(), torch_obj=TorchTrace(), config=APIConfig("trace"))

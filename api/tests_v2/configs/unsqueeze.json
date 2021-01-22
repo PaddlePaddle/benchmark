@@ -2,8 +2,8 @@
     "op": "unsqueeze",
     "param_info": {
         "axis": {
-            "type": "int",
-            "value": "2"
+            "type": "list",
+            "value": "[2]"
         },
         "x": {
             "dtype": "float32",

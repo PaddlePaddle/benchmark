@@ -15,7 +15,6 @@
 from common_import import *
 
 
-
 class PDSqueeze(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
@@ -39,4 +38,7 @@ class TorchSqueeze(PytorchAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-     test_main(pd_dy_obj=PDSqueeze(), torch_obj=TorchSqueeze(), config=APIConfig("squeeze"))
+    test_main(
+        pd_dy_obj=PDSqueeze(),
+        torch_obj=TorchSqueeze(),
+        config=APIConfig("squeeze"))

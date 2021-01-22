@@ -26,7 +26,7 @@ class ReduceConfig(APIConfig):
         super(ReduceConfig, self).init_from_json(filename, config_id,
                                                  unknown_dim)
         if self.axis == None:
-            self.run_torch = False
+            self.axis = []
 
 
 class PDReduce(PaddleDynamicAPIBenchmarkBase):

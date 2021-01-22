@@ -13,24 +13,15 @@
 # limitations under the License.
 
 from common_import import *
-import numpy as np
 
 
-class UnsqueezeConfig(APIConfig):
-    def __init__(self):
-        super(UnsqueezeConfig, self).__init__("unsqueeze")
-
-    def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(UnsqueezeConfig, self).init_from_json(filename, config_id,
-                                                    unknown_dim)
-        if self.axis == [2]:
-            self.axis = 2
-
-
-class PDUnsqueeze(PaddleDynamicAPIBenchmarkBase):
+class PDPixelShuffle(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.unsqueeze(x=x, axis=config.axis)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.nn.functional.pixel_shuffle(
+            x=x,
+            upscale_factor=config.upscale_factor,
+            data_format=config.data_format)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -38,10 +29,11 @@ class PDUnsqueeze(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchUnsqueeze(PytorchAPIBenchmarkBase):
+class TorchPixelShuffle(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.unsqueeze(input=x, dim=config.axis)
+        result = torch.nn.functional.pixel_shuffle(
+            input=x, upscale_factor=config.upscale_factor)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -51,6 +43,6 @@ class TorchUnsqueeze(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDUnsqueeze(),
-        torch_obj=TorchUnsqueeze(),
-        config=UnsqueezeConfig())
+        pd_dy_obj=PDPixelShuffle(),
+        torch_obj=TorchPixelShuffle(),
+        config=APIConfig("pixel_shuffle"))
