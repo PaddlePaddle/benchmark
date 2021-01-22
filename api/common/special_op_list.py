@@ -62,18 +62,17 @@ NO_BACKWARD_OPS = [
     "zeros_like",
 
     # paddle v2 APIs
-    "add_n",
     "bernoulli",
-    "empty",
     "equal_all",
     "floor_divide",
     "full",
     "greater",
     "less",
     "linspace",
-    "remainder",
     "unique",
+    "remainder",
     "yolo_box",
+    "empty",
 
     # Temporarily add to this list to pass CI.
     "lstm",
