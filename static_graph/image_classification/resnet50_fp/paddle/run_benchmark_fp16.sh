@@ -89,7 +89,7 @@ function _train(){
             "
 
     case ${run_mode} in
-    sp) train_cmd="python -m paddle.distributed.launch tools/static/train.py "${train_cmd} ;;
+    sp) train_cmd="python -u tools/static/train.py "${train_cmd} ;;
     mp)
         rm -rf ./mylog
         train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --gpus=$CUDA_VISIBLE_DEVICES tools/static/train.py "${train_cmd}
