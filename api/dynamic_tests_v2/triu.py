@@ -15,25 +15,10 @@
 from common_import import *
 
 
-class ReduceConfig(APIConfig):
-    def __init__(self):
-        super(ReduceConfig, self).__init__('reduce')
-        self.feed_spec = {"range": [-1, 1]}
-        self.api_name = 'sum'
-        self.api_list = {'sum': 'sum'}
-
-    def init_from_json(self, filename, config_id=3, unknown_dim=16):
-        super(ReduceConfig, self).init_from_json(filename, config_id,
-                                                 unknown_dim)
-        if self.axis == None:
-            self.axis = []
-
-
-class PDReduce(PaddleDynamicAPIBenchmarkBase):
+class PDTriu(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(
-            config.api_name, x=x, axis=config.axis, keepdim=config.keepdim)
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.triu(x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -41,11 +26,10 @@ class PDReduce(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchReduce(PytorchAPIBenchmarkBase):
+class TorchTriu(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(
-            config.api_name, input=x, dim=config.axis, keepdim=config.keepdim)
+        result = torch.triu(x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -55,4 +39,4 @@ class TorchReduce(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDReduce(), torch_obj=TorchReduce(), config=ReduceConfig())
+        pd_dy_obj=PDTriu(), torch_obj=TorchTriu(), config=APIConfig("triu"))
