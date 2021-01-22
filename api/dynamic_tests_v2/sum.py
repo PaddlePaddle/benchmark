@@ -34,5 +34,4 @@ class TorchSum(PytorchAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PDSum(), torch_obj=TorchSum(), config=APIConfig("sum"))
+    test_main(pd_dy_obj=PDSum(), torch_obj=TorchSum(), config=APIConfig("sum"))
