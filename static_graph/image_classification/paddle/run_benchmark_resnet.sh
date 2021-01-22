@@ -25,9 +25,9 @@ function _set_params(){
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     skip_steps=8                      # 解析日志，有些模型前几个step耗时长，需要跳过                                  (必填)
-    keyword="INFO: epoch:"            # 解析日志，筛选出数据所在行的关键字                                            (必填)
-    separator=": "                    # 解析日志，数据所在行的分隔符                                                  (必填)
-    position=6                        # 解析日志，按照分隔符分割后形成的数组索引                                      (必填)
+    keyword="INFO: epoch:"              # 解析日志，筛选出数据所在行的关键字                                            (必填)
+    separator=": "                     # 解析日志，数据所在行的分隔符                                                  (必填)
+    position=6                      # 解析日志，按照分隔符分割后形成的数组索引                                      (必填)
     model_mode=0                      # 解析日志，具体参考scripts/analysis.py.                                        (必填)
     range=0:6
 
