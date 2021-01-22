@@ -33,6 +33,7 @@ NO_BACKWARD_OPS = [
 
     # paddle v1 APIs
     "accuracy",
+    "arange",
     "argmax",
     "argmin",
     "argsort",
