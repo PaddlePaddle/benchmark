@@ -72,11 +72,6 @@ def parse_args():
         default=16,
         help='Specify the unknown dimension.')
     parser.add_argument(
-        '--check_output',
-        type=system.str2bool,
-        default=False,
-        help='Whether checking the consistency of outputs [True|False]')
-    parser.add_argument(
         '--profiler',
         type=str,
         default="none",
@@ -117,7 +112,6 @@ def parse_args():
 
     if args.task == "accuracy":
         args.repeat = 1
-        args.check_output = False
         args.profiler = "none"
 
     _check_gpu_device(args.use_gpu)
