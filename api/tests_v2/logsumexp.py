@@ -15,44 +15,34 @@
 from common_import import *
 
 
-class ReduceConfig(APIConfig):
+class LogsumexpConfig(APIConfig):
     def __init__(self):
-        super(ReduceConfig, self).__init__('reduce')
-        self.feed_spec = {"range": [-1, 1]}
-        self.api_name = 'sum'
-        self.api_list = {'sum': 'sum'}
-
-    def init_from_json(self, filename, config_id=3, unknown_dim=16):
-        super(ReduceConfig, self).init_from_json(filename, config_id,
-                                                 unknown_dim)
-        if self.axis == None:
-            self.axis = []
+        super(LogsumexpConfig, self).__init__('logsumexp')
 
 
-class PDReduce(PaddleDynamicAPIBenchmarkBase):
-    def build_graph(self, config):
+class PDLogsumexp(PaddleAPIBenchmarkBase):
+    def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(
-            config.api_name, x=x, axis=config.axis, keepdim=config.keepdim)
+        result = paddle.logsumexp(x=x)
 
-        self.feed_list = [x]
-        self.fetch_list = [result]
+        self.feed_vars = [x]
+        self.fetch_vars = [result]
+
         if config.backward:
             self.append_gradients(result, [x])
 
 
-class TorchReduce(PytorchAPIBenchmarkBase):
+class TFLogsumexp(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(
-            config.api_name, input=x, dim=config.axis, keepdim=config.keepdim)
+        result = tf.reduce_logsumexp(input_tensor=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
+
         if config.backward:
             self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PDReduce(), torch_obj=TorchReduce(), config=ReduceConfig())
+    test_main(PDLogsumexp(), TFLogsumexp(), config=LogsumexpConfig())

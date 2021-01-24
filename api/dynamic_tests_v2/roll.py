@@ -1,4 +1,4 @@
-#   Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,32 +15,28 @@
 from common_import import *
 
 
-class PDArange(PaddleDynamicAPIBenchmarkBase):
+class PDRoll(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        result = paddle.arange(
-            start=config.start,
-            end=config.end,
-            step=config.step,
-            dtype=config.dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.roll(x=x, shifts=config.shifts, axis=config.axis)
 
-        self.feed_list = []
+        self.feed_list = [x]
         self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
-class TorchArange(PytorchAPIBenchmarkBase):
+class TorchRoll(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        result = torch.range(
-            start=config.start,
-            end=config.end - config.step,
-            step=config.step,
-            dtype=config.dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = torch.roll(input=x, shifts=config.shifts, dims=config.axis)
 
-        self.feed_list = []
+        self.feed_list = [x]
         self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDArange(),
-        torch_obj=TorchArange(),
-        config=APIConfig("arange"))
+        pd_dy_obj=PDRoll(), torch_obj=TorchRoll(), config=APIConfig("roll"))

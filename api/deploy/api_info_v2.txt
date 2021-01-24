@@ -18,6 +18,7 @@ concat,concat,concat.json,True
 cond,cond,cond.json,True
 conv2d,conv2d,conv2d.json,True
 conv2d_transpose,conv2d_transpose,conv2d_transpose.json,True
+conv3d,conv3d,conv3d.json,True
 conv3d_transpose,conv3d_transpose,conv3d_transpose.json,True
 cos,activation,activation.json,True
 cosine_similarity,cosine_similarity,cosine_similarity.json,True
@@ -43,6 +44,7 @@ floor,floor,activation.json,True
 floor_divide,floor_divide,floor_divide.json,False
 full,full,full.json,False
 gather,gather,gather.json,True
+gather_nd,gather_nd,gather_nd.json,True
 greater_equal,compare,compare.json,False
 greater_than,compare,compare.json,False
 grid_sample,grid_sample,grid_sample.json,True
@@ -72,6 +74,7 @@ log_softmax,log_softmax,softmax.json,True
 logical_and,logical,logical.json,False
 logical_not,logical_not,logical_not.json,False
 logical_or,logical,logical.json,False
+logsumexp,logsumexp,logsumexp.json,True
 lstm,lstm,lstm.json,False
 masked_select,masked_select,masked_select.json,True
 matmul,matmul,matmul.json,True
@@ -97,6 +100,8 @@ remainder,remainder,elementwise.json,False
 reshape,reshape,reshape.json,True
 roll,roll,roll.json,True
 scale,scale,scale.json,False
+scatter,scatter,scatter.json,True
+scatter_nd_add,scatter_nd_add,scatter_nd_add.json,True
 sequence_mask,sequence_mask,sequence_mask.json,False
 shape,shape,shape.json,False
 sigmoid,sigmoid,activation.json,True
@@ -122,6 +127,8 @@ tile,tile,tile.json,True
 topk,topk,topk.json,True
 trace,trace,trace.json,True
 transpose,transpose,transpose.json,True
+tril,tril,tril.json,True
+triu,triu,triu.json,True
 unique,unique,unique.json,False
 unsqueeze,unsqueeze,unsqueeze.json,True
 while_loop,while_loop,linear.json,True
