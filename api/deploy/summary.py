@@ -31,7 +31,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
-from common import utils
+from common import system
 import op_benchmark_unit
 
 res = {}
@@ -47,10 +47,10 @@ CHECK_KEY["paddle_cpu_perf_backwards"] = "CPU反向"
 
 def _is_json(line):
     try:
-        json.loads(line)
-    except ValueError:
+        result = json.loads(line)
+    except Exception:
         return False
-    return True
+    return True if isinstance(result, dict) else False
 
 
 def _read_last_line(inputfile):
@@ -85,8 +85,20 @@ def _read_last_line(inputfile):
         last_line = _read_last_block(f, filesize, blocksize)
 
     f.close()
-    #print(last_line)
     return last_line
+
+
+def _parse_disabled_status(case_name, last_line):
+    assert res.get(case_name, None) is not None
+
+    case_detail = res[case_name]
+    if case_detail.get("disabled", None) is None:
+        try:
+            data = json.loads(last_line)
+            disabled = data.get("disabled", False)
+            res[case_name]["disabled"] = disabled
+        except Exception:
+            pass
 
 
 def _parse_parameters(case_name, last_line):
@@ -105,15 +117,15 @@ def _parse_parameters(case_name, last_line):
 def _parse_speed(case_name, statistic_type, last_line):
     assert res.get(case_name, None) is not None
 
-    gpu_time_key = None
-    if statistic_type == "paddle_gpu_speed_forward":
-        gpu_time_key = "gpu_time"
-    elif statistic_type == "paddle_gpu_speed_backward":
-        gpu_time_key = "gpu_time_backward"
-    elif statistic_type == "tensorflow_gpu_speed_forward":
-        gpu_time_key = "tf_gpu_time"
-    elif statistic_type == "tensorflow_gpu_speed_backward":
-        gpu_time_key = "tf_gpu_time_backward"
+    gpu_time_key_map = {
+        "paddle_gpu_speed_forward": "gpu_time",
+        "paddle_gpu_speed_backward": "gpu_time_backward",
+        "tensorflow_gpu_speed_forward": "tf_gpu_time",
+        "tensorflow_gpu_speed_backward": "tf_gpu_time_backward",
+        "pytorch_gpu_speed_forward": "pytorch_gpu_time",
+        "pytorch_gpu_speed_backward": "pytorch_gpu_time_backward"
+    }
+    gpu_time_key = gpu_time_key_map.get(statistic_type, None)
 
     try:
         data = json.loads(last_line)
@@ -125,7 +137,7 @@ def _parse_speed(case_name, statistic_type, last_line):
         total = data["speed"]["total"]
         total_str = "%.5f" % total
         res[case_name][statistic_type] = total_str
-        if gpu_time_key and data["speed"].get("gpu_time", None):
+        if gpu_time_key and data["speed"].get("gpu_time", None) is not None:
             # May set following values:
             #   gpu_time
             #   gpu_time_backward
@@ -136,7 +148,8 @@ def _parse_speed(case_name, statistic_type, last_line):
             res[case_name][gpu_time_key] = gpu_time_str
     except Exception:
         res[case_name][statistic_type] = "--"
-        res[case_name][gpu_time_key] = "--"
+        if gpu_time_key:
+            res[case_name][gpu_time_key] = "--"
 
 
 def _parse_accuracy(case_name, statistic_type, last_line):
@@ -196,7 +209,7 @@ def get_job_res(inputfile, specified_op_list=None):
     case_name = file_name.split("-")[0]
     op_type = op_benchmark_unit.parse_op_type(case_name)
     if specified_op_list and op_type not in specified_op_list:
-        return
+        return None
 
     print("-- Parse %s from %s" % (case_name, inputfile))
 
@@ -206,7 +219,11 @@ def get_job_res(inputfile, specified_op_list=None):
 
     statistic_beg_idx = file_name.find("-")
     statistic_type = file_name[statistic_beg_idx + 1:]
+    framework = statistic_type.split("_")[0]
     last_line = _read_last_line(inputfile)
+
+    # Parse "disabled" status.
+    _parse_disabled_status(case_name, last_line)
 
     # Parse parameters of current case from the result dict.
     _parse_parameters(case_name, last_line)
@@ -216,6 +233,8 @@ def get_job_res(inputfile, specified_op_list=None):
 
     if last_line and "_accuracy_" in statistic_type:
         _parse_accuracy(case_name, statistic_type, last_line)
+
+    return framework
 
 
 def check_results(op_record, alarm_results):
@@ -227,7 +246,8 @@ def check_results(op_record, alarm_results):
 
     from benchmark_op import models
     results = models.OpRecord2.objects.filter(
-        case_name=op_record.case_name).order_by('-timestamp')[:10:1]
+        case_name=op_record.case_name,
+        version=op_record.version).order_by('-timestamp')[:10:1]
     for key, verbose in CHECK_KEY.items():
         results_list = []
         count = 0
@@ -298,7 +318,7 @@ def construct_alarm_email(timestamp, alarm_results):
         email_t.construct_email_content()
 
 
-def dump_mysql(data):
+def dump_mysql(data, version, construct_email):
     """
     dump data to mysql database
     """
@@ -338,9 +358,11 @@ def dump_mysql(data):
         op_record.gpu_time = dic.get("gpu_time", "--")
         op_record.tf_gpu_time_backward = dic.get("tf_gpu_time_backward", "--")
         op_record.tf_gpu_time = dic.get("tf_gpu_time", "--")
+        op_record.version = version
         op_record.save()
         check_results(op_record, alarm_results)
-    construct_alarm_email(timestamp, alarm_results)
+    if construct_email:
+        construct_alarm_email(timestamp, alarm_results)
 
 
 if __name__ == '__main__':
@@ -362,17 +384,17 @@ if __name__ == '__main__':
         help='Specify the path of operator frequency data.')
     parser.add_argument(
         '--dump_to_text',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether dumping the summary data to a text file [True|False]')
     parser.add_argument(
         '--dump_to_excel',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether dumping summary data to an excel [True|False]')
     parser.add_argument(
         '--dump_with_parameters',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether dumping summary data to an text [True|False]')
     parser.add_argument(
@@ -387,9 +409,24 @@ if __name__ == '__main__':
         help='Specify the output path.')
     parser.add_argument(
         '--dump_to_mysql',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=True,
         help='Whether dumping summary data to mysql database [True|False]')
+    parser.add_argument(
+        '--dump_to_json',
+        type=system.str2bool,
+        default=False,
+        help='Whether dumping summary data to a json file [True|False]')
+    parser.add_argument(
+        '--version',
+        type=str,
+        default='1.8',
+        help='Specify the paddle version.')
+    parser.add_argument(
+        '--construct_email',
+        type=system.str2bool,
+        default=True,
+        help='Whether constructing alarm email [True|False]')
     args = parser.parse_args()
 
     op_result_dir = os.path.abspath(args.op_result_dir)
@@ -405,8 +442,16 @@ if __name__ == '__main__':
     if args.specified_op_list:
         specified_op_list = args.specified_op_list.split()
 
+    compare_framework = None
     for filename in sorted(filenames):
-        get_job_res(os.path.join(op_result_dir, filename), specified_op_list)
+        framework = get_job_res(
+            os.path.join(op_result_dir, filename), specified_op_list)
+        if framework is not None and framework != "paddle":
+            if compare_framework:
+                assert framework == compare_framework, "Framework name parsed from result's filename is expected to be %s, but recieved %s." % (
+                    compare_framework, framework)
+            else:
+                compare_framework = framework
 
     data = []
     benchmark_result_list = []
@@ -417,8 +462,8 @@ if __name__ == '__main__':
         case_detail['name'] = key
         data.append(case_detail)
 
-        op_unit = op_benchmark_unit.OpBenchmarkUnit(case_detail)
-        # print(op_unit)
+        op_unit = op_benchmark_unit.OpBenchmarkUnit(case_detail,
+                                                    compare_framework)
         benchmark_result_list.append(op_unit)
 
     op_frequency_dict = None
@@ -439,11 +484,16 @@ if __name__ == '__main__':
 
         write_excel.dump_excel(benchmark_result_list, op_result_dir,
                                args.url_prefix, args.output_path,
-                               op_frequency_dict)
+                               compare_framework, op_frequency_dict)
+
+    if args.dump_to_json:
+        import write_json
+
+        write_json.dump_json(benchmark_result_list, args.output_path)
 
     if args.dump_to_mysql:
         try:
-            dump_mysql(data)
+            dump_mysql(data, args.version, args.construct_email)
         except Exception as e:
             print("dump data into mysql failed, please check reason!")
             print(e)

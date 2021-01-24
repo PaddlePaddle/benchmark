@@ -33,6 +33,12 @@ class Conv2dTransposeConfig(Conv2dConfig):
         if not isinstance(
                 self.padding,
                 str) and self.padding != [0, 0] and self.padding != [1, 1]:
+            print(
+                "Warning:\n"
+                "  1. tf is disabled becuase the argument padding of tf's "
+                "conv2d_transpose must be a string and the value is \"SAME\" "
+                "or \"VALID\". Please add rule to convert this kind of padding to string.\n"
+            )
             self.run_tf = False
 
     def to_tensorflow(self):

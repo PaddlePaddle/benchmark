@@ -68,7 +68,7 @@ function construnct_version(){
         PADDLE_VERSION=${version}'.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
     fi
-    PADDLE_DEV_NAME=paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}_cudnn${cudnn_version}
+    PADDLE_DEV_NAME=paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}-cudnn${cudnn_version}
     echo "IMAGE_NAME is: ${IMAGE_NAME}"
 }
 
@@ -84,6 +84,14 @@ function build_paddle(){
         echo "image not found, begin building"
     fi
 
+    WEEK_DAY=$(date +%w)
+    if [[ $WEEK_DAY -eq 6 || $WEEK_DAY -eq 7 ]];then
+        cuda_arch_name="All"
+    else
+        cuda_arch_name="Volta"
+    fi
+    echo "------------today is $WEEK_DAY, and cuda_arch_name is $cuda_arch_name"
+    
     docker run -i --rm -v $PWD:/paddle \
       -w /paddle \
       --net=host \
@@ -106,6 +114,7 @@ function build_paddle(){
       -e "BUILD_TYPE=Release" \
       -e "WITH_DISTRIBUTE=ON" \
       -e "WITH_FLUID_ONLY=OFF" \
+      -e "CUDA_ARCH_NAME=${cuda_arch_name}" \
       -e "CMAKE_VERBOSE_MAKEFILE=OFF" \
       -e "http_proxy=${HTTP_PROXY}" \
       -e "https_proxy=${HTTP_PROXY}" \
@@ -167,7 +176,7 @@ function run_models(){
     if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
         RUN_IMAGE_NAME=paddlepaddle/paddle:latest
         docker run -i --rm \
-            -v /home/work:/home/work \
+            -v /home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/monquery:/usr/bin/monquery \
             -e "BENCHMARK_WEBSITE1=${BENCHMARK_WEBSITE1}" \
@@ -180,13 +189,13 @@ function run_models(){
             -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             --net=host \
             --privileged \
-            --shm-size=32G \
+            --shm-size=128G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
     else
         RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
         nvidia-docker run -i --rm \
-            -v /home/work:/home/work \
+            -v /home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
             -v /usr/bin/monquery:/usr/bin/monquery \
@@ -200,7 +209,7 @@ function run_models(){
             -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             --net=host \
             --privileged \
-            --shm-size=32G \
+            --shm-size=128G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
     fi

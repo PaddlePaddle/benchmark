@@ -16,7 +16,8 @@
             "shape": "[2048L]",
             "type": "Variable"
         }
-    }
+    },
+    "atol": 0.1
 }, {
     "op": "linear",
     "param_info": {
@@ -41,12 +42,12 @@
     "param_info": {
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 256L, 7L, 7L]",
+            "shape": "[-1L, 12544L]",
             "type": "Variable"
         },
         "weight": {
             "dtype": "float32",
-            "shape": "[7L, 1024L]",
+            "shape": "[12544L, 1024L]",
             "type": "Variable"
         },
         "bias": {
@@ -55,6 +56,7 @@
             "type": "Variable"
         }
     },
+    "atol": 0.1,
     "repeat": 2000
 }, {
     "op": "linear",

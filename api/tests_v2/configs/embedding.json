@@ -3,7 +3,7 @@
     "param_info": {
         "x": {
             "dtype": "int64",
-            "shape": "[-1L, -1L]",
+            "shape": "[-1L, 128L]",
             "type": "Variable"
         },
         "weight": {
@@ -41,7 +41,8 @@
             "type": "int",
             "value": "0"
         }
-    }
+    },
+    "repeat": 850000
 }, {
     "op": "embedding",
     "param_info": {
@@ -64,13 +65,13 @@
             "value": "None"
         }
     },
-    "repeat": 20000
+    "repeat": 100000
 }, {
     "op": "embedding",
     "param_info": {
         "x": {
             "dtype": "int64",
-            "shape": "[-1L, -1L]",
+            "shape": "[-1L, 128L]",
             "type": "Variable"
         },
         "weight": {

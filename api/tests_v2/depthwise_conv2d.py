@@ -24,15 +24,16 @@ class DepthwiseConv2dConfig(Conv2dConfig):
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(DepthwiseConv2dConfig, self).init_from_json(filename, config_id,
                                                           unknown_dim)
-        assert self.num_channels == self.groups and self.num_filters % self.num_channels == 0
+        assert self.num_channels == self.groups and self.weight_shape[
+            0] % self.num_channels == 0
         if isinstance(self.dilation, int):
             self.dilation = [self.dilation, self.dilation]
 
     def to_tensorflow(self):
         tf_config = super(DepthwiseConv2dConfig, self).to_tensorflow()
         tf_config.weight_shape = [
-            self.filter_size[0], self.filter_size[1], self.num_channels,
-            self.num_filters // self.groups
+            self.weight_shape[2], self.weight_shape[3], self.num_channels,
+            self.weight_shape[1]
         ]
         if isinstance(self.stride, int):
             if self.data_format == "NCHW":

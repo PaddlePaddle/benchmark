@@ -37,4 +37,69 @@
             "type": "Variable"
         }
     }
+}, {
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16L, 32L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16L, 42L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16L, 128L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16L, 512L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16L, 700L]",
+            "type": "Variable"
+        }
+    }
 }]

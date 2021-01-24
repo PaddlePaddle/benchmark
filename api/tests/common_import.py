@@ -36,3 +36,7 @@ from common.paddle_api_benchmark import PaddleAPIBenchmarkBase
 from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase
 from common.api_param import APIConfig
 from common.main import test_main, test_main_without_json
+
+
+def use_gpu():
+    return os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""

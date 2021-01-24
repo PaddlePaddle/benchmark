@@ -1,0 +1,415 @@
+[{
+    "config_id": 0,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[768L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 1,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[768L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 2,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "True"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 12L, 128L, 64L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[32L, 12L, 128L, 64L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 3,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "True"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 12L, 128L, 64L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[32L, 12L, 128L, 64L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 4,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 12L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[32L, 12L, 128L, 64L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 5,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 12L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[32L, 12L, 128L, 64L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 6,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[768L, 3072L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 7,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[768L, 3072L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 8,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 3072L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[3072L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 9,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 3072L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[3072L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 10,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[768L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 11,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[768L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 12,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[768L, 2L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 13,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[768L, 2L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 14,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "True"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[30522L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 15,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "True"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[30522L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 16,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "True"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[464L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[30528L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 17,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "True"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[464L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[30528L, 768L]",
+            "type": "Variable"
+        }
+    }
+}]

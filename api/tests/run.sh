@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ -z "$CUDA_VISIBLE_DEVICES" ] && export CUDA_VISIBLE_DEVICES="0"   # Set to "" if testing CPU
+[ -z "$(set | grep '^CUDA_VISIBLE_DEVICES=')" ] && export CUDA_VISIBLE_DEVICES="0"   # Set to "" if testing CPU
 
 NVCC=`which nvcc`
 if [ ${NVCC} != "" ]; then
@@ -13,10 +13,15 @@ export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 
 name=${1:-"abs"}
 config_id=${2:-"0"}
+task=${3:-"accuracy"} # "accuracy" or "speed"
 
-task="accuracy"     # "accuracy" or "speed"
 framework="paddle"  # "paddle" or "tensorflow"
 filename="${OP_BENCHMARK_ROOT}/tests/configs/${name}.json"
+if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
+    use_gpu=False
+else
+    use_gpu=True
+fi
 
 run_args="--task ${task} \
           --framework ${framework} \
@@ -25,13 +30,13 @@ run_args="--task ${task} \
           --check_output False \
           --profiler none \
           --backward True \
-          --use_gpu True \
+          --use_gpu ${use_gpu} \
           --repeat 1 \
           --allow_adaptive_repeat False \
           --log_level 0"
 
-if [ $# -ge 3 ]; then
-  api_name=${3}
+if [ $# -ge 4 ]; then
+  api_name=${4}
   run_args="${run_args} \
             --api_name ${api_name}"
 fi

@@ -2,7 +2,7 @@
 
 function print_usage() {
     echo "Usage:"
-    echo "    bash ${0} test_dir json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file"
+    echo "    bash ${0} test_dir json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file framework testing_mode"
     echo ""
     echo "Arguments:"
     echo "  test_dir                - the directory of tests case"
@@ -12,6 +12,8 @@ function print_usage() {
     echo "  device (optional)       - cpu, gpu, both"
     echo "  task (optional)         - speed, accuracy, both"
     echo "  op_list_file (optional) - the path which specified op list to test"
+    echo "  framework (optional)    - paddle, tensorflow, pytorch, both"
+    echo "  testing_mode (optional) - the testing_mode of paddle. static(default)|dynamic."
 }
 
 function print_arguments() {
@@ -25,6 +27,8 @@ function print_arguments() {
     echo "device_set      : ${DEVICE_SET[@]}"
     echo "task_set        : ${TASK_SET[@]}"
     echo "op_list_file    : ${OP_LIST_FILE}"
+    echo "framework       : ${FRAMEWORK_SET[@]}"
+    echo "testing_mode    : ${TESTING_MODE}"
     echo ""
 }
 
@@ -85,7 +89,12 @@ fi
 
 if [ $# -ge 7 ]; then
     OP_LIST_FILE=${7}
-else
+    if [ ! -f "${OP_LIST_FILE}" ]; then
+        echo "The specified OP_LIST_FILE (${OP_LIST_FILE}) does not exist in the filesystem!"
+        unset OP_LIST_FILE
+    fi
+fi
+if [ "${OP_LIST_FILE}" == "" ]; then
     OP_LIST_FILE=${OUTPUT_DIR}/api_info.txt
     python ${DEPLOY_DIR}/collect_api_info.py \
         --test_module_name ${TEST_MODULE_NAME} \
@@ -93,6 +102,30 @@ else
     return_status=$?
     if [ ${return_status} -ne 0 ] || [ ! -f "${OP_LIST_FILE}" ]; then
         OP_LIST_FILE=${DEPLOY_DIR}/api_info.txt
+    fi
+fi
+
+TESTING_MODE="static"
+FRAMEWORK_SET=("paddle" "tensorflow")
+if [ $# -ge 8 ]; then
+    if [ $# -ge 9 ]; then
+        TESTING_MODE=${9}
+    fi
+
+    if [ ${TESTING_MODE} == "static" ]; then
+        if [[ ${8} == "paddle"  || ${8} == "tensorflow" ]]; then
+            FRAMEWORK_SET=(${8})
+        elif [ ${8} != "both" ]; then
+           echo "The static testing mode only can test paddle or tensorflow."
+        fi
+    elif [ ${TESTING_MODE} == "dynamic" ]; then
+        if [[ ${8} == "paddle"  || ${8} == "pytorch" ]]; then
+            FRAMEWORK_SET=(${8})
+        elif [ ${8} == "both" ]; then
+            FRAMEWORK_SET=("paddle" "pytorch")
+        else
+            echo "The dynamic testing mode only can test paddle or pytorch."
+        fi
     fi
 fi
 
@@ -128,6 +161,7 @@ function print_detail_status() {
     else
         printf "  [%s][%d-%d][%s] %-120s ...... %s\n" "${gpu_id}" ${config_id} ${case_id} "${timestamp}" "${print_str}" "${run_status}"
     fi
+    [ "$BENCHMARK_PRINT_FAIL_LOG" == "1" ] && cat ${logfile}
 }
 
 function print_finished_task_detail() {
@@ -205,13 +239,10 @@ function execute_one_case() {
 
         # TASK_SET is specified by argument: "speed", "accuracy"
         for task in "${TASK_SET[@]}"; do 
-            if [ ${task} = "accuracy" ]; then
-                local framwork_set=("paddle")
-            else
-                local framwork_set=("paddle" "tensorflow")
-            fi
-            # framework_set: "paddle", "tensorflow"
-            for framework in "${framwork_set[@]}"; do 
+            # FRAMEWORK_SET is specified by argument: "paddle", "tensorflow"
+            for framework in "${FRAMEWORK_SET[@]}"; do 
+                [ "${task}" == "accuracy" -a "${framework}" == "tensorflow" ] && continue
+                [ "${task}" == "accuracy" -a "${framework}" == "pytorch" ] && continue
                 # direction_set: "forward", "backward"
                 for direction in "${direction_set[@]}"; 
                 do
@@ -226,6 +257,7 @@ function execute_one_case() {
                           --api_name ${api_name} \
                           --task ${task} \
                           --framework ${framework} \
+                          --testing_mode ${TESTING_MODE} \
                           --json_file ${json_file_path} \
                           --config_id $i \
                           --backward ${backward} \
@@ -238,7 +270,7 @@ function execute_one_case() {
                         for device_id in ${!DEVICE_TASK_PID_MAP[*]}
                         do
                             task_pid=${DEVICE_TASK_PID_MAP[$device_id]}
-                            if [ $task_pid -eq 0 -o -z "$(ps -opid | grep $task_pid)" ]
+                            if [ $task_pid -eq 0 -o -z "$(ps -opid | grep -w $task_pid)" ]
                             then
                                 gpu_id=$device_id
                                 finished_task_pid=$task_pid
@@ -327,7 +359,7 @@ function run_all_cases() {
             if [ $task_pid -eq 0 ]
             then
                 unset DEVICE_TASK_PID_MAP[$device_id]
-            elif [ -z "$(ps -opid | grep $task_pid)" ]
+            elif [ -z "$(ps -opid | grep -w $task_pid)" ]
             then
                 print_finished_task_detail $task_pid $(date +%s%N)
                 unset DEVICE_TASK_PID_MAP[$device_id]

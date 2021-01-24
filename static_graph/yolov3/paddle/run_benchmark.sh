@@ -58,7 +58,7 @@ function _train(){
     fi
 
     train_cmd="-c configs/yolov3_darknet.yml \
-     --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} TrainReader.worker_num=${num_workers} \
+     --opt snapshot_iter=100000  max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} TrainReader.worker_num=${num_workers} \
      --is_profiler=${is_profiler} \
      --profiler_path=${profiler_path}"
 #     --batch_size=${base_batch_size} \
@@ -66,12 +66,20 @@ function _train(){
     sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --selected_gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
-
-    ${train_cmd} > ${log_file} 2>&1 
+    
+    rm -rf output
+    timeout 15m ${train_cmd} > ${log_file} 2>&1
+    if [ $? -ne 0 ];then
+        echo -e "${model_name}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model_name}, SUCCESS"
+        export job_fail_flag=0
+    fi
     kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then

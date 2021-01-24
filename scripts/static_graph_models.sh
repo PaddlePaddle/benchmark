@@ -32,7 +32,7 @@ CycleGAN(){
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, profiler is on, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
 }
 
 
@@ -252,7 +252,7 @@ nextvlad(){
 
 #run_deeplabv3+
 deeplab(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleSeg
+    cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/legacy
     cd ${cur_model_path}
     # Prepare data and pretrained parameters.
     ln -s ${data_path}/cityscape ${cur_model_path}/dataset/cityscapes
@@ -280,43 +280,57 @@ deeplab(){
 
 #run image_classification
 image_classification(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/image_classification
+    cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
     # Prepare data
-    ln -s ${data_path}/ILSVRC2012/train ${cur_model_path}/data/ILSVRC2012/train
-    ln -s ${data_path}/ILSVRC2012/train_list.txt ${cur_model_path}/data/ILSVRC2012/train_list.txt
-    ln -s ${data_path}/ILSVRC2012/val ${cur_model_path}/data/ILSVRC2012/val
-    ln -s ${data_path}/ILSVRC2012/val_list.txt ${cur_model_path}/data/ILSVRC2012/val_list.txt
+    ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset/
     # Copy run_benchmark.sh and running ...
-    cp ${BENCHMARK_ROOT}/static_graph/image_classification/paddle/run_benchmark.sh ./run_benchmark.sh
-    sed -i '/cd /d' run_benchmark.sh
+    rm -rf ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/static_graph/image_classification/paddle/run_benchmark_resnet.sh ./run_benchmark.sh
     sed -i '/set\ -xe/d' run_benchmark.sh
     pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda100
+
     # running models cases
     model_list=(SE_ResNeXt50_32x4d ResNet101 ResNet50_bs32 ResNet50_bs128)
-    run_batchsize=32
     for model_name in ${model_list[@]}; do
+        run_batchsize=32
         if [ ${model_name} = "ResNet50_bs128" ]; then
             run_batchsize=128
         fi
         echo "index is speed, 1gpu, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 800 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 1 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
         sleep 60
-        echo "index is speed, 1gpu, begin, profile is on, ${model_name}"
+#        echo "index is speed, 1gpu, begin, profile is on, ${model_name}"
 #        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${run_batchsize} ${model_name} sp 800 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
-        sleep 60
-        echo "index is speed, 8gpus, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
-        sleep 60
-        echo "index is maxbs, 1gpus, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 112 ${model_name} sp 500 | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
-        sleep 60
+#        sleep 60
         #echo "index is maxbs, 8gpus, begin, ${model_name}"
         #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 112 ${model_name} sp 500 | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
         #sleep 60
         echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} mp 1000 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} mp 1 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
         sleep 60
+    done
+
+    # running model cases with fp16
+    rm -rf run_benchmark_fp16.sh
+    cp ${BENCHMARK_ROOT}/static_graph/image_classification/resnet50_fp/paddle/run_benchmark_fp16.sh ./run_benchmark_fp16.sh
+    sed -i '/set\ -xe/d' run_benchmark_fp16.sh
+    mode_list=(amp pure)
+    for fp_mode in ${mode_list[@]}
+    do
+        bs_list=(128 208)
+        for bs_item in ${bs_list[@]}
+        do
+            model_name="ResNet50_bs${bs_item}_${fp_mode}_fp16"
+            echo "bs=${bs_item}, model is ${model_name}, index is speed, 1gpus, run_mode is sp, begin"
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark_fp16.sh 1 ${bs_item} sp 1 ${fp_mode} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+            if [ ${bs_item} == 128 ]; then
+                sleep 60
+                echo "bs=${bs_item}, model is ${model_name}, index is speed, 8gpus, run_mode is multi_process, begin"
+                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_fp16.sh 1 ${bs_item} mp 1 ${fp_mode}  | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+            fi
+            sleep 60
+        done
     done
 }
 
@@ -327,19 +341,7 @@ detection(){
     cd ${cur_model_path}
     ## test dir
     git branch
-    # add_enable_static 暂未合入 https://github.com/PaddlePaddle/PaddleDetection/pull/1498/files
-    git checkout master
-    #git reset --hard 5549e0831df602ae4deb08bd558c21c807ffcee7  # reset 到9月23的PR
-    git fetch origin pull/1498/head:add_enable_static_1498
-    git branch
-    git merge add_enable_static_1498
-    git branch
-
-    ## ls 
-    ls
-    ## ls tools
     ls tools
-    ## mkdir dataset 
     rm -rf dataset/coco/
     mkdir -p dataset/coco/
     # Prepare data
@@ -388,17 +390,7 @@ detection(){
 mask_rcnn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
-    # 同上。防止跑单个模型情况。1498合入后可删除
-    ## test dir
     git branch
-    # add_enable_static 暂未合入 https://github.com/PaddlePaddle/PaddleDetection/pull/1498/files
-    git checkout master
-#    git reset --hard 5549e0831df602ae4deb08bd558c21c807ffcee7  # reset 到9月23的PR
-    git fetch origin pull/1498/head:add_enable_static_1498
-    git branch
-    git merge add_enable_static_1498
-    git branch
-
 
     # Install cocoapi
     if python -c "import pycocotools" >/dev/null 2>&1
@@ -458,7 +450,7 @@ mask_rcnn(){
 
 #run_bert
 bert(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/pretrain_language_models/BERT/
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/legacy/pretrain_language_models/BERT/
     cd ${cur_model_path}
     rm -rf data
     ln -s ${data_path}/Bert/data ${cur_model_path}/data
@@ -478,7 +470,7 @@ bert(){
             CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 1500 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
             sleep 60
             echo "index is speed, 1gpus, profiler is on, begin, ${model_name}"
-#            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_mode} ${fp_mode} sp 1500 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_mode} ${fp_mode} sp 1500 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
             sleep 60
             echo "index is speed, 8gpus, begin, ${model_name}"
             CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
@@ -499,7 +491,7 @@ bert(){
 
 #run_transformer
 transformer(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/machine_translation/transformer/
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/legacy/machine_translation/transformer/
     cd ${cur_model_path}
     ln -s ${data_path}/transformer/data ${cur_model_path}/data
     cp -r ${prepare_path}/transformer/mosesdecoder ${cur_model_path}/mosesdecoder
@@ -565,7 +557,7 @@ ddpg_deep_explore(){
 
 #run_paddingrnn
 paddingrnn(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/language_model
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/legacy/language_model
     cd ${cur_model_path}
     # Prepare data.
     ln -s ${data_path}/simple-examples ${cur_model_path}/data/simple-examples
@@ -604,17 +596,7 @@ yolov3(){
     fi
 
     cd ${BENCHMARK_ROOT}/PaddleDetection
-    # 同上。防止跑单个模型情况。1498合入后可删除
-    ## test dir
     git branch
-    # add_enable_static 暂未合入 https://github.com/PaddlePaddle/PaddleDetection/pull/1498/files
-    git checkout master
-#    git reset --hard 5549e0831df602ae4deb08bd558c21c807ffcee7  # reset 到9月23的PR
-    git fetch origin pull/1498/head:add_enable_static_1498
-    git branch
-    git merge add_enable_static_1498
-    git branch
-
 
     #sh ./weights/download.sh
     mkdir -p ~/.cache/paddle/weights
@@ -627,7 +609,7 @@ yolov3(){
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 1gpu, profiler on, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
@@ -645,7 +627,7 @@ yolov3(){
 
 # seq2seq
 seq2seq(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/seq2seq/seq2seq/
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/legacy/seq2seq/seq2seq/
     cd ${cur_model_path}
 
     # Prepare data
@@ -661,5 +643,5 @@ seq2seq(){
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 1 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, profiler is on, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 1 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 1 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
 }

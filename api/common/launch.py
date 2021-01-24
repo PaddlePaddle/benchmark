@@ -17,12 +17,12 @@ from __future__ import print_function
 import sys
 import argparse
 
-from common import utils
+from common import system
 from common import api_param
 
 
 def _nvprof(cmd):
-    return utils.run_command("nvprof {}".format(cmd))
+    return system.run_command("nvprof {}".format(cmd))
 
 
 def _parse_gpu_time(line):
@@ -59,7 +59,7 @@ def _parse_nvprof_logs(logs):
         if "GPU activities:" in line:
             line_from = i - 1
         if line_from is not None and "API calls:" in line:
-            line_to = i - 1
+            line_to = i
     if line_from is not None and line_to is not None:
         for i in range(line_from, line_to):
             print(logs[i])
@@ -91,7 +91,7 @@ def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
         else:
             print("Runing Error:\n {}".format(stdout))
     else:
-        stdout, exit_code = utils.run_command(cmd)
+        stdout, exit_code = system.run_command(cmd)
         print(stdout)
         if exit_code != 0:
             sys.exit(exit_code)
@@ -124,11 +124,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
     benchmark_args_dict = _args_list_to_dict(args.benchmark_script_args)
     task = benchmark_args_dict.get("task", "speed")
-    use_gpu = utils.str2bool(benchmark_args_dict.get("use_gpu", "False"))
+    use_gpu = system.str2bool(benchmark_args_dict.get("use_gpu", "False"))
     profiler = benchmark_args_dict.get("profiler", "none")
     repeat = benchmark_args_dict.get("repeat", "1")
 
-    utils.check_commit()
+    system.check_commit()
 
     if use_gpu and task == "speed" and profiler == "none":
         total_gpu_time = launch(

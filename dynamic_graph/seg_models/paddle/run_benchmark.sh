@@ -52,18 +52,26 @@ function _train(){
                --iters=${max_iter}
                --batch_size ${base_batch_size}
                --learning_rate 0.01
+               --num_workers 2
                --log_iters 5"
 
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u train.py "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --selected_gpus=$CUDA_VISIBLE_DEVICES --log_dir ./mylog train.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch  --gpus=$CUDA_VISIBLE_DEVICES --log_dir ./mylog train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
 
     echo "#################################${model_name}"
-    ${train_cmd} > ${log_file} 2>&1
+    timeout 15m ${train_cmd} > ${log_file} 2>&1
+    if [ $? -ne 0 ];then
+        echo -e "${model_name}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model_name}, SUCCESS"
+        export job_fail_flag=0
+    fi
     echo "#################################${model_name}"
     if [ ${run_mode} != "sp"  -a -d mylog ]; then
         rm ${log_file}

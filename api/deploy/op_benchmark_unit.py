@@ -56,9 +56,11 @@ def _compare(time1, time2):
 
 
 class OpBenchmarkUnit(object):
-    def __init__(self, case_detail):
+    def __init__(self, case_detail, compare_framework):
         self.case_name = case_detail["name"]
         self.op_type = parse_op_type(self.case_name)
+        self.disabled = case_detail.get("disabled", False)
+        self.compare_framework = compare_framework
 
         if case_detail.get("parameters", None):
             parameters = api_param.parse_string(case_detail["parameters"])
@@ -70,10 +72,12 @@ class OpBenchmarkUnit(object):
 
         self.gpu_forward = {}
         self.gpu_backward = {}
+        self.gpu_backward_forward = {}
         self.cpu_forward = {}
         self.cpu_backward = {}
+        self.cpu_backward_forward = {}
         for device in ["gpu", "cpu"]:
-            for direction in ["forward", "backward"]:
+            for direction in ["forward", "backward", "backward_forward"]:
                 attr_name = device + "_" + direction
                 result = getattr(self, attr_name)
 
@@ -84,15 +88,17 @@ class OpBenchmarkUnit(object):
                     "gpu_time": paddle_gpu_time
                 }
 
-                tf_total, tf_gpu_time = self._get_case_value(
-                    case_detail, "tensorflow", device, "speed", direction)
-                result["tensorflow"] = {
-                    "total": tf_total,
-                    "gpu_time": tf_gpu_time
+                competitor_total, competitor_gpu_time = self._get_case_value(
+                    case_detail, self.compare_framework, device, "speed",
+                    direction)
+                result[self.compare_framework] = {
+                    "total": competitor_total,
+                    "gpu_time": competitor_gpu_time
                 }
-                total_result, total_ratio = _compare(paddle_total, tf_total)
+                total_result, total_ratio = _compare(paddle_total,
+                                                     competitor_total)
                 gpu_time_result, gpu_time_ratio = _compare(paddle_gpu_time,
-                                                           tf_gpu_time)
+                                                           competitor_gpu_time)
                 result["compare"] = {
                     "total": total_result,
                     "total_ratio": total_ratio,
@@ -106,12 +112,16 @@ class OpBenchmarkUnit(object):
                 result["difference"] = str(difference)
 
     def __str__(self):
-        debug_str = "case_name    : " + self.case_name + "\n"
-        debug_str += "op_type      : " + self.op_type + "\n"
-        debug_str += "gpu_forward  : " + str(self.gpu_forward) + "\n"
-        debug_str += "gpu_backward : " + str(self.gpu_backward) + "\n"
-        debug_str += "cpu_forward  : " + str(self.cpu_forward) + "\n"
-        debug_str += "cpu_backward : " + str(self.cpu_backward) + "\n"
+        debug_str = "case_name            : " + self.case_name + "\n"
+        debug_str += "op_type              : " + self.op_type + "\n"
+        debug_str += "gpu_forward          : " + str(self.gpu_forward) + "\n"
+        debug_str += "gpu_backward         : " + str(self.gpu_backward) + "\n"
+        debug_str += "gpu_backward_forward : " + str(
+            self.gpu_backward_forward) + "\n"
+        debug_str += "cpu_forward          : " + str(self.cpu_forward) + "\n"
+        debug_str += "cpu_backward         : " + str(self.cpu_backward) + "\n"
+        debug_str += "cpu_backward_forward : " + str(
+            self.cpu_backward_forward) + "\n"
         return debug_str
 
     def to_string(self, device, direction, with_parameters):
@@ -121,9 +131,10 @@ class OpBenchmarkUnit(object):
         case_line = "%s" % self.case_name.ljust(40)
         time_set = ["total"] if device == "cpu" else ["total", "gpu_time"]
         for key in time_set:
-            case_line += "%s%s%s" % (result["paddle"][key].ljust(20),
-                                     result["tensorflow"][key].ljust(20),
-                                     result["compare"][key].ljust(10))
+            case_line += "%s%s%s" % (
+                result["paddle"][key].ljust(20),
+                result[self.compare_framework][key].ljust(20),
+                result["compare"][key].ljust(10))
         case_line += "%s" % result["accuracy"].ljust(10)
         if with_parameters:
             case_line += parameters
@@ -155,13 +166,15 @@ class OpBenchmarkUnit(object):
             return total, None
 
     def _get_case_value(self, case_detail, framework, device, task, direction):
-        assert framework in ["paddle", "tensorflow"]
+        assert framework in ["paddle", self.compare_framework]
         assert device in ["cpu", "gpu"]
         assert task in ["speed", "accuracy"]
-        assert direction in ["forward", "backward"]
+        assert direction in ["forward", "backward", "backward_forward"]
 
         if task == "accuracy":
             try:
+                if direction == "backward_forward":
+                    direction = "backward"
                 accuracy_key = "paddle_" + device + "_accuracy_" + direction
                 difference_key = "paddle_" + device + "_difference_" + direction
                 return case_detail[accuracy_key], case_detail[difference_key]
@@ -169,14 +182,36 @@ class OpBenchmarkUnit(object):
                 return "--"
         else:
             try:
-                total_key = framework + "_" + device + "_speed_" + direction
+                if direction == "backward_forward":
+                    backward_total_key = framework + "_" + device + "_speed_" + "backward"
+                    forward_total_key = framework + "_" + device + "_speed_" + "forward"
+                    total_time = float(case_detail[
+                        backward_total_key]) - float(case_detail[
+                            forward_total_key])
+                    total_time_str = "%.5f" % total_time
+                else:
+                    total_key = framework + "_" + device + "_speed_" + direction
+                    total_time_str = case_detail[total_key]
                 if device == "cpu":
-                    return case_detail[total_key], "--"
+                    return total_time_str, "--"
 
-                framework_alias = "" if framework == "paddle" else "tf_"
-                direction_alias = "" if direction == "forward" else "_backward"
-                gpu_time_key = framework_alias + "gpu_time" + direction_alias
-                return case_detail[total_key], case_detail[gpu_time_key]
+                framework_alias = "tf_"
+                if framework == "paddle":
+                    framework_alias = ""
+                elif framework == "pytorch":
+                    framework_alias = "pytorch_"
+                if direction == "backward_forward":
+                    forward_gpu_time_key = framework_alias + "gpu_time"
+                    backward_gpu_time_key = framework_alias + "gpu_time" + "_backward"
+                    gpu_time = float(case_detail[
+                        backward_gpu_time_key]) - float(case_detail[
+                            forward_gpu_time_key])
+                    gpu_time_str = "%.5f" % gpu_time
+                else:
+                    direction_alias = "" if direction == "forward" else "_backward"
+                    gpu_time_key = framework_alias + "gpu_time" + direction_alias
+                    gpu_time_str = case_detail[gpu_time_key]
+                return total_time_str, gpu_time_str
             except Exception:
                 return "--", "--"
 

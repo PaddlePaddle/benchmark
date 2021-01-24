@@ -171,10 +171,7 @@ class PaddleAPIBenchmarkBase(object):
 
     @property
     def backward(self):
-        if hasattr(self, "_PaddleAPIBenchmarkBase__backward"):
-            return self.__backward
-        else:
-            return False
+        return self._backward
 
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, fluid.framework.Variable):
@@ -183,7 +180,7 @@ class PaddleAPIBenchmarkBase(object):
             raise TypeError("inputs should be a list.")
 
         gradients = fluid.backward.gradients(targets, inputs)
-        self.__backward = True
+        self._backward = True
         print("Gradients: ", gradients)
         if isinstance(gradients, list):
             for grad in gradients:
@@ -224,7 +221,7 @@ class PaddleAPIBenchmarkBase(object):
             "version": paddle.__version__,
             "name": self.name,
             "device": "GPU" if use_gpu else "CPU",
-            "backward": self.__backward
+            "backward": self._backward
         }
 
         def _run_main_iter():
@@ -286,7 +283,7 @@ class PaddleAPIBenchmarkBase(object):
             self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
             self._feed_dict = {}
 
-            self.__backward = False
+            self._backward = False
             self.main_program = fluid.Program()
             self.startup_program = fluid.Program()
             with fluid.program_guard(self.main_program, self.startup_program):
@@ -313,7 +310,7 @@ class PaddleAPIBenchmarkBase(object):
         self.name = config.api_name
         feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
                                                      feeder_adapter)
-        if self.__backward != args.backward:
+        if self._backward != args.backward:
             print(
                 "Backward is not surported for %s in Paddle. It is actually running the forward test."
                 % self.name)

@@ -62,15 +62,18 @@ NO_BACKWARD_OPS = [
     "zeros_like",
 
     # paddle v2 APIs
+    "add_n",
     "bernoulli",
+    "empty",
     "equal_all",
     "floor_divide",
     "full",
     "greater",
     "less",
     "linspace",
-    "unique",
     "remainder",
+    "unique",
+    "yolo_box",
 
     # Temporarily add to this list to pass CI.
     "lstm",
@@ -114,3 +117,7 @@ ALIAS_OP_MAP = {
     "hierarchical_sigmoid": "hsigmoid",
     "sample_logits": "sampled_softmax_with_cross_entropy"
 }
+
+# For example, maximum op need to pick maximum value from two inputs. When the value of inputs are same, 
+# Paddle choose the second value as output and TF choose the first value as output.
+DIFF_IMPLEMENTATION_TF_OPS = ["maximum", "minimum", "argsort"]

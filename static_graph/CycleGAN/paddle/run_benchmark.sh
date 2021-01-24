@@ -4,7 +4,7 @@ set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|3 sp|mp 1000(max_iter)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|3 sp|mp 1000(max_iter)"
     exit
 fi
 
@@ -18,13 +18,11 @@ function _set_params(){
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     model_name="CycleGAN"
-    mission_name="图像生成"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
-    direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
-    skip_steps=3                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
-    keyword="Batch_time_cost:"       # 解析日志，筛选出数据所在行的关键字                                             (必填)
-    separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
-    position=-1                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
-    model_mode=0                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
+    mission_name="图像生成"           # 模型所属任务名称，具体可参考scripts/config.ini                        （必填）
+    direction_id=0                    # 任务所属方向，0：CV，1：NLP，2：Rec。                                  (必填)
+    skip_steps=5                      # 解析日志，有些模型前几个step耗时长，需要跳过                           (必填)
+    keyword="ips:"                    # 解析日志，筛选出数据所在行的关键字                                     (必填)
+    ips_unit="images/sec"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -49,7 +47,7 @@ function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=${base_batch_size}"
 
-    python train.py --model_net ${model_name} \
+    timeout 15m python train.py --model_net ${model_name} \
                     --dataset cityscapes \
                     --batch_size ${base_batch_size} \
                     --net_G resnet_9block \
@@ -65,10 +63,13 @@ function _train(){
                     --max_iter=${max_iter} \
                     --output ./output/cyclegan/ > ${log_file} 2>&1
 
-
-#    python train.py  --profile=${is_profiler} \
-#                --profiler_path=${profiler_path} \
-#                --max_iter=${max_iter} > ${log_file} 2>&1
+    if [ $? -ne 0 ];then
+        echo -e "${model_name}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model_name}, SUCCESS"
+        export job_fail_flag=0
+    fi
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 

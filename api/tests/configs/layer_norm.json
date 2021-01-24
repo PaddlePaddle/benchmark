@@ -1,10 +1,6 @@
 [{
     "op": "layer_norm",
     "param_info": {
-        "act": {
-            "type": "string",
-            "value": "None"
-        },
         "begin_norm_axis": {
             "type": "int",
             "value": "2"
@@ -15,7 +11,7 @@
         },
         "input": {
             "dtype": "float32",
-            "shape": "[-1L, -1L, 768L]",
+            "shape": "[-1L, 128L, 768L]",
             "type": "Variable"
         },
         "scale": {

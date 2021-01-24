@@ -11,7 +11,7 @@
             "type": "Variable"
         }
     },
-    "repeat": 5000
+    "repeat": 30000
 }, {
     "op": "reshape",
     "param_info": {

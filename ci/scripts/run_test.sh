@@ -27,6 +27,7 @@ function LOG {
 LOG "[INFO] Start run op benchmark test ..."
 
 BENCHMARK_ROOT=$(cd $(dirname $0)/../.. && pwd)
+[ -z "$CUDA_VISIBLE_DEVICES" ] && CUDA_VISIBLE_DEVICES="0"
 
 function prepare_env(){
   LOG "[INFO] Device Id: ${CUDA_VISIBLE_DEVICES}"
@@ -37,10 +38,13 @@ function prepare_env(){
 
   # Install latest paddle
   PADDLE_WHL="paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl"
-  PADDLE_URL="https://paddle-wheel.bj.bcebos.com/0.0.0-gpu-cuda10-cudnn7-mkl/${PADDLE_WHL}"
-  LOG "[INFO] Downloading paddle wheel from ${PADDLE_URL}, this could take a few minutes ..."
-  wget -q -O ${PADDLE_WHL} ${PADDLE_URL}
-  [ $? -ne 0 ] && LOG "[FATAL] Download paddle wheel failed!" && exit -1
+  if [ ! -f "${PADDLE_WHL}" ]
+  then
+    PADDLE_URL="https://paddle-wheel.bj.bcebos.com/0.0.0-gpu-cuda10-cudnn7-mkl/${PADDLE_WHL}"
+    LOG "[INFO] Downloading paddle wheel from ${PADDLE_URL}, this could take a few minutes ..."
+    wget -q -O ${PADDLE_WHL} ${PADDLE_URL}
+    [ $? -ne 0 ] && LOG "[FATAL] Download paddle wheel failed!" && exit -1
+  fi
   LOG "[INFO] Installing paddle, this could take a few minutes ..."
   env http_proxy="" https_proxy="" pip install -U ${PADDLE_WHL} > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install paddle failed!" && exit -1
@@ -52,6 +56,10 @@ function prepare_env(){
     env http_proxy="" https_proxy="" pip install $package > /dev/null
     [ $? -ne 0 ] && LOG "[FATAL] Install $package failed!" && exit -1
   done
+  # Install pytorch
+  LOG "[INFO] Installing pytorch, this could take a few minutes ..."
+  pip install torch==1.7.0+cu101 torchvision==0.8.1+cu101 torchaudio==0.7.0 -f https://download.pytorch.org/whl/torch_stable.html
+  [ $? -ne 0 ] && LOG "[FATAL] Install pytorch failed!" && exit -1
   python -c "import tensorflow as tf; print(tf.__version__)" > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install tensorflow success, but it can't work!" && exit -1
   
@@ -60,8 +68,8 @@ function prepare_env(){
 
 function run_api(){
   LOG "[INFO] Start run api test ..."
-  API_NAMES=(tests_v2/abs)
-  for file in $(git diff --name-only upstream/master | grep -E "api/tests(_v2)?/(.*\.py|configs/.*\.json)")
+  API_NAMES=()
+  for file in $(git diff --name-only master | grep -E "api/(dynamic_)?tests(_v2)?/(.*\.py|configs/.*\.json)")
   do
     LOG "[INFO] Found ${file} modified."
     api=${file#*api/} && api=${api%.*}
@@ -77,13 +85,19 @@ function run_api(){
       done
     fi
   done
-  API_NAMES=($(for api in ${API_NAMES[@]}; do echo $api; done | sort | uniq))
+  API_NAMES=($(echo ${API_NAMES[@]} | tr ' ' '\n' | sort | uniq))
+  [ -z "$(echo ${API_NAMES[@]} | grep -w 'tests_v2')" ] && API_NAMES[${#API_NAMES[@]}]=tests_v2/abs
+  [ -z "$(echo ${API_NAMES[@]} | grep -w 'dynamic_tests_v2')" ] && API_NAMES[${#API_NAMES[@]}]=dynamic_tests_v2/abs
   LOG "[INFO] These APIs will run: ${API_NAMES[@]}"
   fail_name=()
   for name in ${API_NAMES[@]}
   do
-    bash ${BENCHMARK_ROOT}/api/${name%/*}/run.sh ${name##*/} -1 >&2
-    [ $? -ne 0 ] && fail_name[${#fail_name[@]}]=$name
+    for device_type in "GPU" "CPU"
+    do
+      [ $device_type == "GPU" ] && device_limit="" || device_limit="env CUDA_VISIBLE_DEVICES="
+      ${device_limit} bash ${BENCHMARK_ROOT}/api/${name%/*}/run.sh ${name##*/} -1 >&2
+      [ $? -ne 0 ] && fail_name[${#fail_name[@]}]="${name}(Run on ${device_type})"
+    done
   done
   if [ ${#fail_name[@]} -ne 0 ]
   then

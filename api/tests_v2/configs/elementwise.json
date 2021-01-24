@@ -1,4 +1,5 @@
 [{
+    "config_id": 0,
     "op": "elementwise",
     "param_info": {
         "axis": {
@@ -19,6 +20,7 @@
     "atol": 1E-5,
     "repeat": 5000
 }, {
+    "config_id": 1,
     "op": "elementwise",
     "param_info": {
         "axis": {
@@ -39,6 +41,7 @@
     "atol": 1E-5,
     "repeat": 5000
 }, {
+    "config_id": 2,
     "op": "elementwise",
     "param_info": {
         "axis": {
@@ -56,8 +59,10 @@
             "type": "Variable"
         }
     },
+    "atol": 1e-5,
     "repeat": 5000
 }, {
+    "config_id": 3,
     "op": "elementwise",
     "param_info": {
         "axis": {
@@ -75,8 +80,10 @@
             "type": "Variable"
         }
     },
+    "atol": 1E-5,
     "repeat": 5000
 }, {
+    "config_id": 4,
     "op": "elementwise",
     "param_info": {
         "axis": {
@@ -94,9 +101,10 @@
             "type": "Variable"
         }
     },
-    "atol": 1E-3,
+    "atol": 0.1,
     "repeat": 5000
 }, {
+    "config_id": 5,
     "op": "elementwise",
     "param_info": {
         "axis": {
@@ -116,6 +124,7 @@
     },
     "repeat": 5000
 }, {
+    "config_id": 6,
     "op": "elementwise",
     "param_info": {
         "axis": {
@@ -135,4 +144,24 @@
     },
     "atol": 0.01,
     "repeat": 5000
+}, {
+    "config_id": 7,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 12L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[32L, 1L, 1L, 128L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1
 }]
