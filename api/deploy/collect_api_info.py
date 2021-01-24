@@ -56,10 +56,10 @@ def import_all_tests(test_module_name):
     def _import_api(test_module_name, basename):
         try:
             module = importlib.import_module(test_module_name + "." + basename)
-            print("Import {} successfully.".format(module.__name__))
+            print("-- Import {} successfully.".format(module.__name__))
             return module
         except Exception as e:
-            print("Failed to import {}: {}".format(basename, e))
+            print("-- Failed to import {}: {}".format(basename, e))
             return None
 
     tests_path = os.path.join(package_path, test_module_name)
@@ -79,6 +79,12 @@ def main(args):
     test_cases_dict = import_all_tests(args.test_module_name)
     subclass_dict = collect_subclass_dict(test_cases_dict)
 
+    specified_op_list = None
+    if args.specified_op_list:
+        specified_op_list = args.specified_op_list.split(",")
+        print("-- Speficified op list: ", specified_op_list)
+
+    # api_name: APITestInfo
     op_test_info_dict = {}
     for py_filename in test_cases_dict.keys():
         if py_filename in subclass_dict.keys():
@@ -95,20 +101,23 @@ def main(args):
             json_filename = config.alias_filename(config.name + '.json')
 
             for api_name in api_list:
+                if specified_op_list is None or api_name in specified_op_list:
+                    info = APITestInfo(
+                        api_name=api_name,
+                        py_filename=config.name,
+                        json_filename=json_filename)
+                    op_test_info_dict[api_name] = info
+        else:
+            api_name = py_filename
+            if specified_op_list is None or api_name in specified_op_list:
+                json_filename = py_filename + ".json" if py_filename not in [
+                    "feed", "fetch", "null"
+                ] else None
                 info = APITestInfo(
                     api_name=api_name,
-                    py_filename=config.name,
+                    py_filename=api_name,
                     json_filename=json_filename)
-                op_test_info_dict[api_name] = info
-        else:
-            json_filename = py_filename + ".json" if py_filename not in [
-                "feed", "fetch", "null"
-            ] else None
-            info = APITestInfo(
-                api_name=py_filename,
-                py_filename=py_filename,
-                json_filename=json_filename)
-            op_test_info_dict[py_filename] = info
+                op_test_info_dict[py_filename] = info
 
     # Write to filesystem.
     write_str = ""
@@ -124,13 +133,19 @@ if __name__ == '__main__':
         '--test_module_name',
         type=str,
         default="tests",
-        help='The module_name under benchmark/api (tests|tests_v2).')
+        help='The module_name under benchmark/api (tests|tests_v2|dynamic_tests_v2).'
+    )
     parser.add_argument(
         '--info_file',
         type=str,
         default="api_info.txt",
         help='The file is used to collect API information to automatically run the entire APIs.'
     )
+    parser.add_argument(
+        '--specified_op_list',
+        type=str,
+        default=None,
+        help='Specify the operator list.')
     args = parser.parse_args()
     assert args.test_module_name in [
         "tests", "tests_v2", "dynamic_tests_v2"
