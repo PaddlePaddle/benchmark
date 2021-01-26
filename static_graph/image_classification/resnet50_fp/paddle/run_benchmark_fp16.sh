@@ -1,5 +1,5 @@
 #!bin/bash
-set -x
+set -xe
 
 if [[ $# -lt 4 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
@@ -46,32 +46,20 @@ function _set_env(){
     export FLAGS_conv_workspace_size_limit=4000 #MB
     export FLAGS_cudnn_exhaustive_search=1
     export FLAGS_cudnn_batchnorm_spatial_persistent=1
+    export FLAGS_fraction_of_gpu_memory_to_use=0.8
 }
 
 function _train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
-    export CUDA_VISIBLE_DEVICES=0
-
     if [ ${mode} == "amp" ]; then
-        USE_DALI=True
-        USE_PURE_FP16=False
-        USE_AMP=True
-        MULTI_PRECISION=${USE_PURE_FP16}
+        use_pure_fp16=False
     elif [ ${mode} == "pure" ]; then
-        USE_DALI=True
-        USE_PURE_FP16=True
-        USE_AMP=False
-        MULTI_PRECISION=${USE_PURE_FP16}
+        use_pure_fp16=True
     else
         echo "check your mode!"
     fi
-
-    if [ ${USE_DALI} == "True" ]; then
-        export FLAGS_fraction_of_gpu_memory_to_use=0.8
-    fi
-    
-    train_cmd="-c ./configs/ResNet/ResNet50_fp16.yml
+    train_cmd="-c ./configs/ResNet/ResNet50_fp16.yaml
             -o TRAIN.batch_size=${batch_size}
             -o validate=False
             -o epochs=${max_epoch}
@@ -79,13 +67,10 @@ function _train(){
             -o TRAIN.file_list=./dataset/imagenet100_data/train_list.txt
             -o TRAIN.num_workers=8
             -o print_interval=10
-            -o data_format=NHWC
-            -o use_dali=${USE_DALI}
-            -o use_amp=${USE_AMP}
-            -o use_pure_fp16=${USE_PURE_FP16}
-            -o multi_precision=${MULTI_PRECISION}
             -o use_gpu=True
+            -o is_distributed=False
             -o image_shape=[4,224,224]
+            -o AMP.use_pure_fp16=${use_pure_fp16}
             "
 
     case ${run_mode} in
