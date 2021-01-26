@@ -68,13 +68,12 @@ function _train(){
             -o TRAIN.num_workers=8
             -o print_interval=10
             -o use_gpu=True
-            -o is_distributed=False
             -o image_shape=[4,224,224]
             -o AMP.use_pure_fp16=${use_pure_fp16}
             "
 
     case ${run_mode} in
-    sp) train_cmd="python -u tools/static/train.py "${train_cmd} ;;
+    sp) train_cmd="python -u tools/static/train.py -o is_distributed=False "${train_cmd} ;;
     mp)
         rm -rf ./mylog
         train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --gpus=$CUDA_VISIBLE_DEVICES tools/static/train.py "${train_cmd}
