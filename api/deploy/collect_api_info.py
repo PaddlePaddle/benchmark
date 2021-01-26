@@ -59,7 +59,7 @@ def import_all_tests(test_module_name):
             print("-- Import {} successfully.".format(module.__name__))
             return module
         except Exception as e:
-            print("-- Failed to import {}: {}.".format(basename, e))
+            print("-- Failed to import {}: {}".format(basename, e))
             return None
 
     tests_path = os.path.join(package_path, test_module_name)

@@ -15,25 +15,17 @@
 from common_import import *
 
 
-class ReduceConfig(APIConfig):
+class PnormConfig(APIConfig):
     def __init__(self):
-        super(ReduceConfig, self).__init__('reduce')
-        self.feed_spec = {"range": [-1, 1]}
-        self.api_name = 'sum'
-        self.api_list = {'sum': 'sum'}
-
-    def init_from_json(self, filename, config_id=3, unknown_dim=16):
-        super(ReduceConfig, self).init_from_json(filename, config_id,
-                                                 unknown_dim)
-        if self.axis == None:
-            self.axis = []
+        super(PnormConfig, self).__init__("p_norm")
+        self.feed_spec = [{"range": [-1, 1]}]
 
 
-class PDReduce(PaddleDynamicAPIBenchmarkBase):
+class PDPnorm(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(
-            config.api_name, x=x, axis=config.axis, keepdim=config.keepdim)
+        result = paddle.norm(
+            x=x, p=config.porder, axis=config.axis, keepdim=config.keepdim)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -41,12 +33,11 @@ class PDReduce(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchReduce(PytorchAPIBenchmarkBase):
+class TorchPnorm(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(
-            config.api_name, input=x, dim=config.axis, keepdim=config.keepdim)
-
+        result = torch.norm(
+            input=x, p=config.porder, dim=config.axis, keepdim=config.keepdim)
         self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
@@ -55,4 +46,4 @@ class TorchReduce(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDReduce(), torch_obj=TorchReduce(), config=ReduceConfig())
+        pd_dy_obj=PDPnorm(), torch_obj=TorchPnorm(), config=PnormConfig())
