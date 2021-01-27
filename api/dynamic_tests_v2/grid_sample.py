@@ -14,11 +14,6 @@
 
 from common_import import *
 
-# class GridSampleConfig(APIConfig):
-#     def __init__(self):
-#         super(GridSampleConfig, self).__init__("grid_sample")
-#         self.run_torch = False
-
 
 class PDGridSample(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
