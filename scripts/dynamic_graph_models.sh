@@ -77,42 +77,26 @@ dy_ptb_lm(){
 
 # transformer
 dy_transformer(){
-    model_name="transformer_base"
-    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/transformer
-    cd ${cur_model_path}
-
-    # Prepare data
-    mkdir -p data
-    ln -s ${data_path}/dygraph_data/transformer/gen_data/ ${cur_model_path}/
-
-    # Running ...
-    rm -f ./run_benchmark.sh
-    cp ${BENCHMARK_ROOT}/dynamic_graph/transformer/paddle/run_benchmark.sh ./
-    sed -i '/set\ -xe/d' run_benchmark.sh
-    echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 3000 base | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
-    sleep 60
-    echo "index is speed, 8gpus begin, mp"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 3000 base | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
-    sleep 60
-
-    model_name="transformer_big"
     echo "###########pip install paddlenlp"
     pip install paddlenlp attrdict
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/benchmark/transformer/dygraph
     cd ${cur_model_path}
     # prepare data
-    mkdir -p /root/.paddlenlp/datasets/
-    ln -s ${data_path}/dygraph_data/transformer/big_mode/* /root/.paddlenlp/datasets/   # 注意big 和base 数据有diff. 目前复用 paddlenlp 的数据准备逻辑，所以数据位置需要改变
+    mkdir -p ~/.paddlenlp/datasets/machine_translation
+    ln -s ${data_path}/dygraph_data/transformer/WMT14ende ~/.paddlenlp/datasets/machine_translation/ 
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/transformer/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
-    echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 400 big  | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
-    sleep 60
-    echo "index is speed, 8gpus begin, mp"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 big | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
-   
+    mode_list=(big base)
+    for mode_item=${mode_list[@]}
+    do
+        model_name="transformer_${mode_item}"
+        echo "index is speed, ${model_name} 1gpu begin"
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 400 ${mode_item}  | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is speed, ${model_name} 8gpus begin, mp"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 ${mode_item} | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+    done 
 }
 
 # tsn 
