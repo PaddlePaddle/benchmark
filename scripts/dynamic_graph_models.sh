@@ -88,7 +88,7 @@ dy_transformer(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/transformer/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     mode_list=(big base)
-    for mode_item=${mode_list[@]}
+    for mode_item in ${mode_list[@]}
     do
         model_name="transformer_${mode_item}"
         echo "index is speed, ${model_name} 1gpu begin"
