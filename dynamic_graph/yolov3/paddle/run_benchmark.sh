@@ -4,14 +4,14 @@ set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|3|6 sp|mp 1000(max_iter)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|3|6 sp|mp 1(max_epoch)"
     exit
 fi
 
 function _set_params(){
     index="$1"
     run_mode=${2:-"sp"}
-    max_iter=${3}
+    max_epoch=${3}
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
@@ -22,7 +22,11 @@ function _set_params(){
     skip_steps=5                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
     keyword="batch_cost: "                  # 解析日志，筛选出数据所在行的关键字                                             (必填)
     separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
-    position=11                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
+    if [ ${run_mode} == "sp" ]; then
+        position=26                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
+    else
+        position=25
+    fi
     model_mode=0                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -50,9 +54,8 @@ function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
-    #train_cmd="-c configs/yolov3_darknet53_270e_coco.yml
-    train_cmd="-c configs/yolov3_darknet.yml 
-     --opt max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} TrainReader.worker_num=8"
+    train_cmd="-c configs/yolov3/yolov3_darknet53_270e_coco.yml 
+     --opt epoch=${max_epoch} TrainReader.batch_size=${batch_size} worker_num=8"
     case ${run_mode} in
     sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)
@@ -62,7 +65,7 @@ function _train(){
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    timeout 15m ${train_cmd} > ${log_file} 2>&1
+    timeout 7m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
         export job_fail_flag=1
