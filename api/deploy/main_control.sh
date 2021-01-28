@@ -353,6 +353,7 @@ function run_all_cases() {
     
         for((i=0;i<cases_num;i++)); do
             [ -n "${case_name_id}" -a "${case_name_id}" != "${i}" ] && continue
+            [ -n "${case_name_id}" ] && line=${line//:${case_name_id}/}
             config_id=$[$config_id+1]
             execute_one_case ${config_id} ${line} ${json_file_path} ${i} ${gpu_id}
         done
