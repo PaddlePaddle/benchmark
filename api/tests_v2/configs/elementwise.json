@@ -164,4 +164,109 @@
         }
     },
     "atol": 1
+}, {
+    "config_id": 8,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[768L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
+}, {
+    "config_id": 9,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 12L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[32L, 1L, 1L, 128L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
+}, {
+    "config_id": 10,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16L, 2048L, 7L, 7L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[16L, 2048L, 1L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
+}, {
+    "config_id": 11,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16L, 1L, 513L, 513L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
+}, {
+    "config_id": 12,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 12L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[32L, 1L, 128L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
 }]
