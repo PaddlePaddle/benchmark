@@ -23,7 +23,7 @@ function _set_params(){
     keyword="batch_cost: "                  # 解析日志，筛选出数据所在行的关键字                                             (必填)
     separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
     if [ ${run_mode} == "sp" ]; then
-        position=26                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
+        position=24                     # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
     else
         position=25
     fi
