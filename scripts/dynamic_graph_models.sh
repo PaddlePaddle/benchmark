@@ -92,7 +92,7 @@ dy_transformer(){
     do
         model_name="transformer_${mode_item}"
         echo "index is speed, ${model_name} 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 400 ${mode_item}  | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 600 ${mode_item}  | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, ${model_name} 8gpus begin, mp"
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 ${mode_item} | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
