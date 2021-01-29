@@ -44,10 +44,13 @@ function _set_params(){
 function _train(){
     # 去掉test，当前实现里没有开关可以关闭或者修改
     grep -q "#             eval_data=test_loader" ./train.py
-    if [ $? -eq 1 ]; then
+    if [ $? -eq 0 ]; then
         echo "----------already addressed disable test after train"
     else    
         sed -i "s/             eval_data=test_loader,/#             eval_data=test_loader,/g" train.py
+        # 打开benchmark 输出，目前不支持参数配置，只可sed 修改
+        sed -i "103 a \    callback = paddle.callbacks.ProgBarLogger(log_freq=10, verbose=3)" train.py
+        sed -i "112 a \              callbacks=callback," train.py
     fi
 
     train_cmd="--data_dir ./data
