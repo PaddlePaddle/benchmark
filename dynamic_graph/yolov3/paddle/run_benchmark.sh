@@ -1,6 +1,5 @@
 #!bin/bash
 set -xe
-
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
@@ -23,9 +22,9 @@ function _set_params(){
     keyword="batch_cost: "                  # 解析日志，筛选出数据所在行的关键字                                             (必填)
     separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
     if [ ${run_mode} == "sp" ]; then
-        position=24                     # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
+        position=24                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
     else
-        position=25
+        position=23
     fi
     model_mode=0                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
 
@@ -52,10 +51,10 @@ function _set_env(){
 
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
-    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$base_batch_size"
 
     train_cmd="-c configs/yolov3/yolov3_darknet53_270e_coco.yml 
-     --opt epoch=${max_epoch} TrainReader.batch_size=${batch_size} worker_num=8"
+     --opt epoch=${max_epoch} TrainReader.batch_size=${base_batch_size} worker_num=8"
     case ${run_mode} in
     sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)
@@ -65,7 +64,7 @@ function _train(){
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    timeout 7m ${train_cmd} > ${log_file} 2>&1
+    timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
         export job_fail_flag=1
