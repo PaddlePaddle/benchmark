@@ -24,6 +24,9 @@ function _set_params(){
     mission_name="图像分类"
     direction_id=0
     skip_steps=11
+    if [ ${model_name} = "ResNet50_bs128" ] && [ ${run_mode} = "mp" ]; then
+        skip_steps=3
+    fi
     keyword="INFO: epoch:"
     separator=": "
     position=6
@@ -59,7 +62,7 @@ function _train(){
                -o TRAIN.file_list=./dataset/imagenet100_data/${file_list}
                -o TRAIN.num_workers=8" 
     if [ ${run_mode} = "sp" ]; then
-        train_cmd="python -u tools/train.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
     else
         rm -rf ./mylog_${model_name}
         train_cmd="python -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES --log_dir ./mylog_${model_name} tools/train.py "${train_cmd}
@@ -75,9 +78,9 @@ function _train(){
         export job_fail_flag=0
     fi
 
-    if [ ${run_mode} != "sp"  -a -d mylog ]; then
+    if [ ${run_mode} != "sp"  -a -d mylog_${model_name} ]; then
         rm ${log_file}
-        cp mylog/`ls -l mylog/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ${log_file}
+        cp mylog_${model_name}/`ls -l mylog_${model_name}/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ${log_file}
     fi
 }
 

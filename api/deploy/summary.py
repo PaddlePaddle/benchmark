@@ -31,7 +31,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
-from common import utils
+from common import system
 import op_benchmark_unit
 
 res = {}
@@ -47,10 +47,10 @@ CHECK_KEY["paddle_cpu_perf_backwards"] = "CPU反向"
 
 def _is_json(line):
     try:
-        json.loads(line)
-    except ValueError:
+        result = json.loads(line)
+    except Exception:
         return False
-    return True
+    return True if isinstance(result, dict) else False
 
 
 def _read_last_line(inputfile):
@@ -116,7 +116,6 @@ def _parse_parameters(case_name, last_line):
 
 def _parse_speed(case_name, statistic_type, last_line):
     assert res.get(case_name, None) is not None
-    print(statistic_type)
 
     gpu_time_key_map = {
         "paddle_gpu_speed_forward": "gpu_time",
@@ -138,7 +137,7 @@ def _parse_speed(case_name, statistic_type, last_line):
         total = data["speed"]["total"]
         total_str = "%.5f" % total
         res[case_name][statistic_type] = total_str
-        if gpu_time_key and data["speed"].get("gpu_time", None):
+        if gpu_time_key and data["speed"].get("gpu_time", None) is not None:
             # May set following values:
             #   gpu_time
             #   gpu_time_backward
@@ -210,7 +209,7 @@ def get_job_res(inputfile, specified_op_list=None):
     case_name = file_name.split("-")[0]
     op_type = op_benchmark_unit.parse_op_type(case_name)
     if specified_op_list and op_type not in specified_op_list:
-        return
+        return None
 
     print("-- Parse %s from %s" % (case_name, inputfile))
 
@@ -220,6 +219,7 @@ def get_job_res(inputfile, specified_op_list=None):
 
     statistic_beg_idx = file_name.find("-")
     statistic_type = file_name[statistic_beg_idx + 1:]
+    framework = statistic_type.split("_")[0]
     last_line = _read_last_line(inputfile)
 
     # Parse "disabled" status.
@@ -233,6 +233,8 @@ def get_job_res(inputfile, specified_op_list=None):
 
     if last_line and "_accuracy_" in statistic_type:
         _parse_accuracy(case_name, statistic_type, last_line)
+
+    return framework
 
 
 def check_results(op_record, alarm_results):
@@ -371,11 +373,6 @@ if __name__ == '__main__':
         default=None,
         help='Specify the result directory of operator benchmark.')
     parser.add_argument(
-        '--compare_framework',
-        type=str,
-        default="tensorflow",
-        help='Specify the framework (tensorflow, pytorch) of comparison.')
-    parser.add_argument(
         '--specified_op_list',
         type=str,
         default=None,
@@ -387,17 +384,17 @@ if __name__ == '__main__':
         help='Specify the path of operator frequency data.')
     parser.add_argument(
         '--dump_to_text',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether dumping the summary data to a text file [True|False]')
     parser.add_argument(
         '--dump_to_excel',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether dumping summary data to an excel [True|False]')
     parser.add_argument(
         '--dump_with_parameters',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether dumping summary data to an text [True|False]')
     parser.add_argument(
@@ -412,12 +409,12 @@ if __name__ == '__main__':
         help='Specify the output path.')
     parser.add_argument(
         '--dump_to_mysql',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=True,
         help='Whether dumping summary data to mysql database [True|False]')
     parser.add_argument(
         '--dump_to_json',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether dumping summary data to a json file [True|False]')
     parser.add_argument(
@@ -427,14 +424,10 @@ if __name__ == '__main__':
         help='Specify the paddle version.')
     parser.add_argument(
         '--construct_email',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=True,
         help='Whether constructing alarm email [True|False]')
     args = parser.parse_args()
-    if args.compare_framework not in ["tensorflow", "pytorch"]:
-        raise ValueError(
-            "The framework must be tensorflow or pytorch, but the framework is %s."
-            % args.compare_framework)
 
     op_result_dir = os.path.abspath(args.op_result_dir)
     assert os.path.exists(
@@ -449,8 +442,16 @@ if __name__ == '__main__':
     if args.specified_op_list:
         specified_op_list = args.specified_op_list.split()
 
+    compare_framework = None
     for filename in sorted(filenames):
-        get_job_res(os.path.join(op_result_dir, filename), specified_op_list)
+        framework = get_job_res(
+            os.path.join(op_result_dir, filename), specified_op_list)
+        if framework is not None and framework != "paddle":
+            if compare_framework:
+                assert framework == compare_framework, "Framework name parsed from result's filename is expected to be %s, but recieved %s." % (
+                    compare_framework, framework)
+            else:
+                compare_framework = framework
 
     data = []
     benchmark_result_list = []
@@ -462,7 +463,7 @@ if __name__ == '__main__':
         data.append(case_detail)
 
         op_unit = op_benchmark_unit.OpBenchmarkUnit(case_detail,
-                                                    args.compare_framework)
+                                                    compare_framework)
         benchmark_result_list.append(op_unit)
 
     op_frequency_dict = None
@@ -483,7 +484,7 @@ if __name__ == '__main__':
 
         write_excel.dump_excel(benchmark_result_list, op_result_dir,
                                args.url_prefix, args.output_path,
-                               args.compare_framework, op_frequency_dict)
+                               compare_framework, op_frequency_dict)
 
     if args.dump_to_json:
         import write_json

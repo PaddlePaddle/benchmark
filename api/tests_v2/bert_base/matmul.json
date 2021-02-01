@@ -366,4 +366,50 @@
             "type": "Variable"
         }
     }
+}, {
+    "config_id": 16,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "True"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[464L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[30528L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 17,
+    "op": "matmul",
+    "param_info": {
+        "transpose_x": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose_y": {
+            "type": "bool",
+            "value": "True"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[464L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[30528L, 768L]",
+            "type": "Variable"
+        }
+    }
 }]

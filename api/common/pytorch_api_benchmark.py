@@ -70,9 +70,13 @@ class PytorchAPIBenchmarkBase(object):
             feed_value = feeder.generate_random_data(
                 shape, dtype, range=range, value=value)
 
+            requires_grad = True if dtype in [
+                "float16", "float32", "float64"
+            ] else False
             var = torch.tensor(
-                feed_value, requires_grad=True, device=self._device)
-            var.retain_grad()
+                feed_value, requires_grad=requires_grad, device=self._device)
+            if requires_grad:
+                var.retain_grad()
             self._feed_dict[name] = var
 
             if value is None:

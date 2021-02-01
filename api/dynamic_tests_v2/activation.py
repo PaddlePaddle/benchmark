@@ -20,11 +20,12 @@ class ActivationConfig(APIConfig):
         super(ActivationConfig, self).__init__('activation')
         self.api_name = 'cos'
         self.api_list = {
-            'sqrt': 'sqrt',
             'cos': 'cos',
             'exp': 'exp',
+            'log': 'log',
             'sin': 'sin',
             'sinh': 'sinh',
+            'sqrt': 'sqrt',
             'square': 'square',
             'tanh': 'tanh'
         }

@@ -16,6 +16,7 @@ from __future__ import print_function
 
 import argparse
 import json
+import os
 import re
 import traceback
 
@@ -228,6 +229,7 @@ if __name__ == "__main__":
     run_info["index"] = args.index
     run_info["gpu_num"] = args.gpu_num
     run_info["FINAL_RESULT"] = 0
+    run_info["JOB_FAIL_FLAG"] = 0
 
     try:
         if args.index == 1:
@@ -242,6 +244,8 @@ if __name__ == "__main__":
                 mode=args.model_mode,
                 run_mode=args.run_mode,
                 unit=args.ips_unit)
+            if int(os.getenv('job_fail_flag')) == 1:
+                run_info["JOB_FAIL_FLAG"] = 1
         elif args.index == 3:
             run_info["FINAL_RESULT"] = {}
             records_fo_total = TimeAnalyzer(args.filename, 'Framework overhead', None, 3, '').records
