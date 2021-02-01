@@ -72,6 +72,7 @@ NO_BACKWARD_OPS = [
     "greater",
     "less",
     "linspace",
+    "range",
     "remainder",
     "unique",
     "yolo_box",

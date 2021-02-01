@@ -1,0 +1,61 @@
+[{
+    "op": "range",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "int32"
+        },
+        "start": {
+            "type": "int32",
+            "value": "0"
+        },
+        "end": {
+            "type": "int32",
+            "value": "100000"
+        },
+        "step": {
+            "type": "int32",
+            "value": "1"
+        }
+    }
+}, {
+    "op": "range",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "int64"
+        },
+        "start": {
+            "type": "int64",
+            "value": "100000"
+        },
+        "end": {
+            "type": "int64",
+            "value": "-100000"
+        },
+        "step": {
+            "type": "int64",
+            "value": "-3"
+        }
+    }
+}, {
+    "op": "range",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float"
+        },
+        "start": {
+            "type": "float",
+            "value": "-2"
+        },
+        "end": {
+            "type": "float",
+            "value": "2"
+        },
+        "step": {
+            "type": "float",
+            "value": "0.001"
+        }
+    }
+}]
