@@ -486,8 +486,7 @@ bert(){
             sleep 60
         done
     done
-
-
+}
 
 #run_transformer
 transformer(){
