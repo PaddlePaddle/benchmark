@@ -1,25 +1,25 @@
 [{
-  "op": "fill_constant",
-  "param_info": {
-      "dtype": {
-          "type": "string",
-          "value": "float32"
-      },
-      "force_cpu": {
-          "type": "bool",
-          "value": "True"
-      },
-      "out": {
-          "type": "string",
-          "value": "None"
-      },
-      "shape": {
-          "type": "list",
-          "value": "[1]"
-      },
-      "value": {
-          "type": "float32",
-          "value": "210000.0"
-      }
-  }
+    "op": "fill_constant",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "force_cpu": {
+            "type": "bool",
+            "value": "True"
+        },
+        "out": {
+            "type": "string",
+            "value": "None"
+        },
+        "shape": {
+            "type": "list",
+            "value": "[1]"
+        },
+        "value": {
+            "type": "float32",
+            "value": "210000.0"
+        }
+    }
 }]

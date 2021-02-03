@@ -28,9 +28,7 @@ class TorchConstant(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         torch_list = []
         torch_tensor = torch.tensor(config.shape, dtype=torch.float32)
-        result = torch.nn.init.constant_(
-            tensor=torch_tensor,
-            val=config.value)
+        result = torch.nn.init.constant_(tensor=torch_tensor, val=config.value)
 
         self.feed_list = []
         self.fetch_list = [result]
@@ -38,4 +36,6 @@ class TorchConstant(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDFillConstant(), torch_obj=TorchConstant(), config=APIConfig("fill_constant"))
+        pd_dy_obj=PDFillConstant(),
+        torch_obj=TorchConstant(),
+        config=APIConfig("fill_constant"))

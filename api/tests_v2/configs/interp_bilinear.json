@@ -170,7 +170,7 @@
         },
         "scale_factor": {
             "type": "list",
-            "value": "[2,2]"
+            "value": "[2, 2]"
         }
     }
 }]

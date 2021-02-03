@@ -1,39 +1,39 @@
 [{
-  "op": "conv2d",
-  "param_info": {
-      "data_format": {
-          "type": "string",
-          "value": "NCHW"
-      },
-      "dilation": {
-          "type": "int",
-          "value": "1"
-      },
-      "groups": {
-          "type": "int",
-          "value": "1"
-      },
-      "x": {
-          "dtype": "float32",
-          "shape": "[2, 3, 512, 1024]",
-          "type": "Variable"
-      },
-      "weight": {
-          "dtype": "float32",
-          "shape": "[64, 3, 3, 3]",
-          "type": "Variable"
-      },
-      "padding": {
-          "type": "int",
-          "value": "1"
-      },
-      "stride": {
-          "type": "int",
-          "value": "1"
-      }
-  },
-  "atol": 0.01
-},{
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 3, 512, 1024]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[64, 3, 3, 3]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    },
+    "atol": 0.01
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -68,7 +68,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -103,7 +103,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -138,7 +138,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -173,7 +173,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -208,7 +208,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -243,7 +243,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -278,7 +278,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -313,7 +313,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -348,7 +348,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -383,7 +383,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -418,7 +418,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -453,7 +453,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -488,7 +488,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -523,7 +523,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -558,7 +558,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -593,7 +593,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -628,7 +628,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -663,7 +663,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -698,7 +698,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -733,7 +733,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -768,7 +768,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -803,7 +803,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -838,7 +838,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -873,7 +873,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -908,7 +908,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -943,7 +943,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -978,7 +978,7 @@
         }
     },
     "atol": 0.01
-  },{
+}, {
     "op": "conv2d",
     "param_info": {
         "data_format": {
@@ -1013,4 +1013,4 @@
         }
     },
     "atol": 0.01
-  }]
+}]

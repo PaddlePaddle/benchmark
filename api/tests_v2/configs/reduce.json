@@ -70,7 +70,7 @@
     },
     "atol": 0.01,
     "repeat": 10000
-},{
+}, {
     "op": "reduce",
     "param_info": {
         "axis": {
