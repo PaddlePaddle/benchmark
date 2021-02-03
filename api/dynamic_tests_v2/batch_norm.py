@@ -30,6 +30,13 @@ class BatchNormConfig(APIConfig):
         else:
             self.num_channels = self.x_shape[1]
 
+        if self.data_format == 'NHWC':
+            print(
+                "Warning:\n"
+                "  1. PyTorch does not have data_format param, it only support NHWC format.\n"
+            )
+            self.run_torch = False
+
 
 class PDBatchNorm(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):

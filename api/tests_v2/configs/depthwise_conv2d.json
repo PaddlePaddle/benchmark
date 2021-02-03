@@ -31,7 +31,8 @@
             "type": "int",
             "value": "1"
         }
-    }
+    },
+    "atol": 1E-4
 }, {
     "op": "depthwise_conv2d",
     "param_info": {
@@ -65,7 +66,8 @@
             "type": "int",
             "value": "1"
         }
-    }
+    },
+    "atol": 1E-3
 }, {
     "op": "depthwise_conv2d",
     "param_info": {
@@ -99,5 +101,6 @@
             "type": "int",
             "value": "2"
         }
-    }
+    },
+    "atol": 1E-3
 }]
