@@ -1,0 +1,15 @@
+[{
+  "op": "cast",
+  "param_info": {
+      "dtype": {
+          "type": "string",
+          "value": "float32"
+      },
+      "x": {
+          "dtype": "float32",
+          "shape": "[2, 512, 1024]",
+          "type": "Variable"
+      }
+  },
+  "repeat": 5000
+}]

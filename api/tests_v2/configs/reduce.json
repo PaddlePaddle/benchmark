@@ -70,4 +70,23 @@
     },
     "atol": 0.01,
     "repeat": 10000
+},{
+    "op": "reduce",
+    "param_info": {
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 512, 1024, 1]",
+            "type": "Variable"
+        },
+        "keepdim": {
+            "type": "bool",
+            "value": "False"
+        }
+    },
+    "atol": 1,
+    "repeat": 10000
 }]

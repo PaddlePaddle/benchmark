@@ -1,0 +1,33 @@
+[{
+  "op": "concat",
+  "param_info": {
+      "axis": {
+          "type": "int",
+          "value": "1"
+      },
+      "x": {
+          "x0": {
+              "dtype": "float32",
+              "shape": "[2, 18, 128, 256]",
+              "type": "Variable"
+          },
+          "x1": {
+              "dtype": "float32",
+              "shape": "[2, 36, 128, 256]",
+              "type": "Variable"
+          },
+          "x2": {
+            "dtype": "float32",
+            "shape": "[2, 72, 128, 256]",
+            "type": "Variable"
+          },
+          "x3": {
+            "dtype": "float32",
+            "shape": "[2, 144, 128, 256]",
+            "type": "Variable"
+        },
+          "type": "list<Variable>"
+      }
+  },
+  "repeat": 5000
+}]

@@ -1,0 +1,15 @@
+[{
+    "op": "not_equal",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 512, 1024, 1]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1]",
+            "type": "Variable"
+        }
+    }
+}]
