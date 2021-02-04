@@ -1,13 +1,13 @@
 [{
-    "op": "not_equal",
+    "op": "compare",
     "param_info": {
         "x": {
-            "dtype": "float32",
+            "dtype": "int64",
             "shape": "[2, 512, 1024, 1]",
             "type": "Variable"
         },
         "y": {
-            "dtype": "float32",
+            "dtype": "int64",
             "shape": "[1]",
             "type": "Variable"
         }

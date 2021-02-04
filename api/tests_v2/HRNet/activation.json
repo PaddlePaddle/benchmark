@@ -11,7 +11,7 @@
     "op": "activation",
     "param_info": {
         "x": {
-            "dtype": "float16",
+            "dtype": "float32",
             "shape": "[2, 64, 128, 256]",
             "type": "Variable"
         }
@@ -20,7 +20,7 @@
     "op": "activation",
     "param_info": {
         "x": {
-            "dtype": "float16",
+            "dtype": "float32",
             "shape": "[2, 256, 128, 256]",
             "type": "Variable"
         }
@@ -29,7 +29,7 @@
     "op": "activation",
     "param_info": {
         "x": {
-            "dtype": "float16",
+            "dtype": "float32",
             "shape": "[2, 18, 128, 256]",
             "type": "Variable"
         }
@@ -38,7 +38,7 @@
     "op": "activation",
     "param_info": {
         "x": {
-            "dtype": "float16",
+            "dtype": "float32",
             "shape": "[2, 36, 64, 128]",
             "type": "Variable"
         }
@@ -47,7 +47,7 @@
     "op": "activation",
     "param_info": {
         "x": {
-            "dtype": "float16",
+            "dtype": "float32",
             "shape": "[2, 72, 32, 64]",
             "type": "Variable"
         }
@@ -56,7 +56,7 @@
     "op": "activation",
     "param_info": {
         "x": {
-            "dtype": "float16",
+            "dtype": "float32",
             "shape": "[2, 18, 64, 128]",
             "type": "Variable"
         }
@@ -65,7 +65,7 @@
     "op": "activation",
     "param_info": {
         "x": {
-            "dtype": "float16",
+            "dtype": "float32",
             "shape": "[2, 144, 16, 32]",
             "type": "Variable"
         }
@@ -74,7 +74,7 @@
     "op": "activation",
     "param_info": {
         "x": {
-            "dtype": "float16",
+            "dtype": "float32",
             "shape": "[2, 18, 32, 64]",
             "type": "Variable"
         }
@@ -83,7 +83,7 @@
     "op": "activation",
     "param_info": {
         "x": {
-            "dtype": "float16",
+            "dtype": "float32",
             "shape": "[2, 36, 32, 64]",
             "type": "Variable"
         }
@@ -92,7 +92,7 @@
     "op": "activation",
     "param_info": {
         "x": {
-            "dtype": "float16",
+            "dtype": "float32",
             "shape": "[2, 270, 128, 256]",
             "type": "Variable"
         }

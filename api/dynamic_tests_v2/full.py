@@ -15,29 +15,30 @@
 from common_import import *
 
 
-class PDNotEqual(PaddleDynamicAPIBenchmarkBase):
+class PDFillConstant(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        result = paddle.not_equal(x=x, y=y)
+        result = paddle.full(
+            shape=config.shape,
+            fill_value=config.fill_value,
+            dtype=config.dtype)
 
-        self.feed_list = [x, y]
+        self.feed_list = []
         self.fetch_list = [result]
 
 
-class TorchNotEqual(PytorchAPIBenchmarkBase):
+class TorchConstant(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        result = torch.ne(input=x, other=y)
-        result = torch.tensor(result)
+        torch_list = []
+        torch_tensor = torch.tensor(config.shape, dtype=torch.float32)
+        result = torch.nn.init.constant_(
+            tensor=torch_tensor, val=config.fill_value)
 
-        self.feed_list = [x, y]
+        self.feed_list = []
         self.fetch_list = [result]
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDNotEqual(),
-        torch_obj=TorchNotEqual(),
-        config=APIConfig('not_equal'))
+        pd_dy_obj=PDFillConstant(),
+        torch_obj=TorchConstant(),
+        config=APIConfig("full"))

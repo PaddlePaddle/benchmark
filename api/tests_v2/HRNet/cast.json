@@ -3,10 +3,10 @@
     "param_info": {
         "dtype": {
             "type": "string",
-            "value": "float32"
+            "value": "int64"
         },
         "x": {
-            "dtype": "float32",
+            "dtype": "int32",
             "shape": "[2, 512, 1024]",
             "type": "Variable"
         }
