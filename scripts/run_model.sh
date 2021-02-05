@@ -25,7 +25,9 @@ function _run(){
     sleep 9
     ps -ef
     model_commit_id=$(git log|head -n1|awk '{print $2}')
+    paddle_commit_id=$(cat /usr/local/lib/python3.7/site-packages/paddle/version.py  | grep commit | awk -F "= " '{print $2}')
     echo "---------Model commit is ${model_commit_id}"
+    echo "---------Paddle commit is ${paddle_commit_id}"
 
     if [[ ${index} -eq 1 ]]; then
         job_bt=`date '+%Y%m%d%H%M%S'`
