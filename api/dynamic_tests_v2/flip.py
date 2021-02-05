@@ -15,6 +15,22 @@
 from common_import import *
 
 
+class FlipConfig(APIConfig) :
+    def __init__(self):
+        super(FlipConfig, self).__init__("flip")
+
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(FlipConfig, self).init_from_json(filename, config_id,
+                                                      unknown_dim)
+        self.feed_spec = [
+            {
+                "range": [-1, 1]
+            },  # x
+            {
+                "range": [0, len(self.x_shape)]
+            }  # dims
+        ]
+
 class PDFlip(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)

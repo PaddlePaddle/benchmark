@@ -14,6 +14,22 @@
 
 from common_import import *
 
+class GridSampleConfig(APIConfig):
+    def __init__(self):
+        super(GridSampleConfig, self).__init__("grid_sample")
+    
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(GridSampleConfig, self).init_from_json(filename, config_id, 
+                                                    unknown_dim)
+        assert self.grid_shape[-1] == 2
+        self.feed_spec = [
+            {
+                "range": [-1, 1]                
+            }, # x
+            {
+                "range": [-1, 1]
+            } # grid
+        ]
 
 class PDGridSample(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
@@ -51,4 +67,4 @@ class TorchGridSample(PytorchAPIBenchmarkBase):
 if __name__ == '__main__':
     test_main(pd_dy_obj=PDGridSample(), 
               torch_obj=TorchGridSample(),
-              config=APIConfig('grid_sample'))
+              config=GridSampleConfig())
