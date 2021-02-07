@@ -18,10 +18,6 @@ from common_import import *
 class RemainderConfig(APIConfig):
     def __init__(self):
         super(RemainderConfig, self).__init__("remainder")
-        self.feed_spec = [{"range": [-1000, 1000]}, {"range": [1, 1000]}]
-        # remainder belongs to elementwise op series
-        # thus it can reuse elementwwise.json. 
-        # self.alias_name = "elementwise"
 
     def disabled(self):
         if self.x_dtype == "float16":
