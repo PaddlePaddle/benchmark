@@ -68,7 +68,7 @@
             "value": "False"
         }
     },
-    "atol": 0.01,
+    "atol": 1,
     "repeat": 10000
 }, {
     "op": "reduce",

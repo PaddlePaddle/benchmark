@@ -164,44 +164,4 @@
         }
     },
     "atol": 1
-},{
-    "config_id": 8,
-    "op": "elementwise",
-    "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[1]",
-            "type": "Variable"
-        },
-        "y": {
-            "dtype": "float32",
-            "shape": "[1]",
-            "type": "Variable"
-        }
-    },
-    "atol": 0.01
-},{
-    "config_id": 9,
-    "op": "elementwise",
-    "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[2, 512, 1024, 1]",
-            "type": "Variable"
-        },
-        "y": {
-            "dtype": "float32",
-            "shape": "[2, 512, 1024, 1]",
-            "type": "Variable"
-        }
-    },
-    "atol": 0.01
-} ]
+}]
