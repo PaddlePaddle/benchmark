@@ -24,8 +24,7 @@ class ElementwiseConfig(APIConfig):
             'maximum': 'maximum',
             'minimum': 'minimum',
             'multiply': 'multiply',
-            'subtract': 'subtract',
-            'divide': 'divide'
+            'subtract': 'subtract'
         }
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
