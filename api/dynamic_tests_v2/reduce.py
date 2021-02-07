@@ -20,10 +20,7 @@ class ReduceConfig(APIConfig):
         super(ReduceConfig, self).__init__('reduce')
         self.feed_spec = {"range": [-1, 1]}
         self.api_name = 'sum'
-        self.api_list = {
-            'sum': 'sum',
-            'mean': 'mean'
-        }
+        self.api_list = {'sum': 'sum', 'mean': 'mean'}
 
     def init_from_json(self, filename, config_id=3, unknown_dim=16):
         super(ReduceConfig, self).init_from_json(filename, config_id,
