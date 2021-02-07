@@ -18,6 +18,8 @@ from common_import import *
 class RemainderConfig(APIConfig):
     def __init__(self):
         super(RemainderConfig, self).__init__("remainder")
+        # divisor can not be 0
+        self.feed_spec = [{"range": [-1000, 1000]}, {"range": [1, 1000]}]
 
     def disabled(self):
         if self.x_dtype == "float16":
