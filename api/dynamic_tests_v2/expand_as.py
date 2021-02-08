@@ -15,19 +15,6 @@
 from common_import import *
 
 
-class ExpandAsConfig(APIConfig):
-    def __init__(self):
-        super(ExpandAsConfig, self).__init__('expand_as')
-
-    def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(ExpandAsConfig, self).init_from_json(filename, config_id,
-                                                   unknown_dim)
-        # if len(self.x_shape) == len(self.shape) + 1:
-        #     self.shape = [self.x_shape[0]] + self.shape
-        # assert len(self.shape) == len(
-        #     self.x_shape), "x and shape should have the same length."
-
-
 class PDExpandAs(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
