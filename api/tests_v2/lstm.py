@@ -32,6 +32,12 @@ class LstmConfig(APIConfig):
 
 class PDLstm(PaddleAPIBenchmarkBase):
     def build_program(self, config):
+        # The new LSTM API accepts direction as str type
+        if config.is_bidirec:
+            direct = "bidirectional"
+        else:
+            direct = "forward"
+
         input = self.variable(
             name="input", shape=config.input_shape, dtype=config.input_dtype)
 
@@ -44,20 +50,17 @@ class PDLstm(PaddleAPIBenchmarkBase):
             dtype=config.init_c_dtype,
             fill_value=0.0)
 
-        rnn_out, last_h, last_c = paddle.fluid.layers.lstm(
-            input=input,
-            init_h=init_h,
-            init_c=init_c,
-            max_len=config.max_len,
+        rnn = paddle.nn.LSTM(
+            input_size=config.input_shape[-1],
             hidden_size=config.hidden_size,
             num_layers=config.num_layers,
-            dropout_prob=0.2,
-            is_bidirec=config.is_bidirec)
+            dropout=0.0,
+            direction=direct)
+
+        rnn_out, (last_h, last_c) = rnn(input, (init_h, init_c))
 
         self.feed_vars = [input]
         self.fetch_vars = [rnn_out]
-        #if config.backward:
-        #    self.append_gradients(rnn_out, [input])
 
 
 class TFLstm(TensorflowAPIBenchmarkBase):

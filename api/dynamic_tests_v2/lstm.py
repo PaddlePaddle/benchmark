@@ -44,6 +44,12 @@ class LstmConfig(APIConfig):
 
 class PDLstm(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
+        # The new LSTM API accepts direction as str type
+        if config.is_bidirec:
+            direct = "bidirectional"
+        else:
+            direct = "forward"
+
         input = self.variable(
             name="input", shape=config.input_shape, dtype=config.input_dtype)
 
@@ -56,20 +62,17 @@ class PDLstm(PaddleDynamicAPIBenchmarkBase):
             dtype=config.init_c_dtype,
             fill_value=0.0)
 
-        rnn_out, last_h, last_c = paddle.fluid.layers.lstm(
-            input=input,
-            init_h=init_h,
-            init_c=init_c,
-            max_len=config.max_len,
+        rnn = paddle.nn.LSTM(
+            input_size=config.input_shape[-1],
             hidden_size=config.hidden_size,
             num_layers=config.num_layers,
-            dropout_prob=0.2,
-            is_bidirec=config.is_bidirec)
+            dropout=0.0,
+            direction=direct)
+
+        rnn_out, (last_h, last_c) = rnn(input, (init_h, init_c))
 
         self.feed_list = [input]
         self.fetch_list = [rnn_out]
-        #if config.backward:
-        #    self.append_gradients(rnn_out, [input])
 
 
 class TorchLstm(PytorchAPIBenchmarkBase):
@@ -85,11 +88,11 @@ class TorchLstm(PytorchAPIBenchmarkBase):
         input = self.variable(
             name="input", shape=config.input_shape, dtype=config.input_dtype)
 
-        tensor_h = torch.tensor(
+        tensor_h = torch.empty(
             config.init_h_shape, dtype=dtype_map[config.init_h_dtype])
         init_h = torch.nn.init.constant_(tensor=tensor_h, val=0.0)
 
-        tensor_c = torch.tensor(
+        tensor_c = torch.empty(
             config.init_c_shape, dtype=dtype_map[config.init_c_dtype])
         init_c = torch.nn.init.constant_(tensor=tensor_c, val=0.0)
 
@@ -97,16 +100,17 @@ class TorchLstm(PytorchAPIBenchmarkBase):
             input_size=config.input_shape[-1],
             hidden_size=config.hidden_size,
             num_layers=config.num_layers,
-            dropout=0.2,
+            dropout=0.0,
+            batch_first=False,
             bidirectional=config.is_bidirec)
         # move model and input to cuda device
         if torch.cuda.is_available():
             rnn.cuda()
             input = input.cuda()
+            init_h = init_h.cuda()
+            init_c = init_c.cuda()
 
-        # rnn_out, (last_h, last_c) = rnn(input, (init_h, init_c))
-        # If (h_0, c_0) is not provided, both h_0 and c_0 default to zero
-        rnn_out, (last_h, last_c) = rnn(input)
+        rnn_out, (last_h, last_c) = rnn(input, (init_h, init_c))
 
         self.feed_list = [input]
         self.fetch_list = [rnn_out]
