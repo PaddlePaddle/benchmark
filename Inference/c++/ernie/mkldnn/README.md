@@ -19,14 +19,14 @@ cmake -DCMAKE_BUILD_TYPE=Release \
       ..
  make -j$(nproc)
  make inference_lib_dist
- PADDLE_LIB=path/to/Paddle/build/paddle_inference_install_dir
+ PADDLE_ROOT=path/to/Paddle/build/paddle_inference_install_dir
 ```
 
 
 - 用户也可以直接下载 [预测库](https://www.paddlepaddle.org.cn/documentation/docs/zh/develop/guides/05_inference_deployment/inference/build_and_install_lib_cn.html)。请选择 `ubuntu14.04_cpu_avx_mkl` 最新发布版或者develop版。
 ```
 tar -xzvf fluid_inference.tgz
-PADDLE_LIB=full/path/to/fluid_inference
+PADDLE_ROOT=full/path/to/fluid_inference
 ```
 
 ## 安装与编译C++性能测试库
@@ -38,7 +38,7 @@ git clone https://github.com/PaddlePaddle/benchmark.git
 $ cd benchmark/Inference/c++/ernie/
 $ mkdir build
 $ cd build
-$ cmake -DUSE_GPU=OFF -DPADDLE_LIB=$PADDLE_LIB ..
+$ cmake -DUSE_GPU=OFF -DPADDLE_ROOT=$PADDLE_ROOT ..
 $ make
 ```
 
