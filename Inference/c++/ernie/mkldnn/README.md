@@ -1,8 +1,8 @@
-# ERNIE 模型 QAT INT8 精度与性能复现
+# ERNIE QAT INT8 精度与性能复现
 
 ## 准备PaddlePaddle预测库
 
-- 用户可以从Paddle源码编译Paddle推理库，请参考[从源码编译](https://www.paddlepaddle.org.cn/documentation/docs/zh/1.5/advanced_usage/deploy/inference/build_and_install_lib_cn.html#id15)文档。编译选项如下：
+- 用户可以从Paddle源码编译Paddle推理库，请参考[从源码编译](https://www.paddlepaddle.org.cn/documentation/docs/zh/develop/guides/05_inference_deployment/inference/build_and_install_lib_cn.html)文档。编译选项如下：
 
 ```bash
 git clone https://github.com/PaddlePaddle/Paddle.git
@@ -19,11 +19,11 @@ cmake -DCMAKE_BUILD_TYPE=Release \
       ..
  make -j$(nproc)
  make inference_lib_dist
- PADDLE_LIB=path/to/Paddle/paddle_inference_install_dir
+ PADDLE_LIB=path/to/Paddle/build/paddle_inference_install_dir
 ```
 
 
-- 用户也可以直接下载 [预测库](https://www.paddlepaddle.org.cn/documentation/docs/zh/develop/advanced_guide/inference_deployment/inference/build_and_install_lib_cn.html)。请选择 `ubuntu14.04_cpu_avx_mkl` 最新发布版或者develop版。
+- 用户也可以直接下载 [预测库](https://www.paddlepaddle.org.cn/documentation/docs/zh/develop/guides/05_inference_deployment/inference/build_and_install_lib_cn.html)。请选择 `ubuntu14.04_cpu_avx_mkl` 最新发布版或者develop版。
 ```
 tar -xzvf fluid_inference.tgz
 PADDLE_LIB=full/path/to/fluid_inference
