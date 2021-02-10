@@ -8,15 +8,17 @@
 git clone https://github.com/PaddlePaddle/Paddle.git
 cd Paddle
 git checkout tags/v2.0.0 -b v2.0.0
-mkdir build
-cd build
+mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
-      -DWITH_PYTHON=ON \
-      -DWITH_MKL=ON \
+      -DWITH_GPU=OFF \
+      -DWITH_AVX=ON \
+      -DWITH_DISTRIBUTE=OFF \
       -DWITH_MKLDNN=ON \
-      -DWITH_GPU=OFF  \
       -DON_INFER=ON \
-      ..
+      -DWITH_NCCL=OFF \
+      -DWITH_PYTHON=ON \
+      -DPY_VERSION=3.6 \
+      -DWITH_LITE=OFF ..
  make -j$(nproc)
  make inference_lib_dist
  PADDLE_ROOT=path/to/Paddle/build/paddle_inference_install_dir
@@ -35,11 +37,10 @@ PADDLE_ROOT=full/path/to/fluid_inference
 
 ```bash
 git clone https://github.com/PaddlePaddle/benchmark.git
-$ cd benchmark/Inference/c++/ernie/
-$ mkdir build
-$ cd build
-$ cmake -DUSE_GPU=OFF -DPADDLE_ROOT=$PADDLE_ROOT ..
-$ make
+cd benchmark/Inference/c++/ernie/
+mkdir build && cd build
+cmake -DUSE_GPU=OFF -DPADDLE_ROOT=$PADDLE_ROOT ..
+make
 ```
 
 ## 精度和性能测试
@@ -79,7 +80,7 @@ quant_model_dir=/PATH/TO/DOWNLOAD/MODEL/Ernie_qat/float
 dataset_dir=/PATH/TO/DOWNLOAD/NLP/DATASET/Ernie_dataset
 fp32_model_dir=/PATH/TO/DOWNLOAD/MODEL/ernie_fp32_model
 cd /PATH/TO/PADDLE
-OMP_NUM_THREADS=28 FLAGS_use_mkldnn=true python python/paddle/fluid/contrib/slim/tests/quant2_int8_nlp_comparison.py --quant_model=${quant_model_dir} --fp32_model=${fp32_model_dir} --infer_data=${dataset_dir}/1.8w.bs1 --labels=${dataset_dir}/label.xnli.dev --batch_size=50 --batch_num=0 --ops_to_quantize="fc,reshape2,transpose2,matmul" --acc_diff_threshold=0.01
+OMP_NUM_THREADS=28 FLAGS_use_mkldnn=true python python/paddle/fluid/contrib/slim/tests/quant2_int8_nlp_comparison.py --quant_model=${quant_model_dir} --fp32_model=${fp32_model_dir} --infer_data=${dataset_dir}/1.8w.bs1 --labels=${dataset_dir}/label.xnli.dev --batch_size=50 --batch_num=0 --ops_to_quantize="fc,reshape2,transpose2,matmul" --acc_diff_threshold=0.01 --targets="fp32,int8"
 ```
 
 * 性能复现
