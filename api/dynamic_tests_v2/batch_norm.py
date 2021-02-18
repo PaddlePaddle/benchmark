@@ -39,25 +39,27 @@ class PDBatchNorm(PaddleDynamicAPIBenchmarkBase):
         bias = self.variable(
             name='bias', shape=[config.num_channels], dtype=config.x_dtype)
 
-        running_mean = paddle.create_parameter(
-            name='running_mean',
-            shape=[config.num_channels],
-            dtype=config.x_dtype,
-            attr=paddle.ParamAttr(
-                initializer=paddle.nn.initializer.Constant(0.5)))
-        running_mean.stop_gradient = True
-        running_var = paddle.create_parameter(
-            name='running_var',
-            shape=[config.num_channels],
-            dtype=config.x_dtype,
-            attr=paddle.ParamAttr(
-                initializer=paddle.nn.initializer.Constant(0.1)))
-        running_var.stop_gradient = True
+        if not hasattr(self, "running_mean") or self.running_mean is None:
+            self.running_mean = paddle.create_parameter(
+                name='running_mean',
+                shape=[config.num_channels],
+                dtype=config.x_dtype,
+                attr=paddle.ParamAttr(
+                    initializer=paddle.nn.initializer.Constant(0.5)))
+            self.running_mean.stop_gradient = True
+        if not hasattr(self, "running_var") or self.running_var is None:
+            self.running_var = paddle.create_parameter(
+                name='running_var',
+                shape=[config.num_channels],
+                dtype=config.x_dtype,
+                attr=paddle.ParamAttr(
+                    initializer=paddle.nn.initializer.Constant(0.1)))
+            self.running_var.stop_gradient = True
 
         result = paddle.nn.functional.batch_norm(
             x=x,
-            running_mean=running_mean,
-            running_var=running_var,
+            running_mean=self.running_mean,
+            running_var=self.running_var,
             weight=weight,
             bias=bias,
             epsilon=config.epsilon,
@@ -79,12 +81,15 @@ class TorchBatchNorm(PytorchAPIBenchmarkBase):
         bias = self.variable(
             name='bias', shape=[config.num_channels], dtype=config.x_dtype)
 
-        running_mean = torch.zeros([config.num_channels]).cuda()
-        running_var = torch.ones([config.num_channels]).cuda()
+        if not hasattr(self, "running_mean") or self.running_mean is None:
+            self.running_mean = torch.zeros([config.num_channels]).cuda()
+        if not hasattr(self, "running_var") and self.running_var is None:
+            self.running_var = torch.ones([config.num_channels]).cuda()
+
         result = torch.nn.functional.batch_norm(
             input=x,
-            running_mean=running_mean,
-            running_var=running_var,
+            running_mean=self.running_mean,
+            running_var=self.running_var,
             weight=weight,
             bias=bias,
             training=config.training,

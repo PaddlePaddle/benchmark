@@ -20,16 +20,12 @@ import time
 import abc, six
 import importlib
 import numpy as np
-from common import special_op_list
 
-if six.PY3:
-    from . import utils
-    from . import api_param
-    from . import feeder
-else:
-    import utils
-    import api_param
-    import feeder
+from common import utils
+from common import api_param
+from common import feeder
+from common import special_op_list
+from common.paddle_api_benchmark import profile_context
 
 try:
     import paddle
@@ -153,10 +149,11 @@ class PaddleDynamicAPIBenchmarkBase(object):
         fetches = []
 
         self._status = IN_RUN
-        for i in range(repeat):
-            begin = time.time()
-            outputs = _run_main_iter()
-            runtimes.append(time.time() - begin)
+        with profile_context(self.name, use_gpu, profiler):
+            for i in range(repeat):
+                begin = time.time()
+                outputs = _run_main_iter()
+                runtimes.append(time.time() - begin)
 
         self._status = AFTER_RUN
         stats = {
