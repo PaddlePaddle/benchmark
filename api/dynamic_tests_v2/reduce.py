@@ -44,8 +44,14 @@ class PDReduce(PaddleDynamicAPIBenchmarkBase):
 class TorchReduce(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(
-            config.api_name, input=x, dim=config.axis, keepdim=config.keepdim)
+        if len(config.axis) == 0:
+            result = self.layers(config.api_name, input=x)
+        else:
+            result = self.layers(
+                config.api_name,
+                input=x,
+                dim=config.axis,
+                keepdim=config.keepdim)
 
         self.feed_list = [x]
         self.fetch_list = [result]

@@ -17,35 +17,37 @@ from common_import import *
 
 class PDAddN(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        # test for cases that have only two inputs
-        x0 = self.variable(
-            name="input0",
-            shape=config.inputs_shape[0],
-            dtype=config.inputs_dtype[0])
-        x1 = self.variable(
-            name="input1",
-            shape=config.inputs_shape[1],
-            dtype=config.inputs_dtype[1])
+        inputs = []
+        for i in range(len(config.inputs_shape)):
+            input_i = self.variable(
+                name='input_' + str(i),
+                shape=config.inputs_shape[i],
+                dtype=config.inputs_dtype[i])
+            inputs.append(input_i)
+        result = paddle.add_n(inputs=inputs)
 
-        result = paddle.add_n(inputs=[x0, x1])
-
-        self.feed_list = [x0, x1]
+        self.feed_list = inputs
         self.fetch_list = [result]
 
 
 class TorchAddN(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x0 = self.variable(
-            name="input0",
+        input_list = []
+        input_0 = self.variable(
+            name='input_' + str(0),
             shape=config.inputs_shape[0],
             dtype=config.inputs_dtype[0])
-        x1 = self.variable(
-            name="input1",
-            shape=config.inputs_shape[1],
-            dtype=config.inputs_dtype[1])
-        result = torch.add(x0, x1)
+        result = input_0
+        input_list.append(input_0)
+        for i in range(1, len(config.inputs_shape)):
+            input_i = self.variable(
+                name='input_' + str(i),
+                shape=config.inputs_shape[i],
+                dtype=config.inputs_dtype[i])
+            result = torch.add(result, input_i)
+            input_list.append(input_i)
 
-        self.feed_list = [x0, x1]
+        self.feed_list = input_list
         self.fetch_list = [result]
 
 
