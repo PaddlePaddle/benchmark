@@ -26,6 +26,8 @@ class DepthwiseConv2dConfig(Conv2dConfig):
         assert self.get_in_channels() == self.groups and self.get_out_channels(
         ) % self.get_in_channels() == 0
 
+        #self.convert_to_fp16()
+
 
 if __name__ == '__main__':
     test_main(

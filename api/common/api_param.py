@@ -226,6 +226,11 @@ class APIConfig(object):
             return True
         return False
 
+    def convert_to_fp16(self):
+        for name, value in vars(self).items():
+            if name.endswith("_dtype") and value != "float16":
+                setattr(self, name, "float16")
+
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         filename = self.alias_filename(filename)
 

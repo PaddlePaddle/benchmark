@@ -22,14 +22,17 @@ class BatchNormConfig(APIConfig):
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(BatchNormConfig, self).init_from_json(filename, config_id,
                                                     unknown_dim)
+        # num_channels
         if len(self.x_shape) == 4:
-            if self.data_format == "NCHW":
-                self.num_channels = self.x_shape[1]
-            else:
-                self.num_channels = self.x_shape[3]
+            self.num_channels = self.x_shape[
+                1] if self.data_format == "NCHW" else self.x_shape[3]
         else:
             self.num_channels = self.x_shape[1]
 
+        #self.convert_to_fp16()
+
+        # dtype of parameters
+        self.param_dtype = "float32" if self.x_dtype == "float16" else self.x_dtype
         if self.data_format == 'NHWC':
             print(
                 "Warning:\n"
@@ -42,23 +45,25 @@ class PDBatchNorm(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
-            name='weight', shape=[config.num_channels], dtype=config.x_dtype)
+            name='weight',
+            shape=[config.num_channels],
+            dtype=config.param_dtype)
         bias = self.variable(
-            name='bias', shape=[config.num_channels], dtype=config.x_dtype)
+            name='bias', shape=[config.num_channels], dtype=config.param_dtype)
 
         running_mean = paddle.create_parameter(
             name='running_mean',
             shape=[config.num_channels],
-            dtype=config.x_dtype,
+            dtype=config.param_dtype,
             attr=paddle.ParamAttr(
-                initializer=paddle.nn.initializer.Constant(0.5)))
+                initializer=paddle.nn.initializer.Constant(0)))
         running_mean.stop_gradient = True
         running_var = paddle.create_parameter(
             name='running_var',
             shape=[config.num_channels],
-            dtype=config.x_dtype,
+            dtype=config.param_dtype,
             attr=paddle.ParamAttr(
-                initializer=paddle.nn.initializer.Constant(0.1)))
+                initializer=paddle.nn.initializer.Constant(1)))
         running_var.stop_gradient = True
 
         result = paddle.nn.functional.batch_norm(
@@ -82,9 +87,11 @@ class TorchBatchNorm(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
-            name='weight', shape=[config.num_channels], dtype=config.x_dtype)
+            name='weight',
+            shape=[config.num_channels],
+            dtype=config.param_dtype)
         bias = self.variable(
-            name='bias', shape=[config.num_channels], dtype=config.x_dtype)
+            name='bias', shape=[config.num_channels], dtype=config.param_dtype)
 
         running_mean = torch.zeros([config.num_channels]).cuda()
         running_var = torch.ones([config.num_channels]).cuda()
