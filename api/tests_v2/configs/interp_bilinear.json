@@ -148,29 +148,4 @@
             "value": "None"
         }
     }
-}, {
-    "op": "interp_bilinear",
-    "param_info": {
-        "align_corners": {
-            "type": "bool",
-            "value": "True"
-        },
-        "data_format": {
-            "type": "string",
-            "value": "NCHW"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[2, 18, 64, 128]",
-            "type": "Variable"
-        },
-        "size": {
-            "type": "string",
-            "value": "None"
-        },
-        "scale_factor": {
-            "type": "list",
-            "value": "[2, 2]"
-        }
-    }
 }]
