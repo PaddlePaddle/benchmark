@@ -81,10 +81,13 @@ class TorchBatchNorm(PytorchAPIBenchmarkBase):
         bias = self.variable(
             name='bias', shape=[config.num_channels], dtype=config.x_dtype)
 
+        device = torch.device("cuda" if use_gpu() and torch.cuda.is_available()
+                              else "cpu")
         if not hasattr(self, "running_mean") or self.running_mean is None:
-            self.running_mean = torch.zeros([config.num_channels]).cuda()
-        if not hasattr(self, "running_var") and self.running_var is None:
-            self.running_var = torch.ones([config.num_channels]).cuda()
+            self.running_mean = torch.zeros(
+                [config.num_channels], device=device)
+        if not hasattr(self, "running_var") or self.running_var is None:
+            self.running_var = torch.ones([config.num_channels], device=device)
 
         result = torch.nn.functional.batch_norm(
             input=x,
