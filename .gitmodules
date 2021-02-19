@@ -66,3 +66,7 @@
 	path = PaddleClas
 	url = https://github.com/PaddlePaddle/PaddleClas.git
 	branch = dygraph-dev
+[submodule "PaddleNLP"]
+	path = PaddleNLP
+	url = https://github.com/PaddlePaddle/PaddleNLP.git
+	branch = develop

@@ -79,7 +79,7 @@ dy_ptb_lm(){
 dy_transformer(){
     echo "###########pip install paddlenlp"
     pip install paddlenlp attrdict
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/benchmark/transformer/dygraph
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/benchmark/transformer/dygraph
     cd ${cur_model_path}
     # prepare data
     mkdir -p ~/.paddlenlp/datasets/machine_translation
@@ -383,7 +383,7 @@ dy_resnet(){
 
 # lac
 dy_lac(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/examples/lexical_analysis
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/lexical_analysis
     cd ${cur_model_path}
 
     # Prepare data
