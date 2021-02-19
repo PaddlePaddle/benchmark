@@ -1,0 +1,74 @@
+[{
+    "op": "adaptive_avg_pool2d",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[4L, 2048L, 64L, 64L]",
+            "type": "Variable"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "output_size": {
+            "type": "list",
+            "value": "[1L, 1L]"
+        }
+    },
+    "repeat": 5000
+},{
+    "op": "adaptive_avg_pool2d",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[4L, 64L, 128L, 2048L]",
+            "type": "Variable"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "output_size": {
+            "type": "list",
+            "value": "[1L, 1L]"
+        }
+    },
+    "repeat": 5000
+},{
+    "op": "adaptive_avg_pool2d",
+    "param_info": {
+        "x": {
+            "dtype": "float16",
+            "shape": "[1L, 1L, 64L, 64L]",
+            "type": "Variable"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "output_size": {
+            "type": "list",
+            "value": "[1L, 1L]"
+        }
+    },
+    "repeat": 5000
+},{
+    "op": "adaptive_avg_pool2d",
+    "param_info": {
+        "x": {
+            "dtype": "float16",
+            "shape": "[4L, 64L, 128L, 2048L]",
+            "type": "Variable"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "output_size": {
+            "type": "list",
+            "value": "[1L, 1L]"
+        }
+    },
+    "repeat": 5000
+
+}]
