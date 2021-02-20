@@ -52,9 +52,7 @@ function prepare(){
     rm /etc/apt/sources.list
     cp ${all_path}/sources.list /etc/apt
     apt-get update
-    apt-get install libmysqlclient-dev -y
-    apt-get install git -y
-    apt-get install curl psmisc -y
+    apt-get install libmysqlclient-dev git curl psmisc -y
     pip install MySQL-python
 
 
