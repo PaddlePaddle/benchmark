@@ -126,6 +126,7 @@ def parse_args():
         args.profiler = "none"
 
     _check_gpu_device(args.use_gpu)
+    print(args)
     return args
 
 

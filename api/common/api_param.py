@@ -191,8 +191,7 @@ class APIConfig(object):
         """
         if hasattr(self, "alias_name") and self.alias_name is not None:
             dirname = os.path.dirname(filename)
-            basename = os.path.basename(filename)
-            basename = basename.replace(self.name, self.alias_name)
+            basename = self.alias_name + os.path.splitext(filename)[-1]
             return os.path.join(dirname, basename)
         return filename
 

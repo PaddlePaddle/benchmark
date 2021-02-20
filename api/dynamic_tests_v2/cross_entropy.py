@@ -18,26 +18,44 @@ from common_import import *
 class CrossEntropyConfig(APIConfig):
     def __init__(self):
         super(CrossEntropyConfig, self).__init__("cross_entropy")
+        self.alias_name = "softmax_with_cross_entropy"
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(CrossEntropyConfig, self).init_from_json(filename, config_id,
                                                        unknown_dim)
-        input_rank = len(self.input_shape)
-        self.num_classes = self.input_shape[input_rank - 1]
         self.feed_spec = [
             {
                 "range": [0, 1]
             },  # input
             {
-                "range": [0, self.num_classes]
+                "range": [0, self.logits_shape[-1]]
             }  # label
         ]
+
+        if self.soft_label:
+            print(
+                "Warning:\n"
+                "  1. PyTorch does not have soft_label param, it only support hard label.\n"
+            )
+            self.run_torch = False
+
+        if not hasattr(self, "reduction"):
+            self.reduction = "none"
+        if not hasattr(self, "axis"):
+            self.axis = -1
+
+    def to_pytorch(self):
+        torch_config = super(CrossEntropyConfig, self).to_pytorch()
+        if self.label_shape[-1] == 1:
+            label_rank = len(self.label_shape)
+            torch_config.label_shape = self.label_shape[0:label_rank - 1]
+        return torch_config
 
 
 class PDCrossEntropy(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
-            name="input", shape=config.input_shape, dtype=config.input_dtype)
+            name="input", shape=config.logits_shape, dtype=config.logits_dtype)
         label = self.variable(
             name="label",
             shape=config.label_shape,
@@ -61,7 +79,7 @@ class PDCrossEntropy(PaddleDynamicAPIBenchmarkBase):
 class TorchCrossEntropy(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
-            name="input", shape=config.input_shape, dtype=config.input_dtype)
+            name="input", shape=config.logits_shape, dtype=config.logits_dtype)
         label = self.variable(
             name='label', shape=config.label_shape, dtype=config.label_dtype)
         result = torch.nn.functional.cross_entropy(
