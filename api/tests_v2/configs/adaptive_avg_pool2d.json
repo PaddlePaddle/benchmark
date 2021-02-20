@@ -3,7 +3,7 @@
     "param_info": {
         "x": {
             "dtype": "float32",
-            "shape": "[4L, 2048L, 64L, 64L]",
+            "shape": "[4L, 2048L, 64L, 128L]",
             "type": "Variable"
         },
         "data_format": {
@@ -16,12 +16,12 @@
         }
     },
     "repeat": 5000
-},{
+}, {
     "op": "adaptive_avg_pool2d",
     "param_info": {
         "x": {
             "dtype": "float16",
-            "shape": "[1L, 1L, 64L, 64L]",
+            "shape": "[4L, 2048L, 64L, 128L]",
             "type": "Variable"
         },
         "data_format": {
