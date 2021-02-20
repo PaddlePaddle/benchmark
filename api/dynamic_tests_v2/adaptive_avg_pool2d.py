@@ -13,18 +13,18 @@
 # limitations under the License.
 
 from common_import import *
-import paddle
+
 
 class AdaptiveAvgPool2dConfig(APIConfig):
     def __init__(self):
         super(AdaptiveAvgPool2dConfig, self).__init__("adaptive_avg_pool2d")
 
+
 class PaddleAdaptiveAvgPool2D(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         adaptive_avg_pool2d = paddle.nn.AdaptiveAvgPool2D(
-            output_size=config.output_size,
-            data_format=config.data_format)
+            output_size=config.output_size, data_format=config.data_format)
         result = adaptive_avg_pool2d(x)
 
         self.feed_list = [x]
@@ -32,10 +32,12 @@ class PaddleAdaptiveAvgPool2D(PaddleDynamicAPIBenchmarkBase):
         if config.backward:
             self.append_gradients(result, [x])
 
+
 class TorchAdaptiveAvgPool2D(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        adaptiveavgpool2d = torch.nn.AdaptiveAvgPool2d(output_size=config.output_size)
+        adaptiveavgpool2d = torch.nn.AdaptiveAvgPool2d(
+            output_size=config.output_size)
         result = adaptiveavgpool2d(x)
         self.feed_list = [x]
         self.fetch_list = [result]
