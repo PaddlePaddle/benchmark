@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from common_import import *
-import paddle
 
 class AdaptiveAvgPool2dConfig(APIConfig):
     def __init__(self):
