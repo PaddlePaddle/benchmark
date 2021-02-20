@@ -49,8 +49,8 @@ function _train(){
                -o epochs=${max_epoch}
                -o print_interval=10
                -o TRAIN.batch_size=${batch_size}
-               -o TRAIN.data_dir=./dataset/dataset_100
-               -o TRAIN.file_list=./dataset/dataset_100/train_list_mobile.txt
+               -o TRAIN.data_dir=./dataset/imagenet100_data
+               -o TRAIN.file_list=./dataset/imagenet100_data/train_list_ori.txt
                -o TRAIN.num_workers=8"
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u tools/train.py "${train_cmd}

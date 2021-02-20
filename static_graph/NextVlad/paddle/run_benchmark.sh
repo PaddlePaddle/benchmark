@@ -24,7 +24,7 @@ function _set_params(){
     keyword="ips:"             # 解析日志，筛选出数据所在行的关键字                                            （必填）
     skip_steps=1                      # 解析日志，有些模型前几个step耗时长，需要跳过                                  （必>填）
     model_mode=-1 # s/step -> samples/s
-    ips_unit="samples/sec"
+    ips_unit="samples/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
