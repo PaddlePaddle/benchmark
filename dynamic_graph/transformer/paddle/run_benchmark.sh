@@ -25,7 +25,7 @@ function _set_params(){
     skip_steps=3
     keyword="avg_speed:"
     separator=" "
-    position=17
+    position=20
     model_mode=1 # steps/s -> steps/s
 
     device=${CUDA_VISIBLE_DEVICES//,/ }

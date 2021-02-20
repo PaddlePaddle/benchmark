@@ -27,11 +27,9 @@ function _set_params(){
     mission_name="图像分类"
     direction_id=0
     skip_steps=11
-    keyword="INFO: epoch:"
-    separator=": "
-    position=6
-    range=1:7
-    model_mode=0 # s/step -> samples/s
+    keyword="ips:"
+    model_mode=-1
+    ips_unit="images/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)

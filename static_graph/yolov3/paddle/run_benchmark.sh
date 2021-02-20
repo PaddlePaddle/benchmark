@@ -1,6 +1,6 @@
 #!bin/bash
-set -xe
 
+set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
@@ -13,19 +13,17 @@ function _set_params(){
     run_mode=${2:-"sp"}
     max_iter=${3}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
-#    run_log_path=${5:-$(pwd)}
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     model_name="yolov3"
-    mission_name="目标检测"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
-    direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
-    skip_steps=5                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
-    keyword="batch_cost:"                  # 解析日志，筛选出数据所在行的关键字                                             (必填)
-    separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
-    position=11                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
-    model_mode=0                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
+    mission_name="目标检测"           # 模型所属任务名称，具体可参考scripts/config.ini                               （必填）
+    direction_id=0                    # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
+    skip_steps=5                      # 解析日志，有些模型前几个step耗时长，需要跳过                                  (必填)
+    keyword="ips:"                    # 解析日志，筛选出数据所在行的关键字                                            (必填)
+    model_mode=-1                     # 解析日志，具体参考scripts/analysis.py.                                        (必填)
+    ips_unit="images/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
