@@ -29,16 +29,25 @@ class BatchNormConfig(APIConfig):
         else:
             self.num_channels = self.x_shape[1]
 
-        #self.convert_to_fp16()
-
-        # dtype of parameters
-        self.param_dtype = "float32" if self.x_dtype == "float16" else self.x_dtype
+        self._set_param_dtype()
         if self.data_format == 'NHWC':
             print(
                 "Warning:\n"
                 "  1. PyTorch does not have data_format param, it only support NHWC format.\n"
             )
             self.run_torch = False
+
+    def _set_param_dtype(self):
+        # dtype of parameters
+        self.param_dtype = "float32" if self.x_dtype == "float16" else self.x_dtype
+
+    def convert_to_fp16(self):
+        super(BatchNormConfig, self).convert_to_fp16()
+        if self.data_format == "NHWC":
+            paddle.fluid.set_flags({
+                'FLAGS_cudnn_batchnorm_spatial_persistent': 1
+            })
+        self._set_param_dtype()
 
 
 class PDBatchNorm(PaddleDynamicAPIBenchmarkBase):
