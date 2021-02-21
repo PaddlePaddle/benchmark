@@ -1,4 +1,5 @@
 [{
+    "config_id": 0,
     "op": "interp_bilinear",
     "param_info": {
         "align_corners": {
@@ -24,6 +25,7 @@
         }
     }
 }, {
+    "config_id": 1,
     "op": "interp_bilinear",
     "param_info": {
         "align_corners": {
