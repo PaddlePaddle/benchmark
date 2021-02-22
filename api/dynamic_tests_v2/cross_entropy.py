@@ -46,9 +46,17 @@ class CrossEntropyConfig(APIConfig):
 
     def to_pytorch(self):
         torch_config = super(CrossEntropyConfig, self).to_pytorch()
+        logits_rank = len(self.logits_shape)
+        if logits_rank != 2:
+            torch_config.logits_shape = [
+                np.prod(self.logits_shape[0:logits_rank - 1]),
+                self.logits_shape[-1]
+            ]
         if self.label_shape[-1] == 1:
             label_rank = len(self.label_shape)
-            torch_config.label_shape = self.label_shape[0:label_rank - 1]
+            torch_config.label_shape = [
+                np.prod(self.label_shape[0:label_rank - 1])
+            ]
         return torch_config
 
 
