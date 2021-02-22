@@ -286,7 +286,7 @@
             "value": "(2, 1)"
         }
     },
-    "atol": 0.01
+    "atol": 0.1
 }, {
     "config_id": 8,
     "op": "conv2d",
