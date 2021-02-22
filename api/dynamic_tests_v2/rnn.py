@@ -19,6 +19,19 @@ class RnnConfig(APIConfig):
     def __init__(self):
         super(RnnConfig, self).__init__("rnn")
 
+    def to_pytorch(self):
+        torch_config = super(RnnConfig, self).to_pytorch()
+        dtype_map = {
+            "float16": torch.float16,
+            "float32": torch.float32,
+            "float64": torch.float64,
+            "int32": torch.int32,
+            "int64": torch.int64,
+            "bool": torch.bool
+        }
+        torch_config.init_h_dtype = dtype_map[self.init_h_dtype]
+        return torch_config
+
 
 class PDRnn(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
@@ -43,21 +56,12 @@ class PDRnn(PaddleDynamicAPIBenchmarkBase):
 
 class TorchRnn(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        dtype_map = {
-            "float16": torch.float16,
-            "float32": torch.float32,
-            "float64": torch.float64,
-            "int32": torch.int32,
-            "int64": torch.int64,
-            "bool": torch.bool
-        }
         config.input_shape = [
             config.input_shape[1], config.input_shape[0], config.input_shape[2]
         ]
         input = self.variable(
             name="input", shape=config.input_shape, dtype=config.input_dtype)
-        tensor_h = torch.empty(
-            config.init_h_shape, dtype=dtype_map[config.init_h_dtype])
+        tensor_h = torch.empty(config.init_h_shape, dtype=config.init_h_dtype)
         init_h = torch.nn.init.constant_(tensor=tensor_h, val=0.0)
 
         rnn = torch.nn.RNN(config.input_shape[-1], config.hidden_size,

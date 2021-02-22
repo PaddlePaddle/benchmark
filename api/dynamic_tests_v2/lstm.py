@@ -21,9 +21,9 @@ class LstmConfig(APIConfig):
 
     def init_from_json(self, filename, config_id=0, unkown_dim=16):
         super(LstmConfig, self).init_from_json(filename, config_id, unkown_dim)
-        if self.is_bidirec:
-            self.init_h_shape[0] *= 2
-            self.init_c_shape[0] *= 2
+        if self.direction == "bidirect":
+            self.inital_states_shape[0] *= 2
+            self.inital_states_shape[0] *= 2
 
     def disabled(self):
         if not use_gpu():
@@ -36,38 +36,48 @@ class LstmConfig(APIConfig):
 
     def to_pytorch(self):
         torch_config = super(LstmConfig, self).to_pytorch()
-        torch_config.input_shape = [
-            self.input_shape[1], self.input_shape[0], self.input_shape[2]
+        torch_config.inputs_shape = [
+            self.inputs_shape[1], self.inputs_shape[0], self.inputs_shape[2]
         ]
+
+        dtype_map = {
+            "float16": torch.float16,
+            "float32": torch.float32,
+            "float64": torch.float64,
+            "int32": torch.int32,
+            "int64": torch.int64,
+            "bool": torch.bool
+        }
+        torch_config.inital_states_dtype = dtype_map[self.inital_states_dtype]
+
+        torch_config.direction_type = "bool"
+        if self.direction == "forward":
+            torch_config.direction = False
+        else:
+            torch_config.direction = True
         return torch_config
 
 
 class PDLstm(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        # The new LSTM API accepts direction as str type
-        if config.is_bidirec:
-            direct = "bidirectional"
-        else:
-            direct = "forward"
-
         input = self.variable(
-            name="input", shape=config.input_shape, dtype=config.input_dtype)
+            name="input", shape=config.inputs_shape, dtype=config.inputs_dtype)
 
         init_h = paddle.full(
-            shape=config.init_h_shape,
-            dtype=config.init_h_dtype,
+            shape=config.inital_states_shape,
+            dtype=config.inital_states_dtype,
             fill_value=0.0)
         init_c = paddle.full(
-            shape=config.init_c_shape,
-            dtype=config.init_c_dtype,
+            shape=config.inital_states_shape,
+            dtype=config.inital_states_dtype,
             fill_value=0.0)
 
         rnn = paddle.nn.LSTM(
-            input_size=config.input_shape[-1],
+            input_size=config.inputs_shape[-1],
             hidden_size=config.hidden_size,
             num_layers=config.num_layers,
             dropout=0.0,
-            direction=direct)
+            direction=config.direction)
 
         rnn_out, (last_h, last_c) = rnn(input, (init_h, init_c))
 
@@ -77,32 +87,24 @@ class PDLstm(PaddleDynamicAPIBenchmarkBase):
 
 class TorchLstm(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        dtype_map = {
-            "float16": torch.float16,
-            "float32": torch.float32,
-            "float64": torch.float64,
-            "int32": torch.int32,
-            "int64": torch.int64,
-            "bool": torch.bool
-        }
         input = self.variable(
-            name="input", shape=config.input_shape, dtype=config.input_dtype)
+            name="input", shape=config.inputs_shape, dtype=config.inputs_dtype)
 
         tensor_h = torch.empty(
-            config.init_h_shape, dtype=dtype_map[config.init_h_dtype])
+            config.inital_states_shape, dtype=config.inital_states_dtype)
         init_h = torch.nn.init.constant_(tensor=tensor_h, val=0.0)
 
         tensor_c = torch.empty(
-            config.init_c_shape, dtype=dtype_map[config.init_c_dtype])
+            config.inital_states_shape, dtype=config.inital_states_dtype)
         init_c = torch.nn.init.constant_(tensor=tensor_c, val=0.0)
 
         rnn = torch.nn.LSTM(
-            input_size=config.input_shape[-1],
+            input_size=config.inputs_shape[-1],
             hidden_size=config.hidden_size,
             num_layers=config.num_layers,
             dropout=0.0,
             batch_first=False,
-            bidirectional=config.is_bidirec)
+            bidirectional=config.direction)
         # move model and input to cuda device
         if torch.cuda.is_available():
             rnn.cuda()

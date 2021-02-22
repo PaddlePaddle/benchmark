@@ -1,22 +1,17 @@
 [{
     "op": "lstm",
     "param_info": {
-        "input": {
+        "inputs": {
             "dtype": "float32",
             "shape": "[20L, 20L, 200L]",
             "type": "Variable"
         },
-        "init_h": {
+        "inital_states": {
             "dtype": "float32",
             "shape": "[2L, 20L, 200L]",
             "type": "Variable"
         },
-        "init_c": {
-            "dtype": "float32",
-            "shape": "[2L, 20L, 200L]",
-            "type": "Variable"
-        },
-        "max_len": {
+        "sequence_length": {
             "type": "int",
             "value": "20"
         },
@@ -28,9 +23,9 @@
             "type": "int",
             "value": "2"
         },
-        "is_bidirec": {
-            "type": "bool",
-            "value": "False"
+        "direction": {
+            "type": "string",
+            "value": "forward"
         }
     },
     "atol": 1
