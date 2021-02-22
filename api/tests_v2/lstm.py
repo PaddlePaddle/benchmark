@@ -32,30 +32,24 @@ class LstmConfig(APIConfig):
 
 class PDLstm(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        # The new LSTM API accepts direction as str type
-        if config.is_bidirec:
-            direct = "bidirectional"
-        else:
-            direct = "forward"
-
         input = self.variable(
-            name="input", shape=config.input_shape, dtype=config.input_dtype)
+            name="input", shape=config.inputs_shape, dtype=config.inputs_dtype)
 
         init_h = paddle.full(
-            shape=config.init_h_shape,
-            dtype=config.init_h_dtype,
+            shape=config.inital_states_shape,
+            dtype=config.inital_states_dtype,
             fill_value=0.0)
         init_c = paddle.full(
-            shape=config.init_c_shape,
-            dtype=config.init_c_dtype,
+            shape=config.inital_states_shape,
+            dtype=config.inital_states_dtype,
             fill_value=0.0)
 
         rnn = paddle.nn.LSTM(
-            input_size=config.input_shape[-1],
+            input_size=config.inputs_shape[-1],
             hidden_size=config.hidden_size,
             num_layers=config.num_layers,
             dropout=0.0,
-            direction=direct)
+            direction=config.direction)
 
         rnn_out, (last_h, last_c) = rnn(input, (init_h, init_c))
 
@@ -66,15 +60,15 @@ class PDLstm(PaddleAPIBenchmarkBase):
 class TFLstm(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
-            name="input", shape=config.input_shape, dtype=config.input_dtype)
+            name="input", shape=config.inputs_shape, dtype=config.inputs_dtype)
 
         init_h = tf.constant(
-            shape=config.init_h_shape,
-            dtype=tf.as_dtype(config.init_h_dtype),
+            shape=config.inital_states_shape,
+            dtype=tf.as_dtype(config.inital_states_dtype),
             value=0.0)
         init_c = tf.constant(
-            shape=config.init_c_shape,
-            dtype=tf.as_dtype(config.init_c_dtype),
+            shape=config.inital_states_shape,
+            dtype=tf.as_dtype(config.inital_states_dtype),
             value=0.0)
 
 
