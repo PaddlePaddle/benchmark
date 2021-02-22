@@ -1,0 +1,528 @@
+[{
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[64, 3, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[64, 3, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[64, 64, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[64, 64, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[64, 64, 1, 1]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[64, 64, 1, 1]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[256, 64, 1, 1]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[256, 64, 1, 1]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[256]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[256]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[64, 256, 1, 1]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[64, 256, 1, 1]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[64]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[64]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[18, 256, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[18, 256, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[36, 256, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[36, 256, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[36]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[36]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[18, 18, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[18, 18, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[18]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[18]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[36, 36, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[36, 36, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[18, 36, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[18, 36, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[36, 18, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[36, 18, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[72, 72, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[72, 72, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[72]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[72]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[18, 72, 1, 1]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[18, 72, 1, 1]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[72, 18, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[72, 18, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[72, 36, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[72, 36, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[36,72, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[36,72, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[72,72, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[72,72, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[144, 144, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[144, 144, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[144]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[144]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[72, 144, 1, 1]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[72, 144, 1, 1]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[144, 18, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[144, 18, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[18, 144, 1, 1]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[18, 144, 1, 1]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[36, 144, 1,1]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[36, 144, 1,1]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[144, 72, 3, 3]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[144, 72, 3, 3]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[72]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[72]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float32",
+                "shape": "[270,270,1,1]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float32",
+                "shape": "[270,270,1,1]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}]

@@ -15,25 +15,17 @@
 from common_import import *
 
 
-class ReduceConfig(APIConfig):
+class AdaptiveAvgPool2dConfig(APIConfig):
     def __init__(self):
-        super(ReduceConfig, self).__init__('reduce')
-        self.feed_spec = {"range": [-1, 1]}
-        self.api_name = 'sum'
-        self.api_list = {'sum': 'sum', 'mean': 'mean'}
-
-    def init_from_json(self, filename, config_id=3, unknown_dim=16):
-        super(ReduceConfig, self).init_from_json(filename, config_id,
-                                                 unknown_dim)
-        if self.axis == None:
-            self.axis = []
+        super(AdaptiveAvgPool2dConfig, self).__init__("adaptive_avg_pool2d")
 
 
-class PDReduce(PaddleDynamicAPIBenchmarkBase):
+class PaddleAdaptiveAvgPool2D(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(
-            config.api_name, x=x, axis=config.axis, keepdim=config.keepdim)
+        adaptive_avg_pool2d = paddle.nn.AdaptiveAvgPool2D(
+            output_size=config.output_size, data_format=config.data_format)
+        result = adaptive_avg_pool2d(x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -41,18 +33,12 @@ class PDReduce(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchReduce(PytorchAPIBenchmarkBase):
+class TorchAdaptiveAvgPool2D(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        if len(config.axis) == 0:
-            result = self.layers(config.api_name, input=x)
-        else:
-            result = self.layers(
-                config.api_name,
-                input=x,
-                dim=config.axis,
-                keepdim=config.keepdim)
-
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        adaptiveavgpool2d = torch.nn.AdaptiveAvgPool2d(
+            output_size=config.output_size)
+        result = adaptiveavgpool2d(x)
         self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
@@ -61,4 +47,6 @@ class TorchReduce(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDReduce(), torch_obj=TorchReduce(), config=ReduceConfig())
+        pd_dy_obj=PaddleAdaptiveAvgPool2D(),
+        torch_obj=TorchAdaptiveAvgPool2D(),
+        config=AdaptiveAvgPool2dConfig())
