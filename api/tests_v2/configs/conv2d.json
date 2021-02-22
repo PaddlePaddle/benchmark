@@ -249,7 +249,7 @@
             "value": "2"
         }
     },
-    "atol": 0.01,
+    "atol": 0.05,
     "repeat": 2000
 }, {
     "config_id": 7,
