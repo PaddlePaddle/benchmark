@@ -40,7 +40,7 @@ function _set_params(){
 }
 
 function _set_env(){
-    export FLAGS_conv_workspace_size_limit=4000 #MB
+    export FLAGS_conv_workspace_size_limit=1500 #MB
     export FLAGS_cudnn_exhaustive_search=1
     export FLAGS_cudnn_batchnorm_spatial_persistent=1
     export FLAGS_fraction_of_gpu_memory_to_use=0.8
