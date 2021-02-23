@@ -322,7 +322,7 @@
             "value": "2"
         }
     },
-    "atol": 1E-4
+    "atol": 0.01
 }, {
     "config_id": 9,
     "op": "conv2d",
@@ -357,7 +357,8 @@
             "type": "int",
             "value": "1"
         }
-    }
+    },
+    "atol": 1E-4
 }, {
     "config_id": 10,
     "op": "conv2d",
@@ -429,5 +430,5 @@
             "value": "(1, 1)"
         }
     },
-    "atol": 0.001
+    "atol": 0.01
 }]
