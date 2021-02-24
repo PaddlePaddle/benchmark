@@ -31,11 +31,12 @@ function _set_params(){
     num_gpu_devices=${#arr[*]}
 
     # if [[ ${index} -eq 6 ]]; then base_batch_size=78; else base_batch_size=32; fi
-    if [[ ${model_type} = "base" ]]; then base_batch_size=32; else base_batch_size=8; fi
     if [[ ${fp_mode} = "fp16" ]]; then
         use_amp=True
+        base_batch_size=32
     elif [[ ${fp_mode} = "fp32" ]]; then
         use_amp=False
+        base_batch_size=64
     else
         echo "fp_mode should be fp32 or fp16"
         exit 1
@@ -47,13 +48,6 @@ function _set_params(){
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 
-}
-
-function _set_env(){
-    export FLAGS_cudnn_deterministic=true
-    export FLAGS_enable_parallel_graph=0
-    export FLAGS_eager_delete_tensor_gb=0.0
-    export FLAGS_fraction_of_gpu_memory_to_use=1.0
 }
 
 function _train(){
@@ -100,5 +94,4 @@ function _train(){
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
 _set_params $@
-_set_env
 _run
