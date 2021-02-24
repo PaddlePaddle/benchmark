@@ -33,10 +33,10 @@ function _set_params(){
     # if [[ ${index} -eq 6 ]]; then base_batch_size=78; else base_batch_size=32; fi
     if [[ ${fp_mode} = "fp16" ]]; then
         use_amp=True
-        base_batch_size=32
+        base_batch_size=64
     elif [[ ${fp_mode} = "fp32" ]]; then
         use_amp=False
-        base_batch_size=64
+        base_batch_size=32
     else
         echo "fp_mode should be fp32 or fp16"
         exit 1
