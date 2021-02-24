@@ -41,6 +41,7 @@ function _set_params(){
         echo "fp_mode should be fp32 or fp16"
         exit 1
     fi
+    if [[ ${model_type} = "large" ]]; then base_batch_size=8; fi
     batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
