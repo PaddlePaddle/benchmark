@@ -1,4 +1,5 @@
 [{
+    "config_id": 0,
     "op": "depthwise_conv2d",
     "param_info": {
         "data_format": {
@@ -31,8 +32,10 @@
             "type": "int",
             "value": "1"
         }
-    }
+    },
+    "atol": 1E-4
 }, {
+    "config_id": 1,
     "op": "depthwise_conv2d",
     "param_info": {
         "data_format": {
@@ -65,8 +68,10 @@
             "type": "int",
             "value": "1"
         }
-    }
+    },
+    "atol": 0.01
 }, {
+    "config_id": 2,
     "op": "depthwise_conv2d",
     "param_info": {
         "data_format": {
@@ -99,5 +104,6 @@
             "type": "int",
             "value": "2"
         }
-    }
+    },
+    "atol": 0.05
 }]
