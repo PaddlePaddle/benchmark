@@ -23,10 +23,9 @@ function _set_params(){
     mission_name="机器翻译"
     direction_id=1
     skip_steps=3
-    keyword="avg_speed:"
-    separator=" "
-    position=17
-    model_mode=1 # steps/s -> steps/s
+    keyword="ips:"
+    model_mode=-1
+    ips_unit="words/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
