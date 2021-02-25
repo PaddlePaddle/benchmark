@@ -29,12 +29,12 @@
         },
         "label": {
             "dtype": "int64",
-            "shape": "[-1L, 1L]",
+            "shape": "[8L, 512L, 1024L, 1L]",
             "type": "Variable"
         },
         "logits": {
-            "dtype": "float16",
-            "shape": "[-1L, 3L]",
+            "dtype": "float32",
+            "shape": "[8L, 512L, 1024L, 19L]",
             "type": "Variable"
         },
         "soft_label": {

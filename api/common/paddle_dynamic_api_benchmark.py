@@ -48,7 +48,7 @@ class PaddleDynamicAPIBenchmarkBase(object):
     def build_graph(self, config=None):
         pass
 
-    def variable(self, name, shape, dtype, value=None):
+    def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         if self._status == BEFORE_RUN:
             if self._feed_values is not None and value is None:
                 i = len(self._feed_dict)
@@ -63,7 +63,7 @@ class PaddleDynamicAPIBenchmarkBase(object):
                     range = None
                 feed_value = feeder.generate_random_data(
                     shape, dtype, range=range, value=value)
-            var = paddle.to_tensor(feed_value, stop_gradient=False)
+            var = paddle.to_tensor(feed_value, stop_gradient=stop_gradient)
             self._feed_dict[name] = var
         else:
             var = self._feed_dict[name]
