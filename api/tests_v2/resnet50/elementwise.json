@@ -1,0 +1,96 @@
+[{
+    "config_id": "0",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 56L, 56L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 56L, 56L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "1",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 28L, 28L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 28L, 28L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "2",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L, 14L, 14L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L, 14L, 14L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "3",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, 7L, 7L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, 7L, 7L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "4",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1000L]",
+            "type": "Variable"
+        }
+    }
+}]

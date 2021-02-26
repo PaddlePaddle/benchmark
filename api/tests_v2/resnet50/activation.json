@@ -1,0 +1,122 @@
+[{
+    "config": "0",
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 64L, 112L, 112L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}, {
+    "config": "1",
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 64L, 56L, 56L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config": "2",
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 56L, 56L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config": "3",
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 56L, 56L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config": "4",
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 28L, 28L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config": "5",
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 28L, 28L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config": "6",
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 28L, 28L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config": "6",
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 14L, 14L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config": "7",
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L, 14L, 14L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config": "8",
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 14L, 14L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config": "9",
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 7L, 7L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config": "10",
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L, 7L, 7L]",
+            "type": "Variable"
+        }
+    }
+}]
