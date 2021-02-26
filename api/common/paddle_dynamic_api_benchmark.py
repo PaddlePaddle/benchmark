@@ -52,7 +52,8 @@ class PaddleDynamicAPIBenchmarkBase(object):
         if self._status == BEFORE_RUN:
             if self._feed_values is not None and value is None:
                 i = len(self._feed_dict)
-                feed_value = self._feed_values[i]
+                feed_value = feeder.check_shape_and_dtype(
+                    shape=shape, dtype=dtype, value=self._feed_values[i])
             else:
                 assert shape is not None
 
