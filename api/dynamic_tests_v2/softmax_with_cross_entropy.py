@@ -32,24 +32,31 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
             }  # label
         ]
 
-        if self.soft_label:
+        logits_rank = len(self.logits_shape)
+        if not hasattr(self, "axis") or self.axis == logits_rank - 1:
+            self.axis = -1
+
+        if self.soft_label or self.axis != -1:
             print(
                 "Warning:\n"
                 "  1. PyTorch does not have soft_label param, it only support hard label.\n"
             )
             self.run_torch = False
+        else:
+            if logits_rank != 2:
+                self.logits_shape = [
+                    np.prod(self.logits_shape[0:logits_rank - 1]),
+                    self.logits_shape[-1]
+                ]
 
-        if not hasattr(self, "axis"):
-            self.axis = -1
+            label_rank = len(self.label_shape)
+            if label_rank != 2:
+                self.label_shape = [
+                    np.prod(self.label_shape[0:label_rank - 1]), 1
+                ]
 
     def to_pytorch(self):
         torch_config = super(SoftmaxWithCrossEntropyConfig, self).to_pytorch()
-        logits_rank = len(self.logits_shape)
-        if logits_rank != 2:
-            torch_config.logits_shape = [
-                np.prod(self.logits_shape[0:logits_rank - 1]),
-                self.logits_shape[-1]
-            ]
         if self.label_shape[-1] == 1:
             label_rank = len(self.label_shape)
             torch_config.label_shape = [
