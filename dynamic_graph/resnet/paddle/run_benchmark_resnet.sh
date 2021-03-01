@@ -27,11 +27,9 @@ function _set_params(){
     if [ ${model_name} = "ResNet50_bs128" ] && [ ${run_mode} = "mp" ]; then
         skip_steps=3
     fi
-    keyword="INFO: epoch:"
-    separator=": "
-    position=6
-    range=1:7
-    model_mode=0 # s/step -> samples/s
+    keyword="ips:"
+    model_mode=-1
+    ips_unit="images/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)

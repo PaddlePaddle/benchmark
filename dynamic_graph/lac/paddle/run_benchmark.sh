@@ -23,11 +23,9 @@ function _set_params(){
     mission_name="词法分析"
     direction_id=1
     skip_steps=12
-    keyword="avg_batch_cost:"
-    separator=" "
-    position=20
-
-    model_mode=0 # steps/s -> steps/s
+    keyword="ips:"
+    model_mode=-1
+    ips_unit="samples/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -42,22 +40,12 @@ function _set_params(){
 }
 
 function _train(){
-    # 去掉test，当前实现里没有开关可以关闭或者修改
-    grep -q "#             eval_data=test_loader" ./train.py
-    if [ $? -eq 0 ]; then
-        echo "----------already addressed disable test after train"
-    else    
-        sed -i "s/             eval_data=test_loader,/#             eval_data=test_loader,/g" train.py
-        # 打开benchmark 输出，目前不支持参数配置，只可sed 修改
-        sed -i "103 a \    callback = paddle.callbacks.ProgBarLogger(log_freq=10, verbose=3)" train.py
-        sed -i "112 a \              callbacks=callback," train.py
-    fi
-
     train_cmd="--data_dir ./data
                --model_save_dir ./save_dir
                --epochs ${max_epoch}
                --batch_size ${batch_size}
-               --use_gpu True"
+               --do_eval False
+               --n_gpu=${num_gpu_devices}"
 
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u train.py "${train_cmd}

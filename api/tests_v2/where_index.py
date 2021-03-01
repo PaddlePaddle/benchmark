@@ -15,30 +15,28 @@
 from common_import import *
 
 
-class PDAssign(PaddleAPIBenchmarkBase):
+class PDWhereIndex(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         data = self.variable(
-            name='data', shape=config.input_shape, dtype=config.input_dtype)
-        result = paddle.assign(data)
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        # paddle.where invoke paddle.fluid.core.ops.where_index
+        value = paddle.fluid.layers.where(data)
 
         self.feed_vars = [data]
-        self.fetch_vars = [result]
+        self.fetch_vars = [value]
+        print(self.fetch_vars)
 
 
-class TFAssign(TensorflowAPIBenchmarkBase):
+class TFWhereIndex(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         data = self.variable(
-            name='data', shape=config.input_shape, dtype=config.input_dtype)
-        ref = self.variable(
-            name='target',
-            shape=config.input_shape,
-            dtype=config.input_dtype,
-            value=np.zeros(config.input_shape).astype(config.input_dtype))
-        result = ref.assign(data)
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        value = tf.where(data)
 
         self.feed_list = [data]
-        self.fetch_list = [result]
+        self.fetch_list = [value]
+        print(self.fetch_list)
 
 
 if __name__ == '__main__':
-    test_main(PDAssign(), TFAssign(), config=APIConfig("assign"))
+    test_main(PDWhereIndex(), TFWhereIndex(), config=APIConfig("where_index"))
