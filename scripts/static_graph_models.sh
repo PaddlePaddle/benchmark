@@ -452,7 +452,8 @@ mask_rcnn(){
 bert(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/benchmark/bert
     cd ${cur_model_path}
-    ln -s ${data_path}/Bert/wikicorpus_en/ ${cur_model_path}/
+    ln -s ${data_path}/Bert/hdf5_lower_case_1_seq_len_512_max_pred_80_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en_seqlen512 ${cur_model_path}/wikicorpus_en_seqlen512
+    ln -s ${data_path}/Bert/wikicorpus_en_seqlen128 ${cur_model_path}/wikicorpus_en_seqlen128
     cp ${BENCHMARK_ROOT}/static_graph/BERT/paddle/run_benchmark.sh ./run_benchmark.sh
     pip install paddlenlp
 
@@ -464,10 +465,10 @@ bert(){
         for fp_mode in ${fp_mode_list[@]}; do
             model_name="${FUNCNAME}_${model_mode}_${fp_mode}"
             echo "index is speed, 1gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 1500 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 500 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
             sleep 60
             echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp 800 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp 400 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
             sleep 60
         done
     done

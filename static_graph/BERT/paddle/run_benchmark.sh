@@ -18,7 +18,6 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
-    model_name="bert_${model_type}_${fp_mode}"
     mission_name="语义表示"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
     direction_id=1                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     skip_steps=10                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
@@ -31,17 +30,22 @@ function _set_params(){
     num_gpu_devices=${#arr[*]}
 
     # if [[ ${index} -eq 6 ]]; then base_batch_size=78; else base_batch_size=32; fi
+    seq_len="seqlen128"
+    if [[ ${model_type} = "large" ]]; then data_file="seqlen512"; fi
     if [[ ${fp_mode} = "fp16" ]]; then
         use_amp=True
         base_batch_size=64
+        if [[ ${model_type} = "large" ]]; then base_batch_size=4; fi
     elif [[ ${fp_mode} = "fp32" ]]; then
         use_amp=False
         base_batch_size=32
+        if [[ ${model_type} = "large" ]]; then base_batch_size=2; fi
     else
         echo "fp_mode should be fp32 or fp16"
         exit 1
     fi
-    if [[ ${model_type} = "large" ]]; then base_batch_size=8; fi
+    model_name="bert_${model_type}_${seq_len}_${fp_mode}_bs${base_batch_size}"
+    
     batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
@@ -62,8 +66,7 @@ function _train(){
                --logging_steps 1
                --save_steps 20000
                --max_steps ${max_iter}
-               --enable_addto True
-               --input_dir=./wikicorpus_en/
+               --input_dir=./wikicorpus_en_${seq_len}
                --model_type bert
                --model_name_or_path bert-${model_type}-uncased
                --batch_size ${batch_size}
@@ -71,9 +74,9 @@ function _train(){
     case ${run_mode} in
     sp) train_cmd="python -u run_pretrain_single.py "${train_cmd} ;;
     mp)
-        rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --gpus=$CUDA_VISIBLE_DEVICES run_pretrain.py "${train_cmd}
-        log_parse_file="mylog/workerlog.0" ;;
+        rm -rf ./mylog_${model_name}
+        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog_${model_name} --gpus=$CUDA_VISIBLE_DEVICES run_pretrain.py "${train_cmd}
+        log_parse_file="mylog_${model_name}/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
@@ -87,9 +90,9 @@ function _train(){
     fi
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 
-    if [ $run_mode = "mp" -a -d mylog ]; then
+    if [ $run_mode = "mp" -a -d mylog_${model_name} ]; then
         rm ${log_file}
-        cp mylog/workerlog.0 ${log_file}
+        cp mylog_${model_name}/workerlog.0 ${log_file}
     fi
 }
 
