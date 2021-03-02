@@ -31,7 +31,7 @@ function _set_params(){
 
     # if [[ ${index} -eq 6 ]]; then base_batch_size=78; else base_batch_size=32; fi
     seq_len="seqlen128"
-    if [[ ${model_type} = "large" ]]; then data_file="seqlen512"; fi
+    if [[ ${model_type} = "large" ]]; then seq_len="seqlen512"; fi
     if [[ ${fp_mode} = "fp16" ]]; then
         use_amp=True
         base_batch_size=64
@@ -46,7 +46,11 @@ function _set_params(){
     fi
     model_name="bert_${model_type}_${seq_len}_${fp_mode}_bs${base_batch_size}"
     
-    batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
+    if [ ${run_mode} == "sp" ]; then
+        batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
+    else
+        batch_size=${base_batch_size}
+    fi
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}
@@ -56,20 +60,22 @@ function _set_params(){
 }
 
 function _train(){
-
+    echo "model_type: ${model_type}, seq_len: ${seq_len}, fp_mode: ${fp_mode}, batch_size: ${batch_size}"
+    echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES}"
     train_cmd="--max_predictions_per_seq 20
                --learning_rate 1e-4
                --weight_decay 1e-2
                --adam_epsilon 1e-6
                --warmup_steps 10000
                --output_dir ./tmp2/
-               --logging_steps 1
+               --logging_steps 10
                --save_steps 20000
                --max_steps ${max_iter}
                --input_dir=./wikicorpus_en_${seq_len}
                --model_type bert
                --model_name_or_path bert-${model_type}-uncased
                --batch_size ${batch_size}
+               --enable_addto False
                --use_amp ${use_amp}"
     case ${run_mode} in
     sp) train_cmd="python -u run_pretrain_single.py "${train_cmd} ;;
