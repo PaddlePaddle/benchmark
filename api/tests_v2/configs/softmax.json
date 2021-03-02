@@ -16,11 +16,11 @@
     "param_info": {
         "axis": {
             "type": "int",
-            "value": "-1"
+            "value": "1"
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 16L, -1L, -1L]",
+            "shape": "[512L, 896L, 4L, 12L]",
             "type": "Variable"
         }
     }

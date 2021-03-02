@@ -1,0 +1,28 @@
+[{
+    "op": "where_index",
+    "param_info": {
+        "x": {
+            "dtype": "bool",
+            "shape": "[-1L, 100L, 100L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "where_index",
+    "param_info": {
+        "x": {
+            "dtype": "int32",
+            "shape": "[-1L, 10L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "where_index",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1000L]",
+            "type": "Variable"
+        }
+    }
+}]
