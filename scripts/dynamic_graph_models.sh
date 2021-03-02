@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_mobilenet)
+cur_model_list=(dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_mobilenet)
 
 
 # MobileNet
@@ -192,10 +192,8 @@ dy_slowfast(){
 }
 
 dy_mask_rcnn(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection/dygraph
     cd ${cur_model_path}
-    git checkout dygraph
-    git reset --hard 06e6afcf262ebd8cc843b7372e014a19ba4a2eca  # 动态图检测重构 
     pip install -r requirements.txt 
 
     # Install cocoapi
@@ -234,16 +232,16 @@ dy_mask_rcnn(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/mask_rcnn/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 600 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 500 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus begin, mp"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
 }
 
 dy_yolov3(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
-    git checkout dygraph
+    git checkout dygraph -f
     git reset --hard 06e6afcf262ebd8cc843b7372e014a19ba4a2eca  # 动态图检测重构 
     pip install -r requirements.txt
    
