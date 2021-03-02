@@ -47,7 +47,7 @@
 | `pytorch` | resnet50_bs32 | https://github.com/phlrain/example.git |
 | `pytorch` | cyclegan | https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix.git |
 | `pytorch` | Pix2pix | https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix.git |
-| `pytorch` | transformer | https://github.com/phlrain/example.git |
+| `pytorch` | transformer |https://github.com/FrostML/DeepLearningExamples/tree/benchmark/PyTorch/Translation/Transformer.git | 
 | `pytorch` | seq2seq | https://github.com/phlrain/example.git |
 | `pytorch` | ptb | https://github.com/phlrain/example.git |
 | `pytorch` | mask_rcnn | https://github.com/facebookresearch/Detectron.git |
