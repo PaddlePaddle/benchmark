@@ -450,7 +450,7 @@ mask_rcnn(){
 
 #run_bert
 bert(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/legacy/pretrain_language_models/BERT/
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/benchmark/bert
     cd ${cur_model_path}
     rm -rf data
     ln -s ${data_path}/Bert/data ${cur_model_path}/data
