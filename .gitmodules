@@ -66,3 +66,7 @@
 	path = PaddleNLP
 	url = https://github.com/PaddlePaddle/PaddleNLP.git
 	branch = develop
+[submodule "PaddleClas"]
+	path = PaddleClas
+	url = https://github.com/PaddlePaddle/PaddleClas.git
+	branch = develop
