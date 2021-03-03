@@ -3,7 +3,7 @@
     "param_info": {
         "align_corners": {
             "type": "bool",
-            "value": "True"
+            "value": "False"
         },
         "data_format": {
             "type": "string",
@@ -11,12 +11,12 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 512L, 64L, 402L]",
+            "shape": "[4L, 256L, 64L, 128L]",
             "type": "Variable"
         },
         "size": {
             "type": "list",
-            "value": "[128L, 402L]"
+            "value": "[64L, 128L]"
         },
         "scale_factor": {
             "type": "string",
@@ -28,7 +28,7 @@
     "param_info": {
         "align_corners": {
             "type": "bool",
-            "value": "True"
+            "value": "False"
         },
         "data_format": {
             "type": "string",
@@ -36,112 +36,12 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 64L, 402L, 512L]",
+            "shape": "[4L, 64L, 128L, 256L]",
             "type": "Variable"
         },
         "size": {
             "type": "list",
-            "value": "[128L, 402L]"
-        },
-        "scale_factor": {
-            "type": "string",
-            "value": "None"
-        }
-    }
-}, {
-    "op": "interp_bilinear",
-    "param_info": {
-        "align_corners": {
-            "type": "bool",
-            "value": "True"
-        },
-        "data_format": {
-            "type": "string",
-            "value": "NCHW"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[-1L, 256L, 1L, 1L]",
-            "type": "Variable"
-        },
-        "size": {
-            "type": "tuple",
-            "value": "(33L, 33L)"
-        },
-        "scale_factor": {
-            "type": "string",
-            "value": "None"
-        }
-    }
-}, {
-    "op": "interp_bilinear",
-    "param_info": {
-        "align_corners": {
-            "type": "bool",
-            "value": "True"
-        },
-        "data_format": {
-            "type": "string",
-            "value": "NHWC"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[-1L, 1L, 1L, 256L]",
-            "type": "Variable"
-        },
-        "size": {
-            "type": "tuple",
-            "value": "(33L, 33L)"
-        },
-        "scale_factor": {
-            "type": "string",
-            "value": "None"
-        }
-    }
-}, {
-    "op": "interp_bilinear",
-    "param_info": {
-        "align_corners": {
-            "type": "bool",
-            "value": "True"
-        },
-        "data_format": {
-            "type": "string",
-            "value": "NCHW"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[-1L, 19L, 129L, 129L]",
-            "type": "Variable"
-        },
-        "size": {
-            "type": "tuple",
-            "value": "(513L, 513L)"
-        },
-        "scale_factor": {
-            "type": "string",
-            "value": "None"
-        }
-    }
-}, {
-    "op": "interp_bilinear",
-    "param_info": {
-        "align_corners": {
-            "type": "bool",
-            "value": "True"
-        },
-        "data_format": {
-            "type": "string",
-            "value": "NHWC"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[-1L, 129L, 129L, 19L]",
-            "type": "Variable"
-        },
-        "size": {
-            "type": "tuple",
-            "value": "(513L, 513L)"
+            "value": "[64L, 128L]"
         },
         "scale_factor": {
             "type": "string",
@@ -165,8 +65,133 @@
             "type": "Variable"
         },
         "size": {
+            "type": "list",
+            "value": "[64L, 128L]"
+        },
+        "scale_factor": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4L, 1L, 1L, 256L]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "list",
+            "value": "[64L, 128L]"
+        },
+        "scale_factor": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4L, 256L, 64L, 128L]",
+            "type": "Variable"
+        },
+        "size": {
             "type": "tuple",
-            "value": "(64L, 128L)"
+            "value": "(128L, 256L)"
+        },
+        "scale_factor": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4L, 64L, 128L, 256L]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "tuple",
+            "value": "(128L, 256L)"
+        },
+        "scale_factor": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4L, 19L, 128L, 256L]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "tuple",
+            "value": "(512L, 1024L)"
+        },
+        "scale_factor": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4L, 128L, 256L, 19L]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "tuple",
+            "value": "(512L, 1024L)"
         },
         "scale_factor": {
             "type": "string",

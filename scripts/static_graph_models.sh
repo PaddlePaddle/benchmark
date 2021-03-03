@@ -450,14 +450,12 @@ mask_rcnn(){
 
 #run_bert
 bert(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/legacy/pretrain_language_models/BERT/
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/benchmark/bert
     cd ${cur_model_path}
-    rm -rf data
-    ln -s ${data_path}/Bert/data ${cur_model_path}/data
-    ln -s ${data_path}/Bert/MNLI ${cur_model_path}/MNLI
-    ln -s ${prepare_path}/Bert/chinese_L-12_H-768_A-12 ${cur_model_path}/chinese_L-12_H-768_A-12
-    ln -s ${prepare_path}/Bert/uncased_L-24_H-1024_A-16 ${cur_model_path}/uncased_L-24_H-1024_A-16
+    ln -s ${data_path}/Bert/hdf5_lower_case_1_seq_len_512_max_pred_80_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en_seqlen512 ${cur_model_path}/wikicorpus_en_seqlen512
+    ln -s ${data_path}/Bert/wikicorpus_en_seqlen128 ${cur_model_path}/wikicorpus_en_seqlen128
     cp ${BENCHMARK_ROOT}/static_graph/BERT/paddle/run_benchmark.sh ./run_benchmark.sh
+    pip install paddlenlp
 
     sed -i '/set\ -xe/d' run_benchmark.sh
 
@@ -467,22 +465,10 @@ bert(){
         for fp_mode in ${fp_mode_list[@]}; do
             model_name="${FUNCNAME}_${model_mode}_${fp_mode}"
             echo "index is speed, 1gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 1500 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 500 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
             sleep 60
-            echo "index is speed, 1gpus, profiler is on, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_mode} ${fp_mode} sp 1500 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
-            sleep 60
-            echo "index is speed, 8gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
-            sleep 60
-            #echo "index is maxbs, 1gpus, begin, ${model_name}"
-            #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
-            #sleep 60
-            #echo "index is maxbs, 8gpus, begin, ${model_name}"
-            #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
-            #sleep 60
             echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp 800 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp 400 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
             sleep 60
         done
     done

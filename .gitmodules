@@ -62,11 +62,11 @@
   path = PaddleGAN
   url = https://github.com/PaddlePaddle/PaddleGAN.git
   branch = master
-[submodule "PaddleClas"]
-	path = PaddleClas
-	url = https://github.com/PaddlePaddle/PaddleClas.git
-	branch = dygraph-dev
 [submodule "PaddleNLP"]
 	path = PaddleNLP
 	url = https://github.com/PaddlePaddle/PaddleNLP.git
+	branch = develop
+[submodule "PaddleClas"]
+	path = PaddleClas
+	url = https://github.com/PaddlePaddle/PaddleClas.git
 	branch = develop
