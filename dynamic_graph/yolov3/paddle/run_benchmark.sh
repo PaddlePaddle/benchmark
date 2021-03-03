@@ -1,4 +1,5 @@
 #!bin/bash
+
 set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
@@ -56,7 +57,7 @@ function _train(){
     fi
 
     train_cmd="-c configs/yolov3/yolov3_darknet53_270e_coco.yml
-     --opt epoch=${max_iter} TrainReader.batch_size=${base_batch_size} worker_num=8"
+               --opt epoch=${max_iter} TrainReader.batch_size=${base_batch_size} worker_num=8" # norm_type=bn"
     case ${run_mode} in
     sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)
