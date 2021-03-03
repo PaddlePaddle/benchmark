@@ -2,7 +2,7 @@ resnet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
     # Prepare data
-    ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
+    ln -s ${data_path}/imagenet100_data/ ${cur_model_path}/dataset
     # Copy run_benchmark.sh and running ...
     rm -rf ./run_benchmark_static.sh
     rm -rf ./run_benchmark_dygraph.sh
@@ -23,13 +23,9 @@ resnet(){
 }
 #run bert_base_fp32
 bert(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/legacy/pretrain_language_models/BERT/
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/benchmark/bert
     cd ${cur_model_path}
-    rm -rf data
-    ln -s ${data_path}/Bert/data ${cur_model_path}/data
-    ln -s ${data_path}/Bert/MNLI ${cur_model_path}/MNLI
-    ln -s ${prepare_path}/Bert/chinese_L-12_H-768_A-12 ${cur_model_path}/chinese_L-12_H-768_A-12
-    ln -s ${prepare_path}/Bert/uncased_L-24_H-1024_A-16 ${cur_model_path}/uncased_L-24_H-1024_A-16
+    ln -s ${data_path}/Bert/wikicorpus_en_seqlen128 ${cur_model_path}/wikicorpus_en_seqlen128
     rm -rf ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/static_graph/BERT/paddle/run_benchmark.sh ./run_benchmark.sh
     sed -i '/set\ -xe/d' run_benchmark.sh
@@ -37,7 +33,7 @@ bert(){
     #running model case
     model_name=bert_base_fp32
     echo "index is speed, 1gpu, begin, bert_base_fp32"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 base fp32 sp 1500 | tee ${BENCHMARK_ROOT}/logs/static/${model_name}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 base fp32 sp 500 | tee ${BENCHMARK_ROOT}/logs/static/${model_name}_speed_1gpus 2>&1
     sleep 60    
 }
 #run MobileNetV1
@@ -45,7 +41,7 @@ mobilenetV1(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
     # Prepare data
-    ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
+    ln -s ${data_path}/imagenet100_data/ ${cur_model_path}/dataset
     # Copy run_benchmark.sh and running ...
     rm -f ./run_benchmark_mobilenet.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/mobilenet/paddle/run_benchmark_mobilenet.sh ./

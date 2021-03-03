@@ -9,6 +9,7 @@ mkdir static
 mkdir dynamic
 pip install opencv-python==4.2.0.32
 pip install tqdm
+pip install paddlenlp
 #run models
 cd ${BENCHMARK_ROOT}/scripts/benchmark_ci
 source run_models.sh
