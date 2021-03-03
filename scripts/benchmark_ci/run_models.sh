@@ -31,7 +31,7 @@ bert(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     
     #running model case
-    model_name=bert_base_fp32
+    model_name=bert_base_seqlen128_fp32_bs32
     echo "index is speed, 1gpu, begin, bert_base_fp32"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 base fp32 sp 500 | tee ${BENCHMARK_ROOT}/logs/static/${model_name}_speed_1gpus 2>&1
     sleep 60    
