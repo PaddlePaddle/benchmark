@@ -49,32 +49,37 @@ def analysis():
                 job_info = json.loads(lines[-1])
             except Exception as e:
                 print("file {} analysis error".format(file))
-            result = json.dumps(job_info["FINAL_RESULT"])
-            model = json.dumps(job_info["model_name"])
-            model = model.strip('"')
-            print("result:{}".format(result))
-            print("model:{}".format(model))
-            standard_record = os.path.join(args.standard_path, model + '.txt')
-            with open(standard_record, 'r') as f:
-                for line in f:
-                    standard_result = float(line.strip('\n'))
-                    print("standard_result:{}".format(standard_result))
-                    ranges = round((float(result) - standard_result) / standard_result, 4)
-                    if ranges >= args.threshold:
-                        os.environ['err_flag'] = True
-                        print("{}, FAIL".format(model))
-                        print(
-                            "Model {}'s result is {}, standard value is {}, the increase is "
-                            "larger than threshold, please contact xiege01 or heya02 to modify "
-                            "the standard value".format(model, result, standard_result))
-                    elif ranges <= -args.threshold:
-                        os.environ['err_flag'] = True
-                        print("{}, FAIL".format(model))
-                        print(
-                            "Model {}'s result is {}, standard value is {}, the decrease is "
-                            "larger than threshold".format(model, result, standard_result))
-                    else:
-                        print("{}, SUCCESS".format(model))
+            fail_flag = json.dumps(job_info["JOB_FAIL_FLAG"])
+            if int(fail_flag) == 1:
+                os.environ['err_flag'] = 1
+                print("{} running failed!")
+            else:
+                result = json.dumps(job_info["FINAL_RESULT"])
+                model = json.dumps(job_info["model_name"])
+                model = model.strip('"')
+                print("result:{}".format(result))
+                print("model:{}".format(model))
+                standard_record = os.path.join(args.standard_path, model + '.txt')
+                with open(standard_record, 'r') as f:
+                    for line in f:
+                        standard_result = float(line.strip('\n'))
+                        print("standard_result:{}".format(standard_result))
+                        ranges = round((float(result) - standard_result) / standard_result, 4)
+                        if ranges >= args.threshold:
+                            os.environ['err_flag'] = 1
+                            print("{}, FAIL".format(model))
+                            print(
+                                "Model {}'s result is {}, standard value is {}, the increase is "
+                                "larger than threshold, please contact xiege01 or heya02 to modify "
+                                "the standard value".format(model, result, standard_result))
+                        elif ranges <= -args.threshold:
+                            os.environ['err_flag'] = 1
+                            print("{}, FAIL".format(model))
+                            print(
+                                "Model {}'s result is {}, standard value is {}, the decrease is "
+                                "larger than threshold".format(model, result, standard_result))
+                        else:
+                            print("{}, SUCCESS".format(model))
 
 
 if __name__ == '__main__':
