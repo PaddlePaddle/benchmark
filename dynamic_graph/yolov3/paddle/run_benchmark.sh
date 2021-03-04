@@ -57,7 +57,7 @@ function _train(){
     fi
 
     train_cmd="-c configs/yolov3/yolov3_darknet53_270e_coco.yml
-               --opt epoch=${max_iter} TrainReader.batch_size=${base_batch_size} worker_num=8" # norm_type=bn"
+               --opt epoch=1 TrainReader.batch_size=${base_batch_size} worker_num=8" # norm_type=bn"
     case ${run_mode} in
     sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)
