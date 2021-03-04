@@ -1,3 +1,4 @@
+#run resnet
 resnet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
@@ -21,6 +22,7 @@ resnet(){
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark_dygraph.sh 1 ${run_batchsize} ${model_name} sp 1 | tee ${BENCHMARK_ROOT}/logs/dynamic/${model_name}_speed_1gpus 2>&1
     sleep 60
 }
+
 #run bert_base_fp32
 bert(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/benchmark/bert
@@ -36,6 +38,7 @@ bert(){
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 base fp32 sp 500 | tee ${BENCHMARK_ROOT}/logs/static/${model_name}_speed_1gpus 2>&1
     sleep 60    
 }
+
 #run MobileNetV1
 mobilenetV1(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
