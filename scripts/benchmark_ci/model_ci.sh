@@ -20,7 +20,6 @@ fi
 echo success >>log.txt
 python analysis.py --log_path=${BENCHMARK_ROOT}/logs/static --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/static --threshold=0.05 
 python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=0.05 
-cat log.txt 
 if [[ -z `cat log.txt | grep success` ]];then
     echo -e "model_benchmark ci job failed!" 
     exit 1
