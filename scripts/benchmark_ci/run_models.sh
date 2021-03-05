@@ -56,6 +56,6 @@ mobilenetV1(){
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mobilenet.sh 1  sp 1  ${model_name} | tee ${BENCHMARK_ROOT}/logs/dynamic/${model_name}_speed_1gpus 2>&1
     sleep 60
 }
-resnet
-bert
+#resnet
+#bert
 mobilenetV1
