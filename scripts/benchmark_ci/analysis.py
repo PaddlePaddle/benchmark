@@ -48,7 +48,7 @@ def analysis():
             try:
                 job_info = json.loads(lines[-1])
             except Exception as e:
-                print("file {} analysis error".format(file))
+                print("file {} analysis error.".format(file))
             model = json.dumps(job_info["model_name"])
             model = model.strip('"')
             fail_flag = json.dumps(job_info["JOB_FAIL_FLAG"])
