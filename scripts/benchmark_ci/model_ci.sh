@@ -26,5 +26,3 @@ if [[ -z `cat log.txt | grep success` ]];then
 else
     echo -e "model_benchmark ci job success!"
 fi
-
-
