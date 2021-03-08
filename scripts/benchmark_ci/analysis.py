@@ -48,15 +48,16 @@ def analysis():
             try:
                 job_info = json.loads(lines[-1])
             except Exception as e:
-                print("file {} analysis error".format(file))
+                print("file {} analysis error.".format(file))
+            model = json.dumps(job_info["model_name"])
+            model = model.strip('"')
             fail_flag = json.dumps(job_info["JOB_FAIL_FLAG"])
             if int(fail_flag) == 1:
-                os.environ['err_flag'] = 1
-                print("{} running failed!")
+                command = 'sed -i "s/success/fail/g" log.txt'
+                os.system(command)
+                print("{} running failed!".format(model))
             else:
                 result = json.dumps(job_info["FINAL_RESULT"])
-                model = json.dumps(job_info["model_name"])
-                model = model.strip('"')
                 print("result:{}".format(result))
                 print("model:{}".format(model))
                 standard_record = os.path.join(args.standard_path, model + '.txt')
@@ -66,18 +67,21 @@ def analysis():
                         print("standard_result:{}".format(standard_result))
                         ranges = round((float(result) - standard_result) / standard_result, 4)
                         if ranges >= args.threshold:
-                            os.environ['err_flag'] = 1
+                            command = 'sed -i "s/success/fail/g" log.txt'
+                            os.system(command)
                             print("{}, FAIL".format(model))
                             print(
-                                "Model {}'s result is {}, standard value is {}, the increase is "
-                                "larger than threshold, please contact xiege01 or heya02 to modify "
-                                "the standard value".format(model, result, standard_result))
+                                "Performance of model {} has been increased from {} to {},"
+                                "which is greater than threshold, "
+                                "please contact xiege01 or heya02 to modify the standard value"
+                                .format(model, standard_result, result))
                         elif ranges <= -args.threshold:
-                            os.environ['err_flag'] = 1
+                            command = 'sed -i "s/success/fail/g" log.txt'
+                            os.system(command)
                             print("{}, FAIL".format(model))
-                            print(
-                                "Model {}'s result is {}, standard value is {}, the decrease is "
-                                "larger than threshold".format(model, result, standard_result))
+                            print("Performance of model {} has been decreased from {} to {},"
+                                "which is greater than threshold."
+                                .format(model, standard_result, result))
                         else:
                             print("{}, SUCCESS".format(model))
 

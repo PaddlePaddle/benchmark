@@ -15,10 +15,12 @@ cd ${BENCHMARK_ROOT}/scripts/benchmark_ci
 source run_models.sh
 #analysis log
 cd ${BENCHMARK_ROOT}/scripts/benchmark_ci
-export err_flag=0
+if [ -f "log.txt" ];then rm -rf log.txt
+fi
+echo success >>log.txt
 python analysis.py --log_path=${BENCHMARK_ROOT}/logs/static --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/static --threshold=0.05 
 python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=0.05 
-if [ "${err_flag}" -eq 1 ];then
+if [[ -z `cat log.txt | grep success` ]];then
     echo -e "model_benchmark ci job failed!" 
     exit 1
 else
