@@ -278,7 +278,7 @@ dy_yolov3(){
 
 # tsm 
 dy_tsm(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleVedio
+    cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
     pip install wget
