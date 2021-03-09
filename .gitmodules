@@ -70,3 +70,7 @@
 	path = PaddleDetection
 	url = https://github.com/PaddlePaddle/PaddleDetection.git
 	branch = develop
+[submodule "PaddleVideo"]
+	path = PaddleVideo
+	url = https://github.com/PaddlePaddle/PaddleVideo.git
+	branch = develop
