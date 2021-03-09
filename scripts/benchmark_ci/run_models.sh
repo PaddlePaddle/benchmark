@@ -58,4 +58,4 @@ mobilenetV1(){
 }
 resnet
 bert
-mobilenetV1
+#mobilenetV1
