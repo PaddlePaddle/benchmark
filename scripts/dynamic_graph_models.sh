@@ -278,25 +278,25 @@ dy_yolov3(){
 
 # tsm 
 dy_tsm(){
-    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/tsm
+    cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
     pip install wget
     # Prepare pretrained modles
-    ln -s ${prepare_path}/tsn/ResNet50_pretrained/ ${cur_model_path}/
+    ln -s ${prepare_path}/tsm/ResNet50_pretrain.pdparams ${cur_model_path}/
     # Prepare data
-    ln -s ${data_path}/dygraph_data/TSM/k400_wei/ ${cur_model_path}/
-    ln -s ${data_path}/dygraph_data/TSM/ucf101 ${cur_model_path}/data/dataset/
+    rm -rf ./data/ucf101
+    ln -s ${data_path}/dygraph_data/TSM/ucf101_Vedio/ ${cur_model_path}/data/ucf101
 
     # Running ...
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/tsm/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 16 TSM sp 1 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 1 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus begin, mp"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 16 TSM mp 1 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 1 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
 }
 
 # wavenet
