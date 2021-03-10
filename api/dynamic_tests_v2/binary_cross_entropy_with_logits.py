@@ -15,61 +15,66 @@
 from common_import import *
 
 
-class BinaryCrossEntropyConfig(APIConfig):
+class BinaryCrossEntropyWithLogitsConfig(APIConfig):
     def __init__(self):
-        super(BinaryCrossEntropyConfig, self).__init__("binary_cross_entropy")
+        super(BinaryCrossEntropyWithLogitsConfig,
+              self).__init__("binary_cross_entropy_with_logits")
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(BinaryCrossEntropyConfig, self).init_from_json(
+        super(BinaryCrossEntropyWithLogitsConfig, self).init_from_json(
             filename, config_id, unknown_dim)
         self.feed_spec = [
             {
                 "range": [0, 1]
-            },  # input
+            },  # logit
             {
-                "range": [0, self.input_shape[-1]]
+                "range": [0, self.logit_shape[-1]]
             }  # label
         ]
 
 
-class PaddleBinaryCrossEntropy(PaddleDynamicAPIBenchmarkBase):
+class PaddleBinaryCrossEntropyWithLogits(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        input = self.variable(
-            name="input", shape=config.input_shape, dtype=config.input_dtype)
+        logit = self.variable(
+            name="logit", shape=config.logit_shape, dtype=config.logit_dtype)
         label = self.variable(
             name="label",
             shape=config.label_shape,
             dtype=config.label_dtype,
             stop_gradient=True)
-        result = paddle.nn.functional.binary_cross_entropy(
-            input=input, label=label, weight=None, reduction="none")
+        result = paddle.nn.functional.binary_cross_entropy_with_logits(
+            logit=logit,
+            label=label,
+            weight=None,
+            reduction="none",
+            pos_weight=None)
 
-        self.feed_list = [input, label]
+        self.feed_list = [logit, label]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [input])
+            self.append_gradients(result, [logit])
 
 
-class TorchBinaryCrossEntropy(PytorchAPIBenchmarkBase):
+class TorchBinaryCrossEntropyWithLogits(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        input = self.variable(
-            name="input", shape=config.input_shape, dtype=config.input_dtype)
+        logit = self.variable(
+            name="logit", shape=config.logit_shape, dtype=config.logit_dtype)
         label = self.variable(
             name="label",
             shape=config.label_shape,
             dtype=config.label_dtype,
             stop_gradient=True)
-        result = torch.nn.functional.binary_cross_entropy(
-            input=input, target=label, weight=None, reduction="none")
+        result = torch.nn.functional.binary_cross_entropy_with_logits(
+            input=logit, target=label, weight=None, reduction="none")
 
-        self.feed_list = [input]
+        self.feed_list = [logit]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [input])
+            self.append_gradients(result, [logit])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddleBinaryCrossEntropy(),
-        torch_obj=TorchBinaryCrossEntropy(),
-        config=BinaryCrossEntropyConfig())
+        pd_dy_obj=PaddleBinaryCrossEntropyWithLogits(),
+        torch_obj=TorchBinaryCrossEntropyWithLogits(),
+        config=BinaryCrossEntropyWithLogitsConfig())
