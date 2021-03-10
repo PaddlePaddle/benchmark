@@ -240,7 +240,7 @@ dy_mask_rcnn(){
 
 dy_yolov3(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection/dygraph
-    git branch    #master 分支
+    git branch    #develop 分支
     cd ${cur_model_path}
    
     if python -c "import pycocotools" >/dev/null 2>&1

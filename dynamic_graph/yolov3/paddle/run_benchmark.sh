@@ -56,8 +56,9 @@ function _train(){
         sed -i '/for step_id, data in enumerate(self.loader):/a\                if step_id == max_step_id: return' ppdet/engine/trainer.py
     fi
 
+    if [ $num_gpu_devices -eq 1 ]; then norm_type="bn"; else norm_type="sync_bn"; fi
     train_cmd="-c configs/yolov3/yolov3_darknet53_270e_coco.yml
-               --opt epoch=1 TrainReader.batch_size=${base_batch_size} worker_num=8" # norm_type=bn"
+               --opt epoch=1 TrainReader.batch_size=${base_batch_size} worker_num=8 norm_type=${norm_type}"
     case ${run_mode} in
     sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)
