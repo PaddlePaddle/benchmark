@@ -15,26 +15,17 @@
 from common_import import *
 
 
-class ActivationConfig(APIConfig):
+class RsqrtConfig(APIConfig):
     def __init__(self):
-        super(ActivationConfig, self).__init__('activation')
-        self.api_name = 'cos'
-        self.api_list = {
-            'cos': 'cos',
-            'exp': 'exp',
-            'log': 'log',
-            'sin': 'sin',
-            'sinh': 'sinh',
-            'sqrt': 'sqrt',
-            'square': 'square',
-            'tanh': 'tanh'
-        }
+        super(RsqrtConfig, self).__init__("Rsqrt")
+        self.feed_spec = {"range": [-1, -1]}
+        self.alias_name = "activation"
 
 
-class PDActivation(PaddleDynamicAPIBenchmarkBase):
+class PDRsqrt(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(config.api_name, x=x)
+        result = paddle.nn.functional.Rsqrt(x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -42,10 +33,10 @@ class PDActivation(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchActivation(PytorchAPIBenchmarkBase):
+class TorchRsqrt(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(config.api_name, x=x)
+        result = torch.nn.functional.Rsqrt(input=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -54,7 +45,4 @@ class TorchActivation(PytorchAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PDActivation(),
-        torch_obj=TorchActivation(),
-        config=ActivationConfig())
+    test_main(pd_dy_obj=PDRsqrt(), torch_obj=TorchRsqrt(), config=RsqrtConfig())

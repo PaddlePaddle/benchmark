@@ -26,7 +26,6 @@ class ActivationConfig(APIConfig):
             'sin': 'sin',
             'sinh': 'sinh',
             'sqrt': 'sqrt',
-            'rsqrt': 'rsqrt',
             'square': 'square',
             'tanh': 'tanh'
         }
