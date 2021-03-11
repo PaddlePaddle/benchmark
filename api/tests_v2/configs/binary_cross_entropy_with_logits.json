@@ -12,5 +12,5 @@
             "type": "Variable"
         }
     },
-    "atol": 1E-5
+    "atol": 1E-4
 }]
