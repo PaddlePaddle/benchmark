@@ -17,7 +17,7 @@ from common_import import *
 
 class RsqrtConfig(APIConfig):
     def __init__(self):
-        super(RsqrtConfig, self).__init__("Rsqrt")
+        super(RsqrtConfig, self).__init__("rsqrt")
         self.feed_spec = {"range": [-1, -1]}
         self.alias_name = "activation"
 
@@ -25,7 +25,7 @@ class RsqrtConfig(APIConfig):
 class PDRsqrt(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.nn.functional.Rsqrt(x=x)
+        result = paddle.rsqrt(x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -36,7 +36,7 @@ class PDRsqrt(PaddleDynamicAPIBenchmarkBase):
 class TorchRsqrt(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.nn.functional.Rsqrt(input=x)
+        result = torch.rsqrt(input=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -45,4 +45,5 @@ class TorchRsqrt(PytorchAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(pd_dy_obj=PDRsqrt(), torch_obj=TorchRsqrt(), config=RsqrtConfig())
+    test_main(
+        pd_dy_obj=PDRsqrt(), torch_obj=TorchRsqrt(), config=RsqrtConfig())

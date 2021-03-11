@@ -19,8 +19,6 @@ class RsqrtConfig(APIConfig):
     def __init__(self):
         super(RsqrtConfig, self).__init__("rsqrt")
         self.feed_spec = {"range": [-1, 1]}
-        # Rsqrt belongs to activation op series which only has one parameter
-        # thus Rsqrt can reuse activation.json. 
         self.alias_name = "activation"
 
 
