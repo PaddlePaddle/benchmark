@@ -19,9 +19,6 @@ class EluConfig(APIConfig):
     def __init__(self):
         super(EluConfig, self).__init__("elu")
         self.feed_spec = {"range": [-1, -1]}
-        # self.api_list = {'Elu': 'Elu', 'Elu6': 'Elu6'}
-        # Elu belongs to activation op series which only has one variable
-        # thus Elu can reuse activation parameters 
         self.alias_name = "activation"
 
 
