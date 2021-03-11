@@ -61,6 +61,14 @@ function _train(){
     fi
     
     timeout 15m ${train_cmd} > ${log_file} 2>&1
+    if [ $? -ne 0 ];then
+        echo -e "${model_name}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model_name}, SUCCESS"
+        export job_fail_flag=0
+    fi
+
     if [ ${run_mode} != "sp"  -a -d mylog_${model_name} ]; then
         rm ${log_file}
         cp mylog_${model_name}/`ls -l mylog_${model_name}/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ${log_file}
