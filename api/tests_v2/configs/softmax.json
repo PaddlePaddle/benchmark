@@ -53,7 +53,8 @@
             "shape": "[32L, 12L, 128L, 128L]",
             "type": "Variable"
         }
-    }
+    },
+    "atol": 1E-3
 }, {
     "config_id": 4,
     "op": "softmax",

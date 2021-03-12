@@ -60,27 +60,21 @@ class ArrayComparator(object):
             str(self.output_diff_value), str(self.target_diff_value))
 
     def _compare(self, output, target, atol):
-        if output.dtype == np.bool:
-            absolute_diff = np.array_equal(output, target)
-            self.max_absolute_diff = np.float32(np.logical_not(absolute_diff))
-            if absolute_diff == False:
-                for i in range(len(output)):
-                    if output[i] != target[i]:
-                        self.offset = i
-            self.max_relative_diff = self.max_absolute_diff
-            self.consistent = np.array_equal(output, target)
+        output_fp32 = output.astype(np.float32)
+        target_fp32 = target.astype(np.float32)
+
+        # maximum absolute difference
+        absolute_diff = np.abs(output_fp32 - target_fp32)
+        self.max_absolute_diff = np.max(absolute_diff)
+        self.offset = np.argmax(absolute_diff)
+
+        # maximum relative difference
+        max_target_value = np.max(np.abs(target_fp32))
+        if max_target_value != 0:
+            self.max_relative_diff = self.max_absolute_diff / max_target_value
         else:
-            # maximum absolute difference
-            absolute_diff = np.abs(output - target)
-            self.max_absolute_diff = np.max(absolute_diff)
-            self.offset = np.argmax(absolute_diff)
-            # maximum relative difference
-            max_target_value = np.max(np.abs(target))
-            if max_target_value != 0:
-                self.max_relative_diff = self.max_absolute_diff / max_target_value
-            else:
-                self.max_relative_diff = 0.0
-            self.consistent = np.allclose(output, target, atol=atol)
+            self.max_relative_diff = 0.0
+        self.consistent = np.allclose(output_fp32, target_fp32, atol=atol)
 
         self.output_diff_value = output[self.offset]
         self.target_diff_value = target[self.offset]
@@ -225,7 +219,7 @@ def check_outputs(output_list,
                         % (i, str(permutation), str(output.shape),
                            str(target.shape)))
 
-            if diff_comparator_i > 1E-6:
+            if diff_comparator_i > 1E-6 or diff_comparator_i.max_relative_diff > 1E-6:
                 print(
                     "---- Warning: The %d-th output (shape: %s, data type: %s) has diff. Detail: %s, atol is %.2e."
                     % (i, str(output.shape), str(output.dtype),
