@@ -15,37 +15,35 @@
 from common_import import *
 
 
-class ReluConfig(APIConfig):
+class RsqrtConfig(APIConfig):
     def __init__(self):
-        super(ReluConfig, self).__init__("relu")
-        self.feed_spec = {"range": [-1, 1]}
-        self.api_list = {'relu': 'relu', 'relu6': 'relu6', 'elu': 'elu'}
-        # relu belongs to activation op series which only has one variable
-        # thus relu can reuse activation parameters 
+        super(RsqrtConfig, self).__init__("rsqrt")
+        self.feed_spec = {"range": [-1, -1]}
         self.alias_name = "activation"
 
 
-class PDRelu(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        out = self.layers(config.api_name, x=x)
-
-        self.feed_vars = [x]
-        self.fetch_vars = [out]
-        if config.backward:
-            self.append_gradients(out, [x])
-
-
-class TFRelu(TensorflowAPIBenchmarkBase):
+class PDRsqrt(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        out = self.layers(config.api_name, features=x)
+        result = paddle.rsqrt(x=x)
 
         self.feed_list = [x]
-        self.fetch_list = [out]
+        self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(out, [x])
+            self.append_gradients(result, [x])
+
+
+class TorchRsqrt(PytorchAPIBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = torch.rsqrt(input=x)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(PDRelu(), TFRelu(), config=ReluConfig())
+    test_main(
+        pd_dy_obj=PDRsqrt(), torch_obj=TorchRsqrt(), config=RsqrtConfig())

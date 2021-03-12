@@ -15,37 +15,34 @@
 from common_import import *
 
 
-class ReluConfig(APIConfig):
+class RsqrtConfig(APIConfig):
     def __init__(self):
-        super(ReluConfig, self).__init__("relu")
+        super(RsqrtConfig, self).__init__("rsqrt")
         self.feed_spec = {"range": [-1, 1]}
-        self.api_list = {'relu': 'relu', 'relu6': 'relu6', 'elu': 'elu'}
-        # relu belongs to activation op series which only has one variable
-        # thus relu can reuse activation parameters 
         self.alias_name = "activation"
 
 
-class PDRelu(PaddleAPIBenchmarkBase):
+class PDRsqrt(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        out = self.layers(config.api_name, x=x)
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.rsqrt(x=x)
 
         self.feed_vars = [x]
-        self.fetch_vars = [out]
+        self.fetch_vars = [result]
         if config.backward:
-            self.append_gradients(out, [x])
+            self.append_gradients(result, [x])
 
 
-class TFRelu(TensorflowAPIBenchmarkBase):
+class TFRsqrt(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        out = self.layers(config.api_name, features=x)
+        result = tf.math.rsqrt(x=x)
 
         self.feed_list = [x]
-        self.fetch_list = [out]
+        self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(out, [x])
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(PDRelu(), TFRelu(), config=ReluConfig())
+    test_main(PDRsqrt(), TFRsqrt(), config=RsqrtConfig())
