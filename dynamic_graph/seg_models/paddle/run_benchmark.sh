@@ -22,7 +22,7 @@ function _set_params(){
     skip_steps=5
     keyword="ips:"
     model_mode=-1
-    ips_unit="samples/s"
+    ips_unit="images/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -37,6 +37,7 @@ function _set_params(){
 
 function _train(){
     export PYTHONPATH=$(pwd):{PYTHONPATH}
+    export FLAGS_cudnn_exhaustive_search=1
     if [ ${model_name} = "HRnet" ]; then
         config="benchmark/hrnet.yml"
     elif [ ${model_name} = "deeplabv3" ]; then
