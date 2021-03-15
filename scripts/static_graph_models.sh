@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(detection mask_rcnn seq2seq nextvlad image_classification deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
+cur_model_list=(detection mask_rcnn seq2seq nextvlad image_classification seg_model paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
 
 #run_cycle_gan
 CycleGAN(){
@@ -250,31 +250,31 @@ nextvlad(){
 }
 
 
-#run_deeplabv3+
-deeplab(){
+#run_seg_models
+seg_model(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/legacy
     cd ${cur_model_path}
     # Prepare data and pretrained parameters.
     ln -s ${data_path}/cityscape ${cur_model_path}/dataset/cityscapes
     ln -s ${prepare_path}/deeplabv3p_xception65_bn_cityscapes ${cur_model_path}/pretrained_model/
     # Running ...
-    cp ${BENCHMARK_ROOT}/static_graph/deeplabv3+/paddle/run_benchmark.sh ./
+    rm -rf run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/static_graph/seg_models/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 2 | tee ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
-    sleep 60
-    echo "index is speed, 1gpu, profiler is on, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 1 | tee ${log_path}/DeepLab_V3+_speed_1gpus_profiler 2>&1
-    sleep 60
-    echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 1 | tee ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
-    sleep 60
-    echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 1 | tee ${log_path}/DeepLab_V3+_maxbs_1gpus 2>&1
-    sleep 60
-    echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 sp 1 | tee ${log_path}/DeepLab_V3+_maxbs_8gpus 2>&1
-
+    model_list=(deeplabv3 HRnet)
+    for model_item in ${model_list[@]}
+    do
+        echo "index is speed, ${model_item} 1gpu begin"
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 180 | tee ${log_path}/${model_item}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is speed, ${model_item} 8gpu begin"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 180 | tee ${log_path}/${model_item}_speed_8gpus 2>&1
+        sleep 60
+        echo "index is speed, 1gpu, profiler is on, begin"
+#       CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp ${model_item} 200  | tee ${log_path}/${model_item}_speed_1gpus_profiler 2>&1
+        sleep 60
+    done
 }
 
 
