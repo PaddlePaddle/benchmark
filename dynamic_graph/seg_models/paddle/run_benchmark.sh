@@ -20,11 +20,9 @@ function _set_params(){
     mission_name="图像分割"
     direction_id=0
     skip_steps=5
-    keyword="batch_cost="
-    separator="="
-    position=5
-    range=0:5
-    model_mode=0 # s/step -> sample/s 
+    keyword="ips:"
+    model_mode=-1
+    ips_unit="samples/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
