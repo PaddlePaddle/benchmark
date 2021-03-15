@@ -70,3 +70,7 @@
 	path = PaddleVideo
 	url = https://github.com/PaddlePaddle/PaddleVideo.git
 	branch = develop
+[submodule "PaddleSeg"]
+	path = PaddleSeg
+	url = https://github.com/PaddlePaddle/PaddleSeg.git
+	branch = benchmark
