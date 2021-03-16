@@ -11,13 +11,12 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[20L, 6L, 16L, 16L]",
+            "shape": "[8L, 6L, 10L, 10L]",
             "type": "Variable"
         },
         "num_groups": {
             "type": "int",
             "value": "3"
         }
-    },
-    "atol": 1e-5
+    }
 }]
