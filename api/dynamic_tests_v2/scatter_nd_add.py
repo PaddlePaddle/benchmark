@@ -35,7 +35,7 @@ class ScatterNdAddConfig(APIConfig):
         ]
 
 
-class PDScatterNdAdd(PaddleAPIBenchmarkBase):
+class PDScatterNdAdd(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(
             name='x', shape=config.input_shape, dtype=config.input_dtype)
