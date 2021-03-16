@@ -161,12 +161,12 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[1L, 2L, 1L, 1L]",
+            "shape": "[4L, 256L, 1L, 1L]",
             "type": "Variable"
         },
         "size": {
             "type": "tuple",
-            "value": "(2L, 2L)"
+            "value": "(64L, 128L)"
         },
         "scale_factor": {
             "type": "string",
