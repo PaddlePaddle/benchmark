@@ -1,0 +1,19 @@
+[{
+    "op": "group_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[20L, 6L, 16L, 16L]",
+            "type": "Variable"
+        },
+        "num_groups": {
+            "type": "int32",
+            "value": "3"
+        }
+    },
+    "atol": 1e-5
+}]
