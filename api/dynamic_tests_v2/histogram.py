@@ -18,11 +18,18 @@ from common_import import *
 class HistogramConfig(APIConfig):
     def __init__(self):
         super(HistogramConfig, self).__init__("histogram")
+        self.feed_spec = [{"range": [-20, 20]}]
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(HistogramConfig, self).init_from_json(filename, config_id,
                                                     unknown_dim)
-        self.feed_spec = [{"range": [-10, 10]}]
+
+        if not use_gpu() and self.input_dtype in ["int32", "int64"]:
+            print(
+                "Warning:\n"
+                "1. Pytorch-CPU can not support the histogram curently once the input data dtype is"
+                " int32 or int64\n")
+            self.run_torch = False
 
 
 class PDHistogram(PaddleDynamicAPIBenchmarkBase):
