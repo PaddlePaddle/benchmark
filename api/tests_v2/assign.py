@@ -19,7 +19,7 @@ class PDAssign(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         data = self.variable(
             name='data', shape=config.input_shape, dtype=config.input_dtype)
-        result = paddle.nn.functional.assign(input=data)
+        result = paddle.assign(data)
 
         self.feed_vars = [data]
         self.fetch_vars = [result]

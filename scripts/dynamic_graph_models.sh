@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_mask_rcnn dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_mobilenet)
+cur_model_list=(dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_mobilenet)
 
 
 # MobileNet
@@ -23,7 +23,7 @@ dy_mobilenet(){
     cd ${cur_model_path}
 
     # Prepare data
-    ln -s ${data_path}/dygraph_data/ILSVRC2012_Pytorch/dataset_100  ${cur_model_path}/dataset/                         # 准备数据集,需要保证benchmark任务极其21 上对应目录下存在该数据集！
+    ln -s ${data_path}/dygraph_data/imagenet100_data ${cur_model_path}/dataset/         # 准备数据集,需>要保证benchmark任务极其21 上对应目录下存在该数据集！
 
     # Running ...
     rm -f ./run_benchmark_mobilenet.sh
@@ -79,7 +79,7 @@ dy_ptb_lm(){
 dy_transformer(){
     echo "###########pip install paddlenlp"
     pip install paddlenlp attrdict
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/benchmark/transformer/dygraph
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/benchmark/transformer/dygraph
     cd ${cur_model_path}
     # prepare data
     mkdir -p ~/.paddlenlp/datasets/machine_translation
@@ -192,10 +192,8 @@ dy_slowfast(){
 }
 
 dy_mask_rcnn(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection/dygraph
     cd ${cur_model_path}
-    git checkout dygraph
-    git reset --hard 06e6afcf262ebd8cc843b7372e014a19ba4a2eca  # 动态图检测重构 
     pip install -r requirements.txt 
 
     # Install cocoapi
@@ -234,18 +232,16 @@ dy_mask_rcnn(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/mask_rcnn/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 600 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 500 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus begin, mp"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
 }
 
 dy_yolov3(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection/dygraph
+    git branch    #develop 分支
     cd ${cur_model_path}
-    git checkout dygraph
-    git reset --hard 06e6afcf262ebd8cc843b7372e014a19ba4a2eca  # 动态图检测重构 
-    pip install -r requirements.txt
    
     if python -c "import pycocotools" >/dev/null 2>&1
     then
@@ -266,39 +262,40 @@ dy_yolov3(){
     echo "-------before data prepare"
     ls -l ./dataset/coco/
     ln -s ${data_path}/coco/* ./dataset/coco/
+    pip install -r ./dataset/coco/requirements.txt
     echo "-------after data prepare"
     ls -l ./dataset/coco/
     rm -rf run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/yolov3/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 500 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpu, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
 }
 
 # tsm 
 dy_tsm(){
-    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/tsm
+    cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
-    pip install wget
+    pip install wget decord
     # Prepare pretrained modles
-    ln -s ${prepare_path}/tsn/ResNet50_pretrained/ ${cur_model_path}/
+    ln -s ${prepare_path}/tsm/ResNet50_pretrain.pdparams ${cur_model_path}/
     # Prepare data
-    ln -s ${data_path}/dygraph_data/TSM/k400_wei/ ${cur_model_path}/
-    ln -s ${data_path}/dygraph_data/TSM/ucf101 ${cur_model_path}/data/dataset/
+    rm -rf ./data/ucf101
+    ln -s ${data_path}/dygraph_data/TSM/ucf101_Vedio/ ${cur_model_path}/data/ucf101
 
     # Running ...
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/tsm/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 16 TSM sp 1 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 1 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus begin, mp"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 16 TSM mp 1 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 1 | tee ${log_path}/dynamic_${FUNCNAME}_speed_8gpus 2>&1
 }
 
 # wavenet
@@ -383,7 +380,7 @@ dy_resnet(){
 
 # lac
 dy_lac(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/examples/lexical_analysis
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/lexical_analysis
     cd ${cur_model_path}
 
     # Prepare data

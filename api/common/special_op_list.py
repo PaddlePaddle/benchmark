@@ -74,6 +74,7 @@ NO_BACKWARD_OPS = [
     "linspace",
     "remainder",
     "unique",
+    "where_index",
     "yolo_box",
 
     # Temporarily add to this list to pass CI.
