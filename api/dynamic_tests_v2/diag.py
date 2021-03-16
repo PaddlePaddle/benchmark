@@ -15,32 +15,36 @@
 from common_import import *
 
 
-class PDFlip(PaddleDynamicAPIBenchmarkBase):
+class DiagConfig(APIConfig):
+    def __init__(self):
+        super(DiagConfig, self).__init__("diag")
+
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(DiagConfig, self).init_from_json(filename, config_id,
+                                               unknown_dim)
+
+        if self.padding_value != 0:
+            self.run_torch = False
+
+
+class PDDiag(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = paddle.flip(x=x, axis=dims)
+        result = paddle.diag(
+            x=x, offset=config.offset, padding_value=config.padding_value)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
-class TorchFlip(PytorchAPIBenchmarkBase):
+class TorchDiag(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = torch.flip(input=x, dims=dims)
+        result = torch.diag(input=x, diagonal=config.offset)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PDFlip(), torch_obj=TorchFlip(), config=APIConfig("flip"))
+    test_main(pd_dy_obj=PDDiag(), torch_obj=TorchDiag(), config=DiagConfig())

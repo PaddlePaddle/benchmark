@@ -15,12 +15,16 @@
 from common_import import *
 
 
-class PDFlip(PaddleDynamicAPIBenchmarkBase):
+class PDAvgPool2d(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = paddle.flip(x=x, axis=dims)
+        result = paddle.nn.functional.avg_pool2d(
+            x=x,
+            kernel_size=config.kernel_size,
+            stride=config.stride,
+            padding=config.padding,
+            ceil_mode=config.ceil_mode,
+            data_format=config.data_format)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -28,12 +32,15 @@ class PDFlip(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchFlip(PytorchAPIBenchmarkBase):
+class TorchAvgPool2d(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = torch.flip(input=x, dims=dims)
+        result = torch.nn.functional.avg_pool2d(
+            input=x,
+            kernel_size=config.kernel_size,
+            stride=config.stride,
+            padding=config.padding,
+            ceil_mode=config.ceil_mode)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -43,4 +50,6 @@ class TorchFlip(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDFlip(), torch_obj=TorchFlip(), config=APIConfig("flip"))
+        pd_dy_obj=PDAvgPool2d(),
+        torch_obj=TorchAvgPool2d(),
+        config=APIConfig('avg_pool2d'))

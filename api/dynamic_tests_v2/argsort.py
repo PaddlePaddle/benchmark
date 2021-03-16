@@ -15,32 +15,28 @@
 from common_import import *
 
 
-class PDFlip(PaddleDynamicAPIBenchmarkBase):
+class PDArgsort(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = paddle.flip(x=x, axis=dims)
+        indices = paddle.argsort(
+            x=x, axis=config.axis, descending=config.descending)
 
         self.feed_list = [x]
-        self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
+        self.fetch_list = [indices]
 
 
-class TorchFlip(PytorchAPIBenchmarkBase):
+class TorchArgsort(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = torch.flip(input=x, dims=dims)
+        indices = torch.argsort(
+            x=x, axis=config.axis, descending=config.descending)
 
         self.feed_list = [x]
-        self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
+        self.fetch_list = [indices]
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDFlip(), torch_obj=TorchFlip(), config=APIConfig("flip"))
+        pd_dy_obj=PDArgsort(),
+        torch_obj=TorchArgsort(),
+        config=APIConfig("argsort"))

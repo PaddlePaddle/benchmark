@@ -15,12 +15,19 @@
 from common_import import *
 
 
-class PDFlip(PaddleDynamicAPIBenchmarkBase):
+class FloorConfig(APIConfig):
+    def __init__(self):
+        super(FloorConfig, self).__init__("floor")
+        self.feed_spec = {"range": [-1, 1]}
+        # Floor belongs to activation op series which only has one variable
+        # thus Floor can reuse activation parameters 
+        self.alias_name = "activation"
+
+
+class PDFloor(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = paddle.flip(x=x, axis=dims)
+        result = paddle.floor(x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -28,12 +35,10 @@ class PDFlip(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchFlip(PytorchAPIBenchmarkBase):
+class TorchFloor(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = torch.flip(input=x, dims=dims)
+        result = torch.floor(input=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -43,4 +48,4 @@ class TorchFlip(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDFlip(), torch_obj=TorchFlip(), config=APIConfig("flip"))
+        pd_dy_obj=PDFloor(), torch_obj=TorchFloor(), config=FloorConfig())

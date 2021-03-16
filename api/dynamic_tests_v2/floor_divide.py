@@ -15,32 +15,33 @@
 from common_import import *
 
 
-class PDFlip(PaddleDynamicAPIBenchmarkBase):
+class FloorDivideConfig(APIConfig):
+    def __init__(self):
+        super(FloorDivideConfig, self).__init__("floor_divide")
+        self.feed_spec = [{"range": [1, 1000]}, {"range": [1, 1000]}]
+
+
+class PDFloorDivide(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = paddle.flip(x=x, axis=dims)
-
-        self.feed_list = [x]
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = paddle.floor_divide(x=x, y=y)
+        self.feed_list = [x, y]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
-class TorchFlip(PytorchAPIBenchmarkBase):
+class TorchFloorDivide(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = torch.flip(input=x, dims=dims)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = torch.floor_divide(input=x, other=y)
 
-        self.feed_list = [x]
+        self.feed_list = [x, y]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDFlip(), torch_obj=TorchFlip(), config=APIConfig("flip"))
+        pd_dy_obj=PDFloorDivide(),
+        torch_obj=TorchFloorDivide(),
+        config=FloorDivideConfig())

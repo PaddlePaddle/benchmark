@@ -15,32 +15,29 @@
 from common_import import *
 
 
-class PDFlip(PaddleDynamicAPIBenchmarkBase):
+class PDLinspace(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = paddle.flip(x=x, axis=dims)
+        result = paddle.linspace(
+            start=config.start,
+            stop=config.stop,
+            num=config.num,
+            dtype=config.dtype)
 
-        self.feed_list = [x]
+        self.feed_list = []
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
-class TorchFlip(PytorchAPIBenchmarkBase):
+class TorchgLinspace(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = torch.flip(input=x, dims=dims)
+        result = torch.linspace(
+            start=config.start, end=config.stop, steps=config.num)
 
-        self.feed_list = [x]
+        self.feed_list = []
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDFlip(), torch_obj=TorchFlip(), config=APIConfig("flip"))
+        pd_dy_obj=PDLinspace(),
+        torch_obj=TorchgLinspace(),
+        config=APIConfig('linspace'))

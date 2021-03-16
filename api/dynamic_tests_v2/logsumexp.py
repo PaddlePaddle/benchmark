@@ -15,32 +15,36 @@
 from common_import import *
 
 
-class PDFlip(PaddleDynamicAPIBenchmarkBase):
+class LogsumexpConfig(APIConfig):
+    def __init__(self):
+        super(LogsumexpConfig, self).__init__('logsumexp')
+
+
+class PDLogsumexp(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = paddle.flip(x=x, axis=dims)
+        result = paddle.logsumexp(x=x, axis=1)
 
         self.feed_list = [x]
         self.fetch_list = [result]
+
         if config.backward:
             self.append_gradients(result, [x])
 
 
-class TorchFlip(PytorchAPIBenchmarkBase):
+class TorchLogsumexp(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = torch.flip(input=x, dims=dims)
-
+        result = torch.logsumexp(input=x, dim=1)
         self.feed_list = [x]
         self.fetch_list = [result]
+
         if config.backward:
             self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDFlip(), torch_obj=TorchFlip(), config=APIConfig("flip"))
+        pd_dy_obj=PDLogsumexp(),
+        torch_obj=TorchLogsumexp(),
+        config=LogsumexpConfig())

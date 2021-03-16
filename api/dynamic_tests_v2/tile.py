@@ -15,12 +15,10 @@
 from common_import import *
 
 
-class PDFlip(PaddleDynamicAPIBenchmarkBase):
+class PDTile(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = paddle.flip(x=x, axis=dims)
+        result = paddle.tile(x=x, repeat_times=config.repeat_times)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -28,12 +26,10 @@ class PDFlip(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchFlip(PytorchAPIBenchmarkBase):
+class TorchTile(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = torch.flip(input=x, dims=dims)
+        result = torch.tile(x, config.repeat_times)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -43,4 +39,4 @@ class TorchFlip(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDFlip(), torch_obj=TorchFlip(), config=APIConfig("flip"))
+        pd_dy_obj=PDTile(), torch_obj=TorchTile(), config=APIConfig("tile"))
