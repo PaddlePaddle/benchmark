@@ -56,7 +56,7 @@ class PDScatterNdAdd(PaddleAPIBenchmarkBase):
             self.append_gradients(result, [x, updates])
 
 
-class TorchScatterNdAdd(PytorchwAPIBenchmarkBase):
+class TorchScatterNdAdd(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         params = self.variable(
             name='params', shape=config.input_shape, dtype=config.input_dtype)
@@ -76,6 +76,7 @@ class TorchScatterNdAdd(PytorchwAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(pd_dy_obj=PDScatterNdAdd(), 
-              torch_obj=TorchScatterNdAdd(), 
-              config=ScatterNdAddConfig())
+    test_main(
+        pd_dy_obj=PDScatterNdAdd(),
+        torch_obj=TorchScatterNdAdd(),
+        config=ScatterNdAddConfig())

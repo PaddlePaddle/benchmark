@@ -15,29 +15,16 @@
 from common_import import *
 
 
-class FlipConfig(APIConfig):
-    def __init__(self):
-        super(FlipConfig, self).__init__("flip")
-
-    def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(FlipConfig, self).init_from_json(filename, config_id,
-                                               unknown_dim)
-        self.feed_spec = [
-            {
-                "range": [-1, 1]
-            },  # x
-            {
-                "range": [0, len(self.x_shape)]
-            }  # dims
-        ]
-
-
-class PDFlip(PaddleDynamicAPIBenchmarkBase):
+class PDAvgPool2d(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = paddle.flip(x=x, axis=dims)
+        result = paddle.nn.functional.avg_pool2d(
+            x=x,
+            kernel_size=config.kernel_size,
+            stride=config.stride,
+            padding=config.padding,
+            ceil_mode=config.ceil_mode,
+            data_format=config.data_format)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -45,19 +32,24 @@ class PDFlip(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchFlip(PytorchAPIBenchmarkBase):
+class TorchAvgPool2d(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        dims = []
-        dims.append(config.axis)
-        result = torch.flip(input=x, dims=dims)
+        result = torch.nn.functional.avg_pool2d(
+            input=x,
+            kernel_size=config.kernel_size,
+            stride=config.stride,
+            padding=config.padding,
+            ceil_mode=config.ceil_mode)
 
         self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, self.feed_list)
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDFlip(), torch_obj=TorchFlip(), config=APIConfig("flip"))
+        pd_dy_obj=PDAvgPool2d(),
+        torch_obj=TorchAvgPool2d(),
+        config=APIConfig('avg_pool2d'))
