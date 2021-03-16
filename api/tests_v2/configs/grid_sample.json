@@ -149,5 +149,6 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 1E-5
 }]

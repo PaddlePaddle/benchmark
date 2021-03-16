@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,22 +14,24 @@
 
 from common_import import *
 
+
 class GridSampleConfig(APIConfig):
     def __init__(self):
         super(GridSampleConfig, self).__init__("grid_sample")
-    
+
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(GridSampleConfig, self).init_from_json(filename, config_id, 
-                                                    unknown_dim)
+        super(GridSampleConfig, self).init_from_json(filename, config_id,
+                                                     unknown_dim)
         assert self.grid_shape[-1] == 2
         self.feed_spec = [
             {
-                "range": [-1, 1]                
-            }, # x
+                "range": [-1, 1]
+            },  # x
             {
                 "range": [-1, 1]
-            } # grid
+            }  # grid
         ]
+
 
 class PDGridSample(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
@@ -47,24 +49,26 @@ class PDGridSample(PaddleDynamicAPIBenchmarkBase):
         if config.backward:
             self.append_gradients(out, self.feed_list)
 
+
 class TorchGridSample(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x     = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        grids = self.variable(name='grid', 
-                    shape=config.grid_shape, dtype=config.grid_dtype)
-        out  = torch.torch.nn.functional.grid_sample(
-            input = x,
-            grid  = grids,
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        grids = self.variable(
+            name='grid', shape=config.grid_shape, dtype=config.grid_dtype)
+        out = torch.torch.nn.functional.grid_sample(
+            input=x,
+            grid=grids,
             mode=config.mode,
             padding_mode=config.padding_mode,
             align_corners=config.align_corners)
         self.feed_list = [x, grids]
         self.fetch_list = [out]
-        if config.backward :
+        if config.backward:
             self.append_gradients(out, self.feed_list)
-        
+
 
 if __name__ == '__main__':
-    test_main(pd_dy_obj=PDGridSample(), 
-              torch_obj=TorchGridSample(),
-              config=GridSampleConfig())
+    test_main(
+        pd_dy_obj=PDGridSample(),
+        torch_obj=TorchGridSample(),
+        config=GridSampleConfig())

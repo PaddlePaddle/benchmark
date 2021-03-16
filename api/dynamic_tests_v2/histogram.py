@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,35 +22,33 @@ class HistogramConfig(APIConfig):
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(HistogramConfig, self).init_from_json(filename, config_id,
                                                     unknown_dim)
-        self.feed_spec = [
-            {
-                "range" : [-10, 10]
-            }
-        ]
+        self.feed_spec = [{"range": [-10, 10]}]
+
 
 class PDHistogram(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x  = self.variable(name='input', shape=config.input_shape, dtype=config.input_dtype)
-        result = paddle.histogram(input=x, bins=config.bins, min=config.min, max=config.max)
+        x = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = paddle.histogram(
+            input=x, bins=config.bins, min=config.min, max=config.max)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, self.feed_list)
 
 
 class TorchHistogram(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x  = self.variable(name='input', shape=config.input_shape, dtype=config.input_dtype)
-        result = torch.histc(input=x, bins=config.bins, min=config.min, max=config.max)
+        x = self.variable(
+            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = torch.histc(
+            input=x, bins=config.bins, min=config.min, max=config.max)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, self.feed_list)
 
 
 if __name__ == '__main__':
-    test_main(pd_dy_obj=PDHistogram(), 
-              torch_obj= TorchHistogram(),
-              config=HistogramConfig())
+    test_main(
+        pd_dy_obj=PDHistogram(),
+        torch_obj=TorchHistogram(),
+        config=HistogramConfig())

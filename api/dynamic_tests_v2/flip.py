@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
 from common_import import *
 
 
-class FlipConfig(APIConfig) :
+class FlipConfig(APIConfig):
     def __init__(self):
         super(FlipConfig, self).__init__("flip")
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(FlipConfig, self).init_from_json(filename, config_id,
-                                                      unknown_dim)
+                                               unknown_dim)
         self.feed_spec = [
             {
                 "range": [-1, 1]
@@ -30,6 +30,7 @@ class FlipConfig(APIConfig) :
                 "range": [0, len(self.x_shape)]
             }  # dims
         ]
+
 
 class PDFlip(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
@@ -42,6 +43,7 @@ class PDFlip(PaddleDynamicAPIBenchmarkBase):
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x])
+
 
 class TorchFlip(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
@@ -58,6 +60,4 @@ class TorchFlip(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDFlip(),
-        torch_obj=TorchFlip(),
-        config=APIConfig("flip"))
+        pd_dy_obj=PDFlip(), torch_obj=TorchFlip(), config=APIConfig("flip"))
