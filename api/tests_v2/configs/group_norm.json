@@ -1,6 +1,10 @@
 [{
     "op": "group_norm",
     "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -11,7 +15,7 @@
             "type": "Variable"
         },
         "num_groups": {
-            "type": "int32",
+            "type": "int",
             "value": "3"
         }
     },

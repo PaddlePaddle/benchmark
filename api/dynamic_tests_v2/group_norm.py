@@ -17,23 +17,23 @@ from common_import import *
 
 class GroupNormConfig(APIConfig):
     def __init__(self):
-        super(GroupNorm, self).__init__('gropu_norm')
+        super(GroupNormConfig, self).__init__('group_norm')
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(GroupNormConfig, self).init_from_json(filename, 
                                         config_id, unknown_dim)
-        
     # num_channels
     if len(self.x_shape) == 4:
-        self.num_channels= self.x_shape[1] if self.data_format is "NCHW" else self.x_shape[3]
+        self.num_channels = self.x_shape[1] \
+            if self.data_format == "NCHW" else self.x_shape[3]
     else :
         self.num_channels= self.x_shape[1] 
 
     self._set_param_dtype()
-    if self.data_layout is not 'NCHW' :
+    if self.data_layout != 'NCHW' :
         raise ValueError(
-        "Param(data_layout) of Op(fluid.layers.group_norm) got wrong value: received "
-            + data_layout + " but only NCHW or NHWC supported.")
+        "Param(data_layout) of Op(fluid.layers.group_norm) got wrong value: "
+        "received " + data_layout + " but only NCHW or NHWC supported.")
 
     def _set_param_dtype(self):
         # dtype of parameters
@@ -74,4 +74,4 @@ if __name__ == '__main__':
     test_main(
         pd_dy_obj=PDGroupNorm(),
         torch_obj=TorchGroupNorm(),
-        config=APIConfig("group_norm"))
+        config=GroupNormConfig("group_norm"))
