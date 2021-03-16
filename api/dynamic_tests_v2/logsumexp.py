@@ -15,41 +15,36 @@
 from common_import import *
 
 
-class PDAvgPool2d(PaddleDynamicAPIBenchmarkBase):
+class LogsumexpConfig(APIConfig):
+    def __init__(self):
+        super(LogsumexpConfig, self).__init__('logsumexp')
+
+
+class PDLogsumexp(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.nn.functional.avg_pool2d(
-            x=x,
-            kernel_size=config.kernel_size,
-            stride=config.stride,
-            padding=config.padding,
-            ceil_mode=config.ceil_mode,
-            data_format=config.data_format)
+        result = paddle.logsumexp(x=x, axis=1)
 
         self.feed_list = [x]
         self.fetch_list = [result]
+
         if config.backward:
             self.append_gradients(result, [x])
 
 
-class TorchAvgPool2d(PytorchAPIBenchmarkBase):
+class TorchLogsumexp(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.nn.functional.avg_pool2d(
-            input=x,
-            kernel_size=config.kernel_size,
-            stride=config.stride,
-            padding=config.padding,
-            ceil_mode=config.ceil_mode)
-
+        result = torch.logsumexp(input=x, dim=1)
         self.feed_list = [x]
         self.fetch_list = [result]
+
         if config.backward:
             self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDAvgPool2d(),
-        torch_obj=TorchAvgPool2d(),
-        config=APIConfig('avg_pool2d'))
+        pd_dy_obj=PDLogsumexp(),
+        torch_obj=TorchLogsumexp(),
+        config=LogsumexpConfig())

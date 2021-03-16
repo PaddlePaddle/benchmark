@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,17 @@
 # limitations under the License.
 
 from common_import import *
+
+
+class Conv2dTransposeConfig(APIConfig):
+    def __init__(self):
+        super(Conv2dTransposeConfig, self).__init__("conv2d_transpose")
+
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(Conv2dTransposeConfig, self).init_from_json(filename, config_id,
+                                                          unknown_dim)
+        if self.groups == None:
+            self.groups = 1
 
 
 class PDConv2dTranspose(PaddleDynamicAPIBenchmarkBase):
@@ -31,7 +42,7 @@ class PDConv2dTranspose(PaddleDynamicAPIBenchmarkBase):
             padding=config.padding,
             output_padding=0,
             dilation=config.dilation,
-            groups=1,
+            groups=config.groups,
             output_size=config.output_size,
             data_format=config.data_format)
 
@@ -57,7 +68,7 @@ class TorchConv2dTranspose(PytorchAPIBenchmarkBase):
             padding=config.padding,
             output_padding=0,
             dilation=config.dilation,
-            groups=1)
+            groups=config.groups)
 
         self.feed_list = [x, weight]
         self.fetch_list = [result]
@@ -69,4 +80,4 @@ if __name__ == '__main__':
     test_main(
         pd_dy_obj=PDConv2dTranspose(),
         torch_obj=TorchConv2dTranspose(),
-        config=APIConfig("conv2d_transpose"))
+        config=Conv2dTransposeConfig())
