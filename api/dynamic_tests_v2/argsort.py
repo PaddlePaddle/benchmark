@@ -23,8 +23,6 @@ class PDArgsort(PaddleDynamicAPIBenchmarkBase):
 
         self.feed_list = [x]
         self.fetch_list = [indices]
-        if config.backward:
-            self.append_gradients(indices, [x])
 
 
 class TorchArgsort(PytorchAPIBenchmarkBase):
@@ -36,9 +34,6 @@ class TorchArgsort(PytorchAPIBenchmarkBase):
         self.feed_list = [x]
         self.fetch_list = [indices]
 
-
-#        if config.backward:
-#            self.append_gradients(indices, [x])
 
 if __name__ == '__main__':
     test_main(
