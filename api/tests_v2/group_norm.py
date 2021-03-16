@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from common_import import *
-import tensorflow_addons as tfa
 
 
 class GroupNormConfig(APIConfig):
