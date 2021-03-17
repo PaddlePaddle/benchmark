@@ -54,19 +54,23 @@
   path = PaddleSeg
   url = https://github.com/PaddlePaddle/PaddleSeg.git
   branch = develop
-[submodule "PaddleDetection"]
-  path = PaddleDetection 
-  url = https://github.com/PaddlePaddle/PaddleDetection.git 
-  branch = master
 [submodule "PaddleGAN"]
   path = PaddleGAN
   url = https://github.com/PaddlePaddle/PaddleGAN.git
   branch = master
-[submodule "PaddleClas"]
-	path = PaddleClas
-	url = https://github.com/PaddlePaddle/PaddleClas.git
-	branch = dygraph-dev
 [submodule "PaddleNLP"]
 	path = PaddleNLP
 	url = https://github.com/PaddlePaddle/PaddleNLP.git
+	branch = develop
+[submodule "PaddleClas"]
+	path = PaddleClas
+	url = https://github.com/PaddlePaddle/PaddleClas.git
+	branch = develop
+[submodule "PaddleDetection"]
+	path = PaddleDetection
+	url = https://github.com/PaddlePaddle/PaddleDetection.git
+	branch = develop
+[submodule "PaddleVideo"]
+	path = PaddleVideo
+	url = https://github.com/PaddlePaddle/PaddleVideo.git
 	branch = develop

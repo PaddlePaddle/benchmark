@@ -32,21 +32,30 @@ class Conv2dConfig(APIConfig):
                                                  unknown_dim)
         if isinstance(self.padding, int):
             self.padding = [self.padding, self.padding]
-        if self.data_format == "NCHW":
-            num_channels = self.x_shape[1]
-        elif self.data_format == "NHWC":
-            num_channels = self.x_shape[3]
+        if isinstance(self.dilation, int):
+            self.dilation = [self.dilation, self.dilation]
         if self.groups is None:
             self.groups = 1
-        if num_channels % self.groups != 0:
-            raise ValueError(
-                "the channel of input must be divisible by groups,"
-                "received: the channel of input is {}, the shape of input is {}"
-                ", the groups is {}".format(self.num_channels, self.x_shape,
-                                            self.groups))
+        assert self.get_in_channels(
+        ) % self.groups == 0, "The channel of input must be divisible by groups. "\
+            "But received: the channel of input is {}, the shape of input is {}, the groups is {}".format(
+            self.get_in_channels(), self.x_shape, self.groups)
+        if self.data_format == 'NHWC':
+            print(
+                "Warning:\n"
+                "  1. PyTorch does not have data_format param, it only support NHWC format.\n"
+            )
+            self.run_torch = False
+
+    def get_in_channels(self):
+        return self.x_shape[1] if self.data_format == "NCHW" else self.x_shape[
+            3]
+
+    def get_out_channels(self):
+        return self.weight_shape[0]
 
 
-class PaddleConv2d(PaddleDynamicAPIBenchmarkBase):
+class PDConv2d(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
@@ -91,6 +100,4 @@ class TorchConv2d(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddleConv2d(),
-        torch_obj=TorchConv2d(),
-        config=Conv2dConfig())
+        pd_dy_obj=PDConv2d(), torch_obj=TorchConv2d(), config=Conv2dConfig())
