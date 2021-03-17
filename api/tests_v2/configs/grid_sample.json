@@ -28,7 +28,8 @@
             "value": "True"
         }
     },
-    "repeat": 1000
+    "repeat": 1000,
+    "atol": 1E-5
 }, {
     "op": "grid_sample",
     "param_info": {
