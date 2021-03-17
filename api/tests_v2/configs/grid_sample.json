@@ -90,7 +90,7 @@
             "value": "False"
         }
     },
-    "atol": 1E-5
+    "atol": 1E-4
 }, {
     "op": "grid_sample",
     "param_info": {
