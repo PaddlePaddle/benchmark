@@ -89,7 +89,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 1E-5
 }, {
     "op": "grid_sample",
     "param_info": {

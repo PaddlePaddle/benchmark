@@ -31,6 +31,9 @@ class GatherConfig(APIConfig):
             }  # index
         ]
 
+        if self.input_shape != self.index_shape:
+            self.input_shape = self.index_shape
+
 
 class PDGather(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
@@ -38,7 +41,7 @@ class PDGather(PaddleDynamicAPIBenchmarkBase):
             name='x', shape=config.input_shape, dtype=config.input_dtype)
         index = self.variable(
             name='index',
-            shape=config.input_shape,
+            shape=config.index_shape,
             dtype=config.index_dtype,
             stop_gradient=True)
         result = paddle.gather(x=x, index=index, axis=config.axis)
@@ -54,7 +57,7 @@ class TorchGather(PytorchAPIBenchmarkBase):
         x = self.variable(
             name='x', shape=config.input_shape, dtype=config.input_dtype)
         index = self.variable(
-            name='index', shape=config.input_shape, dtype="int64")
+            name='index', shape=config.index_shape, dtype="int64")
         result = torch.gather(input=x, index=index, dim=config.axis)
 
         self.feed_list = [x, index]
