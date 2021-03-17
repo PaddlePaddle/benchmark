@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from common_import import *
+from pad2d import PaddlePad2d, TorchPad2d
 
 
 class Pad3dConfig(APIConfig):
@@ -32,36 +33,11 @@ class Pad3dConfig(APIConfig):
                 "  1. 'reflect' mode in torch.nn.functional.pad is not implemented.\n"
             )
             self.run_torch = False
-
-
-class PaddlePad3d(PaddleDynamicAPIBenchmarkBase):
-    def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.nn.functional.pad(x=x,
-                                          pad=config.pad,
-                                          mode=config.mode,
-                                          data_format=config.data_format)
-
-        self.feed_list = [x]
-        self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
-
-
-class TorchPad3d(PytorchAPIBenchmarkBase):
-    def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.nn.functional.pad(input=x,
-                                         pad=config.pad,
-                                         mode=config.mode,
-                                         value=config.value)
-
-        self.feed_list = [x]
-        self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
+        if len(self.x_shape) != 5:
+            print("Warning:\n"
+                  "  2. The dimentions of the input has to be 5.\n")
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddlePad3d(), torch_obj=TorchPad3d(), config=Pad3dConfig())
+        pd_dy_obj=PaddlePad2d(), torch_obj=TorchPad2d(), config=Pad3dConfig())

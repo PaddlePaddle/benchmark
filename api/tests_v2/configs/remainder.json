@@ -7,12 +7,12 @@
             "value": "-1"
         },
         "x": {
-            "dtype": "int",
+            "dtype": "float32",
             "shape": "[-1L, 2048L, -1L, -1L]",
             "type": "Variable"
         },
         "y": {
-            "dtype": "int",
+            "dtype": "float32",
             "shape": "[-1L, 2048L, -1L, -1L]",
             "type": "Variable"
         }
@@ -28,12 +28,12 @@
             "value": "-1"
         },
         "x": {
-            "dtype": "int",
+            "dtype": "float32",
             "shape": "[-1L, 1L, 513L, 513L]",
             "type": "Variable"
         },
         "y": {
-            "dtype": "int",
+            "dtype": "float32",
             "shape": "[1L]",
             "type": "Variable"
         }

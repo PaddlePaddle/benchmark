@@ -27,6 +27,5 @@
             "type": "string",
             "value": "forward"
         }
-    },
-    "atol": 1
+    }
 }]

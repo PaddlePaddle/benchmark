@@ -19,9 +19,9 @@ class PDExpandAs(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        y.stop_gradient = True
         result = paddle.expand_as(x=x, y=y)
 
-        y.stop_gradient = True
         self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
@@ -32,9 +32,9 @@ class TorchExpandAs(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        y.requires_grad = False
         result = x.expand_as(y)
 
-        y.requires_grad = False
         self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:

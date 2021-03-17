@@ -15,20 +15,6 @@
 from common_import import *
 
 
-class MaskedSelectConfig(APIConfig):
-    def __init__(self):
-        super(MaskedSelectConfig, self).__init__("masked_select")
-
-    def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(MaskedSelectConfig, self).init_from_json(filename, config_id,
-                                                       unknown_dim)
-        # according to 'class PytorchAPIBenchmarkBase', in fucntion 'Variable'
-        # requires_grad=False, when x_dtype==int. However, this API requires 
-        # GRAD, so we do the following cast:
-        if self.x_dtype == "int32":
-            self.x_dtype = "float32"
-
-
 class PDMaskedSelect(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
@@ -38,8 +24,9 @@ class PDMaskedSelect(PaddleDynamicAPIBenchmarkBase):
 
         self.feed_list = [x, mask]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
+        if config.x_dtype in ["float16", "float32", "float64"]:
+            if config.backward:
+                self.append_gradients(result, [x])
 
 
 class TorchMaskedSelect(PytorchAPIBenchmarkBase):
@@ -51,12 +38,14 @@ class TorchMaskedSelect(PytorchAPIBenchmarkBase):
 
         self.feed_list = [x, mask]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
+        # only Tensors of floating point and complex dtype can require gradients
+        if config.x_dtype in ["float16", "float32", "float64"]:
+            if config.backward:
+                self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
     test_main(
         pd_dy_obj=PDMaskedSelect(),
         torch_obj=TorchMaskedSelect(),
-        config=MaskedSelectConfig())
+        config=APIConfig("masked_select"))
