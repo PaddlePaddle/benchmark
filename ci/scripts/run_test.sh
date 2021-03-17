@@ -58,7 +58,7 @@ function prepare_env(){
   done
   # Install pytorch
   LOG "[INFO] Installing pytorch, this could take a few minutes ..."
-  pip install torch==1.7.0+cu101 torchvision==0.8.1+cu101 torchaudio==0.7.0 -f https://download.pytorch.org/whl/torch_stable.html
+  pip install torch==1.8.0 torchvision torchaudio
   [ $? -ne 0 ] && LOG "[FATAL] Install pytorch failed!" && exit -1
   python -c "import tensorflow as tf; print(tf.__version__)" > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install tensorflow success, but it can't work!" && exit -1

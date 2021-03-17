@@ -53,7 +53,7 @@ class PytorchAPIBenchmarkBase(object):
     def build_graph(self, config=None):
         pass
 
-    def variable(self, name, shape, dtype, value=None):
+    def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         if self._status == BEFORE_RUN:
             assert shape is not None
 
@@ -65,9 +65,10 @@ class PytorchAPIBenchmarkBase(object):
             feed_value = feeder.generate_random_data(
                 shape, dtype, range=range, value=value)
 
-            requires_grad = True if dtype in [
-                "float16", "float32", "float64"
-            ] else False
+            requires_grad = True
+            if stop_gradient or dtype not in ["float16", "float32", "float64"]:
+                requires_grad = False
+
             var = torch.tensor(
                 feed_value, requires_grad=requires_grad, device=self._device)
             if requires_grad:

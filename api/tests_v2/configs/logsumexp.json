@@ -15,5 +15,6 @@
             "shape": "[1024L, 512L]",
             "type": "Variable"
         }
-    }
+    },
+    "atol": 1E-5
 }]

@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,37 +15,36 @@
 from common_import import *
 
 
-class ReluConfig(APIConfig):
+class LogsumexpConfig(APIConfig):
     def __init__(self):
-        super(ReluConfig, self).__init__("relu")
-        self.feed_spec = {"range": [-1, 1]}
-        self.api_list = {'relu': 'relu', 'relu6': 'relu6', 'elu': 'elu'}
-        # relu belongs to activation op series which only has one variable
-        # thus relu can reuse activation parameters 
-        self.alias_name = "activation"
+        super(LogsumexpConfig, self).__init__('logsumexp')
 
 
-class PDRelu(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        out = self.layers(config.api_name, x=x)
-
-        self.feed_vars = [x]
-        self.fetch_vars = [out]
-        if config.backward:
-            self.append_gradients(out, [x])
-
-
-class TFRelu(TensorflowAPIBenchmarkBase):
+class PDLogsumexp(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        out = self.layers(config.api_name, features=x)
+        result = paddle.logsumexp(x=x, axis=1)
 
         self.feed_list = [x]
-        self.fetch_list = [out]
+        self.fetch_list = [result]
+
         if config.backward:
-            self.append_gradients(out, [x])
+            self.append_gradients(result, [x])
+
+
+class TorchLogsumexp(PytorchAPIBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = torch.logsumexp(input=x, dim=1)
+        self.feed_list = [x]
+        self.fetch_list = [result]
+
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(PDRelu(), TFRelu(), config=ReluConfig())
+    test_main(
+        pd_dy_obj=PDLogsumexp(),
+        torch_obj=TorchLogsumexp(),
+        config=LogsumexpConfig())
