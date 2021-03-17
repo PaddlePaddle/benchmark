@@ -62,9 +62,6 @@ class PDGroupNorm(PaddleDynamicAPIBenchmarkBase):
 class TorchGroupNorm(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-
-
-'''
         pytorch_group_norm = torch.nn.GroupNorm(
             num_groups=config.num_groups,
             num_channels=config.num_channels,
@@ -75,7 +72,7 @@ class TorchGroupNorm(PytorchAPIBenchmarkBase):
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x])
-'''
+
 
 if __name__ == '__main__':
     test_main(
