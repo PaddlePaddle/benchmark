@@ -20,11 +20,9 @@ function _set_params(){
     mission_name="图像分割"
     direction_id=0
     skip_steps=5
-    keyword="batch_cost="
-    separator="="
-    position=5
-    range=0:5
-    model_mode=0 # s/step -> sample/s 
+    keyword="ips:"
+    model_mode=-1
+    ips_unit="images/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -39,6 +37,7 @@ function _set_params(){
 
 function _train(){
     export PYTHONPATH=$(pwd):{PYTHONPATH}
+    export FLAGS_cudnn_exhaustive_search=1
     if [ ${model_name} = "HRnet" ]; then
         config="benchmark/hrnet.yml"
     elif [ ${model_name} = "deeplabv3" ]; then
