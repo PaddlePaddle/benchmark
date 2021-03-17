@@ -15,43 +15,34 @@
 from common_import import *
 
 
-class Conv2dTransposeConfig(APIConfig):
-    def __init__(self):
-        super(Conv2dTransposeConfig, self).__init__("conv2d_transpose")
+class Conv3dConfig(APIConfig):
+    def __init__(self, op_type="conv3d"):
+        super(Conv3dConfig, self).__init__(op_type)
         self.feed_spec = [
             {
                 "range": [-1, 1]
-            },  # input
+            },  # x
             {
                 "range": [-1, 1],
-            }  # filters
+            }  # weight
         ]
 
-    def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(Conv2dTransposeConfig, self).init_from_json(filename, config_id,
-                                                          unknown_dim)
-        if self.groups == None:
-            self.groups = 1
 
-
-class PDConv2dTranspose(PaddleDynamicAPIBenchmarkBase):
+class PDConv3d(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
-            name="weight",
+            name='weight',
             shape=config.weight_shape,
             dtype=config.weight_dtype)
-
-        result = paddle.nn.functional.conv2d_transpose(
+        result = paddle.nn.functional.conv3d(
             x=x,
             weight=weight,
             bias=None,
             stride=config.stride,
             padding=config.padding,
-            output_padding=0,
             dilation=config.dilation,
             groups=config.groups,
-            output_size=config.output_size,
             data_format=config.data_format)
 
         self.feed_list = [x, weight]
@@ -60,21 +51,19 @@ class PDConv2dTranspose(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x, weight])
 
 
-class TorchConv2dTranspose(PytorchAPIBenchmarkBase):
+class TorchConv3d(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
-            name="weight",
+            name='weight',
             shape=config.weight_shape,
             dtype=config.weight_dtype)
-
-        result = torch.nn.functional.conv_transpose2d(
+        result = torch.nn.functional.conv3d(
             input=x,
             weight=weight,
             bias=None,
             stride=config.stride,
             padding=config.padding,
-            output_padding=0,
             dilation=config.dilation,
             groups=config.groups)
 
@@ -86,6 +75,4 @@ class TorchConv2dTranspose(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDConv2dTranspose(),
-        torch_obj=TorchConv2dTranspose(),
-        config=Conv2dTransposeConfig())
+        pd_dy_obj=PDConv3d(), torch_obj=TorchConv3d(), config=Conv3dConfig())
