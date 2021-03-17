@@ -33,45 +33,42 @@ class LstmConfig(APIConfig):
 class PDLstm(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         input = self.variable(
-            name="input", shape=config.input_shape, dtype=config.input_dtype)
+            name="input", shape=config.inputs_shape, dtype=config.inputs_dtype)
 
         init_h = paddle.full(
-            shape=config.init_h_shape,
-            dtype=config.init_h_dtype,
+            shape=config.inital_states_shape,
+            dtype=config.inital_states_dtype,
             fill_value=0.0)
         init_c = paddle.full(
-            shape=config.init_c_shape,
-            dtype=config.init_c_dtype,
+            shape=config.inital_states_shape,
+            dtype=config.inital_states_dtype,
             fill_value=0.0)
 
-        rnn_out, last_h, last_c = paddle.fluid.layers.lstm(
-            input=input,
-            init_h=init_h,
-            init_c=init_c,
-            max_len=config.max_len,
+        rnn = paddle.nn.LSTM(
+            input_size=config.inputs_shape[-1],
             hidden_size=config.hidden_size,
             num_layers=config.num_layers,
-            dropout_prob=0.2,
-            is_bidirec=config.is_bidirec)
+            dropout=0.0,
+            direction=config.direction)
+
+        rnn_out, (last_h, last_c) = rnn(input, (init_h, init_c))
 
         self.feed_vars = [input]
         self.fetch_vars = [rnn_out]
-        #if config.backward:
-        #    self.append_gradients(rnn_out, [input])
 
 
 class TFLstm(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
-            name="input", shape=config.input_shape, dtype=config.input_dtype)
+            name="input", shape=config.inputs_shape, dtype=config.inputs_dtype)
 
         init_h = tf.constant(
-            shape=config.init_h_shape,
-            dtype=tf.as_dtype(config.init_h_dtype),
+            shape=config.inital_states_shape,
+            dtype=tf.as_dtype(config.inital_states_dtype),
             value=0.0)
         init_c = tf.constant(
-            shape=config.init_c_shape,
-            dtype=tf.as_dtype(config.init_c_dtype),
+            shape=config.inital_states_shape,
+            dtype=tf.as_dtype(config.inital_states_dtype),
             value=0.0)
 
 
