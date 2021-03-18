@@ -27,10 +27,11 @@ function _set_params(){
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
+    batch_size=`expr ${base_batch_size} \* ${num_gpu_devices}`  # 静态图未总的bs
 
-    log_file=${run_log_path}/dynamic_${model_name}_${index}_${num_gpu_devices}_${run_mode}
-    log_with_profiler=${profiler_path}/dynamic_${model_name}_3_${num_gpu_devices}_${run_mode}
-    profiler_path=${profiler_path}/profiler_dynamic_${model_name}
+    log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
+    profiler_path=${profiler_path}/profiler_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 }
@@ -39,26 +40,32 @@ function _train(){
     export PYTHONPATH=$(pwd):{PYTHONPATH}
     export FLAGS_cudnn_exhaustive_search=1
     if [ ${model_name} = "HRnet" ]; then
-        config="benchmark/hrnet.yml"
+        config="configs/hrnetw18_cityscapes_1024x512_215.yaml"
     elif [ ${model_name} = "deeplabv3" ]; then
-        config="benchmark/deeplabv3p.yml"
+        config="configs/deeplabv3p_resnet50_vd_cityscapes.yaml"
     else
         echo "------------------>model_name should be HRnet or deeplabv3!"
         exit 1
     fi
+    grep -q "#To address max_iter" pdseg/train.py
+    if [ $? -eq 0 ]; then
+        echo "----------already addressed max_iter"
+    else
+        sed -i '/data_loader.start()/a\        max_step_id = '${max_iter}' #To address max_iter' pdseg/train.py
+        sed -i '/reader_cost_averager.record(time.time() - batch_start)/i\                if step == max_step_id: return' pdseg/train.py
+    fi
 
-    train_cmd="--config=${config}
-               --iters=${max_iter}
-               --batch_size ${base_batch_size}
-               --learning_rate 0.01
-               --num_workers 2
-               --log_iters 5"
+    train_cmd="--cfg=${config}
+               --use_gpu
+               BATCH_SIZE ${batch_size}
+               DATALOADER.NUM_WORKERS 2
+               SOLVER.NUM_EPOCHS 1"
 
     if [ ${run_mode} = "sp" ]; then
-        train_cmd="python -u train.py "${train_cmd}
+        train_cmd="python -u pdseg/train.py "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch  --gpus=$CUDA_VISIBLE_DEVICES --log_dir ./mylog train.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch  --gpus=$CUDA_VISIBLE_DEVICES --log_dir ./mylog pdseg/train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
 
