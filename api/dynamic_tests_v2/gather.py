@@ -30,6 +30,8 @@ class GatherConfig(APIConfig):
                 "range": [1, self.input_shape[self.axis]]
             }  # index
         ]
+        if len(self.index_shape) > 1:
+            self.run_torch = False
 
 
 class PDGather(PaddleDynamicAPIBenchmarkBase):
