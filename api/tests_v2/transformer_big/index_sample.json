@@ -1,0 +1,29 @@
+[{
+    "op": "index_sample",
+    "param_info": {
+        "index": {
+            "dtype": "int64",
+            "shape": "[5100L, 1L]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[5100L, 38506L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "index_sample",
+    "param_info": {
+        "index": {
+            "dtype": "int64",
+            "shape": "[5100L, 1L]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[5100L, 38506L]",
+            "type": "Variable"
+        }
+    }
+}]

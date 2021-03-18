@@ -23,10 +23,9 @@ function _set_params(){
     mission_name="机器翻译"
     direction_id=1
     skip_steps=3
-    keyword="avg_speed:"
-    separator=" "
-    position=17
-    model_mode=1 # steps/s -> steps/s
+    keyword="ips:"
+    model_mode=-1
+    ips_unit="words/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -41,19 +40,15 @@ function _set_params(){
 
 function _train(){
     if [ ${model_name} == "transformer_base" ]; then 
-        train_cmd="--max_iter ${max_iter} \
-                   --src_vocab_fpath gen_data/iwslt14.tokenized.de-en/vocab.de \
-                   --trg_vocab_fpath gen_data/iwslt14.tokenized.de-en/vocab.en \
-                   --special_token  <s> <e> <unk> \
-                   --training_file gen_data/iwslt14.tokenized.de-en/para_small.de-en \
-                   --validation_file gen_data/wmt16_ende_data_bpe/newstest2014.tok.bpe.32000.en-de \
-                   --predict_file gen_data/wmt16_ende_data_bpe/newstest2016.tok.bpe.32000.en-de \
-                   --weight_sharing False \
-                   --batch_size ${base_batch_size}"
+        config_file="transformer.base.yaml"
+    elif [ ${model_name} == "transformer_big" ]; then
+        config_file="transformer.big.yaml"
     else
-        sed -i "s/^max_iter.*/max_iter: ${max_iter}/g" ../configs/transformer.big.yaml #不支持传参修改
-        train_cmd="--config ../configs/transformer.big.yaml"
+        echo " The model should be transformer_big or transformer_base!"
+        exit 1
     fi
+    sed -i "s/^max_iter.*/max_iter: ${max_iter}/g" ../configs/${config_file} #不支持传参修改
+    train_cmd="--config ../configs/${config_file}"
 
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u train.py "${train_cmd}

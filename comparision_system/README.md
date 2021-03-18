@@ -23,7 +23,7 @@
 | `pytorch` | Pix2pix | https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix.git |
 | `pytorch` | stargan | https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix.git |
 | `pytorch` | bert | https://github.com/huggingface/transformers.git |
-| `tensorflow` | transformer | pip install tensor2tensor |
+| `pytorch` | transformer | https://github.com/FrostML/DeepLearningExamples/tree/benchmark/PyTorch/Translation/Transformer.git|
 | `tensorflow` | nextvlad | https://github.com/linrongc/youtube-8m.git |
 | `tensorflow` | deeplabv3 | https://github.com/tensorflow/models.git |
 | `tensorflow` | CycleGAN | |
@@ -47,7 +47,7 @@
 | `pytorch` | resnet50_bs32 | https://github.com/phlrain/example.git |
 | `pytorch` | cyclegan | https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix.git |
 | `pytorch` | Pix2pix | https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix.git |
-| `pytorch` | transformer | https://github.com/phlrain/example.git |
+| `pytorch` | transformer |https://github.com/FrostML/DeepLearningExamples/tree/benchmark/PyTorch/Translation/Transformer.git | 
 | `pytorch` | seq2seq | https://github.com/phlrain/example.git |
 | `pytorch` | ptb | https://github.com/phlrain/example.git |
 | `pytorch` | mask_rcnn | https://github.com/facebookresearch/Detectron.git |

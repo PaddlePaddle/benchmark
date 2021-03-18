@@ -456,6 +456,7 @@ def parse_logs(args):
             if job_info["index"] == 1:
                 result = job_info['FINAL_RESULT']
                 unit = job_info['UNIT']
+                fail_flag = job_info['JOB_FAIL_FLAG']
                 for line in file_lines:
                     if 'AVG_CPU_USE' in line:
                         cpu_utilization_result = line.strip().split('=')[1]
@@ -480,7 +481,8 @@ def parse_logs(args):
             if job_info["index"] == 1:  # speed
                 print_machine_type = machine_type_to_print(run_machine_type)
                 #record fail jobs
-                if float(result) == 0 or os.getenv('job_fail_flag') == 1:
+                print('fail_flag:{}'.format(fail_flag))
+                if float(result) == 0 or fail_flag == 1:
                     FAIL_LIST.append([job_info["model_name"], print_machine_type])
                     outlier = 1
                     outlier_mem = 1

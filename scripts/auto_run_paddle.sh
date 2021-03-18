@@ -52,9 +52,7 @@ function prepare(){
     rm /etc/apt/sources.list
     cp ${all_path}/sources.list /etc/apt
     apt-get update
-    apt-get install libmysqlclient-dev -y
-    apt-get install git -y
-    apt-get install curl psmisc -y
+    apt-get install libmysqlclient-dev git curl psmisc -y
     pip install MySQL-python
 
 
@@ -80,21 +78,13 @@ function prepare(){
     data_path=${all_path}/dataset
     prepare_path=${all_path}/prepare
 
-    if [[ -e ${ROOT_PATH} ]]
-    then
-        rm ${log_path}/*
-        cd ${ROOT_PATH}
-        git pull
-        echo "prepare had done"
-    else
-        mkdir /home/crim
-        cd ${ROOT_PATH}
-        git clone https://github.com/PaddlePaddle/benchmark.git
-        cd ${BENCHMARK_ROOT}
-        git submodule init
-        git submodule update
-        mkdir -p ${log_path}
-    fi
+    # 每个任务每个模式均做创建处理，并删除上一次任务的残存文件，避免相同repo不通分支引入的bug
+    mkdir -p ${ROOT_PATH}
+    cd ${ROOT_PATH}
+    rm -rf *
+    git clone https://github.com/PaddlePaddle/benchmark.git --recursive
+    mkdir -p ${log_path}
+    echo "****************${implement_type} prepare had done*****************"
 
     cd ${BENCHMARK_ROOT}
     benchmark_commit_id=$(git log|head -n1|awk '{print $2}')
@@ -107,10 +97,15 @@ function prepare(){
         ln -s $(which python3.7) run_env/python
         ln -s $(which pip3.7) run_env/pip
         export PATH=$(pwd)/run_env:${PATH}
+        pip install -U pip
+        echo `pip --version`
     fi
     pip uninstall paddlepaddle-gpu -y
     pip install ${image_name}
-    pip install opencv-python
+    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple opencv-python
+    if [ $? -ne 0 ]; then
+        pip install ${all_path}/tools/opencv_python-4.5.1.48-cp37-cp37m-manylinux2014_x86_64.whl
+    fi
 
     # fix ssl temporarily
     export LD_LIBRARY_PATH=${all_path}/tools/ssl/lib:${LD_LIBRARY_PATH}

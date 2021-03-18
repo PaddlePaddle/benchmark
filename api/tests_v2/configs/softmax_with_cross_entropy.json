@@ -1,10 +1,6 @@
 [{
     "op": "softmax_with_cross_entropy",
     "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
         "ignore_index": {
             "type": "int",
             "value": "-100"
@@ -18,14 +14,6 @@
             "dtype": "float32",
             "shape": "[-1L, 37007L]",
             "type": "Variable"
-        },
-        "numeric_stable_mode": {
-            "type": "bool",
-            "value": "True"
-        },
-        "return_softmax": {
-            "type": "bool",
-            "value": "False"
         },
         "soft_label": {
             "type": "bool",
@@ -35,31 +23,19 @@
 }, {
     "op": "softmax_with_cross_entropy",
     "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
         "ignore_index": {
             "type": "int",
             "value": "-100"
         },
         "label": {
             "dtype": "int64",
-            "shape": "[-1L, 1L]",
+            "shape": "[8L, 512L, 1024L, 1L]",
             "type": "Variable"
         },
         "logits": {
-            "dtype": "float16",
-            "shape": "[-1L, 3L]",
+            "dtype": "float32",
+            "shape": "[8L, 512L, 1024L, 19L]",
             "type": "Variable"
-        },
-        "numeric_stable_mode": {
-            "type": "bool",
-            "value": "True"
-        },
-        "return_softmax": {
-            "type": "bool",
-            "value": "True"
         },
         "soft_label": {
             "type": "bool",

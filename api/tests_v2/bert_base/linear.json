@@ -118,4 +118,42 @@
             "type": "Variable"
         }
     }
+}, {
+    "config_id": 6,
+    "op": "linear",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 30528L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[30528L, 768L]",
+            "type": "Variable"
+        },
+        "bias": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "config_id": 7,
+    "op": "linear",
+    "param_info": {
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 30528L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[30528L, 768L]",
+            "type": "Variable"
+        },
+        "bias": {
+            "type": "string",
+            "value": "None"
+        }
+    }
 }]

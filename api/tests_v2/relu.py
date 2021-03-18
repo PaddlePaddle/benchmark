@@ -19,7 +19,7 @@ class ReluConfig(APIConfig):
     def __init__(self):
         super(ReluConfig, self).__init__("relu")
         self.feed_spec = {"range": [-1, 1]}
-        self.api_list = {'relu': 'relu', 'relu6': 'relu6'}
+        self.api_list = {'relu': 'relu', 'relu6': 'relu6', 'elu': 'elu'}
         # relu belongs to activation op series which only has one variable
         # thus relu can reuse activation parameters 
         self.alias_name = "activation"

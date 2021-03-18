@@ -27,11 +27,9 @@ function _set_params(){
     mission_name="图像分类"
     direction_id=0
     skip_steps=11
-    keyword="INFO: epoch:"
-    separator=": "
-    position=6
-    range=1:7
-    model_mode=0 # s/step -> samples/s
+    keyword="ips:"
+    model_mode=-1
+    ips_unit="images/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -51,8 +49,8 @@ function _train(){
                -o epochs=${max_epoch}
                -o print_interval=10
                -o TRAIN.batch_size=${batch_size}
-               -o TRAIN.data_dir=./dataset/dataset_100
-               -o TRAIN.file_list=./dataset/dataset_100/train_list_mobile.txt
+               -o TRAIN.data_dir=./dataset/imagenet100_data
+               -o TRAIN.file_list=./dataset/imagenet100_data/train_list_ori.txt
                -o TRAIN.num_workers=8"
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u tools/train.py "${train_cmd}
@@ -63,6 +61,14 @@ function _train(){
     fi
     
     timeout 15m ${train_cmd} > ${log_file} 2>&1
+    if [ $? -ne 0 ];then
+        echo -e "${model_name}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model_name}, SUCCESS"
+        export job_fail_flag=0
+    fi
+
     if [ ${run_mode} != "sp"  -a -d mylog_${model_name} ]; then
         rm ${log_file}
         cp mylog_${model_name}/`ls -l mylog_${model_name}/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ${log_file}

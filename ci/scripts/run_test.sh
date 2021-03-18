@@ -56,6 +56,10 @@ function prepare_env(){
     env http_proxy="" https_proxy="" pip install $package > /dev/null
     [ $? -ne 0 ] && LOG "[FATAL] Install $package failed!" && exit -1
   done
+  # Install pytorch
+  LOG "[INFO] Installing pytorch, this could take a few minutes ..."
+  pip install torch==1.8.0 torchvision torchaudio
+  [ $? -ne 0 ] && LOG "[FATAL] Install pytorch failed!" && exit -1
   python -c "import tensorflow as tf; print(tf.__version__)" > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install tensorflow success, but it can't work!" && exit -1
   
@@ -64,8 +68,8 @@ function prepare_env(){
 
 function run_api(){
   LOG "[INFO] Start run api test ..."
-  API_NAMES=(tests_v2/abs)
-  for file in $(git diff --name-only upstream/master | grep -E "api/tests(_v2)?/(.*\.py|configs/.*\.json)")
+  API_NAMES=()
+  for file in $(git diff --name-only master | grep -E "api/(dynamic_)?tests(_v2)?/(.*\.py|configs/.*\.json)")
   do
     LOG "[INFO] Found ${file} modified."
     api=${file#*api/} && api=${api%.*}
@@ -81,7 +85,9 @@ function run_api(){
       done
     fi
   done
-  API_NAMES=($(for api in ${API_NAMES[@]}; do echo $api; done | sort | uniq))
+  API_NAMES=($(echo ${API_NAMES[@]} | tr ' ' '\n' | sort | uniq))
+  [ -z "$(echo ${API_NAMES[@]} | grep -w 'tests_v2')" ] && API_NAMES[${#API_NAMES[@]}]=tests_v2/abs
+  [ -z "$(echo ${API_NAMES[@]} | grep -w 'dynamic_tests_v2')" ] && API_NAMES[${#API_NAMES[@]}]=dynamic_tests_v2/abs
   LOG "[INFO] These APIs will run: ${API_NAMES[@]}"
   fail_name=()
   for name in ${API_NAMES[@]}

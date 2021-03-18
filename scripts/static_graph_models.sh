@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(image_classification detection mask_rcnn seq2seq nextvlad deeplab paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
+cur_model_list=(detection mask_rcnn seq2seq nextvlad image_classification seg_model paddingrnn transformer CycleGAN  StarGAN STGAN Pix2pix bert yolov3)
 
 #run_cycle_gan
 CycleGAN(){
@@ -250,31 +250,31 @@ nextvlad(){
 }
 
 
-#run_deeplabv3+
-deeplab(){
+#run_seg_models
+seg_model(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/legacy
     cd ${cur_model_path}
     # Prepare data and pretrained parameters.
     ln -s ${data_path}/cityscape ${cur_model_path}/dataset/cityscapes
     ln -s ${prepare_path}/deeplabv3p_xception65_bn_cityscapes ${cur_model_path}/pretrained_model/
     # Running ...
-    cp ${BENCHMARK_ROOT}/static_graph/deeplabv3+/paddle/run_benchmark.sh ./
+    rm -rf run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/static_graph/seg_models/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 2 | tee ${log_path}/DeepLab_V3+_speed_1gpus 2>&1
-    sleep 60
-    echo "index is speed, 1gpu, profiler is on, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 1 | tee ${log_path}/DeepLab_V3+_speed_1gpus_profiler 2>&1
-    sleep 60
-    echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 1 | tee ${log_path}/DeepLab_V3+_speed_8gpus 2>&1
-    sleep 60
-    echo "index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 1 | tee ${log_path}/DeepLab_V3+_maxbs_1gpus 2>&1
-    sleep 60
-    echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 sp 1 | tee ${log_path}/DeepLab_V3+_maxbs_8gpus 2>&1
-
+    model_list=(deeplabv3 HRnet)
+    for model_item in ${model_list[@]}
+    do
+        echo "index is speed, ${model_item} 1gpu begin"
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 180 | tee ${log_path}/${model_item}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is speed, ${model_item} 8gpu begin"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 180 | tee ${log_path}/${model_item}_speed_8gpus 2>&1
+        sleep 60
+        echo "index is speed, 1gpu, profiler is on, begin"
+#       CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp ${model_item} 200  | tee ${log_path}/${model_item}_speed_1gpus_profiler 2>&1
+        sleep 60
+    done
 }
 
 
@@ -282,7 +282,6 @@ deeplab(){
 image_classification(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout dygraph
     # Prepare data
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset/
     # Copy run_benchmark.sh and running ...
@@ -292,11 +291,11 @@ image_classification(){
     pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda100
 
     # running models cases
-    model_list=(SE_ResNeXt50_32x4d ResNet101 ResNet50_bs32 ResNet50_bs96)
+    model_list=(SE_ResNeXt50_32x4d ResNet101 ResNet50_bs32 ResNet50_bs128)
     for model_name in ${model_list[@]}; do
         run_batchsize=32
-        if [ ${model_name} = "ResNet50_bs96" ]; then
-            run_batchsize=96
+        if [ ${model_name} = "ResNet50_bs128" ]; then
+            run_batchsize=128
         fi
         echo "index is speed, 1gpu, begin, ${model_name}"
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 1 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
@@ -381,7 +380,7 @@ detection(){
 #        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_name} sp 600 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_name} sp 600 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_name} sp 300 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
         sleep 60
     done
 }
@@ -451,14 +450,12 @@ mask_rcnn(){
 
 #run_bert
 bert(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/legacy/pretrain_language_models/BERT/
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/benchmark/bert
     cd ${cur_model_path}
-    rm -rf data
-    ln -s ${data_path}/Bert/data ${cur_model_path}/data
-    ln -s ${data_path}/Bert/MNLI ${cur_model_path}/MNLI
-    ln -s ${prepare_path}/Bert/chinese_L-12_H-768_A-12 ${cur_model_path}/chinese_L-12_H-768_A-12
-    ln -s ${prepare_path}/Bert/uncased_L-24_H-1024_A-16 ${cur_model_path}/uncased_L-24_H-1024_A-16
+    ln -s ${data_path}/Bert/hdf5_lower_case_1_seq_len_512_max_pred_80_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en_seqlen512 ${cur_model_path}/wikicorpus_en_seqlen512
+    ln -s ${data_path}/Bert/wikicorpus_en_seqlen128 ${cur_model_path}/wikicorpus_en_seqlen128
     cp ${BENCHMARK_ROOT}/static_graph/BERT/paddle/run_benchmark.sh ./run_benchmark.sh
+    pip install paddlenlp
 
     sed -i '/set\ -xe/d' run_benchmark.sh
 
@@ -468,73 +465,39 @@ bert(){
         for fp_mode in ${fp_mode_list[@]}; do
             model_name="${FUNCNAME}_${model_mode}_${fp_mode}"
             echo "index is speed, 1gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 1500 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 500 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
             sleep 60
-            echo "index is speed, 1gpus, profiler is on, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_mode} ${fp_mode} sp 1500 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
-            sleep 60
-            echo "index is speed, 8gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 500 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
-            sleep 60
-            #echo "index is maxbs, 1gpus, begin, ${model_name}"
-            #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_1gpus 2>&1
-            #sleep 60
-            #echo "index is maxbs, 8gpus, begin, ${model_name}"
-            #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 ${model_mode} ${fp_mode} sp ${train_log_dir} | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
-            #sleep 60
             echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp 800 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp 400 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
             sleep 60
         done
     done
 }
 
-
 #run_transformer
 transformer(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/legacy/machine_translation/transformer/
+    pip install paddlenlp attrdict
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/benchmark/transformer/static
     cd ${cur_model_path}
-    ln -s ${data_path}/transformer/data ${cur_model_path}/data
-    cp -r ${prepare_path}/transformer/mosesdecoder ${cur_model_path}/mosesdecoder
+    # prepare data
+    mkdir -p ~/.paddlenlp/datasets/machine_translation
+    ln -s ${data_path}/dygraph_data/transformer/WMT14ende ~/.paddlenlp/datasets/machine_translation/
+    rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/static_graph/Transformer/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
-    model_type="base"
-    echo "model_type is ${model_type}, index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_1gpus 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is speed,profiler is on, 1gpu, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_1gpus_profiler 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_1gpus 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_8gpus 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_type} mp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus8p 2>&1
-    sleep 60
-    model_type="big"
-    echo "model_type is ${model_type}, index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_1gpus 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is speed, profiler is on, 1gpu, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_1gpus_profiler 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_type} sp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is maxbs, 1gpus, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_1gpus 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 ${model_type} sp 400 | tee ${log_path}/${FUNCNAME}_${model_type}_maxbs_8gpus 2>&1
-    sleep 60
-    echo "model_type is ${model_type}, index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_type} mp 600 | tee ${log_path}/${FUNCNAME}_${model_type}_speed_8gpus8p 2>&1
+    mode_list=(big base)
+    for mode_item in ${mode_list[@]}
+    do
+        model_name="transformer_${mode_item}"
+        echo "index is speed, ${model_name} 1gpu begin"
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 600 ${mode_item} | tee   ${log_path}/${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is speed, ${model_name} 8gpus begin, sp"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 ${mode_item} | tee  ${log_path}/${model_name}_speed_8gpus 2>&1
+        sleep 60
+        echo "index is speed, ${model_name} 8gpus begin, mp"
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 ${mode_item} | tee  ${log_path}/${model_name}_speed_8gpus8p 2>&1
+    done
 }
 
 
@@ -558,7 +521,7 @@ ddpg_deep_explore(){
 
 #run_paddingrnn
 paddingrnn(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/legacy/language_model
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/legacy/language_model
     cd ${cur_model_path}
     # Prepare data.
     ln -s ${data_path}/simple-examples ${cur_model_path}/data/simple-examples
@@ -608,9 +571,9 @@ yolov3(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
-    sleep 60
-    echo "index is speed, 1gpu, profiler on, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
+    #sleep 60
+    #echo "index is speed, 1gpu, profiler on, begin"
+    #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
@@ -628,7 +591,7 @@ yolov3(){
 
 # seq2seq
 seq2seq(){
-    cur_model_path=${BENCHMARK_ROOT}/models/PaddleNLP/legacy/seq2seq/seq2seq/
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/legacy/seq2seq/seq2seq/
     cd ${cur_model_path}
 
     # Prepare data

@@ -20,16 +20,11 @@ import time
 import abc, six
 import importlib
 import numpy as np
-from common import special_op_list
 
-if six.PY3:
-    from . import utils
-    from . import api_param
-    from . import feeder
-else:
-    import utils
-    import api_param
-    import feeder
+from common import api_param
+from common import feeder
+from common import special_op_list
+from common import utils
 
 try:
     import torch
@@ -58,7 +53,7 @@ class PytorchAPIBenchmarkBase(object):
     def build_graph(self, config=None):
         pass
 
-    def variable(self, name, shape, dtype, value=None):
+    def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         if self._status == BEFORE_RUN:
             assert shape is not None
 
@@ -70,9 +65,14 @@ class PytorchAPIBenchmarkBase(object):
             feed_value = feeder.generate_random_data(
                 shape, dtype, range=range, value=value)
 
+            requires_grad = True
+            if stop_gradient or dtype not in ["float16", "float32", "float64"]:
+                requires_grad = False
+
             var = torch.tensor(
-                feed_value, requires_grad=True, device=self._device)
-            var.retain_grad()
+                feed_value, requires_grad=requires_grad, device=self._device)
+            if requires_grad:
+                var.retain_grad()
             self._feed_dict[name] = var
 
             if value is None:

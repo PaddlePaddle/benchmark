@@ -28,8 +28,6 @@ class PDAddN(PaddleAPIBenchmarkBase):
 
         self.feed_vars = inputs
         self.fetch_vars = [result]
-        if config.backward:
-            self.append_gradients(result, inputs)
 
 
 class TFAddN(TensorflowAPIBenchmarkBase):
@@ -45,8 +43,6 @@ class TFAddN(TensorflowAPIBenchmarkBase):
 
         self.feed_list = inputs
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, inputs)
 
 
 if __name__ == '__main__':

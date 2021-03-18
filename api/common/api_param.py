@@ -113,7 +113,7 @@ class BaseParamInfo(object):
             return int(value_str)
         elif self.type == "bool":
             return eval(value_str)
-        elif self.type == "string":
+        elif self.type in ["string", "str"]:
             return None if value_str == "None" else value_str
         elif self.type == "list":
             return parse_list(value_str, sub_dtype="int")
@@ -137,11 +137,10 @@ class VarParamInfo(BaseParamInfo):
             self.shape = shape_str
         self.lod_level = self._encode_item(lod_level)
 
-    def _is_same(self, dtypes, shapes):
-        dtype_0 = dtypes[0]
-        shape_0 = shapes[0]
-        for i in range(len(dtypes)):
-            if dtype_0 != dtypes[i] or shape_0 != shapes[i]:
+    def _is_same(self, values):
+        value_0 = values[0]
+        for i in range(len(values)):
+            if value_0 != values[i]:
                 return False
         return True
 
@@ -152,7 +151,7 @@ class VarParamInfo(BaseParamInfo):
         elif self.type == "list<Variable>":
             str_list = "%s (list<Variable>[%d]) - " % (self.name,
                                                        len(self.dtype))
-            if self._is_same(self.dtype, self.shape):
+            if self._is_same(self.dtype) and self._is_same(self.shape):
                 params_len = 1
             else:
                 params_len = len(self.dtype)
@@ -168,13 +167,13 @@ class APIConfig(object):
         self.__framework = "paddle"
         self.api_name = self.name
         self.params = params
-        self.atol = 1e-6
         self.variable_list = None
         self.params_list = None
         self.backward = False
         self.feed_spec = None
         self.run_tf = True
         self.run_torch = True
+        self.alias_name = None
 
     @classmethod
     def get_all_subclasses(self):
@@ -190,10 +189,9 @@ class APIConfig(object):
         If self.name = a, self.alias_name = b, the filename should be "dir/a.json",
         the filename of config will be "dir/b.json".
         """
-        if hasattr(self, "alias_name"):
+        if hasattr(self, "alias_name") and self.alias_name is not None:
             dirname = os.path.dirname(filename)
-            basename = os.path.basename(filename)
-            basename = basename.replace(self.name, self.alias_name)
+            basename = self.alias_name + os.path.splitext(filename)[-1]
             return os.path.join(dirname, basename)
         return filename
 
@@ -205,17 +203,41 @@ class APIConfig(object):
     def framework(self):
         return self.__framework
 
-    def disabled(self):
-        use_gpu = os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""
+    def compute_dtype(self):
+        dtype = None
         for name, value in vars(self).items():
             # float16 is not supported for CPU.
-            if not use_gpu and name.endswith("_dtype") and value == "float16":
-                print(
-                    "Warning:\n"
-                    "  1. This config is disabled because float16 is not supported for %s on CPU.\n"
-                    % (self.api_name))
-                return True
+            if name.endswith("_dtype"):
+                if value == "float16":
+                    dtype = "float16"
+                elif dtype is not None:
+                    dtype = value
+        return dtype
+
+    def disabled(self):
+        use_gpu = os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""
+        if not use_gpu and self.compute_dtype() == "float16":
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s on CPU.\n"
+                % (self.api_name))
+            return True
         return False
+
+    def convert_to_fp16(self):
+        """
+        Convert all variables' dtype to float16.
+        """
+        for name, value in vars(self).items():
+            if name.endswith("_dtype") and value != "float16":
+                setattr(self, name, "float16")
+
+        for var in self.variable_list:
+            if var.type == "Variable":
+                var.dtype = "float16"
+            elif var.type == "list<Variable>":
+                for i in range(var.dtype):
+                    var.dtype[i] = "float16"
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         filename = self.alias_filename(filename)
@@ -250,6 +272,9 @@ class APIConfig(object):
                             var_temp[j] = unknown_dim
             setattr(self, var.name + '_shape', var.shape)
             setattr(self, var.name + '_dtype', var.dtype)
+
+        if not hasattr(self, "atol"):
+            self.atol = 1e-3 if self.compute_dtype() == "float16" else 1e-6
         return self
 
     def to_tensorflow(self):
@@ -285,8 +310,13 @@ class APIConfig(object):
     def __str__(self):
         exclude_attrs = [
             '_APIConfig__name', '_APIConfig__framework', 'params', 'api_name',
-            'api_list', 'variable_list', 'params_list', 'backward', 'feed_spec'
+            'api_list', 'variable_list', 'params_list', 'backward',
+            'feed_spec', 'alias_name'
         ]
+        if self.framework == "tensorflow":
+            exclude_attrs.append("run_torch")
+        elif self.framework == "pytorch":
+            exclude_attrs.append("run_tf")
         prefix = ""
         debug_str = ('[%s][%s] %s {\n') % (self.framework, self.name,
                                            self.api_name)
