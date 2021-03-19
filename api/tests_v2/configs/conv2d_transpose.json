@@ -36,7 +36,7 @@
             "value": "2"
         }
     },
-    "atol": 1E-2
+    "atol": 1E-3
 }, {
     "op": "conv2d_transpose",
     "param_info": {
@@ -75,7 +75,7 @@
             "value": "2"
         }
     },
-    "atol": 1E-1
+    "atol": 1E-3
 }, {
     "op": "conv2d_transpose",
     "param_info": {
