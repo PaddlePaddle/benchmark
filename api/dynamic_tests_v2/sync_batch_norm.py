@@ -22,6 +22,9 @@ class SyncBatchNormConfig(APIConfig):
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(SyncBatchNormConfig, self).init_from_json(filename, config_id,
                                                         unknown_dim)
+        self.run_torch = False
+        print("sorry pytorch is unsupported!")
+
         # num_channels
         if len(self.x_shape) == 4:
             self.num_channels = self.x_shape[
@@ -35,7 +38,6 @@ class SyncBatchNormConfig(APIConfig):
                 "Warning:\n"
                 "  1. PyTorch does not have data_format param, it only support NHWC format.\n"
             )
-            self.run_torch = False
 
     def _set_param_dtype(self):
         # dtype of parameters
@@ -75,28 +77,5 @@ class PDSyncBatchNorm(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchSyncBatchNorm(PytorchAPIBenchmarkBase):
-    def build_graph(self, config):
-        print("sorry pytorch is unsupported!")
-
-
-#        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-#        device = torch.device("cuda")
-#        sync_batch_norm = torch.nn.SyncBatchNorm(
-#            num_features = config.num_channels,
-#            eps = config.epsilon,
-#            momentum=config.momentum,
-#            affine=True,
-#            track_running_stats = config.training,
-#            process_group = process_group)
-#        result = sync_batch_norm(x)
-#        self.feed_list = [x]
-#        self.fetch_list = [result]
-#        if config.backward:
-#            self.append_gradients(result, [x])
-
 if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PDSyncBatchNorm(),
-        torch_obj=TorchSyncBatchNorm(),
-        config=SyncBatchNormConfig())
+    test_main(pd_dy_obj=PDSyncBatchNorm(), config=SyncBatchNormConfig())
