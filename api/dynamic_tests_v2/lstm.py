@@ -83,6 +83,8 @@ class PDLstm(PaddleDynamicAPIBenchmarkBase):
 
         self.feed_list = [input]
         self.fetch_list = [rnn_out]
+        if config.backward:
+            self.append_gradients(rnn_out, [input])
 
 
 class TorchLstm(PytorchAPIBenchmarkBase):
@@ -90,17 +92,11 @@ class TorchLstm(PytorchAPIBenchmarkBase):
         input = self.variable(
             name="input", shape=config.inputs_shape, dtype=config.inputs_dtype)
 
-        # tensor_h = torch.empty(
-        #     config.inital_states_shape, dtype=config.inital_states_dtype)
-        # init_h = torch.nn.init.constant_(tensor=tensor_h, val=0.0)
         init_h = torch.full(
             size=config.inital_states_shape,
             fill_value=0.0,
             dtype=config.inital_states_dtype)
 
-        # tensor_c = torch.empty(
-        #     config.inital_states_shape, dtype=config.inital_states_dtype)
-        # init_c = torch.nn.init.constant_(tensor=tensor_c, val=0.0)
         init_c = torch.full(
             size=config.inital_states_shape,
             fill_value=0.0,
@@ -115,7 +111,7 @@ class TorchLstm(PytorchAPIBenchmarkBase):
             bidirectional=config.direction)
         # move model and input to cuda device
         if torch.cuda.is_available():
-            rnn.cuda()
+            rnn = rnn.cuda()
             input = input.cuda()
             init_h = init_h.cuda()
             init_c = init_c.cuda()
@@ -124,6 +120,8 @@ class TorchLstm(PytorchAPIBenchmarkBase):
 
         self.feed_list = [input]
         self.fetch_list = [rnn_out]
+        if config.backward:
+            self.append_gradients(rnn_out, [input])
 
 
 if __name__ == '__main__':

@@ -37,8 +37,6 @@ class PDRnn(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
             name="input", shape=config.input_shape, dtype=config.input_dtype)
-        # The shape of init_h is [batch_size, hidden_size],which is referenced from
-        # https://www.paddlepaddle.org.cn/documentation/docs/zh/api/paddle/nn/layer/rnn/SimpleRNNCell_cn.html#simplernncell
         init_h = paddle.full(
             shape=[config.init_h_shape[1], config.hidden_size],
             dtype=config.init_h_dtype,
@@ -52,6 +50,8 @@ class PDRnn(PaddleDynamicAPIBenchmarkBase):
 
         self.feed_list = [input]
         self.fetch_list = [output]
+        if config.backward:
+            self.append_gradients(output, [input])
 
 
 class TorchRnn(PytorchAPIBenchmarkBase):
@@ -61,8 +61,6 @@ class TorchRnn(PytorchAPIBenchmarkBase):
         ]
         input = self.variable(
             name="input", shape=config.input_shape, dtype=config.input_dtype)
-        #tensor_h = torch.empty(config.init_h_shape, dtype=config.init_h_dtype)
-        #init_h = torch.nn.init.constant_(tensor=tensor_h, val=0.0)
         init_h = torch.full(
             size=config.init_h_shape,
             fill_value=0.0,
@@ -81,6 +79,8 @@ class TorchRnn(PytorchAPIBenchmarkBase):
 
         self.feed_list = [input]
         self.fetch_list = [rnn_out]
+        if config.backward:
+            self.append_gradients(rnn_out, [input])
 
 
 if __name__ == "__main__":
