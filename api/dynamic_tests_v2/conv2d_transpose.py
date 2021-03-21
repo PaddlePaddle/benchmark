@@ -18,6 +18,14 @@ from common_import import *
 class Conv2dTransposeConfig(APIConfig):
     def __init__(self):
         super(Conv2dTransposeConfig, self).__init__("conv2d_transpose")
+        self.feed_spec = [
+            {
+                "range": [-1, 1]
+            },  # input
+            {
+                "range": [-1, 1],
+            }  # filters
+        ]
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(Conv2dTransposeConfig, self).init_from_json(filename, config_id,
