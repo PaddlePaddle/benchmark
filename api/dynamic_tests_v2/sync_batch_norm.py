@@ -18,12 +18,12 @@ from common_import import *
 class SyncBatchNormConfig(APIConfig):
     def __init__(self):
         super(SyncBatchNormConfig, self).__init__('sync_batch_norm')
+        self.run_torch = False
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(SyncBatchNormConfig, self).init_from_json(filename, config_id,
                                                         unknown_dim)
-        self.run_torch = False
-        print("sorry pytorch is unsupported!")
+        print("Warning:\n" "sorry pytorch is unsupported!\n")
 
         # num_channels
         if len(self.x_shape) == 4:
@@ -31,25 +31,6 @@ class SyncBatchNormConfig(APIConfig):
                 1] if self.data_format == "NCHW" else self.x_shape[3]
         else:
             self.num_channels = self.x_shape[1]
-
-        self._set_param_dtype()
-        if self.data_format == 'NHWC':
-            print(
-                "Warning:\n"
-                "  1. PyTorch does not have data_format param, it only support NHWC format.\n"
-            )
-
-    def _set_param_dtype(self):
-        # dtype of parameters
-        self.param_dtype = "float32" if self.x_dtype == "float16" else self.x_dtype
-
-    def convert_to_fp16(self):
-        super(SyncBatchNormConfig, self).convert_to_fp16()
-        if self.data_format == "NHWC":
-            paddle.fluid.set_flags({
-                'FLAGS_cudnn_SyncBatchNorm_spatial_persistent': 1
-            })
-        self._set_param_dtype()
 
 
 class PDSyncBatchNorm(PaddleDynamicAPIBenchmarkBase):
