@@ -57,6 +57,7 @@ def analysis(file_path):
         result = json.dumps(job_info["FINAL_RESULT"])
     return model, fail_flag, result
 
+
 def compare():
     file_list = traverse_logs(args.log_path)
     for file in file_list:
