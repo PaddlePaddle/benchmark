@@ -15,32 +15,36 @@
 from common_import import *
 
 
-class ActivationConfig(APIConfig):
+class MathsConfig(APIConfig):
     def __init__(self):
-        super(ActivationConfig, self).__init__('activation')
-        self.api_name = 'sigmoid'
+        super(MathsConfig, self).__init__('maths')
+        self.api_name = 'cos'
         self.api_list = {
-            'sigmoid': 'sigmoid',
-            'relu': 'relu',
-            'relu6': 'relu6',
-            'elu': 'elu',
-            'gelu': 'gelu',
-            'hardsigmoid': 'hardsigmoid',
-            'hardswish': 'hardswish',
-            'selu': 'selu',
-            'softplus': 'softplus',
-            'tanh': 'tanh',
-            'tanhshrink': 'tanhshrink',
-            'softshrink': 'softshrink',
-            'softsign': 'softsign'
+            'cos': 'cos',
+            'exp': 'exp',
+            'log': 'log',
+            'sin': 'sin',
+            'sinh': 'sinh',
+            'sqrt': 'sqrt',
+            'square': 'square',
+            'tanh': 'tanh'
         }
+        self.alias_name = "activation"
+
+    def disabled(self):
+        if self.api_name in ["log"] and self.x_dtype == "float16":
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s.\n"
+                % (self.api_name))
+            return True
+        return super(MathsConfig, self).disabled()
 
 
-class PDActivation(PaddleDynamicAPIBenchmarkBase):
+class PDMaths(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(
-            config.api_name, module_name="paddle.nn.functional", x=x)
+        result = self.layers(config.api_name, x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -48,11 +52,10 @@ class PDActivation(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchActivation(PytorchAPIBenchmarkBase):
+class TorchMaths(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(
-            config.api_name, module_name="torch.nn.functional", input=x)
+        result = self.layers(config.api_name, x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -62,6 +65,4 @@ class TorchActivation(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDActivation(),
-        torch_obj=TorchActivation(),
-        config=ActivationConfig())
+        pd_dy_obj=PDMaths(), torch_obj=TorchMaths(), config=MathsConfig())
