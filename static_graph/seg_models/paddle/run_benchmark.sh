@@ -47,6 +47,8 @@ function _train(){
         echo "------------------>model_name should be HRnet or deeplabv3!"
         exit 1
     fi
+    model_name=${model_name}_bs${base_batch_size}
+
     grep -q "#To address max_iter" pdseg/train.py
     if [ $? -eq 0 ]; then
         echo "----------already addressed max_iter"
