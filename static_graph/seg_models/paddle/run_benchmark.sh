@@ -57,6 +57,7 @@ function _train(){
 
     train_cmd="--cfg=${config}
                --use_gpu
+               --use_mpio
                BATCH_SIZE ${batch_size}
                DATALOADER.NUM_WORKERS 2
                SOLVER.NUM_EPOCHS 1"
