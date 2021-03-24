@@ -46,6 +46,7 @@ function _train(){
         echo "------------------>model_name should be HRnet or deeplabv3!"
         exit 1
     fi
+    model_name=${model_name}_bs${base_batch_size}
 
     train_cmd="--config=${config}
                --iters=${max_iter}
