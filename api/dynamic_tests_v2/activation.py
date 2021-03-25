@@ -23,17 +23,25 @@ class ActivationConfig(APIConfig):
             'sigmoid': 'sigmoid',
             'relu': 'relu',
             'relu6': 'relu6',
+            'leaky_relu': 'leaky_relu',
             'elu': 'elu',
-            'gelu': 'gelu',
             'hardsigmoid': 'hardsigmoid',
             'hardswish': 'hardswish',
             'selu': 'selu',
             'softplus': 'softplus',
-            'tanh': 'tanh',
             'tanhshrink': 'tanhshrink',
             'softshrink': 'softshrink',
             'softsign': 'softsign'
         }
+
+    def disabled(self):
+        if self.api_name in ["selu"] and self.x_dtype == "float16":
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s.\n"
+                % (self.api_name))
+            return True
+        return super(ActivationConfig, self).disabled()
 
 
 class PDActivation(PaddleDynamicAPIBenchmarkBase):

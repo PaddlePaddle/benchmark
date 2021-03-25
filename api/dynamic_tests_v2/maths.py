@@ -55,7 +55,7 @@ class PDMaths(PaddleDynamicAPIBenchmarkBase):
 class TorchMaths(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(config.api_name, x=x)
+        result = self.layers(config.api_name, input=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
