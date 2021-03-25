@@ -88,14 +88,18 @@ dy_transformer(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/transformer/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     mode_list=(big base)
+    fp_list=(fp32 amp_fp16)
     for mode_item in ${mode_list[@]}
     do
-        model_name="transformer_${mode_item}"
-        echo "index is speed, ${model_name} 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 600 ${mode_item}  | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
-        sleep 60
-        echo "index is speed, ${model_name} 8gpus begin, mp"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 ${mode_item} | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+        for fp_item in ${fp_list[@]}
+        do
+            model_name="transformer_${mode_item}"
+            echo "index is speed, ${model_name} 1gpu begin"
+            CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 600 ${mode_item} ${fp_item} | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
+            sleep 60
+            echo "index is speed, ${model_name} 8gpus begin, mp"
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 ${mode_item} ${fp_item} | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+        done
     done 
 }
 

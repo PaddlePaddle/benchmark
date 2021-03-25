@@ -4,7 +4,7 @@ set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 100(max_iter) base|big(model_type)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 100(max_iter) base|big(model_type) fp32|amp_fp16|pure_fp16(fp_mode)"
     exit
 fi
 
@@ -15,6 +15,7 @@ function _set_params(){
     run_mode=${2}
     max_iter=${3}
     model_name="transformer_"${4}
+    fp_mode=${5:-"fp32"}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -31,7 +32,7 @@ function _set_params(){
     arr=($device)
     num_gpu_devices=${#arr[*]}
 
-    log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_file=${run_log_path}/${model_name}_bs${base_batch_size}_${fp_mode}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
@@ -47,8 +48,23 @@ function _train(){
         echo " The model should be transformer_big or transformer_base!"
         exit 1
     fi
+
+    # 混合精度监控。不支持传参修改。fp16 和fp32 混合，无论哪种情况需设置对应值，防止参数错误
+    if [ ${fp_mode} == "amp_fp16" ]; then
+        sed -i "s/^use_amp.*/use_amp: True/g" ../configs/${config_file}
+        sed -i "s/^use_pure_fp16.*/use_pure_fp16: False/g" ../configs/${config_file}
+    elif [ ${fp_mode} == "pure_fp16" ]; then
+        sed -i "s/^use_amp.*/use_amp: True/g" ../configs/${config_file}
+        sed -i "s/^use_pure_fp16.*/use_pure_fp16: True/g" ../configs/${config_file}
+    elif [ ${fp_mode} == "fp32" ]; then
+        sed -i "s/^use_amp.*/use_amp: False/g" ../configs/${config_file}
+        sed -i "s/^use_pure_fp16.*/use_pure_fp16: False/g" ../configs/${config_file}
+    else
+        echo " The fp_mode should be fp32 pure_fp16 or amp_fp16"
+    fi
+
     sed -i "s/^max_iter.*/max_iter: ${max_iter}/g" ../configs/${config_file} #不支持传参修改
-    model_name=${model_name}_bs${base_batch_size}
+    model_name=${model_name}_bs${base_batch_size}_${fp_mode}
 
     train_cmd="--config ../configs/${config_file}"
 
