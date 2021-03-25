@@ -48,6 +48,8 @@ function _train(){
         exit 1
     fi
     sed -i "s/^max_iter.*/max_iter: ${max_iter}/g" ../configs/${config_file} #不支持传参修改
+    model_name=${model_name}_bs${base_batch_size}
+
     train_cmd="--config ../configs/${config_file}"
 
     if [ ${run_mode} = "sp" ]; then

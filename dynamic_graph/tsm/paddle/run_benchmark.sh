@@ -39,6 +39,7 @@ function _set_params(){
 }
 
 function _train(){
+    model_name=${model_name}_bs${base_batch_size}
     train_cmd="-c configs/recognition/tsm/tsm.yaml
                -o MODEL.backbone.pretrained="./ResNet50_pretrain.pdparams"
                -o epochs=${max_epoch}

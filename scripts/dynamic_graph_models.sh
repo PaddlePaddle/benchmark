@@ -149,7 +149,7 @@ dy_gan(){
 dy_seg(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/
     cd ${cur_model_path}
-    git checkout develop    # 静态图监控benchmark分支，已将默认分支切为benchmark。故而静态图训练完毕后，需切下分支
+    #git checkout develop    # 静态图监控benchmark分支，已将默认分支切为benchmark。故而静态图训练完毕后，需切下分支
     
     #apt-get install lsb-core -y
     pip install  visualdl
