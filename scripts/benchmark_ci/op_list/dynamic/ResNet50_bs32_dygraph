@@ -1,0 +1,16 @@
+read_op
+momentum_op
+accuracy_op
+load_op
+gaussian_random_op
+fill_constant_op
+conv_op
+batch_norm_op
+prelu_op
+pool_op
+reshape_op
+matmul_op
+softmax_with_cross_entropy_op
+mean_op
+softmax_op
+top_k_op
