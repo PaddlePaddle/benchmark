@@ -93,7 +93,7 @@ dy_transformer(){
     do
         for fp_item in ${fp_list[@]}
         do
-            model_name="transformer_${mode_item}"
+            model_name="transformer_${mode_item}_${fp_item}"
             echo "index is speed, ${model_name} 1gpu begin"
             CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 600 ${mode_item} ${fp_item} | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
             sleep 60
