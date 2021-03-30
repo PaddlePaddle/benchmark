@@ -1,0 +1,29 @@
+[{
+    "op": "leaky_relu",
+    "param_info": {
+        "negative_slope": {
+            "type": "float",
+            "value": "0.1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 31L, 31L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "leaky_relu",
+    "param_info": {
+        "negative_slope": {
+            "type": "float",
+            "value": "0.1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 512L, 31L, 31L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}]
