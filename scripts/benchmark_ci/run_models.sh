@@ -54,7 +54,7 @@ bert_base_seqlen128_fp32_bs32(){
 }
 
 #run MobileNetV1
-mobilenetV1(){
+MobileNetV1(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
     # Prepare data
@@ -73,4 +73,4 @@ mobilenetV1(){
 #ResNet50_bs32_dygraph
 #ResNet50_bs32
 #bert_base_seqlen128_fp32_bs32
-#mobilenetV1
+#MobileNetV1
