@@ -96,12 +96,14 @@ class TorchSoftmaxWithCrossEntropy(PytorchAPIBenchmarkBase):
         input = self.variable(
             name="input", shape=config.logits_shape, dtype=config.logits_dtype)
         label = self.variable(
-            name='label', shape=config.label_shape, dtype=config.label_dtype)
+            name='label',
+            shape=config.label_shape,
+            dtype=config.label_dtype,
+            stop_gradient=True)
         result = torch.nn.functional.cross_entropy(
             input=input,
             target=label,
             weight=None,
-            size_average=None,
             ignore_index=config.ignore_index,
             reduction="none")
 

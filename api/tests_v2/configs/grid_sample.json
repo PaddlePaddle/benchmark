@@ -28,7 +28,8 @@
             "value": "True"
         }
     },
-    "repeat": 1000
+    "repeat": 1000,
+    "atol": 1E-5
 }, {
     "op": "grid_sample",
     "param_info": {
@@ -89,7 +90,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 1E-5
 }, {
     "op": "grid_sample",
     "param_info": {
@@ -119,7 +121,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 1E-5
 }, {
     "op": "grid_sample",
     "param_info": {
@@ -149,5 +152,6 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "atol": 1E-5
 }]

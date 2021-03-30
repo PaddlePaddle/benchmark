@@ -1,0 +1,26 @@
+[{
+    "op": "sync_batch_norm",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L]",
+            "type": "Variable"
+        },
+        "training": {
+            "type": "bool",
+            "value": "True"
+        },
+        "momentum": {
+            "type": "float",
+            "value": "0.9"
+        }
+    }
+}]

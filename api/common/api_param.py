@@ -313,6 +313,10 @@ class APIConfig(object):
             'api_list', 'variable_list', 'params_list', 'backward',
             'feed_spec', 'alias_name'
         ]
+        if self.framework == "tensorflow":
+            exclude_attrs.append("run_torch")
+        elif self.framework == "pytorch":
+            exclude_attrs.append("run_tf")
         prefix = ""
         debug_str = ('[%s][%s] %s {\n') % (self.framework, self.name,
                                            self.api_name)

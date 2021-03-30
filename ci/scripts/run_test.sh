@@ -58,7 +58,7 @@ function prepare_env(){
   done
   # Install pytorch
   LOG "[INFO] Installing pytorch, this could take a few minutes ..."
-  pip install torch==1.7.0+cu101 torchvision==0.8.1+cu101 torchaudio==0.7.0 -f https://download.pytorch.org/whl/torch_stable.html
+  pip install torch==1.8.0 torchvision torchaudio
   [ $? -ne 0 ] && LOG "[FATAL] Install pytorch failed!" && exit -1
   python -c "import tensorflow as tf; print(tf.__version__)" > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install tensorflow success, but it can't work!" && exit -1
@@ -109,7 +109,9 @@ function run_api(){
 
 function check_style(){
   LOG "[INFO] Start check code style ..."
-  pre-commit install > /dev/null
+  # uninstall pre-commit firstly to avoid using old data
+  pre-commit uninstall >&2
+  pre-commit install >&2
   commit_files=on
   LOG "[INFO] Check code style via per-commit, this could take a few minutes ..."
   for file_name in $(git diff --name-only upstream/master)
@@ -155,6 +157,8 @@ function main(){
   prepare_env
   check_style_info=$(check_style)
   check_style_code=$?
+  # `check_style_info` is empty means the check passed even if there are errors.
+  [ -z "${check_style_info}" ] && check_style_code=0
   run_api_info=$(run_api)
   run_api_code=$?
   summary_problems $check_style_code "$check_style_info" $run_api_code "$run_api_info"
