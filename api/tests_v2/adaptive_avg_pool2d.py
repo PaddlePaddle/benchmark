@@ -29,7 +29,6 @@ class PDAdaptiveAvgPool2D(PaddleAPIBenchmarkBase):
             output_size=config.output_size, data_format=config.data_format)
         result = adaptive_avg_pool2d(x)
 
-        print(result)
         self.feed_vars = [x]
         self.fetch_vars = [result]
         if config.backward:
@@ -45,8 +44,6 @@ class TFAdaptiveAvgPool2d(TensorflowAPIBenchmarkBase):
         tf_func = tfa.layers.AdaptiveAveragePooling2D(
             output_size=config.output_size, data_format=data_format)
         out = tf_func(x)
-        print(out[0][0][0][0])
-        print("+++++++++++\n")
         self.feed_list = [x]
         self.fetch_list = [out]
         if config.backward:
