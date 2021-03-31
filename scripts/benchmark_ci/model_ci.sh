@@ -12,7 +12,7 @@ pip install tqdm
 pip install paddlenlp
 #run models
 cd ${BENCHMARK_ROOT}/scripts/benchmark_ci
-model_list='ResNet50_bs32_dygraph ResNet50_bs32 bert_base_seqlen128_fp32_bs32 CycleGAN'
+model_list='ResNet50_bs32_dygraph ResNet50_bs32 bert_base_seqlen128_fp32_bs32'
 source run_models.sh
 for model in ${model_list}
 do
