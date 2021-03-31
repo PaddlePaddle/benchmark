@@ -12,7 +12,7 @@ pip install tqdm
 pip install paddlenlp
 #run models
 cd ${BENCHMARK_ROOT}/scripts/benchmark_ci
-model_list='ResNet50_bs32_dygraph ResNet50_bs32 bert_base_seqlen128_fp32_bs32 MobileNetV1'
+model_list='ResNet50_bs32_dygraph ResNet50_bs32 bert_base_seqlen128_fp32_bs32'
 source run_models.sh
 for model in ${model_list}
 do
@@ -58,8 +58,8 @@ if [ -f "rerun_model.txt" ];then
         #compare the result of pr and paddle dev 
         python analysis.py --log_path=${BENCHMARK_ROOT}/logs/static_pr --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/static --threshold=0.05 --paddle_dev=True 
     fi
-    if [ -d "${BENCHMARK_ROOT}/logs/dygraph" ];then
-        python analysis_dev.py --log_path=${BENCHMARK_ROOT}/logs/dygraph --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dygraph
+    if [ -d "${BENCHMARK_ROOT}/logs/dynamic" ];then
+        python analysis_dev.py --log_path=${BENCHMARK_ROOT}/logs/dynamic --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic
         python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic_pr --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=0.05  --paddle_dev=True
     fi
 fi
@@ -69,5 +69,3 @@ if [[ -z `cat log.txt | grep success` ]];then
 else
     echo -e "model_benchmark ci job success!"
 fi
-
-

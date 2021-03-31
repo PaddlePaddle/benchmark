@@ -70,7 +70,27 @@ MobileNetV1(){
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mobilenet.sh 1  sp 1  ${model_name} | tee ${BENCHMARK_ROOT}/logs/dynamic/${model_name}_speed_1gpus 2>&1
     sleep 60
 }
+
+#run CycleGAN
+CycleGAN(){
+    cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan
+    cd ${cur_model_path}
+    #prepare data
+    mkdir -p ${cur_model_path}/data
+    ln -s ${data_path}/horse2zebra/ ${cur_model_path}/data/cityscapes
+    # Copy run_benchmark.sh and running ...
+    rm -rf ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/static_graph/CycleGAN/paddle/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    
+    #running model case
+    model_name=CycleGAN
+    echo "index is speed, begin, CycleGAN"
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${BENCHMARK_ROOT}/logs/static/${model_name}_speed_1gpus 2>&1
+    sleep 60
+}
 #ResNet50_bs32_dygraph
 #ResNet50_bs32
 #bert_base_seqlen128_fp32_bs32
 #MobileNetV1
+#CycleGAN
