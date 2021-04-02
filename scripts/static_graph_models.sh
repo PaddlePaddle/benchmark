@@ -337,7 +337,7 @@ image_classification(){
 
 #run_detection
 detection(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection/static
     cd ${cur_model_path}
     ## test dir
     git branch
@@ -356,7 +356,7 @@ detection(){
     ln -s ${prepare_path}/detection/ResNeXt101_vd_64x4d_pretrained ~/.cache/paddle/weights
 
     # Prepare package_list
-    package_check_list=(imageio tqdm Cython pycocotools tb_paddle)
+    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
             echo "${package} have already installed"
@@ -388,7 +388,7 @@ detection(){
 
 #run_mask-rcnn
 mask_rcnn(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection/static
     cd ${cur_model_path}
     git branch
 
@@ -563,7 +563,7 @@ yolov3(){
         echo "cocoapi installed"
     fi
 
-    cd ${BENCHMARK_ROOT}/PaddleDetection
+    cd ${BENCHMARK_ROOT}/PaddleDetection/static
     git branch
 
     #sh ./weights/download.sh

@@ -197,7 +197,7 @@ dy_slowfast(){
 }
 
 dy_mask_rcnn(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection/dygraph
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     pip install -r requirements.txt 
 
@@ -214,14 +214,18 @@ dy_mask_rcnn(){
         python setup.py install --user
         echo "cocoapi installed"
     fi
-    if python -c "import tb_paddle" >/dev/null 2>&1;
-    then
-        echo "tb_paddle have already installed"
-    else
-        echo "tb_paddle NOT FOUND"
-        pip install tb_paddle
-        echo "tb_paddle installed"
-    fi
+
+    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy)
+    for package in ${package_check_list[@]}; do
+        if python -c "import ${package}" >/dev/null 2>&1; then
+            echo "${package} have already installed"
+        else
+            echo "${package} NOT FOUND"
+            pip install ${package}
+            echo "${package} installed"
+        fi
+    done
+
     # Copy pretrained model
     ln -s ${prepare_path}/mask-rcnn/ResNet50_cos_pretrained  ~/.cache/paddle/weights
     cd ${cur_model_path}
@@ -244,7 +248,7 @@ dy_mask_rcnn(){
 }
 
 dy_yolov3(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection/dygraph
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     git branch    #develop 分支
     cd ${cur_model_path}
    
