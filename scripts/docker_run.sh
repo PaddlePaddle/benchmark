@@ -92,7 +92,8 @@ function build_paddle(){
     fi
     echo "------------today is $WEEK_DAY, and cuda_arch_name is $cuda_arch_name"
     
-    docker run -i --rm -v $PWD:/paddle \
+    PADDLE_ROOT=${PWD}
+    docker run -i --rm -v ${PADDLE_ROOT}:/paddle \
       -w /paddle \
       --net=host \
       -e "CMAKE_BUILD_TYPE=Release" \
