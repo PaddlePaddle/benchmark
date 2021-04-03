@@ -18,20 +18,24 @@ from common_import import *
 class ActivationConfig(APIConfig):
     def __init__(self):
         super(ActivationConfig, self).__init__('activation')
-        self.api_name = 'cos'
+        self.api_name = 'sigmoid'
         self.api_list = {
-            'cos': 'cos',
-            'exp': 'exp',
-            'log': 'log',
-            'sin': 'sin',
-            'sinh': 'sinh',
-            'sqrt': 'sqrt',
-            'square': 'square',
-            'tanh': 'tanh'
+            'sigmoid': 'sigmoid',
+            'relu': 'relu',
+            'relu6': 'relu6',
+            'leaky_relu': 'leaky_relu',
+            'elu': 'elu',
+            'hardsigmoid': 'hardsigmoid',
+            'hardswish': 'hardswish',
+            'selu': 'selu',
+            'softplus': 'softplus',
+            'tanhshrink': 'tanhshrink',
+            'softshrink': 'softshrink',
+            'softsign': 'softsign'
         }
 
     def disabled(self):
-        if self.api_name in ["log"] and self.x_dtype == "float16":
+        if self.api_name in ["selu"] and self.x_dtype == "float16":
             print(
                 "Warning:\n"
                 "  1. This config is disabled because float16 is not supported for %s.\n"
@@ -43,7 +47,8 @@ class ActivationConfig(APIConfig):
 class PDActivation(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(config.api_name, x=x)
+        result = self.layers(
+            config.api_name, module_name="paddle.nn.functional", x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -54,7 +59,8 @@ class PDActivation(PaddleDynamicAPIBenchmarkBase):
 class TorchActivation(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.layers(config.api_name, x=x)
+        result = self.layers(
+            config.api_name, module_name="torch.nn.functional", input=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
