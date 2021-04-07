@@ -282,6 +282,7 @@ seg_model(){
 image_classification(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    pip install -r requirements.txt
     # Prepare data
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset/
     # Copy run_benchmark.sh and running ...
