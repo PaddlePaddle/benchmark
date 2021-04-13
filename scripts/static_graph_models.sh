@@ -493,10 +493,10 @@ transformer(){
         for fp_item in ${fp_list[@]}
         do
             bs_list=(4096)
-            if [ ${mode_list} == "big" ]; then
-                if [ ${mode_list} == "fp32" ]; then
+            if [ ${mode_item} == "big" ]; then
+                if [ ${mode_item} == "fp32" ]; then
                     bs_list=(4096 2560)
-                elif [ ${mode_list} == "pure_fp16" ]; then
+                elif [ ${mode_item} == "pure_fp16" ]; then
                     bs_list=(4096 5120)
                 fi
             fi
