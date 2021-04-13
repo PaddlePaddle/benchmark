@@ -19,9 +19,12 @@ class ReduceConfig(APIConfig):
     def __init__(self):
         super(ReduceConfig, self).__init__('reduce')
         self.feed_spec = {"range": [-1, 1]}
-        self.api_name = 'reduce_mean'
+        self.api_name = 'mean'
         self.api_list = {
+            'any': 'reduce_any',
+            'max': 'reduce_max',
             'mean': 'reduce_mean',
+            'min': 'reduce_min',
             'sum': 'reduce_sum',
             'prod': 'reduce_prod'
         }
