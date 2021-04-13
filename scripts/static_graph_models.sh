@@ -496,7 +496,7 @@ transformer(){
             if [ ${mode_list} == "big" ]; then
                 if [ ${mode_list} == "fp32" ]; then
                     bs_list=(4096 5120)
-                else [ ${mode_list} == "pure_fp16" ]; then
+                elif [ ${mode_list} == "pure_fp16" ]; then
                     bs_list=(4096 5120)
                 fi
             fi
