@@ -45,7 +45,7 @@ function _train(){
                --epochs ${max_epoch}
                --batch_size ${batch_size}
                --do_eval False
-               --devices=gpu"
+               --device=gpu"
 
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u train.py "${train_cmd}
