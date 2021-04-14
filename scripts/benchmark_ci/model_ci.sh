@@ -64,7 +64,8 @@ if [ -f "rerun_model.txt" ];then
     fi
 fi
 if [[ -z `cat log.txt | grep success` ]];then
-    echo -e "model_benchmark ci job failed!" 
+    echo -e "model_benchmark ci job failed!"
+    echo -e "See https://github.com/PaddlePaddle/Paddle/wiki/PR-CI-Model-benchmark-Manual for details." 
     exit 1
 else
     echo -e "model_benchmark ci job success!"
