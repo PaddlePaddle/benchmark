@@ -44,7 +44,8 @@ function _train(){
                --model_save_dir ./save_dir
                --epochs ${max_epoch}
                --batch_size ${batch_size}
-               --do_eval False
+               --logging_steps=5
+               --save_steps=10000
                --device=gpu"
 
     if [ ${run_mode} = "sp" ]; then
