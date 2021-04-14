@@ -65,7 +65,8 @@ if [ -f "rerun_model.txt" ];then
 fi
 if [[ -z `cat log.txt | grep success` ]];then
     echo -e "model benchmark ci job failed!"
-    echo -e "See https://github.com/PaddlePaddle/Paddle/wiki/PR-CI-Model-benchmark-Manual for details." 
+    echo -e "See https://github.com/PaddlePaddle/Paddle/wiki/PR-CI-Model-benchmark-Manual for details."
+    echo -e "Or you can apply for one QA(xiegegege(Recommend), hysunflower) approval to pass the PR." 
     exit 1
 else
     echo -e "model benchmark ci job success!"
