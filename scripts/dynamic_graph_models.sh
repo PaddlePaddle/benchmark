@@ -14,13 +14,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_mobilenet)
+cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_mobilenet)
 
+#run_bert
+dy_bert(){
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/bert
+    cd ${cur_model_path}
+    ln -s ${data_path}/Bert/hdf5_lower_case_1_seq_len_512_max_pred_80_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en_seqlen512 ${cur_model_path}/wikicorpus_en_seqlen512 ./data
+    ln -s ${data_path}/Bert/wikicorpus_en_seqlen128 ./data
+    rm -rf run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/bert/paddle/run_benchmark.sh ./run_benchmark.sh
+    pip install paddlenlp
+
+    sed -i '/set\ -xe/d' run_benchmark.sh
+
+    model_mode_list=(base large)
+    fp_mode_list=(fp32 fp16)
+    for model_mode in ${model_mode_list[@]}; do
+        for fp_mode in ${fp_mode_list[@]}; do
+            model_name="${FUNCNAME}_${model_mode}_${fp_mode}"
+            echo "index is speed, 1gpus, begin, ${model_name}"
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 500 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+            sleep 60
+            echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp 400 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+            sleep 60
+        done
+    done
+}
 
 # MobileNet
 dy_mobilenet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    pip install -r requirements.txt
 
     # Prepare data
     ln -s ${data_path}/dygraph_data/imagenet100_data ${cur_model_path}/dataset/         # 准备数据集,需>要保证benchmark任务极其21 上对应目录下存在该数据集！
@@ -366,6 +393,7 @@ dy_senta(){
 dy_resnet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    pip install -r requirements.txt
    
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
     rm -f ./run_benchmark.sh

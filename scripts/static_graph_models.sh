@@ -30,9 +30,9 @@ CycleGAN(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
-    sleep 60
-    echo "index is speed, profiler is on, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
+#    sleep 60
+#    echo "index is speed, profiler is on, begin"
+#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
 }
 
 
@@ -282,6 +282,7 @@ seg_model(){
 image_classification(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    pip install -r requirements.txt
     # Prepare data
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset/
     # Copy run_benchmark.sh and running ...
@@ -609,7 +610,7 @@ seq2seq(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 1 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
-    sleep 60
-    echo "index is speed, profiler is on, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 1 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
+#    sleep 60
+#    echo "index is speed, profiler is on, begin"
+#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 1 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
 }

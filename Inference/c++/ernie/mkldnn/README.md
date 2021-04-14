@@ -7,7 +7,7 @@
 ```bash
 git clone https://github.com/PaddlePaddle/Paddle.git
 cd Paddle
-git checkout tags/v2.0.0 -b v2.0.0
+git checkout tags/v2.0.2 -b v2.0.2
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
       -DWITH_GPU=OFF \
