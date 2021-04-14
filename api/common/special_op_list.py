@@ -31,7 +31,7 @@ NO_BACKWARD_OPS = [
     "feed",
     "fetch",
 
-    # paddle v1 APIs
+    # paddle v1 apis
     "accuracy",
     "arange",
     "argmax",
@@ -62,8 +62,9 @@ NO_BACKWARD_OPS = [
     "shape",
     "zeros_like",
 
-    # paddle v2 APIs
+    # paddle v2 apis
     "add_n",
+    "any",
     "bernoulli",
     "empty",
     "equal_all",
