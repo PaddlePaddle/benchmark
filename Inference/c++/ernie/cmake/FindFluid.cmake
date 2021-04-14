@@ -41,9 +41,9 @@ endif()
   
 include_directories(${PADDLE_INC_DIR})
 
-find_library(PADDLE_FLUID_SHARED_LIB NAMES "libpaddle_fluid.so" PATHS
+find_library(PADDLE_FLUID_SHARED_LIB NAMES "libpaddle_inference.so" PATHS
     ${PADDLE_ROOT}/${LIB_PATH})
-find_library(PADDLE_FLUID_STATIC_LIB NAMES "libpaddle_fluid.a" PATHS
+find_library(PADDLE_FLUID_STATIC_LIB NAMES "libpaddle_inference.a" PATHS
     ${PADDLE_ROOT}/${LIB_PATH})
 
 if(USE_SHARED AND PADDLE_INC_DIR AND PADDLE_FLUID_SHARED_LIB)
@@ -133,6 +133,7 @@ if(NOT USE_SHARED)
   third_party_library(glog ${THIRD_PARTY_ROOT}/install/glog/lib libglog.a)
   third_party_library(protobuf ${THIRD_PARTY_ROOT}/install/protobuf/lib libprotobuf.a)
   third_party_library(gflags ${THIRD_PARTY_ROOT}/install/gflags/lib libgflags.a)
+  third_party_library(gflags ${THIRD_PARTY_ROOT}/install/cryptopp/lib libcryptopp.a)
   if(NOT mklml_FOUND)
     third_party_library(openblas ${THIRD_PARTY_ROOT}/install/openblas/lib libopenblas.a)
   endif()
