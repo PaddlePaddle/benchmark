@@ -492,15 +492,26 @@ transformer(){
     do
         for fp_item in ${fp_list[@]}
         do
-            model_name="transformer_${mode_item}_${fp_item}"
-            echo "index is speed, ${model_name} 1gpu begin"
-            CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 600 ${mode_item} ${fp_item} | tee   ${log_path}/${model_name}_speed_1gpus 2>&1
-            sleep 60
-            echo "index is speed, ${model_name} 8gpus begin, sp"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 ${mode_item} ${fp_item} | tee  ${log_path}/${model_name}_speed_8gpus 2>&1
-            sleep 60
-            echo "index is speed, ${model_name} 8gpus begin, mp"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 ${mode_item} ${fp_item} | tee  ${log_path}/${model_name}_speed_8gpus8p 2>&1
+            bs_list=(4096)
+            if [ ${mode_item} == "big" ]; then
+                if [ ${mode_item} == "fp32" ]; then
+                    bs_list=(4096 2560)
+                elif [ ${mode_item} == "pure_fp16" ]; then
+                    bs_list=(4096 5120)
+                fi
+            fi
+            for bs_item in ${bs_list[@]}
+            do
+                model_name="transformer_${mode_item}_bs${bs_item}_${fp_item}"
+                echo "index is speed, ${model_name} 1gpu begin"
+                CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 600 ${mode_item} ${fp_item} ${bs_item} | tee   ${log_path}/${model_name}_speed_1gpus 2>&1
+                sleep 60
+                echo "index is speed, ${model_name} 8gpus begin, sp"
+                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 ${mode_item} ${fp_item} ${bs_item} | tee  ${log_path}/${model_name}_speed_8gpus 2>&1
+                sleep 60
+                echo "index is speed, ${model_name} 8gpus begin, mp"
+                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 ${mode_item} ${fp_item} ${bs_item} | tee  ${log_path}/${model_name}_speed_8gpus8p 2>&1
+            done
         done
     done
 }

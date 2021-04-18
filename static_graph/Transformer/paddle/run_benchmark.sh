@@ -4,13 +4,13 @@ set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 100(max_iter) base|big(model_type) fp32|amp_fp16|pure_fp16(fp_mode)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 100(max_iter) base|big(model_type) fp32|amp_fp16|pure_fp16(fp_mode) bs(4096|2560|5120)"
     exit
 fi
 
 function _set_params(){
     index=$1
-    base_batch_size=4096
+    base_batch_size=$6
 
     run_mode=${2}
     max_iter=${3}
@@ -64,6 +64,7 @@ function _train(){
     fi
 
     sed -i "s/^max_iter.*/max_iter: ${max_iter}/g" ../configs/${config_file} #不支持传参修改
+    sed -i "s/^batch_size:.*/batch_size: ${base_batch_size}/g" ../configs/${config_file} #不支持传参修改
     model_name=${model_name}_bs${base_batch_size}_${fp_mode}
 
     train_cmd="--config ../configs/${config_file}"
