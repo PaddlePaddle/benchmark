@@ -60,20 +60,30 @@ class PDBatchNorm(PaddleDynamicAPIBenchmarkBase):
         bias = self.variable(
             name='bias', shape=[config.num_channels], dtype=config.param_dtype)
 
-        running_mean = paddle.create_parameter(
-            name='running_mean',
-            shape=[config.num_channels],
-            dtype=config.param_dtype,
-            attr=paddle.ParamAttr(
-                initializer=paddle.nn.initializer.Constant(0)))
-        running_mean.stop_gradient = True
-        running_var = paddle.create_parameter(
-            name='running_var',
-            shape=[config.num_channels],
-            dtype=config.param_dtype,
-            attr=paddle.ParamAttr(
-                initializer=paddle.nn.initializer.Constant(1)))
-        running_var.stop_gradient = True
+        # running_mean and running_var will be used as input and output.
+        # When training and use_global_stats is False, input mean and variance
+        # will not be used, output mean and variance_out will be updated.
+        # So it is not need to initialize running_mean and running_variance
+        # every time for this case.
+        if not config.training or not hasattr(self, "_running_mean"):
+            self._running_mean = paddle.create_parameter(
+                name='running_mean',
+                shape=[config.num_channels],
+                dtype=config.param_dtype,
+                attr=paddle.ParamAttr(
+                    initializer=paddle.nn.initializer.Constant(0)))
+            self._running_mean.stop_gradient = True
+        running_mean = self._running_mean
+
+        if not config.training or not hasattr(self, "_running_var"):
+            self._running_var = paddle.create_parameter(
+                name='running_var',
+                shape=[config.num_channels],
+                dtype=config.param_dtype,
+                attr=paddle.ParamAttr(
+                    initializer=paddle.nn.initializer.Constant(1)))
+            self._running_var.stop_gradient = True
+        running_var = self._running_var
 
         result = paddle.nn.functional.batch_norm(
             x=x,
@@ -102,10 +112,22 @@ class TorchBatchNorm(PytorchAPIBenchmarkBase):
         bias = self.variable(
             name='bias', shape=[config.num_channels], dtype=config.param_dtype)
 
+        # running_mean and running_var will be used as input and output.
+        # When training and use_global_stats is False, input mean and variance
+        # will not be used, output mean and variance_out will be updated.
+        # So it is not need to initialize running_mean and running_variance
+        # every time for this case.
         device = torch.device("cuda" if use_gpu() and torch.cuda.is_available()
                               else "cpu")
-        running_mean = torch.zeros([config.num_channels], device=device)
-        running_var = torch.ones([config.num_channels], device=device)
+        if not config.training or not hasattr(self, "_running_mean"):
+            self._running_mean = torch.zeros(
+                [config.num_channels], device=device)
+        running_mean = self._running_mean
+
+        if not config.training or not hasattr(self, "_running_var"):
+            self._running_var = torch.ones(
+                [config.num_channels], device=device)
+        running_var = self._running_var
 
         result = torch.nn.functional.batch_norm(
             input=x,
