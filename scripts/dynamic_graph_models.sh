@@ -108,7 +108,7 @@ dy_transformer(){
     pip install paddlenlp attrdict
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/benchmark/transformer/dygraph
     cd ${cur_model_path}
-    # prepare data
+    #prepare data
     mkdir -p ~/.paddlenlp/datasets
     ln -s ${data_path}/dygraph_data/transformer/WMT14ende ~/.paddlenlp/datasets/ 
     rm -f ./run_benchmark.sh
