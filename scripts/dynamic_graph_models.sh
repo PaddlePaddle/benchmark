@@ -102,13 +102,13 @@ dy_ptb_lm(){
     CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 10000 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
 }
 
-#transformer
+# transformer
 dy_transformer(){
     echo "###########pip install paddlenlp"
     pip install paddlenlp attrdict
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/benchmark/transformer/dygraph
     cd ${cur_model_path}
-    #prepare data
+    # prepare data
     mkdir -p ~/.paddlenlp/datasets
     ln -s ${data_path}/dygraph_data/transformer/WMT14ende ~/.paddlenlp/datasets/ 
     rm -f ./run_benchmark.sh
