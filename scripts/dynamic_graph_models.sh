@@ -109,8 +109,8 @@ dy_transformer(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/benchmark/transformer/dygraph
     cd ${cur_model_path}
     # prepare data
-    mkdir -p ~/.paddlenlp/datasets/machine_translation
-    ln -s ${data_path}/dygraph_data/transformer/WMT14ende ~/.paddlenlp/datasets/machine_translation/ 
+    mkdir -p ~/.paddlenlp/datasets
+    ln -s ${data_path}/dygraph_data/transformer/WMT14ende ~/.paddlenlp/datasets/ 
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/transformer/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
