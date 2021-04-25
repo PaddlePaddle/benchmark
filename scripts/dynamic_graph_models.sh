@@ -102,7 +102,7 @@ dy_ptb_lm(){
     CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 10000 | tee ${log_path}/dynamic_${FUNCNAME}_speed_1gpus 2>&1
 }
 
-# transformer
+#transformer
 dy_transformer(){
     echo "###########pip install paddlenlp"
     pip install paddlenlp attrdict
