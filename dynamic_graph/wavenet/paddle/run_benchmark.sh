@@ -23,9 +23,8 @@ function _set_params(){
     mission_name="语音合成"
     skip_steps=5
     keyword="ips: "
-    separator=" "
-    position=10 #18
-    model_mode=0 #1 
+    model_mode=-1
+    ips_unit="samples/s" 
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)

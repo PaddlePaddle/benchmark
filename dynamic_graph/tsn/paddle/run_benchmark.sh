@@ -23,9 +23,9 @@ function _set_params(){
     mission_name="视频分类"
     direction_id=0
     skip_steps=5
-    keyword="batch_cost:"
-    model_mode=0 # s/step -> samples/s
-    # ips_unit="samples/sec"
+    keyword="ips:"
+    model_mode=-1 
+    ips_unit="images/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)

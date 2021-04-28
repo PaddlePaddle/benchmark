@@ -25,7 +25,7 @@ function _set_params(){
     skip_steps=12
     keyword="ips:"
     model_mode=-1
-    ips_unit="samples/s"
+    ips_unit="sequences/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)

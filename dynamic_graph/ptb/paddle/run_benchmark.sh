@@ -23,10 +23,8 @@ function _set_params(){
     direction_id=1
     mission_name="语言模型"
     skip_steps=5
-    keyword="batch_cost:"
-    separator=" "
-    position=10
-    model_mode=2 # s/step -> steps/s
+    keyword="ips:"
+    model_mode=-1
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
