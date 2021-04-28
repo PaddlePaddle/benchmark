@@ -26,7 +26,7 @@ function _set_params(){
     direction_id=0
     keyword="ips:"
     skip_steps=5
-    ips_unit="images/sec"
+    ips_unit="images/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
