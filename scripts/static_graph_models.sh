@@ -549,7 +549,7 @@ paddingrnn(){
     rnn_type_list=(static padding)
     for model_type in ${model_type_list[@]}; do
         for rnn_type in ${rnn_type_list[@]}; do
-        model_name="${FUNCNAME}_${model_type}_${rnn_type}"
+        model_name="${FUNCNAME}_${model_type}_${rnn_type}_bs20"
         echo "index is speed, 1gpus, ${model_name}, begin"
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_type} ${rnn_type} sp 3 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
         sleep 60
