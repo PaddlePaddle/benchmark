@@ -238,13 +238,13 @@ nextvlad(){
     model_list=(nextvlad) # CTCN)
     for model_name in ${model_list[@]}; do
         echo "index is speed, 1gpu, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_bs32_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, 1gpu, prfoiler is on, begin, ${model_name}"
-#        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
+#        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_bs32_speed_1gpus_profiler 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_bs32_speed_8gpus 2>&1
         sleep 60
     done
 }
@@ -292,7 +292,7 @@ image_classification(){
     pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda100
 
     # running models cases
-    model_list=(SE_ResNeXt50_32x4d ResNet101 ResNet50_bs32 ResNet50_bs128)
+    model_list=(SE_ResNeXt50_32x4d_bs32 ResNet101_bs32 ResNet50_bs32 ResNet50_bs128)
     for model_name in ${model_list[@]}; do
         run_batchsize=32
         if [ ${model_name} = "ResNet50_bs128" ]; then
@@ -372,16 +372,17 @@ detection(){
     cp ${BENCHMARK_ROOT}/static_graph/Detection/paddle/run_benchmark.sh ./run_benchmark.sh
     sed -i '/set\ -xe/d' run_benchmark.sh
 
+    batch_size=2
     model_list=(mask_rcnn_fpn_resnet mask_rcnn_fpn_resnext retinanet_rcnn_fpn cascade_rcnn_fpn)
     for model_name in ${model_list[@]}; do
         echo "index is speed, 1gpu, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_name} sp 600 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_name} sp 600 | tee ${log_path}/${model_name}_bs${batch_size}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, 1gpu, profiler is on  begin, ${model_name}"
 #        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_name} sp 600 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_name} sp 300 | tee ${log_path}/${model_name}_speed_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_name} sp 300 | tee ${log_path}/${model_name}_bs${batch_size}_speed_8gpus 2>&1
         sleep 60
     done
 }
@@ -430,22 +431,22 @@ mask_rcnn(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
 
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs1_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 1gpu, profiler is on begin"
 
-#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
+#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_bs1_speed_1gpus_profiler 2>&1
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs1_speed_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 200 | tee ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 200 | tee ${log_path}/${FUNCNAME}_bs1_maxbs_1gpus 2>&1
     sleep 60
     echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 sp 200 | tee ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 sp 200 | tee ${log_path}/${FUNCNAME}_bs1_maxbs_8gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_bs1_speed_8gpus8p 2>&1
 }
 
 
@@ -586,13 +587,13 @@ yolov3(){
     cp ${BENCHMARK_ROOT}/static_graph/yolov3/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_1gpus 2>&1
     #sleep 60
     #echo "index is speed, 1gpu, profiler on, begin"
-    #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
+    #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_1gpus_profiler 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpus, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 600 | tee ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
@@ -601,7 +602,7 @@ yolov3(){
     #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 sp 600 | tee ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
     #sleep 60
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_speed_8gpus8p 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_8gpus8p 2>&1
 }
 
 
