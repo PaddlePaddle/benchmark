@@ -22,7 +22,7 @@ function _set_params(){
     direction_id=1
     mission_name="语音合成"
     skip_steps=5
-    keyword="ips: "
+    keyword="ips:"
     model_mode=-1
     ips_unit="samples/s" 
 

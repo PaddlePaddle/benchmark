@@ -17,7 +17,7 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
-    model_name="yolov3"
+    model_name="yolov3_bs8"
     mission_name="目标检测"           # 模型所属任务名称，具体可参考scripts/config.ini                               （必填）
     direction_id=0                    # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     skip_steps=5                      # 解析日志，有些模型前几个step耗时长，需要跳过                                  (必填)
@@ -59,7 +59,6 @@ function _train(){
      --opt snapshot_iter=100000  max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} TrainReader.worker_num=${num_workers} \
      --is_profiler=${is_profiler} \
      --profiler_path=${profiler_path}"
-#     --batch_size=${base_batch_size} \
     case ${run_mode} in
     sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)

@@ -60,6 +60,7 @@ function _set_params(){
         echo "model_name must be mask_rcnn_fpn_resnet | mask_rcnn_fpn_resnext | retinanet_rcnn_fpn | cascade_rcnn_fpn"
         exit 1
     fi
+    model_name=${model_name}_bs${base_batch_size}
 }
 
 function _set_env(){
