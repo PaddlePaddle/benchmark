@@ -11,7 +11,7 @@ fi
 function _set_params(){
     index=$1
     base_batch_size=128
-    model_name="seq2seq"
+    model_name="seq2seq"_bs${base_batch_size}
 
     run_mode="sp"
     max_epoch=${2}

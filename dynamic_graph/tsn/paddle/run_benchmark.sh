@@ -11,7 +11,7 @@ fi
 function _set_params(){
     index=$1
     base_batch_size=${2}
-    model_name=${3}
+    model_name=${3}_${base_batch_size}
 
     run_mode=${4:-"sp"} # Use sp for single GPU and mp for multiple GPU.
     max_epoch=${5:-"1"}
