@@ -17,7 +17,8 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
-    model_name="StarGAN"
+    base_batch_size=16
+    model_name="StarGAN"_bs${base_batch_size}
     mission_name="图像生成"           # 模型所属任务名称，具体可参考scripts/config.ini                              （必填）
     direction_id=0                    # 任务所属方向，0：CV，1：NLP，2：Rec。                                       （必填）
     skip_steps=5                      # 解析日志，有些模型前几个step耗时长，需要跳过                                （必填）
@@ -27,7 +28,6 @@ function _set_params(){
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
-    base_batch_size=16
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}

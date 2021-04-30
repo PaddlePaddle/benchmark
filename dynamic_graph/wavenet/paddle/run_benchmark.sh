@@ -12,7 +12,7 @@ function _set_params(){
     index=$1
     run_mode=$2
     base_batch_size=8
-    model_name="WaveNet"
+    model_name="WaveNet"_bs${base_batch_size}
 
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
