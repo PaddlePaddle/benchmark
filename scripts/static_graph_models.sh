@@ -493,14 +493,14 @@ transformer(){
     do
         for fp_item in ${fp_list[@]}
         do
-            bs_list=(4096)
-            if [ ${mode_item} == "big" ]; then
-                if [ ${mode_item} == "fp32" ]; then
-                    bs_list=(4096 2560)
-                elif [ ${mode_item} == "pure_fp16" ]; then
-                    bs_list=(4096 5120)
-                fi
+            if [ ${mode_item} == "big" ] && [ ${fp_item} == "fp32" ]; then
+                bs_list=(4096 2560)
+            elif [ ${mode_item} == "big" ] && [ ${fp_item} == "pure_fp16" ]; then
+                bs_list=(4096 5120)
+            else
+               bs_list=(4096)
             fi
+
             for bs_item in ${bs_list[@]}
             do
                 model_name="transformer_${mode_item}_bs${bs_item}_${fp_item}"
