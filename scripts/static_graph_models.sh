@@ -29,10 +29,10 @@ CycleGAN(){
     cp ${BENCHMARK_ROOT}/static_graph/CycleGAN/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs1_speed_1gpus 2>&1
 #    sleep 60
 #    echo "index is speed, profiler is on, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
+#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 300 | tee ${log_path}/${FUNCNAME}_bs1_speed_1gpus_profiler 2>&1
 }
 
 
@@ -63,7 +63,7 @@ StarGAN(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 300 | tee ${log_path}/${FUNCNAME}_bs16_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, profiler is on,  begin"
 #    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
@@ -128,7 +128,7 @@ STGAN(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 300 | tee ${log_path}/${FUNCNAME}_bs32_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, profiler is on, begin"
 #    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
@@ -194,10 +194,10 @@ Pix2pix(){
     sed -i '/set\ -xe/d' run_benchmark.sh
 
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 Pix2pix sp 600 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 Pix2pix sp 600 | tee ${log_path}/${FUNCNAME}_bs1_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, profiler is on, begin"
-#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 Pix2pix sp 300 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
+#    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 Pix2pix sp 300 | tee ${log_path}/${FUNCNAME}_bs1_speed_1gpus_profiler 2>&1
 }
 
 
@@ -579,7 +579,6 @@ yolov3(){
     cd ${BENCHMARK_ROOT}/PaddleDetection/static
     git branch
 
-    #sh ./weights/download.sh
     mkdir -p ~/.cache/paddle/weights
     ln -s ${prepare_path}/yolov3/DarkNet53_pretrained ~/.cache/paddle/weights
     rm -rf dataset/coco
@@ -621,7 +620,7 @@ seq2seq(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 1 | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 1 | tee ${log_path}/${FUNCNAME}_bs128_speed_1gpus 2>&1
 #    sleep 60
 #    echo "index is speed, profiler is on, begin"
 #    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 1 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
