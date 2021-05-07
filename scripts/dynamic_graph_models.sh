@@ -226,6 +226,7 @@ dy_slowfast(){
 dy_mask_rcnn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
+    pip install Cython
     pip install -r requirements.txt 
 
     # Install cocoapi
@@ -236,7 +237,6 @@ dy_mask_rcnn(){
         echo "cocoapi NOT FOUND"
         cp -r ${prepare_path}/cocoapi/ ./
         cd cocoapi/PythonAPI/
-        pip install Cython
         make install
         python setup.py install --user
         echo "cocoapi installed"
