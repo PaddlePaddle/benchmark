@@ -10,15 +10,14 @@ fi
 
 function _set_params(){
     index=$1
+    run_mode=${2:-"sp"} # Use sp for single GPU and mp for multiple GPU.
+    max_epoch=${3:-"1"}
     base_batch_size=128
-    model_name=${4}
+    model_name=${4}_bs${base_batch_size}
     if [ ${4} != "MobileNetV1" ] && [ ${4} != "MobileNetV2" ]; then
             echo "------------> please check the model name!"
             exit 1
     fi
-
-    run_mode=${2:-"sp"} # Use sp for single GPU and mp for multiple GPU.
-    max_epoch=${3:-"1"}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -44,7 +43,7 @@ function _set_params(){
 }
 
 function _train(){
-    train_cmd="-c ./configs/${model_name}/${model_name}.yaml 
+    train_cmd="-c ./configs/${model_name%_bs*}/${model_name%_bs*}.yaml 
                -o validate=False
                -o epochs=${max_epoch}
                -o print_interval=10

@@ -14,7 +14,7 @@ function _set_params(){
 
     run_mode=${2}
     max_epoch=${3}
-    model_name="lac"
+    model_name="lac"_bs${base_batch_size}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -25,7 +25,7 @@ function _set_params(){
     skip_steps=12
     keyword="ips:"
     model_mode=-1
-    ips_unit="samples/s"
+    ips_unit="sequences/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)

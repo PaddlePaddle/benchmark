@@ -11,7 +11,7 @@ fi
 function _set_params(){
     index=$1
     base_batch_size=${2}
-    model_name=${3}
+    model_name=${3}_${base_batch_size}
 
     run_mode=${4:-"sp"} # Use sp for single GPU and mp for multiple GPU.
     max_epoch=${5:-"1"}
@@ -23,9 +23,9 @@ function _set_params(){
     mission_name="视频分类"
     direction_id=0
     skip_steps=5
-    keyword="batch_cost:"
-    model_mode=0 # s/step -> samples/s
-    # ips_unit="samples/sec"
+    keyword="ips:"
+    model_mode=-1 
+    ips_unit="images/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)

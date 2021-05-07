@@ -51,9 +51,9 @@ function _train(){
     echo "${model_name}, batch_size: ${batch_size}"
     if [ ${model_name} == "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ]; then
         config_file="./configs/ResNet/ResNet50.yaml"
-    elif [ ${model_name} == "ResNet101" ]; then
+    elif [ ${model_name} == "ResNet101_bs32" ]; then
          config_file="./configs/ResNet/ResNet101.yaml"
-    elif [ ${model_name} == "SE_ResNeXt50_32x4d" ]; then
+    elif [ ${model_name} == "SE_ResNeXt50_32x4d_bs32" ]; then
           config_file="./configs/SENet/SE_ResNeXt50_32x4d.yaml"
     else
         echo "model: $model_name not support!"
