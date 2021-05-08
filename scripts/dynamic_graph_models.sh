@@ -226,6 +226,7 @@ dy_slowfast(){
 dy_mask_rcnn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
+    pip install Cython
     pip install -r requirements.txt 
 
     # Install cocoapi
@@ -278,6 +279,8 @@ dy_yolov3(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     git branch    #develop 分支
     cd ${cur_model_path}
+    pip install Cython
+    pip install -r requirements.txt 
    
     if python -c "import pycocotools" >/dev/null 2>&1
     then
