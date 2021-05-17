@@ -15,20 +15,36 @@
 from common_import import *
 
 
-class ReluConfig(APIConfig):
+class MathsConfig(APIConfig):
     def __init__(self):
-        super(ReluConfig, self).__init__("relu")
-        self.feed_spec = {"range": [-1, 1]}
-        # self.api_list = {'relu': 'relu', 'relu6': 'relu6'}
-        # relu belongs to activation op series which only has one variable
-        # thus relu can reuse activation parameters 
+        super(MathsConfig, self).__init__('maths')
+        self.api_name = 'cos'
+        self.api_list = {
+            'cos': 'cos',
+            'exp': 'exp',
+            'log': 'log',
+            'sin': 'sin',
+            'sinh': 'sinh',
+            'sqrt': 'sqrt',
+            'square': 'square',
+            'tanh': 'tanh'
+        }
         self.alias_name = "activation"
 
+    def disabled(self):
+        if self.api_name in ["log"] and self.x_dtype == "float16":
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s.\n"
+                % (self.api_name))
+            return True
+        return super(MathsConfig, self).disabled()
 
-class PDRelu(PaddleDynamicAPIBenchmarkBase):
+
+class PDMaths(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.nn.functional.relu(x=x)
+        result = self.layers(config.api_name, x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -36,10 +52,10 @@ class PDRelu(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchRelu(PytorchAPIBenchmarkBase):
+class TorchMaths(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.nn.functional.relu(input=x)
+        result = self.layers(config.api_name, input=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -48,4 +64,5 @@ class TorchRelu(PytorchAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(pd_dy_obj=PDRelu(), torch_obj=TorchRelu(), config=ReluConfig())
+    test_main(
+        pd_dy_obj=PDMaths(), torch_obj=TorchMaths(), config=MathsConfig())

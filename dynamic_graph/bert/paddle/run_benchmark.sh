@@ -51,9 +51,9 @@ function _set_params(){
     else
         batch_size=${base_batch_size}
     fi
-    log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
-    log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
-    profiler_path=${profiler_path}/profiler_${model_name}
+    log_file=${run_log_path}/dynamic_${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/dynamic_${model_name}_3_${num_gpu_devices}_${run_mode}
+    profiler_path=${profiler_path}/dynamic_profiler_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 
@@ -71,14 +71,13 @@ function _train(){
                --logging_steps 10
                --save_steps 20000
                --max_steps ${max_iter}
-               --input_dir=./wikicorpus_en_${seq_len}
+               --input_dir=./data/wikicorpus_en_${seq_len}
                --model_type bert
                --model_name_or_path bert-${model_type}-uncased
                --batch_size ${batch_size}
-               --enable_addto False
                --use_amp ${use_amp}"
     case ${run_mode} in
-    sp) train_cmd="python -u run_pretrain_single.py "${train_cmd} ;;
+    sp) train_cmd="python -u run_pretrain.py "${train_cmd} ;;
     mp)
         rm -rf ./mylog_${model_name}
         train_cmd="python -m paddle.distributed.launch --log_dir=./mylog_${model_name} --gpus=$CUDA_VISIBLE_DEVICES run_pretrain.py "${train_cmd}

@@ -108,7 +108,10 @@ function prepare(){
     fi
 
     # fix ssl temporarily
-    export LD_LIBRARY_PATH=${all_path}/tools/ssl/lib:${LD_LIBRARY_PATH}
+    if [ ${cuda_version} == 10.1 ]; then
+        export LD_LIBRARY_PATH=${all_path}/tools/ssl/lib:${LD_LIBRARY_PATH}
+    fi
+
     if python -c "import paddle" >/dev/null 2>&1
     then
         echo "paddle import success!"

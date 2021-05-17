@@ -92,7 +92,8 @@ function build_paddle(){
     fi
     echo "------------today is $WEEK_DAY, and cuda_arch_name is $cuda_arch_name"
     
-    docker run -i --rm -v $PWD:/paddle \
+    PADDLE_ROOT=${PWD}
+    docker run -i --rm -v ${PADDLE_ROOT}:/paddle \
       -w /paddle \
       --net=host \
       -e "CMAKE_BUILD_TYPE=Release" \
@@ -119,7 +120,7 @@ function build_paddle(){
       -e "http_proxy=${HTTP_PROXY}" \
       -e "https_proxy=${HTTP_PROXY}" \
       ${PADDLE_DEV_NAME} \
-       /bin/bash -c "paddle/scripts/paddle_build.sh build"
+       /bin/bash -c "paddle/scripts/paddle_build.sh build_only"
      build_name=${IMAGE_NAME}
 
     if [[ -d ${all_path}/images ]]; then

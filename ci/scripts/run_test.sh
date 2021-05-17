@@ -109,7 +109,9 @@ function run_api(){
 
 function check_style(){
   LOG "[INFO] Start check code style ..."
-  pre-commit install > /dev/null
+  # uninstall pre-commit firstly to avoid using old data
+  pre-commit uninstall >&2
+  pre-commit install >&2
   commit_files=on
   LOG "[INFO] Check code style via per-commit, this could take a few minutes ..."
   for file_name in $(git diff --name-only upstream/master)
@@ -155,6 +157,8 @@ function main(){
   prepare_env
   check_style_info=$(check_style)
   check_style_code=$?
+  # `check_style_info` is empty means the check passed even if there are errors.
+  [ -z "${check_style_info}" ] && check_style_code=0
   run_api_info=$(run_api)
   run_api_code=$?
   summary_problems $check_style_code "$check_style_info" $run_api_code "$run_api_info"

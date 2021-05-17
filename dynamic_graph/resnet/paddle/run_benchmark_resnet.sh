@@ -44,7 +44,7 @@ function _set_params(){
 }
 
 function _train(){
-    if [ ${model_name} = "ResNet152" ]; then
+    if [ ${model_name} = "ResNet152_bs32" ]; then
         config_file="ResNet152.yaml"
         file_list="train_list_resnet152.txt"
     else

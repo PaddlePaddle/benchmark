@@ -15,40 +15,32 @@
 from common_import import *
 
 
-class SoftplusConfig(APIConfig):
-    def __init__(self):
-        super(SoftplusConfig, self).__init__("softplus")
-        self.feed_spec = {"range": [-1, 1]}
-        # softplus belongs to activation op series which only has one variable
-        # thus abs can reuse activation parameters 
-        self.alias_name = "activation"
-
-
-class PDSoftplus(PaddleDynamicAPIBenchmarkBase):
-    def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        out = paddle.nn.functional.softplus(x=x)
-
-        self.feed_list = [x]
-        self.fetch_list = [out]
-        if config.backward:
-            self.append_gradients(out, [x])
-
-
-class TorchSoftplus(PytorchAPIBenchmarkBase):
+class PDInstanceNorm(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(
             name='input', shape=config.x_shape, dtype=config.x_dtype)
-        out = torch.nn.functional.softplus(input=x)
+        result = paddle.nn.functional.instance_norm(x=x, eps=config.eps)
 
         self.feed_list = [x]
-        self.fetch_list = [out]
+        self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(out, [x])
+            self.append_gradients(result, [x])
+
+
+class TorchInstanceNorm(PytorchAPIBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(
+            name='input', shape=config.x_shape, dtype=config.x_dtype)
+        result = torch.nn.functional.instance_norm(input=x, eps=config.eps)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDSoftplus(),
-        torch_obj=TorchSoftplus(),
-        config=SoftplusConfig())
+        pd_dy_obj=PDInstanceNorm(),
+        torch_obj=TorchInstanceNorm(),
+        config=APIConfig("instance_norm"))

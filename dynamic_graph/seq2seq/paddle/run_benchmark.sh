@@ -11,7 +11,7 @@ fi
 function _set_params(){
     index=$1
     base_batch_size=128
-    model_name="seq2seq"
+    model_name="seq2seq"_bs${base_batch_size}
 
     run_mode="sp"
     max_epoch=${2}
@@ -23,10 +23,9 @@ function _set_params(){
     direction_id=1
     mission_name="文本生成"
     skip_steps=0
-    keyword="avg_batch_cost:"
-    separator=" "
-    position=6
-    model_mode=2 # s/step -> steps/s
+    keyword="ips:"
+    model_mode=-1
+    ips_unit="tokens/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
