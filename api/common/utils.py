@@ -202,43 +202,52 @@ def check_outputs(output_list,
             if output.shape == target.shape:
                 diff_comparator_i = ArrayComparator(output, target, atol)
 
-            if diff_comparator_i is None or diff_comparator_i > atol:
-                # Try to compare output with permuted target.
-                choosed_permutations = _permute_order(name, output, target)
-                permutation = None
-                for permutation_tmp in choosed_permutations:
-                    target_transposed = np.transpose(target, permutation_tmp)
-                    diff_comparator_i_tmp = ArrayComparator(
-                        output, target_transposed, atol)
-                    if diff_comparator_i is None or diff_comparator_i > diff_comparator_i_tmp:
-                        diff_comparator_i = diff_comparator_i_tmp
-                        permutation = permutation_tmp
-                if permutation is not None:
-                    print(
-                        "---- Warning: The %d-th output need permute. The permutation is %s, outputs shape are %s vs %s."
-                        % (i, str(permutation), str(output.shape),
-                           str(target.shape)))
-
-            if diff_comparator_i > 1E-6 or diff_comparator_i.max_relative_diff > 1E-6:
+            if np.isnan(diff_comparator_i.max_relative_diff) or np.isnan(
+                    diff_comparator_i.max_absolute_diff):
+                max_diff = "nan"
+                consistent = False
                 print(
-                    "---- Warning: The %d-th output (shape: %s, data type: %s) has diff. Detail: %s, atol is %.2e."
-                    % (i, str(output.shape), str(output.dtype),
-                       diff_comparator_i.to_string(), atol))
+                    "---- Warning: The %d-th output has 'nan' value, please checkout the op's output"
+                    % i)
+            else:
+                if diff_comparator_i is None or diff_comparator_i > atol:
+                    # Try to compare output with permuted target.
+                    choosed_permutations = _permute_order(name, output, target)
+                    permutation = None
+                    for permutation_tmp in choosed_permutations:
+                        target_transposed = np.transpose(target,
+                                                         permutation_tmp)
+                        diff_comparator_i_tmp = ArrayComparator(
+                            output, target_transposed, atol)
+                        if diff_comparator_i is None or diff_comparator_i > diff_comparator_i_tmp:
+                            diff_comparator_i = diff_comparator_i_tmp
+                            permutation = permutation_tmp
+                    if permutation is not None:
+                        print(
+                            "---- Warning: The %d-th output need permute. The permutation is %s, outputs shape are %s vs %s."
+                            % (i, str(permutation), str(output.shape),
+                               str(target.shape)))
 
-            max_diff = diff_comparator_i.max_absolute_diff if diff_comparator_i > max_diff else max_diff
-            if max_diff > atol:
-                if name in special_op_list.RANDOM_OP_LIST:
+                if diff_comparator_i > 1E-6 or diff_comparator_i.max_relative_diff > 1E-6:
                     print(
-                        "---- Warning: The %d-th output is not consistent, but %s is a random operator and we see it correct."
-                        % (i, name))
-                elif testing_mode == "static" and name in special_op_list.DIFF_IMPLEMENTATION_TF_OPS:
-                    print(
-                        "---- Warning: The implementation of %s is different with tensorflow. "
-                        "When the value of inputs are same, paddle choose the second value as the output and "
-                        "tensorflow choose the first value as the output." %
-                        (name))
-                else:
-                    consistent = False
+                        "---- Warning: The %d-th output (shape: %s, data type: %s) has diff. Detail: %s, atol is %.2e."
+                        % (i, str(output.shape), str(output.dtype),
+                           diff_comparator_i.to_string(), atol))
+
+                max_diff = diff_comparator_i.max_absolute_diff if diff_comparator_i > max_diff else max_diff
+                if max_diff > atol:
+                    if name in special_op_list.RANDOM_OP_LIST:
+                        print(
+                            "---- Warning: The %d-th output is not consistent, but %s is a random operator and we see it correct."
+                            % (i, name))
+                    elif testing_mode == "static" and name in special_op_list.DIFF_IMPLEMENTATION_TF_OPS:
+                        print(
+                            "---- Warning: The implementation of %s is different with tensorflow. "
+                            "When the value of inputs are same, paddle choose the second value as the output and "
+                            "tensorflow choose the first value as the output."
+                            % (name))
+                    else:
+                        consistent = False
 
     status = collections.OrderedDict()
     status["name"] = name
@@ -246,7 +255,10 @@ def check_outputs(output_list,
     status["backward"] = backward
     status["consistent"] = consistent
     status["num_outputs"] = num_outputs
-    status["diff"] = max_diff.astype("float")
+    if max_diff == "nan":
+        status["diff"] = "nan"
+    else:
+        status["diff"] = max_diff.astype("float")
     status["parameters"] = config_params
 
     if not consistent:
