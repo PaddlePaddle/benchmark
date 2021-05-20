@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(detection mask_rcnn seq2seq image_classification seg_model paddingrnn transformer bert yolov3)
+cur_model_list=(detection mask_rcnn image_classification seg_model transformer bert yolov3)
 
 #run_seg_models
 seg_model(){
@@ -284,49 +284,6 @@ transformer(){
 }
 
 
-#run_ddpg_deep_explore
-ddpg_deep_explore(){
-    cur_model_path=${BENCHMARK_ROOT}/DDPG_Deep_Explore/Fluid_version
-    cd ${cur_model_path}
-    if python -c "import parl" >/dev/null 2>&1
-    then
-        echo "parl have already installed"
-    else
-        echo "parl NOT FOUND"
-        pip install parl==1.1
-        echo "parl installed"
-    fi
-    sed -i '/set\ -xe/d' run_benchmark.sh
-    echo "index is speed, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
-}
-
-
-#run_paddingrnn
-paddingrnn(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/legacy/language_model
-    cd ${cur_model_path}
-    # Prepare data.
-    ln -s ${data_path}/simple-examples ${cur_model_path}/data/simple-examples
-    # Running ...
-    cp ${BENCHMARK_ROOT}/static_graph/PaddingRNN/lstm_paddle/run_benchmark.sh ./
-    sed -i '/set\ -xe/d' run_benchmark.sh
-    model_type_list=(small large)
-    rnn_type_list=(static padding)
-    for model_type in ${model_type_list[@]}; do
-        for rnn_type in ${rnn_type_list[@]}; do
-        model_name="${FUNCNAME}_${model_type}_${rnn_type}_bs20"
-        echo "index is speed, 1gpus, ${model_name}, begin"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_type} ${rnn_type} sp 3 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
-        sleep 60
-        echo "index is speed, 1gpus, ${model_name}, profiler is on, begin"
-#        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_type} ${rnn_type} sp 1 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
-        sleep 60
-        done
-    done
-}
-
-
 #run_yolov3
 yolov3(){
     if python -c "import pycocotools" >/dev/null 2>&1
@@ -369,6 +326,48 @@ yolov3(){
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_8gpus8p 2>&1
 }
+
+#run_ddpg_deep_explore
+ddpg_deep_explore(){
+    cur_model_path=${BENCHMARK_ROOT}/DDPG_Deep_Explore/Fluid_version
+    cd ${cur_model_path}
+    if python -c "import parl" >/dev/null 2>&1
+    then
+        echo "parl have already installed"
+    else
+        echo "parl NOT FOUND"
+        pip install parl==1.1
+        echo "parl installed"
+    fi
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    echo "index is speed, begin"
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
+}
+
+#run_paddingrnn
+paddingrnn(){
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/legacy/language_model
+    cd ${cur_model_path}
+    # Prepare data.
+    ln -s ${data_path}/simple-examples ${cur_model_path}/data/simple-examples
+    # Running ...
+    cp ${BENCHMARK_ROOT}/static_graph/PaddingRNN/lstm_paddle/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    model_type_list=(small large)
+    rnn_type_list=(static padding)
+    for model_type in ${model_type_list[@]}; do
+        for rnn_type in ${rnn_type_list[@]}; do
+        model_name="${FUNCNAME}_${model_type}_${rnn_type}_bs20"
+        echo "index is speed, 1gpus, ${model_name}, begin"
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_type} ${rnn_type} sp 3 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        sleep 60
+        echo "index is speed, 1gpus, ${model_name}, profiler is on, begin"
+#        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_type} ${rnn_type} sp 1 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
+        sleep 60
+        done
+    done
+}
+
 
 
 # seq2seq
