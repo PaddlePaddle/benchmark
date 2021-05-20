@@ -51,19 +51,19 @@ function _train(){
 
     # 混合精度监控。不支持传参修改。fp16 和fp32 混合，无论哪种情况需设置对应值，防止参数错误
     if [ ${fp_mode} == "amp_fp16" ]; then
-        sed -i "s/^use_amp.*/use_amp: True/g" ../configs/${config_file}
-        sed -i "s/^use_pure_fp16.*/use_pure_fp16: False/g" ../configs/${config_file}
+        sed -i "s/^use_amp.*/use_amp: True/g" ./configs/${config_file}
+        sed -i "s/^use_pure_fp16.*/use_pure_fp16: False/g" ./configs/${config_file}
     elif [ ${fp_mode} == "fp32" ]; then
-        sed -i "s/^use_amp.*/use_amp: False/g" ../configs/${config_file}
-        sed -i "s/^use_pure_fp16.*/use_pure_fp16: False/g" ../configs/${config_file}
+        sed -i "s/^use_amp.*/use_amp: False/g" ./configs/${config_file}
+        sed -i "s/^use_pure_fp16.*/use_pure_fp16: False/g" ./configs/${config_file}
     else
         echo " The fp_mode should be fp32 or amp_fp16"
     fi
 
-    sed -i "s/^max_iter.*/max_iter: ${max_iter}/g" ../configs/${config_file} #不支持传参修改
+    sed -i "s/^max_iter.*/max_iter: ${max_iter}/g" ./configs/${config_file} #不支持传参修改
     model_name=${model_name}_bs${base_batch_size}_${fp_mode}
 
-    train_cmd="--config ../configs/${config_file}"
+    train_cmd="--config ./configs/${config_file} --benchmark"
 
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u train.py "${train_cmd}
