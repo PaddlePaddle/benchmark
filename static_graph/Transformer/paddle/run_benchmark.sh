@@ -67,7 +67,7 @@ function _train(){
     sed -i "s/^batch_size:.*/batch_size: ${base_batch_size}/g" ../configs/${config_file} #不支持传参修改
     model_name=${model_name}_bs${base_batch_size}_${fp_mode}
 
-    train_cmd="--config ../configs/${config_file}"
+    train_cmd="--config ../configs/${config_file} --benchmark"
 
     if [ ${run_mode} = "sp" ]; then
         sed -i "s/^is_distributed.*/is_distributed: False/g" ../configs/${config_file} #不支持传参修改

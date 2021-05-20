@@ -18,7 +18,7 @@ cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn d
 
 #run_bert
 dy_bert(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/bert
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/bert/
     cd ${cur_model_path}
     ln -s ${data_path}/Bert/hdf5_lower_case_1_seq_len_512_max_pred_80_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en_seqlen512 ${cur_model_path}/wikicorpus_en_seqlen512 ./data
     ln -s ${data_path}/Bert/wikicorpus_en_seqlen128 ./data
@@ -106,7 +106,7 @@ dy_ptb_lm(){
 dy_transformer(){
     echo "###########pip install paddlenlp"
     pip install paddlenlp attrdict
-    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/benchmark/transformer/dygraph
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/machine_translation/transformer
     cd ${cur_model_path}
     # prepare data
     mkdir -p ~/.paddlenlp/datasets
