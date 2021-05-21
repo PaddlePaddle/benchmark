@@ -75,7 +75,7 @@ function _train(){
     else
         sed -i "s/^is_distributed.*/is_distributed: True/g" ../configs/${config_file} #不支持传参修改
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch  --gpus=$CUDA_VISIBLE_DEVICES  --log_dir ./mylog train.py --distribute "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch  --gpus=$CUDA_VISIBLE_DEVICES  --log_dir ./mylog_${model_name} train.py --distribute "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
 
