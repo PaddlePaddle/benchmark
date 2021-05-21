@@ -87,9 +87,10 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
-    if [ ${run_mode} != "sp"  -a -d mylog ]; then
-        rm ${log_file}
-        cp mylog/workerlog.0 ${log_file}
+
+    if [ ${run_mode} != "sp"  -a -d mylog_${model_name} ]; then
+           rm ${log_file}
+           cp mylog_${model_name}/`ls -l mylog_${model_name}/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ${log_file}
     fi
 }
 
