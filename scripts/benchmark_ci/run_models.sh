@@ -36,6 +36,7 @@ ResNet50_bs32(){
     sleep 60
 }
 
+
 #run bert_base_fp32
 bert_base_seqlen128_fp32_bs32(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/bert/static
