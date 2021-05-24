@@ -18,7 +18,7 @@ from common_import import *
 class LogSoftmaxConfig(APIConfig):
     def __init__(self):
         super(LogSoftmaxConfig, self).__init__("log_softmax")
-        self.feed_spec = {"range": [-100, 100]}
+        self.feed_spec = {"range": [-1, 1]}
         # log_softmax is a combination of log and softmax, so that it can reuse softmax.json. 
         self.alias_name = "softmax"
 

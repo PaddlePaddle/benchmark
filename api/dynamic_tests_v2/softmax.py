@@ -18,7 +18,7 @@ from common_import import *
 class SoftmaxConfig(APIConfig):
     def __init__(self):
         super(SoftmaxConfig, self).__init__("softmax")
-        self.feed_spec = {"range": [-100, 100]}
+        self.feed_spec = {"range": [-1, 1]}
 
 
 class PaddleSoftmax(PaddleDynamicAPIBenchmarkBase):
