@@ -75,10 +75,9 @@ function _train(){
                --model_type bert
                --model_name_or_path bert-${model_type}-uncased
                --batch_size ${batch_size}
-               --enable_addto False
                --use_amp ${use_amp}"
     case ${run_mode} in
-    sp) train_cmd="python -u run_pretrain_single.py "${train_cmd} ;;
+    sp) train_cmd="python -u run_pretrain.py "${train_cmd} ;;
     mp)
         rm -rf ./mylog_${model_name}
         train_cmd="python -m paddle.distributed.launch --log_dir=./mylog_${model_name} --gpus=$CUDA_VISIBLE_DEVICES run_pretrain.py "${train_cmd}
