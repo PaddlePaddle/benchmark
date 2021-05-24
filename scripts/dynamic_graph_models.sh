@@ -132,12 +132,13 @@ dy_transformer(){
 
 # tsn 
 dy_tsn(){
-    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/tsn
+    cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
     pip install wget
     # Prepare pretrained modles
-    ln -s ${prepare_path}/tsn/ResNet50_pretrained/ ${cur_model_path}/
+    rm -rf ResNet50_pretrain.pdparams
+    ln -s ${prepare_path}/tsn/ResNet50_pretrain.pdparams ${cur_model_path}/
     # Prepare data
     rm -rf data
     ln -s ${data_path}/dygraph_data/TSN/data ${cur_model_path}/
@@ -181,13 +182,13 @@ dy_seg(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/
     cd ${cur_model_path}
     #git checkout develop    # 静态图监控benchmark分支，已将默认分支切为benchmark。故而静态图训练完毕后，需切下分支
-    
+
     #apt-get install lsb-core -y
     pip install  visualdl
     # Prepare data
     mkdir -p ${cur_model_path}/data
     ln -s ${data_path}/dygraph_data/cityscapes_hrnet_torch ${cur_model_path}/data/cityscapes
-    
+
     # Running
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/seg_models/paddle/run_benchmark.sh ./
@@ -205,9 +206,11 @@ dy_seg(){
 }
 
 dy_slowfast(){
-    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/slowfast
+    cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
-
+    pip install tqdm
+    pip install decord
+    pip install pandas
     # Prepare data
     rm -rf data
     ln -s ${data_path}/dygraph_data/slowfast/data/ ${cur_model_path}/
