@@ -7,7 +7,7 @@
             "type": "Variable"
         }
     },
-    "repeat": 5000
+    "repeat": 10000
 }, {
     "op": "activation",
     "param_info": {
@@ -17,6 +17,6 @@
             "type": "Variable"
         }
     },
-    "repeat": 5000,
+    "repeat": 10000,
     "atol": 1E-3
 }]
