@@ -54,10 +54,7 @@ def profile_context(name, use_gpu, profiler):
             yield
     elif profiler == "pyprof":
         import cProfile, pstats
-        if six.PY3:
-            from io import StringIO
-        else:
-            from StringIO import StringIO
+        from io import StringIO
 
         profiler_handle = cProfile.Profile()
         profiler_handle.enable()
