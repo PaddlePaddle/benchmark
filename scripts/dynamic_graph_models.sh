@@ -99,7 +99,7 @@ dy_ptb_lm(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/ptb/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 10000 | tee ${log_path}/dynamic_ptb_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 10000 | tee ${log_path}/dynamic_ptb_lm_speed_1gpus 2>&1
 }
 
 # transformer
@@ -172,7 +172,7 @@ dy_gan(){
     for model_item in ${model_list[@]}
     do
         echo "index is speed, ${model_item} 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 1 | tee ${log_path}/dynamic_${model_item}_bs1_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 1 | tee ${log_path}/dynamic_gan_${model_item}_bs1_speed_1gpus 2>&1
         sleep 10
     done
 }
@@ -197,10 +197,10 @@ dy_seg(){
     for model_item in ${model_list[@]}
     do
         echo "index is speed, ${model_item} 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 200 | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 200 | tee ${log_path}/dynamic_seg_${model_item}_speed_1gpus 2>&1
         sleep 10
         echo "index is speed, ${model_item} 8gpu begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 200 | tee ${log_path}/dynamic_${model_item}_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 200 | tee ${log_path}/dynamic_seg_${model_item}_speed_8gpus 2>&1
         sleep 10
     done
 }

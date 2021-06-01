@@ -34,10 +34,10 @@ dy_to_static_mobilenet(){
     do
         echo "------------> begin to run ${model_name}"
         echo "index is speed, 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark_mobilenet.sh 1  sp 1  ${model_name} | tee ${log_path}/dynamic_${model_name}_bs128_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark_mobilenet.sh 1  sp 1  ${model_name} | tee ${log_path}/dynamic_to_static_${model_name}_bs128_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mobilenet.sh 1  mp  1 ${model_name} | tee ${log_path}/dynamic_${model_name}_bs128_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mobilenet.sh 1  mp  1 ${model_name} | tee ${log_path}/dynamic_to_static_${model_name}_bs128_speed_8gpus 2>&1
         sleep 60
     done
 }
@@ -75,10 +75,10 @@ dy_to_static_yolov3(){
     cp ${BENCHMARK_ROOT}/dynamic_to_static/yolov3/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 500 | tee ${log_path}/dynamic_yolov3_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 500 | tee ${log_path}/dynamic_to_static_yolov3_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpu, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_yolov3_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_to_static_yolov3_speed_8gpus 2>&1
 }
 
 dy_to_static_resnet(){
@@ -98,10 +98,10 @@ dy_to_static_resnet(){
             batch_size=128
         fi
         echo "model is ${model_name}, index is speed, 1gpu begin"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} sp 1 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} sp 1 | tee ${log_path}/dynamic_to_static_${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "model is ${model_name}, index is speed, 8gpu begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} mp 1 | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} mp 1 | tee ${log_path}/dynamic_to_static_${model_name}_speed_8gpus 2>&1
         sleep 60
     done
 }
