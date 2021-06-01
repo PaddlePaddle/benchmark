@@ -234,7 +234,10 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
         benchmark(int)
     """
     # 包括pr需要对比的job_type
-    check_job_type = 2 if args.job_type in [1, 2] else 3
+    if args.job_type in [1, 2]:
+        check_job_type = 2
+    else:
+        check_job_type = args.job_type
     results = bm.ViewJobResult.objects.filter(
         model_name=model_name, report_index_id=index, job_type=check_job_type, cuda_version=args.cuda_version,
         cudnn_version=args.cudnn_version, device_type=args.device_type, model_implement_type=args.implement_type,

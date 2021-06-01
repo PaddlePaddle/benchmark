@@ -13,7 +13,7 @@ function usage () {
   -p  all_path contains dir of prepare(pretrained models), dataset, logs, such as /ssd1/ljh
   -t  job_type  benchmark_daliy | models test | pr_test
   -g  device_type  p40 | v100
-  -s  implement_type of model static_graph | dynamic_graph
+  -s  implement_type of model static_graph | dynamic_graph | dynamic_to_static
 EOF
 }
 if [ $# -lt 18 ] ; then
@@ -91,7 +91,7 @@ function prepare(){
     echo "benchmark_commit_id is: "${benchmark_commit_id}
 
     # 动态图升级到cuda10.1 python3.7，静态图切cuda10.1 python3.7
-    if [[ 'dynamic_graph' == ${implement_type} ]] || [[ 'static_graph' == ${implement_type} ]]; then
+    if [[ 'dynamic_graph' == ${implement_type} ]] || [[ 'static_graph' == ${implement_type} ]] || [[ 'dynamic_to_static' == ${implement_type} ]]; then
         rm -rf run_env
         mkdir run_env
         ln -s $(which python3.7) run_env/python
@@ -124,8 +124,10 @@ function run(){
     export ${implement_type}
     if [ ${implement_type} == "static_graph" ]; then
       source ${BENCHMARK_ROOT}/scripts/static_graph_models.sh
-    else
+    elif [ ${implement_type} == "dynamic_graph" ]; then
       source ${BENCHMARK_ROOT}/scripts/dynamic_graph_models.sh
+    else
+      source ${BENCHMARK_ROOT}/scripts/dynamic_to_static_models.sh
     fi
 
     if [ $model = "all" ]
