@@ -42,15 +42,15 @@ function _set_params(){
 }
 
 function _train(){
-    train_cmd="--use_gpu=True
-               --network_name=${net}
-               --checkpoint_dir ${model_name}_saved_model.param
-               --num_epoch=${max_epoch}"
+    train_cmd="--network=${net}
+               --device gpu
+               --vocab_path ./senta_data/senta_word_dict.txt
+               --epochs=${max_epoch}"
     if [ ${run_mode} = "sp" ]; then
-        train_cmd="python -m paddle.distributed.launch  main.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch  train.py "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch   --log_dir=./mylog main.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch   --log_dir=./mylog train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
     

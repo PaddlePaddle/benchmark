@@ -367,10 +367,7 @@ dy_wavenet(){
 }
 
 dy_senta(){
-    rm -rf ${BENCHMARK_ROOT}/SL_models/
-    cp -r ${all_path}/SL_models/ ${BENCHMARK_ROOT}  # 当前SL 方向模型在gitlab托管，不对外开源。故而会在任务开始时克隆SL 代码
-    # 地址：http://gitlab.baidu.com/heya02/benchmark/
-    cur_model_path=${BENCHMARK_ROOT}/SL_models/benchmark/senta/paddle2
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/text_classification/rnn
     cd ${cur_model_path}
 
     # Prepare data
