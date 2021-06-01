@@ -39,39 +39,16 @@ function _set_params(){
 }
 
 function _train(){
-    train_cmd_en_vi="--src_lang en --tar_lang vi \
-                     --attention True \
-                     --num_layers 2 \
-                     --hidden_size 512 \
-                     --src_vocab_size 17191 \
-                     --tar_vocab_size 7709 \
-                     --batch_size ${base_batch_size} \
-                     --dropout 0.2 \
-                     --init_scale  0.1 \
-                     --max_grad_norm 5.0 \
-                     --train_data_prefix data/en-vi/train \
-                     --eval_data_prefix data/en-vi/tst2012 \
-                     --test_data_prefix data/en-vi/tst2013 \
-                     --vocab_prefix data/en-vi/vocab \
-                     --use_gpu True \
-                     --max_epoch ${max_epoch} \
-                     --model_path attention_models"
-    train_cmd_de_en="--src_lang de --tar_lang en \
-                     --attention True \
+    train_cmd_de_en="
                      --num_layers 4 \
                      --hidden_size 1000 \
-                     --src_vocab_size 8847 \
-                     --tar_vocab_size 6631 \
                      --batch_size ${base_batch_size} \
                      --dropout 0.2 \
                      --init_scale  0.1 \
                      --max_grad_norm 5.0 \
-                     --train_data_prefix data/iwslt14.tokenized.de-en/train \
-                     --eval_data_prefix data/iwslt14.tokenized.de-en/valid \
-                     --test_data_prefix data/iwslt14.tokenized.de-en/test \
-                     --vocab_prefix data/iwslt14.tokenized.de-en/vocab \
-                     --use_gpu True \
+                     --device gpu \
                      --max_epoch ${max_epoch} \
+                     --log_freq 50
                      --model_path attention_models"
 
     timeout 15m python -u train.py ${train_cmd_de_en} > ${log_file} 2>&1

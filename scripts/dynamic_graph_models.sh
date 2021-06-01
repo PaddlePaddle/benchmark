@@ -71,7 +71,7 @@ dy_mobilenet(){
 
 # seq2seq
 dy_seq2seq(){
-    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/seq2seq
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/machine_translation/seq2seq
     cd ${cur_model_path}
 
     # Prepare data
