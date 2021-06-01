@@ -1,10 +1,10 @@
 #!bin/bash
 
-set -xe
+set -x
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|2|3 800(max_iter)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|2|3 800(max_epoch)"
     exit
 fi
 
@@ -14,7 +14,7 @@ function _set_params(){
     model_name="ptb"_bs${base_batch_size}
 
     run_mode="sp" # Don't support mp
-    max_iter=${2}
+    max_epoch=${2}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -40,9 +40,10 @@ function _set_params(){
 
 function _train(){
     train_cmd="--data_path ./data/simple-examples/data/ \
-               --max_iter ${max_iter} \
-               --model_type small"
-    timeout 15m python -u ptb_dy.py ${train_cmd} > ${log_file} 2>&1
+               --max_epoch ${max_epoch} \
+               --device gpu"
+               #--model_type small"
+    timeout 15m python -u train.py ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
         export job_fail_flag=1

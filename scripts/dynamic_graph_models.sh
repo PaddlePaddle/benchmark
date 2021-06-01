@@ -87,7 +87,7 @@ dy_seq2seq(){
 
 # ptb
 dy_ptb_lm(){
-    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/ptb_lm
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/rnnlm
     cd ${cur_model_path}
 
     # Prepare data
