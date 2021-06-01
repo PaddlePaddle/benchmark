@@ -1,6 +1,6 @@
 #!bin/bash
 
-set -x
+set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
@@ -39,6 +39,13 @@ function _set_params(){
 }
 
 function _train(){
+    grep -q "#To address val" train.py 
+    if [ $? -eq 0 ]; then
+        echo "----------already addressed val"
+    else
+        sed -i "s/eval_data=valid_loader,/\#eval_data=valid_loader, #To address val/g" train.py
+    fi
+
     train_cmd="--data_path ./data/simple-examples/data/ \
                --max_epoch ${max_epoch} \
                --device gpu"
