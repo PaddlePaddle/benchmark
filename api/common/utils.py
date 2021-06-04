@@ -14,7 +14,6 @@
 
 from __future__ import print_function
 
-import six
 import sys
 import traceback
 import numpy as np
@@ -22,12 +21,7 @@ import json
 import collections
 import itertools
 
-from common import special_op_list
-
-if six.PY3:
-    from . import special_op_list
-else:
-    import special_op_list
+from . import special_op_list
 
 
 class ArrayComparator(object):

@@ -50,7 +50,8 @@
             "value": "False"
         }
     },
-    "atol": 1e-3
+    "atol": 1e-3,
+    "repeat": 5000
 }, {
     "op": "softmax_with_cross_entropy",
     "param_info": {

@@ -71,7 +71,7 @@
             "type": "Variable"
         }
     },
-    "repeat": 5000
+    "repeat": 10000
 }, {
     "config_id": 5,
     "op": "softmax",
@@ -86,7 +86,7 @@
             "type": "Variable"
         }
     },
-    "repeat": 5000
+    "repeat": 10000
 }, {
     "config_id": 6,
     "op": "softmax",
