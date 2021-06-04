@@ -16,7 +16,7 @@ import os
 
 MAIL_HEAD_CONTENT = """From:paddle_benchmark@baidu.com
 To:test@benchmark.com
-Subject:【GRAPH_HOLDER_JOB_HOLDER-TIME_HOLDER】运行结果报警，请检查
+Subject:【DEVICE_HOLDER_GRAPH_HOLDER_JOB_HOLDER_CUDA_HOLDER-TIME_HOLDER】运行结果报警，请检查
 content-type:text/html
 <html>
     <body>
@@ -145,7 +145,7 @@ class EmailTemplate(object):
         content = MAIL_HEAD_CONTENT.replace("TITLE_HOLDER", self.title).replace('FAIL_JOB_HOLDER',
                                                                                 self.fail_job_content).replace(
             "TIME_HOLDER", os.getenv("START_TIME")).replace("GRAPH_HOLDER", os.getenv("BENCHMARK_GRAPH")).replace(
-            "JOB_HOLDER", os.getenv("BENCHMARK_TYPE")).replace('DISPLAY', self.job_display)
+            "JOB_HOLDER", os.getenv("BENCHMARK_TYPE")).replace("DEVICE_HOLDER", os.getenv("DEVICE_TYPE")).replace("CUDA_HOLDER", os.getenv("VERSION_CUDA")).replace('DISPLAY', self.job_display)
 
         if not self.alarm_info:
             return
