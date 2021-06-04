@@ -130,7 +130,7 @@ function run(){
     export ${implement_type}
     if [ ${implement_type} == "static_graph" ]; then
       source ${BENCHMARK_ROOT}/scripts/static_graph_models.sh
-    elif
+    elif [ ${implement_type} == "dynamic_graph" ]; then
       source ${BENCHMARK_ROOT}/scripts/dynamic_graph_models.sh
     else
       source ${BENCHMARK_ROOT}/scripts/dynamic_to_static_models.sh
