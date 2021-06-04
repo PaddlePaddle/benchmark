@@ -55,7 +55,6 @@ image_classification(){
     rm -rf ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/static_graph/image_classification/paddle/run_benchmark_resnet.sh ./run_benchmark.sh
     sed -i '/set\ -xe/d' run_benchmark.sh
-    pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda100
 
     # running models cases
     model_list=(SE_ResNeXt50_32x4d_bs32 ResNet101_bs32 ResNet50_bs32 ResNet50_bs128 ResNet50_bs96)
