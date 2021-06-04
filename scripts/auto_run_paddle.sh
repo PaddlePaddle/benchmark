@@ -14,7 +14,7 @@ function usage () {
   -p  all_path contains dir of prepare(pretrained models), dataset, logs, such as /ssd1/ljh
   -t  job_type  benchmark_daliy | models test | pr_test
   -g  device_type  A100 | v100
-  -s  implement_type of model static_graph | dynamic_graph
+  -s  implement_type of model static_graph | dynamic_graph | dynamic_to_static
 EOF
 }
 if [ $# -lt 18 ] ; then
