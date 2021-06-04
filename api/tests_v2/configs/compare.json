@@ -19,7 +19,8 @@
             "shape": "[1L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "op": "compare",
     "param_info": {

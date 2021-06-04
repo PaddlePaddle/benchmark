@@ -18,7 +18,7 @@
         }
     },
     "atol": 1E-5,
-    "repeat": 10000
+    "repeat": 20000
 }, {
     "config_id": 1,
     "op": "elementwise",
