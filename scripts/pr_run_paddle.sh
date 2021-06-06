@@ -40,6 +40,7 @@ function prepare(){
     if [[ -d ${save_log_dir} ]]; then
         rm -rf ${save_log_dir}
     fi
+
     # this for update the log_path coding mat
     export TRAIN_LOG_DIR=${save_log_dir}/train_log
     export PROFILER_LOG_DIR=${save_log_dir}/profiler_log
@@ -59,7 +60,7 @@ function prepare(){
     # 每个任务每个模式均做创建处理，并删除上一次任务的残存文件，避免相同repo不通分支引入的bug
     mkdir -p ${ROOT_PATH}
     cd ${ROOT_PATH}
-    rm -rf *
+    rm -rf benchmark
     git clone https://github.com/PaddlePaddle/benchmark.git --recursive
 
     cd ${BENCHMARK_ROOT}
@@ -101,8 +102,8 @@ function run(){
     source ${BENCHMARK_ROOT}/scripts/static_graph_models.sh
 
     # static_models , 分割的字符串切分成为数组，然后遍历执行即可。
-    IFS=","
-    static_model_array=($static_models)
+    static_model_array=("${static_models//,/ }")
+    echo "static_model_array: ${static_model_array[*]}"
     for model in ${static_model_array[*]}
     do
         echo "=====================${model} run begin=================="
@@ -119,7 +120,8 @@ function run(){
     source ${BENCHMARK_ROOT}/scripts/dynamic_graph_models.sh
 
     # dynamic_models , 分割的字符串切分成为数组，然后遍历执行即可。
-    dynamic_model_array=(dynamic_models)
+    dynamic_model_array=("${dynamic_models//,/ }")
+    echo "dynamic_model_array: ${dynamic_model_array[*]}"
     for model in ${dynamic_model_array[*]}
     do
         echo "=====================${model} run begin=================="
