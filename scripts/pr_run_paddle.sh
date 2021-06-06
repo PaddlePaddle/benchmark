@@ -74,10 +74,7 @@ function prepare(){
 
     pip install -U pip
     echo `pip --version`
-    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple opencv-python
-    if [ $? -ne 0 ]; then
-        pip install ${all_path}/tools/opencv_python-4.5.1.48-cp37-cp37m-manylinux2014_x86_64.whl
-    fi
+    pip install ${all_path}/benchmark_ce/70725f72756e/thirdparty/opencv_python-4.5.2.52-cp37-cp37m-manylinux2014_x86_64.whl
 
     # fix ssl temporarily
     if [ ${cuda_version} == 10.1 ]; then
