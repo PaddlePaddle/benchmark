@@ -49,7 +49,6 @@ function prepare(){
     mkdir -p ${PROFILER_LOG_DIR}
 
     train_log_dir=${save_log_dir}/train_log
-    # mkdir -p ${train_log_dir}
 
     export ROOT_PATH=/home/pr_run
     export BENCHMARK_ROOT=${ROOT_PATH}/benchmark
@@ -99,6 +98,7 @@ function run(){
     pip uninstall paddlepaddle-gpu -y
     pip install "${static_image_name}"
     log_path=${save_log_dir}/static_graph/index
+    mkdir -p ${log_path}
     source ${BENCHMARK_ROOT}/scripts/static_graph_models.sh
 
     # static_models , 分割的字符串切分成为数组，然后遍历执行即可。
@@ -117,6 +117,7 @@ function run(){
     pip uninstall paddlepaddle-gpu -y
     pip install "${dynamic_image_name}"
     log_path=${save_log_dir}/dynamic_graph/index
+    mkdir -p ${log_path}
     source ${BENCHMARK_ROOT}/scripts/dynamic_graph_models.sh
 
     # dynamic_models , 分割的字符串切分成为数组，然后遍历执行即可。
