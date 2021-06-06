@@ -163,8 +163,8 @@ def _process_git_repo(args):
             # query pr branch
             pr_info = _query_pull_request_info_from_github(pr)
             pr_into_branch = pr_info["branch_name"]
-            commands = "cd %s && git checkout -b pr-%s origin/%s" % (
-                repo_path, pr_into_branch, branch
+            commands = "cd %s && git checkout -b merge-pr-%s origin/%s" % (
+                repo_path, pr, pr_into_branch
             )
             print(commands)
             status, output = subprocess.getstatusoutput(commands)

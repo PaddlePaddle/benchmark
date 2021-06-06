@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# pip install PyMySQL
 # 目前仅适用于 V100 && CUDA 10.1 版本。
 # 对于之前已有的数据，从logs目录下直接拷贝过来
 # 对于之前没有的数据，写入一个 json 文件中等待后续解析并执行
