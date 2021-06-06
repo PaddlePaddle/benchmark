@@ -23,7 +23,7 @@ import argparse
 import subprocess
 
 
-diff_type = os.environ.get("diff_type")
+diff_type = os.environ.get("e_diff_version_type")
 if diff_type == "null":
     has_diff = False
 else:
