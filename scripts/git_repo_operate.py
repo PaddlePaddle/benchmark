@@ -211,6 +211,17 @@ def _process_git_repo(args):
                     raise Exception("git checkout branch %s failed: %s" % (pr_into_branch, output))
                 else:
                     return 0
+            else:
+                commands = "cd %s && git checkout develop" % (
+                    repo_path
+                )
+                print(commands)
+                status, output = subprocess.getstatusoutput(commands)
+                print(output)
+                if status != 0:
+                    raise Exception("git checkout branch %s failed: %s" % (pr_into_branch, output))
+                else:
+                    return 0
         if commit_id:
             commit_info = _query_commit_info_from_github(commit_id)
             parent_commit_id = commit_info["parent_commit_id"]
