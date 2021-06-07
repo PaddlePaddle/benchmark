@@ -126,7 +126,7 @@ def _check_model_result_file_exists(save_dir, model_type, model_name):
     """
     # 判断 save_dir 中当前判断的模型是否已经存在
     """
-    destination_dir = save_dir + "/" + model_type
+    destination_dir = save_dir + "/" + model_type + "/index"
     if not os.path.exists(destination_dir):
         return False
     for file_name in os.listdir(destination_dir):
