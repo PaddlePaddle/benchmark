@@ -183,6 +183,8 @@ def _query_latest_daily_result(args):
     os.makedirs(save_dir, exist_ok=True)
     # query 对应的 image_id
     static_image_info, dynamic_image_info = _query_latest_image_id()
+    print("static_image_info: %s" % str(static_image_info))
+    print("dynamic_image_info: %s" % str(dynamic_image_info))
     # 动态图和静态图分别拷贝，分别对比
     if static_models:
         _copy_history_result_to_save_dir(save_dir, static_image_info["version"], "static_graph", static_models)
