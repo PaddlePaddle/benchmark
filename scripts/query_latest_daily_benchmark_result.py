@@ -178,8 +178,14 @@ def _query_latest_daily_result(args):
     # 初始化目录
     save_dir = os.path.abspath(args.save_dir)
     output_file = args.output_file
-    static_models = [x.strip() for x in args.static_models.strip().split(",")]
-    dynamic_models = [x.strip() for x in args.dynamic_models.strip().split(",")]
+    if args.static_models.strip():
+        static_models = [x.strip() for x in args.static_models.strip().split(",")]
+    else:
+        static_models = []
+    if args.dynamic_models.strip():
+        dynamic_models = [x.strip() for x in args.dynamic_models.strip().split(",")]
+    else:
+        dynamic_models = []
     os.makedirs(save_dir, exist_ok=True)
     # query 对应的 image_id
     static_image_info, dynamic_image_info = _query_latest_image_id()
@@ -202,3 +208,6 @@ if __name__ == "__main__":
     _query_latest_daily_result(args)
     # debug
     # print(_query_latest_image_id())
+    # /ssd1/ljh/benchmark_ce/70725f72756e/anaconda/bin/python3 query_latest_daily_benchmark_result.py \
+    # --save_dir /ssd1/ljh/benchmark_ce/70725f72756e/logs/27/diff/ \
+    # --output_file /ssd1/ljh/benchmark_ce/70725f72756e/benchmark/scripts/remain.txt --dynamic_models tsn
