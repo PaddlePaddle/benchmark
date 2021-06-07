@@ -23,7 +23,7 @@ import argparse
 import subprocess
 
 
-diff_type = os.environ.get("e_diff_version_type")
+diff_type = os.environ.get("diff_version_type")
 if diff_type == "null":
     has_diff = False
 else:
@@ -375,8 +375,24 @@ def _process_run_log(args):
                 new_commit_id = result_info["commit_id"]
             result = _merge_result_info_into_result(result, result_info, "result")
     env = {
-        "new_commit_id": new_commit_id
+        "new_commit_id": new_commit_id,
+        "test_version_type": os.environ.get("test_version_type"),
+        "device_type": os.environ.get("device_type"),
+        "cuda_version": os.environ.get("cuda_version"),
+        "task_id": os.environ.get("task_id"),
+        "diff_version_type": os.environ.get("diff_version_type")
     }
+    test_version_type = os.environ.get("test_version_type")
+    diff_version_type = os.environ.get("diff_version_type")
+    if test_version_type == "pr":
+        env["test_pr_number"] = os.environ.get("test_pr")
+    elif test_version_type == "commit":
+        env["test_commit_id"] = os.environ.get("test_commit_id")
+    elif test_version_type == "branch":
+        env["test_branch"] = os.environ.get("test_branch")
+    if diff_version_type == "branch":
+        env["diff_branch"] = os.environ.get("diff_branch")
+
     if has_diff:
         diff_listdir = sorted(os.listdir(diff_path))
         for file_name in diff_listdir:
