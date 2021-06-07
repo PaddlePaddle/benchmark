@@ -216,7 +216,7 @@ RUN_ENV_HOLDER
                             value = float(value)
                             if value > 5:
                                 color = "green"
-                            elif value < 5:
+                            elif value < -5:
                                 color = "red"
                             value = str(value) + "%"
                         except Exception as e:
@@ -396,7 +396,7 @@ def _process_run_log(args):
     if has_diff:
         diff_listdir = sorted(os.listdir(diff_path))
         for file_name in diff_listdir:
-            result_info = _parse_result_file(result_path + "/" + file_name)
+            result_info = _parse_result_file(diff_path + "/" + file_name)
             if result_info:
                 if not diff_commit_id and result_info["commit_id"]:
                     diff_commit_id = result_info["commit_id"]
