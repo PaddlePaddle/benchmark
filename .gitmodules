@@ -74,3 +74,7 @@
 	path = PaddleSeg
 	url = https://github.com/PaddlePaddle/PaddleSeg.git
 	branch = benchmark
+[submodule "PaddleOCR"]
+	path = PaddleOCR
+	url = https://github.com/PaddlePaddle/PaddleOCR.git
+	branch = release/2.1

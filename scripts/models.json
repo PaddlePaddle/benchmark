@@ -24,6 +24,7 @@
     "dy_seq2seq",
     "dy_resnet",
     "dy_ptb_lm",
-    "dy_mobilenet"
+    "dy_mobilenet",
+    "dy_ppocr_mobile_2"
   ]
 }
