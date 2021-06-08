@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_mobilenet)
+cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet)
 
 #run_bert
 dy_bert(){
@@ -86,8 +86,8 @@ dy_seq2seq(){
 }
 
 # ptb
-dy_ptb_lm(){
-    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/ptb_lm
+dy_ptb_medium(){
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/rnnlm
     cd ${cur_model_path}
 
     # Prepare data
@@ -99,7 +99,7 @@ dy_ptb_lm(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/ptb/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 10000 | tee ${log_path}/dynamic_ptb_lm_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 1 | tee ${log_path}/dynamic_ptb_medium_speed_1gpus 2>&1
 }
 
 # transformer
