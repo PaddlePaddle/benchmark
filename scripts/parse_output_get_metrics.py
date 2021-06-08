@@ -153,12 +153,13 @@ RUN_ENV_HOLDER
                 key_list = []
                 for metric in ["ips", "gpu_memory", "gpu_used_avg", "cpu_used_avg"]:
                     for run_mode in ["sp", "mp"]:
-                        for result_type in ["result", "diff", "percent"]:
-                            if run_mode == "sp":
-                                for gpu_num in [1, 8]:
+                        if run_mode == "sp":
+                            for gpu_num in [1, 8]:
+                                for result_type in ["result", "diff", "percent"]:
                                     key_list.append("%s_%s_%s_%s" % (result_type, run_mode, gpu_num, metric))
-                            else:
-                                gpu_num = 8
+                        else:
+                            gpu_num = 8
+                            for result_type in ["result", "diff", "percent"]:
                                 key_list.append("%s_%s_%s_%s" % (result_type, run_mode, gpu_num, metric))
         else:
             # 无diff数据
