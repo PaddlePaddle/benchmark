@@ -286,8 +286,8 @@ def _parse_result_file(result_file):
                     gpu_used_avg = float(line.split("=")[-1].strip())
                 if line.startswith("AVG_CPU_USE"):
                     cpu_used_avg = float(line.split("=")[-1].strip())
-                if "Model commit is" in line:
-                    commit_id = line.split("Model commit is")[-1].strip()
+                if "Paddle commit is" in line:
+                    commit_id = line.split("Paddle commit is")[-1].strip()
             file_line = lines[-1]
         json_info = json.loads(file_line)
         json_info["ips"] = json_info["FINAL_RESULT"]
@@ -402,7 +402,7 @@ def _process_run_log(args):
                 if not diff_commit_id and result_info["commit_id"]:
                     diff_commit_id = result_info["commit_id"]
                 result = _merge_result_info_into_result(result, result_info, "diff")
-        env["diff_commit_id"]: diff_commit_id
+        env["diff_commit_id"] = diff_commit_id
         _calculate_percent_and_abnormal(result, args.mode)
     _generate_and_send_html_report(result, args.emails, args.mode, env)
 
