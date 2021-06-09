@@ -55,7 +55,7 @@ function _train(){
                -o print_interval=10  
                -o TRAIN.batch_size=${batch_size} 
                -o validate=False
-               -o to_staic=True
+               -o to_static=True
                -o epochs=${max_epoch}  
                -o TRAIN.data_dir=./dataset/imagenet100_data 
                -o TRAIN.file_list=./dataset/imagenet100_data/${file_list}
