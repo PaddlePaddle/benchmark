@@ -458,6 +458,9 @@ dy_ppocr_mobile_2() {
     pip install python-Levenshtein
     # Prepare data
     rm -rf train_data/icdar2015
+    if [ ! -d "train_data" ]; then
+        mkdir train_data
+    fi
     ln -s ${data_path}/dygraph_data/PPOCR_mobile_2.0/icdar2015 ${cur_model_path}/train_data/icdar2015
     rm -rf pretrain_models
     ln -s ${prepare_path}/PPOCR_mobile_2.0/pretrain_models ./pretrain_models
