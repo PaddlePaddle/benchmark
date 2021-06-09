@@ -77,4 +77,4 @@
 [submodule "PaddleOCR"]
 	path = PaddleOCR
 	url = https://github.com/PaddlePaddle/PaddleOCR.git
-	branch = release/2.1
+	branch = dygraph

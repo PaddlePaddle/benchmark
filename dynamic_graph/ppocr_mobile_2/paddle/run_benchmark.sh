@@ -40,13 +40,13 @@ function _set_params(){
 }
 
 function _train(){
-    train_cmd="-c configs/det/det_mv3_db.yml -o Global.epoch_num=${max_epoch}"
+    train_cmd="-c configs/det/det_mv3_db.yml -o Global.epoch_num=${max_epoch} -o Train.loader.batch_size_per_card=${base_batch_size}"
 
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python tools/train.py "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --gpus="0,1,2,3,4,5,6,7"  --log_dir ./mylog tools/train.py "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --gpus="0,1,2,3,4,5,6,7" --log_dir ./mylog tools/train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
     timeout 15m ${train_cmd} > ${log_file} 2>&1
