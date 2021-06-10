@@ -232,9 +232,9 @@ bert(){
             elif [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp16" ]; then
                 bs_list=(64 96)
             elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp32" ]; then
-                bs_list=(2)
+                bs_list=(2 64)
             elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp16" ]; then
-                bs_list=(4)
+                bs_list=(4 64)
             fi
             for bs_item in ${bs_list[@]}
             do
