@@ -87,7 +87,7 @@ dy_to_static_resnet(){
     pip install -r requirements.txt
    
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
-    rm -f ./run_benchmark.sh
+    rm -f ./run_benchmark_resnet.sh
     cp ${BENCHMARK_ROOT}/dynamic_to_static/resnet/paddle/run_benchmark_resnet.sh ./
     sed -i '/set\ -xe/d' run_benchmark_resnet.sh
     batch_size=32
