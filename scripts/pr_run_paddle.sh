@@ -75,7 +75,7 @@ function prepare(){
     pip install -U pip
     echo `pip --version`
     pip install ${all_path}/benchmark_ce/70725f72756e/thirdparty/opencv_python-4.5.2.52-cp37-cp37m-manylinux2014_x86_64.whl
-
+    pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda$(echo ${cuda_version}|cut -d "." -f1)0
     # fix ssl temporarily
     if [ ${cuda_version} == 10.1 ]; then
         export LD_LIBRARY_PATH=${all_path}/tools/ssl/lib:${LD_LIBRARY_PATH}
