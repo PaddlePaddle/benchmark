@@ -459,15 +459,16 @@ dy_lac(){
 dy_ppocr_mobile_2() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleOCR
     cd ${cur_model_path}
-    pip install shapely
-    pip install scikit-image==0.17.2
-    pip install imgaug==0.4.0
-    pip install pyclipper
-    pip install lmdb
-    pip install tqdm
-    pip install numpy
-    pip install visualdl
-    pip install python-Levenshtein
+    package_check_list=(shapely scikit-image imgaug pyclipper lmdb tqdm numpy visualdl python-Levenshtein)
+    for package in ${package_check_list[@]}; do
+        if python -c "import ${package}" >/dev/null 2>&1; then
+            echo "${package} have already installed"
+        else
+            echo "${package} NOT FOUND"
+            pip install ${package}
+            echo "${package} installed"
+        fi
+    done
     # Prepare data
     rm -rf train_data/icdar2015
     if [ ! -d "train_data" ]; then
