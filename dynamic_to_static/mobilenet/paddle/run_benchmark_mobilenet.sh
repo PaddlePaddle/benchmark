@@ -46,7 +46,7 @@ function _train(){
     train_cmd="-c ./configs/${model_name%_bs*}/${model_name%_bs*}.yaml 
                -o validate=False
                -o epochs=${max_epoch}
-               -o to_staic=True
+               -o to_static=True
                -o print_interval=10
                -o TRAIN.batch_size=${batch_size}
                -o TRAIN.data_dir=./dataset/imagenet100_data
