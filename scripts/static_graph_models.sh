@@ -227,7 +227,7 @@ bert(){
     for model_mode in ${model_mode_list[@]}; do
         seq_list=(seqlen128)
         if [ ${model_mode} == "large" ]; then
-            seq_list=(seqlen128 seqlen512)
+            seq_list=(seqlen512) # prepare for large tests on seqlen128 and seqlen512
         fi
         for fp_mode in ${fp_mode_list[@]}; do
             # 监控内外部benchmark，因而参数配置多
@@ -236,9 +236,9 @@ bert(){
             elif [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp16" ]; then
                 bs_list=(64 96)
             elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp32" ]; then
-                bs_list=(2 64)
+                bs_list=(2)  # 64
             elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp16" ]; then
-                bs_list=(4 64)
+                bs_list=(4)  # 64
             fi
             for bs_item in ${bs_list[@]}
             do
