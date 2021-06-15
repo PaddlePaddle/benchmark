@@ -53,7 +53,7 @@
 [submodule "PaddleGAN"]
   path = PaddleGAN
   url = https://github.com/PaddlePaddle/PaddleGAN.git
-  branch = master
+  branch = develop
 [submodule "PaddleNLP"]
 	path = PaddleNLP
 	url = https://github.com/PaddlePaddle/PaddleNLP.git
