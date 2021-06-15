@@ -225,6 +225,10 @@ bert(){
     model_mode_list=(base large)
     fp_mode_list=(fp32 fp16)
     for model_mode in ${model_mode_list[@]}; do
+        seq_list=(seqlen128)
+        if [ ${model_mode} == "large" ]; then
+            seq_list=(seqlen512) # prepare for large tests on seqlen128 and seqlen512
+        fi
         for fp_mode in ${fp_mode_list[@]}; do
             # 监控内外部benchmark，因而参数配置多
             if [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp32" ]; then
@@ -232,19 +236,22 @@ bert(){
             elif [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp16" ]; then
                 bs_list=(64 96)
             elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp32" ]; then
-                bs_list=(2 64)
+                bs_list=(2)  # 64
             elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp16" ]; then
-                bs_list=(4 64)
+                bs_list=(4)  # 64
             fi
             for bs_item in ${bs_list[@]}
             do
-                model_name="${FUNCNAME}_${model_mode}_${fp_mode}_bs${bs_item}"
-                echo "index is speed, 1gpus, begin, ${model_name}"
-                CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp ${bs_item} 500 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
-                sleep 60
-                echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp ${bs_item} 400 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
-                sleep 60
+                for seq_item in ${seq_list[@]}
+                do
+                    model_name="${FUNCNAME}_${model_mode}_${fp_mode}_${seq_item}_bs${bs_item}"
+                    echo "index is speed, 1gpus, begin, ${model_name}"
+                    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp ${bs_item} 500 ${seq_item} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+                    sleep 60
+                    echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
+                    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp ${bs_item} 400  ${seq_item} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+                    sleep 60
+                done
             done
         done
     done
