@@ -178,7 +178,8 @@ dy_gan(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleGAN
     cd ${cur_model_path}
 
-    pip install tqdm
+    pip install -r requirements.txt
+    pip install scikit-image
     # Prepare data
     mkdir -p data
     ln -s ${data_path}/dygraph_data/cityscapes_gan_mini ${cur_model_path}/data/cityscapes
