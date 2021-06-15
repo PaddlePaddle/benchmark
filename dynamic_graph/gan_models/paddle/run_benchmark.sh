@@ -1,6 +1,6 @@
 #!bin/bash
-set -xe
 
+set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
@@ -42,10 +42,7 @@ function _set_params(){
 function _train(){
     export PYTHONPATH=$PWD:$PYTHONPATH
    
-    # 暂不支持传入epochs，暂时用sed 的方式 
-    sed -i "1c epochs: ${max_epoch}" configs/$(echo ${model_name%_bs*} | tr '[A-Z]' '[a-z]')_cityscapes.yaml
-   
-    train_cmd="--config-file configs/$(echo ${model_name%_bs*} | tr '[A-Z]' '[a-z]')_cityscapes.yaml"
+    train_cmd=" --config-file configs/$(echo ${model_name%_bs*} | tr '[A-Z]' '[a-z]')_cityscapes.yaml -o log_config.interval=100 epochs=1 validate.interval=-1"
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u tools/main.py "${train_cmd}
     else
