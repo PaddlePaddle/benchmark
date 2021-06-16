@@ -44,14 +44,14 @@ function _train(){
                -o epochs=${max_epoch}
                -o DATASET.batch_size=${base_batch_size}
                -o DATASET.train.file_path=./dataset/activitynet_1.3_annotations_mini.json
-               -o PIPELINE.train.feat_path=./dataset/fix_feat_100_mini
+               -o PIPELINE.train.load_feat.feat_path=./dataset/fix_feat_100_mini
                "
     multi_train_cmd="
                -c configs/localization/bmn.yaml
                -o epochs=${max_epoch}
                -o DATASET.batch_size=${base_batch_size}
                -o DATASET.train.file_path=./dataset/activitynet_1.3_annotations.json
-               -o PIPELINE.train.feat_path=./dataset/fix_feat_100
+               -o PIPELINE.train.load_feat.feat_path=./dataset/fix_feat_100
                "
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -B -u main.py "${train_cmd}
