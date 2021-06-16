@@ -466,6 +466,14 @@ dy_lac(){
 dy_ppocr_mobile_2() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleOCR
     cd ${cur_model_path}
+
+    if python -c "import pooch" >/dev/null 2>&1; then
+        echo "pooch have already installed, need uninstall"
+        pip uninstall -y pooch
+    else
+        echo "pooch not installed"
+    fi
+
     package_check_list=(shapely scikit-image imgaug pyclipper lmdb tqdm numpy visualdl python-Levenshtein)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
