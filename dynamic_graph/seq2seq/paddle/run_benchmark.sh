@@ -74,6 +74,11 @@ function _train(){
                      --max_epoch ${max_epoch} \
                      --model_path attention_models"
 
+    sed -i '/dev_ppl = eval(valid_data)/d' train.py
+    sed -i '/print("dev ppl", dev_ppl)/d' train.py
+    sed -i '/test_ppl = eval(test_data)/d' train.py
+    sed -i '/print("test ppl", test_ppl)/d' train.py
+
     timeout 15m python -u train.py ${train_cmd_de_en} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
