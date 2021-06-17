@@ -30,15 +30,6 @@ class ActivationConfig(APIConfig):
             'tanh': 'tanh'
         }
 
-    def disabled(self):
-        if self.api_name in ["log"] and self.x_dtype == "float16":
-            print(
-                "Warning:\n"
-                "  1. This config is disabled because float16 is not supported for %s.\n"
-                % (self.api_name))
-            return True
-        return super(ActivationConfig, self).disabled()
-
 
 class PDActivation(PaddleAPIBenchmarkBase):
     def build_program(self, config):

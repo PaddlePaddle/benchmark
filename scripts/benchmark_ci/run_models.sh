@@ -49,7 +49,7 @@ bert_base_seqlen128_fp32_bs32(){
     #running model case
     model_name=bert_base_seqlen128_fp32_bs32
     echo "index is speed, 1gpu, begin, bert_base_fp32"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 base fp32 sp 500 | tee ${BENCHMARK_ROOT}/logs/static/${model_name}_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 base fp32 sp 32 500 seqlen128 | tee ${BENCHMARK_ROOT}/logs/static/${model_name}_speed_1gpus 2>&1
     cat ${model_name}_1_1_sp
     sleep 60    
 }

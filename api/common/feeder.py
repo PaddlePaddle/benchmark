@@ -14,16 +14,11 @@
 
 from __future__ import print_function
 
-import six
 import collections
 import numpy as np
 
-if six.PY3:
-    from . import paddle_api_benchmark as paddle_api
-    from . import tensorflow_api_benchmark as tensorflow_api
-else:
-    import paddle_api_benchmark as paddle_api
-    import tensorflow_api_benchmark as tensorflow_api
+from . import paddle_api_benchmark as paddle_api
+from . import tensorflow_api_benchmark as tensorflow_api
 
 
 def copy_feed_spec(feed_spec):

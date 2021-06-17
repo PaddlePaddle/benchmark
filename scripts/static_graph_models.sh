@@ -32,10 +32,10 @@ seg_model(){
     for model_item in ${model_list[@]}
     do
         echo "index is speed, ${model_item} 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 180 | tee ${log_path}/${model_item}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 180 | tee ${log_path}/${FUNCNAME}_${model_item}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, ${model_item} 8gpu begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 180 | tee ${log_path}/${model_item}_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 180 | tee ${log_path}/${FUNCNAME}_${model_item}_speed_8gpus 2>&1
         sleep 60
         echo "index is speed, 1gpu, profiler is on, begin"
 #       CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp ${model_item} 200  | tee ${log_path}/${model_item}_speed_1gpus_profiler 2>&1
@@ -55,26 +55,21 @@ image_classification(){
     rm -rf ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/static_graph/image_classification/paddle/run_benchmark_resnet.sh ./run_benchmark.sh
     sed -i '/set\ -xe/d' run_benchmark.sh
-    pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda100
 
     # running models cases
-    model_list=(SE_ResNeXt50_32x4d_bs32 ResNet101_bs32 ResNet50_bs32 ResNet50_bs128)
+    model_list=(SE_ResNeXt50_32x4d_bs32 ResNet101_bs32 ResNet50_bs32 ResNet50_bs128 ResNet50_bs96)
     for model_name in ${model_list[@]}; do
         run_batchsize=32
         if [ ${model_name} = "ResNet50_bs128" ]; then
             run_batchsize=128
+        elif [ ${model_name} = "ResNet50_bs96" ]; then
+            run_batchsize=96
         fi
         echo "index is speed, 1gpu, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 1 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 1 | tee ${log_path}/${FUNCNAME}_${model_name}_speed_1gpus 2>&1
         sleep 60
-#        echo "index is speed, 1gpu, begin, profile is on, ${model_name}"
-#        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${run_batchsize} ${model_name} sp 800 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
-#        sleep 60
-        #echo "index is maxbs, 8gpus, begin, ${model_name}"
-        #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 112 ${model_name} sp 500 | tee ${log_path}/${model_name}_maxbs_8gpus 2>&1
-        #sleep 60
         echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} mp 1 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} mp 1 | tee ${log_path}/${FUNCNAME}_${model_name}_speed_8gpus8p 2>&1
         sleep 60
     done
 
@@ -90,11 +85,11 @@ image_classification(){
         do
             model_name="ResNet50_bs${bs_item}_${fp_mode}_fp16"
             echo "bs=${bs_item}, model is ${model_name}, index is speed, 1gpus, run_mode is sp, begin"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark_fp16.sh 1 ${bs_item} sp 1 ${fp_mode} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+            CUDA_VISIBLE_DEVICES=0 bash run_benchmark_fp16.sh 1 ${bs_item} sp 1 ${fp_mode} | tee ${log_path}/${FUNCNAME}_${model_name}_speed_1gpus 2>&1
             if [ ${bs_item} == 128 ]; then
                 sleep 60
                 echo "bs=${bs_item}, model is ${model_name}, index is speed, 8gpus, run_mode is multi_process, begin"
-                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_fp16.sh 1 ${bs_item} mp 1 ${fp_mode}  | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_fp16.sh 1 ${bs_item} mp 1 ${fp_mode}  | tee ${log_path}/${FUNCNAME}_${model_name}_speed_8gpus8p 2>&1
             fi
             sleep 60
         done
@@ -142,13 +137,13 @@ detection(){
     model_list=(mask_rcnn_fpn_resnet mask_rcnn_fpn_resnext cascade_rcnn_fpn)
     for model_name in ${model_list[@]}; do
         echo "index is speed, 1gpu, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_name} sp 600 | tee ${log_path}/${model_name}_bs${batch_size}_speed_1gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_name} sp 600 | tee ${log_path}/${FUNCNAME}_${model_name}_bs${batch_size}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, 1gpu, profiler is on  begin, ${model_name}"
 #        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_name} sp 600 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
         sleep 60
         echo "index is speed, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_name} sp 300 | tee ${log_path}/${model_name}_bs${batch_size}_speed_8gpus 2>&1
+        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_name} sp 300 | tee ${log_path}/${FUNCNAME}_${model_name}_bs${batch_size}_speed_8gpus 2>&1
         sleep 60
     done
 }
@@ -230,14 +225,34 @@ bert(){
     model_mode_list=(base large)
     fp_mode_list=(fp32 fp16)
     for model_mode in ${model_mode_list[@]}; do
+        seq_list=(seqlen128)
+        if [ ${model_mode} == "large" ]; then
+            seq_list=(seqlen512) # prepare for large tests on seqlen128 and seqlen512
+        fi
         for fp_mode in ${fp_mode_list[@]}; do
-            model_name="${FUNCNAME}_${model_mode}_${fp_mode}"
-            echo "index is speed, 1gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 500 | tee ${log_path}/${model_name}_speed_1gpus 2>&1
-            sleep 60
-            echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp 400 | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
-            sleep 60
+            # 监控内外部benchmark，因而参数配置多
+            if [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp32" ]; then
+                bs_list=(32 48)
+            elif [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp16" ]; then
+                bs_list=(64 96)
+            elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp32" ]; then
+                bs_list=(2)  # 64
+            elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp16" ]; then
+                bs_list=(4)  # 64
+            fi
+            for bs_item in ${bs_list[@]}
+            do
+                for seq_item in ${seq_list[@]}
+                do
+                    model_name="${FUNCNAME}_${model_mode}_${fp_mode}_${seq_item}_bs${bs_item}"
+                    echo "index is speed, 1gpus, begin, ${model_name}"
+                    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp ${bs_item} 500 ${seq_item} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+                    sleep 60
+                    echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
+                    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp ${bs_item} 400  ${seq_item} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+                    sleep 60
+                done
+            done
         done
     done
 }

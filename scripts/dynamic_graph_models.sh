@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_lm dy_mobilenet)
+cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn)
 
 #run_bert
 dy_bert(){
@@ -27,18 +27,37 @@ dy_bert(){
     pip install paddlenlp
 
     sed -i '/set\ -xe/d' run_benchmark.sh
-
     model_mode_list=(base large)
     fp_mode_list=(fp32 fp16)
     for model_mode in ${model_mode_list[@]}; do
+        seq_list=(seqlen128)
+        if [ ${model_mode} == "large" ]; then
+            seq_list=(seqlen512) # prepare for test large seqlen128|seqlen512
+        fi
         for fp_mode in ${fp_mode_list[@]}; do
-            model_name="bert_"${model_mode}_${fp_mode}
-            echo "index is speed, 1gpus, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp 500 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
-            sleep 60
-            echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp 400 | tee ${log_path}/dynamic_${model_name}_speed_8gpus8p 2>&1
-            sleep 60
+            # 监控内外部benchmark，因而参数配置多
+            if [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp32" ]; then
+                bs_list=(32 48)
+            elif [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp16" ]; then
+                bs_list=(64 96)
+            elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp32" ]; then
+                bs_list=(2) # 64
+            elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp16" ]; then
+                bs_list=(4) # 64
+            fi
+            for bs_item in ${bs_list[@]}
+            do
+                for seq_item in ${seq_list[@]}
+                do
+                    model_name="bert_${model_mode}_${fp_mode}_${seq_item}_bs${bs_item}"
+                    echo "index is speed, 1gpus, begin, ${model_name}"
+                    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp ${bs_item} 500 ${seq_item} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+                    sleep 60
+                    echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
+                    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp ${bs_item} 400  ${seq_item} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+                    sleep 60
+                done
+            done
         done
     done
 }
@@ -86,8 +105,8 @@ dy_seq2seq(){
 }
 
 # ptb
-dy_ptb_lm(){
-    cur_model_path=${BENCHMARK_ROOT}/models/dygraph/ptb_lm
+dy_ptb_medium(){
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/rnnlm
     cd ${cur_model_path}
 
     # Prepare data
@@ -99,7 +118,7 @@ dy_ptb_lm(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/ptb/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 10000 | tee ${log_path}/dynamic_ptb_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 1 | tee ${log_path}/dynamic_ptb_medium_bs20_speed_1gpus 2>&1
 }
 
 # transformer
@@ -159,7 +178,8 @@ dy_gan(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleGAN
     cd ${cur_model_path}
 
-    pip install tqdm
+    pip install -r requirements.txt
+    pip install scikit-image
     # Prepare data
     mkdir -p data
     ln -s ${data_path}/dygraph_data/cityscapes_gan_mini ${cur_model_path}/data/cityscapes
@@ -172,7 +192,7 @@ dy_gan(){
     for model_item in ${model_list[@]}
     do
         echo "index is speed, ${model_item} 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 1 | tee ${log_path}/dynamic_${model_item}_bs1_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 1 | tee ${log_path}/dynamic_gan_${model_item}_bs1_speed_1gpus 2>&1
         sleep 10
     done
 }
@@ -197,10 +217,10 @@ dy_seg(){
     for model_item in ${model_list[@]}
     do
         echo "index is speed, ${model_item} 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 200 | tee ${log_path}/dynamic_${model_item}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 200 | tee ${log_path}/dynamic_seg_${model_item}_bs2_speed_1gpus 2>&1
         sleep 10
         echo "index is speed, ${model_item} 8gpu begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 200 | tee ${log_path}/dynamic_${model_item}_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 200 | tee ${log_path}/dynamic_seg_${model_item}_bs2_speed_8gpus 2>&1
         sleep 10
     done
 }
@@ -272,10 +292,10 @@ dy_mask_rcnn(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/mask_rcnn/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 500 | tee ${log_path}/dynamic_mask_rcnn_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 500 | tee ${log_path}/dynamic_mask_rcnn_bs1_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus begin, mp"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_mask_rcnn_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_mask_rcnn_bs1_speed_8gpus 2>&1
 }
 
 dy_yolov3(){
@@ -311,10 +331,10 @@ dy_yolov3(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/yolov3/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 500 | tee ${log_path}/dynamic_yolov3_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 500 | tee ${log_path}/dynamic_yolov3_bs1_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpu, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_yolov3_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_yolov3_bs1_speed_8gpus 2>&1
 }
 
 # tsm 
@@ -334,10 +354,10 @@ dy_tsm(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/tsm/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 1 | tee ${log_path}/dynamic_tsm_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 1 | tee ${log_path}/dynamic_tsm_bs_16_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus begin, mp"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 1 | tee ${log_path}/dynamic_tsm_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 1 | tee ${log_path}/dynamic_tsm_bs16_speed_8gpus 2>&1
 }
 
 # wavenet
@@ -441,4 +461,74 @@ dy_lac(){
 #    sleep 60
 #    echo "index is speed, 8gpus begin, mp"
 #    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh  1 sp 10 | tee ${log_path}/dynamic_lac_bs32_speed_8gpus 2>&1
+}
+
+dy_ppocr_mobile_2() {
+    cur_model_path=${BENCHMARK_ROOT}/PaddleOCR
+    cd ${cur_model_path}
+
+    if python -c "import pooch" >/dev/null 2>&1; then
+        echo "pooch have already installed, need uninstall"
+        pip uninstall -y pooch
+    else
+        echo "pooch not installed"
+    fi
+
+    package_check_list=(shapely scikit-image imgaug pyclipper lmdb tqdm numpy visualdl python-Levenshtein)
+    for package in ${package_check_list[@]}; do
+        if python -c "import ${package}" >/dev/null 2>&1; then
+            echo "${package} have already installed"
+        else
+            echo "${package} NOT FOUND"
+            pip install ${package}
+            echo "${package} installed"
+        fi
+    done
+    # Prepare data
+    rm -rf train_data/icdar2015
+    if [ ! -d "train_data" ]; then
+        mkdir train_data
+    fi
+    ln -s ${data_path}/dygraph_data/PPOCR_mobile_2.0/icdar2015 ${cur_model_path}/train_data/icdar2015
+    rm -rf pretrain_models
+    ln -s ${prepare_path}/PPOCR_mobile_2.0/pretrain_models ./pretrain_models
+
+    # Running ...
+    rm -f ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/ppocr_mobile_2/paddle/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    echo "index is speed, 1gpu begin"
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 1 | tee ${log_path}/dynamic_ppocr_mobile_2_bs8_speed_1gpus 2>&1
+    sleep 60
+    echo "index is speed, 8gpus begin, mp"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 1 | tee ${log_path}/dynamic_ppocr_mobile_2_bs8_speed_8gpus 2>&1
+}
+
+dy_bmn() {
+    cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
+    cd ${cur_model_path}
+
+    package_check_list=(tqdm PyYAML numpy decord pandas)
+    for package in ${package_check_list[@]}; do
+        if python -c "import ${package}" >/dev/null 2>&1; then
+            echo "${package} have already installed"
+        else
+            echo "${package} NOT FOUND"
+            pip install ${package}
+            echo "${package} installed"
+        fi
+    done
+    # Prepare data
+    rm -rf dataset
+    ln -s ${data_path}/dygraph_data/bmn ${cur_model_path}/dataset
+
+    # Running ...
+    rm -f ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/bmn/paddle/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    echo "index is speed, 1gpu begin"
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 1 | tee ${log_path}/dynamic_bmn_bs8_speed_1gpus 2>&1
+    sleep 60
+    echo "index is speed, 8gpus begin, mp"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 1 | tee ${log_path}/dynamic_bmn_bs8_speed_8gpus 2>&1
 }
