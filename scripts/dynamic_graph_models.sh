@@ -178,6 +178,13 @@ dy_gan(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleGAN
     cd ${cur_model_path}
 
+    if python -c "import pooch" >/dev/null 2>&1; then
+        echo "pooch have already installed, need uninstall"
+        pip uninstall -y pooch
+    else
+        echo "pooch not installed"
+    fi
+
     pip install -r requirements.txt
     pip install scikit-image
     # Prepare data
