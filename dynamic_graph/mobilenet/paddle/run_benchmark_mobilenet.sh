@@ -43,14 +43,14 @@ function _set_params(){
 }
 
 function _train(){
-    train_cmd="-c ./configs/${model_name%_bs*}/${model_name%_bs*}.yaml 
+    train_cmd="-c ./ppcls/configs/ImageNet/${model_name%_bs*}/${model_name%_bs*}.yaml
                -o validate=False
                -o epochs=${max_epoch}
                -o print_interval=10
-               -o TRAIN.batch_size=${batch_size}
-               -o TRAIN.data_dir=./dataset/imagenet100_data
-               -o TRAIN.file_list=./dataset/imagenet100_data/train_list_ori.txt
-               -o TRAIN.num_workers=8"
+               -o DataLoader.Train.sampler.batch_size=${batch_size}
+               -o DataLoader.Train.dataset.image_root=./dataset/imagenet100_data
+               -o DataLoader.Train.dataset.cls_label_path=./dataset/imagenet100_data/train_list_ori.txt
+               -o DataLoader.Train.loader.num_workers=8"
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u tools/train.py "${train_cmd}
     else

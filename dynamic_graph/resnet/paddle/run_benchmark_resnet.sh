@@ -51,14 +51,14 @@ function _train(){
         config_file="ResNet50.yaml"
         file_list="train_list.txt"
     fi 
-    train_cmd="-c ./configs/ResNet/${config_file}
-               -o print_interval=10  
-               -o TRAIN.batch_size=${batch_size} 
-               -o validate=False  
-               -o epochs=${max_epoch}  
-               -o TRAIN.data_dir=./dataset/imagenet100_data 
-               -o TRAIN.file_list=./dataset/imagenet100_data/${file_list}
-               -o TRAIN.num_workers=8" 
+    train_cmd="-c ./ppcls/configs/ImageNet/ResNet/${config_file}
+               -o print_interval=10
+               -o validate=False
+               -o epochs=${max_epoch}
+               -o DataLoader.Train.sampler.batch_size=${batch_size}
+               -o DataLoader.Train.dataset.image_root=./dataset/imagenet100_data
+               -o DataLoader.Train.dataset.cls_label_path=./dataset/imagenet100_data/${file_list}
+               -o DataLoader.Train.loader.num_workers=8"
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
     else
