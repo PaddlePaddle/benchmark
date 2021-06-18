@@ -186,7 +186,7 @@ dy_gan(){
     fi
 
     pip install -r requirements.txt
-    pip install scikit-image
+    pip install scikit-image==0.18.1
     # Prepare data
     mkdir -p data
     ln -s ${data_path}/dygraph_data/cityscapes_gan_mini ${cur_model_path}/data/cityscapes
