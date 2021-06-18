@@ -10,7 +10,7 @@ function usage () {
   -n  dynamic_image_name
   -t  static_image_name
   -l  log_dir
-  -p  all_path contains dir of prepare(pretrained models), dataset, logs, such as /ssd1/ljh
+  -p  all_path contains dir of prepare(pretrained models), dataset, logs
 EOF
 }
 while getopts h:d:s:c:n:t:l:p: opt
