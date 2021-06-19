@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2)
+cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn)
 
 #run_bert
 dy_bert(){
@@ -178,8 +178,15 @@ dy_gan(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleGAN
     cd ${cur_model_path}
 
+    if python -c "import pooch" >/dev/null 2>&1; then
+        echo "pooch have already installed, need uninstall"
+        pip uninstall -y pooch
+    else
+        echo "pooch not installed"
+    fi
+
     pip install -r requirements.txt
-    pip install scikit-image
+    pip install scikit-image==0.18.1
     # Prepare data
     mkdir -p data
     ln -s ${data_path}/dygraph_data/cityscapes_gan_mini ${cur_model_path}/data/cityscapes
@@ -466,6 +473,14 @@ dy_lac(){
 dy_ppocr_mobile_2() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleOCR
     cd ${cur_model_path}
+
+    if python -c "import pooch" >/dev/null 2>&1; then
+        echo "pooch have already installed, need uninstall"
+        pip uninstall -y pooch
+    else
+        echo "pooch not installed"
+    fi
+
     package_check_list=(shapely scikit-image imgaug pyclipper lmdb tqdm numpy visualdl python-Levenshtein)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
@@ -496,3 +511,31 @@ dy_ppocr_mobile_2() {
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 1 | tee ${log_path}/dynamic_ppocr_mobile_2_bs8_speed_8gpus 2>&1
 }
 
+dy_bmn() {
+    cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
+    cd ${cur_model_path}
+
+    package_check_list=(tqdm PyYAML numpy decord pandas)
+    for package in ${package_check_list[@]}; do
+        if python -c "import ${package}" >/dev/null 2>&1; then
+            echo "${package} have already installed"
+        else
+            echo "${package} NOT FOUND"
+            pip install ${package}
+            echo "${package} installed"
+        fi
+    done
+    # Prepare data
+    rm -rf dataset
+    ln -s ${data_path}/dygraph_data/bmn ${cur_model_path}/dataset
+
+    # Running ...
+    rm -f ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/bmn/paddle/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    echo "index is speed, 1gpu begin"
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 1 | tee ${log_path}/dynamic_bmn_bs8_speed_1gpus 2>&1
+    sleep 60
+    echo "index is speed, 8gpus begin, mp"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 1 | tee ${log_path}/dynamic_bmn_bs8_speed_8gpus 2>&1
+}
