@@ -55,6 +55,7 @@ NO_BACKWARD_OPS = [
     "logical_not",
     "logical_and",
     "logical_or",
+    "logical_xor",
     "not_equal",
     "one_hot",
     "scale",

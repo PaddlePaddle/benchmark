@@ -29,7 +29,7 @@ class ElementwiseConfig(APIConfig):
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
     def disabled(self):
-        if self.api_name in ["pow", "maximum", "minimum", "divide"
+        if self.api_name in ["pow", "maximum", "minimum"
                              ] and self.x_dtype == "float16":
             print(
                 "Warning:\n"
