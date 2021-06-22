@@ -110,7 +110,8 @@ def _copy_history_result_to_save_dir(save_dir, image_version, model_type, model_
     """
     # 将历史 result 文件直接拷贝至当前持久化目录
     """
-    source_dir = "/ssd1/ljh/logs/%s/%s/index/" % (image_version, model_type)
+    base_dir = os.environ.get("base_dir")
+    source_dir = "%s/logs/%s/%s/index/" % (base_dir, image_version, model_type)
     destination_dir = save_dir + "/" + model_type + "/index"
     os.makedirs(destination_dir, exist_ok=True)
     # 遍历 source_dir，根据文件名前缀判断是否符合预期，符合预期则拷贝至 destination_dir
