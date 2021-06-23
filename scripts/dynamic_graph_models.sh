@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn)
+cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn)
 
 #run_bert
 dy_bert(){
@@ -101,7 +101,7 @@ dy_seq2seq(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/seq2seq/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 2 | tee ${log_path}/dynamic_seq2seq_bs128_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 1 | tee ${log_path}/dynamic_seq2seq_bs128_speed_1gpus 2>&1
 }
 
 # ptb
@@ -538,4 +538,56 @@ dy_bmn() {
     sleep 60
     echo "index is speed, 8gpus begin, mp"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 1 | tee ${log_path}/dynamic_bmn_bs8_speed_8gpus 2>&1
+}
+
+dy_faster_rcnn_fpn() {
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
+    cd ${cur_model_path}
+    pip install Cython
+    pip install -r requirements.txt
+
+    # Install cocoapi
+    if python -c "import pycocotools" >/dev/null 2>&1
+    then
+        echo "cocoapi have already installed"
+    else
+        echo "cocoapi NOT FOUND"
+        cp -r ${prepare_path}/cocoapi/ ./
+        cd cocoapi/PythonAPI/
+        pip install Cython
+        make install
+        python setup.py install --user
+        echo "cocoapi installed"
+    fi
+
+    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy)
+    for package in ${package_check_list[@]}; do
+        if python -c "import ${package}" >/dev/null 2>&1; then
+            echo "${package} have already installed"
+        else
+            echo "${package} NOT FOUND"
+            pip install ${package}
+            echo "${package} installed"
+        fi
+    done
+
+    # Copy pretrained model
+    ln -s ${prepare_path}/mask-rcnn/ResNet50_cos_pretrained  ~/.cache/paddle/weights
+    cd ${cur_model_path}
+    # Prepare data
+    rm -rf dataset/coco/
+    mkdir -p dataset/coco/
+    ln -s ${data_path}/COCO17/annotations ${cur_model_path}/dataset/coco/annotations
+    ln -s ${data_path}/COCO17/train2017 ${cur_model_path}/dataset/coco/train2017
+    ln -s ${data_path}/COCO17/test2017 ${cur_model_path}/dataset/coco/test2017
+    ln -s ${data_path}/COCO17/val2017 ${cur_model_path}/dataset/coco/val2017
+    # preprare scripts
+    rm -rf run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/faster_rcnn_fpn/paddle/run_benchmark.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    echo "index is speed, 1gpu begin"
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 500 | tee ${log_path}/dynamic_faster_rcnn_bs1_speed_1gpus 2>&1
+    sleep 60
+    echo "index is speed, 8gpus begin, mp"
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_faster_rcnn_bs1_speed_8gpus 2>&1
 }
