@@ -1,0 +1,56 @@
+[{
+    "op": "reduce",
+    "param_info": {
+        "axis": {
+            "type": "list",
+            "value": "[2, 3]"
+        },
+        "x": {
+            "dtype": "bool",
+            "shape": "[-1L, 2048L, 33L, 33L]",
+            "type": "Variable"
+        },
+        "keepdim": {
+            "type": "bool",
+            "value": "True"
+        }
+    },
+    "atol": 0.0001,
+    "repeat": 10000
+}, {
+    "op": "reduce",
+    "param_info": {
+        "axis": {
+            "type": "list",
+            "value": "[1]"
+        },
+        "x": {
+            "dtype": "bool",
+            "shape": "[-1L, 8L, 128L]",
+            "type": "Variable"
+        },
+        "keepdim": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}, {
+    "op": "reduce",
+    "param_info": {
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "bool",
+            "shape": "[30522L, 1024L]",
+            "type": "Variable"
+        },
+        "keepdim": {
+            "type": "bool",
+            "value": "False"
+        }
+    },
+    "atol": 0.01,
+    "repeat": 10000
+}]
