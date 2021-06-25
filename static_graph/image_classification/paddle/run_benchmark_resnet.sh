@@ -82,7 +82,7 @@ function _train(){
                -o epochs=${max_epoch}"
 
     case ${run_mode} in
-    sp) train_cmd="python -u tools/train.py -o is_distributed=False "${train_cmd} ;;
+    sp) train_cmd="python -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd} ;;
     mp)
         rm -rf ./mylog_${model_name}
         if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ] || [ ${model_name} = "ResNet50_bs96" ]; then
