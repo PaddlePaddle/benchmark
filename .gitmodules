@@ -58,6 +58,10 @@
 	path = PaddleClas
 	url = https://github.com/PaddlePaddle/PaddleClas.git
 	branch = develop
+[submodule "PaddleClas"]
+	path = PaddleClasStatic
+	url = https://github.com/PaddlePaddle/PaddleClas.git
+	branch = release/static
 [submodule "PaddleDetection"]
 	path = PaddleDetection
 	url = https://github.com/PaddlePaddle/PaddleDetection.git
