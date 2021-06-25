@@ -34,7 +34,7 @@ function _set_params(){
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
-    batch_size=`expr ${num_gpu_devices} \* ${base_batch_size}`
+    batch_size=${base_batch_size}
 
     log_file=${run_log_path}/dynamic_${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/dynamic_${model_name}_3_${num_gpu_devices}_${run_mode}
@@ -52,9 +52,9 @@ function _train(){
         file_list="train_list.txt"
     fi 
     train_cmd="-c ./ppcls/configs/ImageNet/ResNet/${config_file}
-               -o print_interval=10
-               -o validate=False
-               -o epochs=${max_epoch}
+               -o Global.epochs=${max_epoch}
+               -o Global.eval_during_train=False
+               -o Global.save_interval=2
                -o DataLoader.Train.sampler.batch_size=${batch_size}
                -o DataLoader.Train.dataset.image_root=./dataset/imagenet100_data
                -o DataLoader.Train.dataset.cls_label_path=./dataset/imagenet100_data/${file_list}
