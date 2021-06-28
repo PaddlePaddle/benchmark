@@ -66,7 +66,6 @@ dy_bert(){
 dy_mobilenet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout develop
     pip install -r requirements.txt
 
     # Prepare data
