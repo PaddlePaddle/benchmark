@@ -46,7 +46,7 @@ seg_model(){
 
 #run image_classification
 image_classification(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleClas
+    cur_model_path=${BENCHMARK_ROOT}/PaddleClasStatic
     cd ${cur_model_path}
     pip install -r requirements.txt
     # Prepare data
