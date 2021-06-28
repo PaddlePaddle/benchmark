@@ -63,6 +63,7 @@ if [ -f "rerun_model.txt" ];then
         python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic_pr --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=0.05  --paddle_dev=True
     fi
 fi
+#job fail
 if [[ -z `cat log.txt | grep success` ]];then
     echo -e "model benchmark ci job failed!"
     echo -e "See https://github.com/PaddlePaddle/Paddle/wiki/PR-CI-Model-benchmark-Manual for details."
