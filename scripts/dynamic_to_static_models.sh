@@ -44,10 +44,10 @@ dy_to_static_bert() {
                 do
                     model_name="bert_${model_mode}_${fp_mode}_${seq_item}_bs${bs_item}"
                     echo "index is speed, 1gpus, begin, ${model_name}"
-                    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp ${bs_item} 500 ${seq_item} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+                    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp ${bs_item} 500 ${seq_item} | tee ${log_path}/dynamic_to_static_${model_name}_speed_1gpus 2>&1
                     sleep 60
                     echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-                    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp ${bs_item} 400  ${seq_item} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+                    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp ${bs_item} 400  ${seq_item} | tee ${log_path}/dynamic_to_static_${model_name}_speed_8gpus8p 2>&1
                     sleep 60
                 done
             done
