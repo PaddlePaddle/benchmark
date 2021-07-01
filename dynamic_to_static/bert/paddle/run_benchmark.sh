@@ -47,9 +47,9 @@ function _set_params(){
     else
         batch_size=${base_batch_size}
     fi
-    log_file=${run_log_path}/dynamic_${model_name}_${index}_${num_gpu_devices}_${run_mode}
-    log_with_profiler=${profiler_path}/dynamic_${model_name}_3_${num_gpu_devices}_${run_mode}
-    profiler_path=${profiler_path}/dynamic_profiler_${model_name}
+    log_file=${run_log_path}/dynamic_to_static_${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/dynamic_to_static_${model_name}_3_${num_gpu_devices}_${run_mode}
+    profiler_path=${profiler_path}/dynamic_to_static_profiler_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 

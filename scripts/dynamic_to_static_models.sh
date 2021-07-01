@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_to_static_bert)
+cur_model_list=(dy_to_static_bert dy_to_static_mobilenet dy_to_static_resnet)
 
 # Bert
 dy_to_static_bert() {
@@ -130,7 +130,7 @@ dy_to_static_resnet(){
     cp ${BENCHMARK_ROOT}/dynamic_to_static/resnet/paddle/run_benchmark_resnet.sh ./
     sed -i '/set\ -xe/d' run_benchmark_resnet.sh
     batch_size=32
-    model_list=(ResNet152_bs32 ResNet50_bs32 ResNet50_bs128)
+    model_list=(ResNet50_bs32 ResNet50_bs128)
     for model_name in ${model_list[@]}
     do
         if [ ${model_name} == "ResNet50_bs128" ]; then
