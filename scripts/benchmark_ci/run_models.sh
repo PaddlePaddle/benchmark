@@ -22,7 +22,7 @@ ResNet50_bs32_dygraph(){
 ResNet50_bs32(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout -b static dad2dab0154cf1e4573995c20d5beca9d6814995
+    git checkout -b static a8f21e0167e4de101cbcd241b575fb09bbcaced9
     # Prepare data
     ln -s ${data_path}/imagenet100_data/ ${cur_model_path}/dataset
     # Copy run_benchmark.sh and running ...
