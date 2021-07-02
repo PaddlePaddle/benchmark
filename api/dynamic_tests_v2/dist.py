@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,30 +15,30 @@
 from common_import import *
 
 
-class PaddleLeakyRelu(PaddleDynamicAPIBenchmarkBase):
-    def build_graph(self, config):
-        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.nn.functional.leaky_relu(x=x)
-
-        self.feed_list = [x]
-        self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
-
-
-class TorchLeakyRelu(PytorchAPIBenchmarkBase):
+class PDDist(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.nn.functional.leaky_relu(input=x)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = paddle.dist(x=x, y=y, p=config.p)
 
-        self.feed_list = [x]
+        self.feed_list = [x, y]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(result, self.feed_list)
+
+
+class TorchDist(PytorchAPIBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = torch.dist(input=x, other=y, p=config.p)
+
+        self.feed_list = [x, y]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, self.feed_list)
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddleLeakyRelu(),
-        torch_obj=TorchLeakyRelu(),
-        config=APIConfig("leaky_relu"))
+        pd_dy_obj=PDDist(), torch_obj=TorchDist(), config=APIConfig("dist"))

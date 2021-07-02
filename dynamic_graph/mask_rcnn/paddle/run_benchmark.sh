@@ -56,6 +56,7 @@ function _train(){
         sed -i '/for step_id, data in enumerate(self.loader):/i\            max_step_id = '${max_iter}' #To address max_iter' ppdet/engine/trainer.py
         sed -i '/for step_id, data in enumerate(self.loader):/a\                if step_id == max_step_id: return' ppdet/engine/trainer.py
     fi
+    model_name=${model_name}_bs${base_batch_size}
 
     train_cmd="-c configs/mask_rcnn/mask_rcnn_r50_fpn_1x_coco.yml
                -o epochs=1

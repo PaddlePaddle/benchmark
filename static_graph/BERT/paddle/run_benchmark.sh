@@ -3,7 +3,7 @@ set -xe
 if [[ $# -lt 3 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|3|6 base|large fp32|fp16 sp|mp 1000(max_iter)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|3|6 base|large fp32|fp16 sp|mp batch_size 1000(max_iter) seqlen128|seqlen512"
     exit
 fi
 
@@ -12,7 +12,9 @@ function _set_params(){
     model_type="$2"
     fp_mode=$3
     run_mode=${4:-"sp"}
-    max_iter=${5}
+    base_batch_size=${5}
+    max_iter=${6}
+    seq_len=${7}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -22,7 +24,7 @@ function _set_params(){
     direction_id=1                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     skip_steps=10                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
     keyword="ips:"                 # 解析日志，筛选出数据所在行的关键字                                             (必填)
-    ips_unit="sequences/sec"                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
+    ips_unit="sequences/s"                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
     model_mode=-1                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -30,16 +32,10 @@ function _set_params(){
     num_gpu_devices=${#arr[*]}
 
     # if [[ ${index} -eq 6 ]]; then base_batch_size=78; else base_batch_size=32; fi
-    seq_len="seqlen128"
-    if [[ ${model_type} = "large" ]]; then seq_len="seqlen512"; fi
     if [[ ${fp_mode} = "fp16" ]]; then
         use_amp=True
-        base_batch_size=64
-        if [[ ${model_type} = "large" ]]; then base_batch_size=4; fi
     elif [[ ${fp_mode} = "fp32" ]]; then
         use_amp=False
-        base_batch_size=32
-        if [[ ${model_type} = "large" ]]; then base_batch_size=2; fi
     else
         echo "fp_mode should be fp32 or fp16"
         exit 1
@@ -75,10 +71,9 @@ function _train(){
                --model_type bert
                --model_name_or_path bert-${model_type}-uncased
                --batch_size ${batch_size}
-               --enable_addto False
                --use_amp ${use_amp}"
     case ${run_mode} in
-    sp) train_cmd="python -u run_pretrain_single.py "${train_cmd} ;;
+    sp) train_cmd="python -u run_pretrain.py "${train_cmd} ;;
     mp)
         rm -rf ./mylog_${model_name}
         train_cmd="python -m paddle.distributed.launch --log_dir=./mylog_${model_name} --gpus=$CUDA_VISIBLE_DEVICES run_pretrain.py "${train_cmd}

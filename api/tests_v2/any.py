@@ -15,34 +15,39 @@
 from common_import import *
 
 
-class EluConfig(APIConfig):
+class AnyConfig(APIConfig):
     def __init__(self):
-        super(EluConfig, self).__init__("elu")
-        self.feed_spec = {"range": [-1, -1]}
-        self.alias_name = "activation"
+        super(AnyConfig, self).__init__('any')
+        self.alias_name = "reduce"
+
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(AnyConfig, self).init_from_json(filename, config_id, unknown_dim)
+        self.x_dtype = "bool"
+        # Update the parameters information. It will be removed and reimplemented
+        # in api_param.py.
+        for var in self.variable_list:
+            if var.type == "Variable" and var.name == "x":
+                var.dtype = "bool"
 
 
-class PDElu(PaddleDynamicAPIBenchmarkBase):
+class PDAny(PaddleAPIBenchmarkBase):
+    def build_program(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.any(x=x, axis=config.axis, keepdim=config.keepdim)
+
+        self.feed_vars = [x]
+        self.fetch_vars = [result]
+
+
+class TFAny(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.nn.functional.elu(x=x)
+        result = tf.math.reduce_any(
+            input_tensor=x, axis=config.axis, keepdims=config.keepdim)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
-
-
-class TorchElu(PytorchAPIBenchmarkBase):
-    def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.nn.functional.elu(input=x)
-
-        self.feed_list = [x]
-        self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(pd_dy_obj=PDElu(), torch_obj=TorchElu(), config=EluConfig())
+    test_main(PDAny(), TFAny(), config=AnyConfig())

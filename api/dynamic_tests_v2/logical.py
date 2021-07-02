@@ -21,7 +21,8 @@ class LogicalConfig(APIConfig):
         self.api_name = 'logical_and'
         self.api_list = {
             'logical_and': 'logical_and',
-            'logical_or': 'logical_or'
+            'logical_or': 'logical_or',
+            'logical_xor': 'logical_xor'
         }
 
 

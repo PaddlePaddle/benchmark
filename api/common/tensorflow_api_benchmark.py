@@ -22,14 +22,9 @@ import importlib
 import numpy as np
 from common import special_op_list
 
-if six.PY3:
-    from . import utils
-    from . import api_param
-    from . import feeder
-else:
-    import utils
-    import api_param
-    import feeder
+from . import utils
+from . import api_param
+from . import feeder
 
 try:
     import tensorflow as tf

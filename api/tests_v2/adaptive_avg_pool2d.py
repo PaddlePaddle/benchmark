@@ -13,39 +13,45 @@
 # limitations under the License.
 
 from common_import import *
+import tensorflow_addons as tfa
 
 
-class ReluConfig(APIConfig):
+class AdaptiveAvgPool2dConfig(APIConfig):
     def __init__(self):
-        super(ReluConfig, self).__init__("relu")
+        super(AdaptiveAvgPool2dConfig, self).__init__("adaptive_avg_pool2d")
         self.feed_spec = {"range": [-1, 1]}
-        # self.api_list = {'relu': 'relu', 'relu6': 'relu6'}
-        # relu belongs to activation op series which only has one variable
-        # thus relu can reuse activation parameters 
-        self.alias_name = "activation"
 
 
-class PDRelu(PaddleDynamicAPIBenchmarkBase):
-    def build_graph(self, config):
+class PDAdaptiveAvgPool2D(PaddleAPIBenchmarkBase):
+    def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.nn.functional.relu(x=x)
+        adaptive_avg_pool2d = paddle.nn.AdaptiveAvgPool2D(
+            output_size=config.output_size, data_format=config.data_format)
+        result = adaptive_avg_pool2d(x)
 
-        self.feed_list = [x]
-        self.fetch_list = [result]
+        self.feed_vars = [x]
+        self.fetch_vars = [result]
         if config.backward:
             self.append_gradients(result, [x])
 
 
-class TorchRelu(PytorchAPIBenchmarkBase):
+class TFAdaptiveAvgPool2d(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.nn.functional.relu(input=x)
-
+        data_format = "channels_first"
+        if config.data_format == 'NHWC':
+            data_format = "channels_last"
+        tf_func = tfa.layers.AdaptiveAveragePooling2D(
+            output_size=config.output_size, data_format=data_format)
+        out = tf_func(x)
         self.feed_list = [x]
-        self.fetch_list = [result]
+        self.fetch_list = [out]
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(out, [x])
 
 
 if __name__ == '__main__':
-    test_main(pd_dy_obj=PDRelu(), torch_obj=TorchRelu(), config=ReluConfig())
+    test_main(
+        PDAdaptiveAvgPool2D(),
+        TFAdaptiveAvgPool2d(),
+        config=AdaptiveAvgPool2dConfig())

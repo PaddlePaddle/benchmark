@@ -17,13 +17,13 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
-    model_name="mask_rcnn"
+    model_name="mask_rcnn_bs1"
     mission_name="目标检测"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
     direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     skip_steps=3                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
     keyword="ips:"                  # 解析日志，筛选出数据所在行的关键字                                             (必填)
     model_mode=-1                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
-    ips_unit="samples/s"
+    ips_unit="images/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)

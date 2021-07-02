@@ -19,7 +19,8 @@
             "shape": "[1L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "op": "compare",
     "param_info": {
@@ -38,6 +39,29 @@
         },
         "y": {
             "dtype": "float32",
+            "shape": "[256L, 1024L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "op": "compare",
+    "param_info": {
+        "cond": {
+            "type": "string",
+            "value": "None"
+        },
+        "force_cpu": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "int32",
+            "shape": "[1024L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "int32",
             "shape": "[256L, 1024L]",
             "type": "Variable"
         }

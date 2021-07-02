@@ -49,11 +49,11 @@ function _train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
     WORK_ROOT=$PWD
     echo "${model_name}, batch_size: ${batch_size}"
-    if [ ${model_name} == "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ]; then
+    if [ ${model_name} == "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ] || [ ${model_name} = "ResNet50_bs96" ]; then
         config_file="./configs/ResNet/ResNet50.yaml"
-    elif [ ${model_name} == "ResNet101" ]; then
+    elif [ ${model_name} == "ResNet101_bs32" ]; then
          config_file="./configs/ResNet/ResNet101.yaml"
-    elif [ ${model_name} == "SE_ResNeXt50_32x4d" ]; then
+    elif [ ${model_name} == "SE_ResNeXt50_32x4d_bs32" ]; then
           config_file="./configs/SENet/SE_ResNeXt50_32x4d.yaml"
     else
         echo "model: $model_name not support!"
@@ -61,7 +61,7 @@ function _train(){
     fi
 
     # Enable the optimization options for ResNet50
-    if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ]; then
+    if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ] || [ ${model_name} = "ResNet50_bs96" ]; then
         fuse_elewise_add_act_ops="True"
         enable_addto="True"
         export FLAGS_max_inplace_grad_add=8
@@ -85,7 +85,7 @@ function _train(){
     sp) train_cmd="python -u tools/static/train.py -o is_distributed=False "${train_cmd} ;;
     mp)
         rm -rf ./mylog_${model_name}
-        if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ]; then
+        if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ] || [ ${model_name} = "ResNet50_bs96" ]; then
             export FLAGS_fraction_of_gpu_memory_to_use=0.8
             train_cmd="python -m paddle.distributed.launch --log_dir=./mylog_${model_name} --gpus=$CUDA_VISIBLE_DEVICES tools/static/train.py -o use_dali=True "${train_cmd}
         else

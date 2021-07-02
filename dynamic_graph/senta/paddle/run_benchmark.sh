@@ -12,7 +12,7 @@ function _set_params(){
     index=$1
     base_batch_size=64
     net=$2
-    model_name="Senta"_${net}
+    model_name="Senta"_${net}_bs${base_batch_size}
 
     run_mode=$3
     max_epoch=${4}

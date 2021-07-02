@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,37 +15,37 @@
 from common_import import *
 
 
-class SigmoidConfig(APIConfig):
+class MvConfig(APIConfig):
     def __init__(self):
-        super(SigmoidConfig, self).__init__("sigmoid")
-        self.feed_spec = {"range": [-1, 1]}
-        self.alias_name = "activation"
+        super(MvConfig, self).__init__("mv")
+        self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
 
-class PaddleSigmoid(PaddleDynamicAPIBenchmarkBase):
-    def build_graph(self, config):
-        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.nn.functional.sigmoid(x=x)
-
-        self.feed_list = [x]
-        self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
-
-
-class TorchSigmoid(PytorchAPIBenchmarkBase):
+class PDMv(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.nn.functional.sigmoid(input=x)
+        vec = self.variable(
+            name='vec', shape=config.vec_shape, dtype=config.vec_dtype)
+        result = paddle.mv(x=x, vec=vec)
 
-        self.feed_list = [x]
+        self.feed_list = [x, vec]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(result, [x, vec])
+
+
+class TrochMv(PytorchAPIBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        vec = self.variable(
+            name='vec', shape=config.vec_shape, dtype=config.vec_dtype)
+        result = torch.mv(x=x, vec=vec)
+
+        self.feed_list = [x, vec]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x, vec])
 
 
 if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PaddleSigmoid(),
-        torch_obj=TorchSigmoid(),
-        config=SigmoidConfig())
+    test_main(pd_dy_obj=PDMv(), torch_obj=TrochMv(), config=MvConfig())

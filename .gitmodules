@@ -50,10 +50,6 @@
 [submodule "static_graph/Detection/pytorch/Detectron-Cascade-RCNN"]
   path = static_graph/Detection/pytorch/Detectron-Cascade-RCNN
   url = https://github.com/zhaoweicai/Detectron-Cascade-RCNN.git
-[submodule "PaddleGAN"]
-  path = PaddleGAN
-  url = https://github.com/PaddlePaddle/PaddleGAN.git
-  branch = master
 [submodule "PaddleNLP"]
 	path = PaddleNLP
 	url = https://github.com/PaddlePaddle/PaddleNLP.git
@@ -74,3 +70,11 @@
 	path = PaddleSeg
 	url = https://github.com/PaddlePaddle/PaddleSeg.git
 	branch = benchmark
+[submodule "PaddleOCR"]
+	path = PaddleOCR
+	url = https://github.com/PaddlePaddle/PaddleOCR.git
+	branch = dygraph
+[submodule "PaddleGAN"]
+	path = PaddleGAN
+	url = https://github.com/PaddlePaddle/PaddleGAN.git
+	branch = develop

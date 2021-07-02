@@ -5,27 +5,29 @@ function usage () {
   usage: $0 [options]
   -h         optional   Print this help message
   -m  model  run models
-  -c  cuda_version 9.0|10.0
+  -c  cuda_version 11.0|10.1|11.2
+  -d  cudnn_version 7|8
   -n  image_name
   -i  image_commit_id
   -a  image_branch develop|1.6|pr_number|v1.6.0
   -v  paddle_version
   -p  all_path contains dir of prepare(pretrained models), dataset, logs, such as /ssd1/ljh
   -t  job_type  benchmark_daliy | models test | pr_test
-  -g  device_type  p40 | v100
-  -s  implement_type of model static_graph | dynamic_graph
+  -g  device_type  A100 | v100
+  -s  implement_type of model static_graph | dynamic_graph | dynamic_to_static
 EOF
 }
 if [ $# -lt 18 ] ; then
   usage
   exit 1;
 fi
-while getopts h:m:c:n:i:a:v:p:t:g:s: opt
+while getopts h:m:c:n:i:a:v:p:d:t:g:s: opt
 do
   case $opt in
   h) usage; exit 0 ;;
   m) model="$OPTARG" ;;
   c) cuda_version="$OPTARG" ;;
+  d) cudnn_version="$OPTARG" ;;
   n) image_name="$OPTARG" ;;
   i) image_commit_id="$OPTARG" ;;
   a) image_branch="$OPTARG" ;;
@@ -52,6 +54,7 @@ function prepare(){
     rm /etc/apt/sources.list
     cp ${all_path}/sources.list /etc/apt
     apt-get update
+    apt-get install libmysqlclient20=5.7.33-0ubuntu0.16.04.1 --allow-downgrades
     apt-get install libmysqlclient-dev git curl psmisc -y
     pip install MySQL-python
 
@@ -91,7 +94,7 @@ function prepare(){
     echo "benchmark_commit_id is: "${benchmark_commit_id}
 
     # 动态图升级到cuda10.1 python3.7，静态图切cuda10.1 python3.7
-    if [[ 'dynamic_graph' == ${implement_type} ]] || [[ 'static_graph' == ${implement_type} ]]; then
+    if [[ 'dynamic_graph' == ${implement_type} ]] || [[ 'static_graph' == ${implement_type} ]] || [[ 'dynamic_to_static' == ${implement_type} ]]; then
         rm -rf run_env
         mkdir run_env
         ln -s $(which python3.7) run_env/python
@@ -107,8 +110,14 @@ function prepare(){
         pip install ${all_path}/tools/opencv_python-4.5.1.48-cp37-cp37m-manylinux2014_x86_64.whl
     fi
 
+    # dali install
+    pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda$(echo ${cuda_version}|cut -d "." -f1)0    # note: dali 版本格式是cuda100 & cuda110
+
     # fix ssl temporarily
-    export LD_LIBRARY_PATH=${all_path}/tools/ssl/lib:${LD_LIBRARY_PATH}
+    if [ ${cuda_version} == 10.1 ]; then
+        export LD_LIBRARY_PATH=${all_path}/tools/ssl/lib:${LD_LIBRARY_PATH}
+    fi
+
     if python -c "import paddle" >/dev/null 2>&1
     then
         echo "paddle import success!"
@@ -121,8 +130,10 @@ function run(){
     export ${implement_type}
     if [ ${implement_type} == "static_graph" ]; then
       source ${BENCHMARK_ROOT}/scripts/static_graph_models.sh
-    else
+    elif [ ${implement_type} == "dynamic_graph" ]; then
       source ${BENCHMARK_ROOT}/scripts/dynamic_graph_models.sh
+    else
+      source ${BENCHMARK_ROOT}/scripts/dynamic_to_static_models.sh
     fi
 
     if [ $model = "all" ]
@@ -161,6 +172,7 @@ function save(){
     echo "     implement_type = ${implement_type}"
     echo "     paddle_version = ${paddle_version}"
     echo "       cuda_version = ${cuda_version}"
+    echo "       cudnn_version = ${cudnn_version}"
     echo "           log_path = ${save_log_dir}"
     echo "           job_type = ${job_type}"
     echo "        device_type = ${device_type}"
@@ -171,6 +183,7 @@ function save(){
                  --image_branch ${image_branch} \
                  --log_path ${save_log_dir} \
                  --cuda_version ${cuda_version} \
+                 --cudnn_version ${cudnn_version} \
                  --paddle_version ${paddle_version} \
                  --job_type ${job_type} \
                  --device_type ${device_type} \
