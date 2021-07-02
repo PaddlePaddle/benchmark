@@ -37,16 +37,18 @@ class ArrayComparator(object):
         self._compare(output.flatten(), target.flatten(), atol)
 
     def __lt__(self, other):
+        print("__lt__: ", other)
         if isinstance(other, np.float32) or isinstance(other, float):
-            return self.max_absolute_diff < other
+            return self.max_relative_diff < other
         else:
-            return self.max_absolute_diff < other.max_absolute_diff
+            return self.max_relative_diff < other.max_relative_diff
 
     def __gt__(self, other):
+        print("__gt__: ", other)
         if isinstance(other, np.float32) or isinstance(other, float):
-            return self.max_absolute_diff > other
+            return self.max_relative_diff > other
         else:
-            return self.max_absolute_diff > other.max_absolute_diff
+            return self.max_relative_diff > other.max_relative_diff
 
     def to_string(self):
         return "max_absolute_diff = %.3e, max_relative_diff = %.3e, offset = %d, %s vs %s" % (
@@ -171,6 +173,8 @@ def check_outputs(output_list,
                 len(output_list), len(target_list))
 
         num_outputs = len(output_list)
+        print("num_outputs: \n", num_outputs)
+        print("output_list: \n", output_list)
         for i in range(num_outputs):
             output = output_list[i]
             target = target_list[i]
@@ -213,13 +217,13 @@ def check_outputs(output_list,
                         % (i, str(permutation), str(output.shape),
                            str(target.shape)))
 
-            if diff_comparator_i > 1E-6 or diff_comparator_i.max_relative_diff > 1E-6:
+            if diff_comparator_i > 1E-6:
                 print(
                     "---- Warning: The %d-th output (shape: %s, data type: %s) has diff. Detail: %s, atol is %.2e."
                     % (i, str(output.shape), str(output.dtype),
                        diff_comparator_i.to_string(), atol))
 
-            max_diff = diff_comparator_i.max_absolute_diff if diff_comparator_i > max_diff else max_diff
+            max_diff = diff_comparator_i.max_relative_diff if diff_comparator_i > max_diff else max_diff
             if max_diff > atol:
                 if name in special_op_list.RANDOM_OP_LIST:
                     print(
