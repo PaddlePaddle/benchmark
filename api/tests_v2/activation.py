@@ -27,13 +27,31 @@ class ActivationConfig(APIConfig):
             'sinh': 'sinh',
             'sqrt': 'sqrt',
             'square': 'square',
-            'tanh': 'tanh'
+            'tanh': 'tanh',
+            'lgamma': 'lgamma'
         }
+
+    def disabled(self):
+        if self.api_name in ["lgamma"] and self.x_dtype == "float16":
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s.\n"
+                % (self.api_name))
+            return True
+        return super(ActivationConfig, self).disabled()
 
 
 class PDActivation(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        if config.api_name in ["lgamma"]:
+            x = self.variable(
+                name='x', shape=config.x_shape, dtype=config.x_dtype)
+        else:
+            x = self.variable(
+                name='x',
+                shape=config.x_shape,
+                dtype=config.x_dtype,
+                stop_gradient=True)
         result = self.layers(config.api_name, x=x)
 
         self.feed_vars = [x]
