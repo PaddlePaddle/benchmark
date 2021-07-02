@@ -34,11 +34,11 @@ function _set_params(){
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
-    batch_size=`expr ${num_gpu_devices} \* ${base_batch_size}`
+    batch_size=${base_batch_size}
 
-    log_file=${run_log_path}/dynamic_${model_name}_${index}_${num_gpu_devices}_${run_mode}
-    log_with_profiler=${profiler_path}/dynamic_${model_name}_3_${num_gpu_devices}_${run_mode}
-    profiler_path=${profiler_path}/profiler_dynamic_${model_name}
+    log_file=${run_log_path}/dynamic_to_static_${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/dynamic_to_static_${model_name}_3_${num_gpu_devices}_${run_mode}
+    profiler_path=${profiler_path}/profiler_dynamic_to_static_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 }
@@ -50,16 +50,16 @@ function _train(){
     else
         config_file="ResNet50.yaml"
         file_list="train_list.txt"
-    fi 
-    train_cmd="-c ./configs/ResNet/${config_file}
-               -o print_interval=10  
-               -o TRAIN.batch_size=${batch_size} 
-               -o validate=False
-               -o to_static=True
-               -o epochs=${max_epoch}  
-               -o TRAIN.data_dir=./dataset/imagenet100_data 
-               -o TRAIN.file_list=./dataset/imagenet100_data/${file_list}
-               -o TRAIN.num_workers=8" 
+    fi
+    train_cmd="-c ./ppcls/configs/ImageNet/ResNet/${config_file}
+               -o Global.epochs=${max_epoch}
+               -o Global.eval_during_train=False
+               -o Global.save_interval=2
+               -o Global.to_static=True
+               -o DataLoader.Train.sampler.batch_size=${batch_size}
+               -o DataLoader.Train.dataset.image_root=./dataset/imagenet100_data
+               -o DataLoader.Train.dataset.cls_label_path=./dataset/imagenet100_data/${file_list}
+               -o DataLoader.Train.loader.num_workers=8"
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
     else
