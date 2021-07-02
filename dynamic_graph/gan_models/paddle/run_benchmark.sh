@@ -13,6 +13,7 @@ function _set_params(){
     base_batch_size=1
     run_mode=${2:-"sp"} # Use sp for single GPU and mp for multiple GPU.
     model_name=${3}_bs${base_batch_size}
+    model=${3}
     max_epoch=${4:-"1"}
     if [ ${3} != "CycleGAN" ] && [ ${3} != "Pix2pix" ]; then
         echo "Please check the model name! it should be CycleGAN|Pix2pix"
@@ -41,8 +42,11 @@ function _set_params(){
 
 function _train(){
     export PYTHONPATH=$PWD:$PYTHONPATH
-   
-    train_cmd=" --config-file configs/$(echo ${model_name%_bs*} | tr '[A-Z]' '[a-z]')_cityscapes.yaml -o log_config.interval=100 epochs=1 validate.interval=-1"
+    if [ ${model} = "CycleGAN" ]; then
+        train_cmd=" --config-file configs/$(echo ${model_name%_bs*} | tr '[A-Z]' '[a-z]')_cityscapes.yaml -o log_config.interval=100 epochs=1"
+    else
+        train_cmd=" --config-file configs/$(echo ${model_name%_bs*} | tr '[A-Z]' '[a-z]')_cityscapes.yaml -o log_config.interval=100 epochs=1 validate.interval=-1"
+    fi
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u tools/main.py "${train_cmd}
     else

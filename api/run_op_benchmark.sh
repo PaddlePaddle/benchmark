@@ -51,7 +51,7 @@ fi
 
 if [ "${test_module_name}" == "dynamic_tests_v2" ]; then
     testing_mode="dynamic"
-    install_package "torch" "1.8.1"
+    install_package "torch" "1.9.0"
 else
     testing_mode="static"
     install_package "tensorflow" "2.3.1"

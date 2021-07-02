@@ -165,4 +165,25 @@
     },
     "atol": 1,
     "repeat": 5000
+}, {
+    "config_id": 8,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 1L, 1L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[1L, 12L, 128L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 10000
 }]
