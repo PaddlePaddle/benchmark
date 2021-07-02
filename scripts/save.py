@@ -93,7 +93,7 @@ parser.add_argument(
     "--implement_type",
     type=str,
     default="static_graph",
-    help="The benchmark model implement method, static_graph | dynamic_graph")
+    help="The benchmark model implement method, static_graph | dynamic_graph | dynamic_to_static")
 
 DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU',
                          '4': 'FOUR_GPU',
