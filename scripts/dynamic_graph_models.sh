@@ -380,7 +380,7 @@ dy_wavenet(){
     ln -s ${data_path}/dygraph_data/wavenet/ljspeech ${cur_model_path}/
 
     apt-get install  libsndfile1 -y
-    pip install -r ${data_path}/dygraph_data/wavenet/requirement.txt  --ignore-installed
+    pip install -r ${data_path}/dygraph_data/wavenet/requirement.txt 
     # Running ...
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/wavenet/paddle/run_benchmark.sh ./
