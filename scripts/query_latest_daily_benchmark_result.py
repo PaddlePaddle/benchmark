@@ -59,7 +59,7 @@ def _query_latest_image_id():
     """
     # 调用 HTTP 接口查询最新的 image_id
     """
-    url = "http://yq01-page-powerbang-table1077.yq01.baidu.com:8988/benchmark/image/"
+    url = "http://benchmark_server:8988/benchmark/image/"
     params = {
         "cuda_version": "10.1",
         "image_type": "2"
