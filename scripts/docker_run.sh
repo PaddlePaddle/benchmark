@@ -199,6 +199,7 @@ function run_models(){
             -e "DEVICE_TYPE=${device_type}" \
             -e "VERSION_CUDA=${cuda_version}" \
             --net=host \
+            --privileged \
             --shm-size=128G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
@@ -222,6 +223,7 @@ function run_models(){
             -e "DEVICE_TYPE=${device_type}" \
             -e "VERSION_CUDA=${cuda_version}" \
             --net=host \
+            --privileged \
             --shm-size=128G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
@@ -242,6 +244,7 @@ function run_models(){
             -e "DEVICE_TYPE=${device_type}" \
             -e "VERSION_CUDA=${cuda_version}" \
             --net=host \
+            --privileged \
             --shm-size=128G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
