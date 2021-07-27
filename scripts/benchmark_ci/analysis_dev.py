@@ -27,7 +27,7 @@ def parse_args():
 
 def modify_standard_value():
     """
-    modify the standard value as paddle develop result
+    Setting paddle develop result as standard value
     """
     file_list = traverse_logs(args.log_path)
     for file in file_list:
@@ -41,7 +41,7 @@ def modify_standard_value():
             with open(standard_record, 'r') as f:
                 for line in f:
                     standard_result = line.strip('\n')
-                    print("modify the standard value as paddle develop result!")
+                    print("Setting paddle develop result as standard value.")
                     command = 'sed -i "s/{}/{}/g" {}'.format(standard_result, result, standard_record)
                     os.system(command)
 
