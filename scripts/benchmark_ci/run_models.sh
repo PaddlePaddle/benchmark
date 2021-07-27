@@ -82,7 +82,7 @@ CycleGAN(){
     #prepare data
     mkdir -p ${cur_model_path}/data
     ln -s ${data_path}/horse2zebra/ ${cur_model_path}/data/cityscapes
-    # Copy run_benchmark.sh and running ...
+    # Copy run_benchmark.sh and running 
     rm -rf ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/static_graph/CycleGAN/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh

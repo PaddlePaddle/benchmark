@@ -30,11 +30,8 @@ python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic --standard_path=${B
 #if the fluctuations is larger than threshold, then rerun in paddle develop for result judging to avoid fluctuations caused by xiaolvyun machines.
 if [ -f "rerun_model.txt" ];then
     echo -e "rerun model in paddle develop start!"
-    #compile paddle develop
+    #install paddle develop
     cd /workspace/Paddle
-    git checkout develop
-    bash -x paddle/scripts/paddle_build.sh build
-    [ $? -ne 0 ] && echo "build paddle develop failed." && exit 1
     pip uninstall -y paddlepaddle_gpu
     pip install build/python/dist/paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl
     [ $? -ne 0 ] && echo "install paddle failed." && exit 1
