@@ -19,10 +19,6 @@ import numpy as np
 from operator import attrgetter
 
 
-def use_gpu():
-    return os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""
-
-
 def is_string(value):
     return isinstance(value, str)
 
@@ -219,7 +215,8 @@ class APIConfig(object):
         return dtype
 
     def disabled(self):
-        if not use_gpu() and self.compute_dtype() == "float16":
+        use_gpu = os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""
+        if not use_gpu and self.compute_dtype() == "float16":
             print(
                 "Warning:\n"
                 "  1. This config is disabled because float16 is not supported for %s on CPU.\n"
@@ -274,11 +271,6 @@ class APIConfig(object):
                         if var_temp[j] == -1:
                             var_temp[j] = unknown_dim
             setattr(self, var.name + '_shape', var.shape)
-            if not use_gpu() and var.dtype == "float16":
-                print(
-                    "float16 is not supported on CPU, thus the dtype of %s will be changed to float32."
-                    % var.name)
-                var.dtype = "float32"
             setattr(self, var.name + '_dtype', var.dtype)
 
         if not hasattr(self, "atol"):

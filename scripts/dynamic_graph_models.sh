@@ -125,7 +125,8 @@ dy_ptb_medium(){
 # transformer
 dy_transformer(){
     echo "###########pip install paddlenlp"
-    pip install paddlenlp attrdict
+    pip install paddlenlp==2.0.5 # 20210723：nlp API不兼容升级，导致模型报错；暂时使用paddlenlp=2.0.5版本；后续进行子库代码升级
+    pip install attrdict
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/machine_translation/transformer
     cd ${cur_model_path}
     # prepare data
@@ -380,7 +381,7 @@ dy_wavenet(){
     ln -s ${data_path}/dygraph_data/wavenet/ljspeech ${cur_model_path}/
 
     apt-get install  libsndfile1 -y
-    pip install -r ${data_path}/dygraph_data/wavenet/requirement.txt  --ignore-installed
+    pip install -r ${data_path}/dygraph_data/wavenet/requirement.txt 
     # Running ...
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/wavenet/paddle/run_benchmark.sh ./
