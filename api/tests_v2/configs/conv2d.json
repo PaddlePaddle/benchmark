@@ -431,4 +431,40 @@
         }
     },
     "atol": 0.01
+}, {
+    "config_id": 12,
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[408L, 224L, 224L, 4L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[64L, 4L, 7L, 7L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "tuple",
+            "value": "(3, 3)"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(2, 2)"
+        }
+    },
+    "atol": 0.01
 }]
