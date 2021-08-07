@@ -43,15 +43,11 @@ class ActivationConfig(APIConfig):
 
 class PDActivation(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        if config.api_name in ["lgamma"]:
-            x = self.variable(
-                name='x', shape=config.x_shape, dtype=config.x_dtype)
-        else:
-            x = self.variable(
-                name='x',
-                shape=config.x_shape,
-                dtype=config.x_dtype,
-                stop_gradient=True)
+        x = self.variable(
+            name='x',
+            shape=config.x_shape,
+            dtype=config.x_dtype,
+            stop_gradient=True)
         result = self.layers(config.api_name, x=x)
 
         self.feed_vars = [x]
