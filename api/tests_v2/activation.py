@@ -43,10 +43,7 @@ class ActivationConfig(APIConfig):
 
 class PDActivation(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name='x',
-            shape=config.x_shape,
-            dtype=config.x_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = self.layers(config.api_name, x=x)
 
         self.feed_vars = [x]
