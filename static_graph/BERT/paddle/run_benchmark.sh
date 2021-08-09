@@ -57,21 +57,25 @@ function _set_params(){
 
 function _train(){
     echo "model_type: ${model_type}, seq_len: ${seq_len}, fp_mode: ${fp_mode}, batch_size: ${batch_size}"
-    echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES}"
+    # 对齐分布式BS 新怎的配置
+    gradient_merge_steps=$(expr 67584 \/ $batch_size \/ 8)
+    echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES}, gradient_merge_steps: ${gradient_merge_steps}"
     train_cmd="--max_predictions_per_seq 20
                --learning_rate 1e-4
                --weight_decay 1e-2
                --adam_epsilon 1e-6
                --warmup_steps 10000
                --output_dir ./tmp2/
-               --logging_steps 10
+               --logging_steps 20
                --save_steps 20000
                --max_steps ${max_iter}
                --input_dir=./wikicorpus_en_${seq_len}
                --model_type bert
                --model_name_or_path bert-${model_type}-uncased
                --batch_size ${batch_size}
-               --use_amp ${use_amp}"
+               --use_amp ${use_amp}
+               --gradient_merge_steps $gradient_merge_steps "
+
     case ${run_mode} in
     sp) train_cmd="python -u run_pretrain.py "${train_cmd} ;;
     mp)
