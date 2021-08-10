@@ -72,6 +72,7 @@ function _train(){
                --model_name_or_path bert-${model_type}-uncased
                --batch_size ${batch_size}
                --use_amp ${use_amp}"
+
     case ${run_mode} in
     sp) train_cmd="python -u run_pretrain.py "${train_cmd} ;;
     mp)
