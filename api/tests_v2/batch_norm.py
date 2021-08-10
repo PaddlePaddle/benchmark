@@ -66,49 +66,62 @@ class PDBatchNorm(PaddleAPIBenchmarkBase):
                 initializer=paddle.nn.initializer.Constant(0.1)))
         running_var.stop_gradient = True
 
-        scale = self.variable(
-            name='scale', shape=[config.num_channels], dtype=config.x_dtype)
-        bias = self.variable(
-            name='bias', shape=[config.num_channels], dtype=config.x_dtype)
+        scale = paddle.create_parameter(
+            shape=[config.num_channels],
+            dtype=config.x_dtype,
+            name="weight",
+            attr=paddle.ParamAttr(
+                initializer=paddle.nn.initializer.Constant(0.5)))
+        scale.stop_gradient = True
 
+        bias = paddle.create_parameter(
+            shape=[config.num_channels],
+            dtype=config.x_dtype,
+            name="bias",
+            attr=paddle.ParamAttr(
+                initializer=paddle.nn.initializer.Constant(0.1)))
+        bias.stop_gradient = True
         result = paddle.nn.functional.batch_norm(
             x=x,
             running_mean=running_mean,
             running_var=running_var,
-            weight=scale,  # scale
-            bias=bias,  # bias
+            weight=scale,  # scale 
+            bias=bias,  # bias 
             epsilon=config.epsilon,
             momentum=config.momentum,
             training=config.training,
             data_format=config.data_format)
 
-        self.feed_vars = [x, scale, bias]
+        self.feed_vars = [x]
         self.fetch_vars = [result]
         if config.backward:
-            self.append_gradients(result, [x, scale, bias])
+            self.append_gradients(result, [x])
 
 
 class TFBatchNorm(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        scale = self.variable(
-            name='scale', shape=[config.num_channels], dtype=config.x_dtype)
-        bias = self.variable(
-            name='bias', shape=[config.num_channels], dtype=config.x_dtype)
-        mean, var = tf.nn.moments(
-            x=x, axes=config.axes, shift=None, keepdims=False)
-        result = tf.nn.batch_normalization(
-            x=x,
-            mean=mean,
-            variance=var,
-            offset=bias,
-            scale=scale,
-            variance_epsilon=config.epsilon)
+        #with data_format="channels_first", set axis=1 in BatchNormalization
+        #with data_format="channels_last", set axis=-1 (default)
+        if config.data_format == "NCHW":
+            axis = 1
+        else:
+            axis = -1
+        result = tf.compat.v1.layers.batch_normalization(
+            inputs=x,
+            axis=axis,
+            momentum=config.momentum,
+            epsilon=config.epsilon,
+            beta_initializer=tf.constant_initializer(0.1),
+            gamma_initializer=tf.constant_initializer(0.5),
+            moving_mean_initializer=tf.constant_initializer(0.5),
+            moving_variance_initializer=tf.constant_initializer(0.1),
+            training=config.training)
 
-        self.feed_list = [x, scale, bias]
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, scale, bias])
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
