@@ -22,7 +22,8 @@ class BatchNormConfig(APIConfig):
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(BatchNormConfig, self).init_from_json(filename, config_id,
                                                     unknown_dim)
-
+        if self.data_layout == "NCHW":
+            self.run_tf = False
         if len(self.x_shape) == 4:
             if self.data_format == "NCHW":
                 self.num_channels = self.x_shape[1]
@@ -30,14 +31,6 @@ class BatchNormConfig(APIConfig):
                 self.num_channels = self.x_shape[3]
         else:
             self.num_channels = self.x_shape[1]
-
-    def to_tensorflow(self):
-        tf_config = super(BatchNormConfig, self).to_tensorflow()
-        if len(tf_config.x_shape) == 4:
-            tf_config.axes = [0, 1, 2]
-        else:
-            tf_config.axes = [0]
-        return tf_config
 
 
 class PDBatchNorm(PaddleAPIBenchmarkBase):
@@ -93,7 +86,6 @@ class PDBatchNorm(PaddleAPIBenchmarkBase):
 
 class TFBatchNorm(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
-        tf.compat.v1.disable_eager_execution()
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         #with data_format="channels_first", set axis=1 in BatchNormalization
         #with data_format="channels_last", set axis=-1 (default)
