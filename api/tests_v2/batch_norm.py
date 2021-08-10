@@ -23,12 +23,12 @@ class BatchNormConfig(APIConfig):
         super(BatchNormConfig, self).init_from_json(filename, config_id,
                                                     unknown_dim)
         # tf's batch_norm does not have data_format param, it only support NHWC format.
-        if self.data_format == "NCHW":
-            print(
-                "Warning:\n"
-                "  1. tf's batch_norm does not have data_format param, it only support NHWC format.\n"
-            )
-            self.run_tf = False
+        # if self.data_format == "NCHW":
+        #     print(
+        #         "Warning:\n"
+        #         "  1. tf's batch_norm does not have data_format param, it only support NHWC format.\n"
+        #     )
+        #     self.run_tf = False
 
         if len(self.x_shape) == 4:
             if self.data_format == "NCHW":
