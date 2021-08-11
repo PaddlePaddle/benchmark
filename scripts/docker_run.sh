@@ -55,7 +55,9 @@ export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
 function construnct_version(){
     cd ${benchmark_work_path}/Paddle
     image_commit_id=$(git log|head -n1|awk '{print $2}')
-    echo "image_commit_id is: "${image_commit_id}
+    image_commit_id6=${image_commit_id:0:6}
+    echo "image_commit_id is: "${image_commit_id}"\n image_commit_id6 is : "${image_commit_id6}
+
     version=`date -d @$(git log -1 --pretty=format:%ct) "+%Y.%m%d.%H%M%S"`
     image_branch=$(echo ${image_branch} | rev | cut -d'/' -f 1 | rev)
     python_abi='cp27-cp27mu'
@@ -68,10 +70,10 @@ function construnct_version(){
         cudnn_version=7
     elif [[ 'dynamic_graph' == ${implement_type} ]] || [[ 'static_graph' == ${implement_type} ]] || [[ 'dynamic_to_static' == ${implement_type} ]]; then
         python_abi='cp37-cp37m'
-        PADDLE_VERSION=${version}'.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
+        PADDLE_VERSION=${version}'.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}.${image_commit_id6}"
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp37-cp37m-linux_x86_64.whl
     else
-        PADDLE_VERSION=${version}'.post'$(echo ${cuda_version} | sed 's/\.//g')${cudnn_version}".${image_branch//-/_}"
+        PADDLE_VERSION=${version}'.post'$(echo ${cuda_version} | sed 's/\.//g')${cudnn_version}".${image_branch//-/_}.${image_commit_id6}"
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
     fi
     PADDLE_DEV_NAME=paddlepaddle/paddle_manylinux_devel:${whl_build_tag}

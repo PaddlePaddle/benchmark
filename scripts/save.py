@@ -543,8 +543,11 @@ def parse_logs(args):
     title = "frame_benchmark"
     env = dict(paddle_branch=args.image_branch, paddle_commit_id=args.image_commit_id,
                benchmark_commit_id=args.code_commit_id, device_type=args.device_type,
-               implement_type=args.implement_type, docker_images=os.getenv('RUN_IMAGE_NAME'))
-    if args.device_type.upper() in ("P40", "V100", "A100"): 
+               implement_type=args.implement_type, docker_images=os.getenv('RUN_IMAGE_NAME'),
+               HostName=os.getenv('HostName'),
+               paddle_version=args.paddle_version,
+               )
+    if args.device_type.upper() in ("P40", "V100", "A100", "V100-32G", "V100-16G"):
         env["cuda_version"] = args.cuda_version
         env["cudnn_version"] = args.cudnn_version
     email_t = template.EmailTemplate(title, env, html_results, args.log_path, FAIL_LIST)
