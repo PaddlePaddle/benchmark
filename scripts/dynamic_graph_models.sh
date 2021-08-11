@@ -222,14 +222,20 @@ dy_seg(){
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/seg_models/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
+
     model_list=(deeplabv3 HRnet)
     for model_item in ${model_list[@]}
     do
+        if [ ${model_item} = "HRnet" ]; then
+            bs_item=8
+        elif [ ${model_item} = "deeplabv3" ]; then
+            bs_item=4
+        fi
         echo "index is speed, ${model_item} 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 200 | tee ${log_path}/dynamic_seg_${model_item}_bs2_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 ${bs_item} sp ${model_item} 200 | tee ${log_path}/dynamic_seg_${model_item}_bs${bs_item}_speed_1gpus 2>&1
         sleep 10
         echo "index is speed, ${model_item} 8gpu begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 200 | tee ${log_path}/dynamic_seg_${model_item}_bs2_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${bs_item} mp ${model_item} 200 | tee ${log_path}/dynamic_seg_${model_item}_bs${bs_item}_speed_8gpus 2>&1
         sleep 10
     done
 }

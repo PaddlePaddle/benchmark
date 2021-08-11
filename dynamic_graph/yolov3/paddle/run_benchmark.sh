@@ -59,7 +59,7 @@ function _train(){
 
     if [ $num_gpu_devices -eq 1 ]; then norm_type="bn"; else norm_type="sync_bn"; fi
     train_cmd="-c configs/yolov3/yolov3_darknet53_270e_coco.yml
-               --opt epoch=1 TrainReader.batch_size=${base_batch_size} worker_num=8 norm_type=${norm_type}"
+               --opt epoch=1 TrainReader.batch_size=${base_batch_size} worker_num=4 norm_type=${norm_type}"
     case ${run_mode} in
     sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)
