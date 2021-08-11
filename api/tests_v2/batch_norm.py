@@ -20,8 +20,7 @@ class BatchNormConfig(APIConfig):
         super(BatchNormConfig, self).__init__('batch_norm')
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(BatchNormConfig, self).init_from_json(filename, config_id,
-                                                    unknown_dim)
+        super(BatchNormConfig, self).init_from_json(filename, 0, unknown_dim)
 
         if len(self.x_shape) == 4:
             if self.data_format == "NCHW":
