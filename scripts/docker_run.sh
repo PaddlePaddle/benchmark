@@ -103,6 +103,7 @@ function build_paddle(){
     
     PADDLE_ROOT=${PWD}
     docker run -i --rm -v ${PADDLE_ROOT}:/paddle \
+      --ulimit nofile=1024000 \
       -w /paddle \
       --net=host \
       -e "CMAKE_BUILD_TYPE=Release" \
