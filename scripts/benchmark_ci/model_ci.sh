@@ -24,6 +24,8 @@ if [ -f "rerun_model.txt" ];then rm -rf rerun_model.txt
 fi
 if [ -f "log.txt" ];then rm -rf log.txt
 fi
+if [ -f "errorcode.txt" ];then rm -rf errorcode.txt
+fi
 echo success >>log.txt
 python analysis.py --log_path=${BENCHMARK_ROOT}/logs/static --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/static --threshold=0.05 --paddle_dev=False
 python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=0.05 --paddle_dev=False
@@ -60,11 +62,16 @@ if [ -f "rerun_model.txt" ];then
         python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic_pr --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=0.05  --paddle_dev=True
     fi
 fi
+errorcode=0
+if [ -f "errorcode.txt" ];then
+    errorcode=`cat errorcode.txt`
+    errorcode=`expr $errorcode + 20`
+fi
 if [[ -z `cat log.txt | grep success` ]];then
     echo -e "model benchmark ci job failed!"
     echo -e "See https://github.com/PaddlePaddle/Paddle/wiki/PR-CI-Model-benchmark-Manual for details."
     echo -e "Or you can apply for one QA(xiegegege(Recommend), hysunflower) approval to pass this PR." 
-    exit 1
+    exit ${errorcode}
 else
     echo -e "model benchmark ci job success!"
 fi
