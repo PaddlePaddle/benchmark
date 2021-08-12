@@ -545,6 +545,7 @@ def parse_logs(args):
                benchmark_commit_id=args.code_commit_id, device_type=args.device_type,
                implement_type=args.implement_type, docker_images=os.getenv('RUN_IMAGE_NAME'),
                paddle_version=args.paddle_version,
+               HostName=os.getenv('HostName'),
                )
     if args.device_type.upper() in ("P40", "V100", "A100", "V100-32G", "V100-16G"):
         env["cuda_version"] = args.cuda_version
