@@ -65,6 +65,7 @@ fi
 errorcode=0
 if [ -f "errorcode.txt" ];then
     errorcode=`cat errorcode.txt`
+    errorcode=`expr $errorcode + 20`
 fi
 if [[ -z `cat log.txt | grep success` ]];then
     echo -e "model benchmark ci job failed!"
