@@ -12,7 +12,7 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 256L, 1L, 1L]",
+            "shape": "[-1L, 10L, 4L, 1L]",
             "type": "Variable"
         },
         "training": {

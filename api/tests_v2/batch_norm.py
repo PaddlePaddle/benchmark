@@ -109,7 +109,7 @@ class TFBatchNorm(TensorflowAPIBenchmarkBase):
             gamma_initializer=tf.constant_initializer(0.5),
             moving_mean_initializer=tf.constant_initializer(0.5),
             moving_variance_initializer=tf.constant_initializer(0.1),
-            training=True)
+            training=config.training)
 
         self.feed_list = [x]
         self.fetch_list = [result]
