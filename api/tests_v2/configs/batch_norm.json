@@ -24,4 +24,137 @@
             "value": "0.9"
         }
     }
+}, {
+    "config_id": 1,
+    "op": "batch_norm",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "training": {
+            "type": "bool",
+            "value": "True"
+        },
+        "momentum": {
+            "type": "float",
+            "value": "0.9"
+        }
+    }
+}, {
+    "config_id": 2,
+    "op": "batch_norm",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 32768L]",
+            "type": "Variable"
+        },
+        "training": {
+            "type": "bool",
+            "value": "True"
+        },
+        "momentum": {
+            "type": "float",
+            "value": "0.9"
+        }
+    }
+}, {
+    "config_id": 3,
+    "op": "batch_norm",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "0.001"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1536L, 33L, 33L]",
+            "type": "Variable"
+        },
+        "training": {
+            "type": "bool",
+            "value": "True"
+        },
+        "momentum": {
+            "type": "float",
+            "value": "0.99"
+        }
+    },
+    "repeat": 5000
+}, {
+    "config_id": 4,
+    "op": "batch_norm",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "training": {
+            "type": "bool",
+            "value": "True"
+        },
+        "momentum": {
+            "type": "float",
+            "value": "0.99"
+        }
+    },
+    "repeat": 5000
+}, {
+    "config_id": 5,
+    "op": "batch_norm",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 32L, 256L, 256L]",
+            "type": "Variable"
+        },
+        "training": {
+            "type": "bool",
+            "value": "True"
+        },
+        "momentum": {
+            "type": "float",
+            "value": "0.9"
+        }
+    },
+    "repeat": 5000
 }]
