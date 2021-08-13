@@ -60,10 +60,12 @@ def analysis(file_path):
 
 def compare():
     file_list = traverse_logs(args.log_path)
+    errorcode = 0
     for file in file_list:
         model, fail_flag, result = analysis(file)
         if int(fail_flag) == 1:
             command = 'sed -i "s/success/fail/g" log.txt'
+            errorcode = errorcode | 4
             os.system(command)
             print("{} running failed!".format(model))
         else:
@@ -78,6 +80,7 @@ def compare():
                     if ranges >= args.threshold:
                         if args.paddle_dev:
                             command = 'sed -i "s/success/fail/g" log.txt'
+                            errorcode = errorcode | 2
                             os.system(command)
                             print("{}, FAIL".format(model))
                             print(
@@ -93,6 +96,7 @@ def compare():
                     elif ranges <= -args.threshold:
                         if args.paddle_dev:
                             command = 'sed -i "s/success/fail/g" log.txt'
+                            errorcode = errorcode | 2
                             os.system(command)
                             print("{}, FAIL".format(model))
                             print("Performance of model {} has been decreased from {} to {},"
@@ -105,7 +109,9 @@ def compare():
                             f.writelines(model+'\n')
                     else:
                         print("{}, SUCCESS".format(model))
-
+    f = open('errorcode.txt', 'w')
+    f.writelines(errorcode)
+    f.close()
 
 if __name__ == '__main__':
     args = parse_args()
