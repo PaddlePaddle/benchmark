@@ -110,7 +110,7 @@ def compare():
                     else:
                         print("{}, SUCCESS".format(model))
     f = open('errorcode.txt', 'w')
-    f.writelines(errorcode)
+    f.writelines(str(errorcode))
     f.close()
 
 if __name__ == '__main__':
