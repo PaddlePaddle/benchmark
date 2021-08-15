@@ -62,7 +62,7 @@ if [ -f "rerun_model.txt" ];then
         python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic_pr --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=0.05  --paddle_dev=True
     fi
 fi
-errorcode=0
+errorcode='0'
 if [ -f "errorcode.txt" ];then
     errorcode=`cat errorcode.txt`
     errorcode=`expr $errorcode + 20`
