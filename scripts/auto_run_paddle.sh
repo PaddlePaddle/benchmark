@@ -164,6 +164,7 @@ function save(){
     ln -s ${all_path}/env/bin/python /usr/local/bin/mypython
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${all_path}/env/lib/
     cd ${origin_path}
+    export HostName=`hostname`
 
     echo "==================== begin insert to sql ================="
     echo "benchmark_commit_id = ${benchmark_commit_id}"
@@ -176,6 +177,7 @@ function save(){
     echo "           log_path = ${save_log_dir}"
     echo "           job_type = ${job_type}"
     echo "        device_type = ${device_type}"
+    echo "           HostName = ${HostName}"
 
     mypython -m pip install PyMySQL==0.10.1
     mypython save.py --code_commit_id ${benchmark_commit_id} \
