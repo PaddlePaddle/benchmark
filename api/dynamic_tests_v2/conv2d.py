@@ -43,7 +43,7 @@ class Conv2dConfig(APIConfig):
         if self.data_format == 'NHWC':
             print(
                 "Warning:\n"
-                "  1. PyTorch does not have data_format param, it only support NHWC format.\n"
+                "  1. PyTorch does not have data_format param, it only support NCHW format.\n"
             )
             self.run_torch = False
 
