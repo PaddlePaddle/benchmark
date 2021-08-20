@@ -82,21 +82,9 @@ yolov3(){
     git branch    #develop 分支
     cd ${cur_model_path}
     pip install Cython
+    pip install pycocotools
     pip install -r requirements.txt 
    
-    if python -c "import pycocotools" >/dev/null 2>&1
-    then
-        echo "cocoapi have already installed"
-    else
-        echo "cocoapi NOT FOUND"
-        cp -r ${prepare_path}/cocoapi/ ./
-        cd cocoapi/PythonAPI/
-        pip install Cython
-        make install
-        python setup.py install --user
-        echo "cocoapi installed"
-    fi
-
     mkdir -p ~/.cache/paddle/weights
     ln -s ${prepare_path}/yolov3/DarkNet53_pretrained ~/.cache/paddle/weights
     cd ${cur_model_path}
@@ -180,21 +168,9 @@ mask_rcnn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     pip install Cython
+    pip install pycocotools
     pip install -r requirements.txt 
 
-    # Install cocoapi
-    if python -c "import pycocotools" >/dev/null 2>&1
-    then
-        echo "cocoapi have already installed"
-    else
-        echo "cocoapi NOT FOUND"
-        cp -r ${prepare_path}/cocoapi/ ./
-        cd cocoapi/PythonAPI/
-        pip install Cython
-        make install
-        python setup.py install --user
-        echo "cocoapi installed"
-    fi
 
     package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy)
     for package in ${package_check_list[@]}; do
