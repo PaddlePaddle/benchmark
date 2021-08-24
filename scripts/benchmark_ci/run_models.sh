@@ -56,10 +56,10 @@ bert_base_seqlen128_fp32_bs32(){
     model_name="bert_${model_mode}_${fp_mode}_${seq_item}_bs${bs_item}"
     echo "index is speed, 2gpus, begin, ${model_name}"
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp ${bs_item} 400  ${seq_item} | tee ${BENCHMARK_ROOT}/logs/dynamic/${model_name}_speed_2gpus 2>&1
-    cat ${model_name}_1_2_mp    
+    cat dynamic_${model_name}_1_2_mp    
 }
 #transformer
-transformer(){
+transformer_base_bs4096_amp_fp16(){
     pip install paddlenlp==2.0.5
     pip install attrdict
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/machine_translation/transformer
@@ -78,7 +78,7 @@ transformer(){
     cat dynamic_${model_name}_1_2_mp
 }
 #yolov3
-yolov3(){
+yolov3_bs8(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     git branch    #develop 分支
     cd ${cur_model_path}
@@ -100,7 +100,7 @@ yolov3(){
     cat dynamic_${model_name}_1_2_mp
 }
 #tsm
-tsm(){
+TSM_bs16(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
@@ -120,7 +120,7 @@ tsm(){
     cat dynamic_${model_name}_1_2_mp
 }
 #deeplabv3
-deeplabv3(){
+deeplabv3_bs4(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/
     cd ${cur_model_path}
     pip install  visualdl
@@ -141,7 +141,7 @@ deeplabv3(){
 }
 
 #run CycleGAN
-CycleGAN(){
+CycleGAN_bs1(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleGAN
     cd ${cur_model_path}
 
@@ -168,7 +168,7 @@ CycleGAN(){
     cat dynamic_${model_name}_1_1_sp
 }
 #mask_rcnn
-mask_rcnn(){
+mask_rcnn_bs1(){
 #ResNet50_bs32_dygraph
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
@@ -202,7 +202,8 @@ mask_rcnn(){
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh  1 mp 500 | tee ${BENCHMARK_ROOT}/logs/dynamic/mask_rcnn_bs1_speed_2gpus 2>&1   
     cat dynamic_${model_name}_1_2_mp    
 }
-PPOCR(){
+
+PPOCR_mobile_2_bs8(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleOCR
     cd ${cur_model_path}
     pip install -r requirements.txt
@@ -242,7 +243,7 @@ PPOCR(){
     cat dynamic_${model_name}_1_2_mp      
 }
 
-seq2seq(){
+seq2seq_bs128(){
     cur_model_path=${BENCHMARK_ROOT}/models/dygraph/seq2seq
     cd ${cur_model_path}
 
