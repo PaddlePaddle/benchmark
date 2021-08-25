@@ -21,6 +21,7 @@ ResNet50_bs32_dygraph(){
 ResNet50_bs32(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    python -m pip install --extra-index-url https://developer.download.nvidia.com/compute/redist/nvidia-dali-cuda100
     git checkout -b static a8f21e0167e4de101cbcd241b575fb09bbcaced9
     # Prepare data
     ln -s ${data_path}/imagenet100_data/ ${cur_model_path}/dataset
