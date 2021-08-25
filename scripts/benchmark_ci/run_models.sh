@@ -55,7 +55,7 @@ bert_base_seqlen128_fp32_bs32(){
     fp_mode=fp32
     seq_item=seqlen128
     bs_item=32
-    model_name="bert_${model_mode}_${fp_mode}_${seq_item}_bs${bs_item}"
+    model_name="bert_${model_mode}_${seq_item}_${fp_mode}_bs${bs_item}"
     echo "index is speed, 2gpus, begin, ${model_name}"
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp ${bs_item} 400  ${seq_item} | tee ${BENCHMARK_ROOT}/logs/dynamic/${model_name}_speed_2gpus 2>&1
     cat dynamic_${model_name}_1_2_mp    
@@ -74,7 +74,8 @@ transformer_base_bs4096_amp_fp16(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     mode_item=base
     fp_item=amp_fp16
-    model_name="transformer_${mode_item}_${fp_item}"
+    bs=4096
+    model_name="transformer_${mode_item}_bs${bs}_${fp_item}"
     echo "index is speed, ${model_name} 2gpu begin"
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 mp 500 ${mode_item} ${fp_item} | tee  ${BENCHMARK_ROOT}/logs/dynamic/${model_name}_speed_2gpus 2>&1   
     cat dynamic_${model_name}_1_2_mp
@@ -99,7 +100,7 @@ yolov3_bs8(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 2gpu, begin"
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 mp 500 | tee ${BENCHMARK_ROOT}/logs/dynamic/yolov3_bs1_speed_2gpus 2>&1
-    cat dynamic_${model_name}_1_2_mp
+    cat dynamic_yolov3_1_2_mp
 }
 #tsm
 TSM_bs16(){
@@ -119,7 +120,7 @@ TSM_bs16(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 2gpu begin"
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh  1 mp 1 | tee ${BENCHMARK_ROOT}/logs/dynamic/tsm_bs_16_speed_2gpus 2>&1
-    cat dynamic_${model_name}_1_2_mp
+    cat dynamic_TSM_1_2_mp
 }
 #deeplabv3
 deeplabv3_bs4(){
@@ -139,7 +140,7 @@ deeplabv3_bs4(){
     bs_item=4
     echo "index is speed, ${model_item} 2gpu begin"
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 ${bs_item} mp ${model_item} 200 | tee ${BENCHMARK_ROOT}/logs/dynamic/seg_${model_item}_bs${bs_item}_speed_2gpus 2>&1
-    cat dynamic_${model_name}_1_2_mp
+    cat dynamic_deeplabv3_1_2_mp
 }
 
 #run CycleGAN
@@ -167,7 +168,7 @@ CycleGAN_bs1(){
     model_item=CycleGAN
     echo "index is speed, ${model_item} 1gpu begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp ${model_item} 1 | tee ${BENCHMARK_ROOT}/logs/dynamic/gan_${model_item}_bs1_speed_1gpus 2>&1
-    cat dynamic_${model_name}_1_1_sp
+    cat dynamic_CycleGAN_bs1_1_1_sp
 }
 #mask_rcnn
 mask_rcnn_bs1(){
@@ -202,7 +203,7 @@ mask_rcnn_bs1(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 2gpu begin"
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh  1 mp 500 | tee ${BENCHMARK_ROOT}/logs/dynamic/mask_rcnn_bs1_speed_2gpus 2>&1   
-    cat dynamic_${model_name}_1_2_mp    
+    cat dynamic_mask_rcnn_1_2_mp    
 }
 
 PPOCR_mobile_2_bs8(){
@@ -242,7 +243,7 @@ PPOCR_mobile_2_bs8(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 2gpu begin"
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh  1 mp 1 | tee ${BENCHMARK_ROOT}/logs/dynamic/ppocr_mobile_2_bs8_speed_2gpus 2>&1
-    cat dynamic_${model_name}_1_2_mp      
+    cat dynamic_PPOCR_mobile_2.0_bs8_1_2_mp      
 }
 
 seq2seq_bs128(){
@@ -258,5 +259,5 @@ seq2seq_bs128(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 1 | tee ${BENCHMARK_ROOT}/logs/dynamic/seq2seq_bs128_speed_1gpus 2>&1
-    cat dynamic_${model_name}_1_1_sp   
+    cat dynamic_seq2seq_bs128_1_1_sp   
 }
