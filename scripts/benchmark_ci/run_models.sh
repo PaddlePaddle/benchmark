@@ -93,7 +93,8 @@ yolov3_bs8(){
     ln -s ${prepare_path}/yolov3/DarkNet53_pretrained ~/.cache/paddle/weights
     cd ${cur_model_path}
     echo "-------before data prepare"
-    ln -s ${data_path}/coco/* ./dataset/coco/
+    rm -rf dataset/coco
+    ln -s ${data_path}/COCO17 ./dataset/coco
     echo "-------after data prepare"
     rm -rf run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/yolov3/paddle/run_benchmark.sh ./
@@ -195,8 +196,8 @@ mask_rcnn_bs1(){
     ln -s ${prepare_path}/mask-rcnn/ResNet50_cos_pretrained  ~/.cache/paddle/weights
     cd ${cur_model_path}
     # Prepare data
-    rm -rf dataset/coco/
-    ln -s ${data_path}/coco ${cur_model_path}/dataset/coco
+    rm -rf dataset/coco
+    ln -s ${data_path}/COCO17 ${cur_model_path}/dataset/coco
     # preprare scripts
     rm -rf run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/mask_rcnn/paddle/run_benchmark.sh ./
