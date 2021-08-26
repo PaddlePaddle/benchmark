@@ -46,7 +46,7 @@ function _train(){
         train_cmd="python tools/train.py "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --gpus="0,1,2,3,4,5,6,7" --log_dir ./mylog tools/train.py "${mp_train_cmd}
+        train_cmd="python -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES --log_dir ./mylog tools/train.py "${mp_train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
     timeout 15m ${train_cmd} > ${log_file} 2>&1
