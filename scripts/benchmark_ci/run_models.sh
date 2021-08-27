@@ -46,6 +46,7 @@ bert_base_seqlen128_fp32_bs32(){
     mv wikicorpus_en_seqlen512 ./data
     ln -s ${data_path}/Bert/wikicorpus_en_seqlen128 ${cur_model_path}/wikicorpus_en_seqlen128
     mv wikicorpus_en_seqlen128 ./data
+    rm -rf /root/.paddlenlp/models
     rm -rf run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/bert/paddle/run_benchmark.sh ./run_benchmark.sh
     pip install paddlenlp
