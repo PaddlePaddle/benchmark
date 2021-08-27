@@ -52,7 +52,7 @@ function _train(){
         train_cmd="python -B -u main.py "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -B -m paddle.distributed.launch --gpus="0,1,2,3,4,5,6,7"  --log_dir ./mylog main.py "${train_cmd}
+        train_cmd="python -B -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES  --log_dir ./mylog main.py "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
     
