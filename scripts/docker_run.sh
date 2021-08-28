@@ -202,7 +202,7 @@ function run_models(){
             -e "DEVICE_TYPE=${device_type}" \
             -e "VERSION_CUDA=${cuda_version}" \
             --net=host \
-            --privileged \
+            --cap-add=ALL \
             --shm-size=128G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
@@ -210,7 +210,7 @@ function run_models(){
         RUN_IMAGE_NAME=paddlepaddle/paddle:${runtime_tag}
 
         if [ ${device_type} == "A100" ]; then
-            nvidia-docker run --runtime=nvidia  --gpus '"capabilities=compute,utility,video"' -i --rm \
+            nvidia-docker run --runtime=nvidia  --gpus all -i --rm \
             -v /home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
@@ -226,7 +226,7 @@ function run_models(){
             -e "DEVICE_TYPE=${device_type}" \
             -e "VERSION_CUDA=${cuda_version}" \
             --net=host \
-            --privileged \
+            --cap-add=ALL \
             --shm-size=128G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
@@ -247,7 +247,7 @@ function run_models(){
             -e "DEVICE_TYPE=${device_type}" \
             -e "VERSION_CUDA=${cuda_version}" \
             --net=host \
-            --privileged \
+            --cap-add=ALL \
             --shm-size=128G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
