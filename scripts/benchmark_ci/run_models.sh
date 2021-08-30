@@ -61,9 +61,11 @@ bert_base_seqlen128_fp32_bs32(){
     bs_item=32
     model_name="bert_${model_mode}_${seq_item}_${fp_mode}_bs${bs_item}"
     echo "index is speed, 2gpus, begin, ${model_name}"
+    export FLAGS_call_stack_level=2
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp ${bs_item} 400  ${seq_item} | tee ${BENCHMARK_ROOT}/logs/dynamic/${model_name}_speed_2gpus 2>&1
     sleep 1s
-    cat dynamic_${model_name}_1_2_mp    
+    cat dynamic_${model_name}_1_2_mp
+    unset FLAGS_call_stack_level    
 }
 #transformer
 transformer_base_bs4096_amp_fp16(){
