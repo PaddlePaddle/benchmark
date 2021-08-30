@@ -264,10 +264,8 @@ PPOCR_mobile_2_bs8(){
 seq2seq_bs128(){
     cur_model_path=${BENCHMARK_ROOT}/models/dygraph/seq2seq
     cd ${cur_model_path}
-
     # Prepare data
     ln -s ${data_path}/seq2seq/data/ ${cur_model_path}/data
-
     # Running ...
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/seq2seq/paddle/run_benchmark.sh ./
