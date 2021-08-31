@@ -11,7 +11,7 @@ fi
 function _set_params(){
     index=$1
     base_batch_size=8
-    model_name="PPOCR_mobile_2.0"_bs${base_batch_size}
+    model_name="PPOCR_mobile_2"_bs${base_batch_size}
 
     run_mode=${2:-"sp"} # Use sp for single GPU and mp for multiple GPU.
     max_epoch=${3:-"1"}
