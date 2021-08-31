@@ -442,11 +442,13 @@ dy_resnet(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./
     sed -i '/set\ -xe/d' run_benchmark_resnet.sh
     batch_size=32
-    model_list=(ResNet152_bs32 ResNet50_bs32 ResNet50_bs128)
+    model_list=(ResNet152_bs32 ResNet50_bs32 ResNet50_bs128 ResNet50_vd_bs64)
     for model_name in ${model_list[@]}
     do
         if [ ${model_name} == "ResNet50_bs128" ]; then
             batch_size=128
+        elif [ ${model_name} == "ResNet50_vd_bs64" ]; then
+            batch_size=64
         fi
         echo "model is ${model_name}, index is speed, 1gpu begin"
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} sp 1 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1

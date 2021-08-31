@@ -44,20 +44,26 @@ function _set_params(){
 }
 
 function _train(){
+    train_file_list="train_list.txt"
+    val_file_list="val_list.txt"
     if [ ${model_name} = "ResNet152_bs32" ]; then
         config_file="ResNet152.yaml"
-        file_list="train_list_resnet152.txt"
+        train_file_list="train_list_resnet152.txt"     # 不确定与常规txt的diff
+        val_file_list="val_list_resnet152.txt"
+    elif [ ${model_name} = "ResNet50_vd_bs64" ]; then
+        config_file="ResNet50_vd.yaml"
     else
         config_file="ResNet50.yaml"
-        file_list="train_list.txt"
-    fi 
+    fi
     train_cmd="-c ./ppcls/configs/ImageNet/ResNet/${config_file}
                -o Global.epochs=${max_epoch}
                -o Global.eval_during_train=False
                -o Global.save_interval=2
                -o DataLoader.Train.sampler.batch_size=${batch_size}
                -o DataLoader.Train.dataset.image_root=./dataset/imagenet100_data
-               -o DataLoader.Train.dataset.cls_label_path=./dataset/imagenet100_data/${file_list}
+               -o DataLoader.Train.dataset.cls_label_path=./dataset/imagenet100_data/${train_file_list}
+               -o DataLoader.Eval.dataset.image_root=./dataset/imagenet100_data
+               -o DataLoader.Eval.dataset.cls_label_path=./dataset/imagenet100_data/${val_file_list}
                -o DataLoader.Train.loader.num_workers=8"
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
