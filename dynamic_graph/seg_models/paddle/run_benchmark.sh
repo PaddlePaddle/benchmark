@@ -71,6 +71,8 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
+
     echo "#################################${model_name}"
     if [ ${run_mode} != "sp"  -a -d mylog ]; then
         rm ${log_file}
