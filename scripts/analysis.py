@@ -244,7 +244,7 @@ if __name__ == "__main__":
                 mode=args.model_mode,
                 run_mode=args.run_mode,
                 unit=args.ips_unit)
-            if int(os.getenv('job_fail_flag')) == 1:
+            if int(os.getenv('job_fail_flag')) == 1 || int(run_info["FINAL_RESULT"]) == 0:
                 run_info["JOB_FAIL_FLAG"] = 1
         elif args.index == 3:
             run_info["FINAL_RESULT"] = {}
