@@ -258,16 +258,14 @@ PPOCR_mobile_2_bs8(){
     echo "index is speed, 2gpu begin"
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh  1 mp 1 | tee ${BENCHMARK_ROOT}/logs/dynamic/ppocr_mobile_2_bs8_speed_2gpus 2>&1
     sleep 1s
-    cat dynamic_PPOCR_mobile_2.0_bs8_1_2_mp      
+    cat dynamic_PPOCR_mobile_2_bs8_1_2_mp      
 }
 
 seq2seq_bs128(){
     cur_model_path=${BENCHMARK_ROOT}/models/dygraph/seq2seq
     cd ${cur_model_path}
-
     # Prepare data
     ln -s ${data_path}/seq2seq/data/ ${cur_model_path}/data
-
     # Running ...
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/seq2seq/paddle/run_benchmark.sh ./
