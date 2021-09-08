@@ -52,7 +52,7 @@ bash run_PyTorch.sh;     # 创建容器,在该标准环境中测试模型
 "log_file": "/logs/2021.0906.211134.post107/train_log/ResNet101_bs32_1_1_sp", \    # log 目录,创建规范见PrepareEnv.sh 
 "model_name": "clas_MobileNetv1", \    # 模型case名,创建规范:repoName_模型名_bs${bs_item}_${fp_item} 如:clas_MobileNetv1_bs32_fp32
 "mission_name": "图像分类", \     # 模型case所属任务名称，具体可参考scripts/config.ini      
-"direction_id": 0, \            # 模型case所属方向id,0:CV|1:NLP|2:Rec 具体可参考scripts/config.ini    
+"direction_id": 0, \            # 模型case所属方向id,0:CV|1:NLP|2:Rec 具体可参考benchmark/scripts/config.ini    
 "run_mode": "sp", \             # 单卡:sp|多卡:mp
 "index": 1, \                   # 速度验证默认为1
 "gpu_num": 1, \                 # 1|8
