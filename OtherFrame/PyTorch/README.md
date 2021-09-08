@@ -20,7 +20,7 @@
 
 NGC PyTorch 的代码仓库提供了自动构建 Docker 镜像的 [Dockerfile](https://github.com/NVIDIA/DeepLearningExamples/blob/master/PyTorch/Translation/Transformer/Dockerfile)，
 
-- **镜像版本**: `nvcr.io/nvidia/pytorch:20.06-py3`
+- **镜像版本**: `nvcr.io/nvidia/pytorch:20.06-py3`   # 竞品镜像,每个方向的请一致
 - **PyTorch 版本**: `1.6.0a0+9907a3e`  # 竞品版本：最新稳定版本，如需特定版本请备注说明原因  
 - **CUDA 版本**: `11.2`
 - **cuDnn 版本**: `8.0.1`
