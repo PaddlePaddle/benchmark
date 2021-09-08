@@ -29,7 +29,29 @@ NGC PyTorch 的代码仓库提供了自动构建 Docker 镜像的 [Dockerfile](h
 ```bash
 bash run_PyTorch.sh;     # 创建容器,在该标准环境中测试模型   
 ```
+脚本内容,如:
+```bash
+#!/usr/bin/env bash
+# 拉镜像
+ImageName=  ;
+docker pull ${ImageName}
+# 启动镜像后测试单个模型
+run_cmd="bash PrepareEnv.sh;
+        cd /workspace/models/NLP/nlp_modelName/;
+        cp /workspace/scripts/NLP/nlp_modelName/preData.sh ./;
+        cp /workspace/scripts/NLP/nlp_modelName/run_benchmark.sh ./;
+        cp /workspace/scripts/NLP/nlp_modelName/analysis_log.py ./;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 32 fp32 500;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh sp 64 fp16 500;
+        "
+# 启动镜像
+nvidia-docker run --name test_torch -it  \
+    --net=host \
+    --shm-size=1g \
+    -v $PWD:/workspace \
+    ${ImageName}  /bin/bash ${run_cmd}
 
+```
 ## 单个模型脚本目录
 
 └── nlp_modelName              # 模型名  
