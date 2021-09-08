@@ -114,7 +114,7 @@ NGC PyTorch 的代码仓库提供了自动构建 Docker 镜像的的 [shell 脚�
     ```
 - **收敛性验证：**
 
-    若测试单机8卡 batch_size=64、FP16 的收敛性，执行如下命令：
+    若测试单机8卡 batch_size=64、FP16 的收敛性，执行如下命令，收敛指标：（如loss10.+下降到0.1+\acc:0.98,收敛耗时：v100*32G*8卡*1d）
 
     ```bash
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 64 fp16 50000  
