@@ -129,6 +129,7 @@ function build_paddle(){
       -e "CMAKE_VERBOSE_MAKEFILE=OFF" \
       -e "http_proxy=${HTTP_PROXY}" \
       -e "https_proxy=${HTTP_PROXY}" \
+      -e "no_proxy=bcebos.com" \
       ${PADDLE_DEV_NAME} \
        /bin/bash -c "paddle/scripts/paddle_build.sh build_only"
      build_name=${IMAGE_NAME}
@@ -201,6 +202,7 @@ function run_models(){
             -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             -e "DEVICE_TYPE=${device_type}" \
             -e "VERSION_CUDA=${cuda_version}" \
+            -e "no_proxy=bcebos.com" \
             --net=host \
             --cap-add=ALL \
             --shm-size=128G \
@@ -225,6 +227,7 @@ function run_models(){
             -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             -e "DEVICE_TYPE=${device_type}" \
             -e "VERSION_CUDA=${cuda_version}" \
+            -e "no_proxy=bcebos.com" \
             --net=host \
             --cap-add=ALL \
             --shm-size=128G \
@@ -246,6 +249,7 @@ function run_models(){
             -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             -e "DEVICE_TYPE=${device_type}" \
             -e "VERSION_CUDA=${cuda_version}" \
+            -e "no_proxy=bcebos.com" \
             --net=host \
             --cap-add=ALL \
             --shm-size=128G \
