@@ -1,9 +1,10 @@
 # NGC PyTorch 性能复现
-## 目录
-- models         # 提供竞品PyTorch框架的修改后的模型,官方模型请直接在脚本中拉取,统一方向的模型commit应一致,如不一致请单独在模型运行脚本中写明运行的commit
-- scripts        # 提供各个模型复现性能的脚本
-- run_PyTorch.sh # 全量竞品PyTorch框架模型运行脚本
-- PrepareEnv.sh  # 竞品PyTorch运行环境搭建
+## 目录 
+├── PrepareEnv.sh   # 竞品PyTorch运行环境搭建
+├── README.md       # 运行文档
+├── models          # 提供竞品PyTorch框架的修改后的模型,官方模型请直接在脚本中拉取,统一方向的模型commit应一致,如不一致请单独在模型运行脚本中写明运行的commit
+├── run_PyTorch.sh  # 全量竞品PyTorch框架模型运行脚本
+└── scripts         # 提供各个模型复现性能的脚本
 ## 环境介绍
 ### 1.物理机环境
 - 单机（单卡、8卡）
@@ -29,16 +30,17 @@ bash run_PyTorch.sh;     # 创建容器,在该标准环境中测试模型
 ```
 
 ## 单个模型脚本目录
-- nlp_modelName                # 模型名
-   -  README.md                # 运行文档
-   -  logs                     # 训练log,注:log中不得包含机器ip等敏感信息
-      - index                  # log解析后待入库数据json文件              
-        - nlp_modelName_sp_bs32_fp32_1_speed   # 单卡数据
-        - nlp_modelName_sp_bs32_fp32_8_speed   # 8卡数据
-      - train_log              # 原始训练log
-   - preData.sh                # 数据处理
-   - run_benchmark.sh          # 运行脚本（包含性能、收敛性）
-   - analysis_log.py           # log解析脚本,每个框架尽量统一
+
+└── nlp_modelName              # 模型名  
+    ├── README.md              # 运行文档  
+    ├── analysis_log.py        # log解析脚本,每个框架尽量统一   
+    ├── logs                   # 训练log,注:log中不得包含机器ip等敏感信息  
+    │   ├── index              # log解析后待入库数据json文件   
+    │   │   ├── nlp_modelName_sp_bs32_fp32_1_speed  # 单卡数据  
+    │   │   └── nlp_modelName_sp_bs32_fp32_8_speed  # 8卡数据  
+    │   └── train_log          # 原始训练log  
+    ├── preData.sh             # 数据处理  
+    └── run_benchmark.sh       # 运行脚本（包含性能、收敛性）  
 
 ## 输出
 
