@@ -18,6 +18,6 @@ nvidia-docker run --name test_torch -it  \
     --net=host \
     --shm-size=1g \
     -v $PWD:/workspace \
-    ${ImageName}  /bin/bash ${run_cmd}
+    ${ImageName}  /bin/bash -c "${run_cmd}"
 
 
