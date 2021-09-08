@@ -1,17 +1,5 @@
 <!-- omit in toc -->
 # NGC PyTorch Bert 性能复现
-## 脚本说明
-└── nlp_modelName              # 模型名  
-    ├── README.md              # 运行文档  
-    ├── analysis_log.py        # log解析脚本,每个框架尽量统一   
-    ├── logs                   # 训练log,注:log中不得包含机器ip等敏感信息  
-    │   ├── index              # log解析后待入库数据json文件   
-    │   │   ├── nlp_modelName_sp_bs32_fp32_1_speed  # 单卡数据  
-    │   │   └── nlp_modelName_sp_bs32_fp32_8_speed  # 8卡数据  
-    │   └── train_log          # 原始训练log  
-    ├── preData.sh             # 数据处理  
-    └── run_benchmark.sh       # 运行脚本（包含性能、收敛性）  
-
 
 此处给出了基于 [NGC PyTorch](https://github.com/NVIDIA/DeepLearningExamples/tree/master/PyTorch/LanguageModeling/BERT) 实现的 Bert Base Pre-Training 任务的详细复现流程，包括执行环境、PyTorch版本、环境搭建、复现脚本、测试结果和测试日志。
 
