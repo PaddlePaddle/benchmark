@@ -56,24 +56,24 @@ function _train(){
     else
         echo "check your mode!"
     fi
-    train_cmd="-c ./configs/ResNet/ResNet50_fp16.yaml
-            -o TRAIN.batch_size=${batch_size}
-            -o validate=False
-            -o epochs=${max_epoch}
-            -o TRAIN.data_dir=./dataset/imagenet100_data
-            -o TRAIN.file_list=./dataset/imagenet100_data/train_list.txt
-            -o TRAIN.num_workers=8
-            -o print_interval=10
-            -o use_gpu=True
-            -o image_shape=[4,224,224]
-            -o AMP.use_pure_fp16=${use_pure_fp16}
+    train_cmd="-c ./ppcls/configs/ImageNet/ResNet/ResNet50_fp16.yaml
+               -o DataLoader.Train.sampler.batch_size=$batch_size \
+               -o Global.eval_during_train=False \
+               -o Global.epochs=${max_epoch} \
+               -o DataLoader.Train.dataset.image_root="./dataset/imagenet100_data" \
+               -o DataLoader.Train.dataset.cls_label_path="./dataset/imagenet100_data/train_list.txt" \
+               -o DataLoader.Train.loader.num_workers=8 \
+               -o Global.print_batch_step=10 \
+               -o use_gpu=True
+               -o Global.image_shape=[4,224,224]
+               -o AMP.use_pure_fp16=${use_pure_fp16}
             "
 
     case ${run_mode} in
-    sp) train_cmd="python -u tools/static/train.py -o is_distributed=False "${train_cmd} ;;
+    sp) train_cmd="python -u ppcls/static/train.py -o Global.is_distributed=False "${train_cmd} ;;
     mp)
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --gpus=$CUDA_VISIBLE_DEVICES tools/static/train.py -o is_distributed=True "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --gpus=$CUDA_VISIBLE_DEVICES ppcls/static/train.py -o Global.is_distributed=True "${train_cmd}
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac

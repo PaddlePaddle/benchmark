@@ -1,5 +1,5 @@
 #!bin/bash
-
+# 静态图
 set -xe
 if [[ $# -lt 4 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
@@ -50,11 +50,11 @@ function _train(){
     WORK_ROOT=$PWD
     echo "${model_name}, batch_size: ${batch_size}"
     if [ ${model_name} == "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ] || [ ${model_name} = "ResNet50_bs96" ]; then
-        config_file="./configs/ResNet/ResNet50.yaml"
+        config_file="./ppcls/configs/ImageNet/ResNet/ResNet50.yaml"
     elif [ ${model_name} == "ResNet101_bs32" ]; then
-         config_file="./configs/ResNet/ResNet101.yaml"
+         config_file="./ppcls/configs/ImageNet/ResNet/ResNet101.yaml"
     elif [ ${model_name} == "SE_ResNeXt50_32x4d_bs32" ]; then
-          config_file="./configs/SENet/SE_ResNeXt50_32x4d.yaml"
+          config_file="./ppcls/configs/ImageNet/SENet/SE_ResNeXt50_32x4d.yaml"
     else
         echo "model: $model_name not support!"
         exit
@@ -70,26 +70,26 @@ function _train(){
         enable_addto="False"
     fi
 
-    train_cmd="-c $config_file
-               -o print_interval=10
-               -o TRAIN.batch_size=$batch_size
-               -o TRAIN.data_dir="./dataset/imagenet100_data"
-               -o TRAIN.file_list="./dataset/imagenet100_data/train_list.txt"
-               -o fuse_elewise_add_act_ops=${fuse_elewise_add_act_ops}
-               -o enable_addto=${enable_addto}
-               -o validate=False
-               -o TRAIN.num_workers=8
-               -o epochs=${max_epoch}"
+    train_cmd="-c  $config_file
+               -o DataLoader.Train.sampler.batch_size=$batch_size \
+               -o Global.eval_during_train=False \
+               -o Global.print_batch_step=10 \
+               -o DataLoader.Train.dataset.image_root="./dataset/imagenet100_data" \
+               -o DataLoader.Train.dataset.cls_label_path="./dataset/imagenet100_data/train_list.txt" \
+               -o DataLoader.Train.loader.num_workers=8 \
+               -o Global.epochs=${max_epoch} \
+               -o fuse_elewise_add_act_ops=${fuse_elewise_add_act_ops} \
+               -o enable_addto=${enable_addto} "
 
     case ${run_mode} in
-    sp) train_cmd="python -u tools/static/train.py -o is_distributed=False "${train_cmd} ;;
+    sp) train_cmd="python -u ppcls/static/train.py -o Global.is_distributed=False "${train_cmd} ;;
     mp)
         rm -rf ./mylog_${model_name}
         if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ] || [ ${model_name} = "ResNet50_bs96" ]; then
             export FLAGS_fraction_of_gpu_memory_to_use=0.8
-            train_cmd="python -m paddle.distributed.launch --log_dir=./mylog_${model_name} --gpus=$CUDA_VISIBLE_DEVICES tools/static/train.py -o use_dali=True "${train_cmd}
+            train_cmd="python -m paddle.distributed.launch --log_dir=./mylog_${model_name} --gpus=$CUDA_VISIBLE_DEVICES ppcls/static/train.py -o Global.use_dali=True "${train_cmd}
         else
-            train_cmd="python -m paddle.distributed.launch --log_dir=./mylog_${model_name} --gpus=$CUDA_VISIBLE_DEVICES tools/static/train.py "${train_cmd}
+            train_cmd="python -m paddle.distributed.launch --log_dir=./mylog_${model_name} --gpus=$CUDA_VISIBLE_DEVICES ppcls/static/train.py "${train_cmd}
         fi
         log_parse_file="mylog_${model_name}/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
