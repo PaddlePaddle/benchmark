@@ -169,6 +169,7 @@ CycleGAN_bs1(){
 
     pip install -r requirements.txt
     pip install scikit-image==0.18.1
+    pip install easydict
     # Prepare data
     mkdir -p data
     ln -s ${data_path}/cityscapes_gan_mini ${cur_model_path}/data/cityscapes
