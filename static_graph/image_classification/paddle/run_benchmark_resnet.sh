@@ -11,7 +11,7 @@ fi
 
 function _set_params(){
     index=$1                          # 速度(speed)|显存占用(mem)|单卡最大支持batch_size(maxbs)                       （必填）
-    base_batch_size=$2                # 单卡的batch_size，如果固定的，可以写死。                                       (必填）
+    batch_size=$2                # 单卡的batch_size，如果固定的，可以写死。                                       (必填）
     model_name=$3                     # 模型名字如："SE-ResNeXt50"，如果是固定的，可以写死，如果需要其他参数可以参考bert实现（必填）
     run_mode=${4:-"sp"}               # 单进程(sp)|多进程(mp)，默认单进程                                             （必填）
     mission_name="图像分类"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
@@ -31,7 +31,6 @@ function _set_params(){
     devices=(${CUDA_VISIBLE_DEVICES//,/ })
     num_gpu_devices=${#devices[*]}
 
-    batch_size=`expr ${base_batch_size} \* ${num_gpu_devices}`
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}
