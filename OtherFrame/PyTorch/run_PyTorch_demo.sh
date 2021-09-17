@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+## 注意，本脚本仅为示例,相关内容请勿更新到此
+
 # 拉镜像
 ImageName=  ;
 docker pull ${ImageName}

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+## 注意，本脚本仅为示例,相关内容请勿更新到此
+
 # 公共配置文件,配置python 安装pytorch,运行目录:/workspace (起容器的时候映射的目录:benchmark/OtherFrameworks/PyTorch/)
 echo "*******prepare benchmark***********"
 ################################# 创建一些log目录,如:

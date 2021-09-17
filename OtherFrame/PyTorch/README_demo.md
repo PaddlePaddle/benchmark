@@ -1,4 +1,5 @@
 # NGC PyTorch 性能复现
+## 本readme仅为示例,相关内容请勿更新到此, NLP_demo也仅为示例
 ## 目录 
 
 ├── PrepareEnv.sh   # 竞品PyTorch运行环境搭建  
