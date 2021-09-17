@@ -18,9 +18,13 @@ model_list='ResNet50_bs32_dygraph ResNet50_bs32 deeplabv3_bs4 yolov3_bs8 bert_ba
 source run_models.sh
 for model in ${model_list}
 do
-${model}
+    start_seconds=$(date --date="$starttime" +%s)
+    ${model}
+    end_seconds=$(date --date="$endtime" +%s)
+    echo "${model} run time is :  $((end_seconds-start_seconds))"
 done
 #analysis log
+start_seconds=$(date --date="$starttime" +%s)
 cd ${BENCHMARK_ROOT}/scripts/benchmark_ci
 if [ -f "rerun_model.txt" ];then rm -rf rerun_model.txt
 fi
@@ -29,13 +33,19 @@ fi
 if [ -f "errorcode.txt" ];then rm -rf errorcode.txt
 fi
 echo success >>log.txt
+
 python analysis.py --log_path=${BENCHMARK_ROOT}/logs/static --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/static --threshold=0.05 --paddle_dev=False
 python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=0.05 --paddle_dev=False
+end_seconds=$(date --date="$starttime" +%s)
+echo "analysis time is $((end_seconds-start_seconds))"
 #if the fluctuations is larger than threshold, then rerun in paddle develop for result judging to avoid fluctuations caused by xiaolvyun machines.
+#计算rerun耗时
+start_seconds=$(date --date="$starttime" +%s)
 if [ -f "rerun_model.txt" ];then
     echo -e "rerun model in paddle develop start!"
     #install paddle develop
     cd /workspace/Paddle
+    #这里需要重新安装一遍paddle？
     pip uninstall -y paddlepaddle_gpu
     pip install build/python/dist/paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl
     [ $? -ne 0 ] && echo "install paddle failed." && exit 1
@@ -64,6 +74,8 @@ if [ -f "rerun_model.txt" ];then
         python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic_pr --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=0.05  --paddle_dev=True
     fi
 fi
+end_seconds=$(date --date="$endtime" +%s)
+echo "rerun time is $((end_seconds-start_seconds))"
 errorcode='0'
 if [ -f "errorcode.txt" ];then
     errorcode=`cat errorcode.txt`
