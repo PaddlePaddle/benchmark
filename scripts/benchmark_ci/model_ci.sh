@@ -67,6 +67,8 @@ fi
 errorcode='0'
 if [ -f "errorcode.txt" ];then
     errorcode=`cat errorcode.txt`
+fi
+if [[ ${errorcode} != '0' ]];then
     errorcode=`expr $errorcode + 20`
 fi
 if [[ -z `cat log.txt | grep success` ]];then
