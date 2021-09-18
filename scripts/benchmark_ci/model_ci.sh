@@ -14,7 +14,7 @@ pip install paddlenlp
 cd ${BENCHMARK_ROOT}/scripts/benchmark_ci
 #model_list='ResNet50_bs32_dygraph ResNet50_bs32 bert_base_seqlen128_fp32_bs32 transformer_base_bs4096_amp_fp16 yolov3_bs8 TSM_bs16 deeplabv3_bs4 CycleGAN_bs1 mask_rcnn_bs1 PPOCR_mobile_2_bs8 seq2seq_bs128'
 #testing models 
-model_list='ResNet50_bs32_dygraph ResNet50_bs32 deeplabv3_bs4 yolov3_bs8 bert_base_seqlen128_fp32_bs32 CycleGAN_bs1 seq2seq_bs128 transformer_base_bs4096_amp_fp16 mask_rcnn_bs1 TSM_bs16'
+model_list='ResNet50_bs32_dygraph ResNet50_bs32 deeplabv3_bs4 yolov3_bs8 bert_base_seqlen128_fp32_bs32 CycleGAN_bs1'
 source run_models.sh
 for model in ${model_list}
 do
