@@ -61,6 +61,12 @@ def analysis(file_path):
 def compare():
     file_list = traverse_logs(args.log_path)
     errorcode = 0
+    has_file = os.path.exists('errorcode.txt')
+    if has_file:
+        with open('errorcode.txt', 'r') as f:
+            for line in f:
+                errorcode = int(line.strip('\n'))
+                print('errorcode:{}'.format(errorcode))
     for file in file_list:
         model, fail_flag, result = analysis(file)
         if int(fail_flag) == 1:
