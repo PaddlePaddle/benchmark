@@ -82,7 +82,6 @@ nvidia-docker run --name test_torch -it  \
 "FINAL_RESULT": 197.514, \      # 速度计算后的平均值,需要skip掉不稳定的前几步值
 "JOB_FAIL_FLAG": 0, \           # 该模型case运行0:成功|1:失败
 "UNIT": "images/s" \            # 速度指标的单位 
-"mem_result": 6627 \            # 单卡显存平均值 
 }
 
 ```
