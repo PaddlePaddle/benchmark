@@ -33,8 +33,6 @@ def analyze(model_name, log_file, res_log_file):
         avg_time = total_time / (len(time_res) - skip_num)
         ips = round(1 / avg_time, 3)
 
-    #print(fail_flag, run_mode, gpu_num, avg_time)
-
     info = {"log_file": log_file, "model_name": model_name, "mission_name": "图像分割",
             "direction_id": 0, "run_mode": run_mode, "index": 1, "gpu_num": gpu_num,
             "FINAL_RESULT": ips, "JOB_FAIL_FLAG": fail_flag, "UNIT": "images/s"}
