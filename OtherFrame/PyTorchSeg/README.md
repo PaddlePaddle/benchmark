@@ -30,6 +30,7 @@ bash run_PyTorch.sh;     # 创建容器,在该标准环境中测试模型
 
 ```bash
 #!/usr/bin/env bash
+
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
 docker pull ${ImageName}
 
@@ -38,8 +39,12 @@ run_cmd="cp /workspace/PrepareEnv.sh ./;
          cd /home/mmsegmentation;
          cp /workspace/run_benchmark.sh ./;
          cp /workspace/analysis_log.py ./;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh fastscnn sp fp32 2 500 5;
+         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh fastscnn mp fp32 2 500 5;
          CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ocrnet_hrnetw48 sp fp32 2 500 5;
          CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh ocrnet_hrnetw48 mp fp32 2 500 5;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh segformer_b0 sp fp32 2 500 5;
+         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh segformer_b0 mp fp32 2 500 5;
          "
 
 nvidia-docker run --name test_torch_seg -it  \
@@ -54,16 +59,18 @@ nvidia-docker rm test_torch_seg
 
 ## 输出
 
+执行完成后，在当前目录会产出分割模型训练性能数据的文件，比如`fastscnn_sp_bs2_fp32_1_speed`等文件，内容如下所示。
+
 ```bash
 {
-"log_file": "/logs/2021.0906.211134.post107/train_log/ResNet101_bs32_1_1_sp", \    # log 目录,创建规范见PrepareEnv.sh 
-"model_name": "clas_MobileNetv1_bs32_fp32", \    # 模型case名,创建规范:repoName_模型名_bs${bs_item}_${fp_item} 如:clas_MobileNetv1_bs32_fp32
-"mission_name": "图像分类", \     # 模型case所属任务名称，具体可参考scripts/config.ini      
+"log_file": "/home/mmsegmentation/fastscnn_sp_bs2_fp32_1", \    # log 目录,创建规范见PrepareEnv.sh 
+"model_name": "fastscnn", \    # 模型case名,创建规范:repoName_模型名_bs${bs_item}_${fp_item} 
+"mission_name": "图像分割", \     # 模型case所属任务名称，具体可参考scripts/config.ini      
 "direction_id": 0, \            # 模型case所属方向id,0:CV|1:NLP|2:Rec 具体可参考benchmark/scripts/config.ini    
 "run_mode": "sp", \             # 单卡:sp|多卡:mp
 "index": 1, \                   # 速度验证默认为1
 "gpu_num": 1, \                 # 1|8
-"FINAL_RESULT": 197.514, \      # 速度计算后的平均值,需要skip掉不稳定的前几步值
+"FINAL_RESULT": 7.514, \      # 速度计算后的平均值,需要skip掉不稳定的前几步值
 "JOB_FAIL_FLAG": 0, \           # 该模型case运行0:成功|1:失败
 "UNIT": "images/s" \            # 速度指标的单位 
 }

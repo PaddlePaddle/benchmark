@@ -21,6 +21,11 @@ function _set_params(){
     res_log_file=${run_log_path}/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}_speed
 }
 
+function _analysis_log(){
+    python analysis_log.py ${model_name} ${log_file} ${res_log_file}
+    cp ${res_log_file} /workspace
+}
+
 function _train(){
     echo "Train ${model_name} on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
@@ -47,19 +52,15 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
-    kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
-
     if [ $run_mode = "mp" -a -d mylog ]; then
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
     fi
-}
 
-function _analysis_log(){
-    python analysis_log.py ${model_name} ${log_file} ${res_log_file}
-    cp ${res_log_file} /workspace
+    _analysis_log
+
+    kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 }
 
 _set_params $@
 _train
-_analysis_log
