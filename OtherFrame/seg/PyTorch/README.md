@@ -1,11 +1,14 @@
 # PyTorch 分割模型 性能复现
 ## 目录 
 
+```
 ├── README.md           # 说明文档 
 ├── run_PyTorch.sh      # 执行入口，包括环境搭建、测试获取所有分割模型的训练性能 
 ├── PrepareEnv.sh       # PyTorch和mmsegmentation运行环境搭建、训练数据下载
 ├── analysis_log.py     # 分析训练的log得到训练性能的数据
 └── run_benchmark.sh    # 执行实体，测试单个分割模型的训练性能
+```
+
 ## 环境介绍
 ### 物理机环境
 - 单机（单卡、8卡）
@@ -13,10 +16,11 @@
   - GPU：Tesla V100-SXM2-32GB * 8
   - CPU：Intel(R) Xeon(R) Gold 6271C CPU @ 2.60GHz * 80
   - CUDA、cudnn Version: cuda10.2-cudnn7
+
 ### Docker 镜像
 
 - **镜像版本**: `registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7`
-- **PyTorch 版本**: `1.9.1`  # 竞品版本：最新稳定版本，如需特定版本请备注说明原因  
+- **PyTorch 版本**: `1.9.1` 
 - **CUDA 版本**: `10.2`
 - **cuDnn 版本**: `7`
 
