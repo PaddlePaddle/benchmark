@@ -24,6 +24,7 @@ function _set_params(){
     mission_name="文本生成"
     skip_steps=0
     keyword="ips:"
+    keyword_loss="ppl:"
     model_mode=-1
     ips_unit="tokens/s"
 

@@ -71,6 +71,9 @@ function _run(){
     if [ "${ips_unit}" != "" ]; then
         analysis_options="${analysis_options} --ips_unit ${ips_unit}"
     fi
+    if [ "${keyword_loss}" != "" ]; then
+        analysis_options="${analysis_options} --keyword_loss ${keyword_loss}"
+    fi
     python ${BENCHMARK_ROOT}/scripts/analysis.py \
             --filename "${log_file}" \
             --log_with_profiler ${log_with_profiler:-"not found!"} \

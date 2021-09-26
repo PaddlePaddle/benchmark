@@ -29,8 +29,8 @@ fi
 if [ -f "errorcode.txt" ];then rm -rf errorcode.txt
 fi
 echo success >>log.txt
-python analysis.py --log_path=${BENCHMARK_ROOT}/logs/static --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/static --threshold=0.05 --paddle_dev=False
-python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=0.05 --paddle_dev=False
+python analysis.py --log_path=${BENCHMARK_ROOT}/logs/static --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/static --threshold=0.05 --loss_threshold=0.3 --paddle_dev=False
+python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=0.05 --loss_threshold=0.3 --paddle_dev=False
 #if the fluctuations is larger than threshold, then rerun in paddle develop for result judging to avoid fluctuations caused by xiaolvyun machines.
 if [ -f "rerun_model.txt" ];then
     echo -e "rerun model in paddle develop start!"
