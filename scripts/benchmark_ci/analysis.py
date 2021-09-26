@@ -90,6 +90,7 @@ def compare():
             with open(standard_record, 'r') as f:
                 for line in f:
                     standard_result = float(line.strip('\n'))
+                    print("standard_result:{}".format(standard_result))
                     ranges = round((float(result) - standard_result) / standard_result, 4)
                     if ranges >= args.threshold:
                         if args.paddle_dev:
