@@ -27,7 +27,7 @@ def parse_args():
     parser.add_argument(
         '--loss_threshold',
         type=float,
-        default=0.1,
+        default=0.3,
         help='loss threshold')
     parser.add_argument(
         '--paddle_dev',
@@ -68,6 +68,12 @@ def analysis(file_path):
 def compare():
     file_list = traverse_logs(args.log_path)
     errorcode = 0
+    has_file = os.path.exists('errorcode.txt')
+    if has_file:
+        with open('errorcode.txt', 'r') as f:
+            for line in f:
+                errorcode = int(line.strip('\n'))
+                print('errorcode:{}'.format(errorcode))
     for file in file_list:
         model, fail_flag, result, loss_result = analysis(file)
         if int(fail_flag) == 1:
@@ -84,7 +90,6 @@ def compare():
             with open(standard_record, 'r') as f:
                 for line in f:
                     standard_result = float(line.strip('\n'))
-                    print("standard_result:{}".format(standard_result))
                     ranges = round((float(result) - standard_result) / standard_result, 4)
                     if ranges >= args.threshold:
                         if args.paddle_dev:
@@ -121,8 +126,6 @@ def compare():
             with open(loss_standard_record, 'r') as f:
                 for line in f:
                     loss_standard_result = float(line.strip('\n'))
-                    print("loss_standard_result:{}".format(loss_standard_result))
-                    print("loss:{}".format(loss_result))
                     loss_ranges = round((float(loss_result) - loss_standard_result) / loss_standard_result, 4)
                     if loss_ranges >= args.loss_threshold:
                         if args.paddle_dev:

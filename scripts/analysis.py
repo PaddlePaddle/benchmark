@@ -285,7 +285,7 @@ if __name__ == "__main__":
             if args.keyword_loss != "":
                 loss_analyzer = LossAnalyzer(args.filename, args.keyword_loss)
                 run_info["LOSS_RESULT"] = loss_analyzer.get_loss()
-            if int(run_info["FINAL_RESULT"]) == 0:
+            if int(os.getenv('job_fail_flag')) == 1 or int(run_info["FINAL_RESULT"]) == 0:
                 run_info["JOB_FAIL_FLAG"] = 1
         elif args.index == 3:
             run_info["FINAL_RESULT"] = {}
