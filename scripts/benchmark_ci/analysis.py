@@ -62,6 +62,7 @@ def analysis(file_path):
         result = json.dumps(job_info["FINAL_RESULT"])
         loss_result = json.dumps(job_info["LOSS_RESULT"])
         loss_result = loss_result.strip('"')
+        loss_result = loss_result.strip(',')
     return model, fail_flag, result, loss_result
 
 
@@ -123,11 +124,13 @@ def compare():
                             f = open('rerun_model.txt', 'a')
                             f.writelines(model+'\n')
                     else:
-                        print("{}, SUCCESS".format(model))
+                        print("{}, Performance_test, SUCCESS".format(model))
             with open(loss_standard_record, 'r') as f:
                 for line in f:
                     loss_standard_result = float(line.strip('\n'))
                     loss_ranges = round((float(loss_result) - loss_standard_result) / loss_standard_result, 4)
+                    print("loss result:{}".format(loss_result))
+                    print("loss standard result:{}".format(loss_standard_result))
                     if loss_ranges >= args.loss_threshold:
                         if args.paddle_dev:
                             pass
@@ -139,6 +142,8 @@ def compare():
                             print("Final loss of model {} has been increased from {} to {},"
                                   " which is greater than threashold"
                                   .format(model, loss_standard_result, standard_result, loss_result))
+                    else:
+                        print("{}, Precision_test, SUCCESS".format(model))
                         
     f = open('errorcode.txt', 'w')
     f.writelines(str(errorcode))
