@@ -25,6 +25,7 @@ function _set_params(){
     direction_id=1
     skip_steps=3
     keyword="ips:"
+    keyword_loss="ppl:"
     model_mode=-1
     ips_unit="words/s"
 
