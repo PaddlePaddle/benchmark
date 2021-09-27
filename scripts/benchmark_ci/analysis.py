@@ -129,6 +129,8 @@ def compare():
                 for line in f:
                     loss_standard_result = float(line.strip('\n'))
                     loss_ranges = round((float(loss_result) - loss_standard_result) / loss_standard_result, 4)
+                    print("loss result:{}".format(loss_result))
+                    print("loss standard result:{}".format(loss_standard_result))
                     if loss_ranges >= args.loss_threshold:
                         if args.paddle_dev:
                             pass
