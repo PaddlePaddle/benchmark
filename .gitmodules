@@ -78,3 +78,6 @@
 	path = PaddleGAN
 	url = https://github.com/PaddlePaddle/PaddleGAN.git
 	branch = develop
+[submodule "OtherFrame/Speech/PyTorch/models/Parakeet/PWGAN/ParallelWaveGAN"]
+	path = OtherFrame/Speech/PyTorch/models/Parakeet/PWGAN/ParallelWaveGAN
+	url = git@github.com:yt605155624/ParallelWaveGAN.git
