@@ -2,11 +2,12 @@
 ## 目录 
 
 ```
-├── README.md           # 说明文档 
-├── run_PyTorch.sh      # 执行入口，包括环境搭建、测试获取所有分割模型的训练性能 
-├── PrepareEnv.sh       # PyTorch和mmsegmentation运行环境搭建、训练数据下载
-├── analysis_log.py     # 分析训练的log得到训练性能的数据
-└── run_benchmark.sh    # 执行实体，测试单个分割模型的训练性能
+├── README.md               # 说明文档 
+├── run_PyTorch.sh          # 执行入口，包括环境搭建、测试获取所有分割模型的训练性能 
+├── scripts/PrepareEnv.sh   # PyTorch和mmsegmentation运行环境搭建、训练数据下载
+├── scripts/analysis_log.py         # 分析训练的log得到训练性能的数据
+├── scripts/run_benchmark.sh        # 执行实体，测试单个分割模型的训练性能
+└── models                          # 提供竞品PyTorch框架的repo
 ```
 
 ## 环境介绍
@@ -30,6 +31,8 @@
 bash run_PyTorch.sh;     # 创建容器,在该标准环境中测试模型   
 ```
 
+如果在docker内部按住torch等框架耗时很久，可以设置代理。下载测试数据的时候，需要关闭代理，否则下载耗时很久。
+
 脚本内容,如:
 
 ```bash
@@ -38,17 +41,23 @@ bash run_PyTorch.sh;     # 创建容器,在该标准环境中测试模型
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
 docker pull ${ImageName}
 
-run_cmd="cp /workspace/PrepareEnv.sh ./;
+run_cmd="cp /workspace/scripts/PrepareEnv.sh ./;
          bash PrepareEnv.sh;
-         cd /home/mmsegmentation;
-         cp /workspace/run_benchmark.sh ./;
-         cp /workspace/analysis_log.py ./;
+         cd /workspace/models/mmseg;
+         cp /workspace/scripts/run_benchmark.sh ./;
+         cp /workspace/scripts/analysis_log.py ./;
          CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh fastscnn sp fp32 2 500 5;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh fastscnn sp fp32 4 500 5;
          CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh fastscnn mp fp32 2 500 5;
+         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh fastscnn mp fp32 4 500 5;
          CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ocrnet_hrnetw48 sp fp32 2 500 5;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ocrnet_hrnetw48 sp fp32 4 500 5;
          CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh ocrnet_hrnetw48 mp fp32 2 500 5;
+         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh ocrnet_hrnetw48 mp fp32 4 500 5;
          CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh segformer_b0 sp fp32 2 500 5;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh segformer_b0 sp fp32 4 500 5;
          CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh segformer_b0 mp fp32 2 500 5;
+         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh segformer_b0 mp fp32 4 500 5;
          "
 
 nvidia-docker run --name test_torch_seg -it  \
