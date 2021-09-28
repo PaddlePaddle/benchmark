@@ -34,9 +34,7 @@ pip install torchvision==0.10.1+cu102 -f https://download.pytorch.org/whl/torch_
 
 pip install mmcv-full==1.3.13 -f https://download.openmmlab.com/mmcv/dist/cu102/torch1.9.0/index.html
 
-git clone https://github.com/open-mmlab/mmsegmentation.git
-cd mmsegmentation
-git reset --hard 4e6f2ebced83353c296410833c9f42f5b0d5f3f7
+cd /workspace/models/mmseg
 pip install -e .
 
 wget https://paddleseg.bj.bcebos.com/benchmark/mmseg/mmseg_benchmark_configs.tar.gz

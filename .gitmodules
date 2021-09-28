@@ -78,3 +78,6 @@
 	path = PaddleGAN
 	url = https://github.com/PaddlePaddle/PaddleGAN.git
 	branch = develop
+[submodule "OtherFrame/seg/PyTorch/models/mmseg"]
+	path = OtherFrame/seg/PyTorch/models/mmseg
+	url = https://github.com/open-mmlab/mmsegmentation.git
