@@ -27,8 +27,6 @@ ln -s $(which pip3.7) run_env/pip
 export PATH=/workspace/run_env:${PATH}
 
 ################################# 安装框架 如:
-export https_proxy=http://172.19.57.45:3128 && export http_proxy=http://172.19.57.45:3128
-
 pip install -U pip
 echo `pip --version`
 pip install torch==1.9.1+cu102 -f https://download.pytorch.org/whl/torch_stable.html
@@ -45,9 +43,6 @@ wget https://paddleseg.bj.bcebos.com/benchmark/mmseg/mmseg_benchmark_configs.tar
 tar -zxf mmseg_benchmark_configs.tar.gz
 
 ################################# 准备训练数据 如:
-unset https_proxy
-unset http_proxy
-
 mkdir -p data
 wget https://paddleseg.bj.bcebos.com/dataset/cityscapes_30imgs.tar.gz \
     -O data/cityscapes_30imgs.tar.gz

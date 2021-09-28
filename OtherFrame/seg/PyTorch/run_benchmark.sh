@@ -23,6 +23,7 @@ function _set_params(){
 
 function _analysis_log(){
     python analysis_log.py ${model_name} ${log_file} ${res_log_file}
+    cp ${log_file} /workspace
     cp ${res_log_file} /workspace
 }
 
