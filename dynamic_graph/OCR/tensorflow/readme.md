@@ -19,7 +19,8 @@ cd ./EAST
 bash benchmark/prepare_data.sh
 ```
 
-注意：EAST需要tensorflow版本1.13-1.15版本，这些版本在CUDA10.1 的环境上无法运行，而Paddle2.0以上版本不在支持CUDA10.1之前的版本，所以为了让tensorflow-gpu在CUDA10.1环境上使用GPU，需要按照如下教程配置环境：
+注意：EAST需要tensorflow版本1.13-1.15版本，这些版本在CUDA10.1 的环境上无法运行，而Paddle2.0以上版本不再支持CUDA10.1之前的版本，所以为了让tensorflow-gpu在CUDA10.1环境上使用GPU，需要按照如下步骤重定向so文件，其中CUDA10.1不包含cublas.so文件，可以用CUDA10.0的cublas.so文件，下方命令中提供了下载链接：
+
 
 ```
 ln -s  /usr/local/cuda-10.1/lib64/libcudart.so.10.1  /usr/local/cuda-10.1/lib64/libcudart.so.10.0
