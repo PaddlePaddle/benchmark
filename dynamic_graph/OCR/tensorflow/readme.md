@@ -31,6 +31,7 @@ ln -s  /usr/local/cuda-10.1/lib64/libcufft.so.10  /usr/local/cuda-10.1/lib64/lib
 wget -P /usr/local/cuda-10.1/lib64/  https://paddleocr.bj.bcebos.com/dygraph_v2.0/test/benchmark_train/libcublas.so.10
 ln -s /usr/local/cuda-10.1/lib64/libcublas.so.10  /usr/local/cuda-10.1/lib64/libcublas.so.10.0
 ```
+注：以上命令只适用于CUDAV10.1.243版本，如果是其他版本，需要重定向的so文件版本号可能不同
 
 安装tensorflow后，执行命令
 ```
