@@ -81,6 +81,7 @@ function _train(){
 
     cd Megatron-LM
     timeout 15m ${train_cmd} > ${log_file} 2>&1
+    # 这个判断，无论是否成功都是0
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
         export job_fail_flag=1
@@ -88,13 +89,9 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
+    # 注释掉，会异常退出
     #kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
     cd -
-
-    # if [ $run_mode = "mp" -a -d mylog ]; then
-    #     rm ${log_file}
-    #     cp mylog/workerlog.0 ${log_file}
-    # fi
 }
 function _analysis_log(){
     #python analysis_log.py ${log_file} ${index_log_file}   # 分析log产出待入库的json 文件
