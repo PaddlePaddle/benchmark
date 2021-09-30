@@ -23,6 +23,7 @@ function _set_params(){
     direction_id=0
     skip_steps=5
     keyword="ips:"
+    keyword_loss="[92mloss:"
     model_mode=-1
     ips_unit="instance/s"
 

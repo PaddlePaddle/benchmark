@@ -26,6 +26,7 @@ function _set_params(){
     mission_name="图像生成"
     direction_id=0
     keyword="ips:"
+    keyword_loss="G_idt_A_loss:"
     skip_steps=5
     ips_unit="images/s"
 
