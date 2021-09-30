@@ -78,3 +78,6 @@
 	path = PaddleGAN
 	url = https://github.com/PaddlePaddle/PaddleGAN.git
 	branch = develop
+[submodule "OtherFrame/video/PyTorch/models/TimeSformer"]
+	path = OtherFrame/video/PyTorch/models/TimeSformer
+	url = https://github.com/HydrogenSulfate/TimeSformer.git
