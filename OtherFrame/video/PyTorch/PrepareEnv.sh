@@ -61,6 +61,3 @@ cd -
 
 
 echo "*******prepare benchmark end***********"
-
-
-
