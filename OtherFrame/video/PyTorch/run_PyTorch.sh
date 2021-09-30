@@ -7,7 +7,7 @@ run_cmd="bash PrepareEnv.sh
         cd ${BENCHMARK_ROOT}/models/TimeSformer;
         cp ${BENCHMARK_ROOT}/scripts/TimeSformer/run_benchmark.sh ./;
         cp ${BENCHMARK_ROOT}/scripts/TimeSformer/analysis_log.py ./;
-        cp ${BENCHMARK_ROOT}/scripts/TimeSformer/preData.py ./;
+        cp ${BENCHMARK_ROOT}/scripts/TimeSformer/preData.sh ./;
         bash preData.sh;
 
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 1 fp32 TimeSformer;
