@@ -31,22 +31,3 @@ nvidia-docker run --name test_torch_video -it  \
 
 nvidia-docker stop test_torch_video
 nvidia-docker rm test_torch_video
-
-# 本地测试内容 #
-# export BENCHMARK_ROOT=${PWD} # 对应实际地址 benchmark/OtherFrameworks/video/PyTorch
-
-# bash PrepareEnv.sh
-# cd ${BENCHMARK_ROOT}/models/TimeSformer
-# cp ${BENCHMARK_ROOT}/scripts/TimeSformer/run_benchmark.sh ./
-# cp ${BENCHMARK_ROOT}/scripts/TimeSformer/analysis_log.py ./
-# cp ${BENCHMARK_ROOT}/scripts/TimeSformer/preData.sh ./
-# # echo ${PWD}
-# bash preData.sh
-# CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 1 fp32 TimeSformer
-# sleep 60
-# CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 1 fp32 TimeSformer
-# sleep 60
-# CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 14 fp32 TimeSformer
-# sleep 60
-# CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 14 fp32 TimeSformer
-# sleep 60
