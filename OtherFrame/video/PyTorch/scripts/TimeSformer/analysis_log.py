@@ -97,6 +97,7 @@ if __name__ == '__main__':
     text = parse_text_from_file(args.filename)
     avg_ips = parse_avgips_from_text(text, args.keyword)
     run_info["FINAL_RESULT"] = avg_ips
+    run_info["UNIT"] = "videos/sec"
 
     if avg_ips == 0.0:
         run_info["JOB_FAIL_FLAG"] = 1

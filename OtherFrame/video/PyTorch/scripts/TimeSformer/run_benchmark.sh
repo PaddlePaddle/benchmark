@@ -8,7 +8,7 @@ function _set_params(){
     fp_item=${3:-"fp32"}        # fp32|fp16
     model_name=${4:-"model_name"}
     pushd ../../
-    run_log_path=${TRAIN_LOG_DIR:-$(pwd)}  # TRAIN_LOG_DIR 后续QA设置该参数
+    run_log_path=${TRAIN_LOG_DIR:-$(pwd)}/scripts/logs  # TRAIN_LOG_DIR 后续QA设置该参数
     popd
     echo ${run_log_path}
 
