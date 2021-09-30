@@ -84,6 +84,7 @@ if __name__ == '__main__':
     # print(args.keyword)
     run_info = dict()
     run_info["log_file"] = args.filename
+    res_log_file = args.jsonname
     run_info["model_name"] = args.model_name
     run_info["mission_name"] = args.mission_name
     run_info["direction_id"] = args.direction_id

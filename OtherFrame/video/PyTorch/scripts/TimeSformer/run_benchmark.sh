@@ -34,7 +34,7 @@ function _set_params(){
 
 function _analysis_log(){
     python3.7 analysis_log.py \
-                --filename TimeSformer_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices} \
+                --filename ${log_file} \
                 --jsonname ${res_log_file} \
                 --keyword "avg_ips:" \
                 --model_name video_TimeSformer_bs${batch_size}_${fp_item} \

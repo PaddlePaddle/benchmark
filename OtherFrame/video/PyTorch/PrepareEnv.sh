@@ -24,23 +24,23 @@ rm -rf run_env #
 mkdir run_env
 ln -s $(which python3.7) run_env/python
 ln -s $(which pip3.7) run_env/pip
-# export PATH=/workspace/run_env:${PATH}
+
 export PATH=PATH=${BENCHMARK_ROOT}/run_env:${PATH}
 
 ################################# 安装框架
 python3.7 -m pip install pip==21.1.1
 echo `python3.7 -m pip --version`
-python3.7 -m pip install numpy>=1.19 -i https://pypi.tuna.tsinghua.edu.cn/simple/
+python3.7 -m pip install "numpy>=1.19" -i https://pypi.tuna.tsinghua.edu.cn/simple/
 python3.7 -m pip install torch==1.8.0+cu102 -f https://download.pytorch.org/whl/torch_stable.html
 python3.7 -m pip install torchvision==0.9.0+cu102 -f https://download.pytorch.org/whl/torch_stable.html
 python3.7 -m pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/index.html
 python3.7 -m pip install jupyterlab  -i https://pypi.tuna.tsinghua.edu.cn/simple/
-python3.7 -m pip install pandas>=1.2 -i https://pypi.tuna.tsinghua.edu.cn/simple/
-python3.7 -m pip install scikit-learn>=0.22 -i https://pypi.tuna.tsinghua.edu.cn/simple/
-python3.7 -m pip install opencv-python>=4.2 -i https://pypi.tuna.tsinghua.edu.cn/simple/
-python3.7 -m pip install pyyaml>=5.1 -i https://pypi.tuna.tsinghua.edu.cn/simple/
-python3.7 -m pip install yacs>=0.1.6 -i https://pypi.tuna.tsinghua.edu.cn/simple/
-python3.7 -m pip install einops>=0.3 -i https://pypi.tuna.tsinghua.edu.cn/simple/
+python3.7 -m pip install "pandas>=1.2" -i https://pypi.tuna.tsinghua.edu.cn/simple/
+python3.7 -m pip install "scikit-learn>=0.22" -i https://pypi.tuna.tsinghua.edu.cn/simple/
+python3.7 -m pip install "opencv-python>=4.2" -i https://pypi.tuna.tsinghua.edu.cn/simple/
+python3.7 -m pip install "pyyaml>=5.1" -i https://pypi.tuna.tsinghua.edu.cn/simple/
+python3.7 -m pip install "yacs>=0.1.6" -i https://pypi.tuna.tsinghua.edu.cn/simple/
+python3.7 -m pip install "einops>=0.3" -i https://pypi.tuna.tsinghua.edu.cn/simple/
 python3.7 -m pip install tensorboard -i https://pypi.tuna.tsinghua.edu.cn/simple/
 python3.7 -m pip install psutil -i https://pypi.tuna.tsinghua.edu.cn/simple/
 python3.7 -m pip install tqdm -i https://pypi.tuna.tsinghua.edu.cn/simple/
@@ -49,15 +49,7 @@ python3.7 -m pip install simplejson -i https://pypi.tuna.tsinghua.edu.cn/simple/
 python3.7 -m pip install fvcore -i https://pypi.tuna.tsinghua.edu.cn/simple/
 python3.7 -m pip install av -i https://pypi.tuna.tsinghua.edu.cn/simple/
 
-
-# git clone https://github.com/HydrogenSulfate/TimeSformer.git # 克隆修改版的竞品repo到本地 benchmark/OtherFrameworks/PyTorch/
-
-# cd TimeSformer # 进入目录
-
-# git checkout dev_benchmark # 切换到修改版的benchmark分支
-
-# python3.7 setup.py build develop # 以包的形式安装
-
+################################# 克隆并安装竞品
 # 根据主项目的配置信息，拉取更新子模块中的代码。
 git submodule init
 git submodule update
@@ -65,6 +57,7 @@ git submodule update
 cd ./models/TimeSformer # 进入./models/TimeSformer目录
 python3.7 setup.py build develop # 以包的形式安装
 cd -
+# echo ${PWD}
 
 
 echo "*******prepare benchmark end***********"
