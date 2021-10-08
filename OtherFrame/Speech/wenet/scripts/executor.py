@@ -91,7 +91,7 @@ class Executor:
                 self.step += 1
 
             train_dur = time.time() - data_start
-            logging.info(f"rank: {rank}, avg_reader_cost: {data_dur}, avg_batch_cost: {train_dur}, avg_samples: {num_utts}, avg_ips: {num_utts/batch_cost}."
+            logging.info(f"rank: {rank}, avg_reader_cost: {data_dur}, avg_batch_cost: {train_dur}, avg_samples: {num_utts}, avg_ips: {num_utts/train_dur}")
 
             if batch_idx % 1 == 0:
                 lr = optimizer.param_groups[0]['lr']
