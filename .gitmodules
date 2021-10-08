@@ -78,3 +78,6 @@
 	path = PaddleGAN
 	url = https://github.com/PaddlePaddle/PaddleGAN.git
 	branch = develop
+[submodule "OtherFrame/detection/PyTorch/models/mmdetection"]
+	path = OtherFrame/detection/PyTorch/models/mmdetection
+	url = https://github.com/open-mmlab/mmdetection.git
