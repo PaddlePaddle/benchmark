@@ -21,7 +21,7 @@ pip install torch==1.9.1+cu102 torchvision==0.10.1+cu102 torchaudio==0.9.1 -f ht
 popd
 
 
-cp scripts/executor.py models/wenet/models/wenet/wenet/utils/
+cp scripts/executor.py models/wenet/wenet/utils/
 
 
 
