@@ -22,6 +22,7 @@ function _set_params(){
     direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     skip_steps=5                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
     keyword="ips:"                  # 解析日志，筛选出数据所在行的关键字                                             (必填)
+    keyword_loss="loss:" #选填
     model_mode=-1                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
     ips_unit="images/s"
 
@@ -56,6 +57,7 @@ function _train(){
         sed -i '/for step_id, data in enumerate(self.loader):/i\            max_step_id = '${max_iter}' #To address max_iter' ppdet/engine/trainer.py
         sed -i '/for step_id, data in enumerate(self.loader):/a\                if step_id == max_step_id: return' ppdet/engine/trainer.py
     fi
+    model_name=${model_name}_bs${base_batch_size}
 
     train_cmd="-c configs/mask_rcnn/mask_rcnn_r50_fpn_1x_coco.yml
                -o epochs=1

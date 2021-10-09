@@ -7,5 +7,17 @@
             "type": "Variable"
         }
     },
-    "repeat": 5000
+    "repeat": 10000,
+    "atol": 1E-5
+}, {
+    "op": "activation",
+    "param_info": {
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 128L, 257L, 257L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000,
+    "atol": 1E-3
 }]

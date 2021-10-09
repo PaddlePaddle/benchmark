@@ -21,6 +21,7 @@ function _set_params(){
     direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     skip_steps=5                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
     keyword="ips:"                  # 解析日志，筛选出数据所在行的关键字                                             (必填)
+    keyword_loss="loss:"
     model_mode=-1
     ips_unit="images/s"
 
@@ -55,6 +56,7 @@ function _train(){
         sed -i '/for step_id, data in enumerate(self.loader):/i\            max_step_id = '${max_iter}' #To address max_iter' ppdet/engine/trainer.py
         sed -i '/for step_id, data in enumerate(self.loader):/a\                if step_id == max_step_id: return' ppdet/engine/trainer.py
     fi
+    model_name=${model_name}_bs${base_batch_size}
 
     if [ $num_gpu_devices -eq 1 ]; then norm_type="bn"; else norm_type="sync_bn"; fi
     train_cmd="-c configs/yolov3/yolov3_darknet53_270e_coco.yml

@@ -23,6 +23,7 @@ function _set_params(){
     direction_id=0
     skip_steps=5
     keyword="ips:"
+    keyword_loss="[92mloss:"
     model_mode=-1
     ips_unit="instance/s"
 
@@ -39,7 +40,8 @@ function _set_params(){
 }
 
 function _train(){
-    train_cmd="-c configs/recognition/tsm/tsm.yaml
+    model_name=${model_name}_bs${base_batch_size}
+    train_cmd="-c configs/recognition/tsm/tsm_ucf101_frames.yaml
                -o MODEL.backbone.pretrained="./ResNet50_pretrain.pdparams"
                -o epochs=${max_epoch}
                -o DATASET.num_workers=8
@@ -51,7 +53,7 @@ function _train(){
         train_cmd="python -B -u main.py "${train_cmd}
     else
         rm -rf ./mylog
-        train_cmd="python -B -m paddle.distributed.launch --gpus="0,1,2,3,4,5,6,7"  --log_dir ./mylog main.py "${train_cmd}
+        train_cmd="python -B -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES  --log_dir ./mylog main.py "${train_cmd}
         log_parse_file="mylog/workerlog.0"
     fi
     
@@ -63,6 +65,8 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
+
     if [ ${run_mode} != "sp"  -a -d mylog ]; then
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}

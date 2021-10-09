@@ -39,7 +39,8 @@
             "shape": "[32L, 12L, 128L, 128L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "config_id": 3,
     "op": "softmax",
@@ -54,7 +55,8 @@
             "type": "Variable"
         }
     },
-    "atol": 1E-3
+    "atol": 1E-3,
+    "repeat": 5000
 }, {
     "config_id": 4,
     "op": "softmax",
@@ -68,7 +70,8 @@
             "shape": "[15L, 16L, 33L, 33L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "config_id": 5,
     "op": "softmax",
@@ -82,7 +85,8 @@
             "shape": "[15L, 16L, 33L, 33L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "config_id": 6,
     "op": "softmax",

@@ -10,15 +10,14 @@ fi
 
 function _set_params(){
     index=$1
+    run_mode=${2:-"sp"} # Use sp for single GPU and mp for multiple GPU.
+    max_epoch=${3:-"1"}
     base_batch_size=128
-    model_name=${4}
+    model_name=${4}_bs${base_batch_size}
     if [ ${4} != "MobileNetV1" ] && [ ${4} != "MobileNetV2" ]; then
             echo "------------> please check the model name!"
             exit 1
     fi
-
-    run_mode=${2:-"sp"} # Use sp for single GPU and mp for multiple GPU.
-    max_epoch=${3:-"1"}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -34,7 +33,7 @@ function _set_params(){
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
-    batch_size=`expr ${num_gpu_devices} \* ${base_batch_size}`
+    batch_size=${base_batch_size}
 
     log_file=${run_log_path}/dynamic_${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/dynamic_${model_name}_3_${num_gpu_devices}_${run_mode}
@@ -44,14 +43,14 @@ function _set_params(){
 }
 
 function _train(){
-    train_cmd="-c ./configs/${model_name}/${model_name}.yaml 
-               -o validate=False
-               -o epochs=${max_epoch}
-               -o print_interval=10
-               -o TRAIN.batch_size=${batch_size}
-               -o TRAIN.data_dir=./dataset/imagenet100_data
-               -o TRAIN.file_list=./dataset/imagenet100_data/train_list_ori.txt
-               -o TRAIN.num_workers=8"
+    train_cmd="-c ./ppcls/configs/ImageNet/${model_name%_bs*}/${model_name%_bs*}.yaml
+               -o Global.epochs=${max_epoch}
+               -o Global.eval_during_train=False
+               -o Global.save_interval=2
+               -o DataLoader.Train.sampler.batch_size=${batch_size}
+               -o DataLoader.Train.dataset.image_root=./dataset/imagenet100_data
+               -o DataLoader.Train.dataset.cls_label_path=./dataset/imagenet100_data/train_list_ori.txt
+               -o DataLoader.Train.loader.num_workers=8"
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u tools/train.py "${train_cmd}
     else

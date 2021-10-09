@@ -11,7 +11,7 @@ fi
 function _set_params(){
     index=$1
     base_batch_size=128
-    model_name="seq2seq"
+    model_name="seq2seq"_bs${base_batch_size}
 
     run_mode="sp"
     max_epoch=${2}
@@ -23,10 +23,10 @@ function _set_params(){
     direction_id=1
     mission_name="文本生成"
     skip_steps=0
-    keyword="avg_batch_cost:"
-    separator=" "
-    position=6
-    model_mode=2 # s/step -> steps/s
+    keyword="ips:"
+    keyword_loss="ppl:"
+    model_mode=-1
+    ips_unit="tokens/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -75,6 +75,11 @@ function _train(){
                      --max_epoch ${max_epoch} \
                      --model_path attention_models"
 
+    sed -i '/dev_ppl = eval(valid_data)/d' train.py
+    sed -i '/print("dev ppl", dev_ppl)/d' train.py
+    sed -i '/test_ppl = eval(test_data)/d' train.py
+    sed -i '/print("test ppl", test_ppl)/d' train.py
+
     timeout 15m python -u train.py ${train_cmd_de_en} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
@@ -83,6 +88,7 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
