@@ -39,11 +39,15 @@ function _train(){
         fcos) model_yml="configs/fcos/fcos_center-normbbox-centeronreg-giou_r50_caffe_fpn_gn-head_1x_coco.py" ;;
         deformable_detr) model_yml="configs/deformable_detr/deformable_detr_r50_16x2_50e_coco.py" ;;
         gfl) model_yml="configs/gfl/gfl_r50_fpn_1x_coco.py" ;;
+        solov2) model_yml="configs/solov2/solov2_r50_fpn_8gpu_1x.py" ;;
+        hrnet) model_yml="configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hrnet_w32_coco_256x192.py" ;;
+        higherhrnet) model_yml="configs/body/2d_kpt_sview_rgb_img/associative_embedding/coco/higherhrnet_w32_coco_512x512.py" ;;
         *) echo "Undefined model_name"; exit 1;
     esac
 
     set_batch_size="data.samples_per_gpu=${batch_size}"
     set_max_epoch="runner.max_epochs=${max_epoch}"
+    set_max_epoch_pose="total_epochs=${max_epoch}"
     set_log_iter="log_config.interval=5"
     if [ ${fp_item} = "fp16" ]; then
         set_fp_item="fp16.loss_scale=512."
@@ -51,14 +55,18 @@ function _train(){
         set_fp_item=" "
     fi
 
+    if [ ${model_name} = "solov2" ]; then
+        train_cmd=""
+    else
+        train_cmd="--no-validate \
+            --cfg-options ${set_max_epoch_pose} ${set_fp_item} ${set_batch_size} ${set_max_epoch} ${set_log_iter}"
+    fi
     case ${run_mode} in
-        sp) train_cmd="python -u tools/train.py ${model_yml} --no-validate \
-            --options ${set_fp_item} ${set_batch_size} ${set_max_epoch} ${set_log_iter}" ;;
-        mp) train_cmd="bash ./tools/dist_train.sh ${model_yml} 8 --no-validate \
-            --options ${set_fp_item} ${set_batch_size} ${set_max_epoch} ${set_log_iter}";;
+        sp) train_cmd="python -u tools/train.py ${model_yml} ${train_cmd}";;
+        mp) train_cmd="bash ./tools/dist_train.sh ${model_yml} 8 ${train_cmd}";;
         *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
-#
+
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"

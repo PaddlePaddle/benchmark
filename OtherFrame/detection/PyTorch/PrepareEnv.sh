@@ -27,11 +27,11 @@ ln -s $(which pip3.7) run_env/pip
 export PATH=/workspace/run_env:${PATH}
 
 ################################# 安装框架 如:
-python3.7 -m pip install -U pip
-echo `python3.7 -m pip --version`
-pip3.7 install torch==1.9.1+cu102 -f https://download.pytorch.org/whl/torch_stable.html
-pip3.7 install torchvision==0.10.1+cu102 -f https://download.pytorch.org/whl/torch_stable.html
-pip3.7 install openmim
+python -m pip install -U pip
+echo `python -m pip --version`
+pip install torch==1.9.1+cu102 -f https://download.pytorch.org/whl/torch_stable.html
+pip install torchvision==0.10.1+cu102 -f https://download.pytorch.org/whl/torch_stable.html
+pip install openmim
 mim install mmdet
 
 ################################# 克隆并安装竞品
@@ -40,9 +40,22 @@ git submodule init
 git submodule update
 
 ################################# 准备训练数据 如:
+wget -nc -P ${BENCHMARK_ROOT}/data/coco/ https://paddledet.bj.bcebos.com/data/coco_benchmark.tar
 cd ${BENCHMARK_ROOT}/models/mmdetection
 mkdir -p data/coco
-wget -nc -P ./data/coco/ https://paddledet.bj.bcebos.com/data/coco_benchmark.tar
+cp  ${BENCHMARK_ROOT}/data/coco/coco_benchmark.tar data/coco
+cd ./data/coco/ && tar -xvf coco_benchmark.tar && mv -u coco_benchmark/* .
+rm -rf coco_benchmark/
+
+cd ${BENCHMARK_ROOT}/models/mmpose
+mkdir -p data/coco
+cp  ${BENCHMARK_ROOT}/data/coco/coco_benchmark.tar data/coco
+cd ./data/coco/ && tar -xvf coco_benchmark.tar && mv -u coco_benchmark/* .
+rm -rf coco_benchmark/
+
+cd ${BENCHMARK_ROOT}/models/SOLO
+mkdir -p data/coco
+cp  ${BENCHMARK_ROOT}/data/coco/coco_benchmark.tar data/coco
 cd ./data/coco/ && tar -xvf coco_benchmark.tar && mv -u coco_benchmark/* .
 rm -rf coco_benchmark/
 cd ${BENCHMARK_ROOT}
