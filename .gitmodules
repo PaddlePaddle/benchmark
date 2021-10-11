@@ -79,5 +79,5 @@
 	url = https://github.com/PaddlePaddle/PaddleGAN.git
 	branch = develop
 [submodule "OtherFrame/Speech/wenet/models/wenet"]
-	path = OtherFrame/Speech/wenet/models/wenet
+	path = OtherFrame/Speech/Pytorch/wenet/models/wenet
 	url = https://github.com/wenet-e2e/wenet
