@@ -141,7 +141,7 @@ def compare():
                             print("{}, FAIL".format(model))
                             print("Final loss of model {} has been increased from {} to {},"
                                   " which is greater than threashold"
-                                  .format(model, loss_standard_result, standard_result, loss_result))
+                                  .format(model, loss_standard_result, loss_result))
                     else:
                         print("{}, Precision_test, SUCCESS".format(model))
                         

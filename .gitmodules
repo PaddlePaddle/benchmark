@@ -81,3 +81,6 @@
 [submodule "OtherFrame/video/PyTorch/models/TimeSformer"]
 	path = OtherFrame/video/PyTorch/models/TimeSformer
 	url = https://github.com/HydrogenSulfate/TimeSformer.git
+[submodule "OtherFrame/seg/PyTorch/models/mmseg"]
+	path = OtherFrame/seg/PyTorch/models/mmseg
+	url = https://github.com/open-mmlab/mmsegmentation.git
