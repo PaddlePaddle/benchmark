@@ -1,4 +1,4 @@
-# Speech PyTorch 性能复现
+# Speech PWGAN PyTorch 性能复现
 ## 目录 
 ```
 ├── PrepareEnv.sh   # 竞品PyTorch运行环境搭建  
