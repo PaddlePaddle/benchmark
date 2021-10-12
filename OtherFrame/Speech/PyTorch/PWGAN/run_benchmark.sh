@@ -56,7 +56,7 @@ function _train(){
     esac
     echo "$train_cmd"
     pushd ParallelWaveGAN/egs/csmsc/voc1
-    timeout 15m ${train_cmd}
+    timeout 15m ${train_cmd} > ${log_file} 2>&1
     mv exp/train_nodev_csmsc_parallel_wavegan.v1/train.log ${log_file}
     popd
     if [ $? -ne 0 ];then
