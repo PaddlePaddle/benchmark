@@ -81,3 +81,6 @@
 [submodule "OtherFrame/seg/PyTorch/models/mmseg"]
 	path = OtherFrame/seg/PyTorch/models/mmseg
 	url = https://github.com/open-mmlab/mmsegmentation.git
+[submodule "OtherFrame/clas/mxnet/models/gluon-cv"]
+	path = OtherFrame/clas/mxnet/models/gluon-cv
+	url = https://github.com/dmlc/gluon-cv.git
