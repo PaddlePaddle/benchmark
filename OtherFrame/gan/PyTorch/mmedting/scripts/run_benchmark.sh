@@ -17,8 +17,8 @@ function _set_params(){
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
-    log_file=${run_log_path}/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}
-    res_log_file=${run_log_path}/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}_speed
+    log_file=${run_log_path}/${model_name}_${fp_item}_${num_gpu_devices}
+    res_log_file=${run_log_path}/${model_name}_${fp_item}_${num_gpu_devices}_speed
 }
 
 function _analysis_log(){
@@ -32,16 +32,16 @@ function _train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
     train_config="mmedi_benchmark_configs/${model_name}.py"
-    train_options="--no-validate \
-                   --options log_config.interval=10 \
-                   total_iters=${max_iter} \
-                   data.samples_per_gpu=${batch_size}  \
-                   data.workers_per_gpu=${num_workers}"
+    train_options="--no-validate "
 
     case ${run_mode} in
-    sp) train_cmd="python tools/train.py ${train_config} ${train_options}" ;;
+    sp) train_cmd="./tools/dist_train.sh ${train_config} 1 ${train_options}" ;;
     mp)
-        train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" ;;
+        case ${model_name} in
+        basicvsr_mp_bs2|basicvsr_mp_bs4) train_cmd="./tools/dist_train.sh ${train_config} 4 ${train_options}" ;;
+        *) train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}"
+        esac
+        ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 

@@ -78,6 +78,6 @@
 	path = PaddleGAN
 	url = https://github.com/PaddlePaddle/PaddleGAN.git
 	branch = develop
-[submodule "OtherFrame/gan/PyTorch/models/mmedi"]
-	path = OtherFrame/gan/PyTorch/models/mmedi
+[submodule "OtherFrame/gan/PyTorch/mmedting/models/mmedi"]
+	path = OtherFrame/gan/PyTorch/mmedting/models/mmedi
 	url = https://github.com/open-mmlab/mmediting.git

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# 公共配置文件,配置python 安装pytorch,运行目录:/workspace (起容器的时候映射的目录:benchmark/OtherFrameworks/gan/PyTorch/)
+# 公共配置文件,配置python 安装pytorch,运行目录:/workspace (起容器的时候映射的目录:benchmark/OtherFrameworks/gan/PyTorch/mmedting)
 echo "*******prepare benchmark***********"
 
 ################################# 创建一些log目录,如:
@@ -37,9 +37,6 @@ pip install mmcv-full==1.3.13 -f https://download.openmmlab.com/mmcv/dist/cu102/
 cd /workspace/models/mmedi
 pip install -r requirements.txt
 pip install -v -e .
-
-wget https://paddlegan.bj.bcebos.com/benchmark/mmedi/mmedi_benchmark_configs.tar
-tar -vxf mmedi_benchmark_configs.tar
 
 ################################# 准备训练数据 如:
 mkdir -p data

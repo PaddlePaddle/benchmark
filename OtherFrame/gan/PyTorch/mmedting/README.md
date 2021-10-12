@@ -46,20 +46,21 @@ docker pull ${ImageName}
 run_cmd="cp /workspace/scripts/PrepareEnv.sh ./;
          bash PrepareEnv.sh;
          cd /workspace/models/mmedi;
+         cp -r /workspace/mmedi_benchmark_configs ./;
          cp /workspace/scripts/run_benchmark.sh ./;
          cp /workspace/scripts/analysis_log.py ./;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan sp fp32 32 300 4;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan sp fp32 64 300 4;
-         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan mp fp32 32 300 4;
-         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan mp fp32 64 300 4;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr sp fp32 4 300 3;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr sp fp32 64 300 3;
-         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr mp fp32 4 300 3;
-         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr mp fp32 64 300 3;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr sp fp32 2 300 4;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr sp fp32 4 300 4;
-         CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr mp fp32 2 300 4;
-         CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr mp fp32 4 300 4;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan_sp_bs32 sp fp32 32 300 4;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan_sp_bs64 sp fp32 64 300 4;
+         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan_mp_bs32 mp fp32 32 300 4;
+         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan_mp_bs64 mp fp32 64 300 4;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr_sp_bs4 sp fp32 4 300 3;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr_sp_bs64 sp fp32 64 300 3;
+         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr_mp_bs4 mp fp32 4 300 3;
+         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr_mp_bs64 mp fp32 64 300 3;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr_sp_bs2 sp fp32 2 300 4;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr_sp_bs4 sp fp32 4 300 4;
+         CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr_mp_bs2 mp fp32 2 300 4;
+         CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr_mp_bs4 mp fp32 4 300 4;
          "
 
 nvidia-docker run --name test_torch_gan -it  \
@@ -79,15 +80,15 @@ nvidia-docker rm test_torch_gan
 ```bash
 {
 "log_file": "/workspace/models/mmedi/esrgan_sp_bs32_fp32_1", \    # log 目录,创建规范见PrepareEnv.sh 
-"model_name": "esrgan", \       # 模型case名,创建规范:repoName_模型名_bs${bs_item}_${fp_item} 
-"mission_name": "图像生成", \    # 模型case所属任务名称，具体可参考scripts/config.ini      
-"direction_id": 0, \            # 模型case所属方向id,0:CV|1:NLP|2:Rec 具体可参考benchmark/scripts/config.ini    
-"run_mode": "sp", \             # 单卡:sp|多卡:mp
-"index": 1, \                   # 速度验证默认为1
-"gpu_num": 1, \                 # 1|8
-"FINAL_RESULT": 75.655, \       # 速度计算后的平均值,需要skip掉不稳定的前几步值
-"JOB_FAIL_FLAG": 0, \           # 该模型case运行0:成功|1:失败
-"UNIT": "images/s" \            # 速度指标的单位 
+"model_name": "esrgan_sp_bs32", \    # 模型case名,创建规范:repoName_模型名_bs${bs_item}_${fp_item} 
+"mission_name": "图像生成", \         # 模型case所属任务名称，具体可参考scripts/config.ini      
+"direction_id": 0, \                 # 模型case所属方向id,0:CV|1:NLP|2:Rec 具体可参考benchmark/scripts/config.ini    
+"run_mode": "sp", \                  # 单卡:sp|多卡:mp
+"index": 1, \                        # 速度验证默认为1
+"gpu_num": 1, \                      # 1|8
+"FINAL_RESULT": 75.655, \            # 速度计算后的平均值,需要skip掉不稳定的前几步值
+"JOB_FAIL_FLAG": 0, \                # 该模型case运行0:成功|1:失败
+"UNIT": "images/s" \                 # 速度指标的单位 
 }
 ```
 
