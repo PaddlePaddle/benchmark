@@ -11,4 +11,5 @@ python analysis.py \
     --gpu_num 8 \
     --use_num 480 \
     --separator " " \
+    --direction_id "1"
 

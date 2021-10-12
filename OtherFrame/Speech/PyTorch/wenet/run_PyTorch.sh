@@ -11,13 +11,13 @@ pushd models/wenet/examples/aishell/s0/
 mkdir -p exp/log
 . path.sh
 
-#bash run.sh --data $PWD --stop_stage 3
+bash run.sh --data $PWD --stop_stage 3
 
 # 3 批量运行（如不方便批量，1，2需放到单个模型中）
 
 model_mode_list=(conformer)
 fp_item_list=(fp32)
-bs_item_list=(30)
+bs_item_list=(16)
 for model_mode in ${model_mode_list[@]}; do
       for fp_item in ${fp_item_list[@]}; do
           for bs_item in ${bs_item_list[@]}
@@ -25,7 +25,7 @@ for model_mode in ${model_mode_list[@]}; do
             rm exp -rf
             echo "index is speed, 1gpus, begin, ${model_name}"
             run_mode=sp
-            CUDA_VISIBLE_DEVICES=6 bash ${CUR_DIR}/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 500 ${model_mode}     #  (5min)
+            CUDA_VISIBLE_DEVICES=0 bash ${CUR_DIR}/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 500 ${model_mode}     #  (5min)
             sleep 60
             rm exp -rf
             echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
@@ -38,3 +38,6 @@ done
 
 popd # aishell/s1
 
+mkdir -p log
+bash run_analysis_sp.sh > log/log_sp.out
+bash run_analysis_mp.sh > log/log_mp.out

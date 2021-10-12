@@ -9,7 +9,7 @@
 #conda activate wenet
 
 
-test -d venv || virtualenv -p python3.8 venv
+test -d venv || virtualenv -p python3.7 venv
 source venv/bin/activate
 
 pushd models/wenet
@@ -20,7 +20,7 @@ pip install torch==1.9.1+cu102 torchvision==0.10.1+cu102 torchaudio==0.9.1 -f ht
 
 popd
 
-
+# 替换wenet原始项目当中的executor.py
 cp scripts/executor.py models/wenet/wenet/utils/
 
 
