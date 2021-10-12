@@ -238,11 +238,12 @@ class LossAnalyzer(object):
         with open(self.filename, "r") as f_object:
             lines = f_object.readlines()
             lines.reverse()
+            result_loss = 0
             for line in lines:
                 if self.keyword_loss not in line:
                     continue
                 try:
-                    result_loss = None
+                    result_loss = 0
                     line = line.strip()
                     line_words = line.split(self.separator) if self.separator else line.split()
                     for i in range(len(line_words) - 1):
