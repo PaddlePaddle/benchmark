@@ -189,6 +189,7 @@ function run_models(){
     if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
         RUN_IMAGE_NAME=paddlepaddle/paddle:latest
         docker run -i --rm \
+            -v /home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/monquery:/usr/bin/monquery \
             -e "BENCHMARK_WEBSITE1=${BENCHMARK_WEBSITE1}" \
@@ -212,6 +213,7 @@ function run_models(){
 
         if [ ${device_type} == "A100" ]; then
             nvidia-docker run --runtime=nvidia  --gpus all -i --rm \
+            -v /home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
             -v /usr/bin/monquery:/usr/bin/monquery \
@@ -233,6 +235,7 @@ function run_models(){
             /bin/bash -c "${run_cmd}"
         else
             nvidia-docker run -i --rm \
+            -v /home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
             -v /usr/bin/monquery:/usr/bin/monquery \
