@@ -48,13 +48,13 @@ run_cmd="
         cd /workspace/models/Twins;
         cp /workspace/scripts/Twins_scripts/*.sh ./;
         cp /workspace/scripts/Twins_scripts/analysis_log.py ./;
-	bash PrepareEnv.sh 
-	bash PrepareData.sh;
-	CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 64 fp32 500 alt_gvt_base;
-	CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 176 fp32 500 alt_gvt_base;
-	CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 64 fp32 500 alt_gvt_base;
-	CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 176 fp32 500 alt_gvt_base;
-	mv clas* /workspace/
+        bash PrepareEnv.sh 
+        bash PrepareData.sh;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 64 fp32 500 alt_gvt_base;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 176 fp32 500 alt_gvt_base;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 64 fp32 500 alt_gvt_base;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 176 fp32 500 alt_gvt_base;
+        mv clas* /workspace/
         "
 
 # 启动镜像后测试MobileNetV2, MobileNetV3, ShuffleNetV2, SwinTransformer
