@@ -87,3 +87,6 @@
 [submodule "OtherFrame/detection/PyTorch/models/mmpose"]
 	path = OtherFrame/detection/PyTorch/models/mmpose
 	url = https://github.com/open-mmlab/mmpose.git
+[submodule "OtherFrame/seg/PyTorch/models/mmseg"]
+	path = OtherFrame/seg/PyTorch/models/mmseg
+	url = https://github.com/open-mmlab/mmsegmentation.git

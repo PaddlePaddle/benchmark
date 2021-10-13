@@ -95,7 +95,8 @@ yolov3_bs8(){
     cd ${cur_model_path}
     pip install Cython
     pip install pycocotools
-    pip install -r requirements.txt 
+    pip install -r requirements.txt
+    pip install numpy==1.20.3 
    
     mkdir -p ~/.cache/paddle/weights
     ln -s ${prepare_path}/yolov3/DarkNet53_pretrained ~/.cache/paddle/weights
