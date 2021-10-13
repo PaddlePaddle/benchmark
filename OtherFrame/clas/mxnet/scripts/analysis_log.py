@@ -49,7 +49,7 @@ if __name__ == "__main__":
                                                        args.batch_size,
                                                        args.num_gpu)
     save_content = {}
-    save_content["log_file"] = save_file
+    save_content["log_file"] = args.file
     save_content["model_name"] = "clas_{}_bs{}_fp32".format(
         args.model_name, args.batch_size)
     save_content["mission_name"] = "图像分类"

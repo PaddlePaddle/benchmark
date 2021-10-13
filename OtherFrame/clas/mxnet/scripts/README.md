@@ -8,7 +8,7 @@
 
 - `PrepareEnv.sh`: 配置环境
 - `PrepareData.sh`: 下载相应的测试数据，配置好数据路径
-- `run.sh`: 执行所有训练测试的入口脚本
+- `run_benchmark.sh`: 执行所有训练测试的入口脚本
 - `analysis_log.py`: 解析日志，计算ips, 生成json文件
 
 ## 使用说明
@@ -25,6 +25,10 @@ bash PrepareData.sh
 ### 2.执行所有模型的测试
 
 ```shell
+# 单卡
+ CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp ${batch_size} fp32 500 mobilenet1.0
+# 多卡
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp ${batch_size} fp32 500 mobilenet1.0
 bash run.sh
 ```
 
