@@ -6,9 +6,9 @@ train_cmd_mp="python scripts/classification/imagenet/train_imagenet.py --data-di
 
 mkdir logs
 eval ${train_cmd_sp}
-python benchmark/analysis_log.py -f sp.log -m MobileNetV1 -b 64 -n 1
+python analysis_log.py -f sp.log -m MobileNetV1 -b 64 -n 1
 sleep 20
 
 eval ${train_cmd_mp}
-python benchmark/analysis_log.py -f mp.log -m MobileNetV1 -b 64 -n 8
+python analysis_log.py -f mp.log -m MobileNetV1 -b 64 -n 8
 mv clas* logs/
