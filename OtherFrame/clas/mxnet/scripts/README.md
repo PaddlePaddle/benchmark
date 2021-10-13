@@ -19,7 +19,7 @@
 
 ```shell
 bash PrepareEnv.sh
-bash PrepareData.sh ${data_url}
+bash PrepareData.sh
 ```
 
 ### 2.执行所有模型的测试
