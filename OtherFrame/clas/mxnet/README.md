@@ -1,10 +1,8 @@
-# NGC PyTorch 性能复现
-## 本readme仅为示例,相关内容请勿更新到此, NLP_demo也仅为示例
 ## 目录 
 
 ├── README.md       # 运行文档  
-├── models          # 提供竞品PyTorch框架的修改后的模型,官方模型请直接在脚本中拉取,统一方向的模型commit应一致,如不一致请单独在模型运行脚本中写明运行的commit  
-├── run_mxnet.sh  # 全量竞品PyTorch框架模型运行脚本  
+├── models          # 提供竞品Mxnet框架的修改后的模型,官方模型请直接在脚本中拉取,统一方向的模型commit应一致,如不一致请单独在模型运行脚本中写明运行的commit  
+├── run_mxnet.sh  # 全量竞品mxnet框架模型运行脚本  
 └── scripts         # 提供各个模型复现性能的脚本  
 ## 环境介绍
 ### 1.物理机环境
@@ -38,6 +36,7 @@ run_cmd="bash PrepareEnv.sh;
         cd /workspace/models/gluon-cv/;
         cp /workspace/scripts/*.sh ./;
         cp /workspace/scripts/analysis_log.py ./;
+	bash PrepareEnv.sh #请详看shell脚本,可能需要手动执行
 	bash PrepareData.sh;
 	bash run.sh;
 	mv clas* /workspace/
@@ -51,15 +50,15 @@ nvidia-docker run --name test_mxnet -it  \
 
 ```
 ## 单个模型脚本目录
-
-└── gluon-cv                   # 模型名  
-    ├── README.md              # 运行文档  
-    ├── analysis_log.py        # log解析脚
-    ├── logs                   # 训练log
-    │   ├── clas_MobileNetV1_sp_bs64_fp32_1_speed  # 单卡数据  
-    │   └── clas_MobileNetV1_mp_bs64_fp32_8_speed  # 8卡数据  
-    ├── PrepareData.sh         # 数据处理  
-    └── run.sh       # 运行脚本（包含性能、收敛性）  
+├── scripts
+│   ├── analysis_log.py
+│   ├── logs
+│   │   ├── clas_MobileNetV1_mp_bs64_fp32_8_speed
+│   │   └── clas_MobileNetV1_sp_bs64_fp32_1_speed
+│   ├── PrepareData.sh
+│   ├── README.md
+│   └── run.sh
+└── tree.md
 
 ## 输出
 
