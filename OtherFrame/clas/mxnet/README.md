@@ -49,16 +49,6 @@ nvidia-docker run --name test_mxnet -it  \
     ${ImageName}  /bin/bash -c "${run_cmd}"
 
 ```
-## 单个模型脚本目录
-├── scripts
-│   ├── analysis_log.py
-│   ├── logs
-│   │   ├── clas_MobileNetV1_mp_bs64_fp32_8_speed
-│   │   └── clas_MobileNetV1_sp_bs64_fp32_1_speed
-│   ├── PrepareData.sh
-│   ├── README.md
-│   └── run.sh
-└── tree.md
 
 ## 输出
 
