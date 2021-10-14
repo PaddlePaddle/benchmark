@@ -81,3 +81,6 @@
 [submodule "OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN"]
 	path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
 	url = git@github.com:yt605155624/ParallelWaveGAN.git
+[submodule "OtherFrame/seg/PyTorch/models/mmseg"]
+	path = OtherFrame/seg/PyTorch/models/mmseg
+	url = https://github.com/open-mmlab/mmsegmentation.git
