@@ -40,8 +40,8 @@ function _train(){
         deformable_detr) model_yml="configs/deformable_detr/deformable_detr_r50_16x2_50e_coco.py" ;;
         gfl) model_yml="configs/gfl/gfl_r50_fpn_1x_coco.py" ;;
         solov2) model_yml="configs/solov2/solov2_r50_fpn_8gpu_1x.py" ;;
-        hrnet) model_yml="configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hrnet_w32_coco_256x192.py" ;;
-        higherhrnet) model_yml="configs/body/2d_kpt_sview_rgb_img/associative_embedding/coco/higherhrnet_w32_coco_512x512.py" ;;
+        hrnet_w32_keypoint) model_yml="configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hrnet_w32_coco_256x192.py" ;;
+        higherhrnet_w32) model_yml="configs/body/2d_kpt_sview_rgb_img/associative_embedding/coco/higherhrnet_w32_coco_512x512.py" ;;
         *) echo "Undefined model_name"; exit 1;
     esac
 
