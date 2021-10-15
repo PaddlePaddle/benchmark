@@ -78,3 +78,11 @@
 	path = PaddleGAN
 	url = https://github.com/PaddlePaddle/PaddleGAN.git
 	branch = develop
+[submodule "OtherFrame/gan/PyTorch/models/fomm"]
+        path = OtherFrame/gan/PyTorch/fomm
+        url = https://github.com/lzzyzlbb/first-order-model
+        branch = develop
+[submodule "OtherFrame/gan/PyTorch/models/StyleGANv2"]
+        path = OtherFrame/gan/PyTorch/styleganv2
+        url = https://github.com/lzzyzlbb/stylegan2-pytorch
+        branch = develop
