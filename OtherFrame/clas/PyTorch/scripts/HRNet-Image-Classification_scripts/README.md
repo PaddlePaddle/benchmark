@@ -8,7 +8,7 @@
 
 - `PrepareEnv.sh`: 配置环境
 - `PrepareData.sh`: 并下载相应的测试数据，配置好数据路径
-- `run.sh`: 执行所有训练测试的入口脚本
+- `run_benchmark.sh`: 执行所有训练测试的入口脚本
 
 ## 使用说明
 
@@ -24,7 +24,10 @@ bash PrepareData.sh
 ### 2.执行所有模型的测试
 
 ```shell
-bash run.sh
+#多卡
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash benchmark/run_benchmark.sh mp 2 fp32 HRNet48C
+#单卡
+CUDA_VISIBLE_DEVICES=0 bash benchmark/run_benchmark.sh sp 2 fp32 HRNet48C
 ```
 
 ## ips计算方法
