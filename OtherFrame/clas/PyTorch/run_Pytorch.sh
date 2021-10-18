@@ -35,8 +35,31 @@ run_cmd="
         cp /workspace/scripts/mmclassification_scripts/analysis_log.py ./;
 	bash PrepareEnv.sh 
 	bash PrepareData.sh;
-	bash run_all.sh;
-	mv clas* /workspace/
+
+	# for MobileNetV2
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 64 fp32 MobileNetV2 configs/mobilenet_v2/mobilenet_v2_b32x8_imagenet.py;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 64 fp32 MobileNetV2 configs/mobilenet_v2/mobilenet_v2_b32x8_imagenet.py;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 544 fp32 MobileNetV2 configs/mobilenet_v2/mobilenet_v2_b32x8_imagenet.py;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 544 fp32 MobileNetV2 configs/mobilenet_v2/mobilenet_v2_b32x8_imagenet.py;
+        mv clas* /workspace/;
+	# for ShuffleNetV2
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 256 fp32 ShuffleNetV2 configs/shufflenet_v2/shufflenet_v2_1x_b64x16_linearlr_bn_nowd_imagenet.py;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 256 fp32 ShuffleNetV2 configs/shufflenet_v2/shufflenet_v2_1x_b64x16_linearlr_bn_nowd_imagenet.py;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 1536 fp32 ShuffleNetV2 configs/shufflenet_v2/shufflenet_v2_1x_b64x16_linearlr_bn_nowd_imagenet.py;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 1536 fp32 ShuffleNetV2 configs/shufflenet_v2/shufflenet_v2_1x_b64x16_linearlr_bn_nowd_imagenet.py;
+        mv clas* /workspace/;
+	# for SwinTransformer
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 64 fp32 SwinTransformer configs/swin_transformer/swin_base_224_b16x64_300e_imagenet.py;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 64 fp32 SwinTransformer configs/swin_transformer/swin_base_224_b16x64_300e_imagenet.py;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 104 fp32 SwinTransformer configs/swin_transformer/swin_base_224_b16x64_300e_imagenet.py;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 104 fp32 SwinTransformer configs/swin_transformer/swin_base_224_b16x64_300e_imagenet.py;
+	mv clas* /workspace/;
+	# for MobileNetV3_large_x1_0
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 256 fp32 MobileNetV3Large1.0 configs/mobilenet_v3/mobilenet_v3_large_imagenet.py;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 256 fp32 MobileNetV3Large1.0 configs/mobilenet_v3/mobilenet_v3_large_imagenet.py;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 640 fp32 MobileNetV3Large1.0 configs/mobilenet_v3/mobilenet_v3_large_imagenet.py;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 640 fp32 MobileNetV3Large1.0 configs/mobilenet_v3/mobilenet_v3_large_imagenet.py;
+	mv clas* /workspace/;
         "
 
 

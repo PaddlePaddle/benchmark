@@ -9,7 +9,7 @@
 - `PrepareEnv.sh`: 配置环境
 - `PrepareData.sh`: 下载相应的测试数据，配置好数据路径
 - `run_benchmark.sh`: 执行单独一个训练测试的脚本，具体调用方式，可查看脚本注释
-- `run_all.sh`: 执行所有训练测试的入口脚本
+- `run_all.sh`: 测试示例
 
 ## 使用说明
 

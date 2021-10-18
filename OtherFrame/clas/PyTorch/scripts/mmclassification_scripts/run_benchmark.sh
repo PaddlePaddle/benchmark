@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -xe
+set -x
 # 运行示例：CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${model_mode} ${config_path}
 # 参数说明
 function _set_params(){
@@ -21,9 +21,9 @@ function _train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
     case ${run_mode} in
-    sp) train_cmd="python tools/train.py ${config_path} --no-validate";;
+    sp) train_cmd="python tools/train.py ${config_path} --no-validate --cfg-options data.samples_per_gpu=${batch_size}";;
     mp)
-        train_cmd="bash ./tools/dist_train.sh ${config_path} ${num_gpu_devices}";;
+	train_cmd="python -m torch.distributed.launch --nproc_per_node=${num_gpu_devices} --master_port=29500 ./tools/train.py ${config_path} --no-validate --cfg-options data.samples_per_gpu=${batch_size} --launcher pytorch";;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
@@ -41,4 +41,6 @@ function _train(){
 }
 
 _set_params $@
+rm -rf work_dirs
 _train
+python analysis_log.py -d work_dirs -m ${model_name} -b ${batch_size} -n ${num_gpu_devices}
