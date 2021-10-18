@@ -21,6 +21,7 @@ function _set_params(){
     direction_id=0
     skip_steps=5
     keyword="ips:"
+    keyword_loss="loss:"
     model_mode=-1
     ips_unit="images/s"
 

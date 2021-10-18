@@ -28,6 +28,7 @@ function _set_params(){
         skip_steps=3
     fi
     keyword="ips:"
+    keyword_loss="loss:"
     model_mode=-1
     ips_unit="images/s"
 
