@@ -31,7 +31,7 @@ BasicVSR模型竞品torch模型只能测4卡，故这里只测4卡。
 ## 测试步骤
 
 ```bash
-bash run_PyTorch.sh;     # 创建容器,在该标准环境中测试模型   
+bash run_PyTorch.sh     # 创建容器,在该标准环境中测试模型   
 ```
 
 如果在docker内部按住torch等框架耗时很久，可以设置代理。下载测试数据的时候，需要关闭代理，否则下载耗时很久。
@@ -49,21 +49,21 @@ run_cmd="cp /workspace/scripts/PrepareEnv.sh ./;
          cp -r /workspace/mmedi_benchmark_configs ./;
          cp /workspace/scripts/run_benchmark.sh ./;
          cp /workspace/scripts/analysis_log.py ./;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan_sp_bs32 sp fp32 32 300 4;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan_sp_bs64 sp fp32 64 300 4;
-         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan_mp_bs32 mp fp32 32 300 4;
-         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan_mp_bs64 mp fp32 64 300 4;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr_sp_bs4 sp fp32 4 300 3;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr_sp_bs64 sp fp32 64 300 3;
-         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr_mp_bs4 mp fp32 4 300 3;
-         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr_mp_bs64 mp fp32 64 300 3;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr_sp_bs2 sp fp32 2 300 4;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr_sp_bs4 sp fp32 4 300 4;
-         CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr_mp_bs2 mp fp32 2 300 4;
-         CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr_mp_bs4 mp fp32 4 300 4;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan_sp_bs32 sp fp32 32 300 4;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan_sp_bs64 sp fp32 64 300 4;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan_mp_bs32 mp fp32 32 300 4;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan_mp_bs64 mp fp32 64 300 4;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr_sp_bs4 sp fp32 4 300 3;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr_sp_bs64 sp fp32 64 300 3;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr_mp_bs4 mp fp32 4 300 3;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr_mp_bs64 mp fp32 64 300 3;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr_sp_bs2 sp fp32 2 300 4;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr_sp_bs4 sp fp32 4 300 4;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr_mp_bs2 mp fp32 2 300 4;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr_mp_bs4 mp fp32 4 300 4;
          "
 
-nvidia-docker run --name test_torch_gan -it  \
+nvidia-docker run --name test_torch_gan -i  \
     --net=host \
     --shm-size=128g \
     -v $PWD:/workspace \

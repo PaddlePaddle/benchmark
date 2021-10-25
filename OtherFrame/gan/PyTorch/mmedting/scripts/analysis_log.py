@@ -7,7 +7,7 @@ import sys
 import json
 
 def analyze(model_name, batch_size, log_file, res_log_file):
-    gpu_ids_pat = re.compile(r"gpu_ids = range(.*)")
+    gpu_ids_pat = re.compile(r"GPU (.*):")
     time_pat = re.compile(r"time: (.*), data_time")
 
     logs = open(log_file).readlines()
@@ -23,7 +23,7 @@ def analyze(model_name, batch_size, log_file, res_log_file):
     if gpu_ids_res == [] or time_res == []:
         fail_flag = 1
     else:
-        gpu_num = int(gpu_ids_res[0][4]) - int(gpu_ids_res[0][1])
+        gpu_num = int(gpu_ids_res[0][-1])
         run_mode = "sp" if gpu_num == 1 else "mp"
 
         skip_num = 4
@@ -31,7 +31,7 @@ def analyze(model_name, batch_size, log_file, res_log_file):
         for i in range(skip_num, len(time_res)):
             total_time += float(time_res[i])
         avg_time = total_time / (len(time_res) - skip_num)
-        ips = batch_size * round(1 / avg_time, 3)
+        ips = float(batch_size) * round(1 / avg_time, 3)
 
     info = {"log_file": log_file, "model_name": model_name, "mission_name": "图像生成",
             "direction_id": 0, "run_mode": run_mode, "index": 1, "gpu_num": gpu_num,
