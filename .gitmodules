@@ -84,3 +84,10 @@
 [submodule "OtherFrame/nlp/PyTorch/apex"]
 	path = OtherFrame/nlp/PyTorch/apex
 	url = https://github.com/NVIDIA/apex.git
+[submodule "OtherFrame/seg/PyTorch/models/mmseg"]
+	path = OtherFrame/seg/PyTorch/models/mmseg
+	url = https://github.com/open-mmlab/mmsegmentation.git
+[submodule "OtherFrame/gan/PyTorch/mmedting/models/mmedi"]
+	path = OtherFrame/gan/PyTorch/mmedting/models/mmedi
+	url = https://github.com/open-mmlab/mmediting.git
+
