@@ -8,7 +8,7 @@ function _set_params(){
     max_iter=${4}       # 如果需要修改代码提前中断
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
 
-    model_name="gpt2-en"
+    model_name="nlp_gpt"
     mission_name="语义表示"            # 模型所属任务名称，具体可参考scripts/config.ini  必填）
     direction_id=1                   # 任务所属方向，0：CV，1：NLP，2：Rec。     (必填)
     ips_unit="tokens/s"
@@ -16,11 +16,13 @@ function _set_params(){
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
-    log_file=${run_log_path}/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}
-    index_log_file=${run_log_path}/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}_speed
+    log_file=${run_log_path}/logs/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}
+    index_log_file=${run_log_path}/logs/index/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}_speed
+
     CHECKPOINT_PATH=${run_log_path}/results/checkpoints
     DATA_PATH=${run_log_path}/data/my-gpt2_text_document
     TOKEN_FILES=${run_log_path}/token_files
+
     export PATH=/workspace/run_env:${PATH}
     echo `python3-config --help`
     # rm /usr/local/bin/python3-config  
@@ -106,7 +108,7 @@ function _analysis_log(){
         --run_mode ${run_mode} \
         --gpu_num ${num_gpu_devices} \
         --ips_unit ${ips_unit} \
-        --time_unit 'ms' 
+        --time_unit 'ms' > ${index_log_file}  
 }
 
 _set_params $@
