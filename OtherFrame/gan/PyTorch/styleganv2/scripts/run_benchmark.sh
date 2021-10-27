@@ -31,9 +31,9 @@ function _train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
     case ${run_mode} in
-    sp) train_cmd="python train.py --batch ${batch_size} data/process " ;;
+    sp) train_cmd="python train.py --batch ${batch_size} data/process  --iter ${max_iter}" ;;
     mp)
-        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --master_port=12345 train.py  --batch ${batch_size} data/process" ;;
+        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --master_port=12345 train.py  --batch ${batch_size} data/process  --iter ${max_iter}" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 

@@ -33,6 +33,7 @@ echo `pip --version`
 
 git clone https://github.com/lzzyzlbb/stylegan2-pytorch
 cd stylegan2-pytorch
+git checkout add_log
 pip install torch==1.3.1
 pip install torchvision==0.4.2
 pip install lmdb

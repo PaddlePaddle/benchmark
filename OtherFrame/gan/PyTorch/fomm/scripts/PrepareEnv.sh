@@ -27,24 +27,23 @@ ln -s $(which pip3.7) run_env/pip
 export PATH=/workspace/run_env:${PATH}
 
 ################################# 安装框架 如:
-export https_proxy=http://172.19.57.45:3128 && export http_proxy=http://172.19.57.45:3128
 
 pip install -U pip
 echo `pip --version`
 
 git clone https://github.com/lzzyzlbb/first-order-model
+git checkout add_log
 cd first-order-model
 pip install -r requirements.txt
+imageio_download_bin ffmpeg
 
 ################################# 准备训练数据 如:
-unset https_proxy
-unset http_proxy
 
 mkdir -p data
 wget https://paddlegan.bj.bcebos.com/datasets/fom_test_data.tar \
     -O data/fom_test_data.tar
 tar -vxf data/fom_test_data.tar -C data/
-mv data/vox_256/ data/vox-png/
+mv data/first_order/Voxceleb/ data/vox-png/
 
 echo "*******prepare benchmark end***********"
 
