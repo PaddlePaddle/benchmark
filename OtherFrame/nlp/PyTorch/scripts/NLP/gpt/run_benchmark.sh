@@ -16,8 +16,8 @@ function _set_params(){
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
-    log_file=${run_log_path}/logs/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}
-    index_log_file=${run_log_path}/logs/index/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}_speed
+    log_file=${run_log_path}/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}
+    index_log_file=${run_log_path}/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}_speed
 
     CHECKPOINT_PATH=${run_log_path}/results/checkpoints
     DATA_PATH=${run_log_path}/data/my-gpt2_text_document
