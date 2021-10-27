@@ -148,6 +148,9 @@ deeplabv3_bs4(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/seg_models/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
 
+    #mkdir output in advance, to avoid confict in multiprocess.
+    rm -rf ./output
+    mkdir ./output
     model_item=deeplabv3 
     bs_item=4
     echo "index is speed, ${model_item} 2gpu begin"
