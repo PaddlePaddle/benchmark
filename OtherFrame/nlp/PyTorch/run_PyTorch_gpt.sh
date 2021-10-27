@@ -20,7 +20,7 @@ run_cmd="
         "
 
 # 启动镜像
-nvidia-docker run --name test_torch_gpt -it  \
+nvidia-docker run --name test_torch_gpt -i  \
     --net=host \
     --shm-size=1g \
     -v $PWD:/workspace \
