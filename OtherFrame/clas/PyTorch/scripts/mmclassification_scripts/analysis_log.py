@@ -27,7 +27,7 @@ def calculate_ips(log_list, batch_size):
     if len(log_list) < 5:
         print('log number is smaller than 5, the ips may be inaccurate!')
     else:
-        log_list = log_list[5:]
+        log_list = log_list[4:]
     time = 0
     for x in log_list:
         time += float(eval(x.strip())["time"])

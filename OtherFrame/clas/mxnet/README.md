@@ -22,6 +22,8 @@
 - **cuDnn 版本**: `8.2.4`
 
 ## 测试步骤
+**注意**：由于使用demo数据，测试速度可能受影响，最好使用完整ImageNet完整数据集进行测试。
+          同时，由于mxnet官方不提供最新的mxnet的官方镜像，使用paddle镜像会报cudnn相关bug。测试时cudnn需要自己手动安装
 ```bash
 bash run_mxnet.sh;     # 创建容器,在该标准环境中测试模型   
 ```
@@ -50,7 +52,8 @@ nvidia-docker run --name test_mxnet -it  \
     --shm-size=1g \
     -v $PWD:/workspace \
     ${ImageName}  /bin/bash -c "${run_cmd}"
-
+nvidia-docker stop test_mxnet
+nvidia-docker rm test_mxnet
 ```
 
 ## 输出

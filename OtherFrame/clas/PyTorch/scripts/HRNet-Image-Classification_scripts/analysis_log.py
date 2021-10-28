@@ -35,7 +35,7 @@ def calculate_ips(log_list, gpu_num):
     if len(log_list) < 5:
         print('log number is smaller than 5, the ips may be inaccurate!')
     else:
-        log_list = log_list[5:]
+        log_list = log_list[4:]
     return sum(log_list) / len(log_list)
 
 

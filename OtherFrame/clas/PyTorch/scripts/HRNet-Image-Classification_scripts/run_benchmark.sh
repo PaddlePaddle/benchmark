@@ -31,7 +31,7 @@ function _train(){
     esac
 
 # 以下不用修改
-    timeout 2m ${train_cmd}
+    timeout 15m ${train_cmd}
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
         export job_fail_flag=1
