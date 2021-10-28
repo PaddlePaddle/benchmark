@@ -33,5 +33,3 @@ pytorch_db_res18_sp_bs16_fp32_0
 pytorch_db_res18_sp_bs8_fp32_0
 ```
 
-
-
