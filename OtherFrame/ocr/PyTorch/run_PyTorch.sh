@@ -3,9 +3,9 @@
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.0.2-gpu-cuda10.1-cudnn7";
 docker pull ${ImageName}
 
-# 启动镜像后测试单个模型
+# 启动镜像后测试PSE模型
 run_cmd="cd /workspace;
-         \cp -f /workspace/scripts/PrepareEnv.sh ./;
+         \cp -f /workspace/PrepareEnv.sh ./;
          bash PrepareEnv.sh;
          cd /workspace/models/PSENet/;
          pip3.7 install -r requirement.txt;
