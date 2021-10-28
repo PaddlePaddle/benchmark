@@ -86,4 +86,4 @@
 	url = https://github.com/open-mmlab/mmediting.git
 [submodule "OtherFrame/ocr/PyTorch/PSENet/"]
 	path = OtherFrame/ocr/PyTorch/models/PSENet/
-	url = https://github.com/WenmuZhou/PSENet
+	url = https://github.com/WenmuZhou/PSENet.git
