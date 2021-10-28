@@ -27,8 +27,11 @@ ln -s $(which pip3.7) run_env/pip3
 export PATH=/workspace/run_env:${PATH}
 
 ################################# 安装框架 如:
-pip3 install -U pip
+pip3 install -U pip -i https://mirror.baidu.com/pypi/simple
 echo `pip --version`
+pip3 install pqi -i https://mirror.baidu.com/pypi/simple
+pqi add baidu https://mirror.baidu.com/pypi/simple
+pqi use baidu
 
 pip3 install torch==1.7.1+cu101 torchvision==0.8.2+cu101 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
 
