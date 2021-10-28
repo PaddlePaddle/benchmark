@@ -26,11 +26,11 @@ function _train(){
     rm -rf checkpoints/
     # 如需开启特殊优化flag、参数请注明
 
-    train_cmd="config/psenet/psenet_r50_ic15_736.py --cfg_options data.batch_size=${batch_size} train_cfg.epoch=${max_iter}"
+    train_cmd="config/psenet/psenet_r50_ic15_736.py --cfg-options data.batch_size=${batch_size} train_cfg.epoch=${max_iter} model.backbone.pretrained=False"
     case ${run_mode} in
-    sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
+    sp) train_cmd="python3.7 train.py "${train_cmd} ;;
     mp)
-        train_cmd="python -u tools/train.py "${train_cmd} ;;
+        train_cmd="python3.7 train.py "${train_cmd} ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
     
