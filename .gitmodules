@@ -94,3 +94,12 @@
 [submodule "OtherFrame/gan/PyTorch/mmedting/models/mmedi"]
 	path = OtherFrame/gan/PyTorch/mmedting/models/mmedi
 	url = https://github.com/open-mmlab/mmediting.git
+[submodule "OtherFrame/gan/PyTorch/models/fomm"]
+        path = OtherFrame/gan/PyTorch/fomm
+        url = https://github.com/lzzyzlbb/first-order-model
+        branch = develop
+[submodule "OtherFrame/gan/PyTorch/models/StyleGANv2"]
+        path = OtherFrame/gan/PyTorch/styleganv2
+        url = https://github.com/lzzyzlbb/stylegan2-pytorch
+        branch = develop
+
