@@ -21,6 +21,7 @@ function _set_params(){
     direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     skip_steps=5                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
     keyword="ips:"                  # 解析日志，筛选出数据所在行的关键字                                             (必填)
+    keyword_loss="loss:"
     model_mode=-1
     ips_unit="images/s"
 
