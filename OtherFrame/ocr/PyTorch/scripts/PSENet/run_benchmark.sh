@@ -42,7 +42,6 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
-    kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then
         rm ${log_file}
@@ -51,7 +50,7 @@ function _train(){
 }
 
 function _analysis_log(){
-    analysis_cmd="python3.7 benchmark/analysis.py --filename ${log_file}  --mission_name ${model_name} --run_mode ${run_mode} --direction_id 0 --keyword 'ips:' --base_batch_size ${batch_size} --skip_steps 1 --gpu_num ${num_gpu_devices}  --index 1  --model_mode=-1  --ips_unit=samples/sec"
+    analysis_cmd="python3.7 analysis_log.py --filename ${log_file}  --mission_name ${model_name} --run_mode ${run_mode} --direction_id 0 --keyword 'ips:' --base_batch_size ${batch_size} --skip_steps 1 --gpu_num ${num_gpu_devices}  --index 1  --model_mode=-1  --ips_unit=samples/sec"
     eval $analysis_cmd
 }
 
