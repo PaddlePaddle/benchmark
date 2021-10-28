@@ -17,8 +17,7 @@ run_cmd="cd /workspace;
          CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 64 fp32 2;
         "
 
-nvidia-docker run --name test_torch_ocr -itd --net=host --shm-size=128g -v $PWD:/workspace ${ImageName} /bin/bash -c "${run_cmd}"
-
+nvidia-docker run --name test_torch_ocr -it --net=host --shm-size=128g -v $PWD:/workspace ${ImageName} /bin/bash -c "${run_cmd}"
 
 nvidia-docker stop test_torch_ocr
 nvidia-docker rm test_torch_ocr 
