@@ -14,7 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn)
+#cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn)
+cur_model_list=(dy_seg_q4)
+
+dy_seg_q4(){
+    cd ${ROOT_PATH}/
+    cp -r /ssd3/guomengmeng01/test_jp/seg_jp_0927/paddle_seg/PaddleSeg ./
+#    git clone https://github.com/PaddlePaddle/PaddleSeg.git -b develop
+    cur_model_path=${ROOT_PATH}/PaddleSeg
+    cd ${cur_model_path}
+    bash benchmark/run_all.sh
+}
+
 
 #run_bert
 dy_bert(){

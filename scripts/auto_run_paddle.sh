@@ -85,7 +85,9 @@ function prepare(){
     mkdir -p ${ROOT_PATH}
     cd ${ROOT_PATH}
     rm -rf *
-    git clone https://github.com/PaddlePaddle/benchmark.git --recursive
+    # 拉私有库进行调试
+#    git clone https://github.com/PaddlePaddle/benchmark.git --recursive
+    git clone https://github.com/mmglove/benchmark.git -b jp_seg_test --recursive
     mkdir -p ${log_path}
     echo "****************${implement_type} prepare had done*****************"
 
