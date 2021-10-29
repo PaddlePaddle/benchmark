@@ -19,7 +19,7 @@ cur_model_list=(dy_seg_q4)
 
 dy_seg_q4(){
     cd ${ROOT_PATH}/
-    cp -r /ssd3/guomengmeng01/test_jp/seg_jp_0927/paddle_seg/PaddleSeg ./
+    cp -r /ssd2/benchmark_material/temp_gmm/PaddleSeg ./
 #    git clone https://github.com/PaddlePaddle/PaddleSeg.git -b develop
     cur_model_path=${ROOT_PATH}/PaddleSeg
     cd ${cur_model_path}
