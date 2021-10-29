@@ -162,6 +162,10 @@ function run(){
 function save(){
     unset http_proxy
     unset https_proxy
+    echo "#################log_path################"
+    ls ${log_path}
+    cp -r ${log_path}/* ${save_log_dir}/index
+############
     mv ${log_path} ${save_log_dir}/index
     ln -s ${all_path}/env/bin/python /usr/local/bin/mypython
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${all_path}/env/lib/
