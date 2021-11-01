@@ -73,11 +73,15 @@ function prepare(){
     mkdir -p ${PROFILER_LOG_DIR}
 
     train_log_dir=${save_log_dir}/train_log
+    # speed log
+    export log_path=${save_log_dir}/index
+    mkdir -p ${log_path}
+    echo "#################log_path:################" ${log_path}
+
     # mkdir -p ${train_log_dir}
 
     export ROOT_PATH=/home/crim
     export BENCHMARK_ROOT=${ROOT_PATH}/benchmark
-    log_path=${BENCHMARK_ROOT}/${implement_type}/logs
     data_path=${all_path}/dataset
     prepare_path=${all_path}/prepare
 
@@ -88,7 +92,7 @@ function prepare(){
     # 拉私有库进行调试
 #    git clone https://github.com/PaddlePaddle/benchmark.git --recursive
     git clone https://github.com/mmglove/benchmark.git -b jp_seg_test --recursive
-    mkdir -p ${log_path}
+
     echo "****************${implement_type} prepare had done*****************"
 
     cd ${BENCHMARK_ROOT}
@@ -162,11 +166,9 @@ function run(){
 function save(){
     unset http_proxy
     unset https_proxy
-    echo "#################log_path################"
+    echo "#################log_path:################" ${log_path}
     ls ${log_path}
-    cp -r ${log_path}/* ${save_log_dir}/index
-############
-    mv ${log_path} ${save_log_dir}/index
+
     ln -s ${all_path}/env/bin/python /usr/local/bin/mypython
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${all_path}/env/lib/
     cd ${origin_path}
