@@ -14,8 +14,10 @@ run_cmd="
         cp /workspace/analysis.py ./;
         sh preData.sh;
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 8 fp32 200;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 8 fp16 200;
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 16 fp16 200;
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 8 fp32 200;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 8 fp16 200;
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 16 fp16 200;
         "
 
