@@ -76,10 +76,6 @@ function construnct_version(){
         PADDLE_VERSION=${version}'.post'$(echo ${cuda_version} | sed 's/\.//g')${cudnn_version}".${image_branch//-/_}.${image_commit_id6}"
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
     fi
-    #######
-    # 选择特定的paddle包
-#    IMAGE_NAME=paddlepaddle_gpu-0.0.0.2021.1029.142209.post107.develop.89a898-cp37-cp37m-linux_x86_64.whl
-    #######
     PADDLE_DEV_NAME=paddlepaddle/paddle_manylinux_devel:${whl_build_tag}
     echo "-----------------build IMAGE_NAME is: ${IMAGE_NAME}"
     echo "-----------------build PADDLE_DEV_NAME is: ${PADDLE_DEV_NAME}"
