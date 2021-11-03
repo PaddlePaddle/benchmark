@@ -16,13 +16,18 @@
 
 #cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn)
 cur_model_list=(dy_seg_q4)
+if  [ ${RUN_PROFILER} = "PROFILER" ]; then
+    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
+fi
+log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
 
 dy_seg_q4(){
     cd ${ROOT_PATH}/
-    cp -r /ssd2/benchmark_material/temp_gmm/PaddleSeg ./
-#    git clone https://github.com/PaddlePaddle/PaddleSeg.git -b develop
+# 基于自己的PR调试
+    git clone https://github.com/mmglove/PaddleSeg.git -b bk_seg_test
     cur_model_path=${ROOT_PATH}/PaddleSeg
     cd ${cur_model_path}
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
     bash benchmark/run_all.sh
 }
 

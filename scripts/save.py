@@ -418,6 +418,7 @@ def parse_logs(args):
     """
     image_id = get_image_id()
     file_list = load_folder_files(os.path.join(args.log_path, "index"))
+    print("###########3parse_logs:###########", file_list)
     html_results = OrderedDict()
     icafe_results = []
     for k in DICT_INDEX.values():

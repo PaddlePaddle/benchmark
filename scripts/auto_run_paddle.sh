@@ -67,18 +67,14 @@ function prepare(){
     # this for update the log_path coding mat
     export TRAIN_LOG_DIR=${save_log_dir}/train_log
     export PROFILER_LOG_DIR=${save_log_dir}/profiler_log
+    export LOG_PATH_INDEX_DIR=${save_log_dir}/index      # speed log
     export IMPLEMENT_TYPE=${implement_type}
+    export RUN_PROFILER=no_profil  # 需要改成从TC任务中可设置的参数
     
     mkdir -p ${TRAIN_LOG_DIR}
     mkdir -p ${PROFILER_LOG_DIR}
-
-    train_log_dir=${save_log_dir}/train_log
-    # speed log
-    export log_path=${save_log_dir}/index
-    mkdir -p ${log_path}
-    echo "#################log_path:################" ${log_path}
-
-    # mkdir -p ${train_log_dir}
+    mkdir -p ${LOG_PATH_INDEX_DIR}
+    echo "#################LOG_PATH_INDEX_DIR:################" ${LOG_PATH_INDEX_DIR}
 
     export ROOT_PATH=/home/crim
     export BENCHMARK_ROOT=${ROOT_PATH}/benchmark
@@ -166,8 +162,8 @@ function run(){
 function save(){
     unset http_proxy
     unset https_proxy
-    echo "#################log_path:################" ${log_path}
-    ls ${log_path}
+    echo "#################log_path:################" ${LOG_PATH_INDEX_DIR}
+    ls ${LOG_PATH_INDEX_DIR}
 
     ln -s ${all_path}/env/bin/python /usr/local/bin/mypython
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${all_path}/env/lib/
