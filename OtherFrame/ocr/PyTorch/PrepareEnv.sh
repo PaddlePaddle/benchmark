@@ -19,13 +19,6 @@ mkdir -p ${TRAIN_LOG_DIR}
 
 log_path=${TRAIN_LOG_DIR}
 
-################################# 配置python, 如:
-rm -rf run_env
-mkdir run_env
-ln -s $(which python3.7) run_env/python3
-ln -s $(which pip3.7) run_env/pip3
-export PATH=/workspace/run_env:${PATH}
-
 ################################# 安装框架 如:
 pip3.7 install -U pip -i https://mirror.baidu.com/pypi/simple
 echo `pip --version`
