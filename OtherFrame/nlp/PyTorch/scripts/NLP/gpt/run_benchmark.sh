@@ -9,7 +9,6 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
 
     model_name="nlp_gpt"
-    model_name=${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}
     mission_name="语义表示"            # 模型所属任务名称，具体可参考scripts/config.ini  必填）
     direction_id=1                   # 任务所属方向，0：CV，1：NLP，2：Rec。     (必填)
     ips_unit="tokens/s"
@@ -18,6 +17,7 @@ function _set_params(){
     arr=(${device})
     num_gpu_devices=${#arr[*]}
 
+    model_name=${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}
     log_file=${run_log_path}/${model_name}
     index_log_file=${run_log_path}/${model_name}_speed
 
