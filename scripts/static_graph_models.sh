@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(detection mask_rcnn image_classification seg_model transformer bert yolov3)
+cur_model_list=(detection mask_rcnn image_classification seg_model transformer bert yolov3, gpt)
 
 #run_seg_models
 seg_model(){
@@ -641,3 +641,50 @@ nextvlad(){
     done
 }
 
+gpt(){
+    git clone https://github.com/PaddlePaddle/PaddleNLP.git -b develop
+    cur_model_path=${ROOT_PATH}/PaddleNLP
+    cd ${cur_model_path}
+    #bash tests/benchmark/run_all.sh
+
+    #pip install -r requirements.txt
+    pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
+    pip install pybind11 regex sentencepiece tqdm visualdl -i https://mirror.baidu.com/pypi/simple
+    pip install -e ./
+
+    # Download test dataset and save it to PaddleNLP/data
+    if [ -d data ]; then
+        rm -rf data
+    fi
+    mkdir -p data && cd data
+    wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt/data/gpt_en_dataset_300m_ids.npy -o .tmp
+    wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt/data/gpt_en_dataset_300m_idx.npz -o .tmp
+    cd -
+
+    model_name='nlp'
+    mode_list=(static)
+    max_iters=200 # control the test time
+
+
+    SP_CARDNUM='0'
+    MP_CARDNUM='0,1,2,3,4,5,6,7'
+
+    sed -i '/set\ -xe/d' tests/benchmark/run_benchmark.sh
+
+    for mod_item in ${mode_list[@]}; do
+        # gpt-2
+        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash tests/benchmark/run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_static_gpt2_sp_bs8_fp32_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash tests/benchmark/run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_static_gpt2_mp_bs8_fp32_speed_8gpus 2>&1
+        # in dygraph mod, the bs=16 will out of mem in 32G V100
+        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash tests/benchmark/run_benchmark.sh sp 16 fp16  ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_static_gpt2_sp_bs16_fp16_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash tests/benchmark/run_benchmark.sh mp 16 fp16 ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_static_gpt2_mp_bs16_fp16_speed_8gpus 2>&1
+
+        # gpt-3
+        # gpt3 is optimized for speed and need paddle develop version
+        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash tests/benchmark/run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 tee ${log_path}/nlp_static_gpt3_sp_bs8_fp32_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash tests/benchmark/run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 tee ${log_path}/nlp_static_gpt3_mp_bs8_fp32_speed_8gpus 2>&1
+        # in dygraph mod, the bs=16 will out of mem in 32G V100
+        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash tests/benchmark/run_benchmark.sh sp 16 fp16  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_static_gpt3_sp_bs16_fp16_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash tests/benchmark/run_benchmark.sh mp 16 fp16 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_static_gpt3_mp_bs16_fp16_speed_8gpus 2>&1
+    done
+}
