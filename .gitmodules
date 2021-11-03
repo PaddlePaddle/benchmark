@@ -75,7 +75,7 @@
 [submodule "PaddleSeg"]
 	path = PaddleSeg
 	url = https://github.com/PaddlePaddle/PaddleSeg.git
-	branch = benchmark
+	branch = develop
 [submodule "PaddleOCR"]
 	path = PaddleOCR
 	url = https://github.com/PaddlePaddle/PaddleOCR.git

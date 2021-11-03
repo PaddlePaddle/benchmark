@@ -67,17 +67,17 @@ function prepare(){
     # this for update the log_path coding mat
     export TRAIN_LOG_DIR=${save_log_dir}/train_log
     export PROFILER_LOG_DIR=${save_log_dir}/profiler_log
+    export LOG_PATH_INDEX_DIR=${save_log_dir}/index      # speed log
     export IMPLEMENT_TYPE=${implement_type}
+    export RUN_PROFILER=no_profil  # 后续需要加profiler任务的时候改成从TC任务中可设置的参数
     
     mkdir -p ${TRAIN_LOG_DIR}
     mkdir -p ${PROFILER_LOG_DIR}
-
-    train_log_dir=${save_log_dir}/train_log
-    # mkdir -p ${train_log_dir}
+    mkdir -p ${LOG_PATH_INDEX_DIR}
+    echo "#################LOG_PATH_INDEX_DIR:################" ${LOG_PATH_INDEX_DIR}
 
     export ROOT_PATH=/home/crim
     export BENCHMARK_ROOT=${ROOT_PATH}/benchmark
-    log_path=${BENCHMARK_ROOT}/${implement_type}/logs
     data_path=${all_path}/dataset
     prepare_path=${all_path}/prepare
 
@@ -85,8 +85,8 @@ function prepare(){
     mkdir -p ${ROOT_PATH}
     cd ${ROOT_PATH}
     rm -rf *
+
     git clone https://github.com/PaddlePaddle/benchmark.git --recursive
-    mkdir -p ${log_path}
     echo "****************${implement_type} prepare had done*****************"
 
     cd ${BENCHMARK_ROOT}
@@ -160,7 +160,6 @@ function run(){
 function save(){
     unset http_proxy
     unset https_proxy
-    mv ${log_path} ${save_log_dir}/index
     ln -s ${all_path}/env/bin/python /usr/local/bin/mypython
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${all_path}/env/lib/
     cd ${origin_path}
