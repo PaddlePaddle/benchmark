@@ -69,7 +69,7 @@ function prepare(){
     export PROFILER_LOG_DIR=${save_log_dir}/profiler_log
     export LOG_PATH_INDEX_DIR=${save_log_dir}/index      # speed log
     export IMPLEMENT_TYPE=${implement_type}
-    export RUN_PROFILER=no_profil  # 需要改成从TC任务中可设置的参数
+    export RUN_PROFILER=no_profil  # 后续需要加profiler任务的时候改成从TC任务中可设置的参数
     
     mkdir -p ${TRAIN_LOG_DIR}
     mkdir -p ${PROFILER_LOG_DIR}
@@ -85,10 +85,8 @@ function prepare(){
     mkdir -p ${ROOT_PATH}
     cd ${ROOT_PATH}
     rm -rf *
-    # 拉私有库进行调试
-#    git clone https://github.com/PaddlePaddle/benchmark.git --recursive
-    git clone https://github.com/mmglove/benchmark.git -b jp_seg_test --recursive
 
+    git clone https://github.com/PaddlePaddle/benchmark.git --recursive
     echo "****************${implement_type} prepare had done*****************"
 
     cd ${BENCHMARK_ROOT}
@@ -162,9 +160,6 @@ function run(){
 function save(){
     unset http_proxy
     unset https_proxy
-    echo "#################log_path:################" ${LOG_PATH_INDEX_DIR}
-    ls ${LOG_PATH_INDEX_DIR}
-
     ln -s ${all_path}/env/bin/python /usr/local/bin/mypython
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${all_path}/env/lib/
     cd ${origin_path}
