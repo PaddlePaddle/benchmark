@@ -361,7 +361,7 @@ ddpg_deep_explore(){
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp ${train_log_dir} | tee ${log_path}/${FUNCNAME}_speed_1gpus 2>&1
 }
 
-#run_paddingrnn
+#run_paddingrnn  已下线
 paddingrnn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/legacy/language_model
     cd ${cur_model_path}
@@ -387,7 +387,7 @@ paddingrnn(){
 
 
 
-# seq2seq
+# seq2seq  已下线
 seq2seq(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/legacy/seq2seq/seq2seq/
     cd ${cur_model_path}
