@@ -14,7 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+<<<<<<< HEAD
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn dy_gpt)
+=======
+
+cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn dy_gpt dy_seg_repo)
+#if  [ ${RUN_PROFILER} = "PROFILER" ]; then
+#    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
+#fi
+log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
+
+dy_seg_repo(){
+    echo "dy_seg_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/
+    cd ${cur_model_path}
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_all.sh
+}
+>>>>>>> 43b7e88d9b9aaecfb21ca55cf8c29ecc217ef223
 
 #run_bert
 dy_bert(){
@@ -602,7 +619,8 @@ dy_faster_rcnn_fpn() {
 }
 
 dy_gpt(){
-    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
+    git clone https://github.com/PaddlePaddle/PaddleNLP.git -b develop
+    cur_model_path=${ROOT_PATH}/PaddleNLP
     cd ${cur_model_path}
     #bash tests/benchmark/run_all.sh
 
