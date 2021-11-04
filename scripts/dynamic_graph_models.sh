@@ -619,8 +619,7 @@ dy_faster_rcnn_fpn() {
 }
 
 dy_gpt(){
-    git clone https://github.com/PaddlePaddle/PaddleNLP.git -b develop
-    cur_model_path=${ROOT_PATH}/PaddleNLP
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
     cd ${cur_model_path}
     #bash tests/benchmark/run_all.sh
 
