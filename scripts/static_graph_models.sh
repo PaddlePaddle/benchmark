@@ -323,13 +323,14 @@ yolov3(){
     cp ${BENCHMARK_ROOT}/static_graph/yolov3/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_1gpus 2>&1
+    bs_item=16
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs${bs_item}_speed_1gpus 2>&1
     #sleep 60
     #echo "index is speed, 1gpu, profiler on, begin"
     #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_1gpus_profiler 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs${bs_item}_speed_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpus, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 600 | tee ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
@@ -338,7 +339,7 @@ yolov3(){
     #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 sp 600 | tee ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
     #sleep 60
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_8gpus8p 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_bs${bs_item}_speed_8gpus8p 2>&1
 }
 
 #run_ddpg_deep_explore 已下线
