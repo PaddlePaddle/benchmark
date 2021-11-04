@@ -2,11 +2,11 @@
 ## 目录 
 
 ```
-├── PrepareEnv.sh   # 竞品PyTorch运行环境搭建  
-├── README.md       # 运行文档  
-├── models          # 提供竞品PyTorch框架的修改后的模型,官方模型请直接在脚本中拉取,统一方向的模型commit应一致,如不一致请单独在模型运行脚本中写明运行的commit  
-├── run_PyTorch.sh  # 全量竞品PyTorch框架模型运行脚本  
-└── scripts         # 提供各个模型复现性能的脚本
+├── PrepareEnv_xlnet.sh         # 竞品PyTorch运行环境搭建  
+├── README_xlnet.md             # 运行文档  
+├── models                      # 提供竞品PyTorch框架的修改后的模型,官方模型请直接在脚本中拉取,统一方向的模型commit应一致,如不一致请单独在模型运行脚本中写明运行的commit  
+├── run_PyTorch_xlnet.sh        # 全量竞品PyTorch框架模型运行脚本  
+└── scripts/xlnet               # 提供xlnet模型复现性能的脚本
 ```
 
 ## 环境介绍
@@ -31,26 +31,29 @@
 ## 测试步骤
 
 ```bash
-bash run_PyTorch.sh;     # 创建容器,在该标准环境中测试模型   
+bash run_PyTorch_xlnet.sh;     # 创建容器,在该标准环境中测试模型   
 ```
 
 脚本内容,如:
 ```bash
 #!/usr/bin/env bash
 # 拉镜像
-ImageName=  ;
+ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7"
 docker pull ${ImageName}
+
 # 启动镜像后测试单个模型
-run_cmd="bash PrepareEnv.sh;
-        cd /workspace/models/NLP/nlp_modelName/;
-        cp /workspace/scripts/NLP/nlp_modelName/preData.sh ./;
-        cp /workspace/scripts/NLP/nlp_modelName/run_benchmark.sh ./;
-        cp /workspace/scripts/NLP/nlp_modelName/analysis_log.py ./;
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 32 fp32 500;
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh sp 64 fp16 500;
+run_cmd="bash PrepareEnv_xlnet.sh;
+        cd /workspace/models/xlnet/;
+        cp /workspace/scripts/xlnet/run_benchmark.sh ./;
+        cp /workspace/scripts/xlnet/analysis_log.py ./;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 32 fp32 1000 xlnet-base-cased;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 128 fp32 1000 xlnet-base-cased;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 32 fp32 1000 xlnet-base-cased;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 128 fp32 1000 xlnet-base-cased;
         "
+
 # 启动镜像
-nvidia-docker run --name test_torch -it  \
+nvidia-docker run --name test_torch_xlnet -i  \
     --net=host \
     --shm-size=1g \
     -v $PWD:/workspace \
@@ -59,16 +62,14 @@ nvidia-docker run --name test_torch -it  \
 
 ## 单个模型脚本目录
 
-└── nlp_modelName              # 模型名  
-    ├── README.md              # 运行文档  
-    ├── analysis_log.py        # log解析脚本,每个框架尽量统一,可参考[paddle的analysis.py](https://github.com/mmglove/benchmark/blob/jp_0907/scripts/analysis.py)  
-    ├── logs                   # 训练log,注:log中不得包含机器ip等敏感信息  
-    │   ├── index              # log解析后待入库数据json文件   
-    │   │   ├── nlp_modelName_sp_bs32_fp32_1_speed  # 单卡数据  
-    │   │   └── nlp_modelName_mp_bs32_fp32_8_speed  # 8卡数据  
-    │   └── train_log          # 原始训练log  
-    ├── preData.sh             # 数据处理  
-    └── run_benchmark.sh       # 运行脚本（包含性能、收敛性）  
+└── models/xlnet                                   # 模型名
+    ├── analysis_log.py                            # log解析脚本,每个框架尽量统一
+    ├── logs                                       # 训练log,注:log中不得包含机器ip等敏感信息
+    │   ├── index                                  # log解析后待入库数据json文件
+    │   │   ├── nlp_xlnet_sp_bs32_fp32_1_speed     # 单卡数据
+    │   │   └── nlp_xlnet_mp_bs32_fp32_8_speed     # 8卡数据
+    │   └── train_log                              # 原始训练log
+    └── run_benchmark.sh                           # 运行脚本（包含性能、收敛性）
 
 ## 输出
 
