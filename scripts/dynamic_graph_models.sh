@@ -14,9 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-<<<<<<< HEAD
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn dy_gpt)
-=======
 
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn dy_gpt dy_seg_repo)
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
@@ -31,7 +28,6 @@ dy_seg_repo(){
     sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
     bash benchmark/run_all.sh
 }
->>>>>>> 43b7e88d9b9aaecfb21ca55cf8c29ecc217ef223
 
 #run_bert
 dy_bert(){
