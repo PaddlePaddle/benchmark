@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(detection mask_rcnn image_classification seg_model transformer bert yolov3, gpt)
+cur_model_list=(detection mask_rcnn image_classification seg_model transformer bert yolov3 gpt)
 
 #run_seg_models
 seg_model(){
@@ -642,8 +642,8 @@ nextvlad(){
 }
 
 gpt(){
-    git clone https://github.com/PaddlePaddle/PaddleNLP.git -b develop
-    cur_model_path=${ROOT_PATH}/PaddleNLP
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
+    git pull
     cd ${cur_model_path}
     #bash tests/benchmark/run_all.sh
 
