@@ -28,10 +28,6 @@ dy_seg_repo(){
     sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
     bash benchmark/run_all.sh
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> 6cedde54a9d3ac781e4bf5fa2f64f8aa4733116c
 
 #run_bert
 dy_bert(){
