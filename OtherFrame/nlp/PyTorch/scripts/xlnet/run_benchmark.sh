@@ -9,7 +9,7 @@ function _set_params(){
     max_iter=${4}       # 如果需要修改代码提前中断
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
 
-    model_name="nlp_modelName"
+    model_name="xlnet-base-cased"
     mission_name="语义表示"            # 模型所属任务名称，具体可参考scripts/config.ini  必填）
     direction_id=1                   # 任务所属方向，0：CV，1：NLP，2：Rec。     (必填)
     ips_unit="sequences/s"
@@ -40,13 +40,15 @@ function _train(){
                --logging_strategy=steps
                --logging_steps=500
                --do_train
+               --output_dir=${run_log_path}
+               --overwrite_output_dir
                "
 
     case ${run_mode} in
     sp)
-        train_cmd="CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES python examples/pytorch/text-classification/run_glue.py ${train_cmd}" ;;
+        train_cmd="python examples/pytorch/text-classification/run_glue.py ${train_cmd}" ;;
     mp)
-        train_cmd="CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES python examples/pytorch/text-classification/run_glue.py ${train_cmd}" ;;
+        train_cmd="python examples/pytorch/text-classification/run_glue.py ${train_cmd}" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 

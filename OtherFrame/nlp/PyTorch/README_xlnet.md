@@ -1,6 +1,5 @@
 # PyTorch XLNet模型 性能复现
-## 目录 
-
+## 目录
 ```
 ├── PrepareEnv_xlnet.sh         # 竞品PyTorch运行环境搭建  
 ├── README_xlnet.md             # 运行文档  
@@ -8,6 +7,7 @@
 ├── run_PyTorch_xlnet.sh        # 全量竞品PyTorch框架模型运行脚本  
 └── scripts/xlnet               # 提供xlnet模型复现性能的脚本
 ```
+
 
 ## 环境介绍
 ### 1.物理机环境
@@ -19,17 +19,15 @@
   - 内存：629 GB
   - CUDA、cudnn Version: cuda10.1-cudnn7 、 cuda11.2-cudnn8-gcc82
 
-### 2.Docker 镜像,如:
+### 2.Docker 镜像:
+镜像使用paddle官方2.1.2镜像，与paddle测试环境相同
+- **镜像版本**: `registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7`   # 竞品镜像,每个方向的请一致
+- **PyTorch 版本**: `1.8.0`  # 竞品版本：最新稳定版本，如需特定版本请备注说明原因  
+- **CUDA 版本**: `10.2`
+- **cuDnn 版本**: `7`
 
- 镜像使用paddle官方2.1.2镜像，与paddle测试环境相同
-
- - **镜像版本**: `registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7`   # 竞品镜像,每个方向的请一致
- - **PyTorch 版本**: `1.8.0`  # 竞品版本：最新稳定版本，如需特定版本请备注说明原因  
- - **CUDA 版本**: `10.2`
- - **cuDnn 版本**: `7`
 
 ## 测试步骤
-
 ```bash
 bash run_PyTorch_xlnet.sh;     # 创建容器,在该标准环境中测试模型   
 ```
@@ -60,8 +58,9 @@ nvidia-docker run --name test_torch_xlnet -i  \
     ${ImageName}  /bin/bash -c "${run_cmd}"
 ```
 
-## 单个模型脚本目录
 
+## 单个模型脚本目录
+```
 └── models/xlnet                                   # 模型名
     ├── analysis_log.py                            # log解析脚本,每个框架尽量统一
     ├── logs                                       # 训练log,注:log中不得包含机器ip等敏感信息
@@ -70,22 +69,22 @@ nvidia-docker run --name test_torch_xlnet -i  \
     │   │   └── nlp_xlnet_mp_bs32_fp32_8_speed     # 8卡数据
     │   └── train_log                              # 原始训练log
     └── run_benchmark.sh                           # 运行脚本（包含性能、收敛性）
-
+```
 ## 输出
 
 每个模型case需返回log解析后待入库数据json文件
 
 ```bash
 {
-"log_file": "/logs/2021.0906.211134.post107/train_log/ResNet101_bs32_1_1_sp", \    # log 目录,创建规范见PrepareEnv.sh 
-"model_name": "clas_MobileNetv1_bs32_fp32", \    # 模型case名,创建规范:repoName_模型名_bs${bs_item}_${fp_item} 如:clas_MobileNetv1_bs32_fp32
-"mission_name": "图像分类", \     # 模型case所属任务名称，具体可参考scripts/config.ini      
-"direction_id": 0, \            # 模型case所属方向id,0:CV|1:NLP|2:Rec 具体可参考benchmark/scripts/config.ini    
+"log_file": "/logs/pytorch1.10.0_2021.1105.031037_10.2/train_log/xlnet-base-cased_sp_bs32_fp32_1", \    # log 目录,创建规范见PrepareEnv.sh
+"model_name": "nlp_xlnet-base-cased_bs32_fp32", \    # 模型case名,创建规范:repoName_模型名_bs${bs_item}_${fp_item} 如:clas_MobileNetv1_bs32_fp32
+"mission_name": "语义表示", \    # 模型case所属任务名称，具体可参考scripts/config.ini
+"direction_id": 1, \            # 模型case所属方向id,0:CV|1:NLP|2:Rec 具体可参考benchmark/scripts/config.ini
 "run_mode": "sp", \             # 单卡:sp|多卡:mp
 "index": 1, \                   # 速度验证默认为1
 "gpu_num": 1, \                 # 1|8
-"FINAL_RESULT": 197.514, \      # 速度计算后的平均值,需要skip掉不稳定的前几步值
+"FINAL_RESULT": 87.389, \       # 速度计算后的平均值,需要skip掉不稳定的前几步值
 "JOB_FAIL_FLAG": 0, \           # 该模型case运行0:成功|1:失败
-"UNIT": "images/s" \            # 速度指标的单位 
+"UNIT": "sequences/s" \         # 速度指标的单位
 }
 ```

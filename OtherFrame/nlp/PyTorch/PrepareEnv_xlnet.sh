@@ -28,13 +28,13 @@ export PATH=/workspace/run_env:${PATH}
 ################################# 安装框架 如:
 pip install -U pip
 echo `pip --version`
-pip install torch==1.10.0 -f https://download.pytorch.org/whl/torch_stable.html
+pip install torch==1.10.0 -i https://mirror.baidu.com/pypi/simple
 
 ##################################  安装其他的公共依赖（单个模型的依赖在中设置,All_PyTorch_Models.sh 中）,如:
-pip install git+https://github.com/huggingface/transformers -i https://mirror.baidu.com/pypi/simple
+pip install git+https://github.com/huggingface/transformers
 pip install accelerate -i https://mirror.baidu.com/pypi/simple
-pip install datasets >= 1.8.0 -i https://mirror.baidu.com/pypi/simple
-pip install sentencepiece != 0.1.92 -i https://mirror.baidu.com/pypi/simple
+pip install datasets>=1.8.0 -i https://mirror.baidu.com/pypi/simple
+pip install sentencepiece!=0.1.92 -i https://mirror.baidu.com/pypi/simple
 pip install scipy -i https://mirror.baidu.com/pypi/simple
 pip install scikit-learn -i https://mirror.baidu.com/pypi/simple
 pip install protobuf -i https://mirror.baidu.com/pypi/simple
