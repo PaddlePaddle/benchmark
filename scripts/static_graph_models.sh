@@ -19,7 +19,7 @@ log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需
 #run_seg_models
 seg_model(){
     cd ${BENCHMARK_ROOT}/PaddleSeg/
-    git checkout origin/benchmark  # PaddleSeg 从2.3开始不再维护静态图版本,静态图模型需切回到benchmark分支
+    git checkout origin/benchmark  # PaddleSeg 从2.3版本开始不再维护静态图版本,静态图模型需切回到benchmark分支
     git branch
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/legacy
     cd ${cur_model_path}
