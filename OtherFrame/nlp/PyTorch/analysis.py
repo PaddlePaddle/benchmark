@@ -48,6 +48,8 @@ def parse_args():
     parser.add_argument(
         '--ips_unit', type=str, default=None, help='IPS unit')
     parser.add_argument(
+        '--time_unit', type=str, default='s', choices=["s","ms"], help='Time unit of the log, s or ms, default is s')
+    parser.add_argument(
         '--model_name', type=str, default=0, help='training model_name, transformer_base')
     parser.add_argument(
         '--mission_name', type=str, default=0, help='training mission name')
@@ -132,6 +134,10 @@ class TimeAnalyzer(object):
             assert unit, "Please set the unit when mode is -1."
             fps = gpu_num * avg_of_records #temporarily, not used now
             print("------------this is mp")
+        elif mode == -2:
+            # The avg_of_records is s/step
+            assert unit, "Please set the unit when mode is -1."
+            fps = (batch_size * gpu_num) /avg_of_records
         elif mode == 0:
             # s/step -> samples/s
             fps = (batch_size * gpu_num) / avg_of_records
@@ -157,7 +163,7 @@ class TimeAnalyzer(object):
 
         return fps, unit
 
-    def analysis(self, batch_size, gpu_num=1, skip_steps=0, mode=-1, run_mode='sp', unit=None):
+    def analysis(self, batch_size, gpu_num=1, skip_steps=0, mode=-1, run_mode='sp', unit=None, time_unit="s"):
         if batch_size <= 0:
             print("base_batch_size should larger than 0.")
             return 0, ''
@@ -183,6 +189,11 @@ class TimeAnalyzer(object):
 
         avg_of_records = sum_of_records / float(count)
         avg_of_records_skipped = sum_of_records_skipped / float(count - skip_steps)
+        if time_unit == 'ms':
+            avg_of_records = avg_of_records / 1000
+            avg_of_records_skipped = avg_of_records_skipped /1000
+            skip_min = skip_min / 1000
+            skip_max = skip_max / 1000
 
         fps, fps_unit = self._get_fps(mode, batch_size, gpu_num, avg_of_records, run_mode, unit)
         fps_skipped, _ = self._get_fps(mode, batch_size, gpu_num, avg_of_records_skipped, run_mode, unit)
@@ -206,7 +217,7 @@ class TimeAnalyzer(object):
                 print("\tMin: %.3f steps/s" % skip_min)
                 print("\tMax: %.3f steps/s" % skip_max)
                 print("\tFPS: %.3f %s" % (fps_skipped, fps_unit))
-        elif mode == 0 or mode == 2:
+        elif mode == 0 or mode == 2 or mode == -2:
             print("average latency of %d steps, skip 0 step:" % count)
             print("\tAvg: %.3f s/step" % avg_of_records)
             print("\tFPS: %.3f %s" % (fps, fps_unit))
@@ -238,12 +249,11 @@ class LossAnalyzer(object):
         with open(self.filename, "r") as f_object:
             lines = f_object.readlines()
             lines.reverse()
-            result_loss = 0
             for line in lines:
                 if self.keyword_loss not in line:
                     continue
                 try:
-                    result_loss = 0
+                    result_loss = None
                     line = line.strip()
                     line_words = line.split(self.separator) if self.separator else line.split()
                     for i in range(len(line_words) - 1):
@@ -282,7 +292,8 @@ if __name__ == "__main__":
                 skip_steps=args.skip_steps,
                 mode=args.model_mode,
                 run_mode=args.run_mode,
-                unit=args.ips_unit)
+                unit=args.ips_unit,
+                time_unit = args.time_unit)
             if args.keyword_loss != "":
                 loss_analyzer = LossAnalyzer(args.filename, args.keyword_loss)
                 run_info["LOSS_RESULT"] = loss_analyzer.get_loss()

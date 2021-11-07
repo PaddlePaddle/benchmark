@@ -32,8 +32,6 @@ def parse_args():
     parser.add_argument(
         "--keyword", type=str, help="Keyword to specify analysis data")
     parser.add_argument(
-        "--keyword_loss", type=str, default="", help="Keyword to specify loss data")
-    parser.add_argument(
         "--separator", type=str, default=None, help="Separator of different field in log")
     parser.add_argument(
         '--position', type=int, default=None, help='The position of data field')
@@ -59,6 +57,8 @@ def parse_args():
         '--index', type=int, default=1, help='{1: speed, 2:mem, 3:profiler, 6:max_batch_size}')
     parser.add_argument(
         '--gpu_num', type=int, default=1, help='nums of training gpus')
+    parser.add_argument(
+        '--use_num', type=int, default=1, help='nums of used recoders')
     args = parser.parse_args()
     args.separator = None if args.separator == "None" else args.separator
     return args
@@ -102,6 +102,7 @@ class TimeAnalyzer(object):
                     # Distil the string from a line.
                     line = line.strip()
                     line_words = line.split(self.separator) if self.separator else line.split()
+                    print ("line_words", line_words)
                     if args.position:
                         result = line_words[self.position]
                     else:
@@ -110,7 +111,7 @@ class TimeAnalyzer(object):
                             if line_words[i] == self.keyword:
                                 result = line_words[i + 1]
                                 break
-    
+
                     # Distil the result from the picked string.
                     if not self.range:
                         result = result[0:]
@@ -120,8 +121,11 @@ class TimeAnalyzer(object):
                         result = result[int(self.range.split(":")[0]): int(self.range.split(":")[1])]
                     self.records.append(float(result))
                 except Exception as exc:
-                    print("line is: {}; separator={}; position={}".format(line, self.separator, self.position))
-
+                    pass
+                    #print("line is: {}; separator={}; position={}".format(line, self.separator, self.position))
+        self.records.sort()
+        self.records = self.records[:args.use_num]
+        print ("records", self.records)
         print("Extract {} records: separator={}; position={}".format(len(self.records), self.separator, self.position))
 
     def _get_fps(self, mode, batch_size, gpu_num, avg_of_records, run_mode, unit=None):
@@ -220,42 +224,6 @@ class TimeAnalyzer(object):
         return round(fps_skipped, 3), fps_unit
 
 
-class ExceptionTest(Exception):
-    pass
-
-
-class LossAnalyzer(object):
-    def __init__(self, filename, keyword_loss=None, separator=None):
-        if filename is None:
-            raise Exception("Please specify the filename!")
-        if keyword_loss is None:
-            raise Exception("Please specify the keyword of loss!")
-        self.filename = filename
-        self.keyword_loss = keyword_loss
-        self.separator = separator
-    
-    def get_loss(self):
-        with open(self.filename, "r") as f_object:
-            lines = f_object.readlines()
-            lines.reverse()
-            result_loss = 0
-            for line in lines:
-                if self.keyword_loss not in line:
-                    continue
-                try:
-                    result_loss = 0
-                    line = line.strip()
-                    line_words = line.split(self.separator) if self.separator else line.split()
-                    for i in range(len(line_words) - 1):
-                        if line_words[i] == self.keyword_loss:
-                            result_loss = line_words[i + 1]
-                            raise ExceptionTest()
-                except ExceptionTest:
-                    break
-            print("\tLoss: {}".format(result_loss))
-        return result_loss 
-            
-    
 if __name__ == "__main__":
     args = parse_args()
     run_info = dict()
@@ -268,7 +236,6 @@ if __name__ == "__main__":
     run_info["gpu_num"] = args.gpu_num
     run_info["FINAL_RESULT"] = 0
     run_info["JOB_FAIL_FLAG"] = 0
-    run_info["LOSS_RESULT"] = 0
 
     try:
         if args.index == 1:
@@ -283,11 +250,8 @@ if __name__ == "__main__":
                 mode=args.model_mode,
                 run_mode=args.run_mode,
                 unit=args.ips_unit)
-            if args.keyword_loss != "":
-                loss_analyzer = LossAnalyzer(args.filename, args.keyword_loss)
-                run_info["LOSS_RESULT"] = loss_analyzer.get_loss()
-            if int(os.getenv('job_fail_flag')) == 1 or int(run_info["FINAL_RESULT"]) == 0:
-                run_info["JOB_FAIL_FLAG"] = 1
+       #     if int(os.getenv('job_fail_flag')) == 1 or int(run_info["FINAL_RESULT"]) == 0:
+       #         run_info["JOB_FAIL_FLAG"] = 1
         elif args.index == 3:
             run_info["FINAL_RESULT"] = {}
             records_fo_total = TimeAnalyzer(args.filename, 'Framework overhead', None, 3, '').records
