@@ -111,4 +111,4 @@
 [submodule "OtherFrame/nlp/PyTorch/models/xlnet"]
  	path = OtherFrame/nlp/PyTorch/models/xlnet
  	url = https://github.com/huggingface/transformers
- 	branch = develop
+ 	branch = master
