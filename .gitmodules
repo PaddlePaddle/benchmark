@@ -108,4 +108,7 @@
         path = OtherFrame/gan/PyTorch/styleganv2
         url = https://github.com/lzzyzlbb/stylegan2-pytorch
         branch = develop
-
+[submodule "OtherFrame/nlp/PyTorch/models/xlnet"]
+ 	path = OtherFrame/nlp/PyTorch/models/xlnet
+ 	url = https://github.com/huggingface/transformers
+ 	branch = develop
