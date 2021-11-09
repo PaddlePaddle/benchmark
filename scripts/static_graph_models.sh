@@ -16,8 +16,13 @@
 
 cur_model_list=(detection mask_rcnn image_classification seg_model transformer bert yolov3 gpt)
 
+log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
+
 #run_seg_models
 seg_model(){
+    cd ${BENCHMARK_ROOT}/PaddleSeg/
+    git checkout origin/benchmark  # PaddleSeg 从2.3版本开始不再维护静态图版本,静态图模型需切回到benchmark分支
+    git branch
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/legacy
     cd ${cur_model_path}
     # Prepare data and pretrained parameters.
@@ -229,6 +234,7 @@ bert(){
         seq_list=(seqlen128)
         if [ ${model_mode} == "large" ]; then
             seq_list=(seqlen512) # prepare for large tests on seqlen128 and seqlen512
+            bs_list=(8 10)
         fi
         for fp_mode in ${fp_mode_list[@]}; do
             # 监控内外部benchmark，因而参数配置多
@@ -236,10 +242,6 @@ bert(){
                 bs_list=(32 48)
             elif [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp16" ]; then
                 bs_list=(64 96)
-            elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp32" ]; then
-                bs_list=(2)  # 64
-            elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp16" ]; then
-                bs_list=(4)  # 64
             fi
             for bs_item in ${bs_list[@]}
             do
@@ -326,13 +328,14 @@ yolov3(){
     cp ${BENCHMARK_ROOT}/static_graph/yolov3/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
-    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_1gpus 2>&1
+    bs_item=16
+    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs${bs_item}_speed_1gpus 2>&1
     #sleep 60
     #echo "index is speed, 1gpu, profiler on, begin"
     #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_1gpus_profiler 2>&1
     sleep 60
     echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs${bs_item}_speed_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpus, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 600 | tee ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
@@ -341,10 +344,10 @@ yolov3(){
     #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 sp 600 | tee ${log_path}/${FUNCNAME}_maxbs_8gpus 2>&1
     #sleep 60
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_8gpus8p 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_bs${bs_item}_speed_8gpus8p 2>&1
 }
 
-#run_ddpg_deep_explore
+#run_ddpg_deep_explore 已下线
 ddpg_deep_explore(){
     cur_model_path=${BENCHMARK_ROOT}/DDPG_Deep_Explore/Fluid_version
     cd ${cur_model_path}
@@ -408,7 +411,7 @@ seq2seq(){
 #    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 1 | tee ${log_path}/${FUNCNAME}_speed_1gpus_profiler 2>&1
 }
 
-#run_cycle_gan
+#run_cycle_gan 已下线
 CycleGAN(){
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/
     cd ${cur_model_path}
@@ -428,7 +431,7 @@ CycleGAN(){
 }
 
 
-#run StartGAN
+#run StartGAN 已下线
 StarGAN(){
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/
     cd ${cur_model_path}
@@ -462,7 +465,7 @@ StarGAN(){
 }
 
 
-#run AttGAN
+#run AttGAN 已下线
 AttGAN(){
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/
     cd ${cur_model_path}
@@ -493,7 +496,7 @@ AttGAN(){
 }
 
 
-#run STGAN
+#run STGAN 已下线
 STGAN(){
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/
     cd ${cur_model_path}
@@ -527,7 +530,7 @@ STGAN(){
 }
 
 
-#run CGAN
+#run CGAN已下线
 CGAN(){
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/
     cd ${cur_model_path}
@@ -561,7 +564,7 @@ CGAN(){
 }
 
 
-#run Pix2pix
+#run Pix2pix 已下线
 Pix2pix(){
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/gan/
     cd ${cur_model_path}
@@ -593,7 +596,7 @@ Pix2pix(){
 }
 
 
-#run nextvlad
+#run nextvlad  已下线
 nextvlad(){
     cur_model_path=${BENCHMARK_ROOT}/models/PaddleCV/video/
     cd ${cur_model_path}

@@ -84,6 +84,12 @@
 	path = PaddleGAN
 	url = https://github.com/PaddlePaddle/PaddleGAN.git
 	branch = develop
+[submodule "OtherFrame/nlp/PyTorch/scripts/NLP/gpt/Megatron-LM"]
+	path = OtherFrame/nlp/PyTorch/models/NLP/gpt/Megatron-LM
+	url = https://github.com/NVIDIA/Megatron-LM.git
+[submodule "OtherFrame/nlp/PyTorch/apex"]
+	path = OtherFrame/nlp/PyTorch/apex
+	url = https://github.com/NVIDIA/apex.git
 [submodule "OtherFrame/Speech/PyTorch/wenet/models/wenet"]
 	path = OtherFrame/Speech/PyTorch/wenet/models/wenet
 	url = https://github.com/wenet-e2e/wenet
@@ -102,4 +108,7 @@
         path = OtherFrame/gan/PyTorch/styleganv2
         url = https://github.com/lzzyzlbb/stylegan2-pytorch
         branch = develop
-
+[submodule "OtherFrame/nlp/PyTorch/models/xlnet"]
+ 	path = OtherFrame/nlp/PyTorch/models/xlnet
+ 	url = https://github.com/huggingface/transformers
+ 	branch = develop
