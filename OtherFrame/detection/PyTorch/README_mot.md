@@ -10,19 +10,10 @@
 ```
 
 ## 环境介绍
-### 1.物理机环境
-- 单机（单卡、8卡）
-  - 系统：CentOS release 7.5 (Final)
-  - GPU：Tesla V100-SXM2-32GB * 8
-  - CPU：Intel(R) Xeon(R) Gold 6271C CPU @ 2.60GHz * 80
-  - Driver Version: 460.27.04
-  - 内存：629 GB
-  - CUDA、cudnn Version: cuda10.1-cudnn7 、 cuda11.2-cudnn8-gcc82
-- 多机（32卡） TODO
-### 2.Docker 镜像:
+### Docker 镜像:
 
 - **镜像版本**: `registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7`
-- **PyTorch 版本**: `1.7.0` 
+- **PyTorch 版本**: `1.9.1` 
 - **CUDA 版本**: `10.2`
 - **cuDnn 版本**: `7`
 
@@ -41,24 +32,25 @@ run_cmd="cd ${BENCHMARK_ROOT}
         cd ${BENCHMARK_ROOT}/models/jde;
         cp ${BENCHMARK_ROOT}/scripts/run_benchmark_mot.sh ./;
         cp ${BENCHMARK_ROOT}/scripts/analysis_log_mot.py ./;
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 1 fp32 1 jde;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 4 fp32 1 jde;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 1 fp32 1 jde;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 4 fp32 1 jde;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 8 fp32 1 jde;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 14 fp32 1 jde;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 8 fp32 1 jde;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 14 fp32 1 jde;
         sleep 60;
+
         cd ${BENCHMARK_ROOT}/models/fairmot;
         cp ${BENCHMARK_ROOT}/scripts/run_benchmark_mot.sh ./;
         cp ${BENCHMARK_ROOT}/scripts/analysis_log_mot.py ./;
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 2 fp32 1 fairmot;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 6 fp32 1 fairmot;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 2 fp32 1 fairmot;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 6 fp32 1 fairmot;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 8 fp32 1 fairmot;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 22 fp32 1 fairmot;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 8 fp32 1 fairmot;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 22 fp32 1 fairmot;
         sleep 60;
         "
 nvidia-docker run --name test_torch_mot -it  \
@@ -69,14 +61,15 @@ nvidia-docker run --name test_torch_mot -it  \
 nvidia-docker stop test_torch_mot
 nvidia-docker rm test_torch_mot
 ```
+
 ## 输出
 
 每个模型case需返回log解析后待入库数据json文件
 
 ```bash
 {
-"log_file": "/workspace/models/fairmot/train_log/fairmot_bs1_fp32", \    # log 目录,创建规范见PrepareEnv.sh 
-"model_name": "fairmot_bs1_fp32", \    # 模型case名,创建规范:repoName_模型名_bs${bs_item}_${fp_item} 如:clas_MobileNetv1_bs32_fp32
+"log_file": "/workspace/models/fairmot/train_log/fairmot_bs6_fp32", \    # log 目录,创建规范见PrepareEnv.sh 
+"model_name": "fairmot_bs6_fp32", \    # 模型case名,创建规范:repoName_模型名_bs${bs_item}_${fp_item} 如:clas_MobileNetv1_bs32_fp32
 "mission_name": "目标检测", \     # 模型case所属任务名称，具体可参考scripts/config.ini      
 "direction_id": 0, \            # 模型case所属方向id,0:CV|1:NLP|2:Rec 具体可参考benchmark/scripts/config.ini    
 "run_mode": "sp", \             # 单卡:sp|多卡:mp

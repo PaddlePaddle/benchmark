@@ -8,24 +8,26 @@ run_cmd="cd ${BENCHMARK_ROOT}
         cd ${BENCHMARK_ROOT}/models/jde;
         cp ${BENCHMARK_ROOT}/scripts/run_benchmark_mot.sh ./;
         cp ${BENCHMARK_ROOT}/scripts/analysis_log_mot.py ./;
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 1 fp32 1 jde;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 4 fp32 1 jde;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 1 fp32 1 jde;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 4 fp32 1 jde;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 8 fp32 1 jde;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 14 fp32 1 jde;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 8 fp32 1 jde;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 14 fp32 1 jde;
         sleep 60;
+
         cd ${BENCHMARK_ROOT}/models/fairmot;
         cp ${BENCHMARK_ROOT}/scripts/run_benchmark_mot.sh ./;
         cp ${BENCHMARK_ROOT}/scripts/analysis_log_mot.py ./;
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 2 fp32 1 fairmot;
+        cd src;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 6 fp32 1 fairmot;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 2 fp32 1 fairmot;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 6 fp32 1 fairmot;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 8 fp32 1 fairmot;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 22 fp32 1 fairmot;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 8 fp32 1 fairmot;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 22 fp32 1 fairmot;
         sleep 60;
         "
 

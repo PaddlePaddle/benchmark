@@ -18,7 +18,7 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log_mot.py \
+    python3.7 analysis_log_mot.py \
                 --filename ${log_file} \
                 --jsonname ${res_log_file} \
                 --keyword "time:" \
@@ -28,3 +28,43 @@ function _analysis_log(){
                 --batch_size ${batch_size}
     cp ${res_log_file} /workspace
 }
+
+function _train(){
+    echo "Train ${model_name} on ${num_gpu_devices} GPUs"
+    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
+
+    log_iter="5"
+
+    # between jde and fairmot
+    if [ ${model_name} = "jde" ]; then
+        optimizer_lr="0.01"
+        train_cmd="python3.7 -u train.py --batch-size ${batch_size} --epochs ${max_epoch} --lr ${optimizer_lr} --print-interval ${log_iter}";;
+    else
+        optimizer_lr="0.0001"
+        set_batch_size = batch_size
+        if [ ${num_gpu_devices} = "1" ]; then
+            gpus_info = '0'
+        else
+            gpus_info = '0,1,2,3,4,5,6,7'
+        train_cmd="python3.7 -u train.py --batch_size ${set_batch_size} --num_epochs ${max_epoch} --lr ${optimizer_lr} --print_iter ${log_iter} --gpus=${gpus_info}";;
+
+    timeout 15m ${train_cmd} > ${log_file} 2>&1
+    if [ $? -ne 0 ];then
+        echo -e "${model_name}, FAIL"
+        export job_fail_flag=1
+    else
+        echo -e "${model_name}, SUCCESS"
+        export job_fail_flag=0
+    fi
+    if [ $run_mode = "mp" -a -d mylog ]; then
+        rm ${log_file}
+        cp mylog/workerlog.0 ${log_file}
+    fi
+
+    _analysis_log
+
+    kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
+}
+
+_set_params $@
+_train
