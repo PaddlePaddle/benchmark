@@ -3,9 +3,10 @@
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
 docker pull ${ImageName}
 
-run_cmd="cp /workspace/scripts/PrepareEnv.sh ./;
+run_cmd="cd /workspace/;
+         cp /workspace/scripts/PrepareEnv.sh ./;
          bash PrepareEnv.sh;
-         cd /workspace/models/fomm;
+         cd /workspace/first-order-model;
          cp /workspace/scripts/run_benchmark.sh ./;
          cp /workspace/scripts/analysis_log.py ./;
          CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh fomm sp fp32 8 300 4;
