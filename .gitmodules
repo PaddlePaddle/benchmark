@@ -84,6 +84,10 @@
 	path = PaddleGAN
 	url = https://github.com/PaddlePaddle/PaddleGAN.git
 	branch = develop
+[submodule "DeepSpeech"]
+	path = DeepSpeech
+	url = https://github.com/PaddlePaddle/DeepSpeech.git
+	branch = develop
 [submodule "OtherFrame/nlp/PyTorch/scripts/NLP/gpt/Megatron-LM"]
 	path = OtherFrame/nlp/PyTorch/models/NLP/gpt/Megatron-LM
 	url = https://github.com/NVIDIA/Megatron-LM.git
