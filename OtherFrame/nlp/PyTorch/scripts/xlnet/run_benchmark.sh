@@ -35,7 +35,7 @@ function _train(){
                --per_device_train_batch_size=${batch_size}
                --learning_rate=2e-5
                --num_train_epochs=1
-               --max_steps=1000
+               --max_steps=${max_iter}
                --pad_to_max_length=True
                --logging_strategy=steps
                --logging_steps=500
@@ -46,9 +46,9 @@ function _train(){
 
     case ${run_mode} in
     sp)
-        train_cmd="python examples/pytorch/text-classification/run_glue.py ${train_cmd}" ;;
+        train_cmd="python transformers/examples/pytorch/text-classification/run_glue.py ${train_cmd}" ;;
     mp)
-        train_cmd="python examples/pytorch/text-classification/run_glue.py ${train_cmd}" ;;
+        train_cmd="python transformers/examples/pytorch/text-classification/run_glue.py ${train_cmd}" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
