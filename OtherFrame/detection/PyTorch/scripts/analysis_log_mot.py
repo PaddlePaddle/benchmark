@@ -1,3 +1,17 @@
+# Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from __future__ import print_function
 
 import argparse
@@ -70,13 +84,12 @@ if __name__ == '__main__':
 
     text = parse_text_from_file(args.filename)
     avg_time = parse_avg_from_text(text, args.keyword)
-    run_info["FINAL_RESULT"] = args.batch_size / avg_time * args.gpu_num
-
     if avg_time == 0.0:
         run_info["JOB_FAIL_FLAG"] = 1
         print("Failed at get info from training's output log, please check.")
         sys.exit()
+    run_info["FINAL_RESULT"] = args.batch_size / avg_time * args.gpu_num
 
     json_info = json.dumps(run_info)
-    with open(res_log_file, "w") as of:
+    with open(res_log_file+'.json', "w") as of:
         of.write(json_info)
