@@ -108,4 +108,12 @@
         path = OtherFrame/gan/PyTorch/styleganv2
         url = https://github.com/lzzyzlbb/stylegan2-pytorch
         branch = develop
+[submodule "OtherFrame/detection/PyTorch/models/jde"]
+        path = OtherFrame/detection/PyTorch/models/jde
+        url = https://github.com/nemonameless/jde
+        branch = develop
+[submodule "OtherFrame/detection/PyTorch/models/fairmot"]
+        path = OtherFrame/detection/PyTorch/models/fairmot
+        url = https://github.com/nemonameless/fairmot
+        branch = develop
 

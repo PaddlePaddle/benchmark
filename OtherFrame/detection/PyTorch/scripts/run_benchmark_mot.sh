@@ -38,15 +38,16 @@ function _train(){
     # between jde and fairmot
     if [ ${model_name} = "jde" ]; then
         optimizer_lr="0.01"
-        train_cmd="python3.7 -u train.py --batch-size ${batch_size} --epochs ${max_epoch} --lr ${optimizer_lr} --print-interval ${log_iter}";;
+        train_cmd="python3.7 -u train.py --batch-size ${batch_size} --epochs ${max_epoch} --lr ${optimizer_lr} --print-interval ${log_iter}"
     else
         optimizer_lr="0.0001"
-        set_batch_size = batch_size
         if [ ${num_gpu_devices} = "1" ]; then
-            gpus_info = '0'
+            gpus_info='0'
         else
-            gpus_info = '0,1,2,3,4,5,6,7'
-        train_cmd="python3.7 -u train.py --batch_size ${set_batch_size} --num_epochs ${max_epoch} --lr ${optimizer_lr} --print_iter ${log_iter} --gpus=${gpus_info}";;
+            gpus_info='0,1,2,3,4,5,6,7'
+        fi
+        train_cmd="python3.7 -u train.py --batch_size=${batch_size} --num_epochs=${max_epoch} --lr=${optimizer_lr} --print_iter=${log_iter} --gpus=${gpus_info}"
+    fi
 
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then

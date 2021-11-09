@@ -17,10 +17,9 @@ run_cmd="cd ${BENCHMARK_ROOT}
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 14 fp32 1 jde;
         sleep 60;
 
-        cd ${BENCHMARK_ROOT}/models/fairmot;
+        cd ${BENCHMARK_ROOT}/models/fairmot/src;
         cp ${BENCHMARK_ROOT}/scripts/run_benchmark_mot.sh ./;
         cp ${BENCHMARK_ROOT}/scripts/analysis_log_mot.py ./;
-        cd src;
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh sp 6 fp32 1 fairmot;
         sleep 60;
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_mot.sh mp 6 fp32 1 fairmot;

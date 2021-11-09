@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# 公共配置文件,配置python 安装pytorch,运行目录:/workspace (起容器的时候映射的目录:benchmark/OtherFrameworks/detection/PyTorch/)
+# 公共配置文件,配置python 安装pytorch,运行目录:/workspace (起容器的时候映射的目录:benchmark/OtherFrame/detection/PyTorch/)
 echo "*******prepare benchmark***********"
 
 ################################# 创建一些log目录,如:
@@ -56,10 +56,11 @@ cd ${BENCHMARK_ROOT}
 
 ################################# 准备依赖环境，如:
 cd ${BENCHMARK_ROOT}/models/jde
-python3.7 -m pip install -r requirments.txt
+python3.7 -m pip install -r requirements.txt
 
 cd ${BENCHMARK_ROOT}/models/fairmot
-python3.7 -m pip install -r requirments.txt
+python3.7 -m pip install -r requirements.txt
+git clone https://github.com/lbin/DCNv2 -b pytorch_1.9
 cd DCNv2
 python3.7 setup.py build develop
 
