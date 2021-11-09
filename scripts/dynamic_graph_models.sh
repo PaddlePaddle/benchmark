@@ -615,8 +615,10 @@ dy_faster_rcnn_fpn() {
 }
 
 dy_gpt(){
+    cd ${BENCHMARK_ROOT}
+    mv PaddleNLP PaddleNLP.bak
+    git clone https://github.com/PaddlePaddle/PaddleNLP.git -b develop
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
-    git pull
     cd ${cur_model_path}
 
     #pip install -r requirements.txt
