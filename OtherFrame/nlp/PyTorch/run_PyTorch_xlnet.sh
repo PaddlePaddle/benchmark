@@ -5,7 +5,7 @@ ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7"
 docker pull ${ImageName}
 
 # 启动镜像后测试单个模型
-run_cmd="bash PrepareEnv_xlnet.sh;
+run_cmd="bash /workspace/PrepareEnv_xlnet.sh;
         cd /workspace/models/xlnet/;
         cp /workspace/scripts/xlnet/run_benchmark.sh ./;
         cp /workspace/scripts/xlnet/analysis_log.py ./;
