@@ -105,17 +105,17 @@
 	path = OtherFrame/gan/PyTorch/mmedting/models/mmedi
 	url = https://github.com/open-mmlab/mmediting.git
 [submodule "OtherFrame/gan/PyTorch/models/fomm"]
-        path = OtherFrame/gan/PyTorch/fomm
-        url = https://github.com/lzzyzlbb/first-order-model
-        branch = develop
+  path = OtherFrame/gan/PyTorch/fomm
+  url = https://github.com/lzzyzlbb/first-order-model
+  branch = develop
 [submodule "OtherFrame/gan/PyTorch/models/StyleGANv2"]
-        path = OtherFrame/gan/PyTorch/styleganv2
-        url = https://github.com/lzzyzlbb/stylegan2-pytorch
-        branch = develop
+  path = OtherFrame/gan/PyTorch/styleganv2
+  url = https://github.com/lzzyzlbb/stylegan2-pytorch
+  branch = develop
 [submodule "OtherFrame/nlp/PyTorch/models/xlnet/transformers"]
-	path = OtherFrame/nlp/PyTorch/models/xlnet/transformers
-	url = https://github.com/huggingface/transformers.git
+  path = OtherFrame/nlp/PyTorch/models/xlnet/transformers
+  url = https://github.com/huggingface/transformers.git
 [submodule "OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN"]
-	path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
-	url = https://github.com/yt605155624/ParallelWaveGAN.git
+  path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
+  url = https://github.com/yt605155624/ParallelWaveGAN.git
   
