@@ -6,6 +6,12 @@
   path = static_graph/NeuralMachineTranslation/BERT/pytorch/Megatron-LM
   url = https://github.com/chengduoZH/Megatron-LM
   branch = benchmark
+[submodule "dynamic_graph/OCR/pytorch/DB.pytorch"]
+  path = dynamic_graph/OCR/pytorch/DB.pytorch
+  url = https://github.com/LDOUBLEV/DBNet.pytorch
+[submodule "dynamic_graph/OCR/tensorflow/EAST"]
+  path = dynamic_graph/OCR/tensorflow/EAST
+  url = https://github.com/argman/EAST.git
 [submodule "static_graph/seq2seq/tensorflow/nmt"]
   path = static_graph/seq2seq/tensorflow/nmt
   url = https://github.com/tensorflow/nmt.git
@@ -69,7 +75,7 @@
 [submodule "PaddleSeg"]
 	path = PaddleSeg
 	url = https://github.com/PaddlePaddle/PaddleSeg.git
-	branch = benchmark
+	branch = develop
 [submodule "PaddleOCR"]
 	path = PaddleOCR
 	url = https://github.com/PaddlePaddle/PaddleOCR.git
@@ -80,10 +86,35 @@
 	branch = develop
 [submodule "OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN"]
 	path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
-	url = git@github.com:yt605155624/ParallelWaveGAN.git
+	url = https://github.com/yt605155624/ParallelWaveGAN.git
+[submodule "DeepSpeech"]
+	path = DeepSpeech
+	url = https://github.com/PaddlePaddle/DeepSpeech.git
+	branch = develop
+[submodule "OtherFrame/nlp/PyTorch/scripts/NLP/gpt/Megatron-LM"]
+	path = OtherFrame/nlp/PyTorch/models/NLP/gpt/Megatron-LM
+	url = https://github.com/NVIDIA/Megatron-LM.git
+[submodule "OtherFrame/nlp/PyTorch/apex"]
+	path = OtherFrame/nlp/PyTorch/apex
+	url = https://github.com/NVIDIA/apex.git
+[submodule "OtherFrame/Speech/PyTorch/wenet/models/wenet"]
+	path = OtherFrame/Speech/PyTorch/wenet/models/wenet
+	url = https://github.com/wenet-e2e/wenet
+	branch = main
 [submodule "OtherFrame/seg/PyTorch/models/mmseg"]
 	path = OtherFrame/seg/PyTorch/models/mmseg
 	url = https://github.com/open-mmlab/mmsegmentation.git
 [submodule "OtherFrame/gan/PyTorch/mmedting/models/mmedi"]
 	path = OtherFrame/gan/PyTorch/mmedting/models/mmedi
 	url = https://github.com/open-mmlab/mmediting.git
+[submodule "OtherFrame/gan/PyTorch/models/fomm"]
+        path = OtherFrame/gan/PyTorch/fomm
+        url = https://github.com/lzzyzlbb/first-order-model
+        branch = develop
+[submodule "OtherFrame/gan/PyTorch/models/StyleGANv2"]
+        path = OtherFrame/gan/PyTorch/styleganv2
+        url = https://github.com/lzzyzlbb/stylegan2-pytorch
+        branch = develop
+[submodule "OtherFrame/nlp/PyTorch/models/xlnet/transformers"]
+	path = OtherFrame/nlp/PyTorch/models/xlnet/transformers
+	url = https://github.com/huggingface/transformers.git
