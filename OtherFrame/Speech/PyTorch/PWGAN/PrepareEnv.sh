@@ -59,8 +59,8 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     pushd ../
 
     # install nkf
-    sudo apt-get install nkf
-    sudo apt-get install sox
+    apt-get install nkf -y
+    apt-get install sox -y
 
 fi
 
