@@ -654,6 +654,7 @@ gpt(){
     #pip install -r requirements.txt
     pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
     pip install pybind11 regex sentencepiece tqdm visualdl -i https://mirror.baidu.com/pypi/simple
+    pip install TensorRT
     pip install -e ./
 
     # Download test dataset and save it to PaddleNLP/data
