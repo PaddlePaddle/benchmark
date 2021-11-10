@@ -14,8 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn)
 
+cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn dy_gpt dy_seg_repo dy_speech_repo_pwgan)
+#if  [ ${RUN_PROFILER} = "PROFILER" ]; then
+#    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
+#fi
+log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
+
+dy_seg_repo(){
+    echo "dy_seg_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/
+    cd ${cur_model_path}
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_all.sh
+}
+
+dy_speech_repo_pwgan(){
+    echo "dy_speech_repo_pwgan"
+    cur_model_path=${BENCHMARK_ROOT}/DeepSpeech/
+    cd ${cur_model_path}/tests/benchmark/pwgan/
+    bash run_all.sh
+}
 #run_bert
 dy_bert(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/bert/
@@ -600,3 +619,68 @@ dy_faster_rcnn_fpn() {
     echo "index is speed, 8gpus begin, mp"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_faster_rcnn_bs1_speed_8gpus 2>&1
 }
+
+dy_gpt(){
+    profile=${1:-"off"}
+
+    cd ${BENCHMARK_ROOT}
+    mv PaddleNLP PaddleNLP.bak
+    git clone https://github.com/PaddlePaddle/PaddleNLP.git -b develop
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
+    cd ${cur_model_path}
+
+    run_env=$BENCHMARK_ROOT/run_env
+    rm -rf $run_env
+    mkdir $run_env
+    echo `which python3.7`
+    ln -s $(which python3.7)m-config  $run_env/python3-config
+    ln -s $(which python3.7) $run_env/python
+    ln -s $(which pip3.7) $run_env/pip
+
+    export PATH=$run_env:${PATH}
+
+    #pip install -r requirements.txt
+    pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
+    pip install pybind11 regex sentencepiece tqdm visualdl -i https://mirror.baidu.com/pypi/simple
+    pip install TensorRT
+    pip install -e ./
+
+    # Download test dataset and save it to PaddleNLP/data
+    if [ -d data ]; then
+        rm -rf data
+    fi
+    mkdir -p data && cd data
+    wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt/data/gpt_en_dataset_300m_ids.npy -o .tmp
+    wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt/data/gpt_en_dataset_300m_idx.npz -o .tmp
+    cd - 
+
+    model_name='nlp'
+    mode_list=(dygraph)
+    max_iters=200 # control the test time
+
+    SP_CARDNUM='0'
+    MP_CARDNUM='0,1,2,3,4,5,6,7'
+
+    # Running ...
+    rm -f ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/gpt/paddle/run_benchmark.sh ./       # 拷贝脚本到当前目录
+    sed -i '/set\ -xe/d' run_benchmark.sh
+
+    for mod_item in ${mode_list[@]}; do
+        # gpt-2
+        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_sp_bs8_fp32_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_mp_bs8_fp32_speed_8gpus 2>&1 
+        # in dygraph mod, the bs=16 will out of mem in 32G V100
+        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp16  ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_sp_bs8_fp16_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp16 ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_mp_bs8_fp16_speed_8gpus 2>&1
+
+        # gpt-3
+        # gpt3 is optimized for speed and need paddle develop version
+        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_sp_bs8_fp32_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_mp_bs8_fp32_speed_8gpus 2>&1
+        # in dygraph mod, the bs=16 will out of mem in 32G V100
+        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp16  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_sp_bs8_fp16_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp16 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_mp_bs8_fp16_speed_8gpus 2>&1
+    done
+}
+

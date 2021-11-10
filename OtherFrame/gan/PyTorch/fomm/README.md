@@ -18,20 +18,17 @@
   - CPU：Intel(R) Xeon(R) Gold 6271C CPU @ 2.60GHz * 80
   - CUDA、cudnn Version: cuda10.2-cudnn7
 
-#### 备注
-BasicVSR模型竞品torch模型只能测4卡，故这里只测4卡。
-
 ### Docker 镜像
 
 - **镜像版本**: `registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7`
-- **PyTorch 版本**: `1.9.1` 
+- **PyTorch 版本**: `1.0.0` 
 - **CUDA 版本**: `10.2`
 - **cuDnn 版本**: `7`
 
 ## 测试步骤
 
 ```bash
-bash run_PyTorch.sh     # 创建容器,在该标准环境中测试模型   
+bash run_PyTorch.sh;     # 创建容器,在该标准环境中测试模型   
 ```
 
 如果在docker内部按住torch等框架耗时很久，可以设置代理。下载测试数据的时候，需要关闭代理，否则下载耗时很久。
@@ -42,45 +39,34 @@ bash run_PyTorch.sh     # 创建容器,在该标准环境中测试模型
 #!/usr/bin/env bash
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
 docker pull ${ImageName}
-
 run_cmd="cp /workspace/scripts/PrepareEnv.sh ./;
          bash PrepareEnv.sh;
-         cd /workspace/models/mmedi;
-         cp -r /workspace/mmedi_benchmark_configs ./;
+         cd /workspace/models/fomm;
          cp /workspace/scripts/run_benchmark.sh ./;
          cp /workspace/scripts/analysis_log.py ./;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan_sp_bs32 sp fp32 32 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan_sp_bs64 sp fp32 64 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan_mp_bs32 mp fp32 32 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan_mp_bs64 mp fp32 64 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr_sp_bs4 sp fp32 4 300 3;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr_sp_bs64 sp fp32 64 300 3;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr_mp_bs4 mp fp32 4 300 3;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr_mp_bs64 mp fp32 64 300 3;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr_sp_bs2 sp fp32 2 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr_sp_bs4 sp fp32 4 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr_mp_bs2 mp fp32 2 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr_mp_bs4 mp fp32 4 300 4;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh fomm_sp_bs8 sp fp32 8 300 4;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh fomm_sp_bs16 sp fp32 16 300 4;
+         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh fomm_mp_bs32 mp fp32 8 300 4;
+         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh fomm_mp_bs64 mp fp32 16 300 4;
          "
-
-nvidia-docker run --name test_torch_gan -i  \
+         
+nvidia-docker run --name test_torch_gan -it  \
     --net=host \
     --shm-size=128g \
     -v $PWD:/workspace \
     ${ImageName}  /bin/bash -c "${run_cmd}"
-
 nvidia-docker stop test_torch_gan
 nvidia-docker rm test_torch_gan
 ```
 
 ## 输出
 
-执行完成后，在当前目录会产出分割模型训练性能数据的文件，比如`esrgan_sp_bs32_fp32_1_speed`等文件，内容如下所示。
+执行完成后，在当前目录会产出分割模型训练性能数据的文件，比如`fomm_sp_bs8_fp32_1_speed`等文件，内容如下所示。
 
 ```bash
 {
-"log_file": "/workspace/models/mmedi/esrgan_sp_bs32_fp32_1", \    # log 目录,创建规范见PrepareEnv.sh 
-"model_name": "esrgan_sp_bs32", \    # 模型case名,创建规范:repoName_模型名_bs${bs_item}_${fp_item} 
+"log_file": "/workspace/models/fomm/fomm_sp_bs8_fp32_1", \    # log 目录,创建规范见PrepareEnv.sh 
+"model_name": "fomm_sp_bs8", \    # 模型case名,创建规范:repoName_模型名_bs${bs_item}_${fp_item} 
 "mission_name": "图像生成", \         # 模型case所属任务名称，具体可参考scripts/config.ini      
 "direction_id": 0, \                 # 模型case所属方向id,0:CV|1:NLP|2:Rec 具体可参考benchmark/scripts/config.ini    
 "run_mode": "sp", \                  # 单卡:sp|多卡:mp
