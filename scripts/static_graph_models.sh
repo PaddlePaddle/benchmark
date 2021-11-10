@@ -645,11 +645,23 @@ nextvlad(){
 }
 
 gpt(){
+    profile=${1:-"off"}
+
     cd ${BENCHMARK_ROOT}
     mv PaddleNLP PaddleNLP.bak
     git clone https://github.com/PaddlePaddle/PaddleNLP.git -b develop
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
     cd ${cur_model_path}
+
+    run_env=$BENCHMARK_ROOT/run_env
+    rm -rf $run_env
+    mkdir $run_env
+    echo `which python3.7`
+    ln -s $(which python3.7)m-config  $run_env/python3-config
+    ln -s $(which python3.7) $run_env/python
+    ln -s $(which pip3.7) $run_env/pip
+
+    export PATH=$run_env:${PATH}
 
     #pip install -r requirements.txt
     pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
