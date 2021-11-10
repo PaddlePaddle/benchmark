@@ -33,9 +33,9 @@ function _train(){
     echo "Train ${model_name} on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
-    log_iter="5"
+    log_iter="2"
 
-    # between jde and fairmot
+    # different between jde and fairmot
     if [ ${model_name} = "jde" ]; then
         optimizer_lr="0.01"
         train_cmd="python3.7 -u train.py --batch-size ${batch_size} --epochs ${max_epoch} --lr ${optimizer_lr} --print-interval ${log_iter}"
