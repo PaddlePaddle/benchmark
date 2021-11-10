@@ -663,8 +663,8 @@ dy_gpt(){
 
         # gpt-3
         # gpt3 is optimized for speed and need paddle develop version
-        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 tee ${log_path}/nlp_dygraph_gpt3_sp_bs8_fp32_speed_1gpus 2>&1
-        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 tee ${log_path}/nlp_dygraph_gpt3_mp_bs8_fp32_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_sp_bs8_fp32_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_mp_bs8_fp32_speed_8gpus 2>&1
         # in dygraph mod, the bs=16 will out of mem in 32G V100
         CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp16  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_sp_bs8_fp16_speed_1gpus 2>&1
         CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp16 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_mp_bs8_fp16_speed_8gpus 2>&1
