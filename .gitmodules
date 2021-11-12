@@ -116,5 +116,5 @@
 	path = OtherFrame/nlp/PyTorch/models/xlnet/transformers
 	url = https://github.com/huggingface/transformers.git
 [submodule "OtherFrame/Speech/PyTorch/models/Parakeet/PWGAN/ParallelWaveGAN"]
-  path = OtherFrame/Speech/PyTorch/models/Parakeet/PWGAN/ParallelWaveGAN
+  path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
   url = https://github.com/yt605155624/ParallelWaveGAN.git

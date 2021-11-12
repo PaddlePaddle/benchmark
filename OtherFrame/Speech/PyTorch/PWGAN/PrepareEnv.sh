@@ -55,6 +55,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     # If you want to use distributed training, please run following command to install apex.
     git clone https://github.com/NVIDIA/apex.git
     pushd apex
+    git checkout 3303b3e
     pip install -v --disable-pip-version-check --no-cache-dir ./
     pushd ../
 
