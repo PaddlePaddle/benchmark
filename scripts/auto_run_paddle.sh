@@ -78,7 +78,7 @@ function prepare(){
 
     export ROOT_PATH=/home/crim
     export BENCHMARK_ROOT=${ROOT_PATH}/benchmark
-    data_path=${all_path}/dataset
+    export data_path=${all_path}/dataset
     prepare_path=${all_path}/prepare
 
     # 每个任务每个模式均做创建处理，并删除上一次任务的残存文件，避免相同repo不通分支引入的bug
