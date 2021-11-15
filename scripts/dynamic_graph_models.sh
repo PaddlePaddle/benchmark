@@ -15,7 +15,8 @@
 # limitations under the License.
 
 
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn dy_gpt dy_seg_repo dy_speech_repo_pwgan)
+cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
+dy_gpt dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer)
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
 #    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
 #fi
@@ -34,6 +35,12 @@ dy_speech_repo_pwgan(){
     cur_model_path=${BENCHMARK_ROOT}/DeepSpeech/
     cd ${cur_model_path}/tests/benchmark/pwgan/
     bash run_all.sh
+}
+dy_video_TimeSformer(){
+    echo "dy_video_TimeSformer"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
+    cd ${cur_model_path}/benchmark/TimeSformer/
+    bash run_all.sh local
 }
 #run_bert
 dy_bert(){
