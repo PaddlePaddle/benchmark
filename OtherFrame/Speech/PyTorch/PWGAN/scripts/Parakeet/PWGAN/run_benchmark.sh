@@ -51,7 +51,7 @@ function _train(){
     case ${run_mode} in
     sp) train_cmd="bash run.sh --stage 2 --stop-stage 2 --n-gpus 1 ${train_cmd}" ;;
     mp)
-        train_cmd="bash run.sh --stage 2 --stop-stage 2 --n-gpus 2 ${train_cmd}" ;;
+        train_cmd="bash run.sh --stage 2 --stop-stage 2 --n-gpus 8 ${train_cmd}" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
     echo "$train_cmd"
