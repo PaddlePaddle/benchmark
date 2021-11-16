@@ -25,10 +25,10 @@ def analyze(model_name, log_file, res_log_file):
         run_mode = "sp" if gpu_num == 1 else "mp"
 
         skip_num = 4
-        total_time = 0
+        total_samples = 0
         for i in range(skip_num, len(time_res)):
-            total_time += float(time_res[i])
-        ips = total_time / (len(time_res) - skip_num)
+            total_samples += float(time_res[i])
+        ips = total_samples / (len(time_res) - skip_num)
 
     info = {"log_file": log_file, "model_name": model_name, "mission_name": "语义表示",
             "direction_id": 1, "run_mode": run_mode, "index": 1, "gpu_num": gpu_num,
