@@ -16,7 +16,7 @@
 
 
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_gpt dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_fomm dy_styleganv2)
+dy_gpt dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_fomm dy_styleganv2 dy_xlnet)
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
 #    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
 #fi
@@ -864,4 +864,55 @@ function parse_yaml {
                 printf("%s%s=\"%s\"\n",vn, $2, $3);
             }
         }'
+}
+
+dy_xlnet() {
+    cd ${BENCHMARK_ROOT}
+    run_env=$BENCHMARK_ROOT/run_env
+    mv PaddleNLP PaddleNLP.bak
+    git clone https://github.com/PaddlePaddle/PaddleNLP.git -b develop
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
+    cd ${cur_model_path}
+
+    profile=${1:-"off"}
+
+    # 1. 配置python环境:
+    rm -rf $run_env
+    mkdir $run_env
+    echo `which python3.7`
+    ln -s $(which python3.7)m-config  $run_env/python3-config
+    ln -s $(which python3.7) $run_env/python
+    ln -s $(which pip3.7) $run_env/pip
+    export PATH=$run_env:${PATH}
+
+    # 2. 安装该模型需要的依赖 (如需开启优化策略请注明)
+    pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
+    pip install sentencepiece -i https://mirror.baidu.com/pypi/simple # 安装 sentencepiece
+    pip install -e ./
+
+    # 3. 拷贝该模型需要数据、预训练模型（这一步无需操作，数据和模型会自动下载）
+
+    # 4. 批量运行（如不方便批量，1，2需放到单个模型中）
+    # Running ...
+    rm -f ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/xlnet/paddle/run_benchmark.sh ./       # 拷贝脚本到当前目录
+    sed -i '/set\ -xe/d' run_benchmark.sh
+
+    model_mode_list=(xlnet-base-cased)
+    fp_item_list=(fp32)
+    bs_item_list=(32 64 128)
+    for model_mode in ${model_mode_list[@]}; do
+        for fp_item in ${fp_item_list[@]}; do
+            for bs_item in ${bs_item_list[@]}; do
+                echo "index is speed, 1gpus, begin, ${model_name}"
+                run_mode=sp
+                CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 300 ${model_mode} ${profile}  | tee ${log_path}/nlp_dygraph_xlnet_sp_bs${bs_item}_fp${fp_item}_speed_1gpus 2>&1    #  (5min)
+                #sleep 60
+                echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
+                run_mode=mp
+                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 300 ${model_mode} ${profile}  | tee ${log_path}/nlp_dygraph_xlnet_mp_bs${bs_item}_fp${fp_item}_speed_8gpus 2>&1
+                sleep 60
+            done
+        done
+    done
 }
