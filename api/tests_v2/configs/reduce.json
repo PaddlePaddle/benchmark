@@ -70,4 +70,42 @@
     },
     "atol": 0.01,
     "repeat": 10000
+}, {
+    "op": "reduce",
+    "param_info": {
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16, 32, 13475, 16]",
+            "type": "Variable"
+        },
+        "keepdim": {
+            "type": "bool",
+            "value": "False"
+        }
+    },
+    "atol": 0.01,
+    "repeat": 10000
+}, {
+    "op": "reduce",
+    "param_info": {
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 15, 3, 256, 256]",
+            "type": "Variable"
+        },
+        "keepdim": {
+            "type": "bool",
+            "value": "False"
+        }
+    },
+    "atol": 0.01,
+    "repeat": 10000
 }]

@@ -106,4 +106,88 @@
             "value": "None"
         }
     }
+}, {
+    "op": "dropout",
+    "param_info": {
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,128,128,128]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "dropout",
+    "param_info": {
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,128,128,128]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "dropout",
+    "param_info": {
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,32,128,128]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "dropout",
+    "param_info": {
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,13475,1024]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        }
+    }
 }]

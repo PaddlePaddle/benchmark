@@ -502,4 +502,148 @@
         }
     },
     "atol": 1E-4
+}, {
+    "config_id": 14,
+    "op": "depthwise_conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "long",
+            "value": "184"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[256,184,14,14]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[184,1,3,3]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    },
+    "atol": 1E-4
+}, {
+    "config_id": 15,
+    "op": "depthwise_conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "long",
+            "value": "576"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,576,32,32]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[576,1,3,3]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    },
+    "atol": 1E-4
+}, {
+    "config_id": 16,
+    "op": "depthwise_conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "long",
+            "value": "96"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[64,96,56,56]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[96,1,3,3]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    },
+    "atol": 1E-4
+}, {
+    "config_id": 17,
+    "op": "depthwise_conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "long",
+            "value": "192"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[64,192,28,28]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[192,1,3,3]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    },
+    "atol": 1E-4
 }]
