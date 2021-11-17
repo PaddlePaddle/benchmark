@@ -20,39 +20,35 @@ class SliceConfig(APIConfig):
         super(SliceConfig, self).__init__("slice")
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(SliceConfig, self).init_from_json(filename, config_id,unknown_dim)
+        super(SliceConfig, self).init_from_json(filename, config_id,
+                                                unknown_dim)
 
         if len(self.axes) > 1:
             print(
                 "Warning:\n"
                 "  1. parameter axes with length greater than 1 is not supported \n"
-                "in torch.narrow(), torch.narrow() will be executed"
-            )
+                "in torch.narrow(), torch.narrow() will be executed")
             self.run_torch = False
         if len(self.starts) > 1:
             print(
                 "Warning:\n"
                 "  2. parameter starts with length greater than 1 is not supported \n"
-                "in torch.narrow(), torch.narrow() will be executed"
-            )
+                "in torch.narrow(), torch.narrow() will be executed")
             self.run_torch = False
         if len(self.ends) > 1:
             print(
                 "Warning:\n"
                 "  3. parameter ends with length greater than 1 is not supported \n"
-                "in torch.narrow(), torch.narrow() will be executed"
-            )
+                "in torch.narrow(), torch.narrow() will be executed")
             self.run_torch = False
 
 
 class PDSlice(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.input_shape, dtype=config.input_dtype)
+        x = self.variable(
+            name='x', shape=config.input_shape, dtype=config.input_dtype)
         result = paddle.slice(
-            input=x,
-            axes=config.axes,
-            starts=config.starts,
-            ends=config.ends)
+            input=x, axes=config.axes, starts=config.starts, ends=config.ends)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -62,7 +58,8 @@ class PDSlice(PaddleDynamicAPIBenchmarkBase):
 
 class TorchSlice(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.input_shape, dtype=config.input_dtype)
+        x = self.variable(
+            name='x', shape=config.input_shape, dtype=config.input_dtype)
         result = torch.narrow(
             input=x,
             dim=config.axes[0],
@@ -77,7 +74,4 @@ class TorchSlice(PytorchAPIBenchmarkBase):
 
 if __name__=="__main__":
     test_main(
-        pd_dy_obj=PDSlice(),
-        torch_obj=TorchSlice(),
-        config=SliceConfig())
-
+        pd_dy_obj=PDSlice(), torch_obj=TorchSlice(),config=SliceConfig())
