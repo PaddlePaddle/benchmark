@@ -16,7 +16,7 @@
 
 
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_gpt dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_fomm dy_styleganv2 dy_xlnet dy_speech_repo_conformer)
+dy_gpt dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_fomm dy_styleganv2 dy_xlnet dy_speech_repo_conformer dy_detection_repo)
 
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
 #    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
@@ -46,6 +46,7 @@ dy_speech_repo_conformer(){
     cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/examples/dataset/aishell/
     bash prepare.sh
     bash run.sh
+    rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
 
 dy_video_TimeSformer(){
@@ -53,8 +54,16 @@ dy_video_TimeSformer(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
     cd ${cur_model_path}/benchmark/TimeSformer/
     bash run_all.sh local
+    rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
 
+dy_detection_repo(){
+    echo "dy_detection_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection/
+    cd ${cur_model_path}/
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_all.sh
+}
 #run_bert
 dy_bert(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/bert/
