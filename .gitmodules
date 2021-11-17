@@ -75,7 +75,7 @@
 [submodule "PaddleSeg"]
 	path = PaddleSeg
 	url = https://github.com/PaddlePaddle/PaddleSeg.git
-	branch = benchmark
+	branch = develop
 [submodule "PaddleOCR"]
 	path = PaddleOCR
 	url = https://github.com/PaddlePaddle/PaddleOCR.git
@@ -84,6 +84,16 @@
 	path = PaddleGAN
 	url = https://github.com/PaddlePaddle/PaddleGAN.git
 	branch = develop
+[submodule "PaddleSpeech"]
+	path = PaddleSpeech
+	url = https://github.com/PaddlePaddle/PaddleSpeech.git
+	branch = develop
+[submodule "OtherFrame/nlp/PyTorch/scripts/NLP/gpt/Megatron-LM"]
+	path = OtherFrame/nlp/PyTorch/models/NLP/gpt/Megatron-LM
+	url = https://github.com/NVIDIA/Megatron-LM.git
+[submodule "OtherFrame/nlp/PyTorch/apex"]
+	path = OtherFrame/nlp/PyTorch/apex
+	url = https://github.com/NVIDIA/apex.git
 [submodule "OtherFrame/Speech/PyTorch/wenet/models/wenet"]
 	path = OtherFrame/Speech/PyTorch/wenet/models/wenet
 	url = https://github.com/wenet-e2e/wenet
@@ -105,3 +115,9 @@
 [submodule "OtherFrame/ocr/PyTorch/models/PSENet"]
 	path = OtherFrame/ocr/PyTorch/models/PSENet
 	url = https://github.com/WenmuZhou/PSENet.git
+[submodule "OtherFrame/nlp/PyTorch/models/xlnet/transformers"]
+	path = OtherFrame/nlp/PyTorch/models/xlnet/transformers
+	url = https://github.com/huggingface/transformers.git
+[submodule "OtherFrame/Speech/PyTorch/models/Parakeet/PWGAN/ParallelWaveGAN"]
+  path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
+  url = https://github.com/yt605155624/ParallelWaveGAN.git
