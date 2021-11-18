@@ -41,7 +41,7 @@ function _set_params(){
         exit 1
     fi
     model_name="bert_${model_type}_${seq_len}_${fp_mode}_bs${base_batch_size}"
-    
+
     if [ ${run_mode} == "sp" ]; then
         batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
     else
@@ -60,7 +60,8 @@ function _train(){
     # 对齐分布式BS 新的配置
     gradient_merge_steps=$(expr 67584 \/ $batch_size \/ 8)
     echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES}, gradient_merge_steps: ${gradient_merge_steps}"
-    train_cmd="--max_predictions_per_seq 80
+    if [[ ${model_type} = "base" ]]; then
+        train_cmd="--max_predictions_per_seq 80
                --learning_rate 5e-5
                --weight_decay 0.0
                --adam_epsilon 1e-8
@@ -75,6 +76,23 @@ function _train(){
                --batch_size ${batch_size}
                --use_amp ${use_amp}
                --gradient_merge_steps $gradient_merge_steps"
+    elif [[ ${model_type} = "large" ]]; then
+         train_cmd="--max_predictions_per_seq 80
+               --learning_rate 1e-5 \
+               --weight_decay 1e-2 \
+               --adam_epsilon 1e-6 \
+               --warmup_steps 10000 \
+               --output_dir ./tmp2/
+               --logging_steps 10
+               --save_steps 20000
+               --max_steps ${max_iter}
+               --input_dir=./wikicorpus_en_${seq_len}
+               --model_type bert
+               --model_name_or_path bert-${model_type}-uncased
+               --batch_size ${batch_size}
+               --use_amp ${use_amp}
+               --gradient_merge_steps $gradient_merge_steps"
+    fi
 
     case ${run_mode} in
     sp) train_cmd="python -u run_pretrain.py "${train_cmd} ;;
