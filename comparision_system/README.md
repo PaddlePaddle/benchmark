@@ -9,8 +9,8 @@
 静态图模型
 <center>
 
-| 框架 | 模型 | 代码库 |
-|--------------|------|--------------------------------|
+| 框架 | 模型 | 代码库 | 状态
+|--------------|------|--------------------------------|---------|
 | `pytorch` | cascade_rcnn_fpn | https://github.com/zhaoweicai/Detectron-Cascade-RCNN.git |
 | `pytorch` | mask_rcnn | https://github.com/facebookresearch/maskrcnn-benchmark.git |
 | `pytorch` | mask_rcnn_fpn_resnet | https://github.com/facebookresearch/Detectron.git |
@@ -20,16 +20,16 @@
 | `pytorch` | resnet50_bs128 | https://github.com/pytorch/vision.git |
 | `pytorch` | resnet50_bs32 | https://github.com/pytorch/vision.git |
 | `pytorch` | SE_ResNeXt50_32x4d | https://github.com/pytorch/vision.git |
-| `pytorch` | Pix2pix | https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix.git |
-| `pytorch` | stargan | https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix.git |
+| `pytorch` | Pix2pix | https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix.git | 废弃 |
+| `pytorch` | stargan | https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix.git | 废弃 |
 | `pytorch` | bert | https://github.com/huggingface/transformers.git |
 | `pytorch` | transformer | https://github.com/FrostML/DeepLearningExamples/tree/benchmark/PyTorch/Translation/Transformer.git|
-| `tensorflow` | nextvlad | https://github.com/linrongc/youtube-8m.git |
-| `tensorflow` | deeplabv3 | https://github.com/tensorflow/models.git |
-| `tensorflow` | CycleGAN | |
-| `tensorflow` | STGAN | https://github.com/csmliu/STGAN.git |
-| `tensorflow` | seq2seq | https://github.com/tensorflow/nmt.git |
-| `tensorflow` | padding | |
+| `tensorflow` | nextvlad | https://github.com/linrongc/youtube-8m.git | 废弃 |
+| `tensorflow` | deeplabv3 | https://github.com/tensorflow/models.git | 废弃 |
+| `tensorflow` | CycleGAN | | 废弃 |
+| `tensorflow` | STGAN | https://github.com/csmliu/STGAN.git | 废弃 |
+| `tensorflow` | seq2seq | https://github.com/tensorflow/nmt.git | 废弃 |
+| `tensorflow` | padding | | 废弃 |
 | `mxnet` | yolov3 | https://github.com/dmlc/gluon-cv.git |
 | `mxnet` | ResNet50_bs128_fp16 | https://github.com/NVIDIA/DeepLearningExamples.git | 
 
