@@ -69,7 +69,7 @@ function _train(){
 }
 
 function _analysis_log(){
-    python analysis_log.py ${log_file} ${index_log_file}   # 分析log产出待入库的json 文件
+    python analysis_log.py ${model_name} ${log_file} ${index_log_file}   # 分析log产出待入库的json 文件
 }
 
 _set_params $@
