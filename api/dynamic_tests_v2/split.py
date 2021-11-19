@@ -21,7 +21,8 @@ class SplitConfig(APIConfig):
 
     def to_pytorch(self):
         torch_config = super(SplitConfig, self).to_pytorch()
-        torch_config.num_or_sections = int(self.x_shape[self.axis] / self.num_or_sections)
+        if isinstance(self.num_or_sections, int):
+            torch_config.num_or_sections = int(self.x_shape[self.axis] / self.num_or_sections)
         return torch_config
 
 
