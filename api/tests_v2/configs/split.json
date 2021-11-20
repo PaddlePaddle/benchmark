@@ -32,4 +32,38 @@
             "value": "4"
         }
     }
+}, {
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 20069, 8, 32]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "int",
+            "value": "20069"
+        }
+    }
+}, {
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 20069, 8, 32]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "list",
+            "value": "[15042, 3795, 980, 252]"
+        }
+    }
 }]
