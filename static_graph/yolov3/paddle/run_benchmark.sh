@@ -17,7 +17,7 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
-    model_name="yolov3_bs8"
+    model_name="yolov3_bs16"
     mission_name="目标检测"           # 模型所属任务名称，具体可参考scripts/config.ini                               （必填）
     direction_id=0                    # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     skip_steps=5                      # 解析日志，有些模型前几个step耗时长，需要跳过                                  (必填)
@@ -29,7 +29,7 @@ function _set_params(){
     arr=(${device})
     num_gpu_devices=${#arr[*]}
 
-    if [[ ${index} -eq 6 ]]; then base_batch_size=14; else base_batch_size=8; fi
+    if [[ ${index} -eq 6 ]]; then base_batch_size=14; else base_batch_size=16; fi
     batch_size=`expr ${base_batch_size} \* ${num_gpu_devices}`
 
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
@@ -56,6 +56,7 @@ function _train(){
     fi
 
     train_cmd="-c configs/yolov3_darknet.yml \
+     -o LearningRate.base_lr=0.002 \
      --opt snapshot_iter=100000  max_iters=${max_iter} TrainReader.batch_size=${base_batch_size} TrainReader.worker_num=${num_workers} \
      --is_profiler=${is_profiler} \
      --profiler_path=${profiler_path}"
@@ -67,7 +68,7 @@ function _train(){
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
-    
+
     rm -rf output
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
