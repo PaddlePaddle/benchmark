@@ -57,19 +57,17 @@ class PDDeformableConv(PaddleDynamicAPIBenchmarkBase):
             shape=config.offset_shape,
             dtype=config.offset_dtype)
         mask = self.variable(
-            name='mask',
-            shape=config.mask_shape,
-            dtype=config.mask_dtype)
+            name='mask', shape=config.mask_shape, dtype=config.mask_dtype)
 
         result = paddle.vision.ops.deform_conv2d(
-            x=x, 
-            offset=offset, 
-            weight=weight, 
+            x=x,
+            offset=offset,
+            weight=weight,
             stride=config.stride,
-            dilation=config.dilation, 
-            padding=config.padding, 
-            deformable_groups=config.deformable_groups, 
-            groups=config.groups, 
+            dilation=config.dilation,
+            padding=config.padding,
+            deformable_groups=config.deformable_groups,
+            groups=config.groups,
             mask=mask)
 
         self.feed_list = [x, weight]
@@ -80,23 +78,20 @@ class PDDeformableConv(PaddleDynamicAPIBenchmarkBase):
 
 class TorchDeformableConv(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        input = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        input = self.variable(
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
-            name='weight', 
-            shape=config.weight_shape, 
-            dtype=config.x_dtype)
+            name='weight', shape=config.weight_shape, dtype=config.x_dtype)
         offset = self.variable(
-            name='offset', 
-            shape=config.offset_shape, 
+            name='offset',
+            shape=config.offset_shape,
             dtype=config.offset_dtype)
         mask = self.variable(
-            name='mask', 
-            shape=config.mask_shape, 
-            dtype=config.mask_dtype)
+            name='mask', shape=config.mask_shape, dtype=config.mask_dtype)
         result = torchvision.ops.deform_conv2d(
-            input=input, 
-            offset=offset, 
-            weight=weight, 
+            input=input,
+            offset=offset,
+            weight=weight,
             stride=config.stride,
             padding=config.padding,
             dilation=config.dilation,
@@ -110,6 +105,6 @@ class TorchDeformableConv(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDDeformableConv(), 
-        torch_obj=TorchDeformableConv(), 
+        pd_dy_obj=PDDeformableConv(),
+        torch_obj=TorchDeformableConv(),
         config=DeformableConvConfig())

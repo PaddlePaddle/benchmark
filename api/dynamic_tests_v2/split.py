@@ -22,7 +22,8 @@ class SplitConfig(APIConfig):
     def to_pytorch(self):
         torch_config = super(SplitConfig, self).to_pytorch()
         if isinstance(self.num_or_sections, int):
-            torch_config.num_or_sections = int(self.x_shape[self.axis] / self.num_or_sections)
+            torch_config.num_or_sections = int(self.x_shape[self.axis] /
+                                               self.num_or_sections)
         return torch_config
 
 
@@ -46,7 +47,9 @@ class TorchSplit(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = torch.split(
-            tensor=x, split_size_or_sections=config.num_or_sections, dim=config.axis)
+            tensor=x,
+            split_size_or_sections=config.num_or_sections,
+            dim=config.axis)
 
         if type(result) == tuple:
             result = list(result)
