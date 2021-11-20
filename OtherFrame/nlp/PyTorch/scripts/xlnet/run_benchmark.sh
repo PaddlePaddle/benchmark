@@ -38,7 +38,7 @@ function _train(){
                --max_steps=${max_iter}
                --pad_to_max_length=True
                --logging_strategy=steps
-               --logging_steps=500
+               --logging_steps=1
                --do_train
                --output_dir=${run_log_path}
                --overwrite_output_dir
