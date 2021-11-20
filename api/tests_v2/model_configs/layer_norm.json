@@ -1,0 +1,197 @@
+[{
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 1024, 768]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}, {
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 65536, 32]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}, {
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-06"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 65536, 32]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}, {
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 1024, 32]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}, {
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 16384, 64]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}, {
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-06"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 16384, 64]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}, {
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 4096, 160]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}, {
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-06"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 4096, 160]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}, {
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 1024, 256]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}, {
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 65536, 32]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}, {
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-06"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 1024, 256]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}, {
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 1024, 160]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}, {
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 1024, 64]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}, {
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[8, 1024, 768]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "layer_norm"
+}]
