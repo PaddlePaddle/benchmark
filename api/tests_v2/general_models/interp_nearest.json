@@ -3,7 +3,7 @@
     "param_info": {
         "align_corners": {
             "type": "bool",
-            "value": "True"
+            "value": "False"
         },
         "data_format": {
             "type": "string",
@@ -11,137 +11,12 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 512L, 64L, 402L]",
+            "shape": "[8, 128, 128, 128]",
             "type": "Variable"
         },
         "size": {
             "type": "list",
-            "value": "[128L, 402L]"
-        },
-        "scale_factor": {
-            "type": "string",
-            "value": "None"
-        }
-    }
-}, {
-    "op": "interp_bilinear",
-    "param_info": {
-        "align_corners": {
-            "type": "bool",
-            "value": "True"
-        },
-        "data_format": {
-            "type": "string",
-            "value": "NHWC"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[-1L, 64L, 402L, 512L]",
-            "type": "Variable"
-        },
-        "size": {
-            "type": "list",
-            "value": "[128L, 402L]"
-        },
-        "scale_factor": {
-            "type": "string",
-            "value": "None"
-        }
-    }
-}, {
-    "op": "interp_bilinear",
-    "param_info": {
-        "align_corners": {
-            "type": "bool",
-            "value": "True"
-        },
-        "data_format": {
-            "type": "string",
-            "value": "NCHW"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[-1L, 256L, 1L, 1L]",
-            "type": "Variable"
-        },
-        "size": {
-            "type": "tuple",
-            "value": "(33L, 33L)"
-        },
-        "scale_factor": {
-            "type": "string",
-            "value": "None"
-        }
-    }
-}, {
-    "op": "interp_bilinear",
-    "param_info": {
-        "align_corners": {
-            "type": "bool",
-            "value": "True"
-        },
-        "data_format": {
-            "type": "string",
-            "value": "NHWC"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[-1L, 1L, 1L, 256L]",
-            "type": "Variable"
-        },
-        "size": {
-            "type": "tuple",
-            "value": "(33L, 33L)"
-        },
-        "scale_factor": {
-            "type": "string",
-            "value": "None"
-        }
-    }
-}, {
-    "op": "interp_bilinear",
-    "param_info": {
-        "align_corners": {
-            "type": "bool",
-            "value": "True"
-        },
-        "data_format": {
-            "type": "string",
-            "value": "NCHW"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[-1L, 19L, 129L, 129L]",
-            "type": "Variable"
-        },
-        "size": {
-            "type": "tuple",
-            "value": "(513L, 513L)"
-        },
-        "scale_factor": {
-            "type": "string",
-            "value": "None"
-        }
-    }
-}, {
-    "op": "interp_bilinear",
-    "param_info": {
-        "align_corners": {
-            "type": "bool",
-            "value": "True"
-        },
-        "data_format": {
-            "type": "string",
-            "value": "NHWC"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[-1L, 129L, 129L, 19L]",
-            "type": "Variable"
-        },
-        "size": {
-            "type": "tuple",
-            "value": "(513L, 513L)"
+            "value": "[256, 256]"
         },
         "scale_factor": {
             "type": "string",
@@ -161,12 +36,12 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[4L, 256L, 1L, 1L]",
+            "shape": "[8, 256, 64, 64]",
             "type": "Variable"
         },
         "size": {
-            "type": "tuple",
-            "value": "(64L, 128L)"
+            "type": "list",
+            "value": "[128, 128]"
         },
         "scale_factor": {
             "type": "string",
@@ -186,12 +61,187 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[2, 19, 256, 256]",
+            "shape": "[8, 1024, 2, 2]",
             "type": "Variable"
         },
         "size": {
             "type": "list",
-            "value": "[1024, 1024]"
+            "value": "[4, 4]"
+        },
+        "scale_factor": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 1024, 4, 4]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "list",
+            "value": "[8, 8]"
+        },
+        "scale_factor": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 512, 8, 8]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "list",
+            "value": "[16, 16]"
+        },
+        "scale_factor": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 2048, 4, 4]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "list",
+            "value": "[8, 8]"
+        },
+        "scale_factor": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 128, 32, 32]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "list",
+            "value": "[64, 64]"
+        },
+        "scale_factor": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 512, 16, 16]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "list",
+            "value": "[32, 32]"
+        },
+        "scale_factor": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 256, 16, 16]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "list",
+            "value": "[32, 32]"
+        },
+        "scale_factor": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}, {
+    "op": "interp_bilinear",
+    "param_info": {
+        "align_corners": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 256, 32, 32]",
+            "type": "Variable"
+        },
+        "size": {
+            "type": "list",
+            "value": "[64, 64]"
         },
         "scale_factor": {
             "type": "string",
