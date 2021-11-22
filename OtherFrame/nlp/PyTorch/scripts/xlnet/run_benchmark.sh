@@ -60,7 +60,7 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
-    #kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
+    # kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then
         rm ${log_file}
