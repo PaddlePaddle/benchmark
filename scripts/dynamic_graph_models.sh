@@ -16,7 +16,7 @@
 
 
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_fomm dy_styleganv2 dy_xlnet dy_speech_repo_conformer dy_detection_repo)  #dy_gpt
+dy_gpt dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_fomm dy_styleganv2 dy_xlnet dy_speech_repo_conformer dy_detection_repody_ocr_repo)
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
 #    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
 #fi
