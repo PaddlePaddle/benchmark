@@ -16,7 +16,7 @@
 
 
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_gpt dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_fomm dy_styleganv2 dy_xlnet dy_speech_repo_conformer dy_detection_repo dy_ocr_repo)
+dy_gpt dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_fomm dy_styleganv2 dy_xlnet dy_speech_repo_conformer dy_detection_repo dy_ocr_repo dy_clas_repo)
 
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
 #    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
@@ -72,6 +72,26 @@ dy_ocr_repo(){
     sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
     bash benchmark/run_det.sh
 }
+
+dy_clas_repo(){
+    echo "dy_clas_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleClas/
+    cd ${cur_model_path}/
+    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy pandas wget h5py sklearn opencv-python visualdl)
+    for package in ${package_check_list[@]}; do
+        if python -c "import ${package}" >/dev/null 2>&1; then
+            echo "${package} have already installed"
+        else
+            echo "${package} NOT FOUND"
+            pip install ${package}
+            echo "${package} installed"
+        fi
+    done
+    # prepare data    # 脚本内为下载ILSVRC2012,太过耗时
+    mkdir -p ./dataset/ILSVRC2012
+    ln -s ${data_path}/dygraph_data/imagenet100_data/* ./dataset/ILSVRC2012
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_all.sh
 
 #run_bert
 dy_bert(){
