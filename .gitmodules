@@ -38,9 +38,6 @@
 [submodule "static_graph/Mask-RCNN/pytorch/maskrcnn-benchmark"]
   path = static_graph/Mask-RCNN/pytorch/maskrcnn-benchmark
   url = https://github.com/facebookresearch/maskrcnn-benchmark.git
-[submodule "NextVlad/tensorflow/youtube-8m"]
-  path = NextVlad/tensorflow/youtube-8m
-  url = https://github.com/linrongc/youtube-8m.git
 [submodule "static_graph/Detection/pytorch/Detectron"]
   path = static_graph/Detection/pytorch/Detectron
   url = https://github.com/facebookresearch/Detectron.git
@@ -75,7 +72,7 @@
 [submodule "PaddleSeg"]
 	path = PaddleSeg
 	url = https://github.com/PaddlePaddle/PaddleSeg.git
-	branch = benchmark
+	branch = develop
 [submodule "PaddleOCR"]
 	path = PaddleOCR
 	url = https://github.com/PaddlePaddle/PaddleOCR.git
@@ -84,3 +81,37 @@
 	path = PaddleGAN
 	url = https://github.com/PaddlePaddle/PaddleGAN.git
 	branch = develop
+[submodule "PaddleSpeech"]
+	path = PaddleSpeech
+	url = https://github.com/PaddlePaddle/PaddleSpeech.git
+	branch = develop
+[submodule "OtherFrame/nlp/PyTorch/scripts/NLP/gpt/Megatron-LM"]
+	path = OtherFrame/nlp/PyTorch/models/NLP/gpt/Megatron-LM
+	url = https://github.com/NVIDIA/Megatron-LM.git
+[submodule "OtherFrame/nlp/PyTorch/apex"]
+	path = OtherFrame/nlp/PyTorch/apex
+	url = https://github.com/NVIDIA/apex.git
+[submodule "OtherFrame/Speech/PyTorch/wenet/models/wenet"]
+	path = OtherFrame/Speech/PyTorch/wenet/models/wenet
+	url = https://github.com/wenet-e2e/wenet
+	branch = main
+[submodule "OtherFrame/seg/PyTorch/models/mmseg"]
+	path = OtherFrame/seg/PyTorch/models/mmseg
+	url = https://github.com/open-mmlab/mmsegmentation.git
+[submodule "OtherFrame/gan/PyTorch/mmedting/models/mmedi"]
+	path = OtherFrame/gan/PyTorch/mmedting/models/mmedi
+	url = https://github.com/open-mmlab/mmediting.git
+[submodule "OtherFrame/gan/PyTorch/models/fomm"]
+        path = OtherFrame/gan/PyTorch/fomm
+        url = https://github.com/lzzyzlbb/first-order-model
+        branch = develop
+[submodule "OtherFrame/gan/PyTorch/models/StyleGANv2"]
+        path = OtherFrame/gan/PyTorch/styleganv2
+        url = https://github.com/lzzyzlbb/stylegan2-pytorch
+        branch = develop
+[submodule "OtherFrame/nlp/PyTorch/models/xlnet/transformers"]
+	path = OtherFrame/nlp/PyTorch/models/xlnet/transformers
+	url = https://github.com/huggingface/transformers.git
+[submodule "OtherFrame/Speech/PyTorch/models/Parakeet/PWGAN/ParallelWaveGAN"]
+        path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
+        url = https://github.com/yt605155624/ParallelWaveGAN.git

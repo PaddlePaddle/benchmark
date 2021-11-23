@@ -18,6 +18,7 @@ benchmark目录下的文件用于获取并分析EAST(tensorflow)的训练日志�
 git clone https://github.com/argman/EAST
 cd ./EAST
 mkdir benchmark && cp ../benchmark/dynamic_graph/OCR/tensorflow/* ./benchmark
+cd ./EAST
 bash benchmark/prepare_data.sh
 ```
 
