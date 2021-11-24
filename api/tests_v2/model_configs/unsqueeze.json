@@ -1,0 +1,248 @@
+[{
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 10, 2]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "3"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 11, 64, 64]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "2"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 3, 256, 256]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "2"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 10, 58, 58]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "2"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 1, 3, 64, 64]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "1"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 10, 2]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "2"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 10, 2, 2]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "2"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 10, 58, 58]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "4"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 10, 64, 64, 2]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "5"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 10, 1, 2, 2]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "3"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[6, 80, 25500]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "3"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[6, 80, 85]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "1"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[64, 1, 1]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "3"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[6, 64, 25500]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "3"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[80, 80, 5]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "3"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[128, 80, 1]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "3"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[6, 25500]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "2"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[128, 64, 3]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "3"
+        }
+    },
+    "op": "unsqueeze"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[64, 64, 1]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "3"
+        }
+    },
+    "op": "unsqueeze"
+}]

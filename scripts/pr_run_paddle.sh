@@ -44,7 +44,6 @@ function prepare(){
     # this for update the log_path coding mat
     export TRAIN_LOG_DIR=${save_log_dir}/train_log
     export PROFILER_LOG_DIR=${save_log_dir}/profiler_log
-    
     mkdir -p ${TRAIN_LOG_DIR}
     mkdir -p ${PROFILER_LOG_DIR}
 
@@ -94,8 +93,8 @@ function run(){
     export implement_type=static_graph
     pip uninstall paddlepaddle-gpu -y
     pip install "${static_image_name}"
-    log_path=${save_log_dir}/static_graph/index
-    mkdir -p ${log_path}
+    export LOG_PATH_INDEX_DIR=${save_log_dir}/${implement_type}/index
+    mkdir -p ${LOG_PATH_INDEX_DIR}
     source ${BENCHMARK_ROOT}/scripts/static_graph_models.sh
 
     # static_models , 分割的字符串切分成为数组，然后遍历执行即可。
@@ -113,8 +112,8 @@ function run(){
     export implement_type=dynamic_graph
     pip uninstall paddlepaddle-gpu -y
     pip install "${dynamic_image_name}"
-    log_path=${save_log_dir}/dynamic_graph/index
-    mkdir -p ${log_path}
+    export LOG_PATH_INDEX_DIR=${save_log_dir}/${implement_type}/index
+    mkdir -p ${LOG_PATH_INDEX_DIR}
     source ${BENCHMARK_ROOT}/scripts/dynamic_graph_models.sh
 
     # dynamic_models , 分割的字符串切分成为数组，然后遍历执行即可。

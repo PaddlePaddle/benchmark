@@ -2,6 +2,9 @@
   path = models
   url = https://github.com/PaddlePaddle/models.git
   branch = develop
+[submodule "dynamic_graph/OCR/pytorch/DB.pytorch"]
+  path = dynamic_graph/OCR/pytorch/DB.pytorch
+  url = https://github.com/LDOUBLEV/DBNet.pytorch
 [submodule "dynamic_graph/OCR/tensorflow/EAST"]
   path = dynamic_graph/OCR/tensorflow/EAST
   url = https://github.com/argman/EAST.git
@@ -83,5 +86,5 @@
 	path = OtherFrame/nlp/PyTorch/models/xlnet/transformers
 	url = https://github.com/huggingface/transformers.git
 [submodule "OtherFrame/Speech/PyTorch/models/Parakeet/PWGAN/ParallelWaveGAN"]
-  path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
-  url = https://github.com/yt605155624/ParallelWaveGAN.git
+        path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
+        url = https://github.com/yt605155624/ParallelWaveGAN.git
