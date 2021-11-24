@@ -32,21 +32,4 @@
             "value": "4"
         }
     }
-}, {
-    "op": "split",
-    "param_info": {
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[-1L, 800L]",
-            "type": "Variable"
-        },
-        "num_or_sections": {
-            "type": "list",
-            "value": "[200, 300, 300]"
-        }
-    }
 }]
