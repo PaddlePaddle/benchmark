@@ -204,7 +204,7 @@ function run_models(){
             -e "no_proxy=bcebos.com" \
             --net=host \
             --cap-add=ALL \
-            --shm-size=128G \
+            --shm-size=256G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
     else
@@ -228,7 +228,7 @@ function run_models(){
             -e "no_proxy=bcebos.com" \
             --net=host \
             --cap-add=ALL \
-            --shm-size=128G \
+            --shm-size=256G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
         else
@@ -249,7 +249,7 @@ function run_models(){
             -e "no_proxy=bcebos.com" \
             --net=host \
             --cap-add=ALL \
-            --shm-size=128G \
+            --shm-size=256G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
         fi
