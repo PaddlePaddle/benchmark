@@ -38,7 +38,7 @@ function _train(){
                --max_steps=${max_iter}
                --pad_to_max_length=True
                --logging_strategy=steps
-               --logging_steps=500
+               --logging_steps=1
                --do_train
                --output_dir=${run_log_path}
                --overwrite_output_dir
@@ -60,7 +60,7 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
-    kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
+    # kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then
         rm ${log_file}
@@ -69,7 +69,7 @@ function _train(){
 }
 
 function _analysis_log(){
-    python analysis_log.py ${log_file} ${index_log_file}   # 分析log产出待入库的json 文件
+    python analysis_log.py ${model_name} ${log_file} ${index_log_file}   # 分析log产出待入库的json 文件
 }
 
 _set_params $@

@@ -16,7 +16,8 @@
 
 
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_gpt dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_fomm dy_styleganv2 dy_xlnet dy_speech_repo_conformer)
+dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_fomm dy_styleganv2 dy_xlnet dy_speech_repo_conformer dy_detection_repo dy_ocr_repo dy_clas_repo) #dy_gpt
+
 
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
 #    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
@@ -35,6 +36,7 @@ dy_speech_repo_pwgan(){
     echo "dy_speech_repo_pwgan"
     cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
     cd ${cur_model_path}/tests/benchmark/pwgan/
+    pip install jsonlines
     bash run_all.sh
 }
 
@@ -44,8 +46,10 @@ dy_speech_repo_conformer(){
     cd ${cur_model_path}/tests/benchmark/conformer/
     rm -rf ${cur_model_path}/examples/dataset/aishell/aishell.py
     cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/examples/dataset/aishell/
+    pip install loguru
     bash prepare.sh
     bash run.sh
+    rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
 
 dy_video_TimeSformer(){
@@ -53,7 +57,45 @@ dy_video_TimeSformer(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
     cd ${cur_model_path}/benchmark/TimeSformer/
     bash run_all.sh local
+    rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
+
+dy_detection_repo(){
+    echo "dy_detection_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection/
+    pip install numpy -U
+    cd ${cur_model_path}/
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_all.sh
+}
+
+dy_ocr_repo(){
+    echo "dy_ocr_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleOCR/
+    cd ${cur_model_path}/
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_det.sh
+}
+
+dy_clas_repo(){
+    echo "dy_clas_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleClas/
+    cd ${cur_model_path}/
+    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy pandas wget h5py sklearn opencv-python visualdl)
+    for package in ${package_check_list[@]}; do
+        if python -c "import ${package}" >/dev/null 2>&1; then
+            echo "${package} have already installed"
+        else
+            echo "${package} NOT FOUND"
+            pip install ${package}
+            echo "${package} installed"
+        fi
+    done
+    # prepare data    # 脚本内为下载ILSVRC2012,太过耗时
+    mkdir -p ./dataset/ILSVRC2012
+    ln -s ${data_path}/dygraph_data/imagenet100_data/* ./dataset/ILSVRC2012
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_all.sh
 
 #run_bert
 dy_bert(){
@@ -195,7 +237,7 @@ dy_tsn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
-    pip install wget
+    pip install wget av
     # Prepare pretrained modles
     rm -rf ResNet50_pretrain.pdparams
     ln -s ${prepare_path}/tsn/ResNet50_pretrain.pdparams ${cur_model_path}/
@@ -284,7 +326,7 @@ dy_slowfast(){
     cd ${cur_model_path}
     pip install tqdm
     pip install decord
-    pip install pandas
+    pip install pandas av
     # Prepare data
     rm -rf data
     ln -s ${data_path}/dygraph_data/slowfast/data/ ${cur_model_path}/
@@ -396,7 +438,7 @@ dy_tsm(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
-    pip install wget decord
+    pip install wget av decord
     # Prepare pretrained modles
     ln -s ${prepare_path}/tsm/ResNet50_pretrain.pdparams ${cur_model_path}/
     # Prepare data
@@ -563,7 +605,7 @@ dy_bmn() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
-    package_check_list=(tqdm PyYAML numpy decord pandas)
+    package_check_list=(tqdm PyYAML numpy decord pandas av)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
             echo "${package} have already installed"
