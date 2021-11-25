@@ -72,6 +72,6 @@ class TorchSlice(PytorchAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     test_main(
-        pd_dy_obj=PDSlice(), torch_obj=TorchSlice(),config=SliceConfig())
+        pd_dy_obj=PDSlice(), torch_obj=TorchSlice(), config=SliceConfig())
