@@ -1,5 +1,5 @@
 [{
-    "op": "interp_bilinear",
+    "op": "interp_nearest",
     "param_info": {
         "align_corners": {
             "type": "bool",
@@ -24,7 +24,7 @@
         }
     }
 }, {
-    "op": "interp_bilinear",
+    "op": "interp_nearest",
     "param_info": {
         "align_corners": {
             "type": "bool",
@@ -49,7 +49,7 @@
         }
     }
 }, {
-    "op": "interp_bilinear",
+    "op": "interp_nearest",
     "param_info": {
         "align_corners": {
             "type": "bool",
@@ -74,7 +74,7 @@
         }
     }
 }, {
-    "op": "interp_bilinear",
+    "op": "interp_nearest",
     "param_info": {
         "align_corners": {
             "type": "bool",
@@ -99,7 +99,7 @@
         }
     }
 }, {
-    "op": "interp_bilinear",
+    "op": "interp_nearest",
     "param_info": {
         "align_corners": {
             "type": "bool",
@@ -124,7 +124,7 @@
         }
     }
 }, {
-    "op": "interp_bilinear",
+    "op": "interp_nearest",
     "param_info": {
         "align_corners": {
             "type": "bool",
@@ -149,7 +149,7 @@
         }
     }
 }, {
-    "op": "interp_bilinear",
+    "op": "interp_nearest",
     "param_info": {
         "align_corners": {
             "type": "bool",
@@ -174,7 +174,7 @@
         }
     }
 }, {
-    "op": "interp_bilinear",
+    "op": "interp_nearest",
     "param_info": {
         "align_corners": {
             "type": "bool",
@@ -199,7 +199,7 @@
         }
     }
 }, {
-    "op": "interp_bilinear",
+    "op": "interp_nearest",
     "param_info": {
         "align_corners": {
             "type": "bool",
@@ -224,7 +224,7 @@
         }
     }
 }, {
-    "op": "interp_bilinear",
+    "op": "interp_nearest",
     "param_info": {
         "align_corners": {
             "type": "bool",
