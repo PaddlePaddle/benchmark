@@ -564,6 +564,7 @@ dy_lac(){
 
 dy_ppocr_mobile_2() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleOCR
+    pip install fasttext
     cd ${cur_model_path}
 
     if python -c "import pooch" >/dev/null 2>&1; then
