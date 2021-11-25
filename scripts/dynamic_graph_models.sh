@@ -96,6 +96,8 @@ dy_clas_repo(){
     ln -s ${data_path}/dygraph_data/imagenet100_data/* ./dataset/ILSVRC2012
     sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
     bash benchmark/run_all.sh
+}
+
 
 #run_bert
 dy_bert(){
@@ -562,6 +564,7 @@ dy_lac(){
 
 dy_ppocr_mobile_2() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleOCR
+    pip install fasttext
     cd ${cur_model_path}
 
     if python -c "import pooch" >/dev/null 2>&1; then
