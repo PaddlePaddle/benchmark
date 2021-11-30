@@ -48,7 +48,7 @@ function _train(){
     set_batch_size="data.samples_per_gpu=${batch_size}"
     set_max_epoch="runner.max_epochs=${max_epoch}"
     set_max_epoch_pose="total_epochs=${max_epoch}"
-    set_log_iter="log_config.interval=5"
+    set_log_iter="log_config.interval=1"
     if [ ${fp_item} = "fp16" ]; then
         set_fp_item="fp16.loss_scale=512."
     else

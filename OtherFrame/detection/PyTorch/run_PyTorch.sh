@@ -45,13 +45,13 @@ run_cmd="cd ${BENCHMARK_ROOT}
         pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu102/torch1.9.1/index.html
         pip install -r requirements.txt
         pip install -v -e .
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 64 fp32 10 hrnet_w32_keypoint;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 64 fp32 1 hrnet_w32_keypoint;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 64 fp32 10 hrnet_w32_keypoint;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 64 fp32 1 hrnet_w32_keypoint;
         sleep 60;
-        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 160 fp32 10 hrnet_w32_keypoint;
+        CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 160 fp32 1 hrnet_w32_keypoint;
         sleep 60;
-        cuda_visible_devices=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 160 fp32 10 hrnet_w32_keypoint;
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 160 fp32 1 hrnet_w32_keypoint;
         sleep 60;
 
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 20 fp32 1 higherhrnet_w32;
