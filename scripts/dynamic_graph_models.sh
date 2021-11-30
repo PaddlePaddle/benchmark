@@ -16,18 +16,28 @@
 
 
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_fomm dy_styleganv2 dy_xlnet dy_speech_repo_conformer dy_detection_repo dy_ocr_repo dy_clas_repo) #dy_gpt
+dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_speech_repo_conformer dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo) #dy_gpt
 
 
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
 #    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
 #fi
-log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
+export log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
 
 dy_seg_repo(){
     echo "dy_seg_repo"
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/
     cd ${cur_model_path}
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_all.sh
+}
+
+dy_gan_repo(){
+    echo "dy_gan_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleGAN/
+    cd ${cur_model_path}
+    ln -s ${data_path}/dygraph_data/gan_repo/REDS/ ./data/
+    pip install -v -e .
     sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
     bash benchmark/run_all.sh
 }
@@ -747,180 +757,6 @@ dy_gpt(){
     done
 }
 
-dy_fomm(){
-    cd ${BENCHMARK_ROOT}
-    mv PaddleGAN PaddleGAN.bak
-    git clone https://github.com/PaddlePaddle/PaddleGAN.git -b develop
-    cur_model_path=${BENCHMARK_ROOT}/PaddleGAN
-    cd ${cur_model_path}
-
-    # Running ...
-    rm -f ./run_benchmark.sh
-    rm -f ./benchmark.yaml
-    cp ${BENCHMARK_ROOT}/dynamic_graph/fomm/paddle/run_benchmark.sh ./       # 拷贝脚本到当前目录
-    cp ${BENCHMARK_ROOT}/dynamic_graph/fomm/paddle/benchmark.yaml ./ 
-    sed -i '/set\ -xe/d' run_benchmark.sh
-
-    run_env=$BENCHMARK_ROOT/run_env
-    log_date=`date "+%Y.%m%d.%H%M%S"`
-
-
-    ################################# 配置python, 如:
-    rm -rf $run_env
-    mkdir $run_env
-    echo `which python3.7`
-    ln -s $(which python3.7)m-config  $run_env/python3-config
-    ln -s $(which python3.7) $run_env/python
-    ln -s $(which pip3.7) $run_env/pip
-
-    export PATH=$run_env:${PATH}
-    pip install -v -e .
-
-    #eval $(parse_yaml "benchmark.yaml")
-    parse_yaml "benchmark.yaml"
-
-    profile=${1:-"off"}
-
-    for model_mode in ${model_mode_list[@]}; do
-        eval fp_item_list='$'"${model_mode}_fp_item"
-        eval bs_list='$'"${model_mode}_bs_item"
-        eval config='$'"${model_mode}_config"
-        eval total_iters='$'"${model_mode}_total_iters"
-        eval epochs='$'"${model_mode}_epochs"
-        eval dataset_web='$'"${model_mode}_dataset_web"
-        eval dataset='$'"${model_mode}_dataset"
-        eval log_interval='$'"${model_mode}_log_interval"
-        if [ -n "$dataset_web" ]; then
-            wget ${dataset_web} -O data/${model_mode}.tar
-            tar -vxf data/${model_mode}.tar -C data/
-        fi
-        if [ -n "$total_iters" ]; then
-            mode="total_iters"
-            max_iter=$total_iters
-        else
-            mode="epochs"
-            max_iter=$epochs
-        fi
-        echo ${epochs}
-        for fp_item in ${fp_item_list[@]}; do
-                for bs_item in ${bs_list[@]}
-                do
-                    echo "index is speed, 1gpus, begin, ${model_name}"
-                    run_mode=sp
-                    CUDA_VISIBLE_DEVICES=0 benchmark/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${mode} ${max_iter} ${model_mode} ${config} ${log_interval} ${profile} | tee ${log_path}/gan_dygraph_fomm_sp_bs${bs_item}_fp${fp_item}_speed_1gpus 2>&1 #  (5min)
-                    sleep 60
-                    echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-                    run_mode=mp
-                    basicvsr_name=basicvsr
-                    if [ ${model_mode} = ${basicvsr_name} ]; then
-                        CUDA_VISIBLE_DEVICES=0,1,2,3 bash benchmark/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${mode} ${max_iter} ${model_mode} ${config} ${log_interval} ${profile} | tee ${log_path}/gan_dygraph_basicvsr_mp_bs${bs_item}_fp${fp_item}_speed_4gpus
-                    else
-                        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash benchmark/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${mode} ${max_iter} ${model_mode} ${config} ${log_interval} ${profile}  | tee ${log_path}/gan_dygraph_fomm_mp_bs${bs_item}_fp${fp_item}_speed_8gpus 2>&1
-                    fi
-                    sleep 60
-                done
-        done
-    done
-
-}
-
-dy_styleganv2(){
-    cd ${BENCHMARK_ROOT}
-    mv PaddleGAN PaddleGAN.bak
-    git clone https://github.com/PaddlePaddle/PaddleGAN.git -b develop
-    cur_model_path=${BENCHMARK_ROOT}/PaddleGAN
-    cd ${cur_model_path}
-
-    # Running ...
-    rm -f ./run_benchmark.sh
-    rm -f ./benchmark.yaml
-    cp ${BENCHMARK_ROOT}/dynamic_graph/styleganv2/paddle/run_benchmark.sh ./       # 拷贝脚本到当前目录
-    cp ${BENCHMARK_ROOT}/dynamic_graph/styleganv2/paddle/benchmark.yaml ./ 
-    sed -i '/set\ -xe/d' run_benchmark.sh
-
-    run_env=$BENCHMARK_ROOT/run_env
-    log_date=`date "+%Y.%m%d.%H%M%S"`
-
-
-    ################################# 配置python, 如:
-    rm -rf $run_env
-    mkdir $run_env
-    echo `which python3.7`
-    ln -s $(which python3.7)m-config  $run_env/python3-config
-    ln -s $(which python3.7) $run_env/python
-    ln -s $(which pip3.7) $run_env/pip
-
-    export PATH=$run_env:${PATH}
-    pip install -v -e .
-
-    #eval $(parse_yaml "benchmark.yaml")
-    parse_yaml "benchmark.yaml"
-
-    profile=${1:-"off"}
-
-    for model_mode in ${model_mode_list[@]}; do
-        eval fp_item_list='$'"${model_mode}_fp_item"
-        eval bs_list='$'"${model_mode}_bs_item"
-        eval config='$'"${model_mode}_config"
-        eval total_iters='$'"${model_mode}_total_iters"
-        eval epochs='$'"${model_mode}_epochs"
-        eval dataset_web='$'"${model_mode}_dataset_web"
-        eval dataset='$'"${model_mode}_dataset"
-        eval log_interval='$'"${model_mode}_log_interval"
-        if [ -n "$dataset_web" ]; then
-            wget ${dataset_web} -O data/${model_mode}.tar
-            tar -vxf data/${model_mode}.tar -C data/
-        fi
-        if [ -n "$total_iters" ]; then
-            mode="total_iters"
-            max_iter=$total_iters
-        else
-            mode="epochs"
-            max_iter=$epochs
-        fi
-        echo ${epochs}
-        for fp_item in ${fp_item_list[@]}; do
-                for bs_item in ${bs_list[@]}
-                do
-                    echo "index is speed, 1gpus, begin, ${model_name}"
-                    run_mode=sp
-                    CUDA_VISIBLE_DEVICES=0 benchmark/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${mode} ${max_iter} ${model_mode} ${config} ${log_interval} ${profile}  | tee ${log_path}/gan_dygraph_styleganv2_sp_bs${bs_item}_fp${fp_item}_speed_1gpus 2>&1 #  (5min)
-                    sleep 60
-                    echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-                    run_mode=mp
-                    basicvsr_name=basicvsr
-                    if [ ${model_mode} = ${basicvsr_name} ]; then
-                        CUDA_VISIBLE_DEVICES=0,1,2,3 bash benchmark/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${mode} ${max_iter} ${model_mode} ${config} ${log_interval} ${profile}  | tee ${log_path}/gan_dygraph_basicvsr_mp_bs${bs_item}_fp${fp_item}_speed_4gpus
-                    else
-                        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash benchmark/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${mode} ${max_iter} ${model_mode} ${config} ${log_interval} ${profile}  | tee ${log_path}/gan_dygraph_styleganv2_mp_bs${bs_item}_fp${fp_item}_speed_8gpus 2>&1
-                    fi
-                    sleep 60
-                done
-        done
-    done
-}
-
-function parse_yaml {
-        local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
-        sed -ne "s|^\($s\):|\1|" \
-            -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
-            -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
-        awk -F$fs '{
-            indent = length($1)/2;
-            vname[indent] = $2;
-            if (indent == 0) {
-                model_mode_list[model_num]=$2;
-                printf("model_mode_list[%d]=%s\n",(model_num), $2);
-                printf("model_num=%d\n", (model_num+1));
-                model_num=(model_num+1);
-            }
-            for (i in vname) {if (i > indent) {delete vname[i]}}
-            if (length($3) >= 0) {
-                vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-                printf("%s%s=\"%s\"\n",vn, $2, $3);
-            }
-        }'
-}
 
 dy_xlnet() {
     cd ${BENCHMARK_ROOT}

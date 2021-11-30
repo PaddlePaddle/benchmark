@@ -106,7 +106,7 @@ TABLE_HEADER = ["模型", "运行环境", "指标", "当前值", "标准Benchmar
 TABLE_PROFILE_HEADER = ["模型", "运行环境", "指标", "当前值", "前5次平均值", "相对前5次值波幅"]
 DICT_INDEX = {1: "Speed", 2: "Memory", 3: "Profiler_info", 6: "Max_bs"}
 # todo config the log_server port
-LOG_SERVER = "http://" + socket.gethostname() + ":8777/"
+LOG_SERVER = "http://" + socket.gethostbyname(socket.gethostname()) + ":8777/"   # fix log url
 WAVE_THRESHOLD = 0.05
 CHECK_TIMES = 5
 # fail model list

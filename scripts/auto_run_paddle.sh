@@ -99,6 +99,7 @@ function prepare(){
         mkdir run_env
         ln -s $(which python3.7) run_env/python
         ln -s $(which pip3.7) run_env/pip
+        ln -s $(which python3.7)m-config run_env/python3-config
         export PATH=$(pwd)/run_env:${PATH}
         pip install -U pip
         echo `pip --version`
