@@ -212,6 +212,7 @@ function run_models(){
 
         if [ ${device_type} == "A100" ]; then
             nvidia-docker run --runtime=nvidia  --gpus all -i --rm \
+            -v /ssd2/ce_home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
             -v /usr/bin/monquery:/usr/bin/monquery \
@@ -233,6 +234,7 @@ function run_models(){
             /bin/bash -c "${run_cmd}"
         else
             nvidia-docker run -i --rm \
+            -v /ssd2/ce_home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
             -v /usr/bin/monquery:/usr/bin/monquery \

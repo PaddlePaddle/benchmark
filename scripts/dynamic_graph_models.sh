@@ -73,7 +73,7 @@ dy_ocr_repo(){
     echo "dy_ocr_repo"
     cur_model_path=${BENCHMARK_ROOT}/PaddleOCR/
     cd ${cur_model_path}/
-    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    sed -i '/set\ -xe/d' benchmark/run_benchmark_det.sh
     bash benchmark/run_det.sh
 }
 
@@ -96,6 +96,8 @@ dy_clas_repo(){
     ln -s ${data_path}/dygraph_data/imagenet100_data/* ./dataset/ILSVRC2012
     sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
     bash benchmark/run_all.sh
+}
+
 
 #run_bert
 dy_bert(){
@@ -147,7 +149,6 @@ dy_bert(){
 dy_mobilenet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout -b develop_mobilenet 98db91b2118deb0f6f1c0bf90708c1bc34687f8d
     pip install -r requirements.txt
 
     # Prepare data
@@ -193,7 +194,7 @@ dy_ptb_medium(){
 
     # Prepare data
     mkdir -p data
-    ln -s ${data_path}/dygraph_data/ptb/simple-examples/ ${cur_model_path}/data/
+    ln -s ${data_path}/dygraph_data/ptb/simple-examples/ /root/.paddlenlp/datasets/PTB/
 
     # Running ...
     rm -f ./run_benchmark.sh
@@ -515,7 +516,6 @@ dy_senta(){
 dy_resnet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout -b develop_resnet 98db91b2118deb0f6f1c0bf90708c1bc34687f8d
     pip install -r requirements.txt
    
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
@@ -562,6 +562,7 @@ dy_lac(){
 
 dy_ppocr_mobile_2() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleOCR
+    pip install fasttext
     cd ${cur_model_path}
 
     if python -c "import pooch" >/dev/null 2>&1; then
