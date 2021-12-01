@@ -78,7 +78,7 @@ function prepare(){
 
     export ROOT_PATH=/home/crim
     export BENCHMARK_ROOT=${ROOT_PATH}/benchmark
-    data_path=${all_path}/dataset
+    export data_path=${all_path}/dataset
     prepare_path=${all_path}/prepare
 
     # 每个任务每个模式均做创建处理，并删除上一次任务的残存文件，避免相同repo不通分支引入的bug
@@ -99,6 +99,7 @@ function prepare(){
         mkdir run_env
         ln -s $(which python3.7) run_env/python
         ln -s $(which pip3.7) run_env/pip
+        ln -s $(which python3.7)m-config run_env/python3-config
         export PATH=$(pwd)/run_env:${PATH}
         pip install -U pip
         echo `pip --version`
