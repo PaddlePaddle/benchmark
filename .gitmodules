@@ -97,6 +97,12 @@
 [submodule "OtherFrame/nlp/PyTorch/models/xlnet/transformers"]
 	path = OtherFrame/nlp/PyTorch/models/xlnet/transformers
 	url = https://github.com/huggingface/transformers.git
+[submodule "OtherFrame/detection/PyTorch/models/jde"]
+        path = OtherFrame/detection/PyTorch/models/jde
+        url = https://github.com/nemonameless/jde
+[submodule "OtherFrame/detection/PyTorch/models/fairmot"]
+        path = OtherFrame/detection/PyTorch/models/fairmot
+        url = https://github.com/nemonameless/fairmot
 [submodule "OtherFrame/Speech/PyTorch/models/Parakeet/PWGAN/ParallelWaveGAN"]
         path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
         url = https://github.com/yt605155624/ParallelWaveGAN.git
