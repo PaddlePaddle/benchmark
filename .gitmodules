@@ -115,3 +115,7 @@
 [submodule "OtherFrame/detection/PyTorch/models/mmpose"]
 	path = OtherFrame/detection/PyTorch/models/mmpose
 	url = https://github.com/open-mmlab/mmpose.git
+[submodule "OtherFrame/nlp/PyTorch/models/xlnet"]
+ 	path = OtherFrame/nlp/PyTorch/models/xlnet
+ 	url = https://github.com/huggingface/transformers
+ 	branch = develop

@@ -49,6 +49,7 @@ function _train(){
     set_max_epoch="runner.max_epochs=${max_epoch}"
     set_max_epoch_pose="total_epochs=${max_epoch}"
     set_log_iter="log_config.interval=1"
+    set_optimizer_lr="optimizer.lr=0.0001"
     if [ ${fp_item} = "fp16" ]; then
         set_fp_item="fp16.loss_scale=512."
     else
@@ -59,7 +60,7 @@ function _train(){
         train_cmd=""
     else
         train_cmd="--no-validate \
-            --cfg-options ${set_max_epoch_pose} ${set_fp_item} ${set_batch_size} ${set_max_epoch} ${set_log_iter}"
+            --cfg-options ${set_max_epoch_pose} ${set_fp_item} ${set_batch_size} ${set_max_epoch} ${set_log_iter} ${set_optimizer_lr}"
     fi
     case ${run_mode} in
         sp) train_cmd="python -u tools/train.py ${model_yml} ${train_cmd}";;

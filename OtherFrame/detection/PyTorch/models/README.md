@@ -12,3 +12,4 @@
 以上模型复现使用[mmpose](https://github.com/open-mmlab/mmpose)
 
 - SOLOv2 使用[SOLO](https://github.com/WXinlong/SOLO)
+
