@@ -88,3 +88,12 @@
 [submodule "OtherFrame/Speech/PyTorch/models/Parakeet/PWGAN/ParallelWaveGAN"]
         path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
         url = https://github.com/yt605155624/ParallelWaveGAN.git
+[submodule "OtherFrame/detection/PyTorch/models/mmdetection"]
+	path = OtherFrame/detection/PyTorch/models/mmdetection
+	url = https://github.com/open-mmlab/mmdetection.git
+[submodule "OtherFrame/detection/PyTorch/models/SOLO"]
+	path = OtherFrame/detection/PyTorch/models/SOLO
+	url = https://github.com/WXinlong/SOLO.git
+[submodule "OtherFrame/detection/PyTorch/models/mmpose"]
+	path = OtherFrame/detection/PyTorch/models/mmpose
+	url = https://github.com/open-mmlab/mmpose.git
