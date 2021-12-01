@@ -71,6 +71,18 @@
 [submodule "OtherFrame/seg/PyTorch/models/mmseg"]
 	path = OtherFrame/seg/PyTorch/models/mmseg
 	url = https://github.com/open-mmlab/mmsegmentation.git
+[submodule "OtherFrame/clas/mxnet/models/gluon-cv"]
+	path = OtherFrame/clas/mxnet/models/gluon-cv
+	url = https://github.com/dmlc/gluon-cv.git
+[submodule "OtherFrame/clas/PyTorch/models/mmclassification"]
+	path = OtherFrame/clas/PyTorch/models/mmclassification
+	url = https://github.com/open-mmlab/mmclassification.git
+[submodule "OtherFrame/clas/PyTorch/models/HRNet-Image-Classification"]
+	path = OtherFrame/clas/PyTorch/models/HRNet-Image-Classification
+	url = https://github.com/HRNet/HRNet-Image-Classification
+[submodule "OtherFrame/clas/PyTorch/models/Twins"]
+	path = OtherFrame/clas/PyTorch/models/Twins
+	url = https://github.com/Meituan-AutoML/Twins
 [submodule "OtherFrame/gan/PyTorch/mmedting/models/mmedi"]
 	path = OtherFrame/gan/PyTorch/mmedting/models/mmedi
 	url = https://github.com/open-mmlab/mmediting.git
