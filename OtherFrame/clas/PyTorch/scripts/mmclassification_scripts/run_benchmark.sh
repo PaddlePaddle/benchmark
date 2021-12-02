@@ -21,9 +21,9 @@ function _train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
     case ${run_mode} in
-    sp) train_cmd="python tools/train.py ${config_path} --no-validate --cfg-options data.samples_per_gpu=${batch_size}";;
+    sp) train_cmd="python tools/train.py ${config_path} --no-validate --cfg-options data.samples_per_gpu=${batch_size} log_config.interval=10";;
     mp)
-	train_cmd="python -m torch.distributed.launch --nproc_per_node=${num_gpu_devices} --master_port=29500 ./tools/train.py ${config_path} --no-validate --cfg-options data.samples_per_gpu=${batch_size} --launcher pytorch";;
+	train_cmd="python -m torch.distributed.launch --nproc_per_node=${num_gpu_devices} --master_port=29500 ./tools/train.py ${config_path} --no-validate --cfg-options data.samples_per_gpu=${batch_size} log_config.interval=10 --launcher pytorch";;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
@@ -44,3 +44,4 @@ _set_params $@
 rm -rf work_dirs
 _train
 python analysis_log.py -d work_dirs -m ${model_name} -b ${batch_size} -n ${num_gpu_devices}
+eval "mv work_dirs ${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}"
