@@ -30,7 +30,7 @@ bash run_Pytorch.sh;     # 创建容器,在该标准环境中测试模型
 ```bash
 #!/usr/bin/env bash
 # 拉镜像
-ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
+ImageName="paddlepaddle/paddle:latest-dev-cuda11.2-cudnn8-gcc82";
 docker pull ${ImageName}
 
 # 启动镜像后测试HRNet
