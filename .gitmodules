@@ -94,6 +94,9 @@
         path = OtherFrame/gan/PyTorch/styleganv2
         url = https://github.com/lzzyzlbb/stylegan2-pytorch
         branch = develop
+[submodule "OtherFrame/ocr/PyTorch/models/PSENet"]
+	path = OtherFrame/ocr/PyTorch/models/PSENet
+	url = https://github.com/WenmuZhou/PSENet.git
 [submodule "OtherFrame/nlp/PyTorch/models/xlnet/transformers"]
 	path = OtherFrame/nlp/PyTorch/models/xlnet/transformers
 	url = https://github.com/huggingface/transformers.git
