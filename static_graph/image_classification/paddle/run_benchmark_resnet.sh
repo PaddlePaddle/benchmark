@@ -37,7 +37,7 @@ function _set_params(){
     profiler_path=${profiler_path}/profiler_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
-    
+
      if [ ${run_mode} == "sp" ]; then
         is_distributed=False
      else
