@@ -28,7 +28,7 @@ function _train(){
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 # 以下不用修改
-    timeout 15m ${train_cmd} 2>&1|tee ${log_file}
+    timeout 5m ${train_cmd} 2>&1|tee ${log_file}
     python analysis_log.py -f ${log_file} -m ${model_name} -b ${batch_size} -n ${num_gpu_devices}
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
