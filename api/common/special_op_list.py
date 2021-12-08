@@ -65,6 +65,7 @@ NO_BACKWARD_OPS = [
 
     # paddle v2 apis
     "add_n",
+    "all",
     "any",
     "bernoulli",
     "empty",
