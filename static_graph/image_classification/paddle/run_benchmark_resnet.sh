@@ -25,6 +25,7 @@ function _set_params(){
 
     skip_steps=8                      # 解析日志，有些模型前几个step耗时长，需要跳过                                  (必填)
     keyword="ips:"              # 解析日志，筛选出数据所在行的关键字                                            (必填)
+    keyword_loss="loss:"       #选填
     model_mode=-1                      # 解析日志，具体参考scripts/analysis.py.                                        (必填)
     ips_unit="images/s" 
 

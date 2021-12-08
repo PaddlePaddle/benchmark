@@ -129,6 +129,7 @@ function build_paddle(){
       -e "CMAKE_VERBOSE_MAKEFILE=OFF" \
       -e "http_proxy=${HTTP_PROXY}" \
       -e "https_proxy=${HTTP_PROXY}" \
+      -e "no_proxy=bcebos.com" \
       ${PADDLE_DEV_NAME} \
        /bin/bash -c "paddle/scripts/paddle_build.sh build_only"
      build_name=${IMAGE_NAME}
@@ -188,7 +189,6 @@ function run_models(){
     if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
         RUN_IMAGE_NAME=paddlepaddle/paddle:latest
         docker run -i --rm \
-            -v /home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/monquery:/usr/bin/monquery \
             -e "BENCHMARK_WEBSITE1=${BENCHMARK_WEBSITE1}" \
@@ -201,17 +201,18 @@ function run_models(){
             -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             -e "DEVICE_TYPE=${device_type}" \
             -e "VERSION_CUDA=${cuda_version}" \
+            -e "no_proxy=bcebos.com" \
             --net=host \
-            --privileged \
-            --shm-size=128G \
+            --cap-add=ALL \
+            --shm-size=256G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
     else
         RUN_IMAGE_NAME=paddlepaddle/paddle:${runtime_tag}
 
         if [ ${device_type} == "A100" ]; then
-            nvidia-docker run --runtime=nvidia  --gpus '"capabilities=compute,utility,video"' -i --rm \
-            -v /home:/home \
+            nvidia-docker run --runtime=nvidia  --gpus all -i --rm \
+            -v /ssd2/ce_home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
             -v /usr/bin/monquery:/usr/bin/monquery \
@@ -225,14 +226,15 @@ function run_models(){
             -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             -e "DEVICE_TYPE=${device_type}" \
             -e "VERSION_CUDA=${cuda_version}" \
+            -e "no_proxy=bcebos.com" \
             --net=host \
-            --privileged \
-            --shm-size=128G \
+            --cap-add=ALL \
+            --shm-size=256G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
         else
             nvidia-docker run -i --rm \
-            -v /home:/home \
+            -v /ssd2/ce_home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
             -v /usr/bin/monquery:/usr/bin/monquery \
@@ -246,9 +248,10 @@ function run_models(){
             -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
             -e "DEVICE_TYPE=${device_type}" \
             -e "VERSION_CUDA=${cuda_version}" \
+            -e "no_proxy=bcebos.com" \
             --net=host \
-            --privileged \
-            --shm-size=128G \
+            --cap-add=ALL \
+            --shm-size=256G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
         fi

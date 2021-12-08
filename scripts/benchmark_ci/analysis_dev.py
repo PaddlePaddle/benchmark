@@ -31,7 +31,7 @@ def modify_standard_value():
     """
     file_list = traverse_logs(args.log_path)
     for file in file_list:
-        model, fail_flag, result = analysis(file)
+        model, fail_flag, result, loss_result = analysis(file)
         if int(fail_flag) == 1:
             print("{} running failed in paddle develop!".format(model))
         else:

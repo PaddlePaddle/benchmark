@@ -25,6 +25,7 @@ function _set_params(){
     direction_id=1
     skip_steps=3
     keyword="ips:"
+    keyword_loss="ppl:"
     model_mode=-1
     ips_unit="words/s"
 
@@ -81,6 +82,7 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
     if [ ${run_mode} != "sp"  -a -d mylog ]; then
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}

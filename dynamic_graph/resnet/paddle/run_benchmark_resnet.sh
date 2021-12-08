@@ -28,6 +28,7 @@ function _set_params(){
         skip_steps=3
     fi
     keyword="ips:"
+    keyword_loss="loss:"
     model_mode=-1
     ips_unit="images/s"
 
@@ -75,6 +76,7 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ ${run_mode} != "sp"  -a -d mylog_${model_name} ]; then
         rm ${log_file}
