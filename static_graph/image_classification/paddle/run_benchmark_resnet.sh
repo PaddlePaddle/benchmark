@@ -1,6 +1,6 @@
 #!bin/bash
 
-set -xe
+set -x
 if [[ $# -lt 4 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
@@ -86,7 +86,7 @@ function _train(){
                -o enable_addto=${enable_addto}
                -o DataLoader.Train.loader.num_workers=8
                -o Global.is_distributed=${is_distributed}
-               -o DataLoader.epochs=${max_epoch}"
+               -o Global.epochs=${max_epoch}"
 
     case ${run_mode} in
     sp) train_cmd="python -u ppcls/static/train.py "${train_cmd} ;;
@@ -94,7 +94,7 @@ function _train(){
         rm -rf ./mylog_${model_name}
         if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ] || [ ${model_name} = "ResNet50_bs96" ]; then
             export FLAGS_fraction_of_gpu_memory_to_use=0.8
-            train_cmd="python -m paddle.distributed.launch --log_dir=./mylog_${model_name} --gpus=$CUDA_VISIBLE_DEVICES ppcls/static/train.py -o Global.use_dali=True "${train_cmd}
+            train_cmd="python -m paddle.distributed.launch --log_dir=./mylog_${model_name} --gpus=$CUDA_VISIBLE_DEVICES ppcls/static/train.py "${train_cmd}" -o Global.use_dali=True"
         else
             train_cmd="python -m paddle.distributed.launch --log_dir=./mylog_${model_name} --gpus=$CUDA_VISIBLE_DEVICES ppcls/static/train.py "${train_cmd}
         fi
