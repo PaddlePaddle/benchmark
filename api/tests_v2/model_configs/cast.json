@@ -62,7 +62,8 @@
             "shape": "[8, 1024, 50257]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 5000
 }, {
     "op": "cast",
     "param_info": {

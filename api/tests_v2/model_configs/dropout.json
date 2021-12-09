@@ -62,6 +62,7 @@
     },
     "op": "dropout"
 }, {
+    "op": "dropout",
     "param_info": {
         "x": {
             "dtype": "float32",
@@ -81,7 +82,7 @@
             "value": "0.1"
         }
     },
-    "op": "dropout"
+    "repeat": 5000
 }, {
     "param_info": {
         "x": {
