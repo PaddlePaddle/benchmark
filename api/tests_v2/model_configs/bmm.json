@@ -11,7 +11,8 @@
             "shape": "[2, 19, 256]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 2000
 }, {
     "op": "bmm",
     "param_info": {
@@ -39,5 +40,6 @@
             "shape": "[2, 256, 19]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 10000
 }]
