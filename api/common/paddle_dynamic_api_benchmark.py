@@ -121,6 +121,9 @@ class PaddleDynamicAPIBenchmarkBase(object):
         else:
             self.fetch_list.append(gradients)
 
+        self._backward_targets = targets
+        self._backward_inputs = inputs
+
     def run_impl(self,
                  use_gpu,
                  config,
@@ -196,3 +199,5 @@ class PaddleDynamicAPIBenchmarkBase(object):
         self._feed_dict = {}
         self._layers_function = None
         self._ones_like_targets = []
+        self._backward_targets = None
+        self._backward_inputs = None
