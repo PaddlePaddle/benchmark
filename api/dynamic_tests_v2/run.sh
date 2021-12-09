@@ -19,9 +19,10 @@ testing_mode="dynamic" # "static" or "dynamic"
 framework="pytorch"  # "paddle" or "tensorflow" or "pytorch"
 filename="${OP_BENCHMARK_ROOT}/tests_v2/configs/${name}.json"
 if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
-    use_gpu=False
+  use_gpu=False
 else
-    use_gpu=True
+  use_gpu=True
+  #export FLAGS_cudnn_exhaustive_search=true
 fi
 
 run_args="--task ${task} \

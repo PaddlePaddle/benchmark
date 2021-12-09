@@ -1,4 +1,5 @@
 [{
+    "op": "elementwise",
     "param_info": {
         "y": {
             "dtype": "float32",
@@ -16,7 +17,7 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "repeat": 2000
 }, {
     "param_info": {
         "y": {
@@ -46,25 +47,6 @@
         "x": {
             "dtype": "float32",
             "shape": "[8,197,768]",
-            "type": "Variable"
-        },
-        "axis": {
-            "type": "int",
-            "value": "-1"
-        }
-    },
-    "atol": 0.00001,
-    "op": "elementwise"
-}, {
-    "param_info": {
-        "y": {
-            "dtype": "float32",
-            "shape": "[1]",
-            "type": "Variable"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[1]",
             "type": "Variable"
         },
         "axis": {
