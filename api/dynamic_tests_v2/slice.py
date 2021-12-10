@@ -42,6 +42,11 @@ class SliceConfig(APIConfig):
                 "in torch.narrow(), torch.narrow() will be executed")
             self.run_torch = False
 
+    def to_pytorch(self):
+        torch_config = super(SliceConfig, self).to_pytorch()
+        torch_config.length = self.ends[0] - self.starts[0]
+        return torch_config
+
 
 class PDSlice(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
@@ -64,7 +69,7 @@ class TorchSlice(PytorchAPIBenchmarkBase):
             input=x,
             dim=config.axes[0],
             start=config.starts[0],
-            length=config.ends[0] - config.starts[0])
+            length=config.length)
 
         self.feed_list = [x]
         self.fetch_list = [result]
