@@ -23,7 +23,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "op": "softmax_with_cross_entropy",
     "param_info": {
@@ -49,7 +50,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "op": "softmax_with_cross_entropy",
     "param_info": {
@@ -75,7 +77,8 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "op": "softmax_with_cross_entropy",
     "param_info": {
@@ -101,5 +104,6 @@
             "type": "bool",
             "value": "False"
         }
-    }
+    },
+    "repeat": 10000
 }]
