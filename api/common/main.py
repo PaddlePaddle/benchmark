@@ -269,7 +269,17 @@ def test_main_without_json(pd_obj=None,
             sys.exit(1)
 
     if _is_torch_enabled(args, config):
-        assert torch_obj is not None, "Pytorch object is None."
+        assert torch_obj is not None, "PyTorch object is None."
+        import torch
+        try:
+            import paddle
+            flags = paddle.get_flags(["FLAGS_cudnn_exhaustive_search"])
+            torch.backends.cudnn.benchmark = flags[
+                "FLAGS_cudnn_exhaustive_search"]
+        except Exception:
+            torch.backends.cudnn.benchmark = os.environ.get(
+                "FLAGS_cudnn_exhaustive_search", False)
+
         torch_config = config.to_pytorch()
         print(torch_config)
         torch_outputs, torch_stats = torch_obj.run(torch_config, args)
