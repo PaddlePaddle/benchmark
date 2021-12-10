@@ -30,7 +30,9 @@ class ReduceAllAnyConfig(APIConfig):
             self.axis = []
 
     def squeeze_shape(self):
-        if len(self.axis) > 1:
+        if len(self.axis) == 1:
+            return self.axis[0], self.x_shape
+        elif len(self.axis) > 1:
             is_continuous = True
             for i in range(1, len(self.axis)):
                 if self.axis[i] != self.axis[i - 1] + 1:
