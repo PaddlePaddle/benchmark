@@ -15,5 +15,6 @@
             "shape": "[128]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 8000
 }]

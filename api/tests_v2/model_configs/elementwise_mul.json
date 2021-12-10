@@ -16,7 +16,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -35,7 +36,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -54,7 +56,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -73,7 +76,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -92,7 +96,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -111,7 +116,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -130,7 +136,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -149,7 +156,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -168,7 +176,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -187,7 +196,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -206,7 +216,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -225,7 +236,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -244,7 +256,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -263,7 +276,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -282,7 +296,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -301,7 +316,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -320,7 +336,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -339,7 +356,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -358,7 +376,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -377,7 +396,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -396,7 +416,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -415,7 +436,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -434,7 +456,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -453,7 +476,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -472,7 +496,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -491,7 +516,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -510,7 +536,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -529,7 +556,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -548,7 +576,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -567,7 +596,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -586,7 +616,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -605,7 +636,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -624,7 +656,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -643,7 +676,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -662,7 +696,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -681,7 +716,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -700,7 +736,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -719,7 +756,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -738,7 +776,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -757,7 +796,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -776,7 +816,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -795,7 +836,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -814,7 +856,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -833,7 +876,8 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }, {
     "param_info": {
         "y": {
@@ -852,5 +896,6 @@
         }
     },
     "atol": 0.00001,
-    "op": "elementwise"
+    "op": "elementwise",
+    "repeat": 10000
 }]
