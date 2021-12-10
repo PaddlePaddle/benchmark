@@ -1,0 +1,856 @@
+[{
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[196,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[196,8,768]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[1,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,1569,768]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[8,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8,197,768]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[2,256,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,256,256,256]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[2,1024,1024]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,1024,1024]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[2,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,4096,160]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[2,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,1024,256]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[2,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,65536,32]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[2,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,16384,64]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[1,1,58,58,2]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8,10,58,58,1]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[8,1,25]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8,10,25]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[8,11,1,64,64]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8,11,2,64,64]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[8,1,64,64]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8,256,64,64]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[8,10,4,58,58]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8,10,4,58,58]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[8,10,25]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8,10,25]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[1,1,512,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,512,512,3,3]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[3,1,512,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,512,512,3,3]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[1,512,512,3,3]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,512,512,3,3]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[3,1,16,16]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[1,1,512,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,256,512,3,3]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[3,1,512,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,3,512,1,1]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[1,256,512,3,3]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,256,512,3,3]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[3,1,128,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,128,128,3,3]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[3,1,256,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,128,256,3,3]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[3,1,512,1,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,256,512,3,3]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,1,1,7]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "0"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[80]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[80,80,5]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "0"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,1,1,9]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "0"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[512]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[6,511,512]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[6,64,25500]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[6,64,25500]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,64,1]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "0"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[128]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[128,80,1]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "0"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[2048]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[6,107,2048]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[128]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[128,64,3]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "0"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[64]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[64,64,1]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "0"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[16,1,13475,16]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,32,13475,16]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[16,1,20069,16]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,32,20069,16]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[16,1,19947,16]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,32,19947,16]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[16,1,18360,16]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,32,18360,16]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[16,1,15637,16]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,32,15637,16]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[2,1,4,2]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,300,1,2]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[16,1,17546,16]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,32,17546,16]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[16,1,17821,16]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,32,17821,16]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[2,13475,1]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,13475,256]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}, {
+    "param_info": {
+        "y": {
+            "dtype": "float32",
+            "shape": "[16,1,300,16]",
+            "type": "Variable"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,32,300,16]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        }
+    },
+    "atol": 0.00001,
+    "op": "elementwise"
+}]

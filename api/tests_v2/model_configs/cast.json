@@ -1,0 +1,314 @@
+[{
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "int64",
+            "shape": "[40]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 2, 3]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 5, 5, 2]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 1, 25]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[8, 1024, 50257]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float16"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 1, 1024, 1024]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float16"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[768, 768]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float16"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[768, 3072]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float16"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[50257, 768]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[8, 1024, 768]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float16"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[3072, 768]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float16"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 12, 1024, 64]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float16"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 1024, 50257]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[8, 1024, 3072]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[50304, 768]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float16"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[50304, 768]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[1024, 768]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float16"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 1024]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[50304, 768]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024, 768]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float16"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8192]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[768, 3072]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[768, 2304]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "cast",
+    "param_info": {
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[768, 768]",
+            "type": "Variable"
+        }
+    }
+}]
