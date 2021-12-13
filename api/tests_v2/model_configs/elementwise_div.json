@@ -17,7 +17,7 @@
     },
     "atol": 0.00001,
     "op": "elementwise",
-    "repeat": 10000
+    "repeat": 20000
 }, {
     "param_info": {
         "y": {
@@ -37,7 +37,7 @@
     },
     "atol": 0.00001,
     "op": "elementwise",
-    "repeat": 10000
+    "repeat": 20000
 }, {
     "param_info": {
         "y": {
@@ -257,7 +257,7 @@
     },
     "atol": 0.00001,
     "op": "elementwise",
-    "repeat": 10000
+    "repeat": 20000
 }, {
     "param_info": {
         "y": {
@@ -297,7 +297,7 @@
     },
     "atol": 0.00001,
     "op": "elementwise",
-    "repeat": 10000
+    "repeat": 20000
 }, {
     "param_info": {
         "y": {
@@ -317,7 +317,7 @@
     },
     "atol": 0.00001,
     "op": "elementwise",
-    "repeat": 10000
+    "repeat": 20000
 }, {
     "param_info": {
         "y": {
@@ -377,7 +377,7 @@
     },
     "atol": 0.00001,
     "op": "elementwise",
-    "repeat": 10000
+    "repeat": 20000
 }, {
     "param_info": {
         "y": {
