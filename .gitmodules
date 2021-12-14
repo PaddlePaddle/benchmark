@@ -106,7 +106,7 @@
 [submodule "OtherFrame/detection/PyTorch/models/fairmot"]
         path = OtherFrame/detection/PyTorch/models/fairmot
         url = https://github.com/nemonameless/fairmot
-[submodule "OtherFrame/Speech/PyTorch/models/Parakeet/PWGAN/ParallelWaveGAN"]
+[submodule "OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN"]
         path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
         url = https://github.com/yt605155624/ParallelWaveGAN.git
 [submodule "OtherFrame/detection/PyTorch/models/mmdetection"]
