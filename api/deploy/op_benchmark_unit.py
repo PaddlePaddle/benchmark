@@ -81,19 +81,23 @@ class OpBenchmarkUnit(object):
                 attr_name = device + "_" + direction
                 result = getattr(self, attr_name)
 
-                paddle_total, paddle_gpu_time = self._get_case_value(
+                paddle_total, paddle_gpu_time, paddle_gflops, paddle_gbs = self._get_case_value(
                     case_detail, "paddle", device, "speed", direction)
                 result["paddle"] = {
                     "total": paddle_total,
-                    "gpu_time": paddle_gpu_time
+                    "gpu_time": paddle_gpu_time,
+                    "gflops": paddle_gflops,
+                    "gbs": paddle_gbs
                 }
 
-                competitor_total, competitor_gpu_time = self._get_case_value(
+                competitor_total, competitor_gpu_time, competitor_gflops, competitor_gbs = self._get_case_value(
                     case_detail, self.compare_framework, device, "speed",
                     direction)
                 result[self.compare_framework] = {
                     "total": competitor_total,
-                    "gpu_time": competitor_gpu_time
+                    "gpu_time": competitor_gpu_time,
+                    "gflops": competitor_gflops,
+                    "gbs": competitor_gbs
                 }
                 total_result, total_ratio = _compare(paddle_total,
                                                      competitor_total)
@@ -211,9 +215,13 @@ class OpBenchmarkUnit(object):
                     direction_alias = "" if direction == "forward" else "_backward"
                     gpu_time_key = framework_alias + "gpu_time" + direction_alias
                     gpu_time_str = case_detail[gpu_time_key]
-                return total_time_str, gpu_time_str
+                    gflops_key = framework_alias + "gflops" + direction_alias
+                    gflops_str = case_detail[gflops_key]
+                    gbs_key = framework_alias + "gbs" + direction_alias
+                    gbs_str = case_detail[gbs_key]
+                return total_time_str, gpu_time_str, gflops_str, gbs_str
             except Exception:
-                return "--", "--"
+                return "--", "--", "--", "--"
 
 
 class CompareResult(object):
