@@ -6,7 +6,7 @@ function _set_params(){
     run_mode=${1:-"sp"}          # 单卡sp|多卡mp
     batch_size=${2:-"64"}
     fp_item=${3:-"fp32"}        # fp32|fp16
-    model_name=${4:-"model_name"}
+    model_item=${4:-"model_item"}
     config_path=${5:-"config_path"}
     run_log_path="${TRAIN_LOG_DIR:-$(pwd)}"  # TRAIN_LOG_DIR 后续QA设置该参
  
@@ -14,7 +14,8 @@ function _set_params(){
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
-    log_file=${run_log_path}/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}.log
+    log_file=${run_log_path}/${model_item}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}.log
+    modle_name=HRNet_W48_C # model_name 在analysis 里面拼接fp以及bs，构成json格式
 }
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
@@ -31,7 +32,7 @@ function _train(){
     esac
 
 # 以下不用修改
-    timeout 5m ${train_cmd}
+    timeout 5m ${train_cmd}  > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
         export job_fail_flag=1
@@ -57,5 +58,6 @@ _set_params $@
 rm -rf output
 sed -i 's/view/reshape/g' lib/core/evaluate.py
 sed -i 's/PRINT_FREQ: 1000/PRINT_FREQ: 10/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
-_train
-python analysis_log.py -d output -m ${model_name} -b ${batch_size} -n ${num_gpu_devices}
+source ${ROOT_DIR}/scripts/run_model.sh
+_run
+python analysis_log.py -d output -m ${model_item} -b ${batch_size} -n ${num_gpu_devices}

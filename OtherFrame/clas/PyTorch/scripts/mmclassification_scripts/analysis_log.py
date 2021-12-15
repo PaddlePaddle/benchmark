@@ -51,12 +51,13 @@ if __name__ == "__main__":
                                                        args.num_gpu)
     save_content = {}
     save_content["log_file"] = log_path
-    save_content["model_name"] = "clas_{}_bs{}_fp32".format(
+    save_content["model_name"] = "{}_bs{}_fp32".format(
         args.model_name, args.batch_size)
     save_content["mission_name"] = "图像分类"
     save_content["direction_id"] = 0
     save_content["run_mode"] = run_mode
     save_content["index"] = 1
+    save_content["UNIT"] = "images/s"
     save_content["gpu_num"] = args.num_gpu
     save_content["FILNAL_RESULT"] = ips
     save_content["JOB_FAIL_FLAG"] = 0 if ips > 0 else 1
