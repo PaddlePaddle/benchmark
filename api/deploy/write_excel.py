@@ -51,6 +51,16 @@ def _op_result_url(url_prefix, case_name, framework, device, task, direction):
     return os.path.join(url_prefix, filename)
 
 
+def _get_speed_unit_color(compare_result_str):
+    if compare_result_str == "Less":
+        color = "red"
+    elif compare_result_str == "Better":
+        color = "green"
+    else:
+        color = "black"
+    return color
+
+
 def _write_summary_worksheet(benchmark_result_list, worksheet, title_format,
                              cell_formats):
     def _write_summary_unit(compare_result, category, worksheet, row):
@@ -179,8 +189,14 @@ def _write_detail_worksheet(benchmark_result_list, worksheet, device,
             column_width.append(16)
             column_width.append(16)
             column_width.append(16)
+        if device == "gpu" and direction == "forward":
+            title_names.append("paddle(gflops)")
+            title_names.append("paddle(gbs)")
         title_names.append("accuracy")
         title_names.append("parameters")
+        if device == "gpu" and direction == "forward":
+            column_width.append(16)
+            column_width.append(16)
         column_width.append(10)
         column_width.append(80)
 
@@ -219,13 +235,7 @@ def _write_detail_worksheet(benchmark_result_list, worksheet, device,
 
         time_set = ["total"] if device == "cpu" else ["total", "gpu_time"]
         for key in time_set:
-            if result["compare"][key] == "Less":
-                color = "red"
-            elif result["compare"][key] == "Better":
-                color = "green"
-            else:
-                color = "black"
-
+            color = _get_speed_unit_color(result["compare"][key])
             for framework in ["paddle", compare_framework]:
                 op_time = result[framework][key]
                 _write_speed_accuracy_unit(
@@ -240,6 +250,16 @@ def _write_detail_worksheet(benchmark_result_list, worksheet, device,
             _write_compare_result_unit(worksheet, row, col, compare_result,
                                        compare_ratio, cell_formats, color)
             col += 1
+
+        if device == "gpu" and direction == "forward":
+            color = _get_speed_unit_color(result["compare"]["gpu_time"])
+            for key in ["gflops", "gbs"]:
+                perf = result["paddle"][key]
+                _write_speed_accuracy_unit(
+                    worksheet, row, col, op_unit.case_name, "speed", perf,
+                    op_result_dir, "paddle", device, direction, cell_formats,
+                    color, url_prefix)
+                col += 1
 
         color = "red" if result["accuracy"] in ["False", "false"] else "black"
         difference = result["difference"]

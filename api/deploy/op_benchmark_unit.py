@@ -214,11 +214,20 @@ class OpBenchmarkUnit(object):
                 else:
                     direction_alias = "" if direction == "forward" else "_backward"
                     gpu_time_key = framework_alias + "gpu_time" + direction_alias
-                    gpu_time_str = case_detail[gpu_time_key]
+                    if case_detail.get(gpu_time_key, None) is not None:
+                        gpu_time_str = case_detail[gpu_time_key]
+                    else:
+                        gpu_time_str = "--"
                     gflops_key = framework_alias + "gflops" + direction_alias
-                    gflops_str = case_detail[gflops_key]
+                    if case_detail.get(gflops_key, None) is not None:
+                        gflops_str = case_detail[gflops_key]
+                    else:
+                        gflops_str = "--"
                     gbs_key = framework_alias + "gbs" + direction_alias
-                    gbs_str = case_detail[gbs_key]
+                    if case_detail.get(gbs_key, None) is not None:
+                        gbs_str = case_detail[gbs_key]
+                    else:
+                        gbs_str = "--"
                 return total_time_str, gpu_time_str, gflops_str, gbs_str
             except Exception:
                 return "--", "--", "--", "--"
