@@ -255,10 +255,10 @@ def _write_detail_worksheet(benchmark_result_list, worksheet, device,
             color = _get_speed_unit_color(result["compare"]["gpu_time"])
             for key in ["gflops", "gbs"]:
                 perf = result["paddle"][key]
-                _write_speed_accuracy_unit(
-                    worksheet, row, col, op_unit.case_name, "speed", perf,
-                    op_result_dir, "paddle", device, direction, cell_formats,
-                    color, url_prefix)
+                _write_speed_accuracy_unit(worksheet, row, col,
+                                           op_unit.case_name, "speed", perf,
+                                           op_result_dir, "paddle", device,
+                                           direction, cell_formats, color)
                 col += 1
 
         color = "red" if result["accuracy"] in ["False", "false"] else "black"
