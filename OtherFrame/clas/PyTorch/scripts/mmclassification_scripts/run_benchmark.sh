@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+set -xe
 # 运行示例：CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${model_mode} ${config_path}
 # 参数说明
 function _set_params(){
