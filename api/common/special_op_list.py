@@ -31,8 +31,9 @@ NO_BACKWARD_OPS = [
     "feed",
     "fetch",
 
-    # paddle v1 APIs
+    # paddle v1 apis
     "accuracy",
+    "arange",
     "argmax",
     "argmin",
     "argsort",
@@ -61,8 +62,9 @@ NO_BACKWARD_OPS = [
     "shape",
     "zeros_like",
 
-    # paddle v2 APIs
+    # paddle v2 apis
     "add_n",
+    "any",
     "bernoulli",
     "empty",
     "equal_all",
@@ -73,6 +75,7 @@ NO_BACKWARD_OPS = [
     "linspace",
     "remainder",
     "unique",
+    "where_index",
     "yolo_box",
 
     # Temporarily add to this list to pass CI.

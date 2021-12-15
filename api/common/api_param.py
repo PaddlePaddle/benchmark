@@ -137,11 +137,10 @@ class VarParamInfo(BaseParamInfo):
             self.shape = shape_str
         self.lod_level = self._encode_item(lod_level)
 
-    def _is_same(self, dtypes, shapes):
-        dtype_0 = dtypes[0]
-        shape_0 = shapes[0]
-        for i in range(len(dtypes)):
-            if dtype_0 != dtypes[i] or shape_0 != shapes[i]:
+    def _is_same(self, values):
+        value_0 = values[0]
+        for i in range(len(values)):
+            if value_0 != values[i]:
                 return False
         return True
 
@@ -152,7 +151,7 @@ class VarParamInfo(BaseParamInfo):
         elif self.type == "list<Variable>":
             str_list = "%s (list<Variable>[%d]) - " % (self.name,
                                                        len(self.dtype))
-            if self._is_same(self.dtype, self.shape):
+            if self._is_same(self.dtype) and self._is_same(self.shape):
                 params_len = 1
             else:
                 params_len = len(self.dtype)
@@ -192,8 +191,7 @@ class APIConfig(object):
         """
         if hasattr(self, "alias_name") and self.alias_name is not None:
             dirname = os.path.dirname(filename)
-            basename = os.path.basename(filename)
-            basename = basename.replace(self.name, self.alias_name)
+            basename = self.alias_name + os.path.splitext(filename)[-1]
             return os.path.join(dirname, basename)
         return filename
 
@@ -225,6 +223,21 @@ class APIConfig(object):
                 % (self.api_name))
             return True
         return False
+
+    def convert_to_fp16(self):
+        """
+        Convert all variables' dtype to float16.
+        """
+        for name, value in vars(self).items():
+            if name.endswith("_dtype") and value != "float16":
+                setattr(self, name, "float16")
+
+        for var in self.variable_list:
+            if var.type == "Variable":
+                var.dtype = "float16"
+            elif var.type == "list<Variable>":
+                for i in range(var.dtype):
+                    var.dtype[i] = "float16"
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         filename = self.alias_filename(filename)
@@ -300,6 +313,9 @@ class APIConfig(object):
             'api_list', 'variable_list', 'params_list', 'backward',
             'feed_spec', 'alias_name'
         ]
+        if self.framework != "paddle":
+            exclude_attrs.append("run_torch")
+            exclude_attrs.append("run_tf")
         prefix = ""
         debug_str = ('[%s][%s] %s {\n') % (self.framework, self.name,
                                            self.api_name)

@@ -15,6 +15,12 @@
 from common_import import *
 
 
+class SoftmaxConfig(APIConfig):
+    def __init__(self):
+        super(SoftmaxConfig, self).__init__("softmax")
+        self.feed_spec = {"range": [-1, 1]}
+
+
 class PDSoftmax(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         input = self.variable(
@@ -40,4 +46,4 @@ class TFSoftmax(TensorflowAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(PDSoftmax(), TFSoftmax(), config=APIConfig("softmax"))
+    test_main(PDSoftmax(), TFSoftmax(), config=SoftmaxConfig())

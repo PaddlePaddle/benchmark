@@ -335,6 +335,7 @@ function run_all_cases() {
     local line_id=${config_index_begin}
     while [ ${line_id} -lt ${config_index_end} ]; do
         local line=${op_info_array[line_id]}
+        local case_name=$(echo $line | cut -d ',' -f1)
         local json_file=$(echo $line | cut -d ',' -f3)
         if [ "$json_file" != "None" ]; then
             local json_file_path=${JSON_CONFIG_DIR}/${json_file}
@@ -343,8 +344,16 @@ function run_all_cases() {
             local cases_num=1
             local json_file_path=None
         fi
+
+        if [ -n "$(echo ${case_name} | grep ':')" ]; then
+            local case_name_id=${case_name##*:}
+        else
+            local case_name_id=""
+        fi
     
         for((i=0;i<cases_num;i++)); do
+            [ -n "${case_name_id}" -a "${case_name_id}" != "${i}" ] && continue
+            [ -n "${case_name_id}" ] && line=${line//:${case_name_id}/}
             config_id=$[$config_id+1]
             execute_one_case ${config_id} ${line} ${json_file_path} ${i} ${gpu_id}
         done

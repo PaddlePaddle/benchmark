@@ -16,16 +16,11 @@
 
 import os
 import sys
-import six
 import time
 import string
 import xlsxwriter as xlw
 import op_benchmark_unit
 from common import special_op_list
-
-if not six.PY3:
-    reload(sys)
-    sys.setdefaultencoding("utf8")
 
 COMPARE_RESULT_SHOWS = {
     "Better": "优于",

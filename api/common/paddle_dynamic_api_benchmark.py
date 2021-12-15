@@ -20,16 +20,12 @@ import time
 import abc, six
 import importlib
 import numpy as np
-from common import special_op_list
 
-if six.PY3:
-    from . import utils
-    from . import api_param
-    from . import feeder
-else:
-    import utils
-    import api_param
-    import feeder
+from common import utils
+from common import api_param
+from common import feeder
+from common import special_op_list
+from common.paddle_api_benchmark import profile_context
 
 try:
     import paddle
@@ -52,11 +48,12 @@ class PaddleDynamicAPIBenchmarkBase(object):
     def build_graph(self, config=None):
         pass
 
-    def variable(self, name, shape, dtype, value=None):
+    def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         if self._status == BEFORE_RUN:
             if self._feed_values is not None and value is None:
                 i = len(self._feed_dict)
-                feed_value = self._feed_values[i]
+                feed_value = feeder.check_shape_and_dtype(
+                    shape=shape, dtype=dtype, value=self._feed_values[i])
             else:
                 assert shape is not None
 
@@ -67,7 +64,7 @@ class PaddleDynamicAPIBenchmarkBase(object):
                     range = None
                 feed_value = feeder.generate_random_data(
                     shape, dtype, range=range, value=value)
-            var = paddle.to_tensor(feed_value, stop_gradient=False)
+            var = paddle.to_tensor(feed_value, stop_gradient=stop_gradient)
             self._feed_dict[name] = var
         else:
             var = self._feed_dict[name]
@@ -153,10 +150,11 @@ class PaddleDynamicAPIBenchmarkBase(object):
         fetches = []
 
         self._status = IN_RUN
-        for i in range(repeat):
-            begin = time.time()
-            outputs = _run_main_iter()
-            runtimes.append(time.time() - begin)
+        with profile_context(self.name, use_gpu, profiler):
+            for i in range(repeat):
+                begin = time.time()
+                outputs = _run_main_iter()
+                runtimes.append(time.time() - begin)
 
         self._status = AFTER_RUN
         stats = {

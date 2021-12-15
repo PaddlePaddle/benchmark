@@ -22,14 +22,23 @@ function _set_params(){
     direction_id=0                    # 任务所属方向，0：CV，1：NLP，2：Rec。                                       （必填）
     skip_steps=5                      # 解析日志，有些模型前几个step耗时长，需要跳过                                （必填）
     keyword="ips:"                    # 解析日志，筛选出数据所在行的关键字                                          （必填）
-    ips_unit="images/sec"
+    ips_unit="images/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
 
-    base_batch_size=0
+    if echo {DCGAN CGAN} | grep -w $model_name &>/dev/null
+    then
+        base_batch_size=32
+    elif echo {Pix2pix} | grep -w $model_name &>/dev/null
+    then
+        base_batch_size=1
+    else
+        echo "model: $model_name not support!"
+    fi
 
+    model_name=${model_name}_bs${base_batch_size}
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}
@@ -46,11 +55,10 @@ function _set_env(){
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices"
-    if echo {DCGAN CGAN} | grep -w $model_name &>/dev/null
+    if echo {DCGAN CGAN} | grep -w ${model_name%_bs*} &>/dev/null
     then
-        base_batch_size=32
         echo "${model_name}, batch_size: ${base_batch_size}"
-        train_cmd=" --model_net $model_name \
+        train_cmd=" --model_net ${model_name%_bs*} \
            --dataset mnist   \
            --noise_size 100  \
            --batch_size ${base_batch_size}   \
@@ -58,11 +66,10 @@ function _train(){
            --profile=${is_profiler} \
            --profiler_path=${profiler_path} \
            --max_iter=${max_iter}"
-    elif echo {Pix2pix} | grep -w $model_name &>/dev/null
+    elif echo {Pix2pix} | grep -w ${model_name%_bs*} &>/dev/null
     then
-        base_batch_size=1
         echo "${model_name}, batch_size: ${base_batch_size}"
-        train_cmd=" --model_net $model_name \
+        train_cmd=" --model_net ${model_name%_bs*} \
            --dataset cityscapes     \
            --train_list data/cityscapes/pix2pix_train_list \
            --test_list data/cityscapes/pix2pix_test_list    \
@@ -75,8 +82,6 @@ function _train(){
            --profile=${is_profiler} \
            --profiler_path=${profiler_path} \
            --max_iter=${max_iter}"
-    else
-        echo "model: $model_name not support!"
     fi
 
     train_cmd="python -u train.py "${train_cmd}

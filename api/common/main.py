@@ -83,6 +83,11 @@ def parse_args():
         default=False,
         help='Whether appending grad ops [True|False]')
     parser.add_argument(
+        '--convert_to_fp16',
+        type=system.str2bool,
+        default=False,
+        help='Whether using gpu [True|False]')
+    parser.add_argument(
         '--use_gpu',
         type=system.str2bool,
         default=False,
@@ -115,6 +120,7 @@ def parse_args():
         args.profiler = "none"
 
     _check_gpu_device(args.use_gpu)
+    print(args)
     return args
 
 
@@ -125,8 +131,11 @@ def test_main(pd_obj=None,
               config=None):
     assert config is not None, "API config must be set."
 
-    def _test_with_json_impl(filename, config_id, unknown_dim):
+    def _test_with_json_impl(filename, config_id, unknown_dim,
+                             convert_to_fp16):
         config.init_from_json(filename, config_id, unknown_dim)
+        if convert_to_fp16:
+            config.convert_to_fp16()
         if hasattr(config, "api_list"):
             if args.api_name != None:
                 assert args.api_name in config.api_list, "api_name should be one value in %s, but recieved %s." % (
@@ -148,13 +157,15 @@ def test_main(pd_obj=None,
         # Set the filename to alias config's filename, when there is a alias config.
         filename = config.alias_filename(args.json_file)
         if args.config_id is not None and args.config_id >= 0:
-            _test_with_json_impl(filename, args.config_id, args.unknown_dim)
+            _test_with_json_impl(filename, args.config_id, args.unknown_dim,
+                                 args.convert_to_fp16)
         else:
             num_configs = 0
             with open(filename, 'r') as f:
                 num_configs = len(json.load(f))
             for config_id in range(0, num_configs):
-                _test_with_json_impl(filename, config_id, args.unknown_dim)
+                _test_with_json_impl(filename, config_id, args.unknown_dim,
+                                     args.convert_to_fp16)
     else:
         test_main_without_json(pd_obj, tf_obj, pd_dy_obj, torch_obj, config)
 
@@ -252,7 +263,17 @@ def test_main_without_json(pd_obj=None,
             sys.exit(1)
 
     if _is_torch_enabled(args, config):
-        assert torch_obj is not None, "Pytorch object is None."
+        assert torch_obj is not None, "PyTorch object is None."
+        import torch
+        try:
+            import paddle
+            flags = paddle.get_flags(["FLAGS_cudnn_exhaustive_search"])
+            torch.backends.cudnn.benchmark = flags[
+                "FLAGS_cudnn_exhaustive_search"]
+        except Exception:
+            torch.backends.cudnn.benchmark = os.environ.get(
+                "FLAGS_cudnn_exhaustive_search", False)
+
         torch_config = config.to_pytorch()
         print(torch_config)
         torch_outputs, torch_stats = torch_obj.run(torch_config, args)

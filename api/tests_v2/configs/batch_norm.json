@@ -1,4 +1,5 @@
 [{
+    "config_id": 0,
     "op": "batch_norm",
     "param_info": {
         "data_format": {
@@ -24,6 +25,7 @@
         }
     }
 }, {
+    "config_id": 1,
     "op": "batch_norm",
     "param_info": {
         "data_format": {
@@ -49,6 +51,7 @@
         }
     }
 }, {
+    "config_id": 2,
     "op": "batch_norm",
     "param_info": {
         "data_format": {
@@ -75,6 +78,7 @@
     },
     "repeat": 5000
 }, {
+    "config_id": 3,
     "op": "batch_norm",
     "param_info": {
         "data_format": {
@@ -98,8 +102,10 @@
             "type": "float",
             "value": "0.99"
         }
-    }
+    },
+    "repeat": 5000
 }, {
+    "config_id": 4,
     "op": "batch_norm",
     "param_info": {
         "data_format": {

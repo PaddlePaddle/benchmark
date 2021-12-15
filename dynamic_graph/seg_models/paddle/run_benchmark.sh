@@ -9,10 +9,10 @@ fi
 
 function _set_params(){
     index=$1
-    base_batch_size=2
-    run_mode=${2:-"sp"} # Use sp for single GPU and mp for multiple GPU.
-    model_name=${3}
-    max_iter=${4:-"200"}
+    base_batch_size=$2
+    run_mode=${3:-"sp"} # Use sp for single GPU and mp for multiple GPU.
+    model_name=${4}
+    max_iter=${5:-"200"}
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
@@ -20,11 +20,10 @@ function _set_params(){
     mission_name="图像分割"
     direction_id=0
     skip_steps=5
-    keyword="batch_cost="
-    separator="="
-    position=5
-    range=0:5
-    model_mode=0 # s/step -> sample/s 
+    keyword="ips:"
+    keyword_loss="loss:"
+    model_mode=-1
+    ips_unit="images/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -39,6 +38,7 @@ function _set_params(){
 
 function _train(){
     export PYTHONPATH=$(pwd):{PYTHONPATH}
+    export FLAGS_cudnn_exhaustive_search=1
     if [ ${model_name} = "HRnet" ]; then
         config="benchmark/hrnet.yml"
     elif [ ${model_name} = "deeplabv3" ]; then
@@ -47,12 +47,12 @@ function _train(){
         echo "------------------>model_name should be HRnet or deeplabv3!"
         exit 1
     fi
-
+    model_name=${model_name}_bs${base_batch_size}
     train_cmd="--config=${config}
                --iters=${max_iter}
                --batch_size ${base_batch_size}
                --learning_rate 0.01
-               --num_workers 2
+               --num_workers 8
                --log_iters 5"
 
     if [ ${run_mode} = "sp" ]; then
@@ -72,6 +72,8 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
+
     echo "#################################${model_name}"
     if [ ${run_mode} != "sp"  -a -d mylog ]; then
         rm ${log_file}

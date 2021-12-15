@@ -24,16 +24,10 @@ import warnings
 import numpy as np
 import sys
 
+from common import utils
+from common import api_param
+from common import feeder
 from common import special_op_list
-
-if six.PY3:
-    from . import utils
-    from . import api_param
-    from . import feeder
-else:
-    import utils
-    import api_param
-    import feeder
 
 try:
     import paddle
@@ -59,14 +53,15 @@ def profile_context(name, use_gpu, profiler):
                 profile_type, 'total', output_file, tracer_option=profiler):
             yield
     elif profiler == "pyprof":
-        import cProfile, pstats, StringIO
+        import cProfile, pstats
+        from io import StringIO
 
         profiler_handle = cProfile.Profile()
         profiler_handle.enable()
         yield
         profiler_handle.disable()
         # profiler_handle.dump_stats("./outputs/" + name + ".pyprof")
-        s = StringIO.StringIO()
+        s = StringIO()
         ps = pstats.Stats(profiler_handle, stream=s).sort_stats("cumulative")
         ps.print_stats()
         print(s.getvalue())
@@ -238,6 +233,8 @@ class PaddleAPIBenchmarkBase(object):
                                    fetch_list=fetch_vars,
                                    use_program_cache=True,
                                    return_numpy=True)
+            if use_gpu:
+                paddle.fluid._cuda_synchronize(paddle.fluid.CUDAPlace(0))
             return outputs
 
         if self.name != "null":

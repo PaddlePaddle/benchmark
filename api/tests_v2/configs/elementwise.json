@@ -18,7 +18,7 @@
         }
     },
     "atol": 1E-5,
-    "repeat": 5000
+    "repeat": 20000
 }, {
     "config_id": 1,
     "op": "elementwise",
@@ -39,7 +39,7 @@
         }
     },
     "atol": 1E-5,
-    "repeat": 5000
+    "repeat": 10000
 }, {
     "config_id": 2,
     "op": "elementwise",
@@ -60,7 +60,7 @@
         }
     },
     "atol": 1e-5,
-    "repeat": 5000
+    "repeat": 10000
 }, {
     "config_id": 3,
     "op": "elementwise",
@@ -81,7 +81,7 @@
         }
     },
     "atol": 1E-5,
-    "repeat": 5000
+    "repeat": 10000
 }, {
     "config_id": 4,
     "op": "elementwise",
@@ -102,7 +102,7 @@
         }
     },
     "atol": 0.1,
-    "repeat": 5000
+    "repeat": 10000
 }, {
     "config_id": 5,
     "op": "elementwise",
@@ -122,7 +122,7 @@
             "type": "Variable"
         }
     },
-    "repeat": 5000
+    "repeat": 10000
 }, {
     "config_id": 6,
     "op": "elementwise",
@@ -163,5 +163,27 @@
             "type": "Variable"
         }
     },
-    "atol": 1
+    "atol": 1,
+    "repeat": 5000
+}, {
+    "config_id": 8,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 1L, 1L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[1L, 12L, 128L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 10000
 }]

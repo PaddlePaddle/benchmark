@@ -12,7 +12,7 @@
             "type": "Variable"
         }
     },
-    "repeat": 10
+    "repeat": 20000
 }, {
     "op": "index_sample",
     "param_info": {
@@ -26,8 +26,7 @@
             "shape": "[100L, 128L]",
             "type": "Variable"
         }
-    },
-    "repeat": 100
+    }
 }, {
     "op": "index_sample",
     "param_info": {
@@ -42,5 +41,5 @@
             "type": "Variable"
         }
     },
-    "repeat": 100
+    "repeat": 5000
 }]

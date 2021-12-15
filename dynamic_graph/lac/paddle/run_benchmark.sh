@@ -14,7 +14,7 @@ function _set_params(){
 
     run_mode=${2}
     max_epoch=${3}
-    model_name="lac"
+    model_name="lac"_bs${base_batch_size}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -23,11 +23,9 @@ function _set_params(){
     mission_name="词法分析"
     direction_id=1
     skip_steps=12
-    keyword="avg_batch_cost:"
-    separator=" "
-    position=20
-
-    model_mode=0 # steps/s -> steps/s
+    keyword="ips:"
+    model_mode=-1
+    ips_unit="sequences/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -42,19 +40,13 @@ function _set_params(){
 }
 
 function _train(){
-    # 去掉test，当前实现里没有开关可以关闭或者修改
-    grep -q "#             eval_data=test_loader" ./train.py
-    if [ $? -eq 1 ]; then
-        echo "----------already addressed disable test after train"
-    else    
-        sed -i "s/             eval_data=test_loader,/#             eval_data=test_loader,/g" train.py
-    fi
-
     train_cmd="--data_dir ./data
                --model_save_dir ./save_dir
                --epochs ${max_epoch}
                --batch_size ${batch_size}
-               --use_gpu True"
+               --logging_steps=5
+               --save_steps=10000
+               --device=gpu"
 
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u train.py "${train_cmd}

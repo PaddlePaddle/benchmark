@@ -1,7 +1,6 @@
 #!bin/bash
 
 set -xe
-
 if [[ $# -lt 4 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
@@ -25,11 +24,10 @@ function _set_params(){
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
     skip_steps=8                      # 解析日志，有些模型前几个step耗时长，需要跳过                                  (必填)
-    keyword="INFO: epoch:"              # 解析日志，筛选出数据所在行的关键字                                            (必填)
-    separator=": "                     # 解析日志，数据所在行的分隔符                                                  (必填)
-    position=6                      # 解析日志，按照分隔符分割后形成的数组索引                                      (必填)
-    model_mode=0                      # 解析日志，具体参考scripts/analysis.py.                                        (必填)
-    range=0:6
+    keyword="ips:"              # 解析日志，筛选出数据所在行的关键字                                            (必填)
+    keyword_loss="loss:"       #选填
+    model_mode=-1                      # 解析日志，具体参考scripts/analysis.py.                                        (必填)
+    ips_unit="images/s" 
 
     devices=(${CUDA_VISIBLE_DEVICES//,/ })
     num_gpu_devices=${#devices[*]}
@@ -52,11 +50,11 @@ function _train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
     WORK_ROOT=$PWD
     echo "${model_name}, batch_size: ${batch_size}"
-    if [ ${model_name} == "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ]; then
+    if [ ${model_name} == "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ] || [ ${model_name} = "ResNet50_bs96" ]; then
         config_file="./configs/ResNet/ResNet50.yaml"
-    elif [ ${model_name} == "ResNet101" ]; then
+    elif [ ${model_name} == "ResNet101_bs32" ]; then
          config_file="./configs/ResNet/ResNet101.yaml"
-    elif [ ${model_name} == "SE_ResNeXt50_32x4d" ]; then
+    elif [ ${model_name} == "SE_ResNeXt50_32x4d_bs32" ]; then
           config_file="./configs/SENet/SE_ResNeXt50_32x4d.yaml"
     else
         echo "model: $model_name not support!"
@@ -64,7 +62,7 @@ function _train(){
     fi
 
     # Enable the optimization options for ResNet50
-    if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ]; then
+    if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ] || [ ${model_name} = "ResNet50_bs96" ]; then
         fuse_elewise_add_act_ops="True"
         enable_addto="True"
         export FLAGS_max_inplace_grad_add=8
@@ -88,7 +86,7 @@ function _train(){
     sp) train_cmd="python -u tools/static/train.py -o is_distributed=False "${train_cmd} ;;
     mp)
         rm -rf ./mylog_${model_name}
-        if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ]; then
+        if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ] || [ ${model_name} = "ResNet50_bs96" ]; then
             export FLAGS_fraction_of_gpu_memory_to_use=0.8
             train_cmd="python -m paddle.distributed.launch --log_dir=./mylog_${model_name} --gpus=$CUDA_VISIBLE_DEVICES tools/static/train.py -o use_dali=True "${train_cmd}
         else
@@ -100,10 +98,10 @@ function _train(){
 
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
-        echo -e "${model}, FAIL"
+        echo -e "${model_name}, FAIL"
         export job_fail_flag=1
     else
-        echo -e "${model}, SUCCESS"
+        echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
     kill -9 `ps -ef|grep python |awk '{print $2}'`

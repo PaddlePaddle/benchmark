@@ -12,16 +12,18 @@ function usage () {
   -p  all_path contains dir of prepare(pretrained models), dataset, logs, images such as /ssd1/ljh
   -r  run_module  build_paddle or run_models
   -t  job_type  benchmark_daliy | models test | pr_test
-  -g  device_type  p40 | v100
-  -s  implement_type of model static | dynamic
+  -g  device_type  A100 | v100
+  -s  implement_type of model static | dynamic | dynamic_to_static
   -e  benchmark alarm email address
+  -x whl build tag
+  -y runtime tag
 EOF
 }
 if [ $# -lt 18 ] ; then
   usage
   exit 1;
 fi
-while getopts h:m:d:c:n:a:p:r:t:g:s:e: opt
+while getopts h:m:d:c:n:a:p:r:t:g:s:e:x:y: opt
 do
   case $opt in
   h) usage; exit 0 ;;
@@ -36,10 +38,14 @@ do
   g) device_type="$OPTARG" ;;
   s) implement_type="$OPTARG" ;;
   e) email_address="$OPTARG" ;;
+  x) whl_build_tag="$OPTARG" ;;
+  y) runtime_tag="$OPTARG" ;;
   \?) usage; exit 1 ;;
   esac
 done
 
+
+echo "#################### x=$whl_build_tag   y=$runtime_tag"
 paddle_repo="https://github.com/PaddlePaddle/Paddle.git"
 
 export CUDA_SO="$(\ls /usr/lib64/libcuda* | xargs -I{} echo '-v {}:{}') $(\ls /usr/lib64/libnvidia* | xargs -I{} echo '-v {}:{}')"
@@ -49,7 +55,9 @@ export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
 function construnct_version(){
     cd ${benchmark_work_path}/Paddle
     image_commit_id=$(git log|head -n1|awk '{print $2}')
-    echo "image_commit_id is: "${image_commit_id}
+    image_commit_id6=${image_commit_id:0:6}
+    echo "image_commit_id is: "${image_commit_id}"\n image_commit_id6 is : "${image_commit_id6}
+
     version=`date -d @$(git log -1 --pretty=format:%ct) "+%Y.%m%d.%H%M%S"`
     image_branch=$(echo ${image_branch} | rev | cut -d'/' -f 1 | rev)
     python_abi='cp27-cp27mu'
@@ -60,16 +68,17 @@ function construnct_version(){
         with_gpu="OFF"
         cuda_version="10.0"
         cudnn_version=7
-    elif [[ 'dynamic_graph' == ${implement_type} ]] || [[ 'static_graph' == ${implement_type} ]]; then
+    elif [[ 'dynamic_graph' == ${implement_type} ]] || [[ 'static_graph' == ${implement_type} ]] || [[ 'dynamic_to_static' == ${implement_type} ]]; then
         python_abi='cp37-cp37m'
-        PADDLE_VERSION=${version}'.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
+        PADDLE_VERSION=${version}'.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}.${image_commit_id6}"
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp37-cp37m-linux_x86_64.whl
     else
-        PADDLE_VERSION=${version}'.post'$(echo ${cuda_version}|cut -d "." -f1)${cudnn_version}".${image_branch//-/_}"
+        PADDLE_VERSION=${version}'.post'$(echo ${cuda_version} | sed 's/\.//g')${cudnn_version}".${image_branch//-/_}.${image_commit_id6}"
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.${PADDLE_VERSION}-cp27-cp27mu-linux_x86_64.whl
     fi
-    PADDLE_DEV_NAME=paddlepaddle/paddle_manylinux_devel:cuda${cuda_version}-cudnn${cudnn_version}
-    echo "IMAGE_NAME is: ${IMAGE_NAME}"
+    PADDLE_DEV_NAME=paddlepaddle/paddle_manylinux_devel:${whl_build_tag}
+    echo "-----------------build IMAGE_NAME is: ${IMAGE_NAME}"
+    echo "-----------------build PADDLE_DEV_NAME is: ${PADDLE_DEV_NAME}"
 }
 
 #build paddle whl and put it to ${all_path}/images
@@ -88,11 +97,13 @@ function build_paddle(){
     if [[ $WEEK_DAY -eq 6 || $WEEK_DAY -eq 7 ]];then
         cuda_arch_name="All"
     else
-        cuda_arch_name="Volta"
+        cuda_arch_name="Auto" # Volta or Ampere
     fi
     echo "------------today is $WEEK_DAY, and cuda_arch_name is $cuda_arch_name"
     
-    docker run -i --rm -v $PWD:/paddle \
+    PADDLE_ROOT=${PWD}
+    docker run -i --rm -v ${PADDLE_ROOT}:/paddle \
+      --ulimit nofile=1024000 \
       -w /paddle \
       --net=host \
       -e "CMAKE_BUILD_TYPE=Release" \
@@ -118,8 +129,9 @@ function build_paddle(){
       -e "CMAKE_VERBOSE_MAKEFILE=OFF" \
       -e "http_proxy=${HTTP_PROXY}" \
       -e "https_proxy=${HTTP_PROXY}" \
+      -e "no_proxy=bcebos.com" \
       ${PADDLE_DEV_NAME} \
-       /bin/bash -c "paddle/scripts/paddle_build.sh build"
+       /bin/bash -c "paddle/scripts/paddle_build.sh build_only"
      build_name=${IMAGE_NAME}
 
     if [[ -d ${all_path}/images ]]; then
@@ -164,6 +176,7 @@ function run_models(){
     run_cmd="cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/scripts;
         bash auto_run_paddle.sh -m $model \
         -c ${cuda_version} \
+        -d ${cudnn_version} \
         -n ${all_path}/images/${IMAGE_NAME} \
         -i ${image_commit_id} \
         -a ${image_branch} \
@@ -176,7 +189,6 @@ function run_models(){
     if [[ ${device_type} == 'cpu' || ${device_type} == "CPU" ]]; then
         RUN_IMAGE_NAME=paddlepaddle/paddle:latest
         docker run -i --rm \
-            -v /home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/monquery:/usr/bin/monquery \
             -e "BENCHMARK_WEBSITE1=${BENCHMARK_WEBSITE1}" \
@@ -187,15 +199,20 @@ function run_models(){
             -e "START_TIME=$(date "+%Y%m%d")" \
             -e "BENCHMARK_TYPE=${BENCHMARK_TYPE}" \
             -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
+            -e "DEVICE_TYPE=${device_type}" \
+            -e "VERSION_CUDA=${cuda_version}" \
+            -e "no_proxy=bcebos.com" \
             --net=host \
-            --privileged \
-            --shm-size=128G \
+            --cap-add=ALL \
+            --shm-size=256G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
     else
-        RUN_IMAGE_NAME=paddlepaddle/paddle:latest-gpu-cuda${cuda_version}-cudnn${cudnn_version}
-        nvidia-docker run -i --rm \
-            -v /home:/home \
+        RUN_IMAGE_NAME=paddlepaddle/paddle:${runtime_tag}
+
+        if [ ${device_type} == "A100" ]; then
+            nvidia-docker run --runtime=nvidia  --gpus all -i --rm \
+            -v /ssd2/ce_home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
             -v /usr/bin/monquery:/usr/bin/monquery \
@@ -207,17 +224,42 @@ function run_models(){
             -e "START_TIME=$(date "+%Y%m%d")" \
             -e "BENCHMARK_TYPE=${BENCHMARK_TYPE}" \
             -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
+            -e "DEVICE_TYPE=${device_type}" \
+            -e "VERSION_CUDA=${cuda_version}" \
+            -e "no_proxy=bcebos.com" \
             --net=host \
-            --privileged \
-            --shm-size=128G \
+            --cap-add=ALL \
+            --shm-size=256G \
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
+        else
+            nvidia-docker run -i --rm \
+            -v /ssd2/ce_home:/home \
+            -v ${all_path}:${all_path} \
+            -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
+            -v /usr/bin/monquery:/usr/bin/monquery \
+            -e "BENCHMARK_WEBSITE1=${BENCHMARK_WEBSITE1}" \
+            -e "BENCHMARK_WEBSITE2=${BENCHMARK_WEBSITE2}" \
+            -e "http_proxy=${HTTP_PROXY}" \
+            -e "https_proxy=${HTTP_PROXY}" \
+            -e "RUN_IMAGE_NAME=${RUN_IMAGE_NAME}" \
+            -e "START_TIME=$(date "+%Y%m%d")" \
+            -e "BENCHMARK_TYPE=${BENCHMARK_TYPE}" \
+            -e "BENCHMARK_GRAPH=${BENCHMARK_GRAPH}" \
+            -e "DEVICE_TYPE=${device_type}" \
+            -e "VERSION_CUDA=${cuda_version}" \
+            -e "no_proxy=bcebos.com" \
+            --net=host \
+            --cap-add=ALL \
+            --shm-size=256G \
+            ${RUN_IMAGE_NAME} \
+            /bin/bash -c "${run_cmd}"
+        fi
     fi
 }
 
 #Send alarm email
 function send_email(){
-    # if [[ ${job_type} == 2 && -e ${all_path}/logs/${PADDLE_VERSION}/mail.html ]]; then
     if [[ -e ${all_path}/logs/${PADDLE_VERSION}/${implement_type}/mail.html ]]; then
         cat ${all_path}/logs/${PADDLE_VERSION}/${implement_type}/mail.html |sendmail -t ${email_address}
     fi
