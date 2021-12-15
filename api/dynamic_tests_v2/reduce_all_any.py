@@ -69,8 +69,6 @@ class TorchReduceAllAny(PytorchAPIBenchmarkBase):
 
         self.feed_list = [x]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
