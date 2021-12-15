@@ -197,7 +197,6 @@ mask_rcnn_bs1(){
     pip install pycocotools
     pip install -r requirements.txt 
 
-
     package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
