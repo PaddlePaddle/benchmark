@@ -120,7 +120,7 @@ class PDConv2d(PaddleAPIBenchmarkBase):
         print("Forward: M = %d, N = %d, K = %d, gflop = %.5f" %
               (M, N, K, float(forward_flop) * 1E-9))
 
-        if not backward:
+        if not config.backward:
             return forward_flop, None
         else:
             return None, None

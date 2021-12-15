@@ -175,7 +175,6 @@ class PaddleDynamicAPIBenchmarkBase(object):
             stats["flop"] = flop
         if byte is not None:
             stats["byte"] = byte
-
         return outputs, stats
 
     def run(self, config, args, feeder_adapter=None):

@@ -115,7 +115,7 @@ class PaddleAPIBenchmarkBase(object):
     def compute_flop_and_byte(self, config):
         """ flop is used as a metric for op's performance and it is optional.
         """
-        pass
+        return None, None
 
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         assert shape is not None
@@ -206,7 +206,7 @@ class PaddleAPIBenchmarkBase(object):
                     walltimes.append(end - begin)
         return walltimes
 
-    def run_impl(self, use_gpu, feed, repeat=1, profiler="none"):
+    def run_impl(self, use_gpu, config, feed, repeat=1, profiler="none"):
         place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
         executor = fluid.Executor(place)
         executor.run(self.startup_program)
@@ -218,12 +218,6 @@ class PaddleAPIBenchmarkBase(object):
             "device": "GPU" if use_gpu else "CPU",
             "backward": self._backward
         }
-
-        flop, byte = self.compute_flop_and_byte(config)
-        if flop is not None:
-            stats["flop"] = flop
-        if byte is not None:
-            stats["byte"] = byte
 
         def _run_main_iter():
             feed_dict = feed if self._need_feed else None
@@ -258,6 +252,12 @@ class PaddleAPIBenchmarkBase(object):
             stats["total"] = runtimes
             if self.name != "null":
                 stats["wall_time"] = walltimes
+
+            flop, byte = self.compute_flop_and_byte(config)
+            if flop is not None:
+                stats["flop"] = flop
+            if byte is not None:
+                stats["byte"] = byte
             return outputs, stats
         except fluid.core.EnforceNotMet as ex:
             logging.basicConfig(level=logging.INFO)
@@ -325,6 +325,7 @@ class PaddleAPIBenchmarkBase(object):
         with fluid.scope_guard(self.scope):
             outputs, stats = self.run_impl(
                 use_gpu=args.use_gpu,
+                config=config,
                 feed=feed,
                 repeat=args.repeat,
                 profiler=args.profiler)
