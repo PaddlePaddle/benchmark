@@ -49,6 +49,18 @@ class PDReduce(PaddleDynamicAPIBenchmarkBase):
         if config.backward:
             self.append_gradients(result, [x])
 
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        out_shape = self.fetch_list[0].shape
+        forward_flop = numel(x_shape)
+        forward_byte = (
+            numel(x_shape) + numel(out_shape)) * sizeof(config.x_dtype)
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
+
 
 class TorchReduce(PytorchAPIBenchmarkBase):
     def build_graph(self, config):

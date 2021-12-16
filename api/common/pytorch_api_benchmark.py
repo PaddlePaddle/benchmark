@@ -137,12 +137,7 @@ class PytorchAPIBenchmarkBase(object):
         for var in inputs:
             self.fetch_list.append(var.grad)
 
-    def run_impl(self,
-                 use_gpu,
-                 config,
-                 repeat=1,
-                 check_output=False,
-                 profiler="none"):
+    def run_impl(self, use_gpu, config, repeat=1, profiler="none"):
         def _run_main_iter():
             self.build_graph(config=config)
             if use_gpu:
@@ -200,7 +195,6 @@ class PytorchAPIBenchmarkBase(object):
             use_gpu=args.use_gpu,
             config=config,
             repeat=args.repeat,
-            check_output=args.check_output,
             profiler=args.profiler)
         return outputs, stats
 
