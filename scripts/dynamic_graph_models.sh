@@ -14,7 +14,100 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn)
+
+cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
+dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_speech_repo_conformer dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo) #dy_gpt
+
+
+#if  [ ${RUN_PROFILER} = "PROFILER" ]; then
+#    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
+#fi
+export log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
+
+dy_seg_repo(){
+    echo "dy_seg_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/
+    cd ${cur_model_path}
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_all.sh
+}
+
+dy_gan_repo(){
+    echo "dy_gan_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleGAN/
+    cd ${cur_model_path}
+    ln -s ${data_path}/dygraph_data/gan_repo/REDS/ ./data/
+    pip install -v -e .
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_all.sh
+}
+
+dy_speech_repo_pwgan(){
+    echo "dy_speech_repo_pwgan"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
+    cd ${cur_model_path}/tests/benchmark/pwgan/
+    pip install jsonlines
+    bash run_all.sh
+}
+
+dy_speech_repo_conformer(){
+    echo "dy_speech_repo_conformer"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
+    cd ${cur_model_path}/tests/benchmark/conformer/
+    rm -rf ${cur_model_path}/examples/dataset/aishell/aishell.py
+    cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/examples/dataset/aishell/
+    pip install loguru
+    bash prepare.sh
+    bash run.sh
+    rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
+}
+
+dy_video_TimeSformer(){
+    echo "dy_video_TimeSformer"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
+    cd ${cur_model_path}/benchmark/TimeSformer/
+    bash run_all.sh local
+    rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
+}
+
+dy_detection_repo(){
+    echo "dy_detection_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection/
+    pip install numpy -U
+    cd ${cur_model_path}/
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_all.sh
+}
+
+dy_ocr_repo(){
+    echo "dy_ocr_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleOCR/
+    cd ${cur_model_path}/
+    sed -i '/set\ -xe/d' benchmark/run_benchmark_det.sh
+    bash benchmark/run_det.sh
+}
+
+dy_clas_repo(){
+    echo "dy_clas_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleClas/
+    cd ${cur_model_path}/
+    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy pandas wget h5py sklearn opencv-python visualdl)
+    for package in ${package_check_list[@]}; do
+        if python -c "import ${package}" >/dev/null 2>&1; then
+            echo "${package} have already installed"
+        else
+            echo "${package} NOT FOUND"
+            pip install ${package}
+            echo "${package} installed"
+        fi
+    done
+    # prepare data    # 脚本内为下载ILSVRC2012,太过耗时
+    mkdir -p ./dataset/ILSVRC2012
+    ln -s ${data_path}/dygraph_data/imagenet100_data/* ./dataset/ILSVRC2012
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_all.sh
+}
+
 
 #run_bert
 dy_bert(){
@@ -66,7 +159,6 @@ dy_bert(){
 dy_mobilenet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout -b develop_mobilenet 98db91b2118deb0f6f1c0bf90708c1bc34687f8d
     pip install -r requirements.txt
 
     # Prepare data
@@ -112,7 +204,7 @@ dy_ptb_medium(){
 
     # Prepare data
     mkdir -p data
-    ln -s ${data_path}/dygraph_data/ptb/simple-examples/ ${cur_model_path}/data/
+    ln -s ${data_path}/dygraph_data/ptb/simple-examples/ /root/.paddlenlp/datasets/PTB/
 
     # Running ...
     rm -f ./run_benchmark.sh
@@ -125,7 +217,7 @@ dy_ptb_medium(){
 # transformer
 dy_transformer(){
     echo "###########pip install paddlenlp"
-    pip install paddlenlp==2.0.5 # 20210723：nlp API不兼容升级，导致模型报错；暂时使用paddlenlp=2.0.5版本；后续进行子库代码升级
+    pip install paddlenlp
     pip install attrdict
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/machine_translation/transformer
     cd ${cur_model_path}
@@ -156,7 +248,7 @@ dy_tsn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
-    pip install wget
+    pip install wget av
     # Prepare pretrained modles
     rm -rf ResNet50_pretrain.pdparams
     ln -s ${prepare_path}/tsn/ResNet50_pretrain.pdparams ${cur_model_path}/
@@ -245,7 +337,7 @@ dy_slowfast(){
     cd ${cur_model_path}
     pip install tqdm
     pip install decord
-    pip install pandas
+    pip install pandas av
     # Prepare data
     rm -rf data
     ln -s ${data_path}/dygraph_data/slowfast/data/ ${cur_model_path}/
@@ -357,7 +449,7 @@ dy_tsm(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
-    pip install wget decord
+    pip install wget av decord
     # Prepare pretrained modles
     ln -s ${prepare_path}/tsm/ResNet50_pretrain.pdparams ${cur_model_path}/
     # Prepare data
@@ -434,7 +526,6 @@ dy_senta(){
 dy_resnet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout -b develop_resnet 98db91b2118deb0f6f1c0bf90708c1bc34687f8d
     pip install -r requirements.txt
    
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
@@ -481,6 +572,7 @@ dy_lac(){
 
 dy_ppocr_mobile_2() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleOCR
+    pip install fasttext
     cd ${cur_model_path}
 
     if python -c "import pooch" >/dev/null 2>&1; then
@@ -524,7 +616,7 @@ dy_bmn() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
-    package_check_list=(tqdm PyYAML numpy decord pandas)
+    package_check_list=(tqdm PyYAML numpy decord pandas av)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
             echo "${package} have already installed"
@@ -599,4 +691,116 @@ dy_faster_rcnn_fpn() {
     sleep 60
     echo "index is speed, 8gpus begin, mp"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_faster_rcnn_bs1_speed_8gpus 2>&1
+}
+
+dy_gpt(){
+    profile=${1:-"off"}
+
+    cd ${BENCHMARK_ROOT}
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
+    cd ${cur_model_path}
+
+    run_env=$BENCHMARK_ROOT/run_env
+    rm -rf $run_env
+    mkdir $run_env
+    echo `which python3.7`
+    ln -s $(which python3.7)m-config  $run_env/python3-config
+    ln -s $(which python3.7) $run_env/python
+    ln -s $(which pip3.7) $run_env/pip
+
+    export PATH=$run_env:${PATH}
+
+    #pip install -r requirements.txt
+    pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
+    pip install pybind11 regex sentencepiece tqdm visualdl -i https://mirror.baidu.com/pypi/simple
+    pip install TensorRT
+    pip install -e ./
+
+    # Download test dataset and save it to PaddleNLP/data
+    if [ -d data ]; then
+        rm -rf data
+    fi
+    mkdir -p data && cd data
+    wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt/data/gpt_en_dataset_300m_ids.npy -o .tmp
+    wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt/data/gpt_en_dataset_300m_idx.npz -o .tmp
+    cd - 
+
+    model_name='nlp'
+    mode_list=(dygraph)
+    max_iters=200 # control the test time
+
+    SP_CARDNUM='0'
+    MP_CARDNUM='0,1,2,3,4,5,6,7'
+
+    # Running ...
+    rm -f ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/gpt/paddle/run_benchmark.sh ./       # 拷贝脚本到当前目录
+    sed -i '/set\ -xe/d' run_benchmark.sh
+
+    for mod_item in ${mode_list[@]}; do
+        # gpt-2
+        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_sp_bs8_fp32_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_mp_bs8_fp32_speed_8gpus 2>&1 
+        # in dygraph mod, the bs=16 will out of mem in 32G V100
+        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp16  ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_sp_bs8_fp16_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp16 ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_mp_bs8_fp16_speed_8gpus 2>&1
+
+        # gpt-3
+        # gpt3 is optimized for speed and need paddle develop version
+        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_sp_bs8_fp32_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_mp_bs8_fp32_speed_8gpus 2>&1
+        # in dygraph mod, the bs=16 will out of mem in 32G V100
+        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp16  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_sp_bs8_fp16_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp16 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_mp_bs8_fp16_speed_8gpus 2>&1
+    done
+}
+
+
+dy_xlnet() {
+    cd ${BENCHMARK_ROOT}
+    run_env=$BENCHMARK_ROOT/run_env
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
+    cd ${cur_model_path}
+
+    profile=${1:-"off"}
+
+    # 1. 配置python环境:
+    rm -rf $run_env
+    mkdir $run_env
+    echo `which python3.7`
+    ln -s $(which python3.7)m-config  $run_env/python3-config
+    ln -s $(which python3.7) $run_env/python
+    ln -s $(which pip3.7) $run_env/pip
+    export PATH=$run_env:${PATH}
+
+    # 2. 安装该模型需要的依赖 (如需开启优化策略请注明)
+    pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
+    pip install sentencepiece -i https://mirror.baidu.com/pypi/simple # 安装 sentencepiece
+    pip install -e ./
+
+    # 3. 拷贝该模型需要数据、预训练模型（这一步无需操作，数据和模型会自动下载）
+
+    # 4. 批量运行（如不方便批量，1，2需放到单个模型中）
+    # Running ...
+    rm -f ./run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/xlnet/paddle/run_benchmark.sh ./       # 拷贝脚本到当前目录
+    sed -i '/set\ -xe/d' run_benchmark.sh
+
+    model_mode_list=(xlnet-base-cased)
+    fp_item_list=(fp32)
+    bs_item_list=(32 64 128)
+    for model_mode in ${model_mode_list[@]}; do
+        for fp_item in ${fp_item_list[@]}; do
+            for bs_item in ${bs_item_list[@]}; do
+                echo "index is speed, 1gpus, begin, ${model_name}"
+                run_mode=sp
+                CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 300 ${model_mode} ${profile}  | tee ${log_path}/nlp_dygraph_xlnet_sp_bs${bs_item}_fp${fp_item}_speed_1gpus 2>&1    #  (5min)
+                #sleep 60
+                echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
+                run_mode=mp
+                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 300 ${model_mode} ${profile}  | tee ${log_path}/nlp_dygraph_xlnet_mp_bs${bs_item}_fp${fp_item}_speed_8gpus 2>&1
+                sleep 60
+            done
+        done
+    done
 }

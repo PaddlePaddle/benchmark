@@ -1,0 +1,295 @@
+[{
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[8, 64, 64, 64]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[8, 44, 64, 64]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[8, 32, 64, 64]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[8, 3, 64, 64]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[8, 1, 64, 64]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[8, 10, 64, 64]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "2"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[8, 11, 1, 64, 64]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[8, 11, 3, 64, 64]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[8, 1, 64, 64, 2]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[8, 10, 64, 64, 2]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[32, 64, 32, 32]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[32, 32, 32, 32]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[32, 32, 32, 32]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[32, 32, 32, 32]",
+                "type": "Variable"
+            },
+            "x4": {
+                "dtype": "float32",
+                "shape": "[32, 32, 32, 32]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[32, 64, 32, 32]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[32, 32, 32, 32]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[32, 32, 32, 32]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[32, 64, 32, 32]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[32, 32, 32, 32]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[32, 64, 32, 32]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[32, 32, 32, 32]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[32, 32, 32, 32]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[32, 32, 32, 32]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[4, 72, 64, 64]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[4, 72, 64, 64]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[4, 64, 16, 16]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[4, 64, 16, 16]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "concat",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "x0": {
+                "dtype": "float32",
+                "shape": "[4, 72, 16, 16]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[4, 72, 16, 16]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    },
+    "repeat": 5000
+}]
