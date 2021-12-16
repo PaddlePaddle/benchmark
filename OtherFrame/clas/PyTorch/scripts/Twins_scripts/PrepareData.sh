@@ -6,8 +6,14 @@ dataset_url="https://paddle-imagenet-models-name.bj.bcebos.com/data/ImageNet1k/I
 # prepare data
 rm -rf data
 mkdir data && cd data
-wget -c ${dataset_url}
-tar xf ILSVRC2012_val.tar
+
+if [ ${RUN_PLAT} == "local" ]; then
+    ln -s ${all_path}/dataset/otherframe/ILSVRC2012_val ./
+else
+    wget -c ${dataset_url}
+    tar xf ILSVRC2012_val.tar
+fi
+
 ln -s ILSVRC2012_val imagenet
 cd imagenet
 ln -s ILSVRC2012_val_dirs train
