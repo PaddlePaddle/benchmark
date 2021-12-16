@@ -68,7 +68,7 @@
 	path = OtherFrame/nlp/PyTorch/apex
 	url = https://github.com/NVIDIA/apex.git
 [submodule "OtherFrame/Speech/PyTorch/wenet/models/wenet"]
-	path = OtherFrame/Speech/PyTorch//models/wenet
+	path = OtherFrame/Speech/PyTorch/wenet/models/wenet
 	url = https://github.com/wenet-e2e/wenet
 	branch = main
 [submodule "OtherFrame/seg/PyTorch/models/mmseg"]
