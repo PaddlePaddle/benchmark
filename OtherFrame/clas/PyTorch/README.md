@@ -3,7 +3,7 @@
 ├── README.md       # 运行文档  
 ├── models          # 提供竞品Mxnet框架的修改后的模型,官方模型请直接在脚本中拉取,统一方向的模型commit应一致,如不一致请单独在模型运行脚本中写明运行的commit  
 ├── run_Pytorch.sh  # 运行全量竞品框架模型入口 
-├── test_clas.sh    # 全量竞品mxnet框架模型运行脚本  
+├── test_clas.sh    # 全量竞品torch框架模型运行脚本  
 └── scripts         # 提供各个模型复现性能的脚本  
 ## 环境介绍
 ### 1.物理机环境
