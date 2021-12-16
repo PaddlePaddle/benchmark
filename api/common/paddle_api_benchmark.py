@@ -112,6 +112,11 @@ class PaddleAPIBenchmarkBase(object):
     def build_program(self, config=None):
         pass
 
+    def compute_flop_and_byte(self, config):
+        """ flop is used as a metric for op's performance and it is optional.
+        """
+        return None, None
+
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         assert shape is not None
 
@@ -201,12 +206,7 @@ class PaddleAPIBenchmarkBase(object):
                     walltimes.append(end - begin)
         return walltimes
 
-    def run_impl(self,
-                 use_gpu,
-                 feed,
-                 repeat=1,
-                 check_output=False,
-                 profiler="none"):
+    def run_impl(self, use_gpu, config, feed, repeat=1, profiler="none"):
         place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
         executor = fluid.Executor(place)
         executor.run(self.startup_program)
@@ -242,23 +242,22 @@ class PaddleAPIBenchmarkBase(object):
             outputs = _run_main_iter()
 
             runtimes = []
-            fetches = []
             outputs = None
             with profile_context(self.name, use_gpu, profiler):
                 for i in range(repeat):
                     begin = time.time()
                     outputs = _run_main_iter()
                     runtimes.append(time.time() - begin)
-                    if check_output:
-                        fetches.append(outputs)
 
             stats["total"] = runtimes
-            if check_output:
-                stable, max_diff = self._check_consistency(fetches)
-                stats["stable"] = stable
-                stats["diff"] = max_diff
             if self.name != "null":
                 stats["wall_time"] = walltimes
+
+            flop, byte = self.compute_flop_and_byte(config)
+            if flop is not None:
+                stats["flop"] = flop
+            if byte is not None:
+                stats["byte"] = byte
             return outputs, stats
         except fluid.core.EnforceNotMet as ex:
             logging.basicConfig(level=logging.INFO)
@@ -326,9 +325,9 @@ class PaddleAPIBenchmarkBase(object):
         with fluid.scope_guard(self.scope):
             outputs, stats = self.run_impl(
                 use_gpu=args.use_gpu,
+                config=config,
                 feed=feed,
                 repeat=args.repeat,
-                check_output=args.check_output,
                 profiler=args.profiler)
         return outputs, stats
 
@@ -413,50 +412,3 @@ class PaddleAPIBenchmarkBase(object):
         main_block._remove_var(shape_op.output("Out")[0])
         main_block._remove_op(index + 1)
         main_block._remove_op(index)
-
-    def _check_consistency(self, fetches):
-        def _self_check(output):
-            if isinstance(output, fluid.core.LoDTensor):
-                if output._is_initialized():
-                    output = np.array(output)
-                else:
-                    raise RuntimeError("output tensor is not initialized.")
-
-            if not isinstance(output, np.ndarray):
-                raise TypeError("output's type should be numpy.ndarray.")
-
-            if (np.isnan(output)).any():
-                raise ValueError("NAN in output.")
-
-            if (np.isinf(output)).any():
-                raise ValueError("INF in output.")
-
-            return output
-
-        if not isinstance(fetches, list):
-            raise TypeError("fetches is not a list.")
-
-        if len(fetches) <= 0:
-            raise ValueError("The number of fetched results is {} (<= 0).".
-                             format(len(fetches)))
-
-        stable = True
-        repeat = len(fetches)
-        num_outputs = len(fetches[0])
-        max_diff = 0.0
-        for j in range(num_outputs):
-            if not stable:
-                break
-            output_0 = None
-            for i in range(repeat):
-                try:
-                    output_i = _self_check(fetches[i][j])
-                    if i == 0:
-                        output_0 = output_i
-                    diff = utils.compare(output_0, output_i)
-                    max_diff = diff if diff > max_diff else max_diff
-                except (RuntimeError, ValueError, AssertionError) as e:
-                    traceback.print_exc()
-                    stable = False
-                    break
-        return stable, max_diff
