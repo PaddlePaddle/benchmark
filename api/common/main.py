@@ -72,11 +72,6 @@ def parse_args():
         default=16,
         help='Specify the unknown dimension.')
     parser.add_argument(
-        '--check_output',
-        type=system.str2bool,
-        default=False,
-        help='Whether checking the consistency of outputs [True|False]')
-    parser.add_argument(
         '--profiler',
         type=str,
         default="none",
@@ -122,7 +117,6 @@ def parse_args():
 
     if args.task == "accuracy":
         args.repeat = 1
-        args.check_output = False
         args.profiler = "none"
 
     _check_gpu_device(args.use_gpu)
@@ -269,7 +263,17 @@ def test_main_without_json(pd_obj=None,
             sys.exit(1)
 
     if _is_torch_enabled(args, config):
-        assert torch_obj is not None, "Pytorch object is None."
+        assert torch_obj is not None, "PyTorch object is None."
+        import torch
+        try:
+            import paddle
+            flags = paddle.get_flags(["FLAGS_cudnn_exhaustive_search"])
+            torch.backends.cudnn.benchmark = flags[
+                "FLAGS_cudnn_exhaustive_search"]
+        except Exception:
+            torch.backends.cudnn.benchmark = os.environ.get(
+                "FLAGS_cudnn_exhaustive_search", False)
+
         torch_config = config.to_pytorch()
         print(torch_config)
         torch_outputs, torch_stats = torch_obj.run(torch_config, args)
