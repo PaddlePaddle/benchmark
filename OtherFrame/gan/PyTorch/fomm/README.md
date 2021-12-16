@@ -51,7 +51,7 @@ run_cmd="cd /workspace;
          CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh fomm_mp_bs64 mp fp32 16 300 4;
          "
          
-nvidia-docker run --name test_torch_gan -it  \
+nvidia-docker run --name test_torch_gan -i  \
     --net=host \
     --shm-size=128g \
     -v $PWD:/workspace \
