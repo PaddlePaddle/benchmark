@@ -9,10 +9,10 @@ fi
 
 function _set_params(){
     index=$1
-    base_batch_size=2
     run_mode=${2:-"sp"} # Use sp for single GPU and mp for multiple GPU.
     model_name=${3}
     max_iter=${4:-"200"}
+    base_batch_size=${5:-"2"}
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
@@ -62,7 +62,7 @@ function _train(){
                --use_mpio
                BATCH_SIZE ${batch_size}
                DATALOADER.NUM_WORKERS 2
-               SOLVER.NUM_EPOCHS 1"
+               SOLVER.NUM_EPOCHS 2"
 
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u pdseg/train.py "${train_cmd}
