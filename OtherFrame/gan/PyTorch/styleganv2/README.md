@@ -39,10 +39,14 @@ bash run_PyTorch.sh;     # 创建容器,在该标准环境中测试模型
 #!/usr/bin/env bash
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
 docker pull ${ImageName}
-run_cmd="cd /workspace/;
-         cp /workspace/scripts/PrepareEnv.sh ./;
+#<<<<<<< gan_benchmark
+#run_cmd="cd /workspace/;
+#         cp /workspace/scripts/PrepareEnv.sh ./;
+#         bash PrepareEnv.sh;
+#         cd /workspace/stylegan2-pytorch/;
+run_cmd="cp /workspace/scripts/PrepareEnv.sh ./;
          bash PrepareEnv.sh;
-         cd /workspace/stylegan2-pytorch/;
+         cd /workspace/models/styleganv2;
          cp /workspace/scripts/run_benchmark.sh ./;
          cp /workspace/scripts/analysis_log.py ./;
          CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh styleganv2_sp_bs8 sp fp32 8 300 4;

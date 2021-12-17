@@ -2,39 +2,15 @@
   path = models
   url = https://github.com/PaddlePaddle/models.git
   branch = develop
-[submodule "NeuralMachineTranslation/BERT/pytorch/Megatron-LM"]
-  path = static_graph/NeuralMachineTranslation/BERT/pytorch/Megatron-LM
-  url = https://github.com/chengduoZH/Megatron-LM
-  branch = benchmark
-[submodule "static_graph/seq2seq/tensorflow/nmt"]
-  path = static_graph/seq2seq/tensorflow/nmt
-  url = https://github.com/tensorflow/nmt.git
-[submodule "StarGAN/pytorch/stargan"]
-  path = static_graph/StarGAN/pytorch/stargan
-  url = https://github.com/yunjey/stargan.git
-  branch = master
-[submodule "AttGAN/tensorflow/attgan"]
-  path = static_graph/AttGAN/tensorflow/attgan
-  url = https://github.com/LynnHo/AttGAN-Tensorflow.git
-  branch = master
-[submodule "AttGAN/pytorch/attgan"]
-  path = static_graph/AttGAN/pytorch/attgan
-  url = https://github.com/elvisyjlin/AttGAN-PyTorch.git
-  branch = master
-[submodule "STGAN/tensorflow/stgan"]
-  path = static_graph/STGAN/tensorflow/stgan
-  url = https://github.com/csmliu/STGAN.git
-  branch = master
-[submodule "GAN_models/PytorchGAN/pytorch-CycleGAN-and-pix2pix"]
-  path = static_graph/GAN_models/PytorchGAN/pytorch-CycleGAN-and-pix2pix
-  url = https://github.com/chengduoZH/pytorch-CycleGAN-and-pix2pix
-  branch = benchmark
+[submodule "dynamic_graph/OCR/pytorch/DB.pytorch"]
+  path = dynamic_graph/OCR/pytorch/DB.pytorch
+  url = https://github.com/LDOUBLEV/DBNet.pytorch
+[submodule "dynamic_graph/OCR/tensorflow/EAST"]
+  path = dynamic_graph/OCR/tensorflow/EAST
+  url = https://github.com/argman/EAST.git
 [submodule "static_graph/Mask-RCNN/pytorch/maskrcnn-benchmark"]
   path = static_graph/Mask-RCNN/pytorch/maskrcnn-benchmark
   url = https://github.com/facebookresearch/maskrcnn-benchmark.git
-[submodule "NextVlad/tensorflow/youtube-8m"]
-  path = NextVlad/tensorflow/youtube-8m
-  url = https://github.com/linrongc/youtube-8m.git
 [submodule "static_graph/Detection/pytorch/Detectron"]
   path = static_graph/Detection/pytorch/Detectron
   url = https://github.com/facebookresearch/Detectron.git
@@ -69,7 +45,7 @@
 [submodule "PaddleSeg"]
 	path = PaddleSeg
 	url = https://github.com/PaddlePaddle/PaddleSeg.git
-	branch = benchmark
+	branch = develop
 [submodule "PaddleOCR"]
 	path = PaddleOCR
 	url = https://github.com/PaddlePaddle/PaddleOCR.git
@@ -78,9 +54,35 @@
 	path = PaddleGAN
 	url = https://github.com/PaddlePaddle/PaddleGAN.git
 	branch = develop
+[submodule "PaddleSpeech"]
+	path = PaddleSpeech
+	url = https://github.com/PaddlePaddle/PaddleSpeech.git
+	branch = develop
+[submodule "OtherFrame/nlp/PyTorch/scripts/NLP/gpt/Megatron-LM"]
+	path = OtherFrame/nlp/PyTorch/models/NLP/gpt/Megatron-LM
+	url = https://github.com/NVIDIA/Megatron-LM.git
+[submodule "OtherFrame/nlp/PyTorch/apex"]
+	path = OtherFrame/nlp/PyTorch/apex
+	url = https://github.com/NVIDIA/apex.git
+[submodule "OtherFrame/Speech/PyTorch/wenet/models/wenet"]
+	path = OtherFrame/Speech/PyTorch/wenet/models/wenet
+	url = https://github.com/wenet-e2e/wenet
+	branch = main
 [submodule "OtherFrame/seg/PyTorch/models/mmseg"]
 	path = OtherFrame/seg/PyTorch/models/mmseg
 	url = https://github.com/open-mmlab/mmsegmentation.git
+[submodule "OtherFrame/clas/mxnet/models/gluon-cv"]
+	path = OtherFrame/clas/mxnet/models/gluon-cv
+	url = https://github.com/dmlc/gluon-cv.git
+[submodule "OtherFrame/clas/PyTorch/models/mmclassification"]
+	path = OtherFrame/clas/PyTorch/models/mmclassification
+	url = https://github.com/open-mmlab/mmclassification.git
+[submodule "OtherFrame/clas/PyTorch/models/HRNet-Image-Classification"]
+	path = OtherFrame/clas/PyTorch/models/HRNet-Image-Classification
+	url = https://github.com/HRNet/HRNet-Image-Classification
+[submodule "OtherFrame/clas/PyTorch/models/Twins"]
+	path = OtherFrame/clas/PyTorch/models/Twins
+	url = https://github.com/Meituan-AutoML/Twins
 [submodule "OtherFrame/gan/PyTorch/mmedting/models/mmedi"]
 	path = OtherFrame/gan/PyTorch/mmedting/models/mmedi
 	url = https://github.com/open-mmlab/mmediting.git
@@ -92,3 +94,31 @@
         path = OtherFrame/gan/PyTorch/styleganv2
         url = https://github.com/lzzyzlbb/stylegan2-pytorch
         branch = develop
+[submodule "OtherFrame/ocr/PyTorch/models/PSENet"]
+	path = OtherFrame/ocr/PyTorch/models/PSENet
+	url = https://github.com/WenmuZhou/PSENet.git
+[submodule "OtherFrame/nlp/PyTorch/models/xlnet/transformers"]
+	path = OtherFrame/nlp/PyTorch/models/xlnet/transformers
+	url = https://github.com/huggingface/transformers.git
+[submodule "OtherFrame/detection/PyTorch/models/jde"]
+        path = OtherFrame/detection/PyTorch/models/jde
+        url = https://github.com/nemonameless/jde
+[submodule "OtherFrame/detection/PyTorch/models/fairmot"]
+        path = OtherFrame/detection/PyTorch/models/fairmot
+        url = https://github.com/nemonameless/fairmot
+[submodule "OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN"]
+        path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
+        url = https://github.com/yt605155624/ParallelWaveGAN.git
+[submodule "OtherFrame/detection/PyTorch/models/mmdetection"]
+	path = OtherFrame/detection/PyTorch/models/mmdetection
+	url = https://github.com/open-mmlab/mmdetection.git
+[submodule "OtherFrame/detection/PyTorch/models/SOLO"]
+	path = OtherFrame/detection/PyTorch/models/SOLO
+	url = https://github.com/WXinlong/SOLO.git
+[submodule "OtherFrame/detection/PyTorch/models/mmpose"]
+	path = OtherFrame/detection/PyTorch/models/mmpose
+	url = https://github.com/open-mmlab/mmpose.git
+[submodule "OtherFrame/nlp/PyTorch/models/xlnet"]
+ 	path = OtherFrame/nlp/PyTorch/models/xlnet
+ 	url = https://github.com/huggingface/transformers
+ 	branch = develop

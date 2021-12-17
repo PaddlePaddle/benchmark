@@ -1,0 +1,253 @@
+[{
+    "config_id": 0,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[112, 4233]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 1,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[96, 4233]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 2,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[128, 4233]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 3,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[144, 4233]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 4,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[176, 4233]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 5,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[160, 4233]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 6,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 11, 64, 64]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 7,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "2"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 10, 3364]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 8,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 1, 65536, 1024]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 9,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 1, 65536, 1024]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 10,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 2, 16384, 1024]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 11,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 2, 16384, 1024]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 12,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 8, 1024, 1024]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 13,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 5, 4096, 1024]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 14,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 5, 4096, 1024]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 15,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 8, 1024, 1024]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 16,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[8, 12, 1024, 1024]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 17,
+    "op": "softmax",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 12, 1024, 1024]",
+            "type": "Variable"
+        }
+    }
+}]

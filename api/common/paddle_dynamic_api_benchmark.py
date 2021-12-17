@@ -48,6 +48,11 @@ class PaddleDynamicAPIBenchmarkBase(object):
     def build_graph(self, config=None):
         pass
 
+    def compute_flop_and_byte(self, config):
+        """ flop is used as a metric for op's performance and it is optional.
+        """
+        return None, None
+
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         if self._status == BEFORE_RUN:
             if self._feed_values is not None and value is None:
@@ -125,7 +130,6 @@ class PaddleDynamicAPIBenchmarkBase(object):
                  use_gpu,
                  config,
                  repeat=1,
-                 check_output=False,
                  profiler="none",
                  feeder_adapter=None):
         def _run_main_iter():
@@ -165,6 +169,12 @@ class PaddleDynamicAPIBenchmarkBase(object):
             "backward": self._backward,
             "total": runtimes
         }
+
+        flop, byte = self.compute_flop_and_byte(config)
+        if flop is not None:
+            stats["flop"] = flop
+        if byte is not None:
+            stats["byte"] = byte
         return outputs, stats
 
     def run(self, config, args, feeder_adapter=None):
@@ -180,7 +190,6 @@ class PaddleDynamicAPIBenchmarkBase(object):
             use_gpu=args.use_gpu,
             config=config,
             repeat=args.repeat,
-            check_output=args.check_output,
             profiler=args.profiler,
             feeder_adapter=feeder_adapter)
         return outputs, stats

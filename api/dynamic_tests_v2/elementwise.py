@@ -60,6 +60,19 @@ class PDElementwise(PaddleDynamicAPIBenchmarkBase):
         if config.backward:
             self.append_gradients(result, self.feed_list)
 
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        y_shape = config.y_shape
+        out_shape = self.fetch_list[0].shape
+        forward_flop = numel(out_shape)
+        forward_byte = (numel(x_shape) + numel(y_shape) + numel(out_shape)
+                        ) * sizeof(config.x_dtype)
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
+
 
 class TorchElementwise(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
