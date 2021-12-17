@@ -197,7 +197,7 @@ class OpBenchmarkUnit(object):
                     total_key = framework + "_" + device + "_speed_" + direction
                     total_time_str = case_detail[total_key]
                 if device == "cpu":
-                    return total_time_str, "--"
+                    return total_time_str, "--", "--", "--"
 
                 framework_alias = "tf_"
                 if framework == "paddle":
@@ -218,16 +218,18 @@ class OpBenchmarkUnit(object):
                         gpu_time_str = case_detail[gpu_time_key]
                     else:
                         gpu_time_str = "--"
-                    gflops_key = framework_alias + "gflops" + direction_alias
-                    if case_detail.get(gflops_key, None) is not None:
-                        gflops_str = case_detail[gflops_key]
-                    else:
-                        gflops_str = "--"
-                    gbs_key = framework_alias + "gbs" + direction_alias
-                    if case_detail.get(gbs_key, None) is not None:
-                        gbs_str = case_detail[gbs_key]
-                    else:
-                        gbs_str = "--"
+                # gflops
+                gflops_key = framework_alias + "gflops" + direction_alias
+                if case_detail.get(gflops_key, None) is not None:
+                    gflops_str = case_detail[gflops_key]
+                else:
+                    gflops_str = "--"
+                # gbs
+                gbs_key = framework_alias + "gbs" + direction_alias
+                if case_detail.get(gbs_key, None) is not None:
+                    gbs_str = case_detail[gbs_key]
+                else:
+                    gbs_str = "--"
                 return total_time_str, gpu_time_str, gflops_str, gbs_str
             except Exception:
                 return "--", "--", "--", "--"

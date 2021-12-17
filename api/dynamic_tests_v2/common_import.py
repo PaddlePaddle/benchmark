@@ -84,5 +84,7 @@ def sizeof(dtype):
         return 4
     elif dtype in ["float16", "bfloat16"]:
         return 2
+    elif dtype in ["bool"]:
+        return 1
     else:
         raise ValueError("{} is not supported.".format(dtype))

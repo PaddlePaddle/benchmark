@@ -46,14 +46,17 @@ run_op_benchmark() {
   if [ ! -d ${output_dir} ]; then
     mkdir -p ${output_dir}
   fi
+  echo "-- output_dir: ${output_dir}"
   
   if [ ${test_module_name} = "tests" ]; then
     config_dir=${OP_BENCHMARK_ROOT}/tests/configs
   else
     config_dir=${OP_BENCHMARK_ROOT}/tests_v2/configs
   fi
+  echo "-- config_dir: ${config_dir}"
   
   tests_dir=${OP_BENCHMARK_ROOT}/${test_module_name}
+  echo "-- tests_dir: ${tests_dir}"
   log_path=${OUTPUT_ROOT}/log_${test_module_name}_${timestamp}.txt
   bash ${OP_BENCHMARK_ROOT}/deploy/main_control.sh ${tests_dir} ${config_dir} ${output_dir} ${gpu_ids} "both" "both" "none" "both" "${testing_mode}" > ${log_path} 2>&1 &
 }
@@ -71,6 +74,7 @@ run_specified_op() {
   if [ ! -d ${output_dir} ]; then
     mkdir -p ${output_dir}
   fi
+  echo "-- output_dir: ${output_dir}"
   
   if [ "${test_module_name}" == "tests" ]; then
     config_dir=${OP_BENCHMARK_ROOT}/tests/op_configs
@@ -79,8 +83,10 @@ run_specified_op() {
     config_dir=${OP_BENCHMARK_ROOT}/tests_v2/op_configs
     op_list=${OUTPUT_ROOT}/api_info_v2_${op_type}.txt
   fi
+  echo "-- config_dir: ${config_dir}"
  
   tests_dir=${OP_BENCHMARK_ROOT}/${test_module_name}
+  echo "-- tests_dir: ${tests_dir}"
   log_path=${OUTPUT_ROOT}/log_${test_module_name}_${timestamp}.txt
   bash ${OP_BENCHMARK_ROOT}/deploy/main_control.sh ${tests_dir} ${config_dir} ${output_dir} "${gpu_ids}" "gpu" "both" ${op_list} "both" "${testing_mode}" > ${log_path} 2>&1 &
 }
