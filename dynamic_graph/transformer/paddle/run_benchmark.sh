@@ -4,7 +4,7 @@ set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 100(max_iter) base|big(model_type) fp32|amp_fp16(fp_mode)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 100(max_iter) base|big(model_type) fp32|amp_fp16(fp_mode) d2t(True|False)"
     exit
 fi
 
@@ -16,6 +16,7 @@ function _set_params(){
     max_iter=${3}
     model_name="transformer_"${4}
     fp_mode=${5:-"fp32"}
+    dynamic_to_static=${6:-"False"}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
  
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
@@ -49,7 +50,7 @@ function _train(){
         echo " The model should be transformer_big or transformer_base!"
         exit 1
     fi
-
+    sed -i "s/^to_static.*/to_static: ${dynamic_to_static}/g" ./configs/${config_file}
     # 混合精度监控。不支持传参修改。fp16 和fp32 混合，无论哪种情况需设置对应值，防止参数错误
     if [ ${fp_mode} == "amp_fp16" ]; then
         sed -i "s/^use_amp.*/use_amp: True/g" ./configs/${config_file}

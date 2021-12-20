@@ -3,7 +3,7 @@ set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|3|6 sp|mp model_name(HRnet|deeplabv3) 600(max_iter)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash $0 1|3|6 sp|mp model_name(HRnet|deeplabv3) 600(max_iter) d2s(True|False)"
     exit
 fi
 
@@ -13,6 +13,7 @@ function _set_params(){
     run_mode=${3:-"sp"} # Use sp for single GPU and mp for multiple GPU.
     model_name=${4}
     max_iter=${5:-"200"}
+    dynamic_to_static=${6:-"False"}
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
@@ -47,6 +48,7 @@ function _train(){
         echo "------------------>model_name should be HRnet or deeplabv3!"
         exit 1
     fi
+    sed -i "s/^to_static_training.*/to_static_training: ${dynamic_to_static}/g" ${config}
     model_name=${model_name}_bs${base_batch_size}
     train_cmd="--config=${config}
                --iters=${max_iter}
