@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_to_static_bert dy_to_static_mobilenet dy_to_static_resnet dy_to_st_hrnet)
+cur_model_list=(dy_to_static_bert dy_to_static_mobilenet dy_to_static_resnet dy_to_st_hrnet dy_to_st_transformer)
 export log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
 # Bert
 dy_to_static_bert() {
