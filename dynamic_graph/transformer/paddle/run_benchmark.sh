@@ -50,6 +50,7 @@ function _train(){
         echo " The model should be transformer_big or transformer_base!"
         exit 1
     fi
+    
     sed -i "s/^to_static.*/to_static: ${dynamic_to_static}/g" ./configs/${config_file}
     # 混合精度监控。不支持传参修改。fp16 和fp32 混合，无论哪种情况需设置对应值，防止参数错误
     if [ ${fp_mode} == "amp_fp16" ]; then
