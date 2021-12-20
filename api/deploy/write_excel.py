@@ -149,13 +149,18 @@ def _write_speed_accuracy_unit(ws,
 def _write_compare_result_unit(ws, row, col, compare_result, compare_ratio,
                                cell_formats, color):
     if compare_ratio != "--" and compare_ratio != 0.0:
-        if compare_ratio > 2.0:
+        if compare_ratio >= 2.0:
             compare_result += " (%.2fx)" % (compare_ratio - 1.0)
-        elif compare_ratio < 0.5:
-            compare_result += " (%.2fx)" % (1.0 / compare_ratio - 1.0)
-        else:
-            compare_percent = "%.2f" % (abs(1.0 - compare_ratio) * 100)
+        elif compare_ratio < 2.0 and compare_ratio >= 1.0:
+            compare_percent = "%.2f" % ((compare_ratio - 1.0) * 100)
             compare_result += " (" + compare_percent + "%)"
+        else:  # 0 < compare_ratio < 1 
+            resiprocal = 1.0 / compare_ratio
+            if resiprocal >= 2.0:
+                compare_result += " (%.2fx)" % (resiprocal - 1.0)
+            else:  # 1 < resiprocal < 2
+                compare_percent = "%.2f" % ((resiprocal - 1.0) * 100)
+                compare_result += " (" + compare_percent + "%)"
     ws.write(row, col, compare_result, cell_formats[color])
 
 
