@@ -79,7 +79,7 @@ function _train(){
     train_cmd="-c $config_file
                -o Global.print_batch_step=10
                -o DataLoader.Train.sampler.batch_size=${base_batch_size}
-               -o DataLoader.eval_during_train=False
+               -o Global.eval_during_train=False
                -o DataLoader.Train.dataset.image_root=./dataset/imagenet100_data
                -o DataLoader.Train.dataset.cls_label_path=./dataset/imagenet100_data/train_list.txt
                -o fuse_elewise_add_act_ops=${fuse_elewise_add_act_ops}
