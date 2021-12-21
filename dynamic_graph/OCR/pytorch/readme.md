@@ -9,6 +9,8 @@ benchmark目录下的文件用于获取并分析DB.pytorch的训练日志，运�
 安装相关依赖和下载数据
 
 ```
+git clone https://github.com/LDOUBLEV/DBNet.pytorch
+cd DBNet.pytorch
 pip3.7 install -r requirement.txt
 bash benchmark/prepare_data.sh
 ```

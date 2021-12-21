@@ -15,7 +15,7 @@ function _set_params(){
     arr=(${device})
     num_gpu_devices=${#arr[*]}
     log_file=${run_log_path}/${model_item}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}.log
-    modle_name=HRNet_W48_C # model_name 在analysis 里面拼接fp以及bs，构成json格式
+    model_name=HRNet_W48_C # model_name 在analysis 里面拼接fp以及bs，构成json格式
 }
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
@@ -60,4 +60,4 @@ sed -i 's/view/reshape/g' lib/core/evaluate.py
 sed -i 's/PRINT_FREQ: 1000/PRINT_FREQ: 10/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
 source ${ROOT_DIR}/scripts/run_model.sh
 _run
-python analysis_log.py -d output -m ${model_item} -b ${batch_size} -n ${num_gpu_devices}
+python analysis_log.py -d output -m ${model_name} -b ${batch_size} -n ${num_gpu_devices}

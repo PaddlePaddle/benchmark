@@ -15,7 +15,9 @@ benchmark目录下的文件用于获取并分析EAST(tensorflow)的训练日志�
 安装相关依赖和下载数据均在prepare_data.sh 中完成。
 
 ```
+git clone https://github.com/LDOUBLEV/EAST
 cd ./EAST
+pip3.7 install -r requirement.txt
 bash benchmark/prepare_data.sh
 ```
 
