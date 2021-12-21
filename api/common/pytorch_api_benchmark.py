@@ -175,15 +175,6 @@ class PytorchAPIBenchmarkBase(object):
     def run(self, config, args):
         self.name = config.api_name
 
-        if self._backward != args.backward:
-            print(
-                "Backward is not surported for %s in Paddle. It is actually running the forward test."
-                % self.name)
-            assert not special_op_list.has_backward(
-                config
-            ), "If backward is not surported for %s, please add the \'%s\' to NO_BACKWARD_OPS in api/common/special_op_list.py." % (
-                self.name, self.name)
-
         self._reset()
         self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
         self._need_fetch = args.task == "accuracy"
