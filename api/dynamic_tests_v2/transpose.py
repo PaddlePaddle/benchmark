@@ -50,7 +50,7 @@ class PDTranspose(PaddleDynamicAPIBenchmarkBase):
 
     def compute_flop_and_byte(self, config):
         x_shape = config.x_shape
-        forward_flop = numel(x_shape)
+        forward_flop = 0
         forward_byte = 2 * numel(x_shape) * sizeof(config.x_dtype)
         if not config.backward:
             return forward_flop, forward_byte
