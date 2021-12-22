@@ -26,11 +26,11 @@ function usage () {
   -p  platform local
 EOF
 }
-if [ $# -lt 18 ] ; then
+if [ $# -lt 6 ] ; then
   usage
   exit 1;
 fi
-while getopts h:m:s: opt
+while getopts h:n:r:a:l:f:p opt
 do
   case $opt in
   h) usage; exit 0 ;;
