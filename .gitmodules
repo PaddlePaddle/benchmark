@@ -69,7 +69,7 @@
 	url = https://github.com/NVIDIA/apex.git
 [submodule "OtherFrame/Speech/PyTorch/wenet/models/wenet"]
 	path = OtherFrame/Speech/PyTorch/wenet/models/wenet
-	url = https://github.com/wenet-e2e/wenet
+	url = https://github.com/wenet-e2e/wenet.git
 	branch = main
 [submodule "OtherFrame/seg/PyTorch/models/mmseg"]
 	path = OtherFrame/seg/PyTorch/models/mmseg
@@ -82,20 +82,20 @@
 	url = https://github.com/open-mmlab/mmclassification.git
 [submodule "OtherFrame/clas/PyTorch/models/HRNet-Image-Classification"]
 	path = OtherFrame/clas/PyTorch/models/HRNet-Image-Classification
-	url = https://github.com/HRNet/HRNet-Image-Classification
+	url = https://github.com/HRNet/HRNet-Image-Classification.git
 [submodule "OtherFrame/clas/PyTorch/models/Twins"]
 	path = OtherFrame/clas/PyTorch/models/Twins
-	url = https://github.com/Meituan-AutoML/Twins
+	url = https://github.com/Meituan-AutoML/Twins.git
 [submodule "OtherFrame/gan/PyTorch/mmedting/models/mmedi"]
 	path = OtherFrame/gan/PyTorch/mmedting/models/mmedi
 	url = https://github.com/open-mmlab/mmediting.git
 [submodule "OtherFrame/gan/PyTorch/models/fomm"]
         path = OtherFrame/gan/PyTorch/fomm
-        url = https://github.com/lzzyzlbb/first-order-model
+        url = https://github.com/lzzyzlbb/first-order-model.git
         branch = develop
 [submodule "OtherFrame/gan/PyTorch/models/StyleGANv2"]
         path = OtherFrame/gan/PyTorch/styleganv2
-        url = https://github.com/lzzyzlbb/stylegan2-pytorch
+        url = https://github.com/lzzyzlbb/stylegan2-pytorch.git
         branch = develop
 [submodule "OtherFrame/ocr/PyTorch/models/PSENet"]
 	path = OtherFrame/ocr/PyTorch/models/PSENet
@@ -105,10 +105,10 @@
 	url = https://github.com/huggingface/transformers.git
 [submodule "OtherFrame/detection/PyTorch/models/jde"]
         path = OtherFrame/detection/PyTorch/models/jde
-        url = https://github.com/nemonameless/jde
+        url = https://github.com/nemonameless/jde.git
 [submodule "OtherFrame/detection/PyTorch/models/fairmot"]
         path = OtherFrame/detection/PyTorch/models/fairmot
-        url = https://github.com/nemonameless/fairmot
+        url = https://github.com/nemonameless/fairmot.git
 [submodule "OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN"]
         path = OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
         url = https://github.com/yt605155624/ParallelWaveGAN.git
@@ -123,5 +123,5 @@
 	url = https://github.com/open-mmlab/mmpose.git
 [submodule "OtherFrame/nlp/PyTorch/models/xlnet"]
  	path = OtherFrame/nlp/PyTorch/models/xlnet
- 	url = https://github.com/huggingface/transformers
+ 	url = https://github.com/huggingface/transformers.git
  	branch = develop

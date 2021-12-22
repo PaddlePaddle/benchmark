@@ -14,6 +14,7 @@
 
 from __future__ import print_function
 
+import os
 import sys
 import argparse
 
@@ -22,7 +23,13 @@ from common import api_param
 
 
 def _nvprof(cmd):
-    return system.run_command("nvprof {}".format(cmd))
+    return system.run_command("nvprof --profile-from-start off {}".format(cmd))
+
+
+def _nsight(cmd):
+    return system.run_command(
+        "nsys profile -t cublas,cuda,cudnn,nvtx  --capture-range=cudaProfilerApi --stats true {}".
+        format(cmd))
 
 
 def _parse_gpu_time(line):
@@ -78,10 +85,24 @@ def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
     Then the normal testing command will be launched:
         python benchmark_script benchmark_script_args
     """
+
+    def _set_profiler(args, value):
+        for i in range(len(args)):
+            if args[i] == "--profiler":
+                args[i + 1] = value
+                break
+        if i >= len(args):
+            args.append("--profiler")
+            args.append(value)
+
+    use_gpu = os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""
+    if with_nvprof and use_gpu:
+        _set_profiler(benchmark_script_args, "nvprof")
     cmd = "{} {} {}".format(sys.executable, benchmark_script,
                             " ".join(benchmark_script_args))
     if with_nvprof:
         stdout, exit_code = _nvprof(cmd)
+        _set_profiler(benchmark_script_args, "none")
         if exit_code == 0:
             parse_status, gpu_time = _parse_nvprof_logs(stdout.split("\n"))
         else:

@@ -58,7 +58,7 @@ cd /workspace/models/mmclassification;
 cp /workspace/scripts/mmclassification_scripts/*.sh ./;
 cp /workspace/scripts/mmclassification_scripts/analysis_log.py ./;
 bash PrepareEnv.sh;
-#bash PrepareData.sh;
+bash PrepareData.sh;
 sed -i '/set\ -xe/d' run_benchmark.sh
 # for MobileNetV2
 bs_list=(64)  #544
@@ -85,6 +85,7 @@ do
     sleep 30
 done
 mv clas* ${LOG_PATH_INDEX_DIR};
+rm -rf data  # 释放空间
 
 # for SwinTransformer
 bs_list=(64)  #104
@@ -98,6 +99,7 @@ do
     sleep 30
 done
 mv clas* ${LOG_PATH_INDEX_DIR};
+rm -rf data  # 释放空间
 
 # for MobileNetV3_large_x1_0
 bs_list=(256)  #640
@@ -111,5 +113,6 @@ do
     sleep 30
 done
 mv clas* ${LOG_PATH_INDEX_DIR};
+rm -rf data  # 释放空间
 
 
