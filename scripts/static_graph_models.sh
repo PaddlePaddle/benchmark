@@ -34,13 +34,17 @@ seg_model(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
     model_list=(deeplabv3 HRnet)
+    bs_item=2
     for model_item in ${model_list[@]}
     do
+        if [ ${model_item} = "HRnet" ]; then
+            bs_item=8
+        fi
         echo "index is speed, ${model_item} 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 180 | tee ${log_path}/${FUNCNAME}_${model_item}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 180 ${bs_item} | tee ${log_path}/${FUNCNAME}_${model_item}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, ${model_item} 8gpu begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 180 | tee ${log_path}/${FUNCNAME}_${model_item}_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 180 ${bs_item} | tee ${log_path}/${FUNCNAME}_${model_item}_speed_8gpus 2>&1
         sleep 60
         echo "index is speed, 1gpu, profiler is on, begin"
 #       CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp ${model_item} 200  | tee ${log_path}/${model_item}_speed_1gpus_profiler 2>&1

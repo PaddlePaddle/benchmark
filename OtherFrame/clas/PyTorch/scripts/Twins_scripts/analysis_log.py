@@ -59,7 +59,7 @@ if __name__ == "__main__":
     save_content["index"] = 1
     save_content["UNIT"] = "images/s"
     save_content["gpu_num"] = args.num_gpu
-    save_content["FILNAL_RESULT"] = ips
+    save_content["FINAL_RESULT"] = ips
     save_content["JOB_FAIL_FLAG"] = 0 if ips > 0 else 1
 
     with open(save_file, 'w') as fd:

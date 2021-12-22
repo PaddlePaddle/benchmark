@@ -58,6 +58,9 @@
 	path = PaddleSpeech
 	url = https://github.com/PaddlePaddle/PaddleSpeech.git
 	branch = develop
+[submodule "OtherFrame/video/PyTorch/models/TimeSformer"]
+	path = OtherFrame/video/PyTorch/models/TimeSformer
+	url = https://github.com/HydrogenSulfate/TimeSformer.git
 [submodule "OtherFrame/nlp/PyTorch/scripts/NLP/gpt/Megatron-LM"]
 	path = OtherFrame/nlp/PyTorch/models/NLP/gpt/Megatron-LM
 	url = https://github.com/NVIDIA/Megatron-LM.git
