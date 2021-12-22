@@ -81,18 +81,18 @@
         }
     },
     "repeat": 5000
-},{
-   "op": "transpose",
-   "param_info": {
-       "perm": {
-           "type": "list",
-           "value": "[1, 2, 0, 3]"
-       },
-       "x": {
-           "dtype": "float16",
-           "shape": "[4L, 512L, 512L, 1L]",
-           "type": "Variable"
-       }
-   },
-   "repeat": 5000
-}]   
+}, {
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[1, 2, 0, 3]"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[4L, 512L, 512L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}]

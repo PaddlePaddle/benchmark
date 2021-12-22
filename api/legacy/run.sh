@@ -16,7 +16,7 @@ config_id=${2:-"0"}
 task=${3:-"accuracy"} # "accuracy" or "speed"
 
 framework="paddle"  # "paddle" or "tensorflow"
-filename="${OP_BENCHMARK_ROOT}/tests/configs/${name}.json"
+filename="${OP_BENCHMARK_ROOT}/legacy/configs/${name}.json"
 if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
     use_gpu=False
 else
@@ -41,5 +41,5 @@ if [ $# -ge 4 ]; then
             --api_name ${api_name}"
 fi
 
-python -m common.launch ${OP_BENCHMARK_ROOT}/tests/${name}.py \
+python -m common.launch ${OP_BENCHMARK_ROOT}/legacy/${name}.py \
          ${run_args}
