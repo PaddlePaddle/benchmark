@@ -101,6 +101,33 @@ class PDBatchNorm(PaddleDynamicAPIBenchmarkBase):
         if config.backward:
             self.append_gradients(result, [x, weight, bias])
 
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        c = config.num_channels
+        # forward flop
+        flop_mean = numel(x_shape) + c  # reduce_sum(x) / M
+        flop_var = numel(
+            x_shape) * 2 + 3 * c  # reduce_sum(x * x) / M - mean * mean
+        flop_running_mean = 3 * c  # running_mean * momentum + mean * (1 - momentum)
+        flop_running_var = 3 * c  # running_var * momentum + var * (1 - momentum)
+        # How to calculate the flop of math functions, like sqrt?
+        flop_y = numel(
+            x_shape) * 5  # scale * (x - mean) / sqrt(var + epsilon) + bias
+        forward_flop = flop_mean + flop_var + flop_running_mean + flop_running_var + flop_y
+        # forward byte
+        # read: x, running_mean, running_var, scale, bias
+        # write: y, mean, var, running_mean (updated), running_var (updated)
+        byte_read = numel(x_shape) * sizeof(config.x_dtype) + 4 * c * sizeof(
+            config.param_dtype)
+        byte_write = numel(x_shape) * sizeof(config.x_dtype) + 4 * c * sizeof(
+            config.param_dtype)
+        forward_byte = byte_read + byte_write
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
+
 
 class TorchBatchNorm(PytorchAPIBenchmarkBase):
     def build_graph(self, config):

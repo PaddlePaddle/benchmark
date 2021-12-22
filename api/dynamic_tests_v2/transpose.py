@@ -48,6 +48,16 @@ class PDTranspose(PaddleDynamicAPIBenchmarkBase):
         if config.backward:
             self.append_gradients(result, [x])
 
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        forward_flop = numel(x_shape)
+        forward_byte = 2 * numel(x_shape) * sizeof(config.x_dtype)
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
+
 
 class TorchTranspose(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
