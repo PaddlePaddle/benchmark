@@ -23,7 +23,8 @@ def main():
     print(benchmark_registry)
     args = parse_args()
     assert args.filename is not None, "Argument filename is not set."
-    abs_filepath = os.path.abspath(args.filename + ".py")
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    abs_filepath = os.path.join(current_dir, args.filename + ".py")
     assert os.path.exists(abs_filepath), "{} is not exist.".format(
         abs_filepath)
 

@@ -32,7 +32,7 @@ run_args="--filename ${name}
           --json_file ${filename} \
           --config_id ${config_id} \
           --profiler none \
-          --backward False \
+          --backward True \
           --use_gpu ${use_gpu} \
           --repeat 1 \
           --allow_adaptive_repeat False \
