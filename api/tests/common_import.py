@@ -25,11 +25,18 @@ try:
 except ImportError:
     sys.stderr.write("Cannot import pytorch, maybe paddle is not installed.\n")
 
+try:
+    import tensorflow as tf
+except ImportError:
+    sys.stderr.write(
+        "Cannot import tensorflow, maybe tensorflow is not installed.\n")
+
 package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
 
-from common.paddle_dynamic_api_benchmark import PaddleDynamicAPIBenchmarkBase
-from common.pytorch_api_benchmark import PytorchAPIBenchmarkBase
+from common.paddle_op_benchmark import PaddleOpBenchmarkBase
+from common.pytorch_api_benchmark import PytorchAPIBenchmarkBase as PytorchOpBenchmarkBase
+from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase as TensorflowOpBenchmarkBase
 from common.api_param import APIConfig
 from common.registry import benchmark_registry
 

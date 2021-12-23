@@ -51,7 +51,7 @@ class ElementwiseConfig(APIConfig):
 
 
 @benchmark_registry.register("elementwise")
-class PDElementwise(PaddleDynamicAPIBenchmarkBase):
+class PDElementwise(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
@@ -77,7 +77,7 @@ class PDElementwise(PaddleDynamicAPIBenchmarkBase):
 
 
 @benchmark_registry.register("elementwise")
-class TorchElementwise(PytorchAPIBenchmarkBase):
+class TorchElementwise(PytorchOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)

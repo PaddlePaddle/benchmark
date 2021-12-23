@@ -17,7 +17,7 @@ import os, sys
 package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
 
-from tests.abs import AbsConfig, PaddleAbs, TorchAbs
+from tests.abs import AbsConfig, PaddleAbs, TorchAbs, TFAbs
 from tests.adaptive_avg_pool2d import PaddleAdaptiveAvgPool2D, TorchAdaptiveAvgPool2D
 from tests.add_n import PDAddN, TorchAddN
 from tests.divide import DivideConfig

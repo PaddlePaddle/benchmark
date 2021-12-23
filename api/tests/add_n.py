@@ -16,7 +16,7 @@ from common_import import *
 
 
 @benchmark_registry.register("add_n")
-class PDAddN(PaddleDynamicAPIBenchmarkBase):
+class PDAddN(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         inputs = []
         for i in range(len(config.inputs_shape)):
@@ -32,7 +32,7 @@ class PDAddN(PaddleDynamicAPIBenchmarkBase):
 
 
 @benchmark_registry.register("add_n")
-class TorchAddN(PytorchAPIBenchmarkBase):
+class TorchAddN(PytorchOpBenchmarkBase):
     def build_graph(self, config):
         input_list = []
         input_0 = self.variable(

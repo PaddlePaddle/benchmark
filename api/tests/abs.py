@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,8 +25,19 @@ class AbsConfig(APIConfig):
         self.alias_name = "activation"
 
 
+#class PDAbs(PaddleAPIBenchmarkBase):
+#    def build_program(self, config):
+#        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+#        result = paddle.abs(x=x)
+#
+#        self.feed_vars = [x]
+#        self.fetch_vars = [result]
+#        if config.backward:
+#            self.append_gradients(result, [x])
+
+
 @benchmark_registry.register("abs")
-class PaddleAbs(PaddleDynamicAPIBenchmarkBase):
+class PaddleAbs(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
         result = paddle.abs(x=x)
@@ -38,10 +49,22 @@ class PaddleAbs(PaddleDynamicAPIBenchmarkBase):
 
 
 @benchmark_registry.register("abs")
-class TorchAbs(PytorchAPIBenchmarkBase):
+class TorchAbs(PytorchOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
         result = torch.abs(x=x)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
+
+
+@benchmark_registry.register("abs")
+class TFAbs(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.abs(x=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]

@@ -16,7 +16,7 @@ from common_import import *
 
 
 @benchmark_registry.register("adaptive_avg_pool2d")
-class PaddleAdaptiveAvgPool2D(PaddleDynamicAPIBenchmarkBase):
+class PaddleAdaptiveAvgPool2D(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         adaptive_avg_pool2d = paddle.nn.AdaptiveAvgPool2D(
@@ -30,7 +30,7 @@ class PaddleAdaptiveAvgPool2D(PaddleDynamicAPIBenchmarkBase):
 
 
 @benchmark_registry.register("adaptive_avg_pool2d")
-class TorchAdaptiveAvgPool2D(PytorchAPIBenchmarkBase):
+class TorchAdaptiveAvgPool2D(PytorchOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
         adaptive_avg_pool2d = torch.nn.AdaptiveAvgPool2d(

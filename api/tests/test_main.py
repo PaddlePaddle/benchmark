@@ -33,7 +33,7 @@ def main():
     else:
         config = info.config_class()
     if args.testing_mode == "dynamic":
-        pd_dy_obj = info.paddle_dynamic_class() if is_paddle_enabled(
+        pd_dy_obj = info.paddle_class("dynamic") if is_paddle_enabled(
             args, config) else None
         torch_obj = info.pytorch_class() if is_torch_enabled(args,
                                                              config) else None
