@@ -87,3 +87,17 @@ class TorchElementwise(PytorchOpBenchmarkBase):
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, self.feed_list)
+
+
+@benchmark_registry.register("elementwise")
+class TFElementwise(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+
+        result = self.layers(config.api_name, x=x, y=y)
+
+        self.feed_list = [x, y]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x, y])

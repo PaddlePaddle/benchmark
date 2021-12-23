@@ -32,13 +32,32 @@ def main():
         config = info.config_class(info.op_type)
     else:
         config = info.config_class()
-    if args.testing_mode == "dynamic":
-        pd_dy_obj = info.paddle_class("dynamic") if is_paddle_enabled(
-            args, config) else None
-        torch_obj = info.pytorch_class() if is_torch_enabled(args,
-                                                             config) else None
 
-    test_main(pd_dy_obj=pd_dy_obj, torch_obj=torch_obj, config=config)
+    pd_obj = None
+    tf_obj = None
+    pd_dy_obj = None
+    torch_obj = None
+    if args.testing_mode == "dynamic":
+        if is_paddle_enabled(args, config):
+            pd_dy_obj = info.paddle_class("dynamic")
+        if is_torch_enabled(args, config):
+            torch_obj = info.pytorch_class()
+    elif args.testing_mode == "static":
+        if is_paddle_enabled(args, config):
+            pd_obj = info.paddle_class("static")
+        if is_tensorflow_enabled(args, config):
+            tf_obj = info.tensorflow_class()
+    print("-- pd_obj:", pd_obj)
+    print("-- tf_obj:", tf_obj)
+    print("-- pd_dy_obj:", pd_dy_obj)
+    print("-- torch_obj:", torch_obj)
+
+    test_main(
+        pd_obj=pd_obj,
+        tf_obj=tf_obj,
+        pd_dy_obj=pd_dy_obj,
+        torch_obj=torch_obj,
+        config=config)
 
 
 if __name__ == '__main__':

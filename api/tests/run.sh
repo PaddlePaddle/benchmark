@@ -13,7 +13,7 @@ export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 
 name=${1:-"abs"}
 config_id=${2:-"0"}
-task=${3:-"speed"} # "accuracy" or "speed"
+task=${3:-"accuracy"} # "accuracy" or "speed"
 
 testing_mode="dynamic" # "static" or "dynamic"
 framework="paddle"  # "paddle" or "tensorflow" or "pytorch"

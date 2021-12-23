@@ -51,3 +51,19 @@ class TorchAddN(PytorchOpBenchmarkBase):
 
         self.feed_list = input_list
         self.fetch_list = [result]
+
+
+@benchmark_registry.register("add_n")
+class TFAddN(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        inputs = []
+        for i in range(len(config.inputs_shape)):
+            input_i = self.variable(
+                name='input_' + str(i),
+                shape=config.inputs_shape[i],
+                dtype=config.inputs_dtype[i])
+            inputs.append(input_i)
+        result = tf.add_n(inputs=inputs)
+
+        self.feed_list = inputs
+        self.fetch_list = [result]
