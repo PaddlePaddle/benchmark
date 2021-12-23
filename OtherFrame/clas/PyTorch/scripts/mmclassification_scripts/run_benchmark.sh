@@ -53,5 +53,5 @@ rm -rf work_dirs
 #_train
 source ${ROOT_DIR}/scripts/run_model.sh
 _run
-python analysis_log.py -d work_dirs -m ${model_item} -b ${batch_size} -n ${num_gpu_devices}
+python analysis_log.py -d work_dirs -m ${model_name} -b ${batch_size} -n ${num_gpu_devices}
 eval "mv work_dirs ${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}"
