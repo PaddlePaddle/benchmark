@@ -22,58 +22,141 @@ from common import system
 from common import api_param
 
 
-def _nvprof(cmd):
-    return system.run_command("nvprof --profile-from-start off {}".format(cmd))
+def is_ampere_gpu():
+    stdout, exit_code = system.run_command("nvidia-smi -L")
+    if exit_code == 0:
+        gpu_list = stdout.split("\n")
+        if len(gpu_list) >= 1:
+            #print(gpu_list[0])
+            return gpu_list[0].find("A100") > 0
+    return False
 
 
-def _nsight(cmd):
-    return system.run_command(
-        "nsys profile -t cublas,cuda,cudnn,nvtx  --capture-range=cudaProfilerApi --stats true {}".
-        format(cmd))
+class NvprofRunner(object):
+    def run(self, cmd):
+        stdout, exit_code = self._nvprof(cmd)
+        if exit_code == 0:
+            parse_status, gpu_time = self._parse_logs(stdout.split("\n"))
+            if parse_status:
+                return gpu_time
+        print("Runing Error:\n {}".format(stdout))
+        return 0.0
 
+    def _nvprof(self, cmd):
+        return system.run_command("nvprof --profile-from-start off {}".format(
+            cmd))
 
-def _parse_gpu_time(line):
-    infos = line.strip().split()
-    percent = float(infos[2].replace("%", "")) * 0.01
-    gpu_time = infos[3]
-    if gpu_time.endswith("us"):
-        gpu_time = float(gpu_time.replace("us", "")) * 0.001
-    elif gpu_time.endswith("ms"):
-        gpu_time = float(gpu_time.replace("ms", ""))
-    elif gpu_time.endswith("s"):
-        gpu_time = float(gpu_time.replace("s", "")) * 1000
-    else:
-        raise ValueError("Invalid time: %s" % gpu_time)
-    calls = int(infos[4])
-    function = infos[8]
-    for i in range(9, len(infos)):
-        function = function + " " + infos[i]
-    print("percent: %.2f; gpu_time: %.4f ms; calls: %d; function: %s" %
-          (percent, gpu_time, calls, function))
+    def _parse_logs(self, logs):
+        line_from = None
+        line_to = None
+        for i in range(len(logs)):
+            line = api_param.parse_string(logs[i])
+            if "GPU activities:" in line:
+                line_from = i - 1
+            if line_from is not None and "API calls:" in line:
+                line_to = i
+                break
+        if line_from is not None and line_to is not None:
+            for i in range(line_from, line_to):
+                print(logs[i])
+            print("")
+            return True, self._parse_gpu_time(logs[line_from + 1])
+        else:
+            return False, 0.0
 
-    total_gpu_time = gpu_time / percent
-    print("total gpu_time: %.4f ms" % total_gpu_time)
-    print("")
-    return total_gpu_time
+    def _parse_gpu_time(self, line):
+        infos = line.strip().split()
+        percent = float(infos[2].replace("%", "")) * 0.01
+        gpu_time = infos[3]
+        if gpu_time.endswith("us"):
+            gpu_time = float(gpu_time.replace("us", "")) * 0.001
+        elif gpu_time.endswith("ms"):
+            gpu_time = float(gpu_time.replace("ms", ""))
+        elif gpu_time.endswith("s"):
+            gpu_time = float(gpu_time.replace("s", "")) * 1000
+        else:
+            raise ValueError("Invalid time: %s" % gpu_time)
+        calls = int(infos[4])
+        function = infos[8]
+        for i in range(9, len(infos)):
+            function = function + " " + infos[i]
+        #print("percent: %.2f; gpu_time: %.4f ms; calls: %d; function: %s" %
+        #      (percent, gpu_time, calls, function))
 
-
-def _parse_nvprof_logs(logs):
-    line_from = None
-    line_to = None
-    total_gpu_time = 0.0
-    for i in range(len(logs)):
-        line = api_param.parse_string(logs[i])
-        if "GPU activities:" in line:
-            line_from = i - 1
-        if line_from is not None and "API calls:" in line:
-            line_to = i
-    if line_from is not None and line_to is not None:
-        for i in range(line_from, line_to):
-            print(logs[i])
+        total_gpu_time = gpu_time / percent
+        print("total gpu_time: %.4f ms" % total_gpu_time)
         print("")
-        return True, _parse_gpu_time(logs[line_from + 1])
-    else:
-        return False, 0.0
+        return total_gpu_time
+
+
+class NsightRunner(object):
+    def run(self, cmd):
+        stdout, exit_code = self._nsight(cmd)
+        if exit_code == 0:
+            parse_status, gpu_time = self._parse_logs(stdout.split("\n"))
+            if parse_status:
+                return gpu_time
+        print("Runing Error:\n {}".format(stdout))
+        return 0.0
+
+    def _nsight(self, cmd):
+        return system.run_command(
+            "nsys nvprof --profile-from-start=off -o tmp.qdrep {}".format(cmd))
+
+    def _parse_logs(self, logs):
+        kernel_line_from = None
+        kernel_line_to = None
+        memcpy_line_from = None
+        memcpy_line_to = None
+        for i in range(len(logs)):
+            line = api_param.parse_string(logs[i])
+            if "CUDA Kernel Statistics:" in line:
+                kernel_line_from = i
+                for j in range(i + 2, len(logs)):
+                    if logs[j] == "":
+                        kernel_line_to = j
+                        break
+            if "CUDA Memory Operation Statistics (by time):" in line:
+                memcpy_line_from = i
+                for j in range(i + 2, len(logs)):
+                    if logs[j] == "":
+                        memcpy_line_to = j
+                        break
+
+        parse_status = False
+        kernel_gpu_time = 0.0
+        if kernel_line_from is not None and kernel_line_to is not None:
+            for i in range(kernel_line_from, kernel_line_to):
+                print(logs[i])
+            print("")
+            parse_status = True
+            kernel_gpu_time = self._parse_gpu_time(logs[kernel_line_from + 4])
+
+        memcpy_gpu_time = 0.0
+        if memcpy_line_from is not None and memcpy_line_to is not None:
+            for i in range(memcpy_line_from, memcpy_line_to):
+                print(logs[i])
+            print("")
+            parse_status = True
+            memcpy_gpu_time = self._parse_gpu_time(logs[memcpy_line_from + 4])
+
+        total_gpu_time = kernel_gpu_time + memcpy_gpu_time
+        print("total gpu_time: %.4f ms (kernel: %.4f ms; memcpy: %.4f ms)" %
+              (total_gpu_time, kernel_gpu_time, memcpy_gpu_time))
+        print("")
+        return parse_status, total_gpu_time
+
+    def _parse_gpu_time(self, line):
+        infos = line.strip().split()
+        percent = float(infos[0].replace("%", "")) * 0.01
+        gpu_time = float(infos[1].replace(",", "")) * 1E-6
+        calls = int(infos[2].replace(",", ""))
+        function = infos[7]
+        for i in range(8, len(infos)):
+            function = function + " " + infos[i]
+        #print("percent: %.2f; gpu_time: %.4f ms; calls: %d; function: %s" %
+        #      (percent, gpu_time, calls, function))
+        return gpu_time / percent
 
 
 def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
@@ -95,22 +178,18 @@ def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
             args.append("--profiler")
             args.append(value)
 
-    use_gpu = os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""
-    if with_nvprof and use_gpu:
+    if with_nvprof:
         _set_profiler(benchmark_script_args, "nvprof")
     cmd = "{} {} {}".format(sys.executable, benchmark_script,
                             " ".join(benchmark_script_args))
     if with_nvprof:
-        stdout, exit_code = _nvprof(cmd)
+        if is_ampere_gpu():
+            runner = NsightRunner()
+        else:
+            runner = NvprofRunner()
+        gpu_time = runner.run(cmd)
         _set_profiler(benchmark_script_args, "none")
-        if exit_code == 0:
-            parse_status, gpu_time = _parse_nvprof_logs(stdout.split("\n"))
-        else:
-            parse_status = False
-        if parse_status:
-            return gpu_time
-        else:
-            print("Runing Error:\n {}".format(stdout))
+        return gpu_time
     else:
         stdout, exit_code = system.run_command(cmd)
         print(stdout)
@@ -145,7 +224,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     benchmark_args_dict = _args_list_to_dict(args.benchmark_script_args)
     task = benchmark_args_dict.get("task", "speed")
-    use_gpu = system.str2bool(benchmark_args_dict.get("use_gpu", "False"))
+    use_gpu = system.str2bool(benchmark_args_dict.get(
+        "use_gpu", "False")) and os.environ.get("CUDA_VISIBLE_DEVICES",
+                                                None) != ""
     profiler = benchmark_args_dict.get("profiler", "none")
     repeat = benchmark_args_dict.get("repeat", "1")
 
