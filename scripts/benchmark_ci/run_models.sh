@@ -9,7 +9,6 @@ ResNet50_bs32_dygraph(){
     rm -rf ./run_benchmark_dygraph.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./run_benchmark_dygraph.sh
     sed -i '/set\ -xe/d' run_benchmark_dygraph.sh
-
     #running models cases
     model_name=ResNet50_bs32_dygraph
     run_batchsize=32
