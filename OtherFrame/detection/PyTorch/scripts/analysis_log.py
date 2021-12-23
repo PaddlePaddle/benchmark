@@ -38,7 +38,6 @@ def parse_text_from_file(file_path: str):
     return lines
 
 
-def parse_avg_from_text(text: list, keyword: str, skip_line=1):
 def parse_avg_from_text(text: list, keyword: str, skip_line=4):
     count_list = []
     for i, line in enumerate(text):
