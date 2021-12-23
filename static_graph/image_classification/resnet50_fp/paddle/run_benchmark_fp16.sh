@@ -31,12 +31,16 @@ function _set_params(){
     arr=($device)
     num_gpu_devices=${#arr[*]}
 
-    batch_size=`expr ${base_batch_size} \* ${num_gpu_devices}`
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
+    if [ ${run_mode} == "sp" ]; then
+        is_distributed=False
+    else
+        is_distributed=True
+     fi
 }
 
 function _set_env(){
@@ -51,34 +55,37 @@ function _train(){
 
     if [ ${mode} == "amp" ]; then
         use_pure_fp16=False
+	sed -i "s/output_fp16.*/output_fp16: False/g" ppcls/configs/ImageNet/ResNet/ResNet50_fp16.yaml
     elif [ ${mode} == "pure" ]; then
         use_pure_fp16=True
+	sed -i "s/output_fp16.*/output_fp16: *use_pure_fp16/g" ppcls/configs/ImageNet/ResNet/ResNet50_fp16.yaml
     else
         echo "check your mode!"
     fi
-    train_cmd="-c ./configs/ResNet/ResNet50_fp16.yaml
-            -o TRAIN.batch_size=${batch_size}
-            -o validate=False
-            -o epochs=${max_epoch}
-            -o TRAIN.data_dir=./dataset/imagenet100_data
-            -o TRAIN.file_list=./dataset/imagenet100_data/train_list.txt
-            -o TRAIN.num_workers=8
-            -o print_interval=10
-            -o use_gpu=True
-            -o image_shape=[4,224,224]
-            -o AMP.use_pure_fp16=${use_pure_fp16}
-            "
+    train_cmd="-c ppcls/configs/ImageNet/ResNet//ResNet50_fp16.yaml
+               -o Global.epochs=${max_epoch}
+               -o DataLoader.Train.sampler.batch_size=${base_batch_size}
+               -o Global.eval_during_train=False
+               -o DataLoader.Train.dataset.image_root=./dataset/imagenet100_data
+               -o DataLoader.Train.dataset.cls_label_path=./dataset/imagenet100_data/train_list.txt
+               -o DataLoader.Train.loader.num_workers=8
+               -o Global.print_batch_step=10
+               -o Global.device=gpu
+               -o Global.image_shape=[4,224,224]
+               -o AMP.use_pure_fp16=${use_pure_fp16}
+               -o Global.is_distributed=${is_distributed}
+               "
 
     case ${run_mode} in
-    sp) train_cmd="python -u tools/static/train.py -o is_distributed=False "${train_cmd} ;;
+    sp) train_cmd="python -u ppcls/static/train.py "${train_cmd};;
     mp)
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --gpus=$CUDA_VISIBLE_DEVICES tools/static/train.py -o is_distributed=True "${train_cmd}
+        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --gpus=$CUDA_VISIBLE_DEVICES ppcls/static/train.py "${train_cmd}
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
-    timeout 15m ${train_cmd} > ${log_file} 2>&1 
+    timeout 10m ${train_cmd} > ${log_file} 2>&1 
     kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ $run_mode = "mp" -a -d mylog ]; then
