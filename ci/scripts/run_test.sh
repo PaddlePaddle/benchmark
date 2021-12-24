@@ -69,6 +69,7 @@ function prepare_env(){
 function run_api(){
   LOG "[INFO] Start run api test ..."
   API_NAMES=()
+  EXCLUDE_SET=("__init__" "common_import" "op_benchmark_info" "test_main")
   for file in $(git diff --name-only master | grep -E "api/(dynamic_)?tests(_v2)?/(.*\.py|configs/.*\.json)")
   do
     LOG "[INFO] Found ${file} modified."
@@ -80,8 +81,17 @@ function run_api(){
       for sub_file in $(grep -l "APIConfig(.${api##*/}.)" ${BENCHMARK_ROOT}/api/tests_v2/*.py)
       do
         sub_api=${sub_file#*api/} && sub_api=${sub_api%.*}
-        LOG "[INFO] Found API $sub_api use config $file"
-        API_NAMES[${#API_NAMES[@]}]=$sub_api
+        not_api="false"
+        for ext in ${DEVICE_SET[@]}; do
+          if [[ "$sub_api" =~ "$ext" ]]; then
+            not_api="true"
+            break
+          fi
+        done
+        if [ "$not_api" == "fale" ]; then
+          LOG "[INFO] Found API $sub_api use config $file"
+          API_NAMES[${#API_NAMES[@]}]=$sub_api
+        fi
       done
     fi
   done

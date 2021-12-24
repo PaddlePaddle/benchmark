@@ -39,8 +39,11 @@ class StaticHelper(object):
     def set_feed_spec(self, feed_spec):
         self._feed_spec = feeder.copy_feed_spec(feed_spec)
 
-    def set_feed_dict(self, feed_dict):
-        self._feed_dict = feed_dict
+    def set_feed_dict(self, feed_dict=None):
+        if feed_dict is None:
+            self._feed_dict = {}
+        else:
+            self._feed_dict = feed_dict
 
     def get_feed_dict(self):
         return self._feed_dict
@@ -196,8 +199,11 @@ class DynamicHelper(object):
     def set_feed_values(self, feed_values):
         self._feed_values = feed_values
 
-    def set_feed_dict(feed_dict):
-        self._feed_dict = feed_dict
+    def set_feed_dict(self, feed_dict=None):
+        if feed_dict is None:
+            self._feed_dict = {}
+        else:
+            self._feed_dict = feed_dict
 
     def switch_status(self, status=None):
         if status is not None:
@@ -244,11 +250,6 @@ class DynamicHelper(object):
 class PaddleOpBenchmarkBase(BenchmarkBase):
     def __init__(self, testing_mode):
         super(PaddleOpBenchmarkBase, self).__init__(testing_mode)
-        self._layers_function = None
-        if testing_mode == "dynamic":
-            self._helper = DynamicHelper()
-        elif testing_mode == "static":
-            self._helper = StaticHelper()
 
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         return self._helper.variable(name, shape, dtype, value, stop_gradient)
@@ -299,9 +300,12 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             self.fetch_list.append(gradients)
 
     def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
+        self._layers_function = None
         if self._testing_mode == "dynamic":
+            self._helper = DynamicHelper()
             return self._run_dynamic(config, args, feeder_adapter)
         elif self._testing_mode == "static":
+            self._helper = StaticHelper()
             return self._run_static(config, args, use_feed_fetch,
                                     feeder_adapter)
         else:
@@ -355,8 +359,8 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         self.name = config.api_name
 
         self._need_fetch = args.task == "accuracy"
-        self._layers_function = None
         self._helper.set_feed_spec(config.feed_spec)
+        self._helper.set_feed_dict(feed_dict={})
         self._helper.switch_status(status=DynamicHelper.BEFORE_RUN)
         if feeder_adapter:
             self._helper.set_feed_values(feeder_adapter.to_paddle())
