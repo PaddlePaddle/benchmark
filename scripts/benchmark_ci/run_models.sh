@@ -9,7 +9,6 @@ ResNet50_bs32_dygraph(){
     rm -rf ./run_benchmark_dygraph.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./run_benchmark_dygraph.sh
     sed -i '/set\ -xe/d' run_benchmark_dygraph.sh
-
     #running models cases
     model_name=ResNet50_bs32_dygraph
     run_batchsize=32
@@ -23,7 +22,7 @@ ResNet50_bs32(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
     python -m pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda100
-    git checkout a8f21e0167e4de101cbcd241b575fb09bbcaced9
+    #git checkout a8f21e0167e4de101cbcd241b575fb09bbcaced9
     # Prepare data
     ln -s ${data_path}/imagenet100_data/ ${cur_model_path}/dataset
     # Copy run_benchmark.sh and running ...
