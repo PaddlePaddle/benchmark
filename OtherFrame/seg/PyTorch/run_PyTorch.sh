@@ -8,6 +8,7 @@ run_cmd="cp /workspace/scripts/PrepareEnv.sh ./;
          cd /workspace/models/mmseg;
          cp /workspace/scripts/run_benchmark.sh ./;
          cp /workspace/scripts/analysis_log.py ./;
+         sed -i '/set\ -xe/d' run_benchmark.sh
          CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh fastscnn sp fp32 2 500 5;
          CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh fastscnn mp fp32 2 500 5;
          CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ocrnet_hrnetw48 sp fp32 2 500 5;
@@ -30,6 +31,8 @@ nvidia-docker run --name test_torch_seg -i  \
     -e "https_proxy=${https_proxy}" \
     -e "no_proxy=bcebos.com" \
     -v $PWD:/workspace \
+    -v /ssd3:/ssd3 \
+    -v /ssd2:/ssd2 \
     ${ImageName}  /bin/bash -c "${run_cmd}"
 
 nvidia-docker stop test_torch_seg
