@@ -114,9 +114,11 @@
 [submodule "OtherFrame/gan/PyTorch/fomm/models/fomm"]
 	path = OtherFrame/gan/PyTorch/fomm/models/fomm
 	url = https://github.com/lzzyzlbb/first-order-model.git
+	branch = develop
 [submodule "OtherFrame/gan/PyTorch/styleganv2/models/styleganv2"]
 	path = OtherFrame/gan/PyTorch/styleganv2/models/styleganv2
 	url = https://github.com/lzzyzlbb/stylegan2-pytorch.git
+	branch = develop
 [submodule "OtherFrame/ocr/PyTorch/models/DB"]
 	path = OtherFrame/ocr/PyTorch/models/DB
 	url = https://github.com/LDOUBLEV/DBNet.pytorch.git
