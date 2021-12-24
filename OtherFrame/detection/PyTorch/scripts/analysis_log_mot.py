@@ -63,7 +63,7 @@ def parse_avg_from_text(text: list, keyword: str, skip_line=4):
                     break
     count_list = count_list[skip_line:]
     if count_list:
-        return sum(count_list) / len(count_list)
+        return round(sum(count_list) / len(count_list), 3)
     else:
         return 0.0
 
@@ -88,7 +88,7 @@ if __name__ == '__main__':
         run_info["JOB_FAIL_FLAG"] = 1
         print("Failed at get info from training's output log, please check.")
         sys.exit()
-    run_info["FINAL_RESULT"] = args.batch_size / avg_time * args.gpu_num
+    run_info["FINAL_RESULT"] = round(args.batch_size / avg_time * args.gpu_num, 3)
 
     json_info = json.dumps(run_info)
     with open(res_log_file+'.json', "w") as of:

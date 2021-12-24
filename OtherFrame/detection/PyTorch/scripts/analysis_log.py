@@ -49,7 +49,7 @@ def parse_avg_from_text(text: list, keyword: str, skip_line=4):
                     break
     count_list = count_list[skip_line:]
     if count_list:
-        return sum(count_list) / len(count_list)
+        return round(sum(count_list) / len(count_list), 3)
     else:
         return 0.0
 
@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
     text = parse_text_from_file(args.filename)
     avg_time = parse_avg_from_text(text, args.keyword)
-    run_info["FINAL_RESULT"] = args.batch_size / avg_time * args.gpu_num
+    run_info["FINAL_RESULT"] = round(args.batch_size / avg_time * args.gpu_num, 3)
 
     if avg_time == 0.0:
         run_info["JOB_FAIL_FLAG"] = 1
