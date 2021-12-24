@@ -12,21 +12,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import op_benchmark_info
+import os, sys
+import importlib
+
+package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(package_path)
 
 from common.main import parse_args, is_paddle_enabled, is_tensorflow_enabled, is_torch_enabled, test_main, test_main_without_json
 from common.registry import benchmark_registry
 
 
+def import_tests(filename=None):
+    special_module_list = ["__init__", "common_import", "test_main"]
+
+    def _import_api(test_module_name, basename):
+        try:
+            module = importlib.import_module(test_module_name + "." + basename)
+            print("-- Import {} successfully.".format(module.__name__))
+            return module
+        except Exception as e:
+            print("-- Failed to import {}: {}".format(basename, e))
+            return None
+
+    test_module_name = "tests"
+    if filename is not None:
+        filenames = [filename]
+    else:
+        tests_path = os.path.join(package_path, test_module_name)
+        filenames = sorted(os.listdir(tests_path))
+    for f in filenames:
+        api_name = os.path.splitext(f)[0]
+        file_extension = os.path.splitext(f)[1]
+        if file_extension == '.py' and api_name not in special_module_list:
+            _import_api(test_module_name, api_name)
+
+
 def main():
-    print(benchmark_registry)
     args = parse_args()
     assert args.filename is not None, "Argument filename is not set."
     current_dir = os.path.dirname(os.path.abspath(__file__))
     abs_filepath = os.path.join(current_dir, args.filename + ".py")
     assert os.path.exists(abs_filepath), "{} is not exist.".format(
         abs_filepath)
+
+    import_tests(filename=args.filename + ".py")
+    print(benchmark_registry)
 
     info = benchmark_registry.get(args.filename)
     if info.op_type is not None:

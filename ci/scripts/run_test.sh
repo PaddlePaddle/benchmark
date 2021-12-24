@@ -69,7 +69,7 @@ function prepare_env(){
 function run_api(){
   LOG "[INFO] Start run api test ..."
   API_NAMES=()
-  EXCLUDE_SET=("__init__" "common_import" "op_benchmark_info" "test_main")
+  EXCLUDE_SET=("__init__" "common_import" "test_main")
   for file in $(git diff --name-only master | grep -E "api/(dynamic_)?tests(_v2)?/(.*\.py|configs/.*\.json)")
   do
     LOG "[INFO] Found ${file} modified."
