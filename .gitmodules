@@ -2,9 +2,6 @@
   path = models
   url = https://github.com/PaddlePaddle/models.git
   branch = develop
-[submodule "dynamic_graph/OCR/tensorflow/EAST"]
-  path = dynamic_graph/OCR/tensorflow/EAST
-  url = https://github.com/argman/EAST.git
 [submodule "static_graph/Mask-RCNN/pytorch/maskrcnn-benchmark"]
   path = static_graph/Mask-RCNN/pytorch/maskrcnn-benchmark
   url = https://github.com/facebookresearch/maskrcnn-benchmark.git
