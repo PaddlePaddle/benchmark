@@ -65,6 +65,10 @@ def profile_context(name, use_gpu, profiler):
         ps = pstats.Stats(profiler_handle, stream=s).sort_stats("cumulative")
         ps.print_stats()
         print(s.getvalue())
+    elif profiler == "nvprof":
+        fluid.core.nvprof_start()
+        yield
+        fluid.core.nvprof_stop()
     else:
         yield
 
