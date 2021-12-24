@@ -8,7 +8,7 @@ function _set_params(){
     fp_item=${3:-"fp32"}        # fp32|fp16
     model_item=${4:-"model_item"}
     config_path=${5:-"config_path"}
-    run_log_path="${TRAIN_LOG_DIR:-$(pwd)}"  # TRAIN_LOG_DIR 后续QA设置该参
+    run_log_path=$(pwd)  # TRAIN_LOG_DIR 后续QA设置该参
  
 #   以下不用修改   
     device=${CUDA_VISIBLE_DEVICES//,/ }

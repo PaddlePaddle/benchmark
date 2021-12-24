@@ -57,7 +57,7 @@ function set_env(){
 
 
 
-cur_torch_list=(clas_model_torch)
+cur_torch_list=(clas_model_torch seg_model_torch speech_model_torch)
 cur_mxnet_list=()
 cur_tensorflow_list=()
 
@@ -68,6 +68,23 @@ clas_model_torch(){
     bash run_Pytorch.sh
 }
 
+seg_model_torch(){
+    cur_model_path=${ROOT_DIR}/seg/PyTorch
+    cd ${cur_model_path}
+    echo "------------${cur_model_path}"
+    bash run_PyTorch.sh
+    cd ${cur_model_path}
+    cp *speed ${LOG_PATH_INDEX_DIR}
+    cp *1 *8 ${TRAIN_LOG_DIR}
+}
+
+speech_model_torch(){
+    cur_model_path=${ROOT_DIR}/Speech/PyTorch/PWGAN
+    cd ${cur_model_path}
+    bash run_PyTorch.sh
+    cp scripts/logs/train_log/* ${TRAIN_LOG_DIR}
+    cp scripts/logs/index/* ${LOG_PATH_INDEX_DIR}
+}
 
 set_env
 for model_name in ${cur_torch_list[@]}
