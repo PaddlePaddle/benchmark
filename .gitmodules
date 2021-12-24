@@ -2,9 +2,6 @@
   path = models
   url = https://github.com/PaddlePaddle/models.git
   branch = develop
-[submodule "dynamic_graph/OCR/pytorch/DB.pytorch"]
-  path = dynamic_graph/OCR/pytorch/DB.pytorch
-  url = https://github.com/LDOUBLEV/DBNet.pytorch
 [submodule "dynamic_graph/OCR/tensorflow/EAST"]
   path = dynamic_graph/OCR/tensorflow/EAST
   url = https://github.com/argman/EAST.git
@@ -89,14 +86,6 @@
 [submodule "OtherFrame/gan/PyTorch/mmedting/models/mmedi"]
 	path = OtherFrame/gan/PyTorch/mmedting/models/mmedi
 	url = https://github.com/open-mmlab/mmediting.git
-[submodule "OtherFrame/gan/PyTorch/models/fomm"]
-        path = OtherFrame/gan/PyTorch/fomm
-        url = https://github.com/lzzyzlbb/first-order-model.git
-        branch = develop
-[submodule "OtherFrame/gan/PyTorch/models/StyleGANv2"]
-        path = OtherFrame/gan/PyTorch/styleganv2
-        url = https://github.com/lzzyzlbb/stylegan2-pytorch.git
-        branch = develop
 [submodule "OtherFrame/ocr/PyTorch/models/PSENet"]
 	path = OtherFrame/ocr/PyTorch/models/PSENet
 	url = https://github.com/WenmuZhou/PSENet.git
@@ -125,3 +114,15 @@
  	path = OtherFrame/nlp/PyTorch/models/xlnet
  	url = https://github.com/huggingface/transformers.git
  	branch = develop
+[submodule "OtherFrame/gan/PyTorch/fomm/models/fomm"]
+	path = OtherFrame/gan/PyTorch/fomm/models/fomm
+	url = https://github.com/lzzyzlbb/first-order-model.git
+[submodule "OtherFrame/gan/PyTorch/styleganv2/models/styleganv2"]
+	path = OtherFrame/gan/PyTorch/styleganv2/models/styleganv2
+	url = https://github.com/lzzyzlbb/stylegan2-pytorch.git
+[submodule "OtherFrame/ocr/PyTorch/models/DB"]
+	path = OtherFrame/ocr/PyTorch/models/DB
+	url = https://github.com/LDOUBLEV/DBNet.pytorch.git
+[submodule "OtherFrame/ocr/TensorFlow/models/EAST"]
+	path = OtherFrame/ocr/TensorFlow/models/EAST
+	url = https://github.com/argman/EAST.git
