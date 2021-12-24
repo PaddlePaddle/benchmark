@@ -1,4 +1,5 @@
 [{
+    "op": "layer_norm",
     "param_info": {
         "epsilon": {
             "type": "float",
@@ -10,9 +11,9 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
+    "op": "layer_norm",
     "param_info": {
         "epsilon": {
             "type": "float",
@@ -24,9 +25,9 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
+    "op": "layer_norm",
     "param_info": {
         "epsilon": {
             "type": "float",
@@ -38,9 +39,9 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
+    "op": "layer_norm",
     "param_info": {
         "epsilon": {
             "type": "float",
@@ -52,9 +53,9 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
+    "op": "layer_norm",
     "param_info": {
         "epsilon": {
             "type": "float",
@@ -66,9 +67,9 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
+    "op": "layer_norm",
     "param_info": {
         "epsilon": {
             "type": "float",
@@ -81,9 +82,9 @@
         }
     },
     "atol": 0.00001,
-    "op": "layer_norm"
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -94,10 +95,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -108,10 +109,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -122,9 +123,9 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
+    "op": "layer_norm",
     "param_info": {
         "epsilon": {
             "type": "float",
@@ -136,10 +137,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -150,10 +151,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -164,10 +165,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -178,10 +179,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -192,10 +193,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -206,10 +207,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -220,10 +221,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -234,10 +235,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-06"
@@ -248,10 +249,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -262,10 +263,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -276,10 +277,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-06"
@@ -290,10 +291,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -304,10 +305,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-06"
@@ -318,10 +319,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -332,10 +333,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -346,10 +347,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-06"
@@ -360,10 +361,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -374,10 +375,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -388,10 +389,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }, {
-    "param_info": {
+    "op": "layer_norm",
+    "param_info":{
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -402,6 +403,5 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
-    "op": "layer_norm"
+    "atol": 0.00001
 }]

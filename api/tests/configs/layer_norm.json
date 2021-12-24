@@ -23,4 +23,32 @@
             "value": "True"
         }
     }
+}, {
+    "op": "layer_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 1024, 768]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001
+}, {
+    "op": "layer_norm",
+    "param_info":{
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[8, 1024, 768]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001
 }]
