@@ -6,7 +6,7 @@ echo "*******prepare benchmark***********"
 ################################# 创建一些log目录,如:
 export BENCHMARK_ROOT=/workspace
 log_date=`date "+%Y.%m%d.%H%M%S"`
-frame=pytorch1.9.1
+frame=pytorch1.10.1
 cuda_version=10.2
 save_log_dir=${BENCHMARK_ROOT}/logs/${frame}_${log_date}_${cuda_version}/
 
@@ -29,8 +29,8 @@ export PATH=/workspace/run_env:${PATH}
 ################################# 安装框架，如:
 python3.7 -m pip install -U pip
 echo `python3.7 -m pip --version`
-python3.7 -m pip install torch==1.9.1+cu102 -f https://download.pytorch.org/whl/torch_stable.html
-python3.7 -m pip install torchvision==0.10.1+cu102 -f https://download.pytorch.org/whl/torch_stable.html
+python3.7 -m pip install torch==1.10.1 -f https://download.pytorch.org/whl/torch_stable.html
+python3.7 -m pip install torchvision==0.11.2 -f https://download.pytorch.org/whl/torch_stable.html
 
 ################################# 克隆并安装竞品
 # 根据主项目的配置信息，拉取更新子模块中的代码。
@@ -60,9 +60,6 @@ python3.7 -m pip install -r requirements.txt
 
 cd ${BENCHMARK_ROOT}/models/fairmot
 python3.7 -m pip install -r requirements.txt
-git clone https://github.com/lbin/DCNv2 -b pytorch_1.9
-cd DCNv2
-python3.7 setup.py build develop
 
 ################################# 准备预训练模型，如:
 cd ${BENCHMARK_ROOT}/models/jde
