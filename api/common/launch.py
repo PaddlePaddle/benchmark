@@ -142,11 +142,16 @@ class NsightRunner(object):
             memcpy_gpu_time = self._parse_gpu_time(logs[memcpy_line_from + 4])
 
         total_gpu_time = kernel_gpu_time + memcpy_gpu_time
-        print(
-            "total gpu_time: {:.4f} ms (kernel: {:.4f} ms ({:.2f}%); memcpy: {:.4f} ms ({:.2f}%))".
-            format(total_gpu_time, kernel_gpu_time, kernel_gpu_time * 100 /
-                   total_gpu_time, memcpy_gpu_time, memcpy_gpu_time * 100 /
-                   total_gpu_time))
+        if total_gpu_time != 0.0:
+            print(
+                "total gpu_time: {:.4f} ms (kernel: {:.4f} ms ({:.2f}%); memcpy: {:.4f} ms ({:.2f}%))".
+                format(total_gpu_time, kernel_gpu_time, kernel_gpu_time * 100 /
+                       total_gpu_time, memcpy_gpu_time, memcpy_gpu_time * 100 /
+                       total_gpu_time))
+        else:
+            print(
+                "total gpu_time: {:.4f} ms (kernel: {:.4f} ms; memcpy: {:.4f} ms)".
+                format(total_gpu_time, kernel_gpu_time, memcpy_gpu_time))
         print("")
         return parse_status, total_gpu_time
 
