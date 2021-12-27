@@ -40,13 +40,12 @@ class NvprofRunner(object):
             parse_status, gpu_time = self._parse_logs(stdout.split("\n"))
             if parse_status:
                 return gpu_time
-        print("Runing Error:\n {}".format(stdout))
+        print("Running Error:\n {}".format(stdout))
         return 0.0
 
     def _nvprof(self, cmd):
-        #return system.run_command("nvprof --profile-from-start off {}".format(
-        #    cmd))
-        return system.run_command("nvprof {}".format(cmd))
+        return system.run_command("nvprof --profile-from-start off {}".format(
+            cmd))
 
     def _parse_logs(self, logs):
         line_from = None
@@ -98,13 +97,12 @@ class NsightRunner(object):
             parse_status, gpu_time = self._parse_logs(stdout.split("\n"))
             if parse_status:
                 return gpu_time
-        print("Runing Error:\n {}".format(stdout))
+        print("Running Error:\n {}".format(stdout))
         return 0.0
 
     def _nsight(self, cmd):
-        #return system.run_command(
-        #     "nsys nvprof --profile-from-start=off -o tmp.qdrep {}".format(cmd))
-        return system.run_command("nsys nvprof -o tmp.qdrep {}".format(cmd))
+        return system.run_command(
+            "nsys nvprof --profile-from-start=off -o tmp.qdrep {}".format(cmd))
 
     def _parse_logs(self, logs):
         kernel_line_from = None
@@ -144,11 +142,16 @@ class NsightRunner(object):
             memcpy_gpu_time = self._parse_gpu_time(logs[memcpy_line_from + 4])
 
         total_gpu_time = kernel_gpu_time + memcpy_gpu_time
-        print(
-            "total gpu_time: {:.4f} ms (kernel: {:.4f} ms ({:.2f}%); memcpy: {:.4f} ms ({:.2f}%))".
-            format(total_gpu_time, kernel_gpu_time, kernel_gpu_time * 100 /
-                   total_gpu_time, memcpy_gpu_time, memcpy_gpu_time * 100 /
-                   total_gpu_time))
+        if total_gpu_time != 0.0:
+            print(
+                "total gpu_time: {:.4f} ms (kernel: {:.4f} ms ({:.2f}%); memcpy: {:.4f} ms ({:.2f}%))".
+                format(total_gpu_time, kernel_gpu_time, kernel_gpu_time * 100 /
+                       total_gpu_time, memcpy_gpu_time, memcpy_gpu_time * 100 /
+                       total_gpu_time))
+        else:
+            print(
+                "total gpu_time: {:.4f} ms (kernel: {:.4f} ms; memcpy: {:.4f} ms)".
+                format(total_gpu_time, kernel_gpu_time, memcpy_gpu_time))
         print("")
         return parse_status, total_gpu_time
 
@@ -176,16 +179,17 @@ def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
     """
 
     def _set_profiler(args, value):
-        for i in range(len(args)):
-            if args[i] == "--profiler":
-                args[i + 1] = value
-                break
-        if i >= len(args):
+        if "--profiler" in args:
+            for i in range(len(args)):
+                if args[i] == "--profiler":
+                    args[i + 1] = value
+                    break
+        else:
             args.append("--profiler")
             args.append(value)
 
-    #if with_nvprof:
-    #    _set_profiler(benchmark_script_args, "nvprof")
+    if with_nvprof:
+        _set_profiler(benchmark_script_args, "nvprof")
     cmd = "{} {} {}".format(sys.executable, benchmark_script,
                             " ".join(benchmark_script_args))
     if with_nvprof:
@@ -194,7 +198,7 @@ def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
         else:
             runner = NvprofRunner()
         gpu_time = runner.run(cmd)
-        #_set_profiler(benchmark_script_args, "none")
+        _set_profiler(benchmark_script_args, "none")
         return gpu_time
     else:
         stdout, exit_code = system.run_command(cmd)
