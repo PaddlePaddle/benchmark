@@ -183,7 +183,9 @@ class OpBenchmarkUnit(object):
                 difference_key = "paddle_" + device + "_difference_" + direction
                 return case_detail[accuracy_key], case_detail[difference_key]
             except Exception:
-                return "--"
+                print("++ Fail to call _get_case_value({}, {}, {}, {})".format(
+                    framework, device, task, direction))
+                return "--", "--"
         else:
             try:
                 if direction == "backward_forward":
@@ -211,6 +213,8 @@ class OpBenchmarkUnit(object):
                         backward_gpu_time_key]) - float(case_detail[
                             forward_gpu_time_key])
                     gpu_time_str = "%.5f" % gpu_time
+                    gflops_str = "--"
+                    gbs_str = "--"
                 else:
                     direction_alias = "" if direction == "forward" else "_backward"
                     gpu_time_key = framework_alias + "gpu_time" + direction_alias
@@ -218,20 +222,22 @@ class OpBenchmarkUnit(object):
                         gpu_time_str = case_detail[gpu_time_key]
                     else:
                         gpu_time_str = "--"
-                # gflops
-                gflops_key = framework_alias + "gflops" + direction_alias
-                if case_detail.get(gflops_key, None) is not None:
-                    gflops_str = case_detail[gflops_key]
-                else:
-                    gflops_str = "--"
-                # gbs
-                gbs_key = framework_alias + "gbs" + direction_alias
-                if case_detail.get(gbs_key, None) is not None:
-                    gbs_str = case_detail[gbs_key]
-                else:
-                    gbs_str = "--"
+                    # gflops
+                    gflops_key = framework_alias + "gflops" + direction_alias
+                    if case_detail.get(gflops_key, None) is not None:
+                        gflops_str = case_detail[gflops_key]
+                    else:
+                        gflops_str = "--"
+                    # gbs
+                    gbs_key = framework_alias + "gbs" + direction_alias
+                    if case_detail.get(gbs_key, None) is not None:
+                        gbs_str = case_detail[gbs_key]
+                    else:
+                        gbs_str = "--"
                 return total_time_str, gpu_time_str, gflops_str, gbs_str
             except Exception:
+                print("++ Fail to call _get_case_value({}, {}, {}, {})".format(
+                    framework, device, task, direction))
                 return "--", "--", "--", "--"
 
 
