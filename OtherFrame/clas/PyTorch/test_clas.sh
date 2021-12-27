@@ -32,7 +32,9 @@ do
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp ${bs_item} fp32 HRNet48C;
     sleep 30
 done
-mv clas* ${LOG_PATH_INDEX_DIR};
+cp clas* ${LOG_PATH_INDEX_DIR};
+cp *.log ${TRAIN_LOG_DIR}
+rm -rf data  # 释放空间
 
 # run Twins models 
 cd /workspace/models/Twins;
@@ -51,14 +53,16 @@ do
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp ${bs_item} fp32 500  alt_gvt_base;
     sleep 30
 done
-mv clas* ${LOG_PATH_INDEX_DIR};
+cp clas* ${LOG_PATH_INDEX_DIR};
+cp *.log ${TRAIN_LOG_DIR}
+rm -rf data  # 释放空间
 
 # 启动镜像后测试MobileNetV2, MobileNetV3, ShuffleNetV2, SwinTransformer
 cd /workspace/models/mmclassification;
 cp /workspace/scripts/mmclassification_scripts/*.sh ./;
 cp /workspace/scripts/mmclassification_scripts/analysis_log.py ./;
 bash PrepareEnv.sh;
-#bash PrepareData.sh;
+bash PrepareData.sh;
 sed -i '/set\ -xe/d' run_benchmark.sh
 # for MobileNetV2
 bs_list=(64)  #544
@@ -71,7 +75,8 @@ do
     sleep 30
 
 done
-mv clas* ${LOG_PATH_INDEX_DIR};
+cp clas* ${LOG_PATH_INDEX_DIR};
+cp *.log ${TRAIN_LOG_DIR}
 
 # for ShuffleNetV2
 bs_list=(256)  #1536
@@ -84,7 +89,8 @@ do
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 256 fp32 ShuffleNetV2 configs/shufflenet_v2/shufflenet_v2_1x_b64x16_linearlr_bn_nowd_imagenet.py;
     sleep 30
 done
-mv clas* ${LOG_PATH_INDEX_DIR};
+cp clas* ${LOG_PATH_INDEX_DIR};
+cp *.log ${TRAIN_LOG_DIR}
 
 # for SwinTransformer
 bs_list=(64)  #104
@@ -97,7 +103,8 @@ do
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp ${bs_item} fp32 SwinTransformer configs/swin_transformer/swin_base_224_b16x64_300e_imagenet.py;
     sleep 30
 done
-mv clas* ${LOG_PATH_INDEX_DIR};
+cp clas* ${LOG_PATH_INDEX_DIR};
+cp *.log ${TRAIN_LOG_DIR}
 
 # for MobileNetV3_large_x1_0
 bs_list=(256)  #640
@@ -110,6 +117,8 @@ do
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp ${bs_item} fp32 MobileNetV3Large1.0 configs/mobilenet_v3/mobilenet_v3_large_imagenet.py;
     sleep 30
 done
-mv clas* ${LOG_PATH_INDEX_DIR};
+cp clas* ${LOG_PATH_INDEX_DIR};
+cp *.log ${TRAIN_LOG_DIR}
+rm -rf data  # 释放空间
 
 

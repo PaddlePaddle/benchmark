@@ -45,9 +45,10 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 fi
 # 拉取模型代码并安装
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-    git submodule init
-    git submodule update
+    #git submodule init
+    #git submodule update
     pushd ./models/Parakeet/PWGAN/ParallelWaveGAN
+    echo "--------------------------------$PWD"
     git reset --hard 8b7636b14b316ebb762c062abdb23645f6e45934
     pip install -e .
     popd
@@ -62,6 +63,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     # install nkf
     apt-get install nkf -y
     apt-get install sox -y
+    apt-get install jq -y
 
 fi
 

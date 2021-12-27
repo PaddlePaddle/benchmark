@@ -2,12 +2,12 @@
 
 OP_BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
 
-test_module_name=${1:-"dynamic_tests_v2"}  # "tests", "tests_v2", "dynamic_tests_v2"
+test_module_name=${1:-"dynamic_tests_v2"}  # "tests_v2", "dynamic_tests_v2"
 gpu_ids=${2:-"0"}
 op_type=${3:-"all"}  # "all" or specified op_type, such as elementwise
 
-if [ ${test_module_name} != "tests" ] && [ ${test_module_name} != "tests_v2" ] && [ ${test_module_name} != "dynamic_tests_v2" ]; then
-  echo "Please set test_module_name (${test_module_name}) to \"tests\", \"tests_v2\" or \"dynamic_tests_v2\"!"
+if [ ${test_module_name} != "tests_v2" ] && [ ${test_module_name} != "dynamic_tests_v2" ]; then
+  echo "Please set test_module_name (${test_module_name}) to \"tests_v2\" or \"dynamic_tests_v2\"!"
   exit
 fi
 
@@ -21,7 +21,9 @@ install_package() {
   import_status=$?
   if [ ${import_status} -eq 0 ]; then
     installed_version=`python -c "import ${package_name}; print(${package_name}.__version__)"`
-    if [ ${installed_version} == ${package_version} ]; then
+    if [ "${installed_version}" > "${package_version}" ]; then
+      echo "-- ${package_name} ${installed_version} (newer than ${package_version}) is already installed."
+    elif [ "${installed_version}" == "${package_version}" ]; then
       echo "-- ${package_name} ${package_version} is already installed."
     else
       echo "-- Update ${package_name}: ${installed_version} -> ${package_version}"
@@ -94,6 +96,8 @@ run_specified_op() {
 main() {
   if [ "${test_module_name}" == "dynamic_tests_v2" ]; then
     testing_mode="dynamic"
+    # For ampere, need to install the nightly build cuda11.3 version using the following command:
+    # pip install --pre torch -f https://download.pytorch.org/whl/nightly/cu113/torch_nightly.html
     install_package "torch" "1.10.0"
   else
     testing_mode="static"
