@@ -51,11 +51,13 @@ def _op_result_url(url_prefix, case_name, framework, device, task, direction):
     return os.path.join(url_prefix, filename)
 
 
-def _get_speed_unit_color(compare_result_str):
+def _get_speed_unit_color(compare_result_str, op_time=None):
     if compare_result_str == "Less":
         color = "red"
     elif compare_result_str == "Better":
         color = "green"
+    elif op_time is not None and op_time != "--" and float(op_time) == 0.0:
+        color = "blue"
     else:
         color = "black"
     return color
@@ -235,9 +237,10 @@ def _write_detail_worksheet(benchmark_result_list, worksheet, device,
 
         time_set = ["total"] if device == "cpu" else ["total", "gpu_time"]
         for key in time_set:
-            color = _get_speed_unit_color(result["compare"][key])
             for framework in ["paddle", compare_framework]:
                 op_time = result[framework][key]
+                color = _get_speed_unit_color(
+                    result["compare"][key], op_time=op_time)
                 _write_speed_accuracy_unit(
                     worksheet, row, col, op_unit.case_name, "speed", op_time,
                     op_result_dir, framework, device, direction, cell_formats,
@@ -247,11 +250,13 @@ def _write_detail_worksheet(benchmark_result_list, worksheet, device,
             compare_result = COMPARE_RESULT_SHOWS.get(result["compare"][key],
                                                       "--")
             compare_ratio = result["compare"][key + "_ratio"]
+            color = _get_speed_unit_color(result["compare"][key])
             _write_compare_result_unit(worksheet, row, col, compare_result,
                                        compare_ratio, cell_formats, color)
             col += 1
 
-        if device == "gpu" and direction == "forward":
+        # Write gflops and gbs of paddle, only for gpu_forward and gpu_backward now.
+        if device == "gpu" and direction in ["forward", "backward"]:
             color = _get_speed_unit_color(result["compare"]["gpu_time"])
             for key in ["gflops", "gbs"]:
                 perf = result["paddle"][key]
@@ -297,7 +302,7 @@ def dump_excel(benchmark_result_list,
     })
     cell_formats = {}
     for underline in [False, True]:
-        for color in ["green", "red", "black"]:
+        for color in ["green", "red", "black", "blue"]:
             key = color + "_underline" if underline else color
             value = wb.add_format({
                 'bold': True,
