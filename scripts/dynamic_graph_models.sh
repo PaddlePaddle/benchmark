@@ -58,7 +58,7 @@ dy_speech_repo_conformer(){
     cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/dataset/aishell/
     pip install loguru
     bash prepare.sh
-    bash prepare.sh              # 第一轮数据处理会报错
+    bash prepare.sh             # 第一轮数据处理会报错
     bash run.sh
     rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/dataset/aishell    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
