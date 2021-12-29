@@ -57,7 +57,7 @@ function set_env(){
 
 
 
-cur_torch_list=(clas_model_torch seg_model_torch speech_model_torch)
+cur_torch_list=(clas_model_torch seg_model_torch speech_model_torch detec_torch_jde-fairmot detec_torch_fast)
 cur_mxnet_list=()
 cur_tensorflow_list=()
 
@@ -84,6 +84,33 @@ speech_model_torch(){
     bash run_PyTorch.sh
     cp scripts/logs/train_log/* ${TRAIN_LOG_DIR}
     cp scripts/logs/index/* ${LOG_PATH_INDEX_DIR}
+}
+
+detec_torch_jde-fairmot(){
+    cur_model_path=${ROOT_DIR}/detection/PyTorch
+    cd ${cur_model_path}
+    bash run_PyTorch_mot.sh
+    cp models/jde/*.json ${LOG_PATH_INDEX_DIR}
+    cp models/jde/*fp32_1    ${TRAIN_LOG_DIR} 
+    cp models/jde/*fp32_8    ${TRAIN_LOG_DIR} 
+    cp models/fairmot/src/*.json ${LOG_PATH_INDEX_DIR}
+    cp models/fairmot/src/*fp32_1    ${TRAIN_LOG_DIR} 
+    cp models/fairmot/src/*fp32_8    ${TRAIN_LOG_DIR} 
+}
+
+detec_torch_fast(){
+    cur_model_path=${ROOT_DIR}/detection/PyTorch
+    cd ${cur_model_path} 
+    bash run_PyTorch.sh
+    cp models/mmdetection/*speed ${LOG_PATH_INDEX_DIR}
+    cp models/mmdetection/*fp32_1 ${TRAIN_LOG_DIR}
+    cp models/mmdetection/*fp32_8 ${TRAIN_LOG_DIR}
+    cp models/mmpose/*speed ${LOG_PATH_INDEX_DIR}
+    cp models/mmpose/*fp32_1 ${TRAIN_LOG_DIR}
+    cp models/mmpose/*fp32_8 ${TRAIN_LOG_DIR}
+    cp models/SOLO/*speed ${LOG_PATH_INDEX_DIR}
+    cp models/SOLO/*fp32_1 ${TRAIN_LOG_DIR}
+    cp models/SOLO/*fp32_8 ${TRAIN_LOG_DIR}
 }
 
 set_env
