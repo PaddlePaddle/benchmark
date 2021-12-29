@@ -17,53 +17,11 @@
     "param_info": {
         "approximate": {
             "type": "bool",
-            "value": "False"
+            "value": "True"
         },
         "x": {
             "dtype": "float32",
-            "shape": "[14L,1569L,3072L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 10000
-}, {
-    "op": "gelu",
-    "param_info": {
-        "approximate": {
-            "type": "bool",
-            "value": "False"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[64L,196L,1536L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 10000
-}, {
-    "op": "gelu",
-    "param_info": {
-        "approximate": {
-            "type": "bool",
-            "value": "False"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[64L,3136L,384L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 10000
-}, {
-    "op": "gelu",
-    "param_info": {
-        "approximate": {
-            "type": "bool",
-            "value": "False"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[2L,1024L,1024L]",
+            "shape": "[8L,1024L,3072L]",
             "type": "Variable"
         }
     },
@@ -87,95 +45,11 @@
     "param_info": {
         "approximate": {
             "type": "bool",
-            "value": "True"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[8L,1024L,3072L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 10000
-}, {
-    "op": "gelu",
-    "param_info": {
-        "approximate": {
-            "type": "bool",
             "value": "False"
         },
         "x": {
-            "dtype": "float32",
-            "shape": "[2L,65536L,128L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 10000
-}, {
-    "op": "gelu",
-    "param_info": {
-        "approximate": {
-            "type": "bool",
-            "value": "False"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[2L,16384L,256L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 10000
-}, {
-    "op": "gelu",
-    "param_info": {
-        "approximate": {
-            "type": "bool",
-            "value": "False"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[2L,4096L,640L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 10000
-}, {
-    "op": "gelu",
-    "param_info": {
-        "approximate": {
-            "type": "bool",
-            "value": "False"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[128L,32L,3072L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 10000
-}, {
-    "op": "gelu",
-    "param_info": {
-        "approximate": {
-            "type": "bool",
-            "value": "False"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[64L,49L,3072L]",
-            "type": "Variable"
-        }
-    },
-    "repeat": 10000
-}, {
-    "op": "gelu",
-    "param_info": {
-        "approximate": {
-            "type": "bool",
-            "value": "False"
-        },
-        "x": {
-            "dtype": "float32",
-            "shape": "[1L,1569L,3072L]",
+            "dtype": "float16",
+            "shape": "[2L,1024L,1024L]",
             "type": "Variable"
         }
     },
