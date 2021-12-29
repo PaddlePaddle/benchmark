@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -xe
+set -x
 # Usage：CUDA_VISIBLE_DEVICES=0 bash run_benchmark_mot.sh ${run_mode} ${batch_size} ${fp_item} ${max_epoch} ${model_name}
 
 function _set_params(){
@@ -8,7 +8,7 @@ function _set_params(){
     fp_item=${3:-"fp32"}           # fp32|fp16
     max_epoch=${4:-"1"}
     model_name=${5:-"model_name"}
-    run_log_path=${TRAIN_LOG_DIR:-$(pwd)}  # TRAIN_LOG_DIR
+    run_log_path=$(pwd)  # TRAIN_LOG_DIR
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
@@ -22,7 +22,7 @@ function _analysis_log(){
                 --filename ${log_file} \
                 --jsonname ${res_log_file} \
                 --keyword "time:" \
-                --model_name detection_${model_name}_bs${batch_size}_${fp_item} \
+                --model_name ${model_name}_bs${batch_size}_${fp_item} \
                 --run_mode ${run_mode} \
                 --gpu_num ${num_gpu_devices} \
                 --batch_size ${batch_size}
