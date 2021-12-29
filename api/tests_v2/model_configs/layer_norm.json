@@ -81,10 +81,10 @@
             "type": "Variable"
         }
     },
-    "atol": 0.00001,
+    "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -98,7 +98,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -112,7 +112,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -140,7 +140,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -154,7 +154,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -168,7 +168,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -182,7 +182,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -196,7 +196,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -210,7 +210,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-12"
@@ -224,7 +224,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -238,7 +238,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-06"
@@ -252,7 +252,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -266,7 +266,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -280,7 +280,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-06"
@@ -294,7 +294,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -308,7 +308,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-06"
@@ -322,7 +322,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -336,7 +336,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -350,7 +350,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-06"
@@ -364,7 +364,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -378,7 +378,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-05"
@@ -392,7 +392,7 @@
     "atol": 0.00001
 }, {
     "op": "layer_norm",
-    "param_info":{
+    "param_info": {
         "epsilon": {
             "type": "float",
             "value": "1e-05"
