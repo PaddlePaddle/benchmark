@@ -111,6 +111,10 @@ yolov3_bs8(){
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 mp 100 | tee ${BENCHMARK_ROOT}/logs/dynamic/yolov3_bs1_speed_2gpus 2>&1
     sleep 1s
     cat dynamic_yolov3_1_2_mp
+    echo "--------worklog.0"
+    cat mylog/workerlog.0
+    echo "--------worklog.1"
+    cat mylog/workerlog.1
 }
 #tsm
 TSM_bs16(){
