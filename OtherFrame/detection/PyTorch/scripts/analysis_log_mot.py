@@ -77,6 +77,7 @@ if __name__ == '__main__':
     run_info["mission_name"] = args.mission_name
     run_info["direction_id"] = args.direction_id
     run_info["run_mode"] = args.run_mode
+    run_info["UNIT"] = "images/s"
     run_info["index"] = args.index
     run_info["gpu_num"] = args.gpu_num
     run_info["FINAL_RESULT"] = 0

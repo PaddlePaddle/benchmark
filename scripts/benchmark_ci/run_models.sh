@@ -2,7 +2,7 @@
 ResNet50_bs32_dygraph(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout 98db91b2118deb0f6f1c0bf90708c1bc34687f8d
+    #git checkout 98db91b2118deb0f6f1c0bf90708c1bc34687f8d
     # Prepare data
     ln -s ${data_path}/imagenet100_data/ ${cur_model_path}/dataset
     # Copy run_benchmark.sh and running ...
@@ -111,6 +111,10 @@ yolov3_bs8(){
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 mp 100 | tee ${BENCHMARK_ROOT}/logs/dynamic/yolov3_bs1_speed_2gpus 2>&1
     sleep 1s
     cat dynamic_yolov3_1_2_mp
+    echo "--------worklog.0"
+    cat mylog/workerlog.0
+    echo "--------worklog.1"
+    cat mylog/workerlog.1
 }
 #tsm
 TSM_bs16(){

@@ -57,10 +57,6 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
-    if [ $run_mode = "mp" -a -d mylog ]; then
-        rm ${log_file}
-        cp mylog/workerlog.0 ${log_file}
-    fi
 
     _analysis_log
 
