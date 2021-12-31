@@ -51,6 +51,7 @@ function _train(){
     elif [[ ${model_name} == *fp16* ]]; then
         config_file="ResNet50_fp16_dygraph.yaml"
 	file_list="train_list.txt"
+        max_epoch=3
     else
         config_file="ResNet50.yaml"
         file_list="train_list.txt"

@@ -533,7 +533,7 @@ dy_resnet(){
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./
     sed -i '/set\ -xe/d' run_benchmark_resnet.sh
-    model_list=(ResNet152_bs32 ResNet50_bs32 ResNet50_bs128 ResNet50_pure_fp16_bs128 ResNet50_amp_fp16_bs128)
+    model_list=(ResNet152_bs32 ResNet50_bs32 ResNet50_bs128 ResNet50_amp_fp16_bs128 ResNet50_amp_fp16_bs256) #ResNet50_pure_fp16_bs128
     for model_name in ${model_list[@]}
     do
 	batch_size=${model_name#*bs}
