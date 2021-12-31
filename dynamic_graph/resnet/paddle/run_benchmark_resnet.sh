@@ -45,9 +45,12 @@ function _set_params(){
 }
 
 function _train(){
-    if [ ${model_name} = "ResNet152_bs32" ]; then
+    if [[ ${model_name} = "ResNet152_bs32" ]]; then
         config_file="ResNet152.yaml"
         file_list="train_list_resnet152.txt"
+    elif [[ ${model_name} == *fp16* ]]; then
+        config_file="ResNet50_fp16_dygraph.yaml"
+	file_list="train_list.txt"
     else
         config_file="ResNet50.yaml"
         file_list="train_list.txt"
@@ -60,6 +63,10 @@ function _train(){
                -o DataLoader.Train.dataset.image_root=./dataset/imagenet100_data
                -o DataLoader.Train.dataset.cls_label_path=./dataset/imagenet100_data/${file_list}
                -o DataLoader.Train.loader.num_workers=8"
+    # pure pf16 args
+    if [[ ${model_name} == *pure_fp16* ]]; then
+        train_cmd=${train_cmd}" -o AMP.use_pure_fp16=True"
+    fi
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
     else
