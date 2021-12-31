@@ -57,8 +57,8 @@ dy_speech_repo_conformer(){
     rm -rf ${cur_model_path}/dataset/aishell/aishell.py
     cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/dataset/aishell/
     pip install loguru
-    bash prepare.sh
-    bash prepare.sh             # 第一轮数据处理会报错
+    echo "bash run.sh --stage 0 --stop_stage 0" >> prepare.sh             # 第一轮数据处理会报错
+	bash prepare.sh             
     bash run.sh
     rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/dataset/aishell    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
@@ -67,7 +67,8 @@ dy_video_TimeSformer(){
     echo "dy_video_TimeSformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
     cd ${cur_model_path}/benchmark/TimeSformer/
-    bash run_all.sh local
+    pip install scikit-image==0.18.1
+	bash run_all.sh local
     rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
 
@@ -250,7 +251,8 @@ dy_tsn(){
     cd ${cur_model_path}
 
     pip install wget av
-    # Prepare pretrained modles
+    pip install scikit-image==0.18.1
+	# Prepare pretrained modles
     rm -rf ResNet50_pretrain.pdparams
     ln -s ${prepare_path}/tsn/ResNet50_pretrain.pdparams ${cur_model_path}/
     # Prepare data
@@ -339,7 +341,8 @@ dy_slowfast(){
     pip install tqdm
     pip install decord
     pip install pandas av
-    # Prepare data
+    pip install scikit-image==0.18.1
+	# Prepare data
     rm -rf data
     ln -s ${data_path}/dygraph_data/slowfast/data/ ${cur_model_path}/
 
@@ -616,7 +619,7 @@ dy_ppocr_mobile_2() {
 dy_bmn() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
-
+    pip install scikit-image==0.18.1
     package_check_list=(tqdm PyYAML numpy decord pandas av)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
