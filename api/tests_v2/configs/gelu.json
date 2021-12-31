@@ -3,11 +3,11 @@
     "param_info": {
         "approximate": {
             "type": "bool",
-            "value": "False"
+            "value": "True"
         },
         "x": {
             "dtype": "float32",
-            "shape": "[64L,784L,768L]",
+            "shape": "[8L,1024L,3072L]",
             "type": "Variable"
         }
     },
@@ -17,7 +17,7 @@
     "param_info": {
         "approximate": {
             "type": "bool",
-            "value": "True"
+            "value": "False"
         },
         "x": {
             "dtype": "float32",
@@ -49,7 +49,7 @@
         },
         "x": {
             "dtype": "float16",
-            "shape": "[2L,1024L,1024L]",
+            "shape": "[8L,1024L,3072L]",
             "type": "Variable"
         }
     },
