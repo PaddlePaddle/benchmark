@@ -22,6 +22,7 @@ import importlib
 import numpy as np
 from common import special_op_list
 
+from . import env
 from . import utils
 from . import api_param
 from . import feeder
@@ -323,8 +324,10 @@ class TensorflowAPIBenchmarkBase(object):
             assert use_feed_fetch, "Argument use_feed_fetch must be True when feeder_adapter is initialized by paddle."
 
         if feeder_adapter is None or feeder_adapter.framework != "tensorflow":
-            self._need_feed = config.name == "feed"
-            self._need_fetch = use_feed_fetch or config.name == "fetch"
+            self._need_feed = env.benchmark_need_feed(
+            ) or config.name == "feed"
+            self._need_fetch = env.benchmark_need_fetch(
+            ) or use_feed_fetch or config.name == "fetch"
             self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
             self._feed_dict = {}
 
