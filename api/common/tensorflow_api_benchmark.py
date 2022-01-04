@@ -28,6 +28,7 @@ from . import feeder
 
 try:
     import tensorflow as tf
+
     from tensorflow.python.profiler import model_analyzer
     from tensorflow.python.profiler import option_builder
     from tensorflow.core.protobuf import config_pb2
@@ -59,14 +60,9 @@ class Profiler(object):
         elif self.profiler == "native":
             self._profiler_handle = model_analyzer.Profiler(
                 graph=self._sess.graph)
-            if tf.__version__ < "1.15.0":
-                self.run_options = tf.RunOptions(
-                    trace_level=tf.RunOptions.FULL_TRACE)
-                self.run_metadata = tf.RunMetadata()
-            else:
-                self.run_options = tf.compat.v1.RunOptions(
-                    trace_level=tf.compat.v1.RunOptions.FULL_TRACE)
-                self.run_metadata = tf.compat.v1.RunMetadata()
+            self.run_options = tf.compat.v1.RunOptions(
+                trace_level=tf.compat.v1.RunOptions.FULL_TRACE)
+            self.run_metadata = tf.compat.v1.RunMetadata()
         return self
 
     def add_step(self, step):
@@ -90,14 +86,15 @@ class Profiler(object):
             # self.profiler_handle.dump_stats("./outputs/" + self.name + ".pyprof")
             s = StringIO.StringIO()
             ps = pstats.Stats(
-                self.profiler_handle, stream=s).sort_stats("cumulative")
+                self._profiler_handle, stream=s).sort_stats("cumulative")
             ps.print_stats()
             print(s.getvalue())
         elif self.profiler == "native":
             # Generate profiling result
             profile_op_builder = option_builder.ProfileOptionBuilder().select(
                 ['micros', 'occurrence']).order_by('micros').with_max_depth(5)
-            self.profiler_handle.profile_operations(profile_op_builder.build())
+            self._profiler_handle.profile_operations(profile_op_builder.build(
+            ))
         return self
 
 
@@ -167,8 +164,9 @@ class TensorflowAPIBenchmarkBase(object):
         try:
             import tensorflow as tf
             self.graph = tf.Graph()
-            if tf.__version__ > "1.15.0":
-                tf.compat.v1.disable_eager_execution()
+            assert tf.__version__ >= "1.15.0", "The installed tensorflow's version is expected to be newer than 1.15.0, but recieved {}".format(
+                tf.__version__)
+            tf.compat.v1.disable_eager_execution()
         except Exception as e:
             sys.stderr.write(
                 "Cannot import tensorflow, maybe tensorflow is not installed.\n"
@@ -180,11 +178,7 @@ class TensorflowAPIBenchmarkBase(object):
 
     def placeholder(self, name, shape, dtype):
         tf_dtype = tf.as_dtype(dtype)
-        if tf.__version__ >= "1.15.0":
-            var = tf.compat.v1.placeholder(
-                name=name, shape=shape, dtype=tf_dtype)
-        else:
-            var = tf.placeholder(name=name, shape=shape, dtype=tf_dtype)
+        var = tf.compat.v1.placeholder(name=name, shape=shape, dtype=tf_dtype)
         return var
 
     def variable(self, name, shape, dtype, value=None):
@@ -271,8 +265,6 @@ class TensorflowAPIBenchmarkBase(object):
 
     def run_impl(self, use_gpu, feed, repeat=1, profiler="none"):
         sess = self._init_session(use_gpu)
-
-        #tf.debugging.set_log_device_placement(True)
 
         def _run_main_iter(run_options=None, run_metadata=None):
             feed_dict = feed if self._need_feed else None
@@ -378,31 +370,27 @@ class TensorflowAPIBenchmarkBase(object):
         self.fetch_list = fetch_list
 
         self.allow_growth = False if args.task == "speed" else True
-        outputs, stats = self.run_impl(
-            use_gpu=args.use_gpu,
-            feed=feed,
-            repeat=args.repeat,
-            profiler=args.profiler)
+        device = "GPU:0" if args.use_gpu else "CPU"
+        with tf.device(device):
+            outputs, stats = self.run_impl(
+                use_gpu=args.use_gpu,
+                feed=feed,
+                repeat=args.repeat,
+                profiler=args.profiler)
         return outputs, stats
 
     def _init_session(self, use_gpu):
-        if tf.__version__ >= "1.15.0":
-            config = tf.compat.v1.ConfigProto()
-            if use_gpu:
-                config.gpu_options.allow_growth = self.allow_growth
-            else:
-                # In default, TF use full cpu cores, but Paddle use one cpu core.
-                # To make the same experiment, set TF use one cpu core as well.
-                # See https://github.com/PaddlePaddle/Paddle/issues/18665#issuecomment-513780210
-                config.intra_op_parallelism_threads = 1
-                config.inter_op_parallelism_threads = 1
-            sess = tf.compat.v1.Session(config=config)
-            sess.run(tf.compat.v1.global_variables_initializer())
-            sess.run(tf.compat.v1.local_variables_initializer())
-        else:
-            config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
+        if use_gpu:
             config.gpu_options.allow_growth = self.allow_growth
-            sess = tf.Session(config=config)
-            sess.run(tf.global_variables_initializer())
-            sess.run(tf.local_variables_initializer())
+            config.graph_options.optimizer_options.global_jit_level = 2
+        else:
+            # In default, TF use full cpu cores, but Paddle use one cpu core.
+            # To make the same experiment, set TF use one cpu core as well.
+            # See https://github.com/PaddlePaddle/Paddle/issues/18665#issuecomment-513780210
+            config.intra_op_parallelism_threads = 1
+            config.inter_op_parallelism_threads = 1
+        sess = tf.compat.v1.Session(config=config)
+        sess.run(tf.compat.v1.global_variables_initializer())
+        sess.run(tf.compat.v1.local_variables_initializer())
         return sess
