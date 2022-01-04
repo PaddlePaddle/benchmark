@@ -1,0 +1,89 @@
+[{
+    "config_id": 0,
+    "op": "ones_like",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 1,
+    "op": "ones_like",
+    "param_info": {
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 2,
+    "op": "ones_like",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 12L, 128L, 128L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 3,
+    "op": "ones_like",
+    "param_info": {
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 12L, 128L, 128L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 4,
+    "op": "ones_like",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 3072L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 5,
+    "op": "ones_like",
+    "param_info": {
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 3072L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 6,
+    "op": "ones_like",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 30522L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 7,
+    "op": "ones_like",
+    "param_info": {
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 30522L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}]

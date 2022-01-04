@@ -1,0 +1,267 @@
+[{
+    "config_id": "0",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "1",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "2",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "3",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "4",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 12L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[32L, 1L, 1L, 128L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "5",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 12L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[32L, 1L, 1L, 128L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "6",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 3072L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[3072L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "7",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 3072L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[3072L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "8",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "9",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "10",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 2L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[2L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "11",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 2L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[2L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "12",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 30522L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[30522L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": "13",
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 128L, 30522L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[30522L]",
+            "type": "Variable"
+        }
+    }
+}]

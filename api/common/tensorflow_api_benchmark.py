@@ -22,16 +22,10 @@ import importlib
 import numpy as np
 from common import special_op_list
 
-if six.PY3:
-    from . import env
-    from . import utils
-    from . import api_param
-    from . import feeder
-else:
-    import env
-    import utils
-    import api_param
-    import feeder
+from . import env
+from . import utils
+from . import api_param
+from . import feeder
 
 try:
     import tensorflow as tf
@@ -235,10 +229,7 @@ class TensorflowAPIBenchmarkBase(object):
 
     @property
     def backward(self):
-        if hasattr(self, "_TensorflowAPIBenchmarkBase__backward"):
-            return self.__backward
-        else:
-            return False
+        return self._backward
 
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, tf.Tensor):
@@ -247,7 +238,7 @@ class TensorflowAPIBenchmarkBase(object):
             raise TypeError("inputs should be a list.")
 
         gradients = tf.gradients(targets, inputs)
-        self.__backward = True
+        self._backward = True
         print("Gradients: ", gradients)
         if isinstance(gradients, list):
             for grad in gradients:
@@ -273,12 +264,7 @@ class TensorflowAPIBenchmarkBase(object):
             sess.close()
         return walltimes
 
-    def run_impl(self,
-                 use_gpu,
-                 feed,
-                 repeat=1,
-                 check_output=False,
-                 profiler="none"):
+    def run_impl(self, use_gpu, feed, repeat=1, profiler="none"):
         sess = self._init_session(use_gpu)
 
         #tf.debugging.set_log_device_placement(True)
@@ -314,9 +300,6 @@ class TensorflowAPIBenchmarkBase(object):
                     run_metadata=prof.run_metadata)
                 runtimes.append(time.time() - begin)
                 prof.add_step(step=i)
-
-                if check_output:
-                    fetches.append(outputs)
         sess.close()
 
         stats = {
@@ -324,7 +307,7 @@ class TensorflowAPIBenchmarkBase(object):
             "version": tf.__version__,
             "name": self.name,
             "device": "GPU" if use_gpu else "CPU",
-            "backward": self.__backward,
+            "backward": self._backward,
             "total": runtimes
         }
         if self.name != "null":
@@ -348,7 +331,7 @@ class TensorflowAPIBenchmarkBase(object):
             self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
             self._feed_dict = {}
 
-            self.__backward = False
+            self._backward = False
             self.build_graph(config=config)
 
         if feeder_adapter is None:
@@ -365,7 +348,7 @@ class TensorflowAPIBenchmarkBase(object):
         self.name = config.api_name
         feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
                                                      feeder_adapter)
-        if self.__backward != args.backward:
+        if self._backward != args.backward:
             print(
                 "Backward is not surported for %s in Tensorflow. It is actually running the forward test."
                 % self.name)
@@ -394,7 +377,6 @@ class TensorflowAPIBenchmarkBase(object):
             use_gpu=args.use_gpu,
             feed=feed,
             repeat=args.repeat,
-            check_output=args.check_output,
             profiler=args.profiler)
         return outputs, stats
 

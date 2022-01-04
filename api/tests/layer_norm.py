@@ -31,7 +31,7 @@ class PDLayerNorm(PaddleAPIBenchmarkBase):
             shift=config.shift,
             begin_norm_axis=config.begin_norm_axis,
             epsilon=config.epsilon,
-            act=config.act)
+            act=None)
 
         self.feed_vars = [data]
         self.fetch_vars = [result]

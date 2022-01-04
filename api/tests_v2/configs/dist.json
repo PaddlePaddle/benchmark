@@ -1,0 +1,56 @@
+[{
+    "op": "dist",
+    "param_info": {
+        "p": {
+            "type": "float",
+            "value": "2"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1000L, 1000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1000L, 1000L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.5
+}, {
+    "op": "dist",
+    "param_info": {
+        "p": {
+            "type": "float",
+            "value": "inf"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1000L, 1000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1000L, 1000L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "dist",
+    "param_info": {
+        "p": {
+            "type": "float",
+            "value": "0"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1000L, 1000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1000L, 1000L]",
+            "type": "Variable"
+        }
+    }
+}]

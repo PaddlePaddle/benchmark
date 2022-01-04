@@ -15,28 +15,30 @@
 from common_import import *
 
 
-class PaddleCumsum(PaddleDynamicAPIBenchmarkBase):
+class CumsumConfig(APIConfig):
+    def __init__(self):
+        super(CumsumConfig, self).__init__('cumsum')
+        self.feed_spec = {"range": [-1, 1]}
+
+
+class PDCumsum(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        self.feed_list = [x]
+        result = paddle.cumsum(x=x, axis=config.axis)
 
-    def run_graph(self, config):
-        result = paddle.cumsum(x=self.feed_list[0], axis=config.axis)
+        self.feed_list = [x]
         self.fetch_list = [result]
 
 
 class TorchCumsum(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        self.feed_list = [x]
+        result = torch.cumsum(x=x, axis=config.axis)
 
-    def run_graph(self, config):
-        result = torch.cumsum(x=self.feed_list[0], axis=config.axis)
+        self.feed_list = [x]
         self.fetch_list = [result]
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddleCumsum(),
-        torch_obj=TorchCumsum(),
-        config=APIConfig("cumsum"))
+        pd_dy_obj=PDCumsum(), torch_obj=TorchCumsum(), config=CumsumConfig())

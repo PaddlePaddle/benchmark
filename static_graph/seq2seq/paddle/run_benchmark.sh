@@ -11,7 +11,7 @@ fi
 function _set_params(){
     index=$1
     base_batch_size=128
-    model_name="seq2seq"
+    model_name="seq2seq"_bs${base_batch_size}
 
     run_mode="sp" # Don't support mp
     max_epoch=${3}
@@ -23,10 +23,9 @@ function _set_params(){
     mission_name="文本生成"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
     direction_id=1                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     skip_steps=0                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
-    keyword="avg_time:"              # 解析日志，筛选出数据所在行的关键字                                             (必填)
-    separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
-    position=6                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
-    model_mode=2                     # 解析日志，s/step -> steps/s 具体参考scripts/analysis.py.                    (必填)
+    keyword="ips:"              # 解析日志，筛选出数据所在行的关键字                                             (必填)
+    model_mode=-1                     # 解析日志，s/step -> steps/s 具体参考scripts/analysis.py.                    (必填)
+    ips_unit="tokens/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)

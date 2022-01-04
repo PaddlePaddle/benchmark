@@ -1,0 +1,15 @@
+[{
+    "op": "compare",
+    "param_info": {
+        "x": {
+            "dtype": "int64",
+            "shape": "[2, 512, 1024, 1]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "int64",
+            "shape": "[1]",
+            "type": "Variable"
+        }
+    }
+}]

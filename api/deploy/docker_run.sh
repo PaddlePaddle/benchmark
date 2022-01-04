@@ -131,7 +131,8 @@ function build_paddle(){
         echo "image not found, begin building"
     fi
 
-    docker run -i --rm -v $PWD:/paddle \
+    PADDLE_ROOT=${PWD}
+    docker run -i --rm -v ${PADDLE_ROOT}:/paddle \
       -w /paddle \
       --net=host \
       -e "CMAKE_BUILD_TYPE=Release" \

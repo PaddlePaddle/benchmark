@@ -1,0 +1,30 @@
+[{
+    "op": "gather_nd",
+    "param_info": {
+        "index": {
+            "dtype": "int32",
+            "shape": "[16L, 2L]",
+            "type": "Variable"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[16L, 10L, 10L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "gather_nd",
+    "param_info": {
+        "index": {
+            "dtype": "int32",
+            "shape": "[16L, 3L]",
+            "type": "Variable"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[16L, 256L, 14L, 14L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}]

@@ -1,0 +1,21 @@
+[{
+    "op": "arange",
+    "param_info": {
+        "start": {
+            "type": "int",
+            "value": "0"
+        },
+        "end": {
+            "type": "int",
+            "value": "65536"
+        },
+        "step": {
+            "type": "int",
+            "value": "2"
+        },
+        "dtype": {
+            "type": "string",
+            "value": "None"
+        }
+    }
+}]

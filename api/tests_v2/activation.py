@@ -20,14 +20,25 @@ class ActivationConfig(APIConfig):
         super(ActivationConfig, self).__init__('activation')
         self.api_name = 'cos'
         self.api_list = {
-            'sqrt': 'sqrt',
             'cos': 'cos',
             'exp': 'exp',
+            'log': 'log',
             'sin': 'sin',
             'sinh': 'sinh',
+            'sqrt': 'sqrt',
             'square': 'square',
-            'tanh': 'tanh'
+            'tanh': 'tanh',
+            'lgamma': 'lgamma'
         }
+
+    def disabled(self):
+        if self.api_name in ["lgamma"] and self.x_dtype == "float16":
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s.\n"
+                % (self.api_name))
+            return True
+        return super(ActivationConfig, self).disabled()
 
 
 class PDActivation(PaddleAPIBenchmarkBase):

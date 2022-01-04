@@ -24,16 +24,10 @@ import warnings
 import numpy as np
 import sys
 
+from common import utils
+from common import api_param
+from common import feeder
 from common import special_op_list
-
-if six.PY3:
-    from . import utils
-    from . import api_param
-    from . import feeder
-else:
-    import utils
-    import api_param
-    import feeder
 
 try:
     import paddle
@@ -59,17 +53,22 @@ def profile_context(name, use_gpu, profiler):
                 profile_type, 'total', output_file, tracer_option=profiler):
             yield
     elif profiler == "pyprof":
-        import cProfile, pstats, StringIO
+        import cProfile, pstats
+        from io import StringIO
 
         profiler_handle = cProfile.Profile()
         profiler_handle.enable()
         yield
         profiler_handle.disable()
         # profiler_handle.dump_stats("./outputs/" + name + ".pyprof")
-        s = StringIO.StringIO()
+        s = StringIO()
         ps = pstats.Stats(profiler_handle, stream=s).sort_stats("cumulative")
         ps.print_stats()
         print(s.getvalue())
+    elif profiler == "nvprof":
+        fluid.core.nvprof_start()
+        yield
+        fluid.core.nvprof_stop()
     else:
         yield
 
@@ -116,6 +115,11 @@ class PaddleAPIBenchmarkBase(object):
     @abc.abstractmethod
     def build_program(self, config=None):
         pass
+
+    def compute_flop_and_byte(self, config):
+        """ flop is used as a metric for op's performance and it is optional.
+        """
+        return None, None
 
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         assert shape is not None
@@ -171,10 +175,7 @@ class PaddleAPIBenchmarkBase(object):
 
     @property
     def backward(self):
-        if hasattr(self, "_PaddleAPIBenchmarkBase__backward"):
-            return self.__backward
-        else:
-            return False
+        return self._backward
 
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, fluid.framework.Variable):
@@ -183,7 +184,7 @@ class PaddleAPIBenchmarkBase(object):
             raise TypeError("inputs should be a list.")
 
         gradients = fluid.backward.gradients(targets, inputs)
-        self.__backward = True
+        self._backward = True
         print("Gradients: ", gradients)
         if isinstance(gradients, list):
             for grad in gradients:
@@ -209,12 +210,7 @@ class PaddleAPIBenchmarkBase(object):
                     walltimes.append(end - begin)
         return walltimes
 
-    def run_impl(self,
-                 use_gpu,
-                 feed,
-                 repeat=1,
-                 check_output=False,
-                 profiler="none"):
+    def run_impl(self, use_gpu, config, feed, repeat=1, profiler="none"):
         place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace()
         executor = fluid.Executor(place)
         executor.run(self.startup_program)
@@ -224,7 +220,7 @@ class PaddleAPIBenchmarkBase(object):
             "version": paddle.__version__,
             "name": self.name,
             "device": "GPU" if use_gpu else "CPU",
-            "backward": self.__backward
+            "backward": self._backward
         }
 
         def _run_main_iter():
@@ -235,6 +231,8 @@ class PaddleAPIBenchmarkBase(object):
                                    fetch_list=fetch_vars,
                                    use_program_cache=True,
                                    return_numpy=True)
+            if use_gpu:
+                paddle.fluid._cuda_synchronize(paddle.fluid.CUDAPlace(0))
             return outputs
 
         if self.name != "null":
@@ -248,23 +246,22 @@ class PaddleAPIBenchmarkBase(object):
             outputs = _run_main_iter()
 
             runtimes = []
-            fetches = []
             outputs = None
             with profile_context(self.name, use_gpu, profiler):
                 for i in range(repeat):
                     begin = time.time()
                     outputs = _run_main_iter()
                     runtimes.append(time.time() - begin)
-                    if check_output:
-                        fetches.append(outputs)
 
             stats["total"] = runtimes
-            if check_output:
-                stable, max_diff = self._check_consistency(fetches)
-                stats["stable"] = stable
-                stats["diff"] = max_diff
             if self.name != "null":
                 stats["wall_time"] = walltimes
+
+            flop, byte = self.compute_flop_and_byte(config)
+            if flop is not None:
+                stats["flop"] = flop
+            if byte is not None:
+                stats["byte"] = byte
             return outputs, stats
         except fluid.core.EnforceNotMet as ex:
             logging.basicConfig(level=logging.INFO)
@@ -286,7 +283,7 @@ class PaddleAPIBenchmarkBase(object):
             self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
             self._feed_dict = {}
 
-            self.__backward = False
+            self._backward = False
             self.main_program = fluid.Program()
             self.startup_program = fluid.Program()
             with fluid.program_guard(self.main_program, self.startup_program):
@@ -313,7 +310,7 @@ class PaddleAPIBenchmarkBase(object):
         self.name = config.api_name
         feeder_adapter = self.generate_random_feeder(config, use_feed_fetch,
                                                      feeder_adapter)
-        if self.__backward != args.backward:
+        if self._backward != args.backward:
             print(
                 "Backward is not surported for %s in Paddle. It is actually running the forward test."
                 % self.name)
@@ -332,9 +329,9 @@ class PaddleAPIBenchmarkBase(object):
         with fluid.scope_guard(self.scope):
             outputs, stats = self.run_impl(
                 use_gpu=args.use_gpu,
+                config=config,
                 feed=feed,
                 repeat=args.repeat,
-                check_output=args.check_output,
                 profiler=args.profiler)
         return outputs, stats
 
@@ -419,50 +416,3 @@ class PaddleAPIBenchmarkBase(object):
         main_block._remove_var(shape_op.output("Out")[0])
         main_block._remove_op(index + 1)
         main_block._remove_op(index)
-
-    def _check_consistency(self, fetches):
-        def _self_check(output):
-            if isinstance(output, fluid.core.LoDTensor):
-                if output._is_initialized():
-                    output = np.array(output)
-                else:
-                    raise RuntimeError("output tensor is not initialized.")
-
-            if not isinstance(output, np.ndarray):
-                raise TypeError("output's type should be numpy.ndarray.")
-
-            if (np.isnan(output)).any():
-                raise ValueError("NAN in output.")
-
-            if (np.isinf(output)).any():
-                raise ValueError("INF in output.")
-
-            return output
-
-        if not isinstance(fetches, list):
-            raise TypeError("fetches is not a list.")
-
-        if len(fetches) <= 0:
-            raise ValueError("The number of fetched results is {} (<= 0).".
-                             format(len(fetches)))
-
-        stable = True
-        repeat = len(fetches)
-        num_outputs = len(fetches[0])
-        max_diff = 0.0
-        for j in range(num_outputs):
-            if not stable:
-                break
-            output_0 = None
-            for i in range(repeat):
-                try:
-                    output_i = _self_check(fetches[i][j])
-                    if i == 0:
-                        output_0 = output_i
-                    diff = utils.compare(output_0, output_i)
-                    max_diff = diff if diff > max_diff else max_diff
-                except (RuntimeError, ValueError, AssertionError) as e:
-                    traceback.print_exc()
-                    stable = False
-                    break
-        return stable, max_diff

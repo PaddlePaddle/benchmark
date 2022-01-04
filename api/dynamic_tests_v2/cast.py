@@ -33,8 +33,16 @@ class PDCast(PaddleDynamicAPIBenchmarkBase):
 class TorchCast(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        if config.dtype == "float16":
-            result = x.to(torch.float16)
+        dtype_map = {
+            "float16": torch.float16,
+            "float32": torch.float32,
+            "float64": torch.float64,
+            "int32": torch.int32,
+            "int64": torch.int64,
+            "bool": torch.bool
+        }
+        if config.dtype in dtype_map.keys():
+            result = x.to(dtype_map[config.dtype])
         else:
             assert False, "Not supported yet!"
 

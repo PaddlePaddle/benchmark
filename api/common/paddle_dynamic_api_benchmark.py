@@ -20,16 +20,12 @@ import time
 import abc, six
 import importlib
 import numpy as np
-from common import special_op_list
 
-if six.PY3:
-    from . import utils
-    from . import api_param
-    from . import feeder
-else:
-    import utils
-    import api_param
-    import feeder
+from common import utils
+from common import api_param
+from common import feeder
+from common import special_op_list
+from common.paddle_api_benchmark import profile_context
 
 try:
     import paddle
@@ -46,35 +42,42 @@ AFTER_RUN = 2
 class PaddleDynamicAPIBenchmarkBase(object):
     def __init__(self):
         self.name = self.__class__.__name__
-        self.feed_list = None
-        self.fetch_list = None
-        self.__status = BEFORE_RUN
+        self._reset()
 
     @abc.abstractmethod
     def build_graph(self, config=None):
         pass
 
-    def variable(self, name, shape, dtype, value=None):
-        if self.__status == BEFORE_RUN:
-            if self.__feed_values is not None and value is None:
-                i = len(self.__feed_dict)
-                feed_value = self.__feed_values[i]
+    def compute_flop_and_byte(self, config):
+        """ flop is used as a metric for op's performance and it is optional.
+        """
+        return None, None
+
+    def variable(self, name, shape, dtype, value=None, stop_gradient=False):
+        if self._status == BEFORE_RUN:
+            if self._feed_values is not None and value is None:
+                i = len(self._feed_dict)
+                feed_value = feeder.check_shape_and_dtype(
+                    shape=shape, dtype=dtype, value=self._feed_values[i])
             else:
                 assert shape is not None
+
+                if self._feed_spec is not None and value is None:
+                    i = len(self._feed_dict)
+                    range = self._feed_spec[i].get("range", None)
+                else:
+                    range = None
                 feed_value = feeder.generate_random_data(
-                    shape, dtype, range=None, value=value)
-            var = paddle.to_tensor(feed_value, stop_gradient=False)
-            self.__feed_dict[name] = var
+                    shape, dtype, range=range, value=value)
+            var = paddle.to_tensor(feed_value, stop_gradient=stop_gradient)
+            self._feed_dict[name] = var
         else:
-            var = self.__feed_dict[name]
+            var = self._feed_dict[name]
         return var
 
     @property
     def backward(self):
-        if hasattr(self, "_PaddleDynamicAPIBenchmarkBase__backward"):
-            return self.__backward
-        else:
-            return False
+        return self._backward
 
     def layers(self, api_name, module_name=None, **kwargs):
         def _import_func(paddle_module_name, api_name):
@@ -89,31 +92,44 @@ class PaddleDynamicAPIBenchmarkBase(object):
                       (paddle_module_name, api_name))
             return None
 
-        paddle_module_names = ["paddle", "paddle.nn.functional"]
-        if module_name is not None and module_name not in paddle_module_names:
-            paddle_module_names.append(module_name)
+        if self._layers_function is None:
+            paddle_module_names = ["paddle", "paddle.nn.functional"]
+            if module_name is not None and module_name not in paddle_module_names:
+                paddle_module_names.append(module_name)
 
-        for paddle_module_name in paddle_module_names:
-            func = _import_func(paddle_module_name, api_name)
-            if func is not None:
-                break
+            for paddle_module_name in paddle_module_names:
+                func = _import_func(paddle_module_name, api_name)
+                if func is not None:
+                    break
 
-        assert func is not None, "Need to specify module_name to import %s." % api_name
-        result = func(**kwargs)
+            assert func is not None, "Need to specify module_name to import %s." % api_name
+            self._layers_function = func
+
+        result = self._layers_function(**kwargs)
         return result
 
     def append_gradients(self, targets, inputs):
-        self.__backward = True
-        loss = paddle.sum(targets)
-        loss.backward()
-        for var in inputs:
-            self.fetch_list.append(var.grad)
+        if not isinstance(targets, list):
+            if len(self._ones_like_targets) == 0:
+                ones_like_targets = paddle.ones_like(targets)
+                self._ones_like_targets.append(ones_like_targets)
+            else:
+                ones_like_targets = self._ones_like_targets[0]
+        else:
+            ones_like_targets = None
+        gradients = paddle.grad(
+            outputs=targets, inputs=inputs, grad_outputs=ones_like_targets)
+        self._backward = True
+        if isinstance(gradients, list):
+            for grad in gradients:
+                self.fetch_list.append(grad)
+        else:
+            self.fetch_list.append(gradients)
 
     def run_impl(self,
                  use_gpu,
                  config,
                  repeat=1,
-                 check_output=False,
                  profiler="none",
                  feeder_adapter=None):
         def _run_main_iter():
@@ -122,7 +138,7 @@ class PaddleDynamicAPIBenchmarkBase(object):
                 paddle.fluid._cuda_synchronize(paddle.fluid.CUDAPlace(0))
 
             outputs = None
-            if self.__need_fetch:
+            if self._need_fetch:
                 outputs = []
                 for var in self.fetch_list:
                     if isinstance(var, np.ndarray):
@@ -137,40 +153,55 @@ class PaddleDynamicAPIBenchmarkBase(object):
         runtimes = []
         fetches = []
 
-        self.__status = IN_RUN
-        for i in range(repeat):
-            begin = time.time()
-            outputs = _run_main_iter()
-            runtimes.append(time.time() - begin)
+        self._status = IN_RUN
+        with profile_context(self.name, use_gpu, profiler):
+            for i in range(repeat):
+                begin = time.time()
+                outputs = _run_main_iter()
+                runtimes.append(time.time() - begin)
 
-        self.__status = AFTER_RUN
+        self._status = AFTER_RUN
         stats = {
             "framework": "paddle",
             "version": paddle.__version__,
             "name": self.name,
             "device": "GPU" if use_gpu else "CPU",
-            "backward": self.__backward,
+            "backward": self._backward,
             "total": runtimes
         }
+
+        flop, byte = self.compute_flop_and_byte(config)
+        if flop is not None:
+            stats["flop"] = flop
+        if byte is not None:
+            stats["byte"] = byte
         return outputs, stats
 
     def run(self, config, args, feeder_adapter=None):
         paddle.disable_static()
         self.name = config.api_name
 
-        self.feed_list = None
-        self.fetch_list = None
-        self.__need_fetch = args.task == "accuracy"
-        self.__backward = False
-        self.__status = BEFORE_RUN
-        self.__feed_dict = {}
-        # feeder_adapter is a list and need to be improved.
-        self.__feed_values = feeder_adapter
+        self._reset()
+        self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
+        self._need_fetch = args.task == "accuracy"
+        if feeder_adapter:
+            self._feed_values = feeder_adapter.to_paddle()
         outputs, stats = self.run_impl(
             use_gpu=args.use_gpu,
             config=config,
             repeat=args.repeat,
-            check_output=args.check_output,
             profiler=args.profiler,
             feeder_adapter=feeder_adapter)
         return outputs, stats
+
+    def _reset(self):
+        self.feed_list = None
+        self.fetch_list = None
+        self._feed_spec = None
+        self._feed_values = None
+        self._feed_list = []
+        self._backward = False
+        self._status = BEFORE_RUN
+        self._feed_dict = {}
+        self._layers_function = None
+        self._ones_like_targets = []

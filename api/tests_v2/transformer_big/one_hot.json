@@ -1,0 +1,14 @@
+[{
+    "op": "one_hot",
+    "param_info": {
+        "num_classes": {
+            "type": "int",
+            "value": "38506"
+        },
+        "x": {
+            "dtype": "int64",
+            "shape": "[150L, 34L]",
+            "type": "Variable"
+        }
+    }
+}]

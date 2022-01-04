@@ -1,0 +1,171 @@
+[{
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,20069,8,32]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "list",
+            "value": "[15042,3795,980,252]"
+        }
+    }
+}, {
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,13475,8,32]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "list",
+            "value": "[10120,2552,638,165]"
+        }
+    }
+}, {
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,15073,8,32]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "list",
+            "value": "[11316,2852,713,192]"
+        }
+    }
+}, {
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,7320,8,32]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "list",
+            "value": "[5504,1376,352,88]"
+        }
+    }
+}, {
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,9024,8,32]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "list",
+            "value": "[6784,1696,432,112]"
+        }
+    }
+}, {
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,10647,8,32]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "list",
+            "value": "[7980,2014,513,140]"
+        }
+    }
+}, {
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,13748,8,32]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "list",
+            "value": "[10302,2601,676,169]"
+        }
+    }
+}, {
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,14145,8,32]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "list",
+            "value": "[10620,2655,690,180]"
+        }
+    }
+}, {
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,14740,8,32]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "list",
+            "value": "[11088,2772,704,176]"
+        }
+    }
+}, {
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2,17546,8,32]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "list",
+            "value": "[13200,3300,825,221]"
+        }
+    }
+}]

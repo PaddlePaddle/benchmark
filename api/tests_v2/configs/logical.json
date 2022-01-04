@@ -33,5 +33,6 @@
             "shape": "[1L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 10000
 }]

@@ -1,0 +1,29 @@
+[{
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0,2,3,1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 19, 512, 1024]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0,2,3,1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 1, 512, 1024]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}]

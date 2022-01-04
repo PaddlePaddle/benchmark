@@ -24,6 +24,7 @@ import numpy as np
 
 from common import env
 from common import utils
+from common import system
 from common import api_param
 from common import special_op_list
 from common import pytorch_api_benchmark
@@ -72,11 +73,6 @@ def parse_args():
         default=16,
         help='Specify the unknown dimension.')
     parser.add_argument(
-        '--check_output',
-        type=utils.str2bool,
-        default=False,
-        help='Whether checking the consistency of outputs [True|False]')
-    parser.add_argument(
         '--profiler',
         type=str,
         default="none",
@@ -84,12 +80,17 @@ def parse_args():
     )
     parser.add_argument(
         '--backward',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether appending grad ops [True|False]')
     parser.add_argument(
+        '--convert_to_fp16',
+        type=system.str2bool,
+        default=False,
+        help='Whether using gpu [True|False]')
+    parser.add_argument(
         '--use_gpu',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether using gpu [True|False]')
     parser.add_argument(
@@ -101,7 +102,7 @@ def parse_args():
         '--repeat', type=int, default=1, help='Iterations of Repeat running')
     parser.add_argument(
         '--allow_adaptive_repeat',
-        type=utils.str2bool,
+        type=system.str2bool,
         default=False,
         help='Whether use the value repeat in json config [True|False]')
     parser.add_argument(
@@ -117,10 +118,10 @@ def parse_args():
 
     if args.task == "accuracy":
         args.repeat = 1
-        args.check_output = False
         args.profiler = "none"
 
     _check_gpu_device(args.use_gpu)
+    print(args)
     return args
 
 
@@ -131,8 +132,11 @@ def test_main(pd_obj=None,
               config=None):
     assert config is not None, "API config must be set."
 
-    def _test_with_json_impl(filename, config_id, unknown_dim):
+    def _test_with_json_impl(filename, config_id, unknown_dim,
+                             convert_to_fp16):
         config.init_from_json(filename, config_id, unknown_dim)
+        if convert_to_fp16:
+            config.convert_to_fp16()
         if hasattr(config, "api_list"):
             if args.api_name != None:
                 assert args.api_name in config.api_list, "api_name should be one value in %s, but recieved %s." % (
@@ -154,13 +158,15 @@ def test_main(pd_obj=None,
         # Set the filename to alias config's filename, when there is a alias config.
         filename = config.alias_filename(args.json_file)
         if args.config_id is not None and args.config_id >= 0:
-            _test_with_json_impl(filename, args.config_id, args.unknown_dim)
+            _test_with_json_impl(filename, args.config_id, args.unknown_dim,
+                                 args.convert_to_fp16)
         else:
             num_configs = 0
             with open(filename, 'r') as f:
                 num_configs = len(json.load(f))
             for config_id in range(0, num_configs):
-                _test_with_json_impl(filename, config_id, args.unknown_dim)
+                _test_with_json_impl(filename, config_id, args.unknown_dim,
+                                     args.convert_to_fp16)
     else:
         test_main_without_json(pd_obj, tf_obj, pd_dy_obj, torch_obj, config)
 
@@ -259,10 +265,21 @@ def test_main_without_json(pd_obj=None,
             sys.exit(1)
 
     if _is_torch_enabled(args, config):
-        assert torch_obj is not None, "Pytorch object is None."
-        torch_config = config
+        assert torch_obj is not None, "PyTorch object is None."
+        import torch
+        try:
+            import paddle
+            flags = paddle.get_flags(["FLAGS_cudnn_exhaustive_search"])
+            torch.backends.cudnn.benchmark = flags[
+                "FLAGS_cudnn_exhaustive_search"]
+        except Exception:
+            torch.backends.cudnn.benchmark = os.environ.get(
+                "FLAGS_cudnn_exhaustive_search", False)
+
+        torch_config = config.to_pytorch()
+        print(torch_config)
         torch_outputs, torch_stats = torch_obj.run(torch_config, args)
-        feeder_adapter = torch_obj.get_feeder()
+        feeder_adapter = torch_obj.generate_random_feeder(torch_config)
 
         if args.task == "speed":
             torch_stats["gpu_time"] = args.gpu_time
@@ -273,6 +290,7 @@ def test_main_without_json(pd_obj=None,
 
     if _is_paddle_enabled(args, config) and args.testing_mode == "dynamic":
         assert pd_dy_obj is not None, "Paddle dynamic object is None."
+        print(config)
         pd_dy_outputs, pd_dy_stats = pd_dy_obj.run(config, args,
                                                    feeder_adapter)
 
@@ -312,6 +330,7 @@ def test_main_without_json(pd_obj=None,
             utils.check_outputs(
                 base_outputs,
                 compare_outputs,
+                args.testing_mode,
                 name=config.api_name,
                 atol=config.atol,
                 use_gpu=args.use_gpu,

@@ -1,0 +1,30 @@
+{
+  "static_graph": [
+    "detection",
+    "mask_rcnn",
+    "image_classification",
+    "seg_model",
+    "transformer",
+    "bert",
+    "yolov3"
+  ],
+  "dynamic_graph": [
+    "dy_bert",
+    "dy_lac",
+    "dy_transformer",
+    "dy_wavenet",
+    "dy_senta",
+    "dy_mask_rcnn",
+    "dy_yolov3",
+    "dy_slowfast",
+    "dy_tsn",
+    "dy_tsm",
+    "dy_gan",
+    "dy_seg",
+    "dy_seq2seq",
+    "dy_resnet",
+    "dy_ptb_lm",
+    "dy_mobilenet",
+    "dy_ppocr_mobile_2"
+  ]
+}

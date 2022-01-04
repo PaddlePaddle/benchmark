@@ -1,0 +1,441 @@
+[{
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 38, 26]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 152, 104]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 76, 52]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 25, 33]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 100, 132]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 50, 66]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 10, 11]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 13, 13]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 144, 128]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 74, 68]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 128, 25, 42]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 128, 70, 76]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 280, 304]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 304, 232]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 128, 35, 38]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 272, 312]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 320, 312]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 280, 200]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 128, 140, 152]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}, {
+    "param_info": {
+        "num_groups": {
+            "type": "int",
+            "value": "32"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 128, 136, 156]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001,
+    "op": "group_norm"
+}]

@@ -7,20 +7,20 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 32L, -1L, -1L]",
+            "shape": "[-1L, 512L, 31L, 31L]",
             "type": "Variable"
         }
     },
-    "repeat": 2000
+    "repeat": 5000
 }, {
     "op": "leaky_relu",
     "param_info": {
         "negative_slope": {
             "type": "float",
-            "value": "0.2"
+            "value": "0.1"
         },
         "x": {
-            "dtype": "float32",
+            "dtype": "float16",
             "shape": "[-1L, 512L, 31L, 31L]",
             "type": "Variable"
         }

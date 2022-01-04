@@ -1,94 +1,83 @@
 #!bin/bash
-set -xe
 
-if [[ $# -lt 3 ]]; then
-    echo "running job dict is {1: speed, 3:profiler, 6:max_batch_size}"
+set -xe
+if [[ $# -lt 1 ]]; then
+    echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
-    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|3|6 base|big sp|mp 1000(max_iter)"
+    echo "  CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1|2|3 sp|mp 100(max_iter) base|big(model_type) fp32|amp_fp16|pure_fp16(fp_mode) bs(4096|2560|5120)"
     exit
 fi
 
 function _set_params(){
-    index="$1"
-    model_type="$2"
-    run_mode=${3:-"sp"}
-    max_iter=${4}
+    index=$1
+    base_batch_size=$6
+
+    run_mode=${2}
+    max_iter=${3}
+    model_name="transformer_"${4}
+    fp_mode=${5:-"fp32"}
     if [[ ${index} -eq 3 ]]; then is_profiler=1; else is_profiler=0; fi
-   
+
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
- 
-    model_name="transformer_"${model_type}
-    mission_name="机器翻译"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
-    direction_id=1                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
-    skip_steps=3                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
-    keyword="speed:"                 # 解析日志，筛选出数据所在行的关键字                                             (必填)
-    separator=" "                    # 解析日志，数据所在行的分隔符                                                  (必填)
-    position=20                      # 解析日志，按照分隔符分割后形成的数组索引                                        (必填)
-    model_mode=1                     # 解析日志，具体参考scripts/analysis.py.                                      (必填)
+
+    mission_name="机器翻译"
+    direction_id=1
+    skip_steps=3
+    keyword="ips:"
+    model_mode=-1
+    ips_unit="words/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
 
-    if [[ ${index} -eq 6 ]]; then base_batch_size=12000; else base_batch_size=4096; fi
-    batch_size=`expr ${base_batch_size} \* $num_gpu_devices`
-    log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
+    log_file=${run_log_path}/${model_name}_bs${base_batch_size}_${fp_mode}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
-
-}
-
-function _set_env(){
-    export FLAGS_fraction_of_gpu_memory_to_use=1.0
-    export FLAGS_eager_delete_tensor_gb=0.0
-    export FLAGS_memory_fraction_of_eager_deletion=0.99999
-    if [[ ${index} -eq 6 ]]; then export FLAGS_allocator_strategy=naive_best_fit; fi # 当前已合并mem 以及speed 任务，由于最大BS 下降较大，故而维持原有策略运行
 }
 
 function _train(){
-    echo "Train on ${num_gpu_devices} GPUs"
-    echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-    #cd ../../../../models/PaddleNLP/neural_machine_translation/transformer/
-    # base model
-    if [ ${model_type} = 'big' ]; then
-        train_cmd=" --do_train True \
-        --epoch 30 \
-        --src_vocab_fpath data/vocab.bpe.32000 \
-        --trg_vocab_fpath data/vocab.bpe.32000 \
-        --special_token <s> <e> <unk> \
-	--training_file data/train.tok.clean.bpe.32000.en-de \
-	--batch_size ${base_batch_size}
-	--n_head 16 \
-        --d_model 1024 \
-        --d_inner_hid 4096 \
-        --is_profiler=${is_profiler} \
-        --profiler_path=${profiler_path} \
-        --max_iter=${max_iter} \
-        --prepostprocess_dropout 0.3"
+    if [ ${model_name} == "transformer_base" ]; then
+        config_file="transformer.base.yaml"
+    elif [ ${model_name} == "transformer_big" ]; then
+        config_file="transformer.big.yaml"
     else
-        train_cmd=" --do_train True \
-        --epoch 30 \
-        --src_vocab_fpath data/vocab.bpe.32000 \
-        --trg_vocab_fpath data/vocab.bpe.32000 \
-        --special_token <s> <e> <unk> \
-        --is_profiler=${is_profiler} \
-        --profiler_path=${profiler_path} \
-        --max_iter=${max_iter} \
-	--training_file data/train.tok.clean.bpe.32000.en-de \
-	--batch_size ${base_batch_size}"
+        echo " The model should be transformer_big or transformer_base!"
+        exit 1
     fi
 
-    case ${run_mode} in
-    sp) train_cmd="python -u main.py "${train_cmd} ;;
-    mp)
+    # 混合精度监控。不支持传参修改。fp16 和fp32 混合，无论哪种情况需设置对应值，防止参数错误
+    if [ ${fp_mode} == "amp_fp16" ]; then
+        sed -i "s/^use_amp.*/use_amp: True/g" ../configs/${config_file}
+        sed -i "s/^use_pure_fp16.*/use_pure_fp16: False/g" ../configs/${config_file}
+    elif [ ${fp_mode} == "pure_fp16" ]; then
+        sed -i "s/^use_amp.*/use_amp: True/g" ../configs/${config_file}
+        sed -i "s/^use_pure_fp16.*/use_pure_fp16: True/g" ../configs/${config_file}
+    elif [ ${fp_mode} == "fp32" ]; then
+        sed -i "s/^use_amp.*/use_amp: False/g" ../configs/${config_file}
+        sed -i "s/^use_pure_fp16.*/use_pure_fp16: False/g" ../configs/${config_file}
+    else
+        echo " The fp_mode should be fp32 pure_fp16 or amp_fp16"
+    fi
+
+    sed -i "s/^max_iter.*/max_iter: ${max_iter}/g" ../configs/${config_file} #不支持传参修改
+    sed -i "s/^batch_size:.*/batch_size: ${base_batch_size}/g" ../configs/${config_file} #不支持传参修改
+    model_name=${model_name}_bs${base_batch_size}_${fp_mode}
+
+    train_cmd="--config ../configs/${config_file} --benchmark"
+
+    if [ ${run_mode} = "sp" ]; then
+        sed -i "s/^is_distributed.*/is_distributed: False/g" ../configs/${config_file} #不支持传参修改
+        train_cmd="python -u train.py "${train_cmd}
+    else
+        sed -i "s/^is_distributed.*/is_distributed: True/g" ../configs/${config_file} #不支持传参修改
         rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --gpus=$CUDA_VISIBLE_DEVICES main.py "${train_cmd}
-        log_parse_file="mylog/workerlog.0" ;;
-    *) echo "choose run_mode(sp or mp)"; exit 1;
-    esac
+        train_cmd="python -m paddle.distributed.launch  --gpus=$CUDA_VISIBLE_DEVICES  --log_dir ./mylog_${model_name} train.py --distribute "${train_cmd}
+        log_parse_file="mylog/workerlog.0"
+    fi
 
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
@@ -98,15 +87,13 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
-    kill -9 `ps -ef|grep python |awk '{print $2}'`
 
-    if [ $run_mode = "mp" -a -d mylog ]; then
-        rm ${log_file}
-        cp mylog/workerlog.0 ${log_file}
+    if [ ${run_mode} != "sp"  -a -d mylog_${model_name} ]; then
+           rm ${log_file}
+           cp mylog_${model_name}/`ls -l mylog_${model_name}/ | awk '/^[^d]/ {print $5,$9}' | sort -nr | head -1 | awk '{print $2}'` ${log_file}
     fi
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh
 _set_params $@
-_set_env
 _run

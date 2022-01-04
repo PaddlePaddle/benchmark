@@ -25,7 +25,9 @@ function _run(){
     sleep 9
     ps -ef
     model_commit_id=$(git log|head -n1|awk '{print $2}')
+    paddle_commit_id=$(echo `python -c "import paddle;print(paddle.version.commit)"`)
     echo "---------Model commit is ${model_commit_id}"
+    echo "---------Paddle commit is ${paddle_commit_id}"
 
     if [[ ${index} -eq 1 ]]; then
         job_bt=`date '+%Y%m%d%H%M%S'`
@@ -68,6 +70,9 @@ function _run(){
     fi
     if [ "${ips_unit}" != "" ]; then
         analysis_options="${analysis_options} --ips_unit ${ips_unit}"
+    fi
+    if [ "${keyword_loss}" != "" ]; then
+        analysis_options="${analysis_options} --keyword_loss ${keyword_loss}"
     fi
     python ${BENCHMARK_ROOT}/scripts/analysis.py \
             --filename "${log_file}" \

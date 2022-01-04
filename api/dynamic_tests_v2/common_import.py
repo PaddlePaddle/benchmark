@@ -28,9 +28,7 @@ except ImportError:
 package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
 
-from common.paddle_api_benchmark import PaddleAPIBenchmarkBase
 from common.paddle_dynamic_api_benchmark import PaddleDynamicAPIBenchmarkBase
-from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase
 from common.pytorch_api_benchmark import PytorchAPIBenchmarkBase
 from common.api_param import APIConfig
 from common.main import test_main, test_main_without_json
@@ -40,18 +38,53 @@ def use_gpu():
     return os.environ.get("CUDA_VISIBLE_DEVICES", None) != ""
 
 
-#def unsqueeze_short(short, long):
-#    """
-#    Unsqueeze the short shape to the same length of the long's.
-#    For example: short is [16, 2048] and long is [16, 2048, 7, 7],
-#    it will return [16, 2048, 1, 1].
-#    """
-#    short_extend = np.ones([len(long)], dtype=np.int32).tolist()
-#    start = 0
-#    for value in short:
-#        for i in range(start, len(long)):
-#            if long[i] == value:
-#                short_extend[i] = value
-#                start = i
-#                break
-#    return short_extend
+def unsqueeze_short(short, long):
+    """
+    Unsqueeze the short shape to the same length of the long's.
+    For example: short is [16, 2048] and long is [16, 2048, 7, 7],
+    it will return [16, 2048, 1, 1].
+    """
+    # Extend short with 0s.
+    short_extend_zeros = np.zeros([len(long)], dtype=np.int32).tolist()
+    start = 0
+    for value in short:
+        for i in range(start, len(long)):
+            if long[i] == value:
+                short_extend_zeros[i] = value
+                start = i
+                break
+    # Remove the 0s on the front and change 0s on the middle to 1s, [0, M, 0, N] -> [M, 1, N]
+    short_extend = []
+    first_nonzero_idx = -1
+    for i in range(len(short_extend_zeros)):
+        if first_nonzero_idx == -1 and short_extend_zeros[i] != 0:
+            first_nonzero_idx = i
+        if first_nonzero_idx > -1:
+            if short_extend_zeros[i] == 0:
+                short_extend.append(1)
+            else:
+                short_extend.append(short_extend_zeros[i])
+    return short_extend
+
+
+def numel(shape):
+    assert isinstance(
+        shape, list), "Expect shape to be a list, but recieved {}".format(
+            type(shape))
+    return np.prod(np.array(shape))
+
+
+def sizeof(dtype):
+    assert isinstance(
+        dtype, str), "Expect dtype to be a string, but recieved {}".format(
+            type(dtype))
+    if dtype in ["float64", "double", "int64", "long"]:
+        return 8
+    elif dtype in ["float32", "float", "int32", "int"]:
+        return 4
+    elif dtype in ["float16", "bfloat16"]:
+        return 2
+    elif dtype in ["bool"]:
+        return 1
+    else:
+        raise ValueError("{} is not supported.".format(dtype))

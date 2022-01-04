@@ -1,0 +1,127 @@
+[{
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 256, 128, 256]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[2, 256, 128, 256]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 18, 128, 256]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[2, 18, 128, 256]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 36, 64, 128]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[2, 36, 64, 128]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 72, 32, 64]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[2, 72, 32, 64]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 144, 16, 32]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[2, 144, 16, 32]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 19, 128, 256]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[2, 19, 128, 256]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 270, 128, 256]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[2, 270, 128, 256]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 512, 1024, 1]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[2, 512, 1024, 1]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1]",
+            "type": "Variable"
+        }
+    }
+}]

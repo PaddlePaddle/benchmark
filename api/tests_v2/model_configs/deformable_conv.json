@@ -1,0 +1,461 @@
+[{
+    "config_id": 0,
+    "op": "deformable_conv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[6,512,19,34]",
+            "type": "Variable"
+        },
+        "offset": {
+            "dtype": "float32",
+            "shape": "[6,18,19,34]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[256,512,3,3]",
+            "type": "Variable"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "deformable_groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        },
+        "mask": {
+            "dtype": "float32",
+            "shape": "[6,9,19,34]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.01
+}, {
+    "config_id": 1,
+    "op": "deformable_conv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[6,128,76,136]",
+            "type": "Variable"
+        },
+        "offset": {
+            "dtype": "float32",
+            "shape": "[6,18,76,136]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[128,128,3,3]",
+            "type": "Variable"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "deformable_groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        },
+        "mask": {
+            "dtype": "float32",
+            "shape": "[6,9,76,136]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.01
+}, {
+    "config_id": 2,
+    "op": "deformable_conv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[6,256,38,68]",
+            "type": "Variable"
+        },
+        "offset": {
+            "dtype": "float32",
+            "shape": "[6,18,38,68]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[256,256,3,3]",
+            "type": "Variable"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "deformable_groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        },
+        "mask": {
+            "dtype": "float32",
+            "shape": "[6,9,38,68]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.01
+}, {
+    "config_id": 3,
+    "op": "deformable_conv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[6,64,152,272]",
+            "type": "Variable"
+        },
+        "offset": {
+            "dtype": "float32",
+            "shape": "[6,18,152,272]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[64,64,3,3]",
+            "type": "Variable"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "deformable_groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        },
+        "mask": {
+            "dtype": "float32",
+            "shape": "[6,9,152,272]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.01
+}, {
+    "config_id": 4,
+    "op": "deformable_conv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[6,128,76,136]",
+            "type": "Variable"
+        },
+        "offset": {
+            "dtype": "float32",
+            "shape": "[6,18,76,136]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[64,128,3,3]",
+            "type": "Variable"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "deformable_groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        },
+        "mask": {
+            "dtype": "float32",
+            "shape": "[6,9,76,136]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.01
+}, {
+    "config_id": 5,
+    "op": "deformable_conv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[6,256,38,68]",
+            "type": "Variable"
+        },
+        "offset": {
+            "dtype": "float32",
+            "shape": "[6,18,38,68]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[64,256,3,3]",
+            "type": "Variable"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "deformable_groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        },
+        "mask": {
+            "dtype": "float32",
+            "shape": "[6,9,38,68]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.01
+}, {
+    "config_id": 6,
+    "op": "deformable_conv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[6,256,38,68]",
+            "type": "Variable"
+        },
+        "offset": {
+            "dtype": "float32",
+            "shape": "[6,18,38,68]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[128,256,3,3]",
+            "type": "Variable"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "deformable_groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        },
+        "mask": {
+            "dtype": "float32",
+            "shape": "[6,9,38,68]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.01
+}, {
+    "config_id": 7,
+    "op": "deformable_conv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[4,64,32,32]",
+            "type": "Variable"
+        },
+        "offset": {
+            "dtype": "float32",
+            "shape": "[4,144,32,32]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[64,64,3,3]",
+            "type": "Variable"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "deformable_groups": {
+            "type": "int",
+            "value": "8"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        },
+        "mask": {
+            "dtype": "float32",
+            "shape": "[4,72,32,32]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.01
+}, {
+    "config_id": 8,
+    "op": "deformable_conv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[4,64,16,16]",
+            "type": "Variable"
+        },
+        "offset": {
+            "dtype": "float32",
+            "shape": "[4,144,16,16]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[64,64,3,3]",
+            "type": "Variable"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "deformable_groups": {
+            "type": "int",
+            "value": "8"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        },
+        "mask": {
+            "dtype": "float32",
+            "shape": "[4,72,16,16]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.01
+}, {
+    "config_id": 9,
+    "op": "deformable_conv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[4,64,64,64]",
+            "type": "Variable"
+        },
+        "offset": {
+            "dtype": "float32",
+            "shape": "[4,144,64,64]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[64,64,3,3]",
+            "type": "Variable"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "deformable_groups": {
+            "type": "int",
+            "value": "8"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        },
+        "mask": {
+            "dtype": "float32",
+            "shape": "[4,72,64,64]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.01
+}]
