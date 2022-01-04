@@ -40,21 +40,25 @@ except Exception as e:
 class Profiler(object):
     def __init__(self, name, sess, profiler):
         self.name = name
-        self.sess = sess
         self.profiler = profiler
-        self.profiler_handle = None
+        self._sess = sess
+        self._profiler_handle = None
         self.run_options = None
         self.run_metadata = None
         self.generate_timeline = False
 
     def __enter__(self):
-        if self.profiler == "pyprof":
+        if self.profiler == "nvprof":
+            import ctypes
+            self._cudart = ctypes.CDLL('libcudart.so')
+            self._cudart.cudaProfilerStart()
+        elif self.profiler == "pyprof":
             import cProfile
-            self.profiler_handle = cProfile.Profile()
-            self.profiler_handle.enable()
-        elif self.profiler != "none":
-            self.profiler_handle = model_analyzer.Profiler(
-                graph=self.sess.graph)
+            self._profiler_handle = cProfile.Profile()
+            self._profiler_handle.enable()
+        elif self.profiler == "native":
+            self._profiler_handle = model_analyzer.Profiler(
+                graph=self._sess.graph)
             if tf.__version__ < "1.15.0":
                 self.run_options = tf.RunOptions(
                     trace_level=tf.RunOptions.FULL_TRACE)
@@ -66,9 +70,9 @@ class Profiler(object):
         return self
 
     def add_step(self, step):
-        if self.profiler != "none" and self.profiler != "pyprof":
+        if self.profiler == "native":
             # Update profiler
-            self.profiler_handle.add_step(
+            self._profiler_handle.add_step(
                 step=step, run_meta=self.run_metadata)
             if self.generate_timeline:
                 # For timeline
@@ -78,16 +82,18 @@ class Profiler(object):
                 trace_file.write(chrome_trace)
 
     def __exit__(self, exception_type, exception_value, traceback):
-        if self.profiler == "pyprof":
+        if self.profiler == "nvprof":
+            self._cudart.cudaProfilerStop()
+        elif self.profiler == "pyprof":
             import pstats, StringIO
-            self.profiler_handle.disable()
+            self._profiler_handle.disable()
             # self.profiler_handle.dump_stats("./outputs/" + self.name + ".pyprof")
             s = StringIO.StringIO()
             ps = pstats.Stats(
                 self.profiler_handle, stream=s).sort_stats("cumulative")
             ps.print_stats()
             print(s.getvalue())
-        elif self.profiler != "none":
+        elif self.profiler == "native":
             # Generate profiling result
             profile_op_builder = option_builder.ProfileOptionBuilder().select(
                 ['micros', 'occurrence']).order_by('micros').with_max_depth(5)

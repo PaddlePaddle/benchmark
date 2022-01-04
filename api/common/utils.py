@@ -176,13 +176,17 @@ def check_outputs(output_list,
             target = target_list[i]
 
             if testing_mode == "static":
-                if isinstance(
-                        target,
-                        tf.python.framework.indexed_slices.IndexedSlicesValue):
-                    print(
-                        "---- Warning: Th %d-th target's type is IndexedSlicesValue and the check is skipped. "
-                        "It will be fixed later." % i)
-                    continue
+                try:
+                    if isinstance(target, tf.python.framework.indexed_slices.
+                                  IndexedSlicesValue):
+                        print(
+                            "---- Warning: Th %d-th target's type is IndexedSlicesValue and the check is skipped. "
+                            "It will be fixed later." % i)
+                        continue
+                except Exception as e:
+                    if tf.__version__ < "2.4.0":
+                        # I am not sure about the exact version
+                        print("Meets an exception: {}".format(e))
 
             output, target = _check_type(output, target)
             output, target = _check_shape(name, output, target, i)

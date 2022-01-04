@@ -34,8 +34,8 @@ def is_ampere_gpu():
 
 
 class NvprofRunner(object):
-    def run(self, cmd):
-        stdout, exit_code = self._nvprof(cmd)
+    def run(self, cmd, profile_from_start=False):
+        stdout, exit_code = self._nvprof(cmd, profile_from_start)
         if exit_code == 0:
             parse_status, gpu_time = self._parse_logs(stdout.split("\n"))
             if parse_status:
@@ -43,9 +43,12 @@ class NvprofRunner(object):
         print("Running Error:\n {}".format(stdout))
         return 0.0
 
-    def _nvprof(self, cmd):
-        return system.run_command("nvprof --profile-from-start off {}".format(
-            cmd))
+    def _nvprof(self, cmd, profile_from_start):
+        if profile_from_start:
+            profile_cmd = "nvprof {}".format(cmd)
+        else:
+            profile_cmd = "nvprof --profile-from-start off {}".format(cmd)
+        return system.run_command(profile_cmd)
 
     def _parse_logs(self, logs):
         line_from = None
@@ -91,8 +94,8 @@ class NvprofRunner(object):
 
 
 class NsightRunner(object):
-    def run(self, cmd):
-        stdout, exit_code = self._nsight(cmd)
+    def run(self, cmd, profile_from_start=False):
+        stdout, exit_code = self._nsight(cmd, profile_from_start)
         if exit_code == 0:
             parse_status, gpu_time = self._parse_logs(stdout.split("\n"))
             if parse_status:
@@ -100,9 +103,13 @@ class NsightRunner(object):
         print("Running Error:\n {}".format(stdout))
         return 0.0
 
-    def _nsight(self, cmd):
-        return system.run_command(
-            "nsys nvprof --profile-from-start=off -o tmp.qdrep {}".format(cmd))
+    def _nsight(self, cmd, profile_from_start):
+        if profile_from_start:
+            profile_cmd = "nsys nvprof -o tmp.qdrep {}".format(cmd)
+        else:
+            profile_cmd = "nsys nvprof --profile-from-start=off -o tmp.qdrep {}".format(
+                cmd)
+        return system.run_command(profile_cmd)
 
     def _parse_logs(self, logs):
         kernel_line_from = None
@@ -168,7 +175,10 @@ class NsightRunner(object):
         return gpu_time / percent
 
 
-def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
+def launch(benchmark_script,
+           benchmark_script_args,
+           with_nvprof=False,
+           profile_from_start=True):
     """
     If with_nvprof is True, it will launch the following command firstly to
     get the gpu_time:
@@ -188,7 +198,7 @@ def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
             args.append("--profiler")
             args.append(value)
 
-    if with_nvprof:
+    if with_nvprof and not profile_from_start:
         _set_profiler(benchmark_script_args, "nvprof")
     cmd = "{} {} {}".format(sys.executable, benchmark_script,
                             " ".join(benchmark_script_args))
@@ -197,7 +207,7 @@ def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
             runner = NsightRunner()
         else:
             runner = NvprofRunner()
-        gpu_time = runner.run(cmd)
+        gpu_time = runner.run(cmd, profile_from_start)
         _set_profiler(benchmark_script_args, "none")
         return gpu_time
     else:
@@ -234,6 +244,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     benchmark_args_dict = _args_list_to_dict(args.benchmark_script_args)
     task = benchmark_args_dict.get("task", "speed")
+    framework = benchmark_args_dict.get("framework", "paddle")
     use_gpu = system.str2bool(benchmark_args_dict.get(
         "use_gpu", "False")) and os.environ.get("CUDA_VISIBLE_DEVICES",
                                                 None) != ""
@@ -243,10 +254,12 @@ if __name__ == "__main__":
     system.check_commit()
 
     if use_gpu and task == "speed" and profiler == "none":
+        profile_from_start = False
         total_gpu_time = launch(
             args.benchmark_script,
             args.benchmark_script_args,
-            with_nvprof=True)
+            with_nvprof=True,
+            profile_from_start=profile_from_start)
         args.benchmark_script_args.append(" --gpu_time ")
         args.benchmark_script_args.append(str(total_gpu_time))
 

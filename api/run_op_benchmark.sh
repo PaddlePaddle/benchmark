@@ -101,7 +101,7 @@ main() {
     install_package "torch" "1.10.0"
   else
     testing_mode="static"
-    install_package "tensorflow" "2.3.1"
+    install_package "tensorflow" "2.7.0"
   fi
 
   case ${op_type} in
