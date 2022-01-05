@@ -36,7 +36,6 @@ NO_BACKWARD_OPS = [
     "arange",
     "argmax",
     "argmin",
-    "argsort",
     "assign",
     "cast",
     "clip_by_norm",
