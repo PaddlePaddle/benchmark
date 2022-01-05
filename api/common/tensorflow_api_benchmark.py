@@ -386,7 +386,6 @@ class TensorflowAPIBenchmarkBase(object):
         config = tf.compat.v1.ConfigProto()
         if use_gpu:
             config.gpu_options.allow_growth = self.allow_growth
-            config.graph_options.optimizer_options.global_jit_level = 2
         else:
             # In default, TF use full cpu cores, but Paddle use one cpu core.
             # To make the same experiment, set TF use one cpu core as well.
