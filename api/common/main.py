@@ -100,6 +100,19 @@ def parse_args():
     parser.add_argument(
         '--repeat', type=int, default=1, help='Iterations of Repeat running')
     parser.add_argument(
+        '--is_dynamic_scheduling',
+        type=system.str2bool,
+        default=False,
+        help='Whether to calculate scheduling cost in dynamic mode [True|False]'
+    )
+    parser.add_argument(
+        '--nvprof_start_step',
+        type=int,
+        default=1,
+        help='Start step of profile')
+    parser.add_argument(
+        '--nvprof_end_step', type=int, default=100, help='End step of profile')
+    parser.add_argument(
         '--allow_adaptive_repeat',
         type=system.str2bool,
         default=False,
@@ -287,6 +300,23 @@ def test_main_without_json(pd_obj=None,
                 config_params=config.to_string())
 
     if _is_paddle_enabled(args, config) and args.testing_mode == "dynamic":
+        assert pd_dy_obj is not None, "Paddle dynamic object is None."
+        print(config)
+        pd_dy_outputs, pd_dy_stats = pd_dy_obj.run(config, args,
+                                                   feeder_adapter)
+
+        if args.task == "speed":
+            pd_dy_stats["gpu_time"] = args.gpu_time
+            utils.print_benchmark_result(
+                pd_dy_stats,
+                log_level=args.log_level,
+                config_params=config.to_string())
+
+        if pd_dy_outputs == False:
+            sys.exit(1)
+
+    if args.is_dynamic_scheduling and _is_paddle_enabled(
+            args, config) and args.testing_mode == "dynamic":
         assert pd_dy_obj is not None, "Paddle dynamic object is None."
         print(config)
         pd_dy_outputs, pd_dy_stats = pd_dy_obj.run(config, args,
