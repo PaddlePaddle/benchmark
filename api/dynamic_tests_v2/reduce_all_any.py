@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from common_import import *
-from reduce import PDReduce, TorchReduce
 
 
 class ReduceAllAnyConfig(APIConfig):
@@ -55,6 +54,16 @@ class ReduceAllAnyConfig(APIConfig):
         return self.axis, self.x_shape
 
 
+class PDReduceAllAny(PaddleDynamicAPIBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = self.layers(
+            config.api_name, x=x, axis=config.axis, keepdim=config.keepdim)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+
+
 class TorchReduceAllAny(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
@@ -73,6 +82,6 @@ class TorchReduceAllAny(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDReduce(),
+        pd_dy_obj=PDReduceAllAny(),
         torch_obj=TorchReduceAllAny(),
         config=ReduceAllAnyConfig())
