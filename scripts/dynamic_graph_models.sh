@@ -54,19 +54,21 @@ dy_speech_repo_conformer(){
     echo "dy_speech_repo_conformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
     cd ${cur_model_path}/tests/benchmark/conformer/
-    rm -rf ${cur_model_path}/examples/dataset/aishell/aishell.py
-    cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/examples/dataset/aishell/
+    rm -rf ${cur_model_path}/dataset/aishell/aishell.py
+    cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/dataset/aishell/
     pip install loguru
-    bash prepare.sh
+    echo "bash run.sh --stage 0 --stop_stage 0" >> prepare.sh             # 第一轮数据处理会报错
+	bash prepare.sh             
     bash run.sh
-    rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
+    rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/dataset/aishell    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
 
 dy_video_TimeSformer(){
     echo "dy_video_TimeSformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
     cd ${cur_model_path}/benchmark/TimeSformer/
-    bash run_all.sh local
+    pip install scikit-image==0.18.2
+	bash run_all.sh local
     rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
 
@@ -249,7 +251,8 @@ dy_tsn(){
     cd ${cur_model_path}
 
     pip install wget av
-    # Prepare pretrained modles
+    pip install scikit-image==0.18.2
+	# Prepare pretrained modles
     rm -rf ResNet50_pretrain.pdparams
     ln -s ${prepare_path}/tsn/ResNet50_pretrain.pdparams ${cur_model_path}/
     # Prepare data
@@ -280,7 +283,7 @@ dy_gan(){
     fi
 
     pip install -r requirements.txt
-    pip install scikit-image==0.18.1
+    pip install scikit-image==0.18.2
     # Prepare data
     mkdir -p data
     ln -s ${data_path}/dygraph_data/cityscapes_gan_mini ${cur_model_path}/data/cityscapes
@@ -338,7 +341,8 @@ dy_slowfast(){
     pip install tqdm
     pip install decord
     pip install pandas av
-    # Prepare data
+    pip install scikit-image==0.18.2
+	# Prepare data
     rm -rf data
     ln -s ${data_path}/dygraph_data/slowfast/data/ ${cur_model_path}/
 
@@ -532,13 +536,10 @@ dy_resnet(){
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./
     sed -i '/set\ -xe/d' run_benchmark_resnet.sh
-    batch_size=32
-    model_list=(ResNet152_bs32 ResNet50_bs32 ResNet50_bs128)
+    model_list=(ResNet152_bs32 ResNet50_bs32 ResNet50_bs128 ResNet50_amp_fp16_bs128 ResNet50_amp_fp16_bs256) #ResNet50_pure_fp16_bs128
     for model_name in ${model_list[@]}
     do
-        if [ ${model_name} == "ResNet50_bs128" ]; then
-            batch_size=128
-        fi
+	batch_size=${model_name#*bs}
         echo "model is ${model_name}, index is speed, 1gpu begin"
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} sp 1 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
         sleep 60
@@ -615,7 +616,7 @@ dy_ppocr_mobile_2() {
 dy_bmn() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
-
+    pip install scikit-image==0.18.2
     package_check_list=(tqdm PyYAML numpy decord pandas av)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then

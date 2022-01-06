@@ -31,7 +31,9 @@ python -m pip install -U pip
 echo `python -m pip --version`
 pip install torch==1.9.1+cu102 -f https://download.pytorch.org/whl/torch_stable.html
 pip install torchvision==0.10.1+cu102 -f https://download.pytorch.org/whl/torch_stable.html
+#pip install ${ALL_PATH}/other_frame_whls/torch*
 pip install openmim
+pip install spicy
 mim install mmdet
 
 ################################# 克隆并安装竞品

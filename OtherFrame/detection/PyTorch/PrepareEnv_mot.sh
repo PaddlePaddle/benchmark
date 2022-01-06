@@ -29,9 +29,10 @@ export PATH=/workspace/run_env:${PATH}
 ################################# 安装框架，如:
 python3.7 -m pip install -U pip
 echo `python3.7 -m pip --version`
-python3.7 -m pip install torch==1.10.1 -f https://download.pytorch.org/whl/torch_stable.html
-python3.7 -m pip install torchvision==0.11.2 -f https://download.pytorch.org/whl/torch_stable.html
-
+#python3.7 -m pip install torch==1.10.1 -f https://download.pytorch.org/whl/torch_stable.html
+#python3.7 -m pip install torchvision==0.11.2 -f https://download.pytorch.org/whl/torch_stable.html
+python3.7 -m pip install ${ALL_PATH}/other_frame_whls/*
+pip install -r requirement.txt
 ################################# 克隆并安装竞品
 # 根据主项目的配置信息，拉取更新子模块中的代码。
 git submodule init

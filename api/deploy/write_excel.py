@@ -255,8 +255,8 @@ def _write_detail_worksheet(benchmark_result_list, worksheet, device,
                                        compare_ratio, cell_formats, color)
             col += 1
 
-        # Write gflops and gbs of paddle, only for gpu_forward now.
-        if device == "gpu" and direction == "forward":
+        # Write gflops and gbs of paddle, only for gpu_forward and gpu_backward now.
+        if device == "gpu" and direction in ["forward", "backward"]:
             color = _get_speed_unit_color(result["compare"]["gpu_time"])
             for key in ["gflops", "gbs"]:
                 perf = result["paddle"][key]

@@ -1,0 +1,57 @@
+[{
+    "op": "gelu",
+    "param_info": {
+        "approximate": {
+            "type": "bool",
+            "value": "True"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L,1024L,3072L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "op": "gelu",
+    "param_info": {
+        "approximate": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L,1024L,3072L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "op": "gelu",
+    "param_info": {
+        "approximate": {
+            "type": "bool",
+            "value": "True"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[8L,1024L,3072L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "op": "gelu",
+    "param_info": {
+        "approximate": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[8L,1024L,3072L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}]
