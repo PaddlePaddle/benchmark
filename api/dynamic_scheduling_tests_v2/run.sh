@@ -13,10 +13,10 @@ export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 
 name=${1:-"abs"}
 config_id=${2:-"0"}
-task=${3:-"accuracy"} # "accuracy" or "speed"
+task=${3:-"scheduling"} # "accuracy" or "speed" or "scheduling"
 
 testing_mode="dynamic" # "static" or "dynamic"
-framework="pytorch"  # "paddle" or "tensorflow" or "pytorch"
+framework="paddle"  # "paddle" or "tensorflow" or "pytorch"
 filename="${OP_BENCHMARK_ROOT}/tests_v2/configs/${name}.json"
 if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
   use_gpu=False
@@ -45,5 +45,5 @@ if [ $# -ge 4 ]; then
             --api_name ${api_name}"
 fi
 
-python -m common.launch ${OP_BENCHMARK_ROOT}/dynamic_tests_v2/${name}.py \
-         ${run_args}
+python -m common.launch ${OP_BENCHMARK_ROOT}/dynamic_scheduling_tests_v2/${name}.py \
+         ${run_args} true

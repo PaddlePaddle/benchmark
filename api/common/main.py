@@ -45,7 +45,7 @@ def parse_args():
         '--task',
         type=str,
         default="speed",
-        help='Specify the task: [speed|accuracy]')
+        help='Specify the task: [speed|accuracy|scheduling]')
     parser.add_argument(
         '--testing_mode',
         type=str,
@@ -120,8 +120,8 @@ def parse_args():
     parser.add_argument(
         '--log_level', type=int, default=0, help='level of logging')
     args = parser.parse_args()
-    if args.task not in ["speed", "accuracy"]:
-        raise ValueError("task should be speed, accuracy")
+    if args.task not in ["speed", "accuracy", "scheduling"]:
+        raise ValueError("task should be speed, accuracy, scheduling")
     if args.framework not in [
             "paddle", "tensorflow", "tf", "pytorch", "torch", "both"
     ]:

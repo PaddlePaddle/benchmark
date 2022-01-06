@@ -172,33 +172,35 @@ class NsightRunnerForDynamicScheduling(object):
     def run(self, cmd, op_type, nvprof_start_step, nvprof_end_step, backward):
         stdout, exit_code = self._nsight_for_dynamic_scheduling(cmd)
         if exit_code == 0:
-            parse_status, gpu_time = self._parse_logs(
+            parse_status, scheduling_time_dict = self._parse_logs(
                 stdout.split("\n"), op_type, nvprof_start_step,
                 nvprof_end_step, backward)
             if parse_status:
-                return gpu_time
+                return scheduling_time_dict
         print("Running Error:\n {}".format(stdout))
-        return 0.0
+        return {}
 
     def _nsight_for_dynamic_scheduling(self, cmd):
         return system.run_command(
             "nsys profile -t cuda,nvtx --stats true -o tmp.qdrep --force-overwrite true {}".
             format(cmd))
 
-    def _to_float(s):
+    def _to_float(self, s):
         return float(s.replace(',', ''))
 
-    def _calculate_avg_time(l):
-        total_time = _to_float(l[1])
-        max_time = _to_float(l[5])
-        calls = _to_float(l[2]) - 1
+    def _calculate_avg_time(self, l):
+        total_time = self._to_float(l[1])
+        max_time = self._to_float(l[5])
+        calls = self._to_float(l[2]) - 1
         return (total_time - max_time) / calls
 
     def _parse_logs(self, logs, op_type, nvprof_start_step, nvprof_end_step,
                     backward):
+        print("yoki", logs)
         flag_nvtx_time = False
         total_step_time = 0.0
         step_count = 0
+        parse_status = False
 
         # 0: imperative (imperative_avg_time)
         # 1: op_type (fwd_trace_op_avg_time)
@@ -227,11 +229,11 @@ class NsightRunnerForDynamicScheduling(object):
                         nvtx_range_type) > nvprof_start_step and int(
                             nvtx_range_type) < nvprof_end_step:
                     step_count += 1
-                    step_time = _to_float(infos[1])
+                    step_time = self._to_float(infos[1])
                     total_step_time += step_time
 
                 if nvtx_range_type in _scheduling_list:
-                    avg_time = _calculate_avg_time(infos)
+                    avg_time = self._calculate_avg_time(infos)
                     nvtx_meta_data_dict[nvtx_range_type] = avg_time
                     # print(nvtx_range_type + ' time: ', avg_time)
 
@@ -241,17 +243,23 @@ class NsightRunnerForDynamicScheduling(object):
             nvtx_meta_data_dict['step'] = total_step_time / step_count
         # print("num_step: ", step_count, "  step_avg_time: ", total_step_time / step_count)
 
-        scheduling_time_dict['step_avg_time'] = nvtx_meta_data_dict['step']
+        scheduling_time_dict['step_avg_time'] = nvtx_meta_data_dict[
+            'step'] if 'step' in nvtx_meta_data_dict else None
         scheduling_time_dict['imperative_avg_time'] = nvtx_meta_data_dict[
-            _scheduling_list[0]]
+            _scheduling_list[0]] if _scheduling_list[
+                0] in nvtx_meta_data_dict else None
         scheduling_time_dict['fwd_trace_op_avg_time'] = nvtx_meta_data_dict[
-            _scheduling_list[1]]
+            _scheduling_list[1]] if _scheduling_list[
+                1] in nvtx_meta_data_dict else None
         scheduling_time_dict['fwd_op_compute_avg_time'] = nvtx_meta_data_dict[
-            _scheduling_list[2]]
+            _scheduling_list[2]] if _scheduling_list[
+                2] in nvtx_meta_data_dict else None
         scheduling_time_dict['bwd_trace_op_avg_time'] = nvtx_meta_data_dict[
-            _scheduling_list[3]]
+            _scheduling_list[3]] if _scheduling_list[
+                3] in nvtx_meta_data_dict else None
         scheduling_time_dict['bwd_op_compute_avg_time'] = nvtx_meta_data_dict[
-            _scheduling_list[4]]
+            _scheduling_list[4]] if _scheduling_list[
+                4] in nvtx_meta_data_dict else None
         if scheduling_time_dict['step_avg_time'] and scheduling_time_dict[
                 'imperative_avg_time']:
             if not backward:
@@ -287,8 +295,10 @@ class NsightRunnerForDynamicScheduling(object):
                     'bwd_trace_op_avg_time'] - scheduling_time_dict[
                         'bwd_op_compute_avg_time']
 
+        parse_status = True
+
         print(scheduling_time_dict)
-        return scheduling_time_dict
+        return parse_status, scheduling_time_dict
 
 
 def launch(benchmark_script,
@@ -380,6 +390,15 @@ if __name__ == "__main__":
     repeat = benchmark_args_dict.get("repeat", "1")
 
     system.check_commit()
+
+    if use_gpu and task == "scheduling" and profiler == "none":
+        total_gpu_time = launch(
+            args.benchmark_script,
+            args.benchmark_script_args,
+            with_nvprof=False,
+            with_dynamic_scheduling=True)
+        args.benchmark_script_args.append(" --gpu_time ")
+        args.benchmark_script_args.append(str(total_gpu_time))
 
     if use_gpu and task == "speed" and profiler == "none":
         total_gpu_time = launch(
