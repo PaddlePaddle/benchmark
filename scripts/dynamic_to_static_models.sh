@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(dy_to_static_bert dy_to_static_mobilenet dy_to_static_resnet dy_to_st_hrnet dy_to_st_transformer)
+cur_model_list=(dy_to_static_bert dy_to_static_mobilenet dy_to_static_resnet dy_to_st_seg dy_to_st_transformer)
 export log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
 # Bert
 dy_to_static_bert() {
@@ -147,7 +147,7 @@ dy_to_static_resnet(){
     done
 }
 
-dy_to_st_hrnet(){
+dy_to_st_seg(){
 #deeplabv3 and HRnet
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/
     cd ${cur_model_path}
@@ -173,10 +173,10 @@ dy_to_st_hrnet(){
         fi
         echo "index is speed, ${model_item} 1gpu begin"
         CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 ${bs_item} sp ${model_item} 200 True | tee ${log_path}/dynamic_to_static_seg_${model_item}_bs${bs_item}_speed_1gpus 2>&1
-        sleep 10
-        echo "index is speed, ${model_item} 8gpu begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${bs_item} mp ${model_item} 200 True | tee ${log_path}/dynamic_to_static_seg_${model_item}_bs${bs_item}_speed_8gpus 2>&1
-        sleep 10
+        sleep 60
+        #echo "index is speed, ${model_item} 8gpu begin"
+        #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${bs_item} mp ${model_item} 200 True | tee ${log_path}/dynamic_to_static_seg_${model_item}_bs${bs_item}_speed_8gpus 2>&1
+        #sleep 60
     done
 }
 
