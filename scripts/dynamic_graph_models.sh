@@ -16,7 +16,7 @@
 
 
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_speech_repo_conformer dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo dy_gpt)
+dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
 
 
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
@@ -51,6 +51,11 @@ dy_speech_repo_pwgan(){
 }
 
 dy_speech_repo_conformer(){
+    echo " dy_speech_repo_conformer prepare python3 env "
+	cd ${BENCHMARK_ROOT}/
+    ln -s $(which python3.7) run_env/python3
+    ln -s $(which pip3.7) run_env/pip3
+    export PATH=$(pwd)/run_env:${PATH}
     echo "dy_speech_repo_conformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
     cd ${cur_model_path}/tests/benchmark/conformer/
@@ -68,6 +73,7 @@ dy_video_TimeSformer(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
     cd ${cur_model_path}/benchmark/TimeSformer/
     pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
 	bash run_all.sh local
     rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
@@ -252,6 +258,7 @@ dy_tsn(){
 
     pip install wget av
     pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
 	# Prepare pretrained modles
     rm -rf ResNet50_pretrain.pdparams
     ln -s ${prepare_path}/tsn/ResNet50_pretrain.pdparams ${cur_model_path}/
@@ -342,6 +349,7 @@ dy_slowfast(){
     pip install decord
     pip install pandas av
     pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
 	# Prepare data
     rm -rf data
     ln -s ${data_path}/dygraph_data/slowfast/data/ ${cur_model_path}/
@@ -454,6 +462,8 @@ dy_tsm(){
     cd ${cur_model_path}
 
     pip install wget av decord
+    pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
     # Prepare pretrained modles
     ln -s ${prepare_path}/tsm/ResNet50_pretrain.pdparams ${cur_model_path}/
     # Prepare data
@@ -617,6 +627,7 @@ dy_bmn() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
     pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
     package_check_list=(tqdm PyYAML numpy decord pandas av)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
