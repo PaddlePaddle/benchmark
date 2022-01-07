@@ -191,12 +191,12 @@ def _write_detail_worksheet(benchmark_result_list, worksheet, device,
             column_width.append(16)
             column_width.append(16)
             column_width.append(16)
-        if device == "gpu" and direction == "forward":
+        if device == "gpu" and direction in ["forward", "backward"]:
             title_names.append("paddle(gflops)")
             title_names.append("paddle(gbs)")
         title_names.append("accuracy")
         title_names.append("parameters")
-        if device == "gpu" and direction == "forward":
+        if device == "gpu" and direction in ["forward", "backward"]:
             column_width.append(16)
             column_width.append(16)
         column_width.append(10)
