@@ -16,7 +16,7 @@
 
 
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_speech_repo_conformer dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo dy_gpt)
+dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
 
 
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
@@ -51,6 +51,11 @@ dy_speech_repo_pwgan(){
 }
 
 dy_speech_repo_conformer(){
+    echo " dy_speech_repo_conformer prepare python3 env "
+	cd ${BENCHMARK_ROOT}/
+    ln -s $(which python3.7) run_env/python3
+    ln -s $(which pip3.7) run_env/pip3
+    export PATH=$(pwd)/run_env:${PATH}
     echo "dy_speech_repo_conformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
     cd ${cur_model_path}/tests/benchmark/conformer/
