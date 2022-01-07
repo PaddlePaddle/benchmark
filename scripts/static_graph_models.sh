@@ -652,5 +652,6 @@ gpt(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
     cd ${cur_model_path}
     sed -i "s/python3/python3.7/g"  examples/language_model/data_tools/Makefile  # 模型py3默认使用python37， benchmark >镜像python3 默认py35
+    sed -i '/set\ -xe/d' tests/benchmark/run_benchmark.sh
     bash tests/benchmark/run_all.sh static
 }
