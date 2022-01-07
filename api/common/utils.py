@@ -76,8 +76,9 @@ class ArrayComparator(object):
 
 def _check_type(output, target):
     def _is_numpy_dtype(value):
-        if type(value
-                ) in [np.float32, np.float16, np.int32, np.int64, np.bool]:
+        if type(value) in [
+                np.float32, np.float16, np.int32, np.int64, np.bool, np.bool_
+        ]:
             return True
         else:
             return False

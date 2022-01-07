@@ -67,7 +67,7 @@ dy_video_TimeSformer(){
     echo "dy_video_TimeSformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
     cd ${cur_model_path}/benchmark/TimeSformer/
-    pip install scikit-image==0.18.1
+    pip install scikit-image==0.18.2
 	bash run_all.sh local
     rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
@@ -251,7 +251,7 @@ dy_tsn(){
     cd ${cur_model_path}
 
     pip install wget av
-    pip install scikit-image==0.18.1
+    pip install scikit-image==0.18.2
 	# Prepare pretrained modles
     rm -rf ResNet50_pretrain.pdparams
     ln -s ${prepare_path}/tsn/ResNet50_pretrain.pdparams ${cur_model_path}/
@@ -283,7 +283,7 @@ dy_gan(){
     fi
 
     pip install -r requirements.txt
-    pip install scikit-image==0.18.1
+    pip install scikit-image==0.18.2
     # Prepare data
     mkdir -p data
     ln -s ${data_path}/dygraph_data/cityscapes_gan_mini ${cur_model_path}/data/cityscapes
@@ -341,7 +341,7 @@ dy_slowfast(){
     pip install tqdm
     pip install decord
     pip install pandas av
-    pip install scikit-image==0.18.1
+    pip install scikit-image==0.18.2
 	# Prepare data
     rm -rf data
     ln -s ${data_path}/dygraph_data/slowfast/data/ ${cur_model_path}/
@@ -616,7 +616,7 @@ dy_ppocr_mobile_2() {
 dy_bmn() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
-    pip install scikit-image==0.18.1
+    pip install scikit-image==0.18.2
     package_check_list=(tqdm PyYAML numpy decord pandas av)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
