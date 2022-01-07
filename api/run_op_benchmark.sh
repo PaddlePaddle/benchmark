@@ -21,7 +21,7 @@ install_package() {
   import_status=$?
   if [ ${import_status} -eq 0 ]; then
     installed_version=`python -c "import ${package_name}; print(${package_name}.__version__)"`
-    if [ "${installed_version}" > "${package_version}" ]; then
+    if [[ "${installed_version}" > "${package_version}" ]]; then
       echo "-- ${package_name} ${installed_version} (newer than ${package_version}) is already installed."
     elif [ "${installed_version}" == "${package_version}" ]; then
       echo "-- ${package_name} ${package_version} is already installed."

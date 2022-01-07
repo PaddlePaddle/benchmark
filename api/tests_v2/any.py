@@ -18,16 +18,7 @@ from common_import import *
 class AnyConfig(APIConfig):
     def __init__(self):
         super(AnyConfig, self).__init__('any')
-        self.alias_name = "reduce"
-
-    def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(AnyConfig, self).init_from_json(filename, config_id, unknown_dim)
-        self.x_dtype = "bool"
-        # Update the parameters information. It will be removed and reimplemented
-        # in api_param.py.
-        for var in self.variable_list:
-            if var.type == "Variable" and var.name == "x":
-                var.dtype = "bool"
+        self.alias_name = "reduce_all_any"
 
 
 class PDAny(PaddleAPIBenchmarkBase):
