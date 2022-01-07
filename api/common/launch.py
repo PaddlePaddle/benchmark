@@ -18,6 +18,7 @@ import os
 import sys
 import argparse
 
+from common import env
 from common import system
 from common import api_param
 
@@ -31,6 +32,60 @@ def is_ampere_gpu():
             # GPU 0: NVIDIA A100-SXM4-40GB (UUID: xxxx)
             return gpu_list[0].find("A100") > 0
     return False
+
+
+class TimeUnit(object):
+    def __init__(self):
+        self.kernel_time = 0.0
+        self.memory_time = 0.0
+        self.memcpy_h2d = 0.0
+        self.memcpy_d2h = 0.0
+        self.memcpy_d2d = 0.0
+        self.memset = 0.0
+
+    def total(self):
+        self.memory_time = self.memcpy_h2d + self.memcpy_d2d + self.memset
+        if not env.benchmark_need_fetch():
+            # Normally DtoH is fetching results.
+            self.memory_time += self.memcpy_d2h
+        return self.kernel_time + self.memory_time
+
+    def __str__(self):
+        total_time = self.total()
+        if env.benchmark_need_fetch():
+            infostr = "total gpu_time (exclude DtoH): {:.4f} ms ".format(
+                total_time)
+        else:
+            infostr = "total gpu_time: {:.4f} ms ".format(total_time)
+        if total_time > 0.0:
+            infostr += "(kernel: {:.4f} ms ({:.2f}%); memory: {:.4f} ms ({:.2f}%))".format(
+                self.kernel_time, self.kernel_time * 100 / total_time,
+                self.memory_time, self.memory_time * 100 / total_time)
+        else:
+            infostr += "(kernel: {:.4f} ms; memory: {:.4f} ms)".format(
+                self.kernel_time, self.memory_time)
+        infostr += "\n"
+        return infostr
+
+    def add_info(self, time, name):
+        if name == "[CUDA memcpy HtoD]":
+            self._update_memory_time("memcpy_h2d", time)
+        elif name == "[CUDA memcpy DtoH]":
+            self._update_memory_time("memcpy_d2h", time)
+        elif name == "[CUDA memcpy DtoD]":
+            self._update_memory_time("memcpy_d2d", time)
+        elif name == "[CUDA memset]":
+            self._update_memory_time("memset", time)
+        else:
+            self.kernel_time += time
+
+    def _update_memory_time(self, member_name, time):
+        assert member_name in [
+            "memcpy_h2d", "memcpy_d2h", "memcpy_d2d", "memset"
+        ]
+        setattr(self, member_name, time)
+        if member_name != "memcpy_d2h" or not env.benchmark_need_fetch():
+            self.memory_time += time
 
 
 class NvprofRunner(object):
@@ -61,36 +116,39 @@ class NvprofRunner(object):
                 line_to = i
                 break
         if line_from is not None and line_to is not None:
+            time_unit = TimeUnit()
             for i in range(line_from, line_to):
                 print(logs[i])
+                if i >= line_from + 1:
+                    begin_pos = 2 if i == line_from + 1 else 0
+                    gpu_time, percent, function = self._parse_line(logs[i],
+                                                                   begin_pos)
+                    time_unit.add_info(gpu_time, function)
             print("")
-            return True, self._parse_gpu_time(logs[line_from + 1])
+            print(time_unit)
+            return True, time_unit.total()
         else:
             return False, 0.0
 
-    def _parse_gpu_time(self, line):
-        infos = line.strip().split()
-        percent = float(infos[2].replace("%", "")) * 0.01
-        gpu_time = infos[3]
-        if gpu_time.endswith("us"):
-            gpu_time = float(gpu_time.replace("us", "")) * 0.001
-        elif gpu_time.endswith("ms"):
-            gpu_time = float(gpu_time.replace("ms", ""))
-        elif gpu_time.endswith("s"):
-            gpu_time = float(gpu_time.replace("s", "")) * 1000
+    def _to_millisecond(self, timestr):
+        if timestr.endswith("us"):
+            return float(timestr.replace("us", "")) * 0.001
+        elif timestr.endswith("ms"):
+            return float(timestr.replace("ms", ""))
+        elif timestr.endswith("s"):
+            return float(timestr.replace("s", "")) * 1000
         else:
             raise ValueError("Invalid time: %s" % gpu_time)
-        calls = int(infos[4])
-        function = infos[8]
-        for i in range(9, len(infos)):
-            function = function + " " + infos[i]
-        #print("percent: %.2f; gpu_time: %.4f ms; calls: %d; function: %s" %
-        #      (percent, gpu_time, calls, function))
 
-        total_gpu_time = gpu_time / percent
-        print("total gpu_time: %.4f ms" % total_gpu_time)
-        print("")
-        return total_gpu_time
+    def _parse_line(self, line, begin_pos=0):
+        infos = line.strip().split()
+        percent = float(infos[begin_pos].replace("%", "")) * 0.01
+        gpu_time = self._to_millisecond(infos[begin_pos + 1])
+        calls = int(infos[begin_pos + 2])
+        function = infos[begin_pos + 6]
+        for i in range(begin_pos + 7, len(infos)):
+            function = function + " " + infos[i]
+        return gpu_time, percent, function
 
 
 class NsightRunner(object):
