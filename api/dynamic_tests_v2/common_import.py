@@ -28,7 +28,7 @@ except ImportError:
 package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
 
-from common.paddle_dynamic_api_benchmark import PaddleDynamicAPIBenchmarkBase
+from common.paddle_op_benchmark import PaddleDynamicAPIBenchmarkBase
 from common.pytorch_api_benchmark import PytorchAPIBenchmarkBase
 from common.api_param import APIConfig
 from common.main import test_main, test_main_without_json

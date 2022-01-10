@@ -16,6 +16,7 @@ import sys
 import json
 import time
 import importlib
+import contextlib
 import numpy as np
 
 from common import utils
@@ -23,12 +24,40 @@ from common import api_param
 from common import feeder
 from common import special_op_list
 from common.benchmark import BenchmarkBase
-from common.paddle_api_benchmark import profile_context
 
 try:
     import paddle
 except Exception as e:
     sys.stderr.write("Cannot import paddle, maybe paddle is not installed.\n")
+
+
+@contextlib.contextmanager
+def profile_context(name, use_gpu, profiler):
+    if profiler in ["Default", "OpDetail", "AllOpDetail"]:
+        profile_type = "All" if use_gpu else "CPU"
+        output_file = "./outputs/" + name + ".pd.profile"
+        with paddle.fluid.profiler.profiler(
+                profile_type, 'total', output_file, tracer_option=profiler):
+            yield
+    elif profiler == "pyprof":
+        import cProfile, pstats
+        from io import StringIO
+
+        profiler_handle = cProfile.Profile()
+        profiler_handle.enable()
+        yield
+        profiler_handle.disable()
+        # profiler_handle.dump_stats("./outputs/" + name + ".pyprof")
+        s = StringIO()
+        ps = pstats.Stats(profiler_handle, stream=s).sort_stats("cumulative")
+        ps.print_stats()
+        print(s.getvalue())
+    elif profiler == "nvprof":
+        paddle.fluid.core.nvprof_start()
+        yield
+        paddle.fluid.core.nvprof_stop()
+    else:
+        yield
 
 
 class StaticHelper(object):
@@ -290,14 +319,20 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         return result
 
     def append_gradients(self, targets, inputs):
+        def _append_to_list(var_or_list, var_list):
+            if isinstance(var_or_list, list):
+                for var in var_or_list:
+                    var_list.append(var)
+            else:
+                var_list.append(var_or_list)
+
         gradients = self._helper.generate_gradients(targets, inputs)
         self._backward = True
-        # print("Gradients: ", gradients)
-        if isinstance(gradients, list):
-            for grad in gradients:
-                self.fetch_list.append(grad)
+        if self._testing_mode == "static":
+            print("Gradients: ", gradients)
+            _append_to_list(gradients, self.fetch_vars)
         else:
-            self.fetch_list.append(gradients)
+            _append_to_list(gradients, self.fetch_list)
 
     def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
         self._layers_function = None
@@ -521,3 +556,8 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         if byte is not None:
             stats["byte"] = byte
         return stats
+
+
+class PaddleDynamicAPIBenchmarkBase(PaddleOpBenchmarkBase):
+    def __init__(self):
+        super(PaddleDynamicAPIBenchmarkBase, self).__init__("dynamic")
