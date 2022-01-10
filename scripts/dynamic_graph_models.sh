@@ -72,9 +72,10 @@ dy_video_TimeSformer(){
     echo "dy_video_TimeSformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
     cd ${cur_model_path}/benchmark/TimeSformer/
+    pip install -r requirements.txt
     pip install scikit-image==0.18.2
     pip install pooch==1.5.2
-	bash run_all.sh local
+    bash run_all.sh local
     rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
 
@@ -256,6 +257,7 @@ dy_tsn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
+    pip install -r requirements.txt
     pip install wget av
     pip install scikit-image==0.18.2
     pip install pooch==1.5.2
@@ -345,6 +347,7 @@ dy_seg(){
 dy_slowfast(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
+    pip install -r requirements.txt
     pip install tqdm
     pip install decord
     pip install pandas av
@@ -461,6 +464,7 @@ dy_tsm(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
+    pip install -r requirements.txt
     pip install wget av decord
     pip install scikit-image==0.18.2
     pip install pooch==1.5.2
