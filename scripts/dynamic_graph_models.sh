@@ -74,7 +74,8 @@ dy_video_TimeSformer(){
     cd ${cur_model_path}/benchmark/TimeSformer/
     pip install scikit-image==0.18.2
     pip install pooch==1.5.2
-	bash run_all.sh local
+    pip install lmdb
+    bash run_all.sh local
     rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
 
@@ -256,7 +257,7 @@ dy_tsn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
-    pip install wget av
+    pip install wget av lmdb
     pip install scikit-image==0.18.2
     pip install pooch==1.5.2
 	# Prepare pretrained modles
@@ -347,7 +348,7 @@ dy_slowfast(){
     cd ${cur_model_path}
     pip install tqdm
     pip install decord
-    pip install pandas av
+    pip install pandas av lmdb
     pip install scikit-image==0.18.2
     pip install pooch==1.5.2
 	# Prepare data
@@ -461,7 +462,7 @@ dy_tsm(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
-    pip install wget av decord
+    pip install wget av decord lmdb
     pip install scikit-image==0.18.2
     pip install pooch==1.5.2
     # Prepare pretrained modles
