@@ -34,6 +34,7 @@ function prepare(){
     cp ${all_path}/sources.list /etc/apt
     apt-get update
     apt-get install libmysqlclient-dev git curl psmisc -y
+    pip install shyaml
 
     save_log_dir=${log_dir}
 
