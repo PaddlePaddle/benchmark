@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import abc
+import six
 import sys
 import json
 import time
@@ -279,6 +281,10 @@ class DynamicHelper(object):
 class PaddleOpBenchmarkBase(BenchmarkBase):
     def __init__(self, testing_mode):
         super(PaddleOpBenchmarkBase, self).__init__(testing_mode)
+        if self._testing_mode == "static":
+            paddle.enable_static()
+        else:
+            paddle.disable_static()
 
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         return self._helper.variable(name, shape, dtype, value, stop_gradient)
@@ -556,6 +562,24 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         if byte is not None:
             stats["byte"] = byte
         return stats
+
+
+@six.add_metaclass(abc.ABCMeta)
+class PaddleAPIBenchmarkBase(PaddleOpBenchmarkBase):
+    def __init__(self):
+        super(PaddleAPIBenchmarkBase, self).__init__("static")
+        self.scope = None
+        self.feed_vars = None
+        self.fetch_vars = None
+
+    @abc.abstractmethod
+    def build_program(self, config=None):
+        pass
+
+    def build_graph(self, config=None):
+        self.build_program(config)
+        self.feed_list = self.feed_vars
+        self.fetch_list = self.fetch_vars
 
 
 class PaddleDynamicAPIBenchmarkBase(PaddleOpBenchmarkBase):

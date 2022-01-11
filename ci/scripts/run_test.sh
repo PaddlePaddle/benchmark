@@ -73,6 +73,7 @@ function run_api(){
   do
     LOG "[INFO] Found ${file} modified."
     api=${file#*api/} && api=${api%.*}
+    [[ "$api" =~ "common_import" ]] && continue
     [ -f "${BENCHMARK_ROOT}/api/${api}.py" ] && API_NAMES[${#API_NAMES[@]}]=$api
     if [[ "$file" =~ ".json" ]]
     then
@@ -92,7 +93,6 @@ function run_api(){
   fail_name=()
   for name in ${API_NAMES[@]}
   do
-    [[ "$name" == "common_import" ]] || continue
     for device_type in "GPU" "CPU"
     do
       [ $device_type == "GPU" ] && device_limit="" || device_limit="env CUDA_VISIBLE_DEVICES="
