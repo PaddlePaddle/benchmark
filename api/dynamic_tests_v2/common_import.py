@@ -65,3 +65,26 @@ def unsqueeze_short(short, long):
             else:
                 short_extend.append(short_extend_zeros[i])
     return short_extend
+
+
+def numel(shape):
+    assert isinstance(
+        shape, list), "Expect shape to be a list, but recieved {}".format(
+            type(shape))
+    return np.prod(np.array(shape))
+
+
+def sizeof(dtype):
+    assert isinstance(
+        dtype, str), "Expect dtype to be a string, but recieved {}".format(
+            type(dtype))
+    if dtype in ["float64", "double", "int64", "long"]:
+        return 8
+    elif dtype in ["float32", "float", "int32", "int"]:
+        return 4
+    elif dtype in ["float16", "bfloat16"]:
+        return 2
+    elif dtype in ["bool"]:
+        return 1
+    else:
+        raise ValueError("{} is not supported.".format(dtype))

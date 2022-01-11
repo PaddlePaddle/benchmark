@@ -19,6 +19,7 @@ import json
 import time
 import abc, six
 import importlib
+import contextlib
 import numpy as np
 
 from common import api_param
@@ -35,6 +36,16 @@ except Exception as e:
 BEFORE_RUN = 0
 IN_RUN = 1
 AFTER_RUN = 2
+
+
+@contextlib.contextmanager
+def profile_context(name, use_gpu, profiler):
+    if profiler == "nvprof":
+        torch.cuda.cudart().cudaProfilerStart()
+        yield
+        torch.cuda.cudart().cudaProfilerStop()
+    else:
+        yield
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -137,12 +148,7 @@ class PytorchAPIBenchmarkBase(object):
         for var in inputs:
             self.fetch_list.append(var.grad)
 
-    def run_impl(self,
-                 use_gpu,
-                 config,
-                 repeat=1,
-                 check_output=False,
-                 profiler="none"):
+    def run_impl(self, use_gpu, config, repeat=1, profiler="none"):
         def _run_main_iter():
             self.build_graph(config=config)
             if use_gpu:
@@ -161,10 +167,11 @@ class PytorchAPIBenchmarkBase(object):
         runtimes = []
         fetches = []
         self._status = IN_RUN
-        for i in range(repeat):
-            begin = time.time()
-            outputs = _run_main_iter()
-            runtimes.append(time.time() - begin)
+        with profile_context(self.name, use_gpu, profiler):
+            for i in range(repeat):
+                begin = time.time()
+                outputs = _run_main_iter()
+                runtimes.append(time.time() - begin)
 
         self._status = AFTER_RUN
         stats = {
@@ -191,7 +198,6 @@ class PytorchAPIBenchmarkBase(object):
             use_gpu=args.use_gpu,
             config=config,
             repeat=args.repeat,
-            check_output=args.check_output,
             profiler=args.profiler)
         return outputs, stats
 

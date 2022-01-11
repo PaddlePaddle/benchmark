@@ -57,8 +57,6 @@ def parse_args():
         '--index', type=int, default=1, help='{1: speed, 2:mem, 3:profiler, 6:max_batch_size}')
     parser.add_argument(
         '--gpu_num', type=int, default=1, help='nums of training gpus')
-    parser.add_argument(
-        '--use_num', type=int, default=1, help='nums of used recoders')
     args = parser.parse_args()
     args.separator = None if args.separator == "None" else args.separator
     return args
@@ -123,9 +121,6 @@ class TimeAnalyzer(object):
                 except Exception as exc:
                     pass
                     #print("line is: {}; separator={}; position={}".format(line, self.separator, self.position))
-        self.records.sort()
-        self.records = self.records[:args.use_num]
-        print ("records", self.records)
         print("Extract {} records: separator={}; position={}".format(len(self.records), self.separator, self.position))
 
     def _get_fps(self, mode, batch_size, gpu_num, avg_of_records, run_mode, unit=None):

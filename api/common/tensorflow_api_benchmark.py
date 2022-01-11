@@ -263,12 +263,7 @@ class TensorflowAPIBenchmarkBase(object):
             sess.close()
         return walltimes
 
-    def run_impl(self,
-                 use_gpu,
-                 feed,
-                 repeat=1,
-                 check_output=False,
-                 profiler="none"):
+    def run_impl(self, use_gpu, feed, repeat=1, profiler="none"):
         sess = self._init_session(use_gpu)
 
         #tf.debugging.set_log_device_placement(True)
@@ -304,9 +299,6 @@ class TensorflowAPIBenchmarkBase(object):
                     run_metadata=prof.run_metadata)
                 runtimes.append(time.time() - begin)
                 prof.add_step(step=i)
-
-                if check_output:
-                    fetches.append(outputs)
         sess.close()
 
         stats = {
@@ -384,7 +376,6 @@ class TensorflowAPIBenchmarkBase(object):
             use_gpu=args.use_gpu,
             feed=feed,
             repeat=args.repeat,
-            check_output=args.check_output,
             profiler=args.profiler)
         return outputs, stats
 

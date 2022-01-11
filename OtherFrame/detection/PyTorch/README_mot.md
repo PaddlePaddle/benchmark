@@ -13,7 +13,7 @@
 ### Docker 镜像:
 
 - **镜像版本**: `registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7`
-- **PyTorch 版本**: `1.9.1` 
+- **PyTorch 版本**: `1.10.1` 
 - **CUDA 版本**: `10.2`
 - **cuDnn 版本**: `7`
 

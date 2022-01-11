@@ -3,10 +3,10 @@ set -xe
 
 # Test training benchmark for a model.
 
-# Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_name} ${run_mode} ${fp_item} ${bs_item} ${max_iter} ${num_workers}
+# Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_item} ${run_mode} ${fp_item} ${bs_item} ${max_iter} ${num_workers}
 
 function _set_params(){
-    model_name=${1:-"model_name"}
+    model_item=${1:-"model_item"}
     run_mode=${2:-"sp"}         # sp or mp
     fp_item=${3:-"fp32"}        # fp32 or fp16
     batch_size=${4:-"2"}
@@ -17,8 +17,9 @@ function _set_params(){
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
-    log_file=${run_log_path}/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}
-    res_log_file=${run_log_path}/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}_speed
+    log_file=${run_log_path}/${model_item}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}
+    res_log_file=${run_log_path}/${model_item}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}_speed
+    model_name=${model_item}_bs${batch_size}_${fp_item}
 }
 
 function _analysis_log(){
@@ -31,7 +32,7 @@ function _train(){
     echo "Train ${model_name} on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
-    train_config="mmseg_benchmark_configs/${model_name}.py"
+    train_config="mmseg_benchmark_configs/${model_item}.py"
     train_options="--no-validate \
                    --options log_config.interval=10 \
                    runner.max_iters=${max_iter} \
