@@ -59,11 +59,20 @@ function prepare(){
     mkdir -p ${ROOT_PATH}
     cd ${ROOT_PATH}
     rm -rf benchmark
-    git clone https://github.com/PaddlePaddle/benchmark.git --recursive
-
+    git clone https://github.com/PaddlePaddle/benchmark.git
     cd ${BENCHMARK_ROOT}
     benchmark_commit_id=$(git log|head -n1|awk '{print $2}')
     echo "benchmark_commit_id is: "${benchmark_commit_id}
+
+    init_group="paddle_group"     # 可配到任务参数里
+    repo_list=`cat submodule.yaml | shyaml get-value ${init_group}`
+    echo $repo_list
+    for i in ${repo_list[@]}
+    do
+        git submodule init $i
+        git submodule update $i
+    done
+    echo "*******************init submodule done******************************"
 
     rm -rf run_env
     mkdir run_env
