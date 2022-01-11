@@ -24,10 +24,7 @@ import numpy as np
 
 from common import utils
 from common import system
-from common import api_param
 from common import special_op_list
-from common import pytorch_api_benchmark
-from common import paddle_dynamic_api_benchmark
 
 
 def _check_gpu_device(use_gpu):
