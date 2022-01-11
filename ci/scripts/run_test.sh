@@ -92,6 +92,7 @@ function run_api(){
   fail_name=()
   for name in ${API_NAMES[@]}
   do
+    [[ "$name" == "common_import" ]] || continue
     for device_type in "GPU" "CPU"
     do
       [ $device_type == "GPU" ] && device_limit="" || device_limit="env CUDA_VISIBLE_DEVICES="
