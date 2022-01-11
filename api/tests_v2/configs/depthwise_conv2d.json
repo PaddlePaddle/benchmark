@@ -472,6 +472,42 @@
     "param_info": {
         "data_format": {
             "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "long",
+            "value": "256"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16L, 256L, 1L, 40L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[256L, 1L, 1L, 15L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "7"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    },
+    "atol": 1E-4
+}, {
+    "config_id": 14,
+    "op": "depthwise_conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
             "value": "NHWC"
         },
         "dilation": {
