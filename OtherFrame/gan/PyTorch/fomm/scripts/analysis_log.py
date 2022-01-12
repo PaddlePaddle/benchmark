@@ -28,7 +28,7 @@ def analyze(model_name, log_file, res_log_file):
         total_time = 0
         for i in range(skip_num, len(time_res)):
             total_time += float(time_res[i])
-        ips = total_time / (len(time_res) - skip_num)
+        ips = round(total_time / (len(time_res) - skip_num), 3)
 
     info = {"log_file": log_file, "model_name": model_name, "mission_name": "图像生成",
             "direction_id": 0, "run_mode": run_mode, "index": 1, "gpu_num": gpu_num,

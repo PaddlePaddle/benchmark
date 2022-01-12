@@ -40,20 +40,15 @@ bash run_PyTorch.sh;     # 创建容器,在该标准环境中测试模型
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
 docker pull ${ImageName}
 
-#<<<<<<< gan_benchmark
-#run_cmd="cd /workspace;
-#         cp /workspace/scripts/PrepareEnv.sh ./;
-#         bash PrepareEnv.sh;
-#         cd /workspace/first-order-model/;
 run_cmd="cp /workspace/scripts/PrepareEnv.sh ./;
          bash PrepareEnv.sh;
          cd /workspace/models/fomm;
          cp /workspace/scripts/run_benchmark.sh ./;
          cp /workspace/scripts/analysis_log.py ./;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh fomm_sp_bs8 sp fp32 8 300 4;
-         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh fomm_sp_bs16 sp fp32 16 300 4;
-         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh fomm_mp_bs32 mp fp32 8 300 4;
-         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh fomm_mp_bs64 mp fp32 16 300 4;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh FOMM_sp_bs8 sp fp32 8 300 4;
+         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh FOMM_sp_bs16 sp fp32 16 300 4;
+         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh FOMM_mp_bs32 mp fp32 8 300 4;
+         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh FOMM_mp_bs64 mp fp32 16 300 4;
          "
          
 nvidia-docker run --name test_torch_gan -i  \
@@ -67,12 +62,12 @@ nvidia-docker rm test_torch_gan
 
 ## 输出
 
-执行完成后，在当前目录会产出分割模型训练性能数据的文件，比如`fomm_sp_bs8_fp32_1_speed`等文件，内容如下所示。
+执行完成后，在当前目录会产出分割模型训练性能数据的文件，比如`FOMM_sp_bs8_fp32_1_speed`等文件，内容如下所示。
 
 ```bash
 {
-"log_file": "/workspace/models/fomm/fomm_sp_bs8_fp32_1", \    # log 目录,创建规范见PrepareEnv.sh 
-"model_name": "fomm_sp_bs8", \    # 模型case名,创建规范:repoName_模型名_bs${bs_item}_${fp_item} 
+"log_file": "/workspace/models/fomm/FOMM_sp_bs8_fp32_1", \    # log 目录,创建规范见PrepareEnv.sh 
+"model_name": "FOMM_sp_bs8", \    # 模型case名,创建规范:repoName_模型名_bs${bs_item}_${fp_item} 
 "mission_name": "图像生成", \         # 模型case所属任务名称，具体可参考scripts/config.ini      
 "direction_id": 0, \                 # 模型case所属方向id,0:CV|1:NLP|2:Rec 具体可参考benchmark/scripts/config.ini    
 "run_mode": "sp", \                  # 单卡:sp|多卡:mp

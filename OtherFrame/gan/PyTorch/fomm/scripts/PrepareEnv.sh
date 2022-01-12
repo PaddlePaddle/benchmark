@@ -5,10 +5,7 @@ echo "*******prepare benchmark***********"
 
 ################################# 创建一些log目录,如:
 export BENCHMARK_ROOT=/workspace
-log_date=`date "+%Y.%m%d.%H%M%S"`
-frame=pytorch1.0.0
-cuda_version=10.2
-save_log_dir=${BENCHMARK_ROOT}/logs/${frame}_${log_date}_${cuda_version}/
+save_log_dir=${BENCHMARK_ROOT}/logs/
 
 if [[ -d ${save_log_dir} ]]; then
     rm -rf ${save_log_dir}
@@ -31,9 +28,7 @@ export PATH=/workspace/run_env:${PATH}
 pip install -U pip
 echo `pip --version`
 
-git clone https://github.com/lzzyzlbb/first-order-model
-git checkout add_log
-cd first-order-model
+cd /workspace/models/fomm
 pip install -r requirements.txt
 imageio_download_bin ffmpeg
 
