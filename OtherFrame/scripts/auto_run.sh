@@ -113,6 +113,13 @@ detec_torch_fast(){
     cp models/SOLO/*fp32_8 ${TRAIN_LOG_DIR}
 }
 
+ocr_torch_pse(){
+    cur_model_path=${ROOT_DIR}/ocrPyTorch
+    cd ${cur_model_path}
+    bash run_PyTorch.sh
+    mv ${cur_model_path}/models/PSENet/*speed ${LOG_PATH_INDEX_DIR}
+    mv ${cur_model_path}/models/PSENet/det* ${TRAIN_LOG_DIR}    
+}
 set_env
 for model_name in ${cur_torch_list[@]}
     do
