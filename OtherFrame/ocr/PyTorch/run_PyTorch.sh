@@ -26,14 +26,6 @@ run_cmd="cd /workspace;
          CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh sp 16 fp32 2 > ocr_pse_bs16_fp32_sp.speed 2>&1;
          sleep 60
          CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh mp 128 fp32 2 > ocr_pse_bs16_fp32_mp.speed 2>&1;
-
-         cd  /workspace;
-         cp DB_scripts/* models/DB/
-         pip3.7 install -r requirement.txt
-         bash benchmark/prepare_data.sh
-         bash benchmark/run_benchmark.sh sp
-         sleep 60
-         bash benchmark/run_benchmark.sh mp
         "
 
 nvidia-docker run --name test_torch_ocr -i \
