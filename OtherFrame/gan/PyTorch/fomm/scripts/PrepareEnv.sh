@@ -29,6 +29,7 @@ pip install -U pip
 echo `pip --version`
 
 cd /workspace/models/fomm
+git checkout add_log
 pip install -r requirements.txt
 imageio_download_bin ffmpeg
 
