@@ -57,7 +57,7 @@ function set_env(){
 
 
 
-cur_torch_list=(clas_model_torch seg_model_torch speech_model_torch detec_torch_jde-fairmot detec_torch_fast gan_torch_fomm) 
+cur_torch_list=(clas_model_torch seg_model_torch speech_model_torch detec_torch_jde-fairmot detec_torch_fast gan_torch_models) 
 cur_mxnet_list=()
 cur_tensorflow_list=()
 
@@ -113,12 +113,21 @@ detec_torch_fast(){
     cp models/SOLO/*fp32_8 ${TRAIN_LOG_DIR}
 }
 
-gan_torch_fomm(){
+gan_torch_models(){
+    # FOMM
     cur_model_path=${ROOT_DIR}/gan/PyTorch/fomm
     cd ${cur_model_path}
     bash run_PyTorch.sh
     cp ${cur_model_path}/logs/train_log/*  ${TRAIN_LOG_DIR}
     cp ${cur_model_path}/*speed ${LOG_PATH_INDEX_DIR}
+
+    # edvr basicvsr esrgan
+    cur_model_path=${ROOT_DIR}/gan/PyTorch/mmedting
+    cd ${cur_model_path}
+    bash run_PyTorch.sh
+    cp ${cur_model_path}/*speed ${LOG_PATH_INDEX_DIR}
+    cp ${cur_model_path}/*sp ${TRAIN_LOG_DIR}
+    cp ${cur_model_path}/*mp ${TRAIN_LOG_DIR}
 }
 set_env
 for model_name in ${cur_torch_list[@]}

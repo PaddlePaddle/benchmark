@@ -9,24 +9,31 @@ run_cmd="cp /workspace/scripts/PrepareEnv.sh ./;
          cp -r /workspace/mmedi_benchmark_configs ./;
          cp /workspace/scripts/run_benchmark.sh ./;
          cp /workspace/scripts/analysis_log.py ./;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan_sp_bs32 sp fp32 32 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan_sp_bs64 sp fp32 64 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan_mp_bs32 mp fp32 32 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan_mp_bs64 mp fp32 64 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr_sp_bs4 sp fp32 4 300 3;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr_sp_bs64 sp fp32 64 300 3;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr_mp_bs4 mp fp32 4 300 3;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr_mp_bs64 mp fp32 64 300 3;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr_sp_bs2 sp fp32 2 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr_sp_bs4 sp fp32 4 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr_mp_bs2 mp fp32 2 300 4;
-         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr_mp_bs4 mp fp32 4 300 4;
+         sed -i '/set\ -xe/d' run_benchmark.sh
+         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan_bs32_fp32 sp fp32 32 300 4;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan_bs32_fp32 mp fp32 32 300 4;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr_bs4_fp32 sp fp32 4 300 3;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr_bs4_fp32 mp fp32 4 300 3;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr_bs2_fp32 sp fp32 2 300 4;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh basicvsr_bs4_fp32 sp fp32 4 300 4;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr_bs2_fp32 mp fp32 2 300 4;
+         PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_benchmark.sh basicvsr_bs4_fp32 mp fp32 4 300 4;
          "
+         #PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh esrgan_bs64_fp32 sp fp32 64 300 4;
+         #PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh esrgan_bs64_fp32 mp fp32 64 300 4;
+         #PORT=23335 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh edvr_bs64_fp32 sp fp32 64 300 3;
+         #PORT=23335 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh edvr_bs64_fp32 mp fp32 64 300 3;
 
 nvidia-docker run --name test_torch_gan -i  \
     --net=host \
     --shm-size=128g \
     -v $PWD:/workspace \
+    -v /ssd2:/ssd2 \
+    -e "ALL_PATH=${all_path}" \
+    -v "BENCHMARK_ROOT=/workspace" \
+    -e "http_proxy=${http_proxy}" \
+    -e "https_proxy=${http_proxy}" \
+    -e "no_proxy=bcebos.com" \
     ${ImageName}  /bin/bash -c "${run_cmd}"
 
 nvidia-docker stop test_torch_gan
