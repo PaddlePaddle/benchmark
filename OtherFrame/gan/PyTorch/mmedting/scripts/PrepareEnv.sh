@@ -5,10 +5,7 @@ echo "*******prepare benchmark***********"
 
 ################################# 创建一些log目录,如:
 export BENCHMARK_ROOT=/workspace
-log_date=`date "+%Y.%m%d.%H%M%S"`
-frame=pytorch1.9.0
-cuda_version=10.2
-save_log_dir=${BENCHMARK_ROOT}/logs/${frame}_${log_date}_${cuda_version}/
+save_log_dir=${BENCHMARK_ROOT}/logs/
 
 if [[ -d ${save_log_dir} ]]; then
     rm -rf ${save_log_dir}

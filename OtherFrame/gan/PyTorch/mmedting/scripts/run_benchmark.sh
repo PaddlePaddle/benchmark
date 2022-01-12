@@ -17,8 +17,8 @@ function _set_params(){
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
-    log_file=${run_log_path}/${model_name}_${fp_item}_${num_gpu_devices}
-    res_log_file=${run_log_path}/${model_name}_${fp_item}_${num_gpu_devices}_speed
+    log_file=${run_log_path}/${model_name}_${num_gpu_devices}_${run_mode}
+    res_log_file=${run_log_path}/${model_name}_${num_gpu_devices}_${run_mode}_speed
 }
 
 function _analysis_log(){
@@ -30,18 +30,20 @@ function _analysis_log(){
 function _train(){
     echo "Train ${model_name} on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-
-    train_config="mmedi_benchmark_configs/${model_name}.py"
+    
+    
+    train_config="mmedi_benchmark_configs/${model_name%%_*}_${run_mode}_bs${batch_size}.py"
     train_options="--no-validate "
 
     case ${run_mode} in
     sp) train_cmd="./tools/dist_train.sh ${train_config} 1 ${train_options}" ;;
     mp)
-        case ${model_name} in
-        basicvsr_mp_bs2|basicvsr_mp_bs4) train_cmd="./tools/dist_train.sh ${train_config} 4 ${train_options}" ;;
-        *) train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}"
-        esac
-        ;;
+        if [ ${model_name} = "basicvsr_bs2_fp32" ] || [ ${model_name} = "basicvsr_bs4_fp32" ]; then
+            train_cmd="./tools/dist_train.sh ${train_config} 4 ${train_options}"
+        else
+            train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}"
+        fi
+       ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
