@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-http_proxy=http://172.19.57.45:3128
-all_path=/ssd2/benchmark_material
-nvidia-docker stop test_torch_ocr
-nvidia-docker rm test_torch_ocr 
 
 ImageName="paddlepaddle/paddle:latest-dev-cuda11.2-cudnn8-gcc82"
 docker pull ${ImageName}
@@ -41,3 +37,5 @@ nvidia-docker run --name test_torch_ocr -i \
     -e "no_proxy=bcebos.com" \
     ${ImageName} /bin/bash -c "${run_cmd}"
 
+nvidia-docker stop test_torch_ocr
+nvidia-docker rm test_torch_ocr 
