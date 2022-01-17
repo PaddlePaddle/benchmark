@@ -26,11 +26,11 @@ function usage () {
   -p  platform local
 EOF
 }
-if [ $# -lt 18 ] ; then
+if [ $# -lt 6 ] ; then
   usage
   exit 1;
 fi
-while getopts h:m:s: opt
+while getopts h:n:r:a:l:f:p opt
 do
   case $opt in
   h) usage; exit 0 ;;
@@ -57,7 +57,7 @@ function set_env(){
 
 
 
-cur_torch_list=(clas_model_torch)
+cur_torch_list=(clas_model_torch seg_model_torch speech_model_torch detec_torch_jde-fairmot detec_torch_fast)
 cur_mxnet_list=()
 cur_tensorflow_list=()
 
@@ -68,7 +68,67 @@ clas_model_torch(){
     bash run_Pytorch.sh
 }
 
+seg_model_torch(){
+    cur_model_path=${ROOT_DIR}/seg/PyTorch
+    cd ${cur_model_path}
+    echo "------------${cur_model_path}"
+    bash run_PyTorch.sh
+    cd ${cur_model_path}
+    cp *speed ${LOG_PATH_INDEX_DIR}
+    cp *1 *8 ${TRAIN_LOG_DIR}
+}
 
+speech_model_torch(){
+    cur_model_path=${ROOT_DIR}/Speech/PyTorch/PWGAN
+    cd ${cur_model_path}
+    bash run_PyTorch.sh
+    cp scripts/logs/train_log/* ${TRAIN_LOG_DIR}
+    cp scripts/logs/index/* ${LOG_PATH_INDEX_DIR}
+}
+
+detec_torch_jde-fairmot(){
+    cur_model_path=${ROOT_DIR}/detection/PyTorch
+    cd ${cur_model_path}
+    bash run_PyTorch_mot.sh
+    cp models/jde/*.json ${LOG_PATH_INDEX_DIR}
+    cp models/jde/*fp32_1    ${TRAIN_LOG_DIR} 
+    cp models/jde/*fp32_8    ${TRAIN_LOG_DIR} 
+    cp models/fairmot/src/*.json ${LOG_PATH_INDEX_DIR}
+    cp models/fairmot/src/*fp32_1    ${TRAIN_LOG_DIR} 
+    cp models/fairmot/src/*fp32_8    ${TRAIN_LOG_DIR} 
+}
+
+detec_torch_fast(){
+    cur_model_path=${ROOT_DIR}/detection/PyTorch
+    cd ${cur_model_path} 
+    bash run_PyTorch.sh
+    cp models/mmdetection/*speed ${LOG_PATH_INDEX_DIR}
+    cp models/mmdetection/*fp32_1 ${TRAIN_LOG_DIR}
+    cp models/mmdetection/*fp32_8 ${TRAIN_LOG_DIR}
+    cp models/mmpose/*speed ${LOG_PATH_INDEX_DIR}
+    cp models/mmpose/*fp32_1 ${TRAIN_LOG_DIR}
+    cp models/mmpose/*fp32_8 ${TRAIN_LOG_DIR}
+    cp models/SOLO/*speed ${LOG_PATH_INDEX_DIR}
+    cp models/SOLO/*fp32_1 ${TRAIN_LOG_DIR}
+    cp models/SOLO/*fp32_8 ${TRAIN_LOG_DIR}
+}
+
+ocr_torch_ocr(){
+    # pse
+    cur_model_path=${ROOT_DIR}/ocr/PyTorch
+    cd ${cur_model_path}
+    bash run_PyTorch.sh
+    mv ${cur_model_path}/models/PSENet/*speed ${LOG_PATH_INDEX_DIR}
+    mv ${cur_model_path}/models/PSENet/det* ${TRAIN_LOG_DIR}   
+
+    # DB
+    cur_model_path=${ROOT_DIR}/ocr/PyTorch
+    cd ${cur_model_path}
+    bash run_PyTorch_DB.sh
+    mv ${cur_model_path}/models/DB/*speed ${LOG_PATH_INDEX_DIR}
+    mv ${cur_model_path}/models/DB/*sp ${TRAIN_LOG_DIR}
+    mv ${cur_model_path}/models/DB/*mp ${TRAIN_LOG_DIR}
+}
 set_env
 for model_name in ${cur_torch_list[@]}
     do

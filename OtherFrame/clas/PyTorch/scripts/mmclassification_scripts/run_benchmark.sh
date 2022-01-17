@@ -8,7 +8,7 @@ function _set_params(){
     fp_item=${3:-"fp32"}        # fp32|fp16
     model_item=${4:-"model_item"}
     config_path=${5:-"config_path"}
-    run_log_path="${TRAIN_LOG_DIR:-$(pwd)}"  # TRAIN_LOG_DIR 后续QA设置该参
+    run_log_path=$(pwd)  # TRAIN_LOG_DIR 后续QA设置该参
  
 #   以下不用修改   
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -53,5 +53,5 @@ rm -rf work_dirs
 #_train
 source ${ROOT_DIR}/scripts/run_model.sh
 _run
-python analysis_log.py -d work_dirs -m ${model_item} -b ${batch_size} -n ${num_gpu_devices}
+python analysis_log.py -d work_dirs -m ${model_name} -b ${batch_size} -n ${num_gpu_devices}
 eval "mv work_dirs ${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}"

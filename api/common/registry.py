@@ -15,8 +15,8 @@
 from __future__ import print_function
 
 from common.paddle_op_benchmark import PaddleOpBenchmarkBase
-from common.pytorch_api_benchmark import PytorchAPIBenchmarkBase as PytorchOpBenchmarkBase
-from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase as TensorflowOpBenchmarkBase
+from common.pytorch_op_benchmark import PytorchAPIBenchmarkBase as PytorchOpBenchmarkBase
+from common.tensorflow_op_benchmark import TensorflowAPIBenchmarkBase as TensorflowOpBenchmarkBase
 from common.api_param import APIConfig
 
 

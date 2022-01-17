@@ -7,7 +7,7 @@ rm -rf imagenet
 mkdir imagenet && cd imagenet
 
 if [ ${RUN_PLAT} == "local" ]; then
-    ln -s ${all_path}/dataset/otherframe/ILSVRC2012_val ./
+    cp -r ${all_path}/dataset/otherframe/ILSVRC2012_val ./
 else
     wget -c ${dataset_url}
     tar xf ILSVRC2012_val.tar

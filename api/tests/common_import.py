@@ -35,8 +35,8 @@ package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(package_path)
 
 from common.paddle_op_benchmark import PaddleOpBenchmarkBase
-from common.pytorch_api_benchmark import PytorchAPIBenchmarkBase as PytorchOpBenchmarkBase
-from common.tensorflow_api_benchmark import TensorflowAPIBenchmarkBase as TensorflowOpBenchmarkBase
+from common.pytorch_op_benchmark import PytorchAPIBenchmarkBase as PytorchOpBenchmarkBase
+from common.tensorflow_op_benchmark import TensorflowAPIBenchmarkBase as TensorflowOpBenchmarkBase
 from common.api_param import APIConfig
 from common.registry import benchmark_registry
 

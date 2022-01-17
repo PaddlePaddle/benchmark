@@ -12,10 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import abc
+import six
 import sys
 import json
 import time
 import importlib
+import contextlib
 import numpy as np
 
 from common import utils
@@ -23,12 +27,40 @@ from common import api_param
 from common import feeder
 from common import special_op_list
 from common.benchmark import BenchmarkBase
-from common.paddle_api_benchmark import profile_context
 
 try:
     import paddle
 except Exception as e:
     sys.stderr.write("Cannot import paddle, maybe paddle is not installed.\n")
+
+
+@contextlib.contextmanager
+def profile_context(name, use_gpu, profiler):
+    if profiler in ["Default", "OpDetail", "AllOpDetail"]:
+        profile_type = "All" if use_gpu else "CPU"
+        output_file = "./outputs/" + name + ".pd.profile"
+        with paddle.fluid.profiler.profiler(
+                profile_type, 'total', output_file, tracer_option=profiler):
+            yield
+    elif profiler == "pyprof":
+        import cProfile, pstats
+        from io import StringIO
+
+        profiler_handle = cProfile.Profile()
+        profiler_handle.enable()
+        yield
+        profiler_handle.disable()
+        # profiler_handle.dump_stats("./outputs/" + name + ".pyprof")
+        s = StringIO()
+        ps = pstats.Stats(profiler_handle, stream=s).sort_stats("cumulative")
+        ps.print_stats()
+        print(s.getvalue())
+    elif profiler == "nvprof":
+        paddle.fluid.core.nvprof_start()
+        yield
+        paddle.fluid.core.nvprof_stop()
+    else:
+        yield
 
 
 class StaticHelper(object):
@@ -77,6 +109,22 @@ class StaticHelper(object):
 
         gradients = paddle.static.gradients(targets, inputs)
         return gradients
+
+    def compile(self, program):
+        use_cinn = os.environ.get("FLAGS_use_cinn", False)
+        if use_cinn:
+            # To enable CINN, we need to use CompiledProgram to compile the program.
+            # Only forward ops are enabled because loss_name should not be none when
+            # backward ops are contained in the origin program.
+            build_strategy = paddle.static.BuildStrategy()
+            exec_strategy = paddle.static.ExecutionStrategy()
+            exec_strategy.num_threads = 1
+            compiled_program = paddle.static.CompiledProgram(
+                program).with_data_parallel(
+                    build_strategy=build_strategy, exec_strategy=exec_strategy)
+            return compiled_program
+        else:
+            return program
 
     def init_feed_tensor(self, use_gpu, feed_vars, feed_dict, scope):
         place = paddle.CUDAPlace(0) if use_gpu else paddle.CPUPlace()
@@ -249,7 +297,11 @@ class DynamicHelper(object):
 
 class PaddleOpBenchmarkBase(BenchmarkBase):
     def __init__(self, testing_mode):
-        super(PaddleOpBenchmarkBase, self).__init__(testing_mode)
+        super(PaddleOpBenchmarkBase, self).__init__("paddle", testing_mode)
+        if self._testing_mode == "static":
+            paddle.enable_static()
+        else:
+            paddle.disable_static()
 
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         return self._helper.variable(name, shape, dtype, value, stop_gradient)
@@ -290,14 +342,20 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         return result
 
     def append_gradients(self, targets, inputs):
+        def _append_to_list(var_or_list, var_list):
+            if isinstance(var_or_list, list):
+                for var in var_or_list:
+                    var_list.append(var)
+            else:
+                var_list.append(var_or_list)
+
         gradients = self._helper.generate_gradients(targets, inputs)
         self._backward = True
-        # print("Gradients: ", gradients)
-        if isinstance(gradients, list):
-            for grad in gradients:
-                self.fetch_list.append(grad)
+        if self._testing_mode == "static":
+            print("Gradients: ", gradients)
+            _append_to_list(gradients, self.fetch_vars)
         else:
-            self.fetch_list.append(gradients)
+            _append_to_list(gradients, self.fetch_list)
 
     def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
         self._layers_function = None
@@ -348,7 +406,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                 runtimes.append(time.time() - begin)
 
         self._helper.switch_status()
-        stats = self._get_output_stats(use_gpu, config, runtimes)
+        stats = self.get_running_stats(use_gpu, config, runtimes)
         return outputs, stats
 
     def _run_dynamic(self, config, args, feeder_adapter=None):
@@ -385,10 +443,12 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         executor = paddle.static.Executor(place)
         executor.run(self.startup_program)
 
+        main_program = self._helper.compile(self.main_program)
+
         def _run_main_iter():
             feed_dict = feed if self._need_feed else None
             fetch_vars = self.fetch_list if self._need_fetch else None
-            outputs = executor.run(program=self.main_program,
+            outputs = executor.run(program=main_program,
                                    feed=feed_dict,
                                    fetch_list=fetch_vars,
                                    use_program_cache=True,
@@ -416,7 +476,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                     outputs = _run_main_iter()
                     runtimes.append(time.time() - begin)
 
-            stats = self._get_output_stats(use_gpu, config, runtimes, walltimes
+            stats = self.get_running_stats(use_gpu, config, runtimes, walltimes
                                            if self.name != "null" else None)
             return outputs, stats
         except paddle.fluid.core.EnforceNotMet as ex:
@@ -502,22 +562,25 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                 profiler=args.profiler)
         return outputs, stats
 
-    def _get_output_stats(self, use_gpu, config, runtimes, walltimes=None):
-        stats = {
-            "framework": "paddle",
-            "version": paddle.__version__,
-            "name": self.name,
-            "device": "GPU" if use_gpu else "CPU",
-            "backward": self._backward,
-            "total": runtimes
-        }
 
-        if walltimes is not None:
-            stats["wall_time"] = walltimes
+@six.add_metaclass(abc.ABCMeta)
+class PaddleAPIBenchmarkBase(PaddleOpBenchmarkBase):
+    def __init__(self):
+        super(PaddleAPIBenchmarkBase, self).__init__("static")
+        self.scope = None
+        self.feed_vars = None
+        self.fetch_vars = None
 
-        flop, byte = self.compute_flop_and_byte(config)
-        if flop is not None:
-            stats["flop"] = flop
-        if byte is not None:
-            stats["byte"] = byte
-        return stats
+    @abc.abstractmethod
+    def build_program(self, config=None):
+        pass
+
+    def build_graph(self, config=None):
+        self.build_program(config)
+        self.feed_list = self.feed_vars
+        self.fetch_list = self.fetch_vars
+
+
+class PaddleDynamicAPIBenchmarkBase(PaddleOpBenchmarkBase):
+    def __init__(self):
+        super(PaddleDynamicAPIBenchmarkBase, self).__init__("dynamic")

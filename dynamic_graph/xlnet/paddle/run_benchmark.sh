@@ -8,7 +8,7 @@ function _set_params(){
     batch_size=${2:-"64"}
     fp_item=${3:-"fp32"}        # fp32|fp16
     max_iter=${4:-"200"}       # 可选，如果需要修改代码提前中断
-    model_name=${5:-"xlnet-base-cased"}
+    model_item=${5:-"xlnet-base-cased"}
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}  # TRAIN_LOG_DIR 后续QA设置该参数
     need_profile=${6:-"off"}
 
@@ -20,7 +20,8 @@ function _set_params(){
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
-    log_file=${run_log_path}/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}
+    log_file=${run_log_path}/${model_item}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}
+    model_name=${model_item}_bs${batch_size}_${fp_item}
 
     log_with_profiler=$log_file
     profiler_path=$log_profile
@@ -48,7 +49,7 @@ function _train(){
     fi
 
     train_cmd="${profiler_cmd}
-               --model_name_or_path=${model_name}
+               --model_name_or_path=${model_item}
                --task_name=SST-2
                --max_seq_length=128
                --pad_to_max_seq_len=True

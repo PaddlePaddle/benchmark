@@ -12,19 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
 import sys
 import json
 import time
 import abc, six
 import importlib
+import contextlib
 import numpy as np
 
 from common import api_param
 from common import feeder
 from common import special_op_list
 from common import utils
+from common.benchmark import BenchmarkBase
 
 try:
     import torch
@@ -37,21 +37,20 @@ IN_RUN = 1
 AFTER_RUN = 2
 
 
-@six.add_metaclass(abc.ABCMeta)
-class PytorchAPIBenchmarkBase(object):
+@contextlib.contextmanager
+def profile_context(name, use_gpu, profiler):
+    if profiler == "nvprof":
+        torch.cuda.cudart().cudaProfilerStart()
+        yield
+        torch.cuda.cudart().cudaProfilerStop()
+    else:
+        yield
+
+
+class PytorchAPIBenchmarkBase(BenchmarkBase):
     def __init__(self):
-        self.name = self.__class__.__name__
+        super(PytorchAPIBenchmarkBase, self).__init__("pytorch", "dynamic")
         self._reset()
-
-        try:
-            import torch
-        except Exception as e:
-            sys.stderr.write(
-                "Cannot import pytorch, maybe pytorch is not installed.\n")
-
-    @abc.abstractmethod
-    def build_graph(self, config=None):
-        pass
 
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         if self._status == BEFORE_RUN:
@@ -80,10 +79,6 @@ class PytorchAPIBenchmarkBase(object):
         else:
             var = self._feed_dict[name]
         return var
-
-    @property
-    def backward(self):
-        return self._backward
 
     def layers(self, api_name, module_name=None, **kwargs):
         def _import_func(torch_module_name, api_name):
@@ -156,20 +151,14 @@ class PytorchAPIBenchmarkBase(object):
         runtimes = []
         fetches = []
         self._status = IN_RUN
-        for i in range(repeat):
-            begin = time.time()
-            outputs = _run_main_iter()
-            runtimes.append(time.time() - begin)
+        with profile_context(self.name, use_gpu, profiler):
+            for i in range(repeat):
+                begin = time.time()
+                outputs = _run_main_iter()
+                runtimes.append(time.time() - begin)
 
         self._status = AFTER_RUN
-        stats = {
-            "framework": "pytorch",
-            "version": torch.__version__,
-            "name": self.name,
-            "device": "GPU" if use_gpu else "CPU",
-            "backward": self._backward,
-            "total": runtimes
-        }
+        stats = self.get_running_stats(use_gpu, config, runtimes)
         return outputs, stats
 
     def run(self, config, args):

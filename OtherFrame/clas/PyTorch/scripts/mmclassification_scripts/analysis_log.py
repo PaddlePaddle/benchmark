@@ -32,7 +32,7 @@ def calculate_ips(log_list, batch_size):
     for x in log_list:
         time += float(eval(x.strip())["time"])
     avg_time = time / len(log_list)
-    ips = batch_size / avg_time
+    ips = round((batch_size / avg_time), 3)
     return ips
 
 

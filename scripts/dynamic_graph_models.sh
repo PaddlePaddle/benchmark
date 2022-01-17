@@ -16,7 +16,7 @@
 
 
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_speech_repo_conformer dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo) #dy_gpt
+dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
 
 
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
@@ -51,21 +51,30 @@ dy_speech_repo_pwgan(){
 }
 
 dy_speech_repo_conformer(){
+    echo " dy_speech_repo_conformer prepare python3 env "
+	cd ${BENCHMARK_ROOT}/
+    ln -s $(which python3.7) run_env/python3
+    ln -s $(which pip3.7) run_env/pip3
+    export PATH=$(pwd)/run_env:${PATH}
     echo "dy_speech_repo_conformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
     cd ${cur_model_path}/tests/benchmark/conformer/
-    rm -rf ${cur_model_path}/examples/dataset/aishell/aishell.py
-    cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/examples/dataset/aishell/
+    rm -rf ${cur_model_path}/dataset/aishell/aishell.py
+    cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/dataset/aishell/
     pip install loguru
-    bash prepare.sh
+    echo "bash run.sh --stage 0 --stop_stage 0" >> prepare.sh             # 第一轮数据处理会报错
+	bash prepare.sh             
     bash run.sh
-    rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
+    rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/dataset/aishell    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
 
 dy_video_TimeSformer(){
     echo "dy_video_TimeSformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
     cd ${cur_model_path}/benchmark/TimeSformer/
+    pip install -r requirements.txt
+    pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
     bash run_all.sh local
     rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
@@ -248,8 +257,11 @@ dy_tsn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
+    pip install -r requirements.txt
     pip install wget av
-    # Prepare pretrained modles
+    pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
+	# Prepare pretrained modles
     rm -rf ResNet50_pretrain.pdparams
     ln -s ${prepare_path}/tsn/ResNet50_pretrain.pdparams ${cur_model_path}/
     # Prepare data
@@ -280,7 +292,7 @@ dy_gan(){
     fi
 
     pip install -r requirements.txt
-    pip install scikit-image==0.18.1
+    pip install scikit-image==0.18.2
     # Prepare data
     mkdir -p data
     ln -s ${data_path}/dygraph_data/cityscapes_gan_mini ${cur_model_path}/data/cityscapes
@@ -335,10 +347,13 @@ dy_seg(){
 dy_slowfast(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
+    pip install -r requirements.txt
     pip install tqdm
     pip install decord
     pip install pandas av
-    # Prepare data
+    pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
+	# Prepare data
     rm -rf data
     ln -s ${data_path}/dygraph_data/slowfast/data/ ${cur_model_path}/
 
@@ -449,7 +464,10 @@ dy_tsm(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
+    pip install -r requirements.txt
     pip install wget av decord
+    pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
     # Prepare pretrained modles
     ln -s ${prepare_path}/tsm/ResNet50_pretrain.pdparams ${cur_model_path}/
     # Prepare data
@@ -532,13 +550,10 @@ dy_resnet(){
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./
     sed -i '/set\ -xe/d' run_benchmark_resnet.sh
-    batch_size=32
-    model_list=(ResNet152_bs32 ResNet50_bs32 ResNet50_bs128)
+    model_list=(ResNet152_bs32 ResNet50_bs32 ResNet50_bs128 ResNet50_amp_fp16_bs128 ResNet50_amp_fp16_bs256) #ResNet50_pure_fp16_bs128
     for model_name in ${model_list[@]}
     do
-        if [ ${model_name} == "ResNet50_bs128" ]; then
-            batch_size=128
-        fi
+	batch_size=${model_name#*bs}
         echo "model is ${model_name}, index is speed, 1gpu begin"
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} sp 1 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
         sleep 60
@@ -615,7 +630,8 @@ dy_ppocr_mobile_2() {
 dy_bmn() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
-
+    pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
     package_check_list=(tqdm PyYAML numpy decord pandas av)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
@@ -694,65 +710,11 @@ dy_faster_rcnn_fpn() {
 }
 
 dy_gpt(){
-    profile=${1:-"off"}
-
-    cd ${BENCHMARK_ROOT}
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
     cd ${cur_model_path}
-
-    run_env=$BENCHMARK_ROOT/run_env
-    rm -rf $run_env
-    mkdir $run_env
-    echo `which python3.7`
-    ln -s $(which python3.7)m-config  $run_env/python3-config
-    ln -s $(which python3.7) $run_env/python
-    ln -s $(which pip3.7) $run_env/pip
-
-    export PATH=$run_env:${PATH}
-
-    #pip install -r requirements.txt
-    pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
-    pip install pybind11 regex sentencepiece tqdm visualdl -i https://mirror.baidu.com/pypi/simple
-    pip install TensorRT
-    pip install -e ./
-
-    # Download test dataset and save it to PaddleNLP/data
-    if [ -d data ]; then
-        rm -rf data
-    fi
-    mkdir -p data && cd data
-    wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt/data/gpt_en_dataset_300m_ids.npy -o .tmp
-    wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt/data/gpt_en_dataset_300m_idx.npz -o .tmp
-    cd - 
-
-    model_name='nlp'
-    mode_list=(dygraph)
-    max_iters=200 # control the test time
-
-    SP_CARDNUM='0'
-    MP_CARDNUM='0,1,2,3,4,5,6,7'
-
-    # Running ...
-    rm -f ./run_benchmark.sh
-    cp ${BENCHMARK_ROOT}/dynamic_graph/gpt/paddle/run_benchmark.sh ./       # 拷贝脚本到当前目录
-    sed -i '/set\ -xe/d' run_benchmark.sh
-
-    for mod_item in ${mode_list[@]}; do
-        # gpt-2
-        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_sp_bs8_fp32_speed_1gpus 2>&1
-        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_mp_bs8_fp32_speed_8gpus 2>&1 
-        # in dygraph mod, the bs=16 will out of mem in 32G V100
-        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp16  ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_sp_bs8_fp16_speed_1gpus 2>&1
-        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp16 ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_mp_bs8_fp16_speed_8gpus 2>&1
-
-        # gpt-3
-        # gpt3 is optimized for speed and need paddle develop version
-        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_sp_bs8_fp32_speed_1gpus 2>&1
-        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_mp_bs8_fp32_speed_8gpus 2>&1
-        # in dygraph mod, the bs=16 will out of mem in 32G V100
-        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp16  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_sp_bs8_fp16_speed_1gpus 2>&1
-        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp16 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_mp_bs8_fp16_speed_8gpus 2>&1
-    done
+    sed -i "s/python3/python3.7/g"  examples/language_model/data_tools/Makefile  # 模型py3默认使用python37， benchmark 镜像python3 默认py35
+    sed -i '/set\ -xe/d' tests/benchmark/run_benchmark.sh
+    bash tests/benchmark/run_all.sh dygraph
 }
 
 

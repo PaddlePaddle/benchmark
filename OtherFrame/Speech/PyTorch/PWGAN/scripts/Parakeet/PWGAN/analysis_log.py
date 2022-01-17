@@ -11,7 +11,7 @@ def analyze(log_file, res_log_file,mission_name,direction_id):
     log_file_name = log_file.split("/")[-1]
 
     repo_name, model_name, run_mode, bs, fp, gpu_num = log_file_name.split("_")
-    model_name = "_".join([repo_name, model_name, bs, fp])
+    model_name = "_".join([model_name, bs, fp])
     fail_flag = 0
     ips_res = []
     with open(log_file, "r") as rf:
@@ -28,7 +28,7 @@ def analyze(log_file, res_log_file,mission_name,direction_id):
         clip_ips_res = ips_res[skip_num:]
         clip_ips_res = [float(item.split(" ")[0]) for item in clip_ips_res]
         ips = sum(clip_ips_res) / len(clip_ips_res)
-        ips = ips * int(gpu_num)
+        ips = round((ips * int(gpu_num)), 3)
 
         info = {"log_file": log_file, "model_name": model_name, "mission_name": mission_name,
                 "direction_id": int(direction_id), "run_mode": run_mode, "index": 1, "gpu_num": int(gpu_num),

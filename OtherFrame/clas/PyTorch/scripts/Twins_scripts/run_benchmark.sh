@@ -8,13 +8,13 @@ function _set_params(){
     fp_item=${3:-"fp32"}        # fp32|fp16
     epoch=${4:-"300"}       # 可选，如果需要修改代码提前中断
     model_item=${5:-"model_item"}
-    run_log_path=${TRAIN_LOG_DIR:-$(pwd)}  # TRAIN_LOG_DIR 后续QA设置该参数
+    run_log_path=$(pwd)  # TRAIN_LOG_DIR 后续QA设置该参数
  
 #   以下不用修改   
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
-    log_file=${run_log_path}/${model_item}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}
+    log_file=${run_log_path}/${model_item}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}.log
     model_name=alt_gvt_base   # model_name 在analysis 里面拼接fp以及bs，构成json格式
 }
 function _train(){
