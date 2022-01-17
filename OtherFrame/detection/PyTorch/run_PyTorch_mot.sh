@@ -2,6 +2,8 @@
 
 ImageName="paddlepaddle/paddle:latest-dev-cuda11.2-cudnn8-gcc82"
 docker pull ${ImageName}
+nvidia-docker stop test_torch_mot
+nvidia-docker rm test_torch_mot
 
 export BENCHMARK_ROOT=/workspace # 对应实际地址 benchmark/OtherFrameworks/detection/PyTorch
 run_cmd="cd ${BENCHMARK_ROOT}
@@ -48,4 +50,4 @@ nvidia-docker run --name test_torch_mot -i  \
     ${ImageName}  /bin/bash -c "${run_cmd}"
 
 nvidia-docker stop test_torch_mot
-nvidia-docker rm test_torch_mot'
+nvidia-docker rm test_torch_mot

@@ -3,6 +3,8 @@
 # 拉镜像
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7"
 docker pull ${ImageName}
+nvidia-docker stop test_torch_xlnet
+nvidia-docker rm test_torch_xlnet
 
 # 启动镜像后测试单个模型
 run_cmd="bash /workspace/PrepareEnv_xlnet.sh;

@@ -8,6 +8,8 @@ docker pull ${ImageName}
 #         cp /workspace/scripts/PrepareEnv.sh ./;
 #         bash PrepareEnv.sh;
 #         cd /workspace/first-order-model;
+nvidia-docker stop test_torch_gan
+nvidia-docker rm test_torch_gan
 
 run_cmd="cp /workspace/scripts/PrepareEnv.sh ./;
          bash PrepareEnv.sh;
