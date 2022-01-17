@@ -24,10 +24,7 @@ import numpy as np
 
 from common import utils
 from common import system
-from common import api_param
 from common import special_op_list
-from common import pytorch_api_benchmark
-from common import paddle_dynamic_api_benchmark
 
 
 def _check_gpu_device(use_gpu):
@@ -170,13 +167,13 @@ def test_main(pd_obj=None,
         test_main_without_json(pd_obj, tf_obj, pd_dy_obj, torch_obj, config)
 
 
-def _is_paddle_enabled(args, config):
+def is_paddle_enabled(args, config):
     if args.task == "accuracy" or args.framework in ["paddle", "both"]:
         return True
     return False
 
 
-def _is_tensorflow_enabled(args, config):
+def is_tensorflow_enabled(args, config):
     if config.run_tf and args.testing_mode == "static":
         if args.task == "accuracy" or args.framework in [
                 "tensorflow", "tf", "both"
@@ -185,7 +182,7 @@ def _is_tensorflow_enabled(args, config):
     return False
 
 
-def _is_torch_enabled(args, config):
+def is_torch_enabled(args, config):
     if config.run_torch and args.testing_mode == "dynamic":
         if args.task == "accuracy" or args.framework in [
                 "torch", "pytorch", "both"
@@ -231,7 +228,7 @@ def test_main_without_json(pd_obj=None,
     use_feed_fetch = True if args.task == "accuracy" else False
 
     feeder_adapter = None
-    if _is_tensorflow_enabled(args, config):
+    if is_tensorflow_enabled(args, config):
         assert tf_obj is not None, "TensorFlow object is None."
         tf_config = config.to_tensorflow()
         print(tf_config)
@@ -246,7 +243,7 @@ def test_main_without_json(pd_obj=None,
                 log_level=args.log_level,
                 config_params=config.to_string())
 
-    if _is_paddle_enabled(args, config) and args.testing_mode == "static":
+    if is_paddle_enabled(args, config) and args.testing_mode == "static":
         assert pd_obj is not None, "Paddle object is None."
         print(config)
         pd_outputs, pd_stats = pd_obj.run(config, args, use_feed_fetch,
@@ -262,7 +259,7 @@ def test_main_without_json(pd_obj=None,
         if pd_outputs == False:
             sys.exit(1)
 
-    if _is_torch_enabled(args, config):
+    if is_torch_enabled(args, config):
         assert torch_obj is not None, "PyTorch object is None."
         import torch
         try:
@@ -286,11 +283,11 @@ def test_main_without_json(pd_obj=None,
                 log_level=args.log_level,
                 config_params=config.to_string())
 
-    if _is_paddle_enabled(args, config) and args.testing_mode == "dynamic":
+    if is_paddle_enabled(args, config) and args.testing_mode == "dynamic":
         assert pd_dy_obj is not None, "Paddle dynamic object is None."
         print(config)
-        pd_dy_outputs, pd_dy_stats = pd_dy_obj.run(config, args,
-                                                   feeder_adapter)
+        pd_dy_outputs, pd_dy_stats = pd_dy_obj.run(
+            config, args, feeder_adapter=feeder_adapter)
 
         if args.task == "speed":
             pd_dy_stats["gpu_time"] = args.gpu_time

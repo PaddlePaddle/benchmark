@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
 import sys
 import json
 import time
@@ -26,6 +24,7 @@ from common import api_param
 from common import feeder
 from common import special_op_list
 from common import utils
+from common.benchmark import BenchmarkBase
 
 try:
     import torch
@@ -48,21 +47,10 @@ def profile_context(name, use_gpu, profiler):
         yield
 
 
-@six.add_metaclass(abc.ABCMeta)
-class PytorchAPIBenchmarkBase(object):
+class PytorchAPIBenchmarkBase(BenchmarkBase):
     def __init__(self):
-        self.name = self.__class__.__name__
+        super(PytorchAPIBenchmarkBase, self).__init__("pytorch", "dynamic")
         self._reset()
-
-        try:
-            import torch
-        except Exception as e:
-            sys.stderr.write(
-                "Cannot import pytorch, maybe pytorch is not installed.\n")
-
-    @abc.abstractmethod
-    def build_graph(self, config=None):
-        pass
 
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         if self._status == BEFORE_RUN:
@@ -91,10 +79,6 @@ class PytorchAPIBenchmarkBase(object):
         else:
             var = self._feed_dict[name]
         return var
-
-    @property
-    def backward(self):
-        return self._backward
 
     def layers(self, api_name, module_name=None, **kwargs):
         def _import_func(torch_module_name, api_name):
@@ -174,14 +158,7 @@ class PytorchAPIBenchmarkBase(object):
                 runtimes.append(time.time() - begin)
 
         self._status = AFTER_RUN
-        stats = {
-            "framework": "pytorch",
-            "version": torch.__version__,
-            "name": self.name,
-            "device": "GPU" if use_gpu else "CPU",
-            "backward": self._backward,
-            "total": runtimes
-        }
+        stats = self.get_running_stats(use_gpu, config, runtimes)
         return outputs, stats
 
     def run(self, config, args):
