@@ -60,3 +60,4 @@ sed -i 's/view/reshape/g' lib/core/evaluate.py
 sed -i 's/PRINT_FREQ: 1000/PRINT_FREQ: 10/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
 source ${ROOT_DIR}/scripts/run_model.sh
 _run
+python analysis_log.py -d output -m ${model_name} -b ${batch_size} -n ${num_gpu_devices}
