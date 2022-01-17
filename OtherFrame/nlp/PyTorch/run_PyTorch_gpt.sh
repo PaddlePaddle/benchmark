@@ -3,6 +3,8 @@
 # 拉镜像
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7"
 docker pull ${ImageName}
+nvidia-docker stop test_torch_gpt
+nvidia-docker rm test_torch_gpt
 
 # 启动镜像后测试单个模型
 run_cmd="
@@ -28,4 +30,5 @@ nvidia-docker run --name test_torch_gpt -i  \
     -v $PWD:/workspace \
     ${ImageName}  /bin/bash -c "${run_cmd}"
 
-#nvidia-docker rm test_torch_gpt
+nvidia-docker stop test_torch_gpt
+nvidia-docker rm test_torch_gpt

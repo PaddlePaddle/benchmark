@@ -3,6 +3,8 @@
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.0.2-gpu-cuda10.1-cudnn7"
 #ImageName="paddlepaddle/paddle:latest-dev-cuda11.2-cudnn8-gcc82"
 docker pull ${ImageName}
+nvidia-docker stop test_torch_ocr
+nvidia-docker rm test_torch_ocr 
 
 # 启动镜像后测试DB模型
 run_cmd="cd /workspace;

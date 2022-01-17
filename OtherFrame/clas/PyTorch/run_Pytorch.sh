@@ -28,6 +28,8 @@ ImageName="paddlepaddle/paddle:latest-dev-cuda11.2-cudnn8-gcc82";
 docker pull ${ImageName}
 
 # 启动镜像
+nvidia-docker stop test_pytorch_clas
+nvidia-docker rm test_pytorch_clas
 nvidia-docker run  -i --rm  \
     --name test_pytorch_clas \
     --net=host \
