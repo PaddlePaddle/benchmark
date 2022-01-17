@@ -198,7 +198,7 @@ class TensorflowAPIBenchmarkBase(BenchmarkBase):
             sess.close()
         return walltimes
 
-    def run_impl(self, use_gpu, feed, repeat=1, profiler="none"):
+    def run_impl(self, use_gpu, config, feed, repeat=1, profiler="none"):
         sess = self._init_session(use_gpu)
 
         #tf.debugging.set_log_device_placement(True)
@@ -301,6 +301,7 @@ class TensorflowAPIBenchmarkBase(BenchmarkBase):
         self.allow_growth = False if args.task == "speed" else True
         outputs, stats = self.run_impl(
             use_gpu=args.use_gpu,
+            config=config,
             feed=feed,
             repeat=args.repeat,
             profiler=args.profiler)

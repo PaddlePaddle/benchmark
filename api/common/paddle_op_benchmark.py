@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import abc
 import six
 import sys
@@ -108,6 +109,22 @@ class StaticHelper(object):
 
         gradients = paddle.static.gradients(targets, inputs)
         return gradients
+
+    def compile(self, program):
+        use_cinn = os.environ.get("FLAGS_use_cinn", False)
+        if use_cinn:
+            # To enable CINN, we need to use CompiledProgram to compile the program.
+            # Only forward ops are enabled because loss_name should not be none when
+            # backward ops are contained in the origin program.
+            build_strategy = paddle.static.BuildStrategy()
+            exec_strategy = paddle.static.ExecutionStrategy()
+            exec_strategy.num_threads = 1
+            compiled_program = paddle.static.CompiledProgram(
+                program).with_data_parallel(
+                    build_strategy=build_strategy, exec_strategy=exec_strategy)
+            return compiled_program
+        else:
+            return program
 
     def init_feed_tensor(self, use_gpu, feed_vars, feed_dict, scope):
         place = paddle.CUDAPlace(0) if use_gpu else paddle.CPUPlace()
@@ -426,10 +443,12 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         executor = paddle.static.Executor(place)
         executor.run(self.startup_program)
 
+        main_program = self._helper.compile(self.main_program)
+
         def _run_main_iter():
             feed_dict = feed if self._need_feed else None
             fetch_vars = self.fetch_list if self._need_fetch else None
-            outputs = executor.run(program=self.main_program,
+            outputs = executor.run(program=main_program,
                                    feed=feed_dict,
                                    fetch_list=fetch_vars,
                                    use_program_cache=True,
