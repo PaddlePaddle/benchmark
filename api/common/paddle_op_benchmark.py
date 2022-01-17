@@ -280,7 +280,7 @@ class DynamicHelper(object):
 
 class PaddleOpBenchmarkBase(BenchmarkBase):
     def __init__(self, testing_mode):
-        super(PaddleOpBenchmarkBase, self).__init__(testing_mode)
+        super(PaddleOpBenchmarkBase, self).__init__("paddle", testing_mode)
         if self._testing_mode == "static":
             paddle.enable_static()
         else:
@@ -389,7 +389,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                 runtimes.append(time.time() - begin)
 
         self._helper.switch_status()
-        stats = self._get_output_stats(use_gpu, config, runtimes)
+        stats = self.get_running_stats(use_gpu, config, runtimes)
         return outputs, stats
 
     def _run_dynamic(self, config, args, feeder_adapter=None):
@@ -457,7 +457,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                     outputs = _run_main_iter()
                     runtimes.append(time.time() - begin)
 
-            stats = self._get_output_stats(use_gpu, config, runtimes, walltimes
+            stats = self.get_running_stats(use_gpu, config, runtimes, walltimes
                                            if self.name != "null" else None)
             return outputs, stats
         except paddle.fluid.core.EnforceNotMet as ex:
@@ -542,26 +542,6 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                 repeat=args.repeat,
                 profiler=args.profiler)
         return outputs, stats
-
-    def _get_output_stats(self, use_gpu, config, runtimes, walltimes=None):
-        stats = {
-            "framework": "paddle",
-            "version": paddle.__version__,
-            "name": self.name,
-            "device": "GPU" if use_gpu else "CPU",
-            "backward": self._backward,
-            "total": runtimes
-        }
-
-        if walltimes is not None:
-            stats["wall_time"] = walltimes
-
-        flop, byte = self.compute_flop_and_byte(config)
-        if flop is not None:
-            stats["flop"] = flop
-        if byte is not None:
-            stats["byte"] = byte
-        return stats
 
 
 @six.add_metaclass(abc.ABCMeta)

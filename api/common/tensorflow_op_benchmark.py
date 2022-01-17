@@ -21,6 +21,7 @@ import abc, six
 import importlib
 import numpy as np
 from common import special_op_list
+from common.benchmark import BenchmarkBase
 
 from . import utils
 from . import api_param
@@ -95,12 +96,10 @@ class Profiler(object):
         return self
 
 
-@six.add_metaclass(abc.ABCMeta)
-class TensorflowAPIBenchmarkBase(object):
+class TensorflowAPIBenchmarkBase(BenchmarkBase):
     def __init__(self):
-        self.name = self.__class__.__name__
-        self.feed_list = None
-        self.fetch_list = None
+        super(TensorflowAPIBenchmarkBase, self).__init__("tensorflow",
+                                                         "static")
         self.allow_growth = True
         try:
             import tensorflow as tf
@@ -111,10 +110,6 @@ class TensorflowAPIBenchmarkBase(object):
             sys.stderr.write(
                 "Cannot import tensorflow, maybe tensorflow is not installed.\n"
             )
-
-    @abc.abstractmethod
-    def build_graph(self, config=None):
-        pass
 
     def placeholder(self, name, shape, dtype):
         tf_dtype = tf.as_dtype(dtype)
@@ -169,10 +164,6 @@ class TensorflowAPIBenchmarkBase(object):
         assert func is not None, "Need to specify module_name to import %s." % api_name
         result = func(**kwargs)
         return result
-
-    @property
-    def backward(self):
-        return self._backward
 
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, tf.Tensor):
@@ -245,16 +236,8 @@ class TensorflowAPIBenchmarkBase(object):
                 prof.add_step(step=i)
         sess.close()
 
-        stats = {
-            "framework": "tensorflow",
-            "version": tf.__version__,
-            "name": self.name,
-            "device": "GPU" if use_gpu else "CPU",
-            "backward": self._backward,
-            "total": runtimes
-        }
-        if self.name != "null":
-            stats["wall_time"] = walltimes
+        stats = self.get_running_stats(use_gpu, config, runtimes, walltimes
+                                       if self.name != "null" else None)
         return outputs, stats
 
     def generate_random_feeder(self,
