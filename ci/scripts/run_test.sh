@@ -73,6 +73,7 @@ function run_api(){
   do
     LOG "[INFO] Found ${file} modified."
     api=${file#*api/} && api=${api%.*}
+    [[ "$api" =~ "common_import" ]] && continue
     [ -f "${BENCHMARK_ROOT}/api/${api}.py" ] && API_NAMES[${#API_NAMES[@]}]=$api
     if [[ "$file" =~ ".json" ]]
     then

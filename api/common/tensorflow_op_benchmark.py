@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
 import sys
 import json
 import time
@@ -21,6 +19,7 @@ import abc, six
 import importlib
 import numpy as np
 from common import special_op_list
+from common.benchmark import BenchmarkBase
 
 from . import env
 from . import utils
@@ -99,68 +98,10 @@ class Profiler(object):
         return self
 
 
-def convert_dtype(dtype, to_string=True):
-    def _trans(to_string, dtype_str, np_dtype):
-        dtype = dtype_str if to_string else np.dtype(np_dtype)
-        return dtype
-
-    if dtype == tf.float16:
-        # tf.float16: 16-bit half-precision floating-point.
-        return _trans(to_string, "float16", np.float16)
-    elif dtype == tf.float32:
-        # tf.float32: 32-bit single-precision floating-point.
-        return _trans(to_string, "float32", np.float32)
-    elif dtype == tf.float64:
-        # tf.float64: 64-bit double-precision floating-point.
-        return _trans(to_string, "float64", np.float64)
-    elif dtype == tf.int8:
-        # tf.int8: 8-bit signed integer.
-        return _trans(to_string, "int8", np.int8)
-    elif dtype == tf.uint8:
-        # tf.uint8: 8-bit unsigned integer.
-        return _trans(to_string, "uint8", np.uint8)
-    elif dtype == tf.uint16:
-        # tf.uint16: 16-bit unsigned integer.
-        return _trans(to_string, "uint16", np.uint16)
-    elif dtype == tf.uint32:
-        # tf.uint32: 32-bit unsigned integer.
-        return _trans(to_string, "uint32", np.uint32)
-    elif dtype == tf.uint64:
-        # tf.uint64: 64-bit unsigned integer.
-        return _trans(to_string, "uint64", np.uint64)
-    elif dtype == tf.int16:
-        # tf.int16: 16-bit signed integer.
-        return _trans(to_string, "int16", np.int16)
-    elif dtype == tf.int32:
-        # tf.int32: 32-bit signed integer.
-        return _trans(to_string, "int32", np.int32)
-    elif dtype == tf.int64:
-        # tf.int64: 64-bit signed integer.
-        return _trans(to_string, "int64", np.int64)
-    elif dtype == tf.bool:
-        # tf.bool: Boolean.
-        return _trans(to_string, "bool", np.bool)
-    else:
-        # tf.bfloat16: 16-bit truncated floating-point.
-        # tf.complex64: 64-bit single-precision complex.
-        # tf.complex128: 128-bit double-precision complex.
-        # tf.string: String.
-        # tf.qint8: Quantized 8-bit signed integer.
-        # tf.quint8: Quantized 8-bit unsigned integer.
-        # tf.qint16: Quantized 16-bit signed integer.
-        # tf.quint16: Quantized 16-bit unsigned integer.
-        # tf.qint32: Quantized 32-bit signed integer.
-        # tf.resource: Handle to a mutable resource.
-        # tf.variant: Values of arbitrary types.
-        raise ValueError("Unsupported dtype %s" % dtype)
-
-
-@six.add_metaclass(abc.ABCMeta)
-class TensorflowAPIBenchmarkBase(object):
+class TensorflowAPIBenchmarkBase(BenchmarkBase):
     def __init__(self):
-        self.name = self.__class__.__name__
-        self.feed_list = None
-        self.fetch_list = None
+        super(TensorflowAPIBenchmarkBase, self).__init__("tensorflow",
+                                                         "static")
         self.allow_growth = True
         try:
             import tensorflow as tf
@@ -172,10 +113,6 @@ class TensorflowAPIBenchmarkBase(object):
             sys.stderr.write(
                 "Cannot import tensorflow, maybe tensorflow is not installed.\n"
             )
-
-    @abc.abstractmethod
-    def build_graph(self, config=None):
-        pass
 
     def placeholder(self, name, shape, dtype):
         tf_dtype = tf.as_dtype(dtype)
@@ -227,10 +164,6 @@ class TensorflowAPIBenchmarkBase(object):
         result = func(**kwargs)
         return result
 
-    @property
-    def backward(self):
-        return self._backward
-
     def append_gradients(self, targets, inputs):
         if isinstance(inputs, tf.Tensor):
             inputs = [inputs]
@@ -264,7 +197,7 @@ class TensorflowAPIBenchmarkBase(object):
             sess.close()
         return walltimes
 
-    def run_impl(self, use_gpu, feed, repeat=1, profiler="none"):
+    def run_impl(self, use_gpu, config, feed, repeat=1, profiler="none"):
         sess = self._init_session(use_gpu)
 
         def _run_main_iter(run_options=None, run_metadata=None):
@@ -300,16 +233,8 @@ class TensorflowAPIBenchmarkBase(object):
                 prof.add_step(step=i)
         sess.close()
 
-        stats = {
-            "framework": "tensorflow",
-            "version": tf.__version__,
-            "name": self.name,
-            "device": "GPU" if use_gpu else "CPU",
-            "backward": self._backward,
-            "total": runtimes
-        }
-        if self.name != "null":
-            stats["wall_time"] = walltimes
+        stats = self.get_running_stats(use_gpu, config, runtimes, walltimes
+                                       if self.name != "null" else None)
         return outputs, stats
 
     def generate_random_feeder(self,
@@ -377,6 +302,7 @@ class TensorflowAPIBenchmarkBase(object):
         with tf.device(device):
             outputs, stats = self.run_impl(
                 use_gpu=args.use_gpu,
+                config=config,
                 feed=feed,
                 repeat=args.repeat,
                 profiler=args.profiler)
