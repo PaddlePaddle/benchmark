@@ -4,7 +4,8 @@ OP_BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
 
 test_module_name=${1:-"dynamic_tests_v2"}  # "tests_v2", "dynamic_tests_v2"
 gpu_ids=${2:-"0"}
-op_type=${3:-"all"}  # "all" or specified op_type, such as elementwise
+model_name_op_type=${3:-"all"}  # "all" or specified model_name/op_type, such as elementwise
+config_subdir=${4:-"op_configs"}
 
 if [ ${test_module_name} != "tests_v2" ] && [ ${test_module_name} != "dynamic_tests_v2" ]; then
   echo "Please set test_module_name (${test_module_name}) to \"tests_v2\" or \"dynamic_tests_v2\"!"
@@ -63,10 +64,10 @@ run_op_benchmark() {
   bash ${OP_BENCHMARK_ROOT}/deploy/main_control.sh ${tests_dir} ${config_dir} ${output_dir} ${gpu_ids} "both" "both" "none" "both" "${testing_mode}" > ${log_path} 2>&1 &
 }
 
-run_specified_op() {
+run_specified_task() {
   local testing_mode=$1
 
-  OUTPUT_ROOT=${OP_BENCHMARK_ROOT}/logs/${op_type}
+  OUTPUT_ROOT=${OP_BENCHMARK_ROOT}/logs/${model_name_op_type}
   if [ ! -d ${OUTPUT_ROOT} ]; then
     mkdir -p ${OUTPUT_ROOT}
   fi
@@ -79,11 +80,11 @@ run_specified_op() {
   echo "-- output_dir: ${output_dir}"
   
   if [ "${test_module_name}" == "tests" ]; then
-    config_dir=${OP_BENCHMARK_ROOT}/tests/op_configs
-    op_list=${OUTPUT_ROOT}/api_info_${op_type}.txt
+    config_dir=${OP_BENCHMARK_ROOT}/tests/${config_subdir}
+    op_list=${OUTPUT_ROOT}/api_info_${model_name_op_type}.txt
   else
-    config_dir=${OP_BENCHMARK_ROOT}/tests_v2/op_configs
-    op_list=${OUTPUT_ROOT}/api_info_v2_${op_type}.txt
+    config_dir=${OP_BENCHMARK_ROOT}/tests_v2/${config_subdir}
+    op_list=${OUTPUT_ROOT}/api_info_v2_${model_name_op_type}.txt
   fi
   echo "-- config_dir: ${config_dir}"
  
@@ -104,12 +105,12 @@ main() {
     install_package "tensorflow" "2.7.0"
   fi
 
-  case ${op_type} in
+  case ${model_name_op_type} in
     all)
       run_op_benchmark ${testing_mode}
       ;;
     *)
-      run_specified_op ${testing_mode}
+      run_specified_task ${testing_mode}
       ;;
   esac
 }

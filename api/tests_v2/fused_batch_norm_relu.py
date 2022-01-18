@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,33 +13,16 @@
 # limitations under the License.
 
 from common_import import *
+from batch_norm import BatchNormConfig
 
 
-class BatchNormConfig(APIConfig):
-    def __init__(self, op_type="batch_norm"):
-        super(BatchNormConfig, self).__init__(op_type)
-
-    def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(BatchNormConfig, self).init_from_json(filename, config_id,
-                                                    unknown_dim)
-        if len(self.x_shape) == 4:
-            if self.data_format == "NCHW":
-                self.num_channels = self.x_shape[1]
-            else:
-                self.num_channels = self.x_shape[3]
-        else:
-            self.num_channels = self.x_shape[1]
-
-    def to_tensorflow(self):
-        tf_config = super(BatchNormConfig, self).to_tensorflow()
-        if len(self.x_shape) == 4:
-            tf_config.axis = 1 if self.data_format == "NCHW" else 3
-        else:
-            tf_config.axis = 1
-        return tf_config
+class FusedBatchNormReluConfig(BatchNormConfig):
+    def __init__(self):
+        super(FusedBatchNormReluConfig, self).__init__("fused_batch_norm_relu")
+        self.alias_name = "batch_norm"
 
 
-class PDBatchNorm(PaddleAPIBenchmarkBase):
+class PDFusedBatchNormRelu(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         def _create_parameter(name, value, stop_gradient):
             param = paddle.create_parameter(
@@ -61,7 +44,7 @@ class PDBatchNorm(PaddleAPIBenchmarkBase):
         scale = _create_parameter(name='scale', value=0.5, stop_gradient=False)
         bias = _create_parameter(name='bias', value=0.1, stop_gradient=False)
 
-        result = paddle.nn.functional.batch_norm(
+        bn_out = paddle.nn.functional.batch_norm(
             x=x,
             running_mean=running_mean,
             running_var=running_var,
@@ -71,14 +54,15 @@ class PDBatchNorm(PaddleAPIBenchmarkBase):
             momentum=config.momentum,
             training=config.training,
             data_format=config.data_format)
+        relu_out = paddle.nn.functional.relu(bn_out)
 
         self.feed_vars = [x]
-        self.fetch_vars = [result]
+        self.fetch_vars = [bn_out, relu_out]
         if config.backward:
-            self.append_gradients(result, [x, scale, bias])
+            self.append_gradients(relu_out, [x, scale, bias, bn_out])
 
 
-class TFBatchNorm(TensorflowAPIBenchmarkBase):
+class TFFusedBatchNormRelu(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         bn = tf.keras.layers.BatchNormalization(
@@ -89,13 +73,17 @@ class TFBatchNorm(TensorflowAPIBenchmarkBase):
             gamma_initializer=tf.constant_initializer(0.5),
             moving_mean_initializer=tf.constant_initializer(0.5),
             moving_variance_initializer=tf.constant_initializer(0.1))
-        result = bn(x, training=config.training)
+        bn_out = bn(x, training=config.training)
+        relu_out = tf.nn.relu(bn_out)
 
         self.feed_list = [x]
-        self.fetch_list = [result]
+        self.fetch_list = [bn_out, relu_out]
         if config.backward:
-            self.append_gradients(result, [x, bn.gamma, bn.beta])
+            self.append_gradients(relu_out, [x, bn.gamma, bn.beta, bn_out])
 
 
 if __name__ == '__main__':
-    test_main(PDBatchNorm(), TFBatchNorm(), config=BatchNormConfig())
+    test_main(
+        PDFusedBatchNormRelu(),
+        TFFusedBatchNormRelu(),
+        config=FusedBatchNormReluConfig())
