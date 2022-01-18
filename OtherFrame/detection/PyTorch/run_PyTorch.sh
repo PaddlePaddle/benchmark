@@ -4,6 +4,8 @@ ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
 #ImageName="paddlepaddle/paddle:latest-dev-cuda11.2-cudnn8-gcc82"
 docker pull ${ImageName}
 export BENCHMARK_ROOT=/workspace # 对应实际地址 benchmark/OtherFrameworks/video/PyTorch
+nvidia-docker stop test_torch_detection
+nvidia-docker rm test_torch_detection
 
 run_cmd="cd ${BENCHMARK_ROOT}
         bash PrepareEnv.sh
