@@ -44,7 +44,8 @@ function _train(){
         echo -e "${model_item}, SUCCESS"
         export job_fail_flag=0
     fi
-    kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
+python analysis_log.py -d work_dirs -m ${model_name} -b ${batch_size} -n ${num_gpu_devices}
+eval "mv work_dirs ${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}"
  
 }
 
@@ -53,5 +54,3 @@ rm -rf work_dirs
 #_train
 source ${ROOT_DIR}/scripts/run_model.sh
 _run
-python analysis_log.py -d work_dirs -m ${model_name} -b ${batch_size} -n ${num_gpu_devices}
-eval "mv work_dirs ${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}"

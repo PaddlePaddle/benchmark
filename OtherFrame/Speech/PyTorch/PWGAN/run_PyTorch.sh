@@ -3,6 +3,8 @@
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
 docker pull ${ImageName}
 export BENCHMARK_ROOT=/workspace 
+docker stop test_torch_speech
+docker rm test_torch_speech
 
 run_cmd="cd /workspace 
         bash PrepareEnv.sh
