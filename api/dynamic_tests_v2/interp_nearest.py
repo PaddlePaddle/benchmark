@@ -46,17 +46,10 @@ class PDInterpNearest(PaddleDynamicAPIBenchmarkBase):
         out_size = config.size
         assert (config.scale_factor is None and out_size is None
                 ), "at least one of out_shape and scale must be set"
-
-        # forward flops
-        out_shape = x_shape[0:-len(out_size)] + out_size
-        forward_flop = numel(out_shape) * 2 if config.align_corners else numel(
-            out_shape)
-
-        # forward byte
-        # and config.size has higher priority than config.scale_factor
+        # config.size has higher priority than config.scale_factor
         if isinstance(out_size, (list, tuple)):
             out_shape = x_shape[0:-len(out_size)] + out_size
-        elif isinstance(config.scale_factor, list or tuple):
+        elif isinstance(config.scale_factor, (list, tuple)):
             scale_length = len(config.scale_factor)
             change_out = x_shape[-scale_length:]
             scale_out = [
@@ -64,6 +57,11 @@ class PDInterpNearest(PaddleDynamicAPIBenchmarkBase):
             ]
             out_shape = x_shape[0:-scale_length] + scale_out
 
+        # forward flops
+        forward_flop = numel(out_shape) * 2 if config.align_corners else numel(
+            out_shape)
+
+        # forward byte
         read_byte = numel(out_shape) * sizeof(config.x_dtype)
         forward_byte = read_byte * 2
         if not config.backward:
