@@ -16,12 +16,13 @@
 
 
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_gpt dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_fomm dy_styleganv2 dy_xlnet dy_speech_repo_conformer dy_detection_repo)
+dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
+
 
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
 #    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
 #fi
-log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
+export log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
 
 dy_seg_repo(){
     echo "dy_seg_repo"
@@ -31,28 +32,49 @@ dy_seg_repo(){
     bash benchmark/run_all.sh
 }
 
+dy_gan_repo(){
+    echo "dy_gan_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleGAN/
+    cd ${cur_model_path}
+    ln -s ${data_path}/dygraph_data/gan_repo/REDS/ ./data/
+    pip install -v -e .
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_all.sh
+}
+
 dy_speech_repo_pwgan(){
     echo "dy_speech_repo_pwgan"
     cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
     cd ${cur_model_path}/tests/benchmark/pwgan/
+    pip install jsonlines
     bash run_all.sh
 }
 
 dy_speech_repo_conformer(){
+    echo " dy_speech_repo_conformer prepare python3 env "
+	cd ${BENCHMARK_ROOT}/
+    ln -s $(which python3.7) run_env/python3
+    ln -s $(which pip3.7) run_env/pip3
+    export PATH=$(pwd)/run_env:${PATH}
     echo "dy_speech_repo_conformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
     cd ${cur_model_path}/tests/benchmark/conformer/
-    rm -rf ${cur_model_path}/examples/dataset/aishell/aishell.py
-    cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/examples/dataset/aishell/
-    bash prepare.sh
+    rm -rf ${cur_model_path}/dataset/aishell/aishell.py
+    cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/dataset/aishell/
+    pip install loguru
+    echo "bash run.sh --stage 0 --stop_stage 0" >> prepare.sh             # 第一轮数据处理会报错
+	bash prepare.sh             
     bash run.sh
-    rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
+    rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/dataset/aishell    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
 
 dy_video_TimeSformer(){
     echo "dy_video_TimeSformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
     cd ${cur_model_path}/benchmark/TimeSformer/
+    pip install -r requirements.txt
+    pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
     bash run_all.sh local
     rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
@@ -60,10 +82,42 @@ dy_video_TimeSformer(){
 dy_detection_repo(){
     echo "dy_detection_repo"
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection/
+    pip install numpy -U
     cd ${cur_model_path}/
     sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
     bash benchmark/run_all.sh
 }
+
+dy_ocr_repo(){
+    echo "dy_ocr_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleOCR/
+    cd ${cur_model_path}/
+    sed -i '/set\ -xe/d' benchmark/run_benchmark_det.sh
+    bash benchmark/run_det.sh
+}
+
+dy_clas_repo(){
+    echo "dy_clas_repo"
+    cur_model_path=${BENCHMARK_ROOT}/PaddleClas/
+    cd ${cur_model_path}/
+    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy pandas wget h5py sklearn opencv-python visualdl)
+    for package in ${package_check_list[@]}; do
+        if python -c "import ${package}" >/dev/null 2>&1; then
+            echo "${package} have already installed"
+        else
+            echo "${package} NOT FOUND"
+            pip install ${package}
+            echo "${package} installed"
+        fi
+    done
+    # prepare data    # 脚本内为下载ILSVRC2012,太过耗时
+    mkdir -p ./dataset/ILSVRC2012
+    ln -s ${data_path}/dygraph_data/imagenet100_data/* ./dataset/ILSVRC2012
+    sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
+    bash benchmark/run_all.sh
+}
+
+
 #run_bert
 dy_bert(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/bert/
@@ -114,7 +168,6 @@ dy_bert(){
 dy_mobilenet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout -b develop_mobilenet 98db91b2118deb0f6f1c0bf90708c1bc34687f8d
     pip install -r requirements.txt
 
     # Prepare data
@@ -160,7 +213,7 @@ dy_ptb_medium(){
 
     # Prepare data
     mkdir -p data
-    ln -s ${data_path}/dygraph_data/ptb/simple-examples/ ${cur_model_path}/data/
+    ln -s ${data_path}/dygraph_data/ptb/simple-examples/ /root/.paddlenlp/datasets/PTB/
 
     # Running ...
     rm -f ./run_benchmark.sh
@@ -173,7 +226,7 @@ dy_ptb_medium(){
 # transformer
 dy_transformer(){
     echo "###########pip install paddlenlp"
-    pip install paddlenlp==2.0.5 # 20210723：nlp API不兼容升级，导致模型报错；暂时使用paddlenlp=2.0.5版本；后续进行子库代码升级
+    pip install paddlenlp
     pip install attrdict
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/machine_translation/transformer
     cd ${cur_model_path}
@@ -204,8 +257,11 @@ dy_tsn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
-    pip install wget
-    # Prepare pretrained modles
+    pip install -r requirements.txt
+    pip install wget av
+    pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
+	# Prepare pretrained modles
     rm -rf ResNet50_pretrain.pdparams
     ln -s ${prepare_path}/tsn/ResNet50_pretrain.pdparams ${cur_model_path}/
     # Prepare data
@@ -236,7 +292,7 @@ dy_gan(){
     fi
 
     pip install -r requirements.txt
-    pip install scikit-image==0.18.1
+    pip install scikit-image==0.18.2
     # Prepare data
     mkdir -p data
     ln -s ${data_path}/dygraph_data/cityscapes_gan_mini ${cur_model_path}/data/cityscapes
@@ -291,10 +347,13 @@ dy_seg(){
 dy_slowfast(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
+    pip install -r requirements.txt
     pip install tqdm
     pip install decord
-    pip install pandas
-    # Prepare data
+    pip install pandas av
+    pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
+	# Prepare data
     rm -rf data
     ln -s ${data_path}/dygraph_data/slowfast/data/ ${cur_model_path}/
 
@@ -405,7 +464,10 @@ dy_tsm(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
-    pip install wget decord
+    pip install -r requirements.txt
+    pip install wget av decord
+    pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
     # Prepare pretrained modles
     ln -s ${prepare_path}/tsm/ResNet50_pretrain.pdparams ${cur_model_path}/
     # Prepare data
@@ -482,20 +544,16 @@ dy_senta(){
 dy_resnet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout -b develop_resnet 98db91b2118deb0f6f1c0bf90708c1bc34687f8d
     pip install -r requirements.txt
    
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./
     sed -i '/set\ -xe/d' run_benchmark_resnet.sh
-    batch_size=32
-    model_list=(ResNet152_bs32 ResNet50_bs32 ResNet50_bs128)
+    model_list=(ResNet152_bs32 ResNet50_bs32 ResNet50_bs128 ResNet50_amp_fp16_bs128 ResNet50_amp_fp16_bs256) #ResNet50_pure_fp16_bs128
     for model_name in ${model_list[@]}
     do
-        if [ ${model_name} == "ResNet50_bs128" ]; then
-            batch_size=128
-        fi
+	batch_size=${model_name#*bs}
         echo "model is ${model_name}, index is speed, 1gpu begin"
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} sp 1 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
         sleep 60
@@ -529,6 +587,7 @@ dy_lac(){
 
 dy_ppocr_mobile_2() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleOCR
+    pip install fasttext
     cd ${cur_model_path}
 
     if python -c "import pooch" >/dev/null 2>&1; then
@@ -571,8 +630,9 @@ dy_ppocr_mobile_2() {
 dy_bmn() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
-
-    package_check_list=(tqdm PyYAML numpy decord pandas)
+    pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
+    package_check_list=(tqdm PyYAML numpy decord pandas av)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
             echo "${package} have already installed"
@@ -650,249 +710,17 @@ dy_faster_rcnn_fpn() {
 }
 
 dy_gpt(){
-    profile=${1:-"off"}
-
-    cd ${BENCHMARK_ROOT}
-    mv PaddleNLP PaddleNLP.bak
-    git clone https://github.com/PaddlePaddle/PaddleNLP.git -b develop
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
     cd ${cur_model_path}
-
-    run_env=$BENCHMARK_ROOT/run_env
-    rm -rf $run_env
-    mkdir $run_env
-    echo `which python3.7`
-    ln -s $(which python3.7)m-config  $run_env/python3-config
-    ln -s $(which python3.7) $run_env/python
-    ln -s $(which pip3.7) $run_env/pip
-
-    export PATH=$run_env:${PATH}
-
-    #pip install -r requirements.txt
-    pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
-    pip install pybind11 regex sentencepiece tqdm visualdl -i https://mirror.baidu.com/pypi/simple
-    pip install TensorRT
-    pip install -e ./
-
-    # Download test dataset and save it to PaddleNLP/data
-    if [ -d data ]; then
-        rm -rf data
-    fi
-    mkdir -p data && cd data
-    wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt/data/gpt_en_dataset_300m_ids.npy -o .tmp
-    wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt/data/gpt_en_dataset_300m_idx.npz -o .tmp
-    cd - 
-
-    model_name='nlp'
-    mode_list=(dygraph)
-    max_iters=200 # control the test time
-
-    SP_CARDNUM='0'
-    MP_CARDNUM='0,1,2,3,4,5,6,7'
-
-    # Running ...
-    rm -f ./run_benchmark.sh
-    cp ${BENCHMARK_ROOT}/dynamic_graph/gpt/paddle/run_benchmark.sh ./       # 拷贝脚本到当前目录
-    sed -i '/set\ -xe/d' run_benchmark.sh
-
-    for mod_item in ${mode_list[@]}; do
-        # gpt-2
-        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_sp_bs8_fp32_speed_1gpus 2>&1
-        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_mp_bs8_fp32_speed_8gpus 2>&1 
-        # in dygraph mod, the bs=16 will out of mem in 32G V100
-        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp16  ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_sp_bs8_fp16_speed_1gpus 2>&1
-        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp16 ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_dygraph_gpt2_mp_bs8_fp16_speed_8gpus 2>&1
-
-        # gpt-3
-        # gpt3 is optimized for speed and need paddle develop version
-        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_sp_bs8_fp32_speed_1gpus 2>&1
-        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_mp_bs8_fp32_speed_8gpus 2>&1
-        # in dygraph mod, the bs=16 will out of mem in 32G V100
-        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp16  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_sp_bs8_fp16_speed_1gpus 2>&1
-        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp16 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_dygraph_gpt3_mp_bs8_fp16_speed_8gpus 2>&1
-    done
+    sed -i "s/python3/python3.7/g"  examples/language_model/data_tools/Makefile  # 模型py3默认使用python37， benchmark 镜像python3 默认py35
+    sed -i '/set\ -xe/d' tests/benchmark/run_benchmark.sh
+    bash tests/benchmark/run_all.sh dygraph
 }
 
-dy_fomm(){
-    cd ${BENCHMARK_ROOT}
-    mv PaddleGAN PaddleGAN.bak
-    git clone https://github.com/PaddlePaddle/PaddleGAN.git -b develop
-    cur_model_path=${BENCHMARK_ROOT}/PaddleGAN
-    cd ${cur_model_path}
-
-    # Running ...
-    rm -f ./run_benchmark.sh
-    rm -f ./benchmark.yaml
-    cp ${BENCHMARK_ROOT}/dynamic_graph/fomm/paddle/run_benchmark.sh ./       # 拷贝脚本到当前目录
-    cp ${BENCHMARK_ROOT}/dynamic_graph/fomm/paddle/benchmark.yaml ./ 
-    sed -i '/set\ -xe/d' run_benchmark.sh
-
-    run_env=$BENCHMARK_ROOT/run_env
-    log_date=`date "+%Y.%m%d.%H%M%S"`
-
-
-    ################################# 配置python, 如:
-    rm -rf $run_env
-    mkdir $run_env
-    echo `which python3.7`
-    ln -s $(which python3.7)m-config  $run_env/python3-config
-    ln -s $(which python3.7) $run_env/python
-    ln -s $(which pip3.7) $run_env/pip
-
-    export PATH=$run_env:${PATH}
-    pip install -v -e .
-
-    #eval $(parse_yaml "benchmark.yaml")
-    parse_yaml "benchmark.yaml"
-
-    profile=${1:-"off"}
-
-    for model_mode in ${model_mode_list[@]}; do
-        eval fp_item_list='$'"${model_mode}_fp_item"
-        eval bs_list='$'"${model_mode}_bs_item"
-        eval config='$'"${model_mode}_config"
-        eval total_iters='$'"${model_mode}_total_iters"
-        eval epochs='$'"${model_mode}_epochs"
-        eval dataset_web='$'"${model_mode}_dataset_web"
-        eval dataset='$'"${model_mode}_dataset"
-        eval log_interval='$'"${model_mode}_log_interval"
-        if [ -n "$dataset_web" ]; then
-            wget ${dataset_web} -O data/${model_mode}.tar
-            tar -vxf data/${model_mode}.tar -C data/
-        fi
-        if [ -n "$total_iters" ]; then
-            mode="total_iters"
-            max_iter=$total_iters
-        else
-            mode="epochs"
-            max_iter=$epochs
-        fi
-        echo ${epochs}
-        for fp_item in ${fp_item_list[@]}; do
-                for bs_item in ${bs_list[@]}
-                do
-                    echo "index is speed, 1gpus, begin, ${model_name}"
-                    run_mode=sp
-                    CUDA_VISIBLE_DEVICES=0 benchmark/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${mode} ${max_iter} ${model_mode} ${config} ${log_interval} ${profile} | tee ${log_path}/gan_dygraph_fomm_sp_bs${bs_item}_fp${fp_item}_speed_1gpus 2>&1 #  (5min)
-                    sleep 60
-                    echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-                    run_mode=mp
-                    basicvsr_name=basicvsr
-                    if [ ${model_mode} = ${basicvsr_name} ]; then
-                        CUDA_VISIBLE_DEVICES=0,1,2,3 bash benchmark/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${mode} ${max_iter} ${model_mode} ${config} ${log_interval} ${profile} | tee ${log_path}/gan_dygraph_basicvsr_mp_bs${bs_item}_fp${fp_item}_speed_4gpus
-                    else
-                        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash benchmark/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${mode} ${max_iter} ${model_mode} ${config} ${log_interval} ${profile}  | tee ${log_path}/gan_dygraph_fomm_mp_bs${bs_item}_fp${fp_item}_speed_8gpus 2>&1
-                    fi
-                    sleep 60
-                done
-        done
-    done
-
-}
-
-dy_styleganv2(){
-    cd ${BENCHMARK_ROOT}
-    mv PaddleGAN PaddleGAN.bak
-    git clone https://github.com/PaddlePaddle/PaddleGAN.git -b develop
-    cur_model_path=${BENCHMARK_ROOT}/PaddleGAN
-    cd ${cur_model_path}
-
-    # Running ...
-    rm -f ./run_benchmark.sh
-    rm -f ./benchmark.yaml
-    cp ${BENCHMARK_ROOT}/dynamic_graph/styleganv2/paddle/run_benchmark.sh ./       # 拷贝脚本到当前目录
-    cp ${BENCHMARK_ROOT}/dynamic_graph/styleganv2/paddle/benchmark.yaml ./ 
-    sed -i '/set\ -xe/d' run_benchmark.sh
-
-    run_env=$BENCHMARK_ROOT/run_env
-    log_date=`date "+%Y.%m%d.%H%M%S"`
-
-
-    ################################# 配置python, 如:
-    rm -rf $run_env
-    mkdir $run_env
-    echo `which python3.7`
-    ln -s $(which python3.7)m-config  $run_env/python3-config
-    ln -s $(which python3.7) $run_env/python
-    ln -s $(which pip3.7) $run_env/pip
-
-    export PATH=$run_env:${PATH}
-    pip install -v -e .
-
-    #eval $(parse_yaml "benchmark.yaml")
-    parse_yaml "benchmark.yaml"
-
-    profile=${1:-"off"}
-
-    for model_mode in ${model_mode_list[@]}; do
-        eval fp_item_list='$'"${model_mode}_fp_item"
-        eval bs_list='$'"${model_mode}_bs_item"
-        eval config='$'"${model_mode}_config"
-        eval total_iters='$'"${model_mode}_total_iters"
-        eval epochs='$'"${model_mode}_epochs"
-        eval dataset_web='$'"${model_mode}_dataset_web"
-        eval dataset='$'"${model_mode}_dataset"
-        eval log_interval='$'"${model_mode}_log_interval"
-        if [ -n "$dataset_web" ]; then
-            wget ${dataset_web} -O data/${model_mode}.tar
-            tar -vxf data/${model_mode}.tar -C data/
-        fi
-        if [ -n "$total_iters" ]; then
-            mode="total_iters"
-            max_iter=$total_iters
-        else
-            mode="epochs"
-            max_iter=$epochs
-        fi
-        echo ${epochs}
-        for fp_item in ${fp_item_list[@]}; do
-                for bs_item in ${bs_list[@]}
-                do
-                    echo "index is speed, 1gpus, begin, ${model_name}"
-                    run_mode=sp
-                    CUDA_VISIBLE_DEVICES=0 benchmark/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${mode} ${max_iter} ${model_mode} ${config} ${log_interval} ${profile}  | tee ${log_path}/gan_dygraph_styleganv2_sp_bs${bs_item}_fp${fp_item}_speed_1gpus 2>&1 #  (5min)
-                    sleep 60
-                    echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-                    run_mode=mp
-                    basicvsr_name=basicvsr
-                    if [ ${model_mode} = ${basicvsr_name} ]; then
-                        CUDA_VISIBLE_DEVICES=0,1,2,3 bash benchmark/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${mode} ${max_iter} ${model_mode} ${config} ${log_interval} ${profile}  | tee ${log_path}/gan_dygraph_basicvsr_mp_bs${bs_item}_fp${fp_item}_speed_4gpus
-                    else
-                        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash benchmark/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} ${mode} ${max_iter} ${model_mode} ${config} ${log_interval} ${profile}  | tee ${log_path}/gan_dygraph_styleganv2_mp_bs${bs_item}_fp${fp_item}_speed_8gpus 2>&1
-                    fi
-                    sleep 60
-                done
-        done
-    done
-}
-
-function parse_yaml {
-        local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
-        sed -ne "s|^\($s\):|\1|" \
-            -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
-            -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
-        awk -F$fs '{
-            indent = length($1)/2;
-            vname[indent] = $2;
-            if (indent == 0) {
-                model_mode_list[model_num]=$2;
-                printf("model_mode_list[%d]=%s\n",(model_num), $2);
-                printf("model_num=%d\n", (model_num+1));
-                model_num=(model_num+1);
-            }
-            for (i in vname) {if (i > indent) {delete vname[i]}}
-            if (length($3) >= 0) {
-                vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-                printf("%s%s=\"%s\"\n",vn, $2, $3);
-            }
-        }'
-}
 
 dy_xlnet() {
     cd ${BENCHMARK_ROOT}
     run_env=$BENCHMARK_ROOT/run_env
-    mv PaddleNLP PaddleNLP.bak
-    git clone https://github.com/PaddlePaddle/PaddleNLP.git -b develop
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
     cd ${cur_model_path}
 

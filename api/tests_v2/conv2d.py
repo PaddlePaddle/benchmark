@@ -104,6 +104,27 @@ class PDConv2d(PaddleAPIBenchmarkBase):
         if config.backward:
             self.append_gradients(result, [x, weight])
 
+    def compute_flop_and_byte(self, config):
+        """ flop is used as a metric for op's performance and it is optional.
+        """
+        filter_shape = self.feed_vars[1].shape
+        output_shape = self.fetch_vars[0].shape
+        if config.data_format == "NCHW":
+            M = output_shape[0] * output_shape[2] * output_shape[3]
+            N = output_shape[1]
+        elif data_format == "NHWC":
+            M = output_shape[0] * output_shape[1] * output_shape[2]
+            N = output_shape[3]
+        K = filter_shape[1] * filter_shape[2] * filter_shape[3]
+        forward_flop = 2 * M * N * K
+        print("Forward: M = %d, N = %d, K = %d, gflop = %.5f" %
+              (M, N, K, float(forward_flop) * 1E-9))
+
+        if not config.backward:
+            return forward_flop, None
+        else:
+            return None, None
+
 
 class TFConv2d(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):

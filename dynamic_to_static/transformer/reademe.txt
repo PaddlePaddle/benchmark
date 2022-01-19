@@ -1,0 +1,3 @@
+
+
+# NOTE: transformer_base 复用动态图脚本，添加动转静参数，默认值为false

@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cur_model_list=(detection mask_rcnn image_classification seg_model transformer bert yolov3 gpt)
+cur_model_list=(detection mask_rcnn image_classification seg_model transformer bert yolov3  gpt)
 
-log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
+export log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
 
 #run_seg_models
 seg_model(){
@@ -34,13 +34,17 @@ seg_model(){
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu, begin"
     model_list=(deeplabv3 HRnet)
+    bs_item=2
     for model_item in ${model_list[@]}
     do
+        if [ ${model_item} = "HRnet" ]; then
+            bs_item=8
+        fi
         echo "index is speed, ${model_item} 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 180 | tee ${log_path}/${FUNCNAME}_${model_item}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 180 ${bs_item} | tee ${log_path}/${FUNCNAME}_${model_item}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, ${model_item} 8gpu begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 180 | tee ${log_path}/${FUNCNAME}_${model_item}_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 180 ${bs_item} | tee ${log_path}/${FUNCNAME}_${model_item}_speed_8gpus 2>&1
         sleep 60
         echo "index is speed, 1gpu, profiler is on, begin"
 #       CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp ${model_item} 200  | tee ${log_path}/${model_item}_speed_1gpus_profiler 2>&1
@@ -53,10 +57,10 @@ seg_model(){
 image_classification(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout -b static a8f21e0167e4de101cbcd241b575fb09bbcaced9
     pip install -r requirements.txt
     # Prepare data
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset/
+    ln -s ${data_path}/ILSVRC2012 ${cur_model_path}/dataset/
     # Copy run_benchmark.sh and running ...
     rm -rf ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/static_graph/image_classification/paddle/run_benchmark_resnet.sh ./run_benchmark.sh
@@ -262,7 +266,7 @@ bert(){
 
 #run_transformer
 transformer(){
-    pip install paddlenlp==2.0.5 # 20210723：nlp API不兼容升级，导致模型报错；暂时使用paddlenlp=2.0.5版本；后续进行子库代码升级
+    pip install paddlenlp
     pip install attrdict
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/machine_translation/transformer/static
     cd ${cur_model_path}
@@ -645,67 +649,9 @@ nextvlad(){
 }
 
 gpt(){
-    profile=${1:-"off"}
-
-    cd ${BENCHMARK_ROOT}
-    mv PaddleNLP PaddleNLP.bak
-    git clone https://github.com/PaddlePaddle/PaddleNLP.git -b develop
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
     cd ${cur_model_path}
-
-    run_env=$BENCHMARK_ROOT/run_env
-    rm -rf $run_env
-    mkdir $run_env
-    echo `which python3.7`
-    ln -s $(which python3.7)m-config  $run_env/python3-config
-    ln -s $(which python3.7) $run_env/python
-    ln -s $(which pip3.7) $run_env/pip
-
-    export PATH=$run_env:${PATH}
-
-    #pip install -r requirements.txt
-    pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
-    pip install pybind11 regex sentencepiece tqdm visualdl -i https://mirror.baidu.com/pypi/simple
-    pip install TensorRT
-    pip install -e ./
-
-    # Download test dataset and save it to PaddleNLP/data
-    if [ -d data ]; then
-        rm -rf data
-    fi
-    mkdir -p data && cd data
-    wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt/data/gpt_en_dataset_300m_ids.npy -o .tmp
-    wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt/data/gpt_en_dataset_300m_idx.npz -o .tmp
-    cd -
-
-    model_name='nlp'
-    mode_list=(static)
-    max_iters=200 # control the test time
-
-
-    SP_CARDNUM='0'
-    MP_CARDNUM='0,1,2,3,4,5,6,7'
-
-
-    # Running ...
-    rm ./run_benchmark.sh
-    cp ${BENCHMARK_ROOT}/static_graph/gpt/paddle/run_benchmark.sh ./
-    sed -i '/set\ -xe/d' run_benchmark.sh
-
-    for mod_item in ${mode_list[@]}; do
-        # gpt-2
-        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_static_gpt2_sp_bs8_fp32_speed_1gpus 2>&1
-        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash tests/benchmark/run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_static_gpt2_mp_bs8_fp32_speed_8gpus 2>&1
-        # in dygraph mod, the bs=16 will out of mem in 32G V100
-        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 16 fp16  ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_static_gpt2_sp_bs16_fp16_speed_1gpus 2>&1
-        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 16 fp16 ${max_iters} ${model_name} ${mod_item} ${profile} | tee ${log_path}/nlp_static_gpt2_mp_bs16_fp16_speed_8gpus 2>&1
-
-        # gpt-3
-        # gpt3 is optimized for speed and need paddle develop version
-        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 8 fp32  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_static_gpt3_sp_bs8_fp32_speed_1gpus 2>&1
-        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 8 fp32 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_static_gpt3_mp_bs8_fp32_speed_8gpus 2>&1
-        # in dygraph mod, the bs=16 will out of mem in 32G V100
-        CUDA_VISIBLE_DEVICES=$SP_CARDNUM bash run_benchmark.sh sp 16 fp16  ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_static_gpt3_sp_bs16_fp16_speed_1gpus 2>&1
-        CUDA_VISIBLE_DEVICES=$MP_CARDNUM bash run_benchmark.sh mp 16 fp16 ${max_iters} ${model_name} ${mod_item} ${profile} gpt3 | tee ${log_path}/nlp_static_gpt3_mp_bs16_fp16_speed_8gpus 2>&1
-    done
+    sed -i "s/python3/python3.7/g"  examples/language_model/data_tools/Makefile  # 模型py3默认使用python37， benchmark >镜像python3 默认py35
+    sed -i '/set\ -xe/d' tests/benchmark/run_benchmark.sh
+    bash tests/benchmark/run_all.sh static
 }

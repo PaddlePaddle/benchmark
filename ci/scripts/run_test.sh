@@ -58,7 +58,7 @@ function prepare_env(){
   done
   # Install pytorch
   LOG "[INFO] Installing pytorch, this could take a few minutes ..."
-  pip install torch==1.8.0 torchvision torchaudio
+  pip install torch==1.10.0 torchvision torchaudio
   [ $? -ne 0 ] && LOG "[FATAL] Install pytorch failed!" && exit -1
   python -c "import tensorflow as tf; print(tf.__version__)" > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install tensorflow success, but it can't work!" && exit -1
@@ -73,6 +73,7 @@ function run_api(){
   do
     LOG "[INFO] Found ${file} modified."
     api=${file#*api/} && api=${api%.*}
+    [[ "$api" =~ "common_import" ]] && continue
     [ -f "${BENCHMARK_ROOT}/api/${api}.py" ] && API_NAMES[${#API_NAMES[@]}]=$api
     if [[ "$file" =~ ".json" ]]
     then

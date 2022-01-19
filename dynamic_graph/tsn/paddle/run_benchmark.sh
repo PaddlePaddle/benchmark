@@ -40,7 +40,7 @@ function _set_params(){
 }
 
 function _train(){
-    train_cmd="-c configs/recognition/tsn/tsn.yaml
+    train_cmd="-c configs/recognition/tsn/tsn_k400_frames.yaml
                -o MODEL.backbone.pretrained="./ResNet50_pretrain.pdparams"
                -o epochs=${max_epoch}
                -o DATASET.num_workers=8

@@ -117,15 +117,23 @@ def _parse_parameters(case_name, last_line):
 def _parse_speed(case_name, statistic_type, last_line):
     assert res.get(case_name, None) is not None
 
-    gpu_time_key_map = {
-        "paddle_gpu_speed_forward": "gpu_time",
-        "paddle_gpu_speed_backward": "gpu_time_backward",
-        "tensorflow_gpu_speed_forward": "tf_gpu_time",
-        "tensorflow_gpu_speed_backward": "tf_gpu_time_backward",
-        "pytorch_gpu_speed_forward": "pytorch_gpu_time",
-        "pytorch_gpu_speed_backward": "pytorch_gpu_time_backward"
+    speed_key_map = {
+        "paddle_gpu_speed_forward": "%",
+        "paddle_gpu_speed_backward": "%_backward",
+        "tensorflow_gpu_speed_forward": "tf_%",
+        "tensorflow_gpu_speed_backward": "tf_%_backward",
+        "pytorch_gpu_speed_forward": "pytorch_%",
+        "pytorch_gpu_speed_backward": "pytorch_%_backward"
     }
-    gpu_time_key = gpu_time_key_map.get(statistic_type, None)
+    speed_key = speed_key_map.get(statistic_type, None)
+    if speed_key is not None:
+        gpu_time_key = speed_key.replace("%", "gpu_time")
+        gflops_key = speed_key.replace("%", "gflops")
+        gbs_key = speed_key.replace("%", "gbs")
+    else:
+        gpu_time_key = None
+        gflops_key = None
+        gbs_key = None
 
     try:
         data = json.loads(last_line)
@@ -143,13 +151,22 @@ def _parse_speed(case_name, statistic_type, last_line):
             #   gpu_time_backward
             #   tf_gpu_time
             #   tf_gpu_time_backward
-            gpu_time = data["speed"]["gpu_time"]
-            gpu_time_str = "%.5f" % gpu_time
+            gpu_time_str = "%.5f" % data["speed"]["gpu_time"]
             res[case_name][gpu_time_key] = gpu_time_str
+        if gflops_key and data["speed"].get("gflops", None) is not None:
+            gflops_str = "%.5f" % data["speed"]["gflops"]
+            res[case_name][gflops_key] = gflops_str
+        if gbs_key and data["speed"].get("gbs", None) is not None:
+            gbs_str = "%.5f" % data["speed"]["gbs"]
+            res[case_name][gbs_key] = gbs_str
     except Exception:
         res[case_name][statistic_type] = "--"
         if gpu_time_key:
             res[case_name][gpu_time_key] = "--"
+        if gflops_key:
+            res[case_name][gflops_key] = "--"
+        if gbs_key:
+            res[case_name][gbs_key] = "--"
 
 
 def _parse_accuracy(case_name, statistic_type, last_line):

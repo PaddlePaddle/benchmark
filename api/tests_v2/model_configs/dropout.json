@@ -1,0 +1,380 @@
+[{
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,36,2048]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,40,2048]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,38,2048]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "op": "dropout",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,42,2048]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "repeat": 5000
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,36,256]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,36,256]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,6,2048]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,6,256]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1,43,256]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,43,256]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,42,256]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,7,256]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,38,256]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16,40,256]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float16",
+            "shape": "[8,12,1024,1024]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float16",
+            "shape": "[8,1024,768]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8,1024,768]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}, {
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8,12,1024,1024]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "string",
+            "value": "None"
+        },
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        }
+    },
+    "op": "dropout"
+}]

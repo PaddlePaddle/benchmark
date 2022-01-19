@@ -3,6 +3,14 @@
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
 docker pull ${ImageName}
 
+#<<<<<<< gan_benchmark
+#run_cmd="cd /workspace/;
+#         cp /workspace/scripts/PrepareEnv.sh ./;
+#         bash PrepareEnv.sh;
+#         cd /workspace/first-order-model;
+nvidia-docker stop test_torch_gan
+nvidia-docker rm test_torch_gan
+
 run_cmd="cp /workspace/scripts/PrepareEnv.sh ./;
          bash PrepareEnv.sh;
          cd /workspace/models/fomm;

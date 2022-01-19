@@ -29,7 +29,7 @@ class ElementwiseConfig(APIConfig):
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
     def disabled(self):
-        if self.api_name in ["pow", "maximum", "minimum", "divide"
+        if self.api_name in ["pow", "maximum", "minimum"
                              ] and self.x_dtype == "float16":
             print(
                 "Warning:\n"
@@ -59,6 +59,19 @@ class PDElementwise(PaddleDynamicAPIBenchmarkBase):
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, self.feed_list)
+
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        y_shape = config.y_shape
+        out_shape = self.fetch_list[0].shape
+        forward_flop = numel(out_shape)
+        forward_byte = (numel(x_shape) + numel(y_shape) + numel(out_shape)
+                        ) * sizeof(config.x_dtype)
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
 
 
 class TorchElementwise(PytorchAPIBenchmarkBase):
