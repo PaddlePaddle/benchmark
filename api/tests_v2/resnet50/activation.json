@@ -1,5 +1,5 @@
 [{
-    "config": "0",
+    "config_id": 0,
     "op": "activation",
     "param_info": {
         "x": {
@@ -7,10 +7,9 @@
             "shape": "[-1L, 64L, 112L, 112L]",
             "type": "Variable"
         }
-    },
-    "repeat": 5000
+    }
 }, {
-    "config": "1",
+    "config_id": 1,
     "op": "activation",
     "param_info": {
         "x": {
@@ -20,7 +19,7 @@
         }
     }
 }, {
-    "config": "2",
+    "config_id": 2,
     "op": "activation",
     "param_info": {
         "x": {
@@ -30,7 +29,7 @@
         }
     }
 }, {
-    "config": "3",
+    "config_id": 3,
     "op": "activation",
     "param_info": {
         "x": {
@@ -40,7 +39,7 @@
         }
     }
 }, {
-    "config": "4",
+    "config_id": 4,
     "op": "activation",
     "param_info": {
         "x": {
@@ -50,7 +49,7 @@
         }
     }
 }, {
-    "config": "5",
+    "config_id": 5,
     "op": "activation",
     "param_info": {
         "x": {
@@ -60,7 +59,7 @@
         }
     }
 }, {
-    "config": "6",
+    "config_id": 6,
     "op": "activation",
     "param_info": {
         "x": {
@@ -70,7 +69,7 @@
         }
     }
 }, {
-    "config": "6",
+    "config_id": 7,
     "op": "activation",
     "param_info": {
         "x": {
@@ -80,7 +79,7 @@
         }
     }
 }, {
-    "config": "7",
+    "config_id": 8,
     "op": "activation",
     "param_info": {
         "x": {
@@ -90,7 +89,7 @@
         }
     }
 }, {
-    "config": "8",
+    "config_id": 9,
     "op": "activation",
     "param_info": {
         "x": {
@@ -100,7 +99,7 @@
         }
     }
 }, {
-    "config": "9",
+    "config_id": 10,
     "op": "activation",
     "param_info": {
         "x": {
@@ -110,12 +109,12 @@
         }
     }
 }, {
-    "config": "10",
+    "config_id": 11,
     "op": "activation",
     "param_info": {
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 1024L, 7L, 7L]",
+            "shape": "[-1L, 2048L, 7L, 7L]",
             "type": "Variable"
         }
     }
