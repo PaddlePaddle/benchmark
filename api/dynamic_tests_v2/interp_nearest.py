@@ -40,6 +40,38 @@ class PDInterpNearest(PaddleDynamicAPIBenchmarkBase):
         if config.backward:
             self.append_gradients(out, [x])
 
+    def compute_flops_and_byte(self, config):
+        # at least one of out_shape and scale must be set 
+        x_shape = config.x_shape
+        out_size = config.size
+        assert (config.scale_factor is None and out_size is None
+                ), "at least one of out_shape and scale must be set"
+
+        # forward flops
+        out_shape = x_shape[0:-len(out_size)] + out_size
+        forward_flop = numel(out_shape) * 2 if config.align_corners else numel(
+            out_shape)
+
+        # forward byte
+        # and config.size has higher priority than config.scale_factor
+        if isinstance(out_size, (list, tuple)):
+            out_shape = x_shape[0:-len(out_size)] + out_size
+        elif isinstance(config.scale_factor, list or tuple):
+            scale_length = len(config.scale_factor)
+            change_out = x_shape[-scale_length:]
+            scale_out = [
+                i * j for i, j in zip(change_out, config.scale_factor)
+            ]
+            out_shape = x_shape[0:-scale_length] + scale_out
+
+        read_byte = numel(out_shape) * sizeof(config.x_dtype)
+        forward_byte = read_byte * 2
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # to be implemented.
+            return None, None
+
 
 class TorchInterpNearest(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
