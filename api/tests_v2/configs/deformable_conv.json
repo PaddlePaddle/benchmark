@@ -1,0 +1,47 @@
+[{
+    "config_id": 0,
+    "op": "deformable_conv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[6, 512, 19, 34]",
+            "type": "Variable"
+        },
+        "offset": {
+            "dtype": "float32",
+            "shape": "[6, 18, 19, 34]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[256, 512, 3, 3]",
+            "type": "Variable"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "deformable_groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        },
+        "mask": {
+            "dtype": "float32",
+            "shape": "[6, 9, 19, 34]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.01
+}]

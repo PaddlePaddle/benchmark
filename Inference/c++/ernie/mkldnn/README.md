@@ -7,7 +7,7 @@
 ```bash
 git clone https://github.com/PaddlePaddle/Paddle.git
 cd Paddle
-git checkout tags/v2.0.0 -b v2.0.0
+git checkout tags/v2.0.2 -b v2.0.2
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
       -DWITH_GPU=OFF \
@@ -122,16 +122,16 @@ export KMP_BLOCKTIME=1
 
 ## 复现结果参考
 
->**I. Ernie QAT MKL-DNN 在 Intel(R) Xeon(R) Gold 6271 的精度结果**
+>**I. Ernie QAT MKL-DNN 在 Intel(R) Xeon(R) Gold 6248 CPU @ 2.50GHz 的精度结果**
 
 |     Model    |  FP32 Accuracy | QAT INT8 Accuracy | Accuracy Diff |
 |:------------:|:----------------------:|:----------------------:|:---------:|
 |   Ernie      |          80.20%        |         79.44%   |     -0.76%      |
 
 
->**II. Ernie QAT MKL-DNN 在 Intel(R) Xeon(R) Gold 6271 上单样本耗时**
+>**II. Ernie QAT MKL-DNN 在 Intel(R) Xeon(R) Gold 6248 CPU @ 2.50GHz 上单样本耗时**
 
 |     Threads  | FP32 Latency (ms) | QAT INT8 Latency (ms)    | Ratio (FP32/INT8) |
 |:------------:|:----------------------:|:-------------------:|:-----------------:|
-| 1 thread     |       237.21          |      79.26           |    2.99X       |
-| 20 threads   |       22.08           |      12.57           |    1.76X       |
+| 1 thread     |       228.41          |      75.23           |     3.04X         |
+| 20 threads   |       23.93           |      10.98           |     2.18X         |

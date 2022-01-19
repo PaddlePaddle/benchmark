@@ -1,0 +1,1565 @@
+[{
+    "config_id": 0,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[50L, 128L, 1000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[128L, 1000L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
+}, {
+    "config_id": 1,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "0"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[50L, 128L, 1000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L, 128L, 1000L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
+}, {
+    "config_id": 2,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "0"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, 7L, 7L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1e-5,
+    "repeat": 5000
+}, {
+    "config_id": 3,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, -1L, -1L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, -1L, -1L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
+}, {
+    "config_id": 4,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1L, 513L, 513L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.1,
+    "repeat": 5000
+}, {
+    "config_id": 5,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[512L, 896L, 4L, 12L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[512L, 896L, 4L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 5000
+}, {
+    "config_id": 6,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[512L, 896L, 4L, 12L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[512L, 896L, 4L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.01,
+    "repeat": 5000
+}, {
+    "config_id": 7,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 12L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[32L, 1L, 1L, 128L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1
+}, {
+    "config_id": 8,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[768L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
+}, {
+    "config_id": 9,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 12L, 128L, 1L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[32L, 1L, 1L, 128L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
+}, {
+    "config_id": 10,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16L, 2048L, 7L, 7L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[16L, 2048L, 1L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
+}, {
+    "config_id": 11,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[16L, 1L, 513L, 513L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
+}, {
+    "config_id": 12,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 1L, 1L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L, 12L, 128L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
+}, {
+    "config_id": 13,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 12L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[32L, 1L, 128L, 128L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 10000
+}, {
+    "config_id": 14,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[32L, 12L, 128L, 127L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float16",
+            "shape": "[32L, 12L, 1L, 127L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 10000
+}, {
+    "config_id": 15,
+    "op": "elementwise",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 12L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[32L, 12L, 128L, 128L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 10000
+}, {
+    "config_id": 16,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 128L, 402L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 128L, 402L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 17,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 64L, 402L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 64L, 402L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 18,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L, 32L, 402L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L, 32L, 402L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 19,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, 16L, 402L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, 16L, 402L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 20,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 56L, 56L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 56L, 56L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 21,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 28L, 28L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 28L, 28L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 22,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L, 14L, 14L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L, 14L, 14L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 23,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, 7L, 7L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, 7L, 7L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 24,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 256L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 256L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 25,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 32L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 32L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 26,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L, 128L, 128L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 27,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L, 256L, 256L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L, 256L, 256L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 28,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 29,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 30,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 728L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 728L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 31,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 1024L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 1024L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 32,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 800L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[800L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 33,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 20L, 10000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[10000L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 34,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 6000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[6000L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 35,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 35L, 10000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[10000L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 36,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[2048L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 37,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 38,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[768L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 39,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 3072L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[3072L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 40,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 30522L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[30522L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 41,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1024L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 42,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 1024L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1024L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 43,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 4096L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[4096L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 44,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 256L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[128L, 256L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 45,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 32L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[128L, 32L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 46,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 56L, 56L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 47,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L, 28L, 28L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 48,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[512L, 896L, 4L, 12L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[512L, 896L, 4L, 1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 49,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L, 14L, 14L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 50,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, 7L, 7L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 51,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 8L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 8L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 52,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 13L, 4L, 4L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 13L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 52,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 13L, 8L, 8L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 13L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 53,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 13L, 16L, 16L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 13L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 54,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 13L, 32L, 32L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 13L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 55,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 13L, 64L, 64L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 13L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 56,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 57,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 58,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 12L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 1L, 1L, 128L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 59,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 16L, 512L, 512L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 1L, 1L, 512L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 60,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 512L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 61,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "int32",
+            "shape": "[-1L, 1L, 513L, 513L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "int32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 62,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[10000L, 200L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 63,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[800L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 64,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[400L, 800L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 65,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[10000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 66,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[200L, 10000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 67,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[10000L, 1500L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 68,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[6000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 69,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[3000L, 6000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 70,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1500L, 10000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 71,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L, 3L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 72,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[4096L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 73,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L, 4096L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 74,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 75,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[4096L, 1024L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 76,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L, 1024L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 77,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[512L, 1024L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 78,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2L, 1024L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 79,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[30522L, 1024L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 80,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2048L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 81,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L, 2048L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 82,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1536L, 2048L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 83,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[512L, 512L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 84,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L, 512L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 85,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[512L, 7709L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 86,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[17191L, 512L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 87,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[7709L, 512L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 88,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[768L, 3L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 89,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[3072L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 90,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[768L, 3072L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 91,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 92,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[3072L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 93,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[768L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 94,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[512L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 95,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 96,
+    "op": "elementwise",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[21128L, 768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    }
+}]

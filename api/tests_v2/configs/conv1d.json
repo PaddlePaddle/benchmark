@@ -1,0 +1,35 @@
+[{
+    "op": "conv1d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCL"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[2L, 6L, 8L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[4L, 6L, 6L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}]

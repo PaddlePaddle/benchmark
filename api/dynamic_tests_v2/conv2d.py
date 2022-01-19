@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ class Conv2dConfig(APIConfig):
         if self.data_format == 'NHWC':
             print(
                 "Warning:\n"
-                "  1. PyTorch does not have data_format param, it only support NHWC format.\n"
+                "  1. PyTorch does not have data_format param, it only support NCHW format.\n"
             )
             self.run_torch = False
 

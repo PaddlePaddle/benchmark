@@ -22,37 +22,68 @@ class BatchNormConfig(APIConfig):
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(BatchNormConfig, self).init_from_json(filename, config_id,
                                                     unknown_dim)
+        # num_channels
         if len(self.x_shape) == 4:
-            if self.data_format == "NCHW":
-                self.num_channels = self.x_shape[1]
-            else:
-                self.num_channels = self.x_shape[3]
+            self.num_channels = self.x_shape[
+                1] if self.data_format == "NCHW" else self.x_shape[3]
         else:
             self.num_channels = self.x_shape[1]
+
+        self._set_param_dtype()
+        if self.data_format == 'NHWC':
+            print(
+                "Warning:\n"
+                "  1. PyTorch does not have data_format param, it only support NHWC format.\n"
+            )
+            self.run_torch = False
+
+    def _set_param_dtype(self):
+        # dtype of parameters
+        self.param_dtype = "float32" if self.x_dtype == "float16" else self.x_dtype
+
+    def convert_to_fp16(self):
+        super(BatchNormConfig, self).convert_to_fp16()
+        if self.data_format == "NHWC":
+            paddle.fluid.set_flags({
+                'FLAGS_cudnn_batchnorm_spatial_persistent': 1
+            })
+        self._set_param_dtype()
 
 
 class PDBatchNorm(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
-            name='weight', shape=[config.num_channels], dtype=config.x_dtype)
+            name='weight',
+            shape=[config.num_channels],
+            dtype=config.param_dtype)
         bias = self.variable(
-            name='bias', shape=[config.num_channels], dtype=config.x_dtype)
+            name='bias', shape=[config.num_channels], dtype=config.param_dtype)
 
-        running_mean = paddle.create_parameter(
-            name='running_mean',
-            shape=[config.num_channels],
-            dtype=config.x_dtype,
-            attr=paddle.ParamAttr(
-                initializer=paddle.nn.initializer.Constant(0.5)))
-        running_mean.stop_gradient = True
-        running_var = paddle.create_parameter(
-            name='running_var',
-            shape=[config.num_channels],
-            dtype=config.x_dtype,
-            attr=paddle.ParamAttr(
-                initializer=paddle.nn.initializer.Constant(0.1)))
-        running_var.stop_gradient = True
+        # running_mean and running_var will be used as input and output.
+        # When training and use_global_stats is False, input mean and variance
+        # will not be used, output mean and variance_out will be updated.
+        # So it is not need to initialize running_mean and running_variance
+        # every time for this case.
+        if not config.training or not hasattr(self, "_running_mean"):
+            self._running_mean = paddle.create_parameter(
+                name='running_mean',
+                shape=[config.num_channels],
+                dtype=config.param_dtype,
+                attr=paddle.ParamAttr(
+                    initializer=paddle.nn.initializer.Constant(0)))
+            self._running_mean.stop_gradient = True
+        running_mean = self._running_mean
+
+        if not config.training or not hasattr(self, "_running_var"):
+            self._running_var = paddle.create_parameter(
+                name='running_var',
+                shape=[config.num_channels],
+                dtype=config.param_dtype,
+                attr=paddle.ParamAttr(
+                    initializer=paddle.nn.initializer.Constant(1)))
+            self._running_var.stop_gradient = True
+        running_var = self._running_var
 
         result = paddle.nn.functional.batch_norm(
             x=x,
@@ -70,17 +101,61 @@ class PDBatchNorm(PaddleDynamicAPIBenchmarkBase):
         if config.backward:
             self.append_gradients(result, [x, weight, bias])
 
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        c = config.num_channels
+        # forward flop
+        flop_mean = numel(x_shape) + c  # reduce_sum(x) / M
+        flop_var = numel(
+            x_shape) * 2 + 3 * c  # reduce_sum(x * x) / M - mean * mean
+        flop_running_mean = 3 * c  # running_mean * momentum + mean * (1 - momentum)
+        flop_running_var = 3 * c  # running_var * momentum + var * (1 - momentum)
+        # How to calculate the flop of math functions, like sqrt?
+        flop_y = numel(
+            x_shape) * 5  # scale * (x - mean) / sqrt(var + epsilon) + bias
+        forward_flop = flop_mean + flop_var + flop_running_mean + flop_running_var + flop_y
+        # forward byte
+        # read: x, running_mean, running_var, scale, bias
+        # write: y, mean, var, running_mean (updated), running_var (updated)
+        byte_read = numel(x_shape) * sizeof(config.x_dtype) + 4 * c * sizeof(
+            config.param_dtype)
+        byte_write = numel(x_shape) * sizeof(config.x_dtype) + 4 * c * sizeof(
+            config.param_dtype)
+        forward_byte = byte_read + byte_write
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
+
 
 class TorchBatchNorm(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
-            name='weight', shape=[config.num_channels], dtype=config.x_dtype)
+            name='weight',
+            shape=[config.num_channels],
+            dtype=config.param_dtype)
         bias = self.variable(
-            name='bias', shape=[config.num_channels], dtype=config.x_dtype)
+            name='bias', shape=[config.num_channels], dtype=config.param_dtype)
 
-        running_mean = torch.zeros([config.num_channels]).cuda()
-        running_var = torch.ones([config.num_channels]).cuda()
+        # running_mean and running_var will be used as input and output.
+        # When training and use_global_stats is False, input mean and variance
+        # will not be used, output mean and variance_out will be updated.
+        # So it is not need to initialize running_mean and running_variance
+        # every time for this case.
+        device = torch.device("cuda" if use_gpu() and torch.cuda.is_available()
+                              else "cpu")
+        if not config.training or not hasattr(self, "_running_mean"):
+            self._running_mean = torch.zeros(
+                [config.num_channels], device=device)
+        running_mean = self._running_mean
+
+        if not config.training or not hasattr(self, "_running_var"):
+            self._running_var = torch.ones(
+                [config.num_channels], device=device)
+        running_var = self._running_var
+
         result = torch.nn.functional.batch_norm(
             input=x,
             running_mean=running_mean,

@@ -14,7 +14,6 @@
 
 from __future__ import print_function
 
-import six
 import sys
 import traceback
 import numpy as np
@@ -22,12 +21,7 @@ import json
 import collections
 import itertools
 
-from common import special_op_list
-
-if six.PY3:
-    from . import special_op_list
-else:
-    import special_op_list
+from . import special_op_list
 
 
 class ArrayComparator(object):
@@ -60,27 +54,21 @@ class ArrayComparator(object):
             str(self.output_diff_value), str(self.target_diff_value))
 
     def _compare(self, output, target, atol):
-        if output.dtype == np.bool:
-            absolute_diff = np.array_equal(output, target)
-            self.max_absolute_diff = np.float32(np.logical_not(absolute_diff))
-            if absolute_diff == False:
-                for i in range(len(output)):
-                    if output[i] != target[i]:
-                        self.offset = i
-            self.max_relative_diff = self.max_absolute_diff
-            self.consistent = np.array_equal(output, target)
+        output_fp32 = output.astype(np.float32)
+        target_fp32 = target.astype(np.float32)
+
+        # maximum absolute difference
+        absolute_diff = np.abs(output_fp32 - target_fp32)
+        self.max_absolute_diff = np.max(absolute_diff)
+        self.offset = np.argmax(absolute_diff)
+
+        # maximum relative difference
+        max_target_value = np.max(np.abs(target_fp32))
+        if max_target_value != 0:
+            self.max_relative_diff = self.max_absolute_diff / max_target_value
         else:
-            # maximum absolute difference
-            absolute_diff = np.abs(output - target)
-            self.max_absolute_diff = np.max(absolute_diff)
-            self.offset = np.argmax(absolute_diff)
-            # maximum relative difference
-            max_target_value = np.max(np.abs(target))
-            if max_target_value != 0:
-                self.max_relative_diff = self.max_absolute_diff / max_target_value
-            else:
-                self.max_relative_diff = 0.0
-            self.consistent = np.allclose(output, target, atol=atol)
+            self.max_relative_diff = 0.0
+        self.consistent = np.allclose(output_fp32, target_fp32, atol=atol)
 
         self.output_diff_value = output[self.offset]
         self.target_diff_value = target[self.offset]
@@ -88,8 +76,9 @@ class ArrayComparator(object):
 
 def _check_type(output, target):
     def _is_numpy_dtype(value):
-        if type(value
-                ) in [np.float32, np.float16, np.int32, np.int64, np.bool]:
+        if type(value) in [
+                np.float32, np.float16, np.int32, np.int64, np.bool, np.bool_
+        ]:
             return True
         else:
             return False
@@ -208,43 +197,52 @@ def check_outputs(output_list,
             if output.shape == target.shape:
                 diff_comparator_i = ArrayComparator(output, target, atol)
 
-            if diff_comparator_i is None or diff_comparator_i > atol:
-                # Try to compare output with permuted target.
-                choosed_permutations = _permute_order(name, output, target)
-                permutation = None
-                for permutation_tmp in choosed_permutations:
-                    target_transposed = np.transpose(target, permutation_tmp)
-                    diff_comparator_i_tmp = ArrayComparator(
-                        output, target_transposed, atol)
-                    if diff_comparator_i is None or diff_comparator_i > diff_comparator_i_tmp:
-                        diff_comparator_i = diff_comparator_i_tmp
-                        permutation = permutation_tmp
-                if permutation is not None:
-                    print(
-                        "---- Warning: The %d-th output need permute. The permutation is %s, outputs shape are %s vs %s."
-                        % (i, str(permutation), str(output.shape),
-                           str(target.shape)))
-
-            if diff_comparator_i > 1E-6:
+            if np.isnan(diff_comparator_i.max_relative_diff) or np.isnan(
+                    diff_comparator_i.max_absolute_diff):
+                max_diff = "nan"
+                consistent = False
                 print(
-                    "---- Warning: The %d-th output (shape: %s, data type: %s) has diff. Detail: %s, atol is %.2e."
-                    % (i, str(output.shape), str(output.dtype),
-                       diff_comparator_i.to_string(), atol))
+                    "---- Warning: The %d-th output has 'nan' value, please checkout the op's output"
+                    % i)
+            else:
+                if diff_comparator_i is None or diff_comparator_i > atol:
+                    # Try to compare output with permuted target.
+                    choosed_permutations = _permute_order(name, output, target)
+                    permutation = None
+                    for permutation_tmp in choosed_permutations:
+                        target_transposed = np.transpose(target,
+                                                         permutation_tmp)
+                        diff_comparator_i_tmp = ArrayComparator(
+                            output, target_transposed, atol)
+                        if diff_comparator_i is None or diff_comparator_i > diff_comparator_i_tmp:
+                            diff_comparator_i = diff_comparator_i_tmp
+                            permutation = permutation_tmp
+                    if permutation is not None:
+                        print(
+                            "---- Warning: The %d-th output need permute. The permutation is %s, outputs shape are %s vs %s."
+                            % (i, str(permutation), str(output.shape),
+                               str(target.shape)))
 
-            max_diff = diff_comparator_i.max_absolute_diff if diff_comparator_i > max_diff else max_diff
-            if max_diff > atol:
-                if name in special_op_list.RANDOM_OP_LIST:
+                if diff_comparator_i > 1E-6 or diff_comparator_i.max_relative_diff > 1E-6:
                     print(
-                        "---- Warning: The %d-th output is not consistent, but %s is a random operator and we see it correct."
-                        % (i, name))
-                elif testing_mode == "static" and name in special_op_list.DIFF_IMPLEMENTATION_TF_OPS:
-                    print(
-                        "---- Warning: The implementation of %s is different with tensorflow. "
-                        "When the value of inputs are same, paddle choose the second value as the output and "
-                        "tensorflow choose the first value as the output." %
-                        (name))
-                else:
-                    consistent = False
+                        "---- Warning: The %d-th output (shape: %s, data type: %s) has diff. Detail: %s, atol is %.2e."
+                        % (i, str(output.shape), str(output.dtype),
+                           diff_comparator_i.to_string(), atol))
+
+                max_diff = diff_comparator_i.max_absolute_diff if diff_comparator_i > max_diff else max_diff
+                if max_diff > atol:
+                    if name in special_op_list.RANDOM_OP_LIST:
+                        print(
+                            "---- Warning: The %d-th output is not consistent, but %s is a random operator and we see it correct."
+                            % (i, name))
+                    elif testing_mode == "static" and name in special_op_list.DIFF_IMPLEMENTATION_TF_OPS:
+                        print(
+                            "---- Warning: The implementation of %s is different with tensorflow. "
+                            "When the value of inputs are same, paddle choose the second value as the output and "
+                            "tensorflow choose the first value as the output."
+                            % (name))
+                    else:
+                        consistent = False
 
     status = collections.OrderedDict()
     status["name"] = name
@@ -252,7 +250,10 @@ def check_outputs(output_list,
     status["backward"] = backward
     status["consistent"] = consistent
     status["num_outputs"] = num_outputs
-    status["diff"] = max_diff.astype("float")
+    if max_diff == "nan":
+        status["diff"] = "nan"
+    else:
+        status["diff"] = max_diff.astype("float")
     status["parameters"] = config_params
 
     if not consistent:
@@ -340,6 +341,14 @@ def print_benchmark_result(result, log_level=0, config_params=None):
     status["speed"]["wall_time"] = avg_walltime
     status["speed"]["total_include_wall_time"] = avg_runtime
     if gpu_time is not None:
-        status["speed"]["gpu_time"] = gpu_time / repeat
+        avg_gpu_time = gpu_time / repeat
+        status["speed"]["gpu_time"] = avg_gpu_time
+
+        flop = result.get("flop", None)
+        byte = result.get("byte", None)
+        if flop is not None and abs(avg_gpu_time) > 1E-6:
+            status["speed"]["gflops"] = float(flop) * 1E-6 / avg_gpu_time
+        if byte is not None and abs(avg_gpu_time) > 1E-6:
+            status["speed"]["gbs"] = float(byte) * 1E-6 / avg_gpu_time
     status["parameters"] = config_params
     print(json.dumps(status))

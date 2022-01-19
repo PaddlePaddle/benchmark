@@ -17,18 +17,18 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
-    model_name="STGAN"
+    base_batch_size=32
+    model_name="STGAN"_bs${base_batch_size}
     mission_name="图像生成"           # 模型所属任务名称，具体可参考scripts/config.ini                              （必填）
     direction_id=0                    # 任务所属方向，0：CV，1：NLP，2：Rec。                                       （必填）
     skip_steps=5                      # 解析日志，有些模型前几个step耗时长，需要跳过                                （必填）
     keyword="ips:"                    # 解析日志，筛选出数据所在行的关键字                                          （必填）
-    ips_unit="images/sec"
+    ips_unit="images/s"
 
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
     num_gpu_devices=${#arr[*]}
-    base_batch_size=32
     log_file=${run_log_path}/${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
     profiler_path=${profiler_path}/profiler_${model_name}
@@ -48,7 +48,7 @@ function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=${base_batch_size}"
 
-    train_cmd=" --model_net $model_name \
+    train_cmd=" --model_net ${model_name%_bs*} \
         --dataset celeba \
         --crop_size 170 \
         --image_size 128 \

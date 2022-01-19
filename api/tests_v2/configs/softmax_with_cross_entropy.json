@@ -1,6 +1,10 @@
 [{
     "op": "softmax_with_cross_entropy",
     "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
         "ignore_index": {
             "type": "int",
             "value": "-100"
@@ -23,6 +27,10 @@
 }, {
     "op": "softmax_with_cross_entropy",
     "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
         "ignore_index": {
             "type": "int",
             "value": "-100"
@@ -35,6 +43,34 @@
         "logits": {
             "dtype": "float32",
             "shape": "[8L, 512L, 1024L, 19L]",
+            "type": "Variable"
+        },
+        "soft_label": {
+            "type": "bool",
+            "value": "False"
+        }
+    },
+    "atol": 1e-3,
+    "repeat": 5000
+}, {
+    "op": "softmax_with_cross_entropy",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "ignore_index": {
+            "type": "int",
+            "value": "-100"
+        },
+        "label": {
+            "dtype": "int64",
+            "shape": "[8L, 1L, 512L, 1024L]",
+            "type": "Variable"
+        },
+        "logits": {
+            "dtype": "float32",
+            "shape": "[8L, 19L, 512L, 1024L]",
             "type": "Variable"
         },
         "soft_label": {

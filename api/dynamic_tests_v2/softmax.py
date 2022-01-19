@@ -15,6 +15,12 @@
 from common_import import *
 
 
+class SoftmaxConfig(APIConfig):
+    def __init__(self):
+        super(SoftmaxConfig, self).__init__("softmax")
+        self.feed_spec = {"range": [-1, 1]}
+
+
 class PaddleSoftmax(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
@@ -41,4 +47,4 @@ if __name__ == '__main__':
     test_main(
         pd_dy_obj=PaddleSoftmax(),
         torch_obj=TorchSoftmax(),
-        config=APIConfig("softmax"))
+        config=SoftmaxConfig())

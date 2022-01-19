@@ -1,0 +1,15 @@
+[{
+    "op": "binary_cross_entropy",
+    "param_info": {
+        "label": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L, 64L, 64L, 1L]",
+            "type": "Variable"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L, 64L, 64L, 1L]",
+            "type": "Variable"
+        }
+    }
+}]

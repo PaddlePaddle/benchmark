@@ -41,9 +41,9 @@ endif()
   
 include_directories(${PADDLE_INC_DIR})
 
-find_library(PADDLE_FLUID_SHARED_LIB NAMES "libpaddle_fluid.so" PATHS
+find_library(PADDLE_FLUID_SHARED_LIB NAMES "libpaddle_inference.so" PATHS
     ${PADDLE_ROOT}/${LIB_PATH})
-find_library(PADDLE_FLUID_STATIC_LIB NAMES "libpaddle_fluid.a" PATHS
+find_library(PADDLE_FLUID_STATIC_LIB NAMES "libpaddle_inference.a" PATHS
     ${PADDLE_ROOT}/${LIB_PATH})
 
 if(USE_SHARED AND PADDLE_INC_DIR AND PADDLE_FLUID_SHARED_LIB)
@@ -84,8 +84,8 @@ endfunction()
 third_party_include(glog glog/logging.h ${THIRD_PARTY_ROOT}/install/glog/include)
 third_party_include(protobuf google/protobuf/message.h ${THIRD_PARTY_ROOT}/install/protobuf/include)
 third_party_include(gflags gflags/gflags.h ${THIRD_PARTY_ROOT}/install/gflags/include)
-third_party_include(eigen unsupported/Eigen/CXX11/Tensor ${THIRD_PARTY_ROOT}/eigen3)
-third_party_include(boost boost/config.hpp ${THIRD_PARTY_ROOT}/boost)
+third_party_include(cryptopp cryptopp/cryptlib.h ${THIRD_PARTY_ROOT}/install/cryptopp/include)
+third_party_include(utf8proc utf8proc/utf8proc.h ${THIRD_PARTY_ROOT}/install/utf8proc/include)
 if(USE_GPU)
   third_party_include(cuda cuda.h ${CUDA_ROOT}/include)
   third_party_include(cudnn cudnn.h ${CUDNN_ROOT}/include)
@@ -133,6 +133,8 @@ if(NOT USE_SHARED)
   third_party_library(glog ${THIRD_PARTY_ROOT}/install/glog/lib libglog.a)
   third_party_library(protobuf ${THIRD_PARTY_ROOT}/install/protobuf/lib libprotobuf.a)
   third_party_library(gflags ${THIRD_PARTY_ROOT}/install/gflags/lib libgflags.a)
+  third_party_library(cryptopp ${THIRD_PARTY_ROOT}/install/cryptopp/lib libcryptopp.a)
+  third_party_library(utf8proc ${THIRD_PARTY_ROOT}/install/utf8proc/lib libutf8proc.a)
   if(NOT mklml_FOUND)
     third_party_library(openblas ${THIRD_PARTY_ROOT}/install/openblas/lib libopenblas.a)
   endif()

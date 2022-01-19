@@ -1,6 +1,6 @@
 #!bin/bash
-set -xe
 
+set -xe
 if [[ $# -lt 1 ]]; then
     echo "running job dict is {1: speed, 2:mem, 3:profiler, 6:max_batch_size}"
     echo "Usage: "
@@ -12,7 +12,8 @@ function _set_params(){
     index=$1
     base_batch_size=1
     run_mode=${2:-"sp"} # Use sp for single GPU and mp for multiple GPU.
-    model_name=$3
+    model_name=${3}_bs${base_batch_size}
+    model=${3}
     max_epoch=${4:-"1"}
     if [ ${3} != "CycleGAN" ] && [ ${3} != "Pix2pix" ]; then
         echo "Please check the model name! it should be CycleGAN|Pix2pix"
@@ -25,8 +26,9 @@ function _set_params(){
     mission_name="图像生成"
     direction_id=0
     keyword="ips:"
+    keyword_loss="G_idt_A_loss:"
     skip_steps=5
-    ips_unit="images/sec"
+    ips_unit="images/s"
 
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=($device)
@@ -41,11 +43,11 @@ function _set_params(){
 
 function _train(){
     export PYTHONPATH=$PWD:$PYTHONPATH
-   
-    # 暂不支持传入epochs，暂时用sed 的方式 
-    sed -i "1c epochs: ${max_epoch}" configs/$(echo $model_name | tr '[A-Z]' '[a-z]')_cityscapes.yaml
-   
-    train_cmd="--config-file configs/$(echo $model_name | tr '[A-Z]' '[a-z]')_cityscapes.yaml"
+    if [ ${model} = "CycleGAN" ]; then
+        train_cmd=" --config-file configs/$(echo ${model_name%_bs*} | tr '[A-Z]' '[a-z]')_cityscapes.yaml -o log_config.interval=100 epochs=1"
+    else
+        train_cmd=" --config-file configs/$(echo ${model_name%_bs*} | tr '[A-Z]' '[a-z]')_cityscapes.yaml -o log_config.interval=100 epochs=1 validate.interval=-1"
+    fi
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u tools/main.py "${train_cmd}
     else
@@ -62,6 +64,8 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
+
     if [ ${run_mode} != "sp"  -a -d mylog ]; then
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}

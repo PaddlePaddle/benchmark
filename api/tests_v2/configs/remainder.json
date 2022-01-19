@@ -1,0 +1,43 @@
+[{
+    "config_id": 0,
+    "op": "remainder",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, -1L, -1L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L, -1L, -1L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1E-5,
+    "repeat": 5000
+}, {
+    "config_id": 1,
+    "op": "remainder",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1L, 513L, 513L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.1,
+    "repeat": 5000
+}]

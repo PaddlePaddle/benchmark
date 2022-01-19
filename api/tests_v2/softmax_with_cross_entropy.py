@@ -23,17 +23,19 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(SoftmaxWithCrossEntropyConfig, self).init_from_json(
             filename, config_id, unknown_dim)
-        logits_rank = len(self.logits_shape)
-        self.num_classes = self.logits_shape[logits_rank - 1]
+        if self.axis == len(self.logits_shape) - 1:
+            self.axis = -1
+
+        self.num_classes = self.logits_shape[self.axis]
         self.feed_spec = [
             {
                 "range": [0, 1]
-            },  # input
+            },  # logits
             {
                 "range": [0, self.num_classes]
             }  # label
         ]
-        if self.label_dtype == 'float32' or self.label_dtype == 'float64':
+        if self.label_dtype in ['float32', 'float64'] or self.axis != -1:
             self.run_tf = False
 
     def to_tensorflow(self):
@@ -56,7 +58,10 @@ class PDSoftmaxWithCrossEntropy(PaddleAPIBenchmarkBase):
             dtype=config.label_dtype,
             stop_gradient=True)
         result = paddle.nn.functional.softmax_with_cross_entropy(
-            logits=logits, label=label, soft_label=config.soft_label)
+            logits=logits,
+            label=label,
+            soft_label=config.soft_label,
+            axis=config.axis)
 
         self.feed_vars = [logits, label]
         self.fetch_vars = [result]

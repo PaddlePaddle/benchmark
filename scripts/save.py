@@ -93,7 +93,7 @@ parser.add_argument(
     "--implement_type",
     type=str,
     default="static_graph",
-    help="The benchmark model implement method, static_graph | dynamic_graph")
+    help="The benchmark model implement method, static_graph | dynamic_graph | dynamic_to_static")
 
 DICT_RUN_MACHINE_TYPE = {'1': 'ONE_GPU',
                          '4': 'FOUR_GPU',
@@ -106,7 +106,7 @@ TABLE_HEADER = ["模型", "运行环境", "指标", "当前值", "标准Benchmar
 TABLE_PROFILE_HEADER = ["模型", "运行环境", "指标", "当前值", "前5次平均值", "相对前5次值波幅"]
 DICT_INDEX = {1: "Speed", 2: "Memory", 3: "Profiler_info", 6: "Max_bs"}
 # todo config the log_server port
-LOG_SERVER = "http://" + socket.gethostname() + ":8777/"
+LOG_SERVER = "http://" + socket.gethostbyname(socket.gethostname()) + ":8777/"   # fix log url
 WAVE_THRESHOLD = 0.05
 CHECK_TIMES = 5
 # fail model list
@@ -234,7 +234,10 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
         benchmark(int)
     """
     # 包括pr需要对比的job_type
-    check_job_type = 2 if args.job_type in [1, 2] else 3
+    if args.job_type in [1, 2]:
+        check_job_type = 2
+    else:
+        check_job_type = args.job_type
     results = bm.ViewJobResult.objects.filter(
         model_name=model_name, report_index_id=index, job_type=check_job_type, cuda_version=args.cuda_version,
         cudnn_version=args.cudnn_version, device_type=args.device_type, model_implement_type=args.implement_type,
@@ -540,8 +543,11 @@ def parse_logs(args):
     title = "frame_benchmark"
     env = dict(paddle_branch=args.image_branch, paddle_commit_id=args.image_commit_id,
                benchmark_commit_id=args.code_commit_id, device_type=args.device_type,
-               implement_type=args.implement_type, docker_images=os.getenv('RUN_IMAGE_NAME'))
-    if args.device_type.upper() in ("P40", "V100"):
+               implement_type=args.implement_type, docker_images=os.getenv('RUN_IMAGE_NAME'),
+               paddle_version=args.paddle_version,
+               HostName=os.getenv('HostName'),
+               )
+    if args.device_type.upper() in ("P40", "V100", "A100", "V100-32G", "V100-16G"):
         env["cuda_version"] = args.cuda_version
         env["cudnn_version"] = args.cudnn_version
     email_t = template.EmailTemplate(title, env, html_results, args.log_path, FAIL_LIST)

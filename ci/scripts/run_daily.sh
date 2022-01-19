@@ -18,16 +18,6 @@ function LOG {
   echo "[$(basename $0):${BASH_LINENO[0]}]" $* >&2
 }
 
-function prepare_env() {
-  mkdir -p /opt/_internal/cpython-3.7.0/bin
-  mkdir -p /opt/_internal/cpython-3.7.0/lib
-  mkdir -p /opt/_internal/cpython-3.7.0/include
-  ln -sf /usr/local/bin/python /opt/_internal/cpython-3.7.0/bin/python3.7
-  ln -sf /usr/local/lib/libpython3.so /opt/_internal/cpython-3.7.0/lib/python3.so
-  ln -sf /usr/local/include/python3.7m /opt/_internal/cpython-3.7.0/include/python3.7m
-  pip install -U pip > /dev/null 2> /dev/null
-}
-
 function build_paddle() {
   [ -d Paddle ] || git clone https://github.com/PaddlePaddle/Paddle.git
   pushd Paddle > /dev/null || exit
@@ -40,7 +30,6 @@ function build_paddle() {
   LOG "[INFO] IMAGE_NAME: ${IMAGE_NAME}"
   [ -f build/python/dist/${IMAGE_NAME} ] && popd >/dev/null && return 0
   env CMAKE_BUILD_TYPE=Release                \
-      PYTHON_ABI=cp37-cp37m                   \
       PY_VERSION=3.7                          \
       PADDLE_VERSION=0.0.0.${PADDLE_VERSION}  \
       WITH_AVX=ON                             \
@@ -86,6 +75,5 @@ function run(){
   popd > /dev/null
 }
 
-prepare_env
 [ -f paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl ] || build_paddle
 run

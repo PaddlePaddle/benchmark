@@ -42,7 +42,7 @@ if [ $# -ge 6 ]; then
   print_outputs=$6
 fi
 
-./build/inference --logtostderr \
+GLOG_logtostderr=1 ./build/inference \
     --model_dir=${MODEL_DIR} \
     --data=${DATA_FILE} \
     --repeat=${REPEAT} \
