@@ -7,14 +7,14 @@ echo "*******prepare benchmark***********"
 export BENCHMARK_ROOT=/workspace # 对应实际地址 benchmark/OtherFrameworks/video/PyTorch/
 log_date=`date "+%Y.%m%d.%H%M%S"`
 frame=pytorch1.8.0
-cuda_version=10.2
-save_log_dir=${BENCHMARK_ROOT}/logs/${frame}_${log_date}_${cuda_version}/ # benchmark/OtherFrameworks/video/PyTorch/logs/pytorch1.8.0_data_10.2/
+cuda_version=11.2
+save_log_dir=${BENCHMARK_ROOT}/logs/${frame}_${log_date}_${cuda_version}/ # benchmark/OtherFrameworks/video/PyTorch/logs/pytorch1.8.0_data_11.2/
 
 if [[ -d ${save_log_dir} ]]; then
     rm -rf ${save_log_dir}
 fi
 # this for update the log_path coding mat
-export TRAIN_LOG_DIR=${save_log_dir}/train_log # benchmark/OtherFrameworks/video/PyTorch/logs/pytorch1.8.0_data_10.2/train_log
+export TRAIN_LOG_DIR=${save_log_dir}/train_log # benchmark/OtherFrameworks/video/PyTorch/logs/pytorch1.8.0_data_11.2/train_log
 mkdir -p ${TRAIN_LOG_DIR}
 
 log_path=${TRAIN_LOG_DIR}
@@ -31,11 +31,11 @@ export PATH=PATH=${BENCHMARK_ROOT}/run_env:${PATH}
 python3.7 -m pip install pip==21.1.1
 echo `python3.7 -m pip --version`
 python3.7 -m pip install "numpy>=1.19" -i https://pypi.tuna.tsinghua.edu.cn/simple/
-python3.7 -m pip install torch==1.8.0+cu102 -f https://download.pytorch.org/whl/torch_stable.html
-python3.7 -m pip install torchvision==0.9.0+cu102 -f https://download.pytorch.org/whl/torch_stable.html
-python3.7 -m pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/index.html
+python3.7 -m pip install torch==1.8.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html
+python3.7 -m pip install torchvision==0.9.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html
+python3.7 -m pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.8.0/index.html
 python3.7 -m pip install jupyterlab  -i https://pypi.tuna.tsinghua.edu.cn/simple/
-python3.7 -m pip install "pandas>=1.2" -i https://pypi.tuna.tsinghua.edu.cn/simple/
+python3.7 -m pip install pandas -i https://pypi.tuna.tsinghua.edu.cn/simple/
 python3.7 -m pip install "scikit-learn>=0.22" -i https://pypi.tuna.tsinghua.edu.cn/simple/
 python3.7 -m pip install "opencv-python>=4.2" -i https://pypi.tuna.tsinghua.edu.cn/simple/
 python3.7 -m pip install "pyyaml>=5.1" -i https://pypi.tuna.tsinghua.edu.cn/simple/

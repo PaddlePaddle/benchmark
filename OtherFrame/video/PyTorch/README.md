@@ -14,14 +14,14 @@
   - CPU：Intel(R) Xeon(R) Gold 6271C CPU @ 2.60GHz * 80
   - Driver Version: 460.27.04
   - 内存：629 GB
-  - CUDA、cudnn Version: cuda10.2-cudnn7
+  - CUDA、cudnn Version: cuda11.2-cudnn8
 - 多机（32卡） TODO
 ### 2.Docker 镜像,如:
 
-- **镜像版本**: `hub.baidubce.com/paddlepaddle/paddle:latest-dev-cuda10.2-cudnn7-gcc82`   # 竞品镜像,每个方向的请一致
+- **镜像版本**: `hub.baidubce.com/paddlepaddle/paddle:latest-dev-cuda11.2-cudnn8-gcc82`   # 竞品镜像,每个方向的请一致
 - **PyTorch 版本**: `1.8.0`  # 竞品版本：最新稳定版本，如需特定版本请备注说明原因  
-- **CUDA 版本**: `10.2`
-- **cuDnn 版本**: `7.6.5`
+- **CUDA 版本**: `11.2`
+- **cuDnn 版本**: `8.1.1`
 
 ## 测试步骤
 ```bash
@@ -30,7 +30,7 @@ bash run_PyTorch.sh;     # 创建容器,在该标准环境中测试模型
 脚本内容,如:
 ```bash
 # 提交内容 #
-ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
+ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda11.2-cudnn8";
 docker pull ${ImageName}
 export BENCHMARK_ROOT=/workspace # 对应实际地址 benchmark/OtherFrameworks/video/PyTorch
 

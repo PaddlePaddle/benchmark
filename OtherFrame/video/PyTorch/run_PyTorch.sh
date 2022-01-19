@@ -1,5 +1,5 @@
 # 提交内容 #
-ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
+ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda11.2-cudnn8";
 docker pull ${ImageName}
 export BENCHMARK_ROOT=/workspace # 对应实际地址 benchmark/OtherFrameworks/video/PyTorch
 nvidia-docker stop test_torch_video
