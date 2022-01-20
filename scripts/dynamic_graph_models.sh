@@ -15,7 +15,7 @@
 # limitations under the License.
 
 
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_slowfast dy_tsn dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
+cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
 dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
 
 
@@ -130,7 +130,7 @@ dy_bert(){
 
     sed -i '/set\ -xe/d' run_benchmark.sh
     model_mode_list=(base large)
-    fp_mode_list=(fp16)
+    fp_mode_list=(fp32 fp16)
     for model_mode in ${model_mode_list[@]}; do
         bs_list=(96)
         seq_list=(seqlen128)
@@ -344,6 +344,9 @@ dy_slowfast(){
     pip install pandas av
     pip install scikit-image==0.18.2
     pip install pooch==1.5.2
+    echo "------------pip list is"
+    pip list
+    
 	# Prepare data
     rm -rf data
     ln -s ${data_path}/dygraph_data/slowfast/data/ ${cur_model_path}/

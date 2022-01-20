@@ -67,12 +67,9 @@ image_classification(){
     sed -i '/set\ -xe/d' run_benchmark.sh
 
     # running models cases
-    model_list=(SE_ResNeXt50_32x4d_bs32 ResNet101_bs32 ResNet50_bs128)
+    model_list=(SE_ResNeXt50_32x4d_bs32 ResNet101_bs32 ResNet50_bs128 ResNet50_bs256)
     for model_name in ${model_list[@]}; do
-        run_batchsize=32
-        if [ ${model_name} = "ResNet50_bs128" ]; then
-            run_batchsize=128
-        fi
+        run_batchsize=${model_name#*bs}
         echo "index is speed, 1gpu, begin, ${model_name}"
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 1 | tee ${log_path}/${FUNCNAME}_${model_name}_speed_1gpus 2>&1
         sleep 60

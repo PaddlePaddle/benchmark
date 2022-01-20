@@ -28,7 +28,7 @@ dy_to_static_bert() {
 
     sed -i '/set\ -xe/d' run_benchmark.sh
     model_mode_list=(base)
-    fp_mode_list=(fp16)
+    fp_mode_list=(fp32 fp16)
     for model_mode in ${model_mode_list[@]}; do
         seq_list=(seqlen128)
         for fp_mode in ${fp_mode_list[@]}; do
