@@ -236,7 +236,7 @@ bert(){
         seq_list=(seqlen128)
         if [ ${model_mode} == "large" ]; then
             seq_list=(seqlen512) # prepare for large tests on seqlen128 and seqlen512
-            bs_list=(8)
+            bs_list=(10)
         fi
         for fp_mode in ${fp_mode_list[@]}; do
             # 监控内外部benchmark，因而参数配置多
