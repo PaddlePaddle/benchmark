@@ -15,7 +15,7 @@
 # limitations under the License.
 
 
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
+cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
 dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
 
 
@@ -132,33 +132,24 @@ dy_bert(){
     model_mode_list=(base large)
     fp_mode_list=(fp32 fp16)
     for model_mode in ${model_mode_list[@]}; do
+        bs_list=(96)
         seq_list=(seqlen128)
         if [ ${model_mode} == "large" ]; then
+            bs_list=(4)
             seq_list=(seqlen512) # prepare for test large seqlen128|seqlen512
         fi
-        for fp_mode in ${fp_mode_list[@]}; do
-            # 监控内外部benchmark，因而参数配置多
-            if [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp32" ]; then
-                bs_list=(32 48)
-            elif [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp16" ]; then
-                bs_list=(64 96)
-            elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp32" ]; then
-                bs_list=(2) # 64
-            elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp16" ]; then
-                bs_list=(4) # 64
-            fi
-            for bs_item in ${bs_list[@]}
+
+        for bs_item in ${bs_list[@]}
+        do
+            for seq_item in ${seq_list[@]}
             do
-                for seq_item in ${seq_list[@]}
-                do
-                    model_name="bert_${model_mode}_${fp_mode}_${seq_item}_bs${bs_item}"
-                    echo "index is speed, 1gpus, begin, ${model_name}"
-                    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp ${bs_item} 500 ${seq_item} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
-                    sleep 60
-                    echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-                    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp ${bs_item} 400  ${seq_item} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
-                    sleep 60
-                done
+                model_name="bert_${model_mode}_${fp_mode}_${seq_item}_bs${bs_item}"
+                echo "index is speed, 1gpus, begin, ${model_name}"
+                CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp ${bs_item} 500 ${seq_item} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+                sleep 60
+                echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
+                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp ${bs_item} 400  ${seq_item} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+                sleep 60
             done
         done
     done
@@ -353,6 +344,9 @@ dy_slowfast(){
     pip install pandas av
     pip install scikit-image==0.18.2
     pip install pooch==1.5.2
+    echo "------------pip list is"
+    pip list
+    
 	# Prepare data
     rm -rf data
     ln -s ${data_path}/dygraph_data/slowfast/data/ ${cur_model_path}/
@@ -550,7 +544,7 @@ dy_resnet(){
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./
     sed -i '/set\ -xe/d' run_benchmark_resnet.sh
-    model_list=(ResNet152_bs32 ResNet50_bs32 ResNet50_bs128 ResNet50_amp_fp16_bs128 ResNet50_amp_fp16_bs256) #ResNet50_pure_fp16_bs128
+    model_list=(ResNet152_bs32 ResNet50_bs128 ResNet50_amp_fp16_bs128 ResNet50_amp_fp16_bs256) #ResNet50_pure_fp16_bs128
     for model_name in ${model_list[@]}
     do
 	batch_size=${model_name#*bs}
