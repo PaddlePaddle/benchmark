@@ -67,13 +67,11 @@ image_classification(){
     sed -i '/set\ -xe/d' run_benchmark.sh
 
     # running models cases
-    model_list=(SE_ResNeXt50_32x4d_bs32 ResNet101_bs32 ResNet50_bs32 ResNet50_bs128 ResNet50_bs96)
+    model_list=(SE_ResNeXt50_32x4d_bs32 ResNet101_bs32 ResNet50_bs128)
     for model_name in ${model_list[@]}; do
         run_batchsize=32
         if [ ${model_name} = "ResNet50_bs128" ]; then
             run_batchsize=128
-        elif [ ${model_name} = "ResNet50_bs96" ]; then
-            run_batchsize=96
         fi
         echo "index is speed, 1gpu, begin, ${model_name}"
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 1 | tee ${log_path}/${FUNCNAME}_${model_name}_speed_1gpus 2>&1
@@ -90,7 +88,7 @@ image_classification(){
     mode_list=(amp pure)
     for fp_mode in ${mode_list[@]}
     do
-        bs_list=(128 208)
+        bs_list=(128)
         for bs_item in ${bs_list[@]}
         do
             model_name="ResNet50_bs${bs_item}_${fp_mode}_fp16"
@@ -238,14 +236,14 @@ bert(){
         seq_list=(seqlen128)
         if [ ${model_mode} == "large" ]; then
             seq_list=(seqlen512) # prepare for large tests on seqlen128 and seqlen512
-            bs_list=(8 10)
+            bs_list=(8)
         fi
         for fp_mode in ${fp_mode_list[@]}; do
             # 监控内外部benchmark，因而参数配置多
             if [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp32" ]; then
-                bs_list=(32 48)
+                bs_list=(32)
             elif [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp16" ]; then
-                bs_list=(64 96)
+                bs_list=(96)
             fi
             for bs_item in ${bs_list[@]}
             do
@@ -283,9 +281,9 @@ transformer(){
         for fp_item in ${fp_list[@]}
         do
             if [ ${mode_item} == "big" ] && [ ${fp_item} == "fp32" ]; then
-                bs_list=(4096 2560)
+                bs_list=(2560)
             elif [ ${mode_item} == "big" ] && [ ${fp_item} == "pure_fp16" ]; then
-                bs_list=(4096 5120)
+                bs_list=(5120)
             else
                bs_list=(4096)
             fi
