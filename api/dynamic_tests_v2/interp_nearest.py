@@ -40,11 +40,11 @@ class PDInterpNearest(PaddleDynamicAPIBenchmarkBase):
         if config.backward:
             self.append_gradients(out, [x])
 
-    def compute_flops_and_byte(self, config):
+    def compute_flop_and_byte(self, config):
         # at least one of out_shape and scale must be set 
         x_shape = config.x_shape
         out_size = config.size
-        assert (config.scale_factor is None and out_size is None
+        assert (config.scale_factor is not None or out_size is not None
                 ), "at least one of out_shape and scale must be set"
         # config.size has higher priority than config.scale_factor
         if isinstance(out_size, (list, tuple)):
