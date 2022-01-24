@@ -46,4 +46,4 @@ if [ $# -ge 4 ]; then
 fi
 
 python -m common.launch ${OP_BENCHMARK_ROOT}/dynamic_scheduling_tests_v2/${name}.py \
-         ${run_args} true
+         ${run_args}

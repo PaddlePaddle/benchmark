@@ -196,7 +196,7 @@ class NsightRunnerForDynamicScheduling(object):
 
     def _parse_logs(self, logs, op_type, nvprof_start_step, nvprof_end_step,
                     backward):
-        print("yoki", logs)
+        # print("yoki", logs)
         flag_nvtx_time = False
         total_step_time = 0.0
         step_count = 0
