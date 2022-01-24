@@ -133,15 +133,15 @@ dy_bert(){
     fp_mode_list=(fp32 fp16)
     for model_mode in ${model_mode_list[@]}; do
         bs_list=(96)
-        seq_list=(seqlen128)
+        seq_item=(seqlen128)
         if [ ${model_mode} == "large" ]; then
             bs_list=(4)
-            seq_list=(seqlen512) # prepare for test large seqlen128|seqlen512
+            seq_item=(seqlen512) # prepare for test large seqlen128|seqlen512
         fi
 
-        for bs_item in ${bs_list[@]}
+        for fp_mode in ${fp_mode_list[@]}
         do
-            for seq_item in ${seq_list[@]}
+            for bs_item  in ${bs_list[@]}
             do
                 model_name="bert_${model_mode}_${fp_mode}_${seq_item}_bs${bs_item}"
                 echo "index is speed, 1gpus, begin, ${model_name}"
