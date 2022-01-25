@@ -168,6 +168,168 @@ class NsightRunner(object):
         return gpu_time / percent
 
 
+class NsightRunnerForDynamicScheduling(object):
+    """
+    Use Nsight System tool to analyse performance of OP.
+    """
+
+    def run(self, cmd, start_step, end_step):
+        stdout, exit_code = self._nsight_nvtx(cmd)
+        if exit_code == 0:
+            parse_status, op_type_list, scheduling_time_dict = self._parse_logs(
+                stdout.split("\n"), start_step, end_step)
+            if parse_status:
+                return scheduling_time_dict
+        print("Running Error:\n {}".format(stdout))
+        return {}
+
+    def _nsight_nvtx(self, cmd):
+        return system.run_command(
+            "nsys profile -t cuda,nvtx --stats true -o tmp.qdrep --capture-range=cudaProfilerApi --stop-on-range-end=true --force-overwrite true {}".
+            format(cmd))
+
+    def _to_float(self, s):
+        return float(s.replace(',', ''))
+
+    def _calculate_avg_time_per_op(self, l):
+        """
+        Within a step, the same OP may be executed multiple times. When the information
+         within the OP is analyzed, each OP needs to be statistics separately.
+        """
+        total_time = self._to_float(l[1])
+        max_time = self._to_float(l[5])
+        num_calls = self._to_float(l[2]) - 1
+        return (total_time - max_time) / num_calls
+
+    def _calculate_avg_time_per_step(self, l, num_step):
+        """
+        Within a step, the same OP may be executed multiple times. When the influence
+         of this OP to the entire step needs to be analysed, the OP needs to be processed
+         as a whole in a step. 
+        """
+        # The same op may appear multiple times within a step.
+        total_time = self._to_float(l[1])
+        max_time = self._to_float(l[5])
+        return (total_time - max_time) / (num_step - 1)
+
+    def _calculate_scheduling_time(self, outside_time, inside_time):
+        if outside_time and inside_time:
+            return round(outside_time - inside_time, 2)
+        return None
+
+    def _parse_logs(self, logs, start_step, end_step):
+        flag_nvtx_time_start = False
+        parse_status = False
+        nvtx_time_start_step = 0
+        total_step_time = 0.0
+        total_op_call_time_per_step = 0.0
+        # num step of using profile
+        num_step = end_step - start_step
+        # Profile data in start_step and end_step may be not correct,
+        # so we need to select some reliable data. Number of reliable
+        # step data is step_count.
+        step_count = 0
+
+        op_type_list = []
+        # scheduling time:
+        # op_type pybind_imperative_func (imperative_avg_time)
+        # op_type (fwd_trace_op_avg_time)
+        # op_type compute (fwd_op_compute_avg_time)
+        # op_type_grad (bwd_trace_op_avg_time)
+        # op_type_grad compute (bwd_op_compute_avg_time)
+        _nvtx_meta_data_dict = {}
+        scheduling_time_dict = {}
+
+        # get the op_type counted in the profile.
+        # get the scheduling list that needs to be analyse.
+        for i in range(len(logs)):
+            line = api_param.parse_string(logs[i])
+            if flag_nvtx_time_start:
+                infos = line.strip().split()
+                if not infos:
+                    continue
+                nvtx_range_type = infos[-1]
+                if nvtx_range_type == 'pybind_imperative_func' or nvtx_range_type == 'compute':
+                    op_type = infos[-2]
+                    if op_type not in op_type_list and '_grad' not in op_type:
+                        op_type_list.append(op_type)
+                        _nvtx_meta_data_dict[op_type +
+                                             ' pybind_imperative_func'] = None
+                        _nvtx_meta_data_dict[op_type] = None
+                        _nvtx_meta_data_dict[op_type + ' compute'] = None
+                        _nvtx_meta_data_dict[op_type + '_grad'] = None
+                        _nvtx_meta_data_dict[op_type + '_grad compute'] = None
+            if not flag_nvtx_time_start and 'NVTX Push-Pop Range Statistics:' in line:
+                flag_nvtx_time_start = True
+                nvtx_time_start_step = i
+
+        # parse report to get meta scheduling time
+        for i in range(nvtx_time_start_step, len(logs)):
+            line = api_param.parse_string(logs[i])
+            infos = line.strip().split()
+            if not infos:
+                continue
+            nvtx_range_type = infos[-1]
+            if nvtx_range_type == 'pybind_imperative_func' or nvtx_range_type == 'compute':
+                nvtx_range_type = infos[-2] + ' ' + nvtx_range_type
+
+            # step time
+            if nvtx_range_type.isdigit() and int(
+                    nvtx_range_type) > start_step + 1 and int(
+                        nvtx_range_type) < end_step - 1:
+                step_count += 1
+                step_time = self._to_float(infos[1])
+                total_step_time += step_time
+
+            if nvtx_range_type in _nvtx_meta_data_dict:
+                avg_time = self._calculate_avg_time_per_op(infos)
+                _nvtx_meta_data_dict[nvtx_range_type] = round(avg_time, 2)
+
+                if '_grad' in nvtx_range_type and 'compute' not in nvtx_range_type or 'pybind_imperative_func' in nvtx_range_type:
+                    total_op_call_time_per_step += self._calculate_avg_time_per_step(
+                        infos, num_step)
+
+        # analyse scheduling time
+        scheduling_time_dict['step_time'] = round(
+            total_step_time / step_count, 2) if step_count != 0 else None
+        scheduling_time_dict['op_call_time_per_step'] = round(
+            total_op_call_time_per_step, 2)
+        scheduling_time_dict[
+            'python_call_time'] = self._calculate_scheduling_time(
+                scheduling_time_dict['step_time'],
+                scheduling_time_dict['op_call_time_per_step'])
+        for op_type in op_type_list:
+            tmp_op_time_dict = {}
+            tmp_op_time_dict['imperative_avg_time'] = _nvtx_meta_data_dict[
+                op_type + ' pybind_imperative_func']
+            tmp_op_time_dict['fwd_trace_op_avg_time'] = _nvtx_meta_data_dict[
+                op_type]
+            tmp_op_time_dict['fwd_op_compute_avg_time'] = _nvtx_meta_data_dict[
+                op_type + ' compute']
+            tmp_op_time_dict['bwd_trace_op_avg_time'] = _nvtx_meta_data_dict[
+                op_type + '_grad']
+            tmp_op_time_dict['bwd_op_compute_avg_time'] = _nvtx_meta_data_dict[
+                op_type + '_grad compute']
+
+            tmp_op_time_dict[
+                'imperative_call_time'] = self._calculate_scheduling_time(
+                    tmp_op_time_dict['imperative_avg_time'],
+                    tmp_op_time_dict['fwd_trace_op_avg_time'])
+            tmp_op_time_dict[
+                'fwd_trace_op_call_time'] = self._calculate_scheduling_time(
+                    tmp_op_time_dict['fwd_trace_op_avg_time'],
+                    tmp_op_time_dict['fwd_op_compute_avg_time'])
+            tmp_op_time_dict[
+                'bwd_trace_op_call_time'] = self._calculate_scheduling_time(
+                    tmp_op_time_dict['bwd_trace_op_avg_time'],
+                    tmp_op_time_dict['bwd_op_compute_avg_time'])
+
+            scheduling_time_dict[op_type] = tmp_op_time_dict
+
+        parse_status = True
+        return parse_status, op_type_list, scheduling_time_dict
+
+
 def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
     """
     If with_nvprof is True, it will launch the following command firstly to
@@ -177,29 +339,36 @@ def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
     Then the normal testing command will be launched:
         python benchmark_script benchmark_script_args
     """
-
-    def _set_profiler(args, value):
-        if "--profiler" in args:
-            for i in range(len(args)):
-                if args[i] == "--profiler":
-                    args[i + 1] = value
-                    break
-        else:
-            args.append("--profiler")
-            args.append(value)
+    benchmark_args_dict = _args_list_to_dict(benchmark_script_args)
+    task = benchmark_args_dict.get("task", "speed")
 
     if with_nvprof:
-        _set_profiler(benchmark_script_args, "nvprof")
+        if task == "speed":
+            _set_args(benchmark_script_args, "--profiler", "nvprof")
+        elif task == "scheduling":
+            _set_args(benchmark_script_args, "--profiler", "nvprof_nvtx")
     cmd = "{} {} {}".format(sys.executable, benchmark_script,
                             " ".join(benchmark_script_args))
     if with_nvprof:
-        if is_ampere_gpu():
-            runner = NsightRunner()
-        else:
-            runner = NvprofRunner()
-        gpu_time = runner.run(cmd)
-        _set_profiler(benchmark_script_args, "none")
-        return gpu_time
+        if task == "speed":
+            if is_ampere_gpu():
+                runner = NsightRunner()
+            else:
+                runner = NvprofRunner()
+            gpu_time = runner.run(cmd)
+            _set_args(benchmark_script_args, "--profiler", "none")
+            return gpu_time
+        elif task == "scheduling":
+            framework = benchmark_args_dict.get("framework", "paddle")
+            assert framework == "paddle", "framework must be 'paddle' if task is 'scheduling'."
+            repeat = benchmark_args_dict.get("repeat", 10)
+            # The performance of the first few steps is unstable.
+            assert repeat >= 10, "repeat must be greater than 10 if task is scheduling, but received {}.".format(
+                repeat)
+            runner = NsightRunnerForDynamicScheduling()
+            scheduling_time_dict = runner.run(cmd, 5, repeat)
+            _set_args(benchmark_script_args, "--profiler", "none")
+            return scheduling_time_dict
     else:
         stdout, exit_code = system.run_command(cmd)
         print(stdout)
@@ -215,6 +384,17 @@ def _args_list_to_dict(arg_list):
             name = arg_list[i].replace("--", "")
             arg_dict[name] = arg_list[i + 1]
     return arg_dict
+
+
+def _set_args(args, arg, value):
+    if arg in args:
+        for i in range(len(args)):
+            if args[i] == arg:
+                args[i + 1] = value
+                break
+    else:
+        args.append(arg)
+        args.append(value)
 
 
 if __name__ == "__main__":
@@ -239,16 +419,25 @@ if __name__ == "__main__":
                                                 None) != ""
     profiler = benchmark_args_dict.get("profiler", "none")
     repeat = benchmark_args_dict.get("repeat", "1")
+    only_print = benchmark_args_dict.get("only_print", False)
 
     system.check_commit()
 
-    if use_gpu and task == "speed" and profiler == "none":
-        total_gpu_time = launch(
+    if use_gpu and (task == "speed" or
+                    task == "scheduling") and profiler == "none":
+        output_time = launch(
             args.benchmark_script,
             args.benchmark_script_args,
             with_nvprof=True)
-        args.benchmark_script_args.append(" --gpu_time ")
-        args.benchmark_script_args.append(str(total_gpu_time))
+        if task == "speed":
+            args.benchmark_script_args.append(" --gpu_time ")
+            args.benchmark_script_args.append(str(output_time))
+        if task == "scheduling":
+            args.benchmark_script_args.append(" --scheduling_times ")
+            args.benchmark_script_args.append(str(output_time))
+            _set_args(args.benchmark_script_args, "--only_print", "True")
 
     launch(
         args.benchmark_script, args.benchmark_script_args, with_nvprof=False)
+    if task == "scheduling":
+        _set_args(args.benchmark_script_args, "--only_print", str(only_print))

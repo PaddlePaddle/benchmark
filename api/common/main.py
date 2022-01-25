@@ -42,7 +42,7 @@ def parse_args():
         '--task',
         type=str,
         default="speed",
-        help='Specify the task: [speed|accuracy]')
+        help='Specify the task: [speed|accuracy|scheduling]')
     parser.add_argument(
         '--testing_mode',
         type=str,
@@ -95,6 +95,11 @@ def parse_args():
         default=0,
         help='Total GPU kernel time parsed from nvprof')
     parser.add_argument(
+        '--scheduling_times',
+        type=str,
+        default="{}",
+        help='Scheduling times parsed from nvprof')
+    parser.add_argument(
         '--repeat', type=int, default=1, help='Iterations of Repeat running')
     parser.add_argument(
         '--allow_adaptive_repeat',
@@ -103,9 +108,14 @@ def parse_args():
         help='Whether use the value repeat in json config [True|False]')
     parser.add_argument(
         '--log_level', type=int, default=0, help='level of logging')
+    parser.add_argument(
+        '--only_print',
+        type=system.str2bool,
+        default=False,
+        help='Print the configuration directly without re-running the program.')
     args = parser.parse_args()
-    if args.task not in ["speed", "accuracy"]:
-        raise ValueError("task should be speed, accuracy")
+    if args.task not in ["speed", "accuracy", "scheduling"]:
+        raise ValueError("task should be speed, accuracy or scheduling")
     if args.framework not in [
             "paddle", "tensorflow", "tf", "pytorch", "torch", "both"
     ]:
@@ -240,6 +250,7 @@ def test_main_without_json(pd_obj=None,
             tf_stats["gpu_time"] = args.gpu_time
             utils.print_benchmark_result(
                 tf_stats,
+                task=args.task,
                 log_level=args.log_level,
                 config_params=config.to_string())
 
@@ -253,6 +264,7 @@ def test_main_without_json(pd_obj=None,
             pd_stats["gpu_time"] = args.gpu_time
             utils.print_benchmark_result(
                 pd_stats,
+                task=args.task,
                 log_level=args.log_level,
                 config_params=config.to_string())
 
@@ -280,6 +292,7 @@ def test_main_without_json(pd_obj=None,
             torch_stats["gpu_time"] = args.gpu_time
             utils.print_benchmark_result(
                 torch_stats,
+                task=args.task,
                 log_level=args.log_level,
                 config_params=config.to_string())
 
@@ -289,10 +302,11 @@ def test_main_without_json(pd_obj=None,
         pd_dy_outputs, pd_dy_stats = pd_dy_obj.run(
             config, args, feeder_adapter=feeder_adapter)
 
-        if args.task == "speed":
+        if args.task == "speed" or args.task == "scheduling":
             pd_dy_stats["gpu_time"] = args.gpu_time
             utils.print_benchmark_result(
                 pd_dy_stats,
+                task=args.task,
                 log_level=args.log_level,
                 config_params=config.to_string())
 

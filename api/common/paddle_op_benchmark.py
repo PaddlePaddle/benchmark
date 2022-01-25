@@ -35,7 +35,7 @@ except Exception as e:
 
 
 @contextlib.contextmanager
-def profile_context(name, use_gpu, profiler):
+def profile_context(name, use_gpu, profiler, iter_id=0, start=5, end=10):
     if profiler in ["Default", "OpDetail", "AllOpDetail"]:
         profile_type = "All" if use_gpu else "CPU"
         output_file = "./outputs/" + name + ".pd.profile"
@@ -59,6 +59,19 @@ def profile_context(name, use_gpu, profiler):
         paddle.fluid.core.nvprof_start()
         yield
         paddle.fluid.core.nvprof_stop()
+    elif profiler == "nvprof_nvtx":
+        if iter_id == start:
+            paddle.fluid.core.nvprof_start()
+            paddle.fluid.core.nvprof_enable_record_event()
+        if iter_id >= start:
+            paddle.fluid.core.nvprof_nvtx_push(str(iter_id))
+        yield
+        if iter_id < end:
+            paddle.fluid.core.nvprof_nvtx_pop()
+        if iter_id == end:
+            if use_gpu:
+                paddle.device.cuda.synchronize(0)
+            paddle.fluid.core.nvprof_stop()
     else:
         yield
 
@@ -371,6 +384,8 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
 
     def _run_dynamic_impl(self,
                           use_gpu,
+                          task,
+                          only_print,
                           config,
                           repeat=1,
                           profiler="none",
@@ -380,7 +395,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
 
         def _run_main_iter():
             self.build_graph(config=config)
-            if use_gpu:
+            if use_gpu and task != "scheduling":
                 paddle.device.cuda.synchronize(0)
 
             outputs = None
@@ -393,17 +408,31 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                         outputs.append(var.numpy())
             return outputs
 
+        if only_print:
+            stats = self.get_running_stats(use_gpu, config, None)
+            return None, stats
+
         # warmup run
         _run_main_iter()
 
         runtimes = []
 
         self._helper.switch_status()
-        with profile_context(self.name, use_gpu, profiler):
-            for i in range(repeat):
-                begin = time.time()
-                outputs = _run_main_iter()
-                runtimes.append(time.time() - begin)
+        if task != "scheduling":
+            with profile_context(self.name, use_gpu, profiler):
+                for i in range(repeat):
+                    begin = time.time()
+                    outputs = _run_main_iter()
+                    runtimes.append(time.time() - begin)
+        else:
+            # The performance of the first few steps is unstable.
+            assert repeat >= 10, "repeat must be greater than 10 if task is scheduling, but received {}.".format(
+                repeat)
+            for i in range(repeat + 1):
+                with profile_context(self.name, use_gpu, profiler, i, 5,
+                                     repeat):
+                    outputs = _run_main_iter()
+            runtimes = None
 
         self._helper.switch_status()
         stats = self.get_running_stats(use_gpu, config, runtimes)
@@ -424,6 +453,8 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             self._helper.set_feed_values(feeder_adapter.to_paddle())
         outputs, stats = self._run_dynamic_impl(
             use_gpu=args.use_gpu,
+            task=args.task,
+            only_print=args.only_print,
             config=config,
             repeat=args.repeat,
             profiler=args.profiler,
