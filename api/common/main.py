@@ -303,7 +303,10 @@ def test_main_without_json(pd_obj=None,
             config, args, feeder_adapter=feeder_adapter)
 
         if args.task == "speed" or args.task == "scheduling":
-            pd_dy_stats["gpu_time"] = args.gpu_time
+            if args.task == "speed":
+                pd_dy_stats["gpu_time"] = args.gpu_time
+            if args.task == "scheduling":
+                pd_dy_stats["scheduling_times"] = args.scheduling_times
             utils.print_benchmark_result(
                 pd_dy_stats,
                 task=args.task,

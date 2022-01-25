@@ -361,7 +361,7 @@ def launch(benchmark_script, benchmark_script_args, with_nvprof=False):
         elif task == "scheduling":
             framework = benchmark_args_dict.get("framework", "paddle")
             assert framework == "paddle", "framework must be 'paddle' if task is 'scheduling'."
-            repeat = benchmark_args_dict.get("repeat", 10)
+            repeat = int(benchmark_args_dict.get("repeat", "10"))
             # The performance of the first few steps is unstable.
             assert repeat >= 10, "repeat must be greater than 10 if task is scheduling, but received {}.".format(
                 repeat)
@@ -419,7 +419,7 @@ if __name__ == "__main__":
                                                 None) != ""
     profiler = benchmark_args_dict.get("profiler", "none")
     repeat = benchmark_args_dict.get("repeat", "1")
-    only_print = benchmark_args_dict.get("only_print", False)
+    only_print = benchmark_args_dict.get("only_print", "False")
 
     system.check_commit()
 
@@ -434,7 +434,7 @@ if __name__ == "__main__":
             args.benchmark_script_args.append(str(output_time))
         if task == "scheduling":
             args.benchmark_script_args.append(" --scheduling_times ")
-            args.benchmark_script_args.append(str(output_time))
+            args.benchmark_script_args.append("\"" + str(output_time) + "\"")
             _set_args(args.benchmark_script_args, "--only_print", "True")
 
     launch(
