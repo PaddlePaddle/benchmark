@@ -58,6 +58,10 @@ function _train(){
                --num_workers 8
                --log_iters 5"
 
+    if [ ${fp_mode} == "fp16" ]; then
+        train_cmd=${train_cmd}" --fp16"
+    fi
+
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u train.py "${train_cmd}
     else
