@@ -210,7 +210,7 @@ class NsightRunnerForDynamicScheduling(object):
         # The same op may appear multiple times within a step.
         total_time = self._to_float(l[1])
         max_time = self._to_float(l[5])
-        return (total_time - max_time) / (num_step - 1)
+        return (total_time - max_time) / num_step
 
     def _calculate_scheduling_time(self, outside_time, inside_time):
         if outside_time and inside_time:

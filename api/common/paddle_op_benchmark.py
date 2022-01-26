@@ -448,7 +448,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             # The performance of the first few steps is unstable.
             assert repeat >= 10, "repeat must be greater than 10 if task is scheduling, but received {}.".format(
                 repeat)
-            for i in range(repeat):
+            for i in range(repeat + 1):
                 with profile_context(self.name, use_gpu, profiler, i, 5,
                                      repeat):
                     outputs = _run_main_iter()
