@@ -23,13 +23,23 @@ class LayerNormConfig(APIConfig):
 class PaddleLayerNorm(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        weight = self.variable(
+            name="weight",
+            shape=config.weight_shape,
+            dtype=config.weight_dtype)
+        bias = self.variable(
+            name="bias", shape=config.bias_shape, dtype=config.bias_dtype)
         result = paddle.nn.functional.layer_norm(
-            x=x, normalized_shape=config.x_shape[1:], epsilon=config.epsilon)
+            x=x,
+            normalized_shape=config.x_shape[1:],
+            weight=weight,
+            bias=bias,
+            epsilon=config.epsilon)
 
-        self.feed_list = [x]
+        self.feed_list = [x, weight, bias]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(result, [x, weight, bias])
 
 
 class TorchLayerNorm(PytorchAPIBenchmarkBase):
