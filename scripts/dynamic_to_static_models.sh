@@ -168,7 +168,7 @@ dy_to_st_seg(){
             bs_item=4
         fi
         echo "index is speed, ${model_item} 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 ${bs_item} sp ${model_item} 200 True | tee ${log_path}/dynamic_to_static_seg_${model_item}_bs${bs_item}_speed_1gpus 2>&1
+        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 ${bs_item} sp ${model_item} 200 True fp32 | tee ${log_path}/dynamic_to_static_seg_${model_item}_bs${bs_item}_speed_1gpus 2>&1
         sleep 60
         #echo "index is speed, ${model_item} 8gpu begin"
         #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${bs_item} mp ${model_item} 200 True | tee ${log_path}/dynamic_to_static_seg_${model_item}_bs${bs_item}_speed_8gpus 2>&1
