@@ -54,15 +54,15 @@ function _train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
     if [ ${mode} == "amp" ]; then
-        use_pure_fp16=False
-	sed -i "s/output_fp16.*/output_fp16: False/g" ppcls/configs/ImageNet/ResNet/ResNet50_fp16.yaml
+        level=O1
+        config_file="ppcls/configs/ImageNet/ResNet/ResNet50_amp_O1.yaml"
     elif [ ${mode} == "pure" ]; then
-        use_pure_fp16=True
-	sed -i "s/output_fp16.*/output_fp16: *use_pure_fp16/g" ppcls/configs/ImageNet/ResNet/ResNet50_fp16.yaml
+        level=O2
+	config_file="ppcls/configs/ImageNet/ResNet/ResNet50_amp_O2.yaml"
     else
         echo "check your mode!"
     fi
-    train_cmd="-c ppcls/configs/ImageNet/ResNet//ResNet50_fp16.yaml
+    train_cmd="-c ${config_file} 
                -o Global.epochs=${max_epoch}
                -o DataLoader.Train.sampler.batch_size=${base_batch_size}
                -o Global.eval_during_train=False
@@ -72,7 +72,7 @@ function _train(){
                -o Global.print_batch_step=10
                -o Global.device=gpu
                -o Global.image_shape=[4,224,224]
-               -o AMP.use_pure_fp16=${use_pure_fp16}
+               -o AMP.level=${level}
                -o Global.is_distributed=${is_distributed}
                "
 
