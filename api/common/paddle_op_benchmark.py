@@ -362,13 +362,25 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             else:
                 var_list.append(var_or_list)
 
-        gradients = self._helper.generate_gradients(targets, inputs)
-        self._backward = True
-        if self._testing_mode == "static":
-            print("Gradients: ", gradients)
-            _append_to_list(gradients, self.fetch_vars)
-        else:
-            _append_to_list(gradients, self.fetch_list)
+        if self._task != "scheduling":
+            gradients = self._helper.generate_gradients(targets, inputs)
+            self._backward = True
+            if self._testing_mode == "static":
+                print("Gradients: ", gradients)
+                _append_to_list(gradients, self.fetch_vars)
+            else:
+                _append_to_list(gradients, self.fetch_list)
+        elif self._testing_mode == "dynamic":
+            # If task is "scheduling", "backward" method needs to be
+            # used rather than "paddle.grad" method to build backward
+            # graph.
+            if not isinstance(targets, list):
+                targets.backward()
+            elif len(targets) == 1:
+                targets[0].backward()
+            else:
+                assert False, "Gradients of list is not supported now!"
+            self._backward = True
 
     def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
         self._layers_function = None
@@ -411,6 +423,8 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         if only_print:
             stats = self.get_running_stats(use_gpu, config, None)
             return None, stats
+
+        self._task = task
 
         # warmup run
         _run_main_iter()
