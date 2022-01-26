@@ -185,7 +185,7 @@ class NsightRunnerForDynamicScheduling(object):
 
     def _nsight_nvtx(self, cmd):
         return system.run_command(
-            "nsys profile -t cuda,nvtx --stats true -o tmp.qdrep --capture-range=cudaProfilerApi --stop-on-range-end=true --force-overwrite true {}".
+            "nsys profile -t cuda,nvtx --stats true -o tmp.qdrep --force-overwrite true {}".
             format(cmd))
 
     def _to_float(self, s):
@@ -275,7 +275,7 @@ class NsightRunnerForDynamicScheduling(object):
 
             # step time
             if nvtx_range_type.isdigit() and int(
-                    nvtx_range_type) > start_step + 1 and int(
+                    nvtx_range_type) > start_step and int(
                         nvtx_range_type) < end_step - 1:
                 step_count += 1
                 step_time = self._to_float(infos[1])

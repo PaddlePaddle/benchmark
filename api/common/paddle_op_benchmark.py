@@ -420,14 +420,20 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                         outputs.append(var.numpy())
             return outputs
 
-        if only_print:
-            stats = self.get_running_stats(use_gpu, config, None)
-            return None, stats
-
         self._task = task
 
         # warmup run
         _run_main_iter()
+
+        # Sometimes there is no need to execute code again, and
+        # just need to print configuration information. For example,
+        # when executing the "scheduling" task for the second time,
+        # there's no need to execute code again. 
+        # "_run_main_iter" needs to be executed firstly because
+        # parameter "self._backward" needs to be update.
+        if only_print:
+            stats = self.get_running_stats(use_gpu, config, None)
+            return None, stats
 
         runtimes = []
 
@@ -442,7 +448,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             # The performance of the first few steps is unstable.
             assert repeat >= 10, "repeat must be greater than 10 if task is scheduling, but received {}.".format(
                 repeat)
-            for i in range(repeat + 1):
+            for i in range(repeat):
                 with profile_context(self.name, use_gpu, profiler, i, 5,
                                      repeat):
                     outputs = _run_main_iter()
