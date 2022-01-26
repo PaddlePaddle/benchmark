@@ -28,6 +28,7 @@ function _set_params(){
         skip_steps=3
     fi
     keyword="ips:"
+    keyword_loss="loss:"
     model_mode=-1
     ips_unit="images/s"
 
@@ -44,22 +45,36 @@ function _set_params(){
 }
 
 function _train(){
-    if [ ${model_name} = "ResNet152_bs32" ]; then
+    if [[ ${model_name} = "ResNet152_bs32" ]]; then
         config_file="ResNet152.yaml"
         file_list="train_list_resnet152.txt"
+    elif [[ ${model_name} == *pure_fp16* ]]; then
+        config_file="ResNet50_amp_O2.yaml"
+	file_list="train_list.txt"
+        max_epoch=3
+	level=O2
+    elif [[ ${model_name} == *amp_fp16* ]]; then
+	config_file="ResNet50_amp_O1.yaml"
+        file_list="train_list.txt"
+        max_epoch=3
+	level=O1
     else
         config_file="ResNet50.yaml"
         file_list="train_list.txt"
-    fi
+    fi 
     train_cmd="-c ./ppcls/configs/ImageNet/ResNet/${config_file}
                -o Global.epochs=${max_epoch}
                -o Global.eval_during_train=False
                -o Global.save_interval=2
-               -o Global.to_static=True
+	       -o Global.to_static=True
                -o DataLoader.Train.sampler.batch_size=${batch_size}
                -o DataLoader.Train.dataset.image_root=./dataset/imagenet100_data
                -o DataLoader.Train.dataset.cls_label_path=./dataset/imagenet100_data/${file_list}
                -o DataLoader.Train.loader.num_workers=8"
+    # pure pf16 args
+    if [[ ${model_name} == *fp16* ]]; then
+        train_cmd=${train_cmd}" -o AMP.level=${level}"
+    fi
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
     else
@@ -76,6 +91,7 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
+    kill -9 `ps -ef|grep python |awk '{print $2}'`
 
     if [ ${run_mode} != "sp"  -a -d mylog_${model_name} ]; then
         rm ${log_file}
