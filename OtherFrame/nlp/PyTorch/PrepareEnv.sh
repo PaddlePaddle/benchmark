@@ -10,7 +10,7 @@ export BENCHMARK_ROOT=/workspace   # 起容器的时候映射的目录  benchmar
 run_env=$BENCHMARK_ROOT/run_env
 log_date=`date "+%Y.%m%d.%H%M%S"`
 frame=pytorch1.8
-cuda_version=10.2
+cuda_version=11.2
 save_log_dir=${BENCHMARK_ROOT}/logs/${frame}_${log_date}_${cuda_version}/
 
 if [[ -d ${save_log_dir} ]]; then
@@ -36,7 +36,7 @@ export PATH=$run_env:${PATH}
 #pip install -U pip
 echo `pip --version`
 echo `python3-config --help`
-pip install torch==1.8.0 -i https://mirror.baidu.com/pypi/simple #https://download.pytorch.org/whl/torch_stable.html
+python3.7 -m pip install torch==1.8.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html
 #pip install $BENCHMARK_ROOT/torch-1.8.0-cp37-cp37m-manylinux1_x86_64.whl 
 pip install regex pybind11 Ninja -i https://mirror.baidu.com/pypi/simple 
 cd $BENCHMARK_ROOT/apex
