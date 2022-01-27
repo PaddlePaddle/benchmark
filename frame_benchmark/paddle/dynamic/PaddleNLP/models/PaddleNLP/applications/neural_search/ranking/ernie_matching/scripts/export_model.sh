@@ -1,1 +1,0 @@
-python export_model.py --params_path checkpoints/model_30000/model_state.pdparams --output_path=./output
