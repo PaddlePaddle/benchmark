@@ -1,10 +1,7 @@
-[submodule "frame_benchmark/paddle/dynamic/PaddleVideo"]
-	path = frame_benchmark/paddle/dynamic/PaddleVideo
+[submodule "frame_benchmark/paddle/dynamic/PaddleVideo/models/PaddleVideo"]
+	path = frame_benchmark/paddle/dynamic/PaddleVideo/models/PaddleVideo
 	url = https://github.com/PaddlePaddle/PaddleVideo.git
-[submodule "frame_benchmark/paddle/dynamic/models/PaddleVideo"]
-	path = frame_benchmark/paddle/dynamic/models/PaddleVideo
-	url = https://github.com/PaddlePaddle/PaddleVideo.git
-[submodule "frame_benchmark/pytorch/PaddleVideo/models/TimeSformer"]
-	path = frame_benchmark/pytorch/PaddleVideo/models/TimeSformer
+[submodule "frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer"]
+	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer
 	url = https://github.com/HydrogenSulfate/TimeSformer.git
 	branch = develop
