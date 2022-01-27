@@ -1,0 +1,3 @@
+pytorch:
+    transformer_big: registry.baidu.com/paddle-benchmark/pytorch-ngc:21.11-py3
+

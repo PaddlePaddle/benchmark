@@ -1,3 +1,5 @@
 paddle:
    fastscnn: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/PaddleSeg   # 例如新增该行
    hrnet: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/PaddleSeg
+   transformer_big: benchmark/frame_benchmark/paddle/dynamic/PaddleNLP/models/PaddleNLP
+
