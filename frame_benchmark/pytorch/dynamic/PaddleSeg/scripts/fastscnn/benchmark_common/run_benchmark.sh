@@ -43,7 +43,7 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num}
+    python analysis_log.py ${model_name} ${log_file} ${speed_log_file} ${device_num}
 }
 
 function _train(){
