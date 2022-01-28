@@ -1,3 +1,12 @@
 paddle:
-   fastscnn: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/PaddleSeg   # 例如新增该行
-   hrnet: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/PaddleSeg
+   StyleGANv2: benchmark/frame_benchmark/paddle/dynamic/PaddleGAN/models/PaddleGAN
+   FOMM: benchmark/frame_benchmark/paddle/dynamic/PaddleGAN/models/PaddleGAN
+   edvr: benchmark/frame_benchmark/paddle/dynamic/PaddleGAN/models/PaddleGAN
+   basicvsr: benchmark/frame_benchmark/paddle/dynamic/PaddleGAN/models/PaddleGAN
+   esrgan: benchmark/frame_benchmark/paddle/dynamic/PaddleGAN/models/PaddleGAN
+pytorch:
+   StyleGANv2: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch
+   FOMM: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/first-order-model
+   edvr: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
+   basicvsr: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
+   esrgan: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
