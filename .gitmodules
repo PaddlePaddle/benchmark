@@ -1,0 +1,12 @@
+[submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/mmclassification"]
+	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/mmclassification
+	url = https://github.com/open-mmlab/mmclassification.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/HRNet-Image-Classification"]
+	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/HRNet-Image-Classification
+	url = https://github.com/HRNet/HRNet-Image-Classification.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/Twins"]
+	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/Twins
+	url = https://github.com/Meituan-AutoML/Twins.git
+	branch = main
