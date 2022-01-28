@@ -1,7 +1,3 @@
-[submodule "frame_benchmark/paddle/dynamic/PaddleGAN/models/PaddleGAN"]
-	path = frame_benchmark/paddle/dynamic/PaddleGAN/models/PaddleGAN
-	url = https://github.com/PaddlePaddle/PaddleGAN.git
-	branch = develop
 [submodule "frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting"]
 	path = frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
 	url = https://github.com/open-mmlab/mmediting.git
