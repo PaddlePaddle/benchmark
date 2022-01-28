@@ -1,0 +1,12 @@
+[submodule "frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting"]
+	path = frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
+	url = https://github.com/open-mmlab/mmediting.git
+	branch = develop
+[submodule "frame_benchmark/pytorch/dynamic/PaddleGAN/models/first-order-model"]
+	path = frame_benchmark/pytorch/dynamic/PaddleGAN/models/first-order-model
+	url = https://github.com/PaddleBenchmark/first-order-model.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch"]
+	path = frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch
+	url = https://github.com/PaddleBenchmark/stylegan2-pytorch.git
+	branch = master
