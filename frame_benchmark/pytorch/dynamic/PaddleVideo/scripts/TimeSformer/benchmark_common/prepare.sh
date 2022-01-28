@@ -4,8 +4,8 @@ echo "*******prepare benchmark start ***********"
 ################################# 安装最新版pip
 pip install -U pip
 echo `pip --version`
-################################# 安装torch 1.8.0
-pip install torch==1.8.0+cu102 -f https://download.pytorch.org/whl/torch_stable.html
+################################# 安装torch 1.8.1
+pip install torch==1.8.1+cu102 -f https://download.pytorch.org/whl/torch_stable.html
 
 ################################# 安装TimeSformer的环境依赖
 pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple --no-deps --no-cache-dir
