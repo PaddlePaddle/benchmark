@@ -73,6 +73,8 @@ function _train(){
     kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 }
 _set_params $@
+# export model_branch=`git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3`
+# export model_commit=$(git log|head -n1|awk '{print $2}')
 export frame_version=`python -c "import torch;print(torch.__version__)"`
 echo "---------frame_version is torch ${frame_version}"
 echo "---------model_branch is ${model_branch}"

@@ -44,7 +44,7 @@ def analyze(model_item: str, log_file: str, res_log_file: str, device_num: int):
         "run_process_type": log_file_name_split[-4],
         "run_mode": run_mode,
         "convergence_value": 0,
-        "convergence_key": "\"loss\"",
+        "convergence_key": '"loss":',
         "ips": avg_ips,
         "speed_unit": "instance/sec",
         "device_num": device_num,
