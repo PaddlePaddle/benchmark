@@ -1,9 +1,3 @@
-paddle:
-   StyleGANv2: benchmark/frame_benchmark/paddle/dynamic/PaddleGAN/models/PaddleGAN
-   FOMM: benchmark/frame_benchmark/paddle/dynamic/PaddleGAN/models/PaddleGAN
-   edvr: benchmark/frame_benchmark/paddle/dynamic/PaddleGAN/models/PaddleGAN
-   basicvsr: benchmark/frame_benchmark/paddle/dynamic/PaddleGAN/models/PaddleGAN
-   esrgan: benchmark/frame_benchmark/paddle/dynamic/PaddleGAN/models/PaddleGAN
 pytorch:
    StyleGANv2: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch
    FOMM: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/first-order-model
