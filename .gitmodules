@@ -1,0 +1,4 @@
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+	url = https://github.com/open-mmlab/mmsegmentation.git
+	branch = master
