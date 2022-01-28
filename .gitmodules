@@ -1,7 +1,3 @@
-[submodule "frame_benchmark/paddle/dynamic/PaddleNLP/models/PaddleNLP"]
-	path = frame_benchmark/paddle/dynamic/PaddleNLP/models/PaddleNLP
-	url = https://github.com/PaddlePaddle/PaddleNLP.git
-	branch = develop
 [submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples"]
 	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
 	url = https://github.com/NVIDIA/DeepLearningExamples.git
