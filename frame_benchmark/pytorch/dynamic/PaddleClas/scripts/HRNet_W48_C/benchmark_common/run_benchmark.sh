@@ -11,7 +11,7 @@ function _set_params(){
     run_mode=${5:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
     device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
-    model_repo="mmclassification"          # (必选) 模型套件的名字
+    model_repo="HRNet-Image-Classification"          # (必选) 模型套件的名字
     ips_unit="samples/sec"         # (必选)速度指标单位
     skip_steps=10                  # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="ips:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
@@ -71,14 +71,6 @@ function _train(){
         rm ${log_CUDA_file}
         cp mylog/workerlog.0 ${log_file}
     fi
-
-    sed -i "s/BATCH_SIZE_PER_GPU: $batch_size/BATCH_SIZE_PER_GPU: 32/g" experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
-    sed -i "s/WORKERS: $num_workers/WORKERS: 4/g" experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
-    if [ ${run_mode} = SingleP ]; then
-	sed -ie 's/GPUS: (0,)/GPUS: (0,1,2,3)/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml	
-    else
-	sed -ie 's/GPUS: (0,1,2,3,4,5,6,7)/GPUS: (0,1,2,3)/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
-    fi
 }
 
 _set_params $@
@@ -91,7 +83,13 @@ echo "---------model_commit is ${model_commit}"
 
 job_bt=`date '+%Y%m%d%H%M%S'`
 rm -rf work_dirs
+sed -i 's/view/reshape/g' lib/core/evaluate.py
+sed -i 's/PRINT_FREQ: 1000/PRINT_FREQ: 10/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
 _train
 job_et=`date '+%Y%m%d%H%M%S'`
 export model_run_time=$((${job_et}-${job_bt}))
 _analysis_log
+sed -i "s/BATCH_SIZE_PER_GPU: $batch_size/BATCH_SIZE_PER_GPU: 32/g" experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
+sed -i "s/WORKERS: $num_workers/WORKERS: 4/g" experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
+sed -ie 's/GPUS: (0,)/GPUS: (0,1,2,3)/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
+sed -ie 's/GPUS: (0,1,2,3,4,5,6,7)/GPUS: (0,1,2,3)/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
