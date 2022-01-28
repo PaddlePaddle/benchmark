@@ -2,5 +2,6 @@ pytorch:
    StyleGANv2: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch
    FOMM: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/first-order-model
    edvr: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
+   transformer_big: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
    basicvsr: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
    esrgan: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting

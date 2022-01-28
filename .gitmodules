@@ -1,3 +1,6 @@
+[submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples"]
+	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
+	url = https://github.com/NVIDIA/DeepLearningExamples.git
 [submodule "frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting"]
 	path = frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
 	url = https://github.com/open-mmlab/mmediting.git
