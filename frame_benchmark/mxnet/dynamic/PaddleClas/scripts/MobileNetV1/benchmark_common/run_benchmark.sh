@@ -44,7 +44,7 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py -f ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -fp ${fp_item}
+    python analysis_log.py -f ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} --fp ${fp_item}
 }
 
 function _train(){

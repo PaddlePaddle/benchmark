@@ -46,11 +46,6 @@ if __name__ == "__main__":
     except Exception as e:
         ips = 0
 
-    run_mode = 'sp' if args.num_gpu == 1 else 'mp'
-    save_file = 'clas_{}_{}_bs{}_fp32_{}_speed'.format(args.model_name,
-                                                       run_mode,
-                                                       args.batch_size,
-                                                       args.device_num)
     run_mode = 'SP' if num_gpu == 1 else 'MP'
     if args.save_path:
         save_file = args.save_path
