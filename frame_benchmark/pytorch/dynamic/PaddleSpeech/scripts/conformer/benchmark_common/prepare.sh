@@ -12,7 +12,7 @@ cp replace/download_and_untar.sh examples/aishell/s0/local
 #pip install -U pip
 #echo `pip --version`
 
-test -d venv || virtualenv -p python3.7 venv
+test -d venv || virtualenv -p python venv
 source venv/bin/activate
 # pip install torch==1.9.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple

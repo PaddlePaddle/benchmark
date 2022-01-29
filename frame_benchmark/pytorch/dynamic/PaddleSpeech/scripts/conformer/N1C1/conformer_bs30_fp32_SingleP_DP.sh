@@ -23,7 +23,7 @@ run_mode=DP
 device_num=N1C1
 max_epoch=3
 
-CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_process_type} ${run_mode} ${device_num} ${max_epoch}  2>&1;
+bash run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_process_type} ${run_mode} ${device_num} ${max_epoch}  2>&1;
 
 popd
 
