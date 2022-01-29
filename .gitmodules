@@ -13,3 +13,6 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch
 	url = https://github.com/PaddleBenchmark/stylegan2-pytorch.git
 	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
+	url = https://github.com/wenet-e2e/wenet.git
