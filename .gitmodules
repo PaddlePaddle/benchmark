@@ -10,3 +10,7 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/Twins
 	url = https://github.com/Meituan-AutoML/Twins.git
 	branch = main
+[submodule "frame_benchmark/mxnet/dynamic/PaddleClas/models/gluon-cv"]
+	path = frame_benchmark/mxnet/dynamic/PaddleClas/models/gluon-cv
+	url = https://github.com/dmlc/gluon-cv.git
+	branch = master

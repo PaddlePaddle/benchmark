@@ -1,5 +1,6 @@
 pytorch:
    MobileNetV2: registry.baidu.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
+   MobileNetV1: registry.baidu.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    MobileNetV3_large_x1_0: registry.baidu.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    ResNet152: registry.baidu.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    ResNet50: registry.baidu.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8

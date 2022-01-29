@@ -11,3 +11,6 @@ pytorch:
    SwinTransformer_tiny_patch4_window7_224: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/mmclassification
    HRNet_W48_C: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/HRNet-Image-Classification
    alt_gvt_base: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/Twins
+
+mxnet:
+  MobileNetV1: benchmark/frame_benchmark/mxnet/dynamic/PaddleClas/models/gluon-cv
