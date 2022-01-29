@@ -2,6 +2,8 @@
 
 # Test training benchmark for a model.
 # Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_name} ${run_mode} ${fp_item} ${bs_item} ${max_epochs} ${num_workers}
+declare -A dic
+dic=(["MobileNetV1"]="mobilenet1.0")
 
 function _set_params(){
     model_item=${1:-"model_item"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
@@ -50,7 +52,7 @@ function _train(){
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
 
-    train_cmd="python scripts/classification/imagenet/train_imagenet.py --num-epochs ${max_epochs} --batch-size ${batch_size} --mode hybrid --num-gpus ${num_gpu_devices} --data-dir ./data --model ${model_item} -j ${num_workers}"
+    train_cmd="python scripts/classification/imagenet/train_imagenet.py --num-epochs ${max_epochs} --batch-size ${batch_size} --mode hybrid --num-gpus ${num_gpu_devices} --data-dir ./data --model ${dic["${model_item}"]} -j ${num_workers}"
 
 #   以下为通用执行命令，无特殊可不用修改
     timeout 5m ${train_cmd} > ${log_file} 2>&1
