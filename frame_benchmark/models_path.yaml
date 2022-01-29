@@ -5,3 +5,4 @@ pytorch:
    transformer_big: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
    basicvsr: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
    esrgan: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
+   TimeSformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer
