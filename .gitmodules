@@ -16,3 +16,26 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
 	url = https://github.com/wenet-e2e/wenet.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer"]
+	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer
+	url = git@github.com:PaddleBenchmark/TimeSformer.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
+	url = https://github.com/open-mmlab/mmdetection.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose
+	url = https://github.com/open-mmlab/mmpose.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/SOLO"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/SOLO
+	url = https://github.com/WXinlong/SOLO.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/jde"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/jde
+	url = https://github.com/nemonameless/jde.git
+	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/fairmot"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/fairmot
+	url = https://github.com/nemonameless/fairmot.git
+	branch = main

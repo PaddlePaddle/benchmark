@@ -5,4 +5,14 @@ pytorch:
    transformer_big: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
    basicvsr: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
    esrgan: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
+   TimeSformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer
+   jde: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/jde
+   fairmot: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/fairmot
+   higherhrnet: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose
+   hrnet: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose
+   solov2: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/SOLO
+   gfl: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
+   fcos: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
+   faster_rcnn: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
+   deformable_detr: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
    conformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
