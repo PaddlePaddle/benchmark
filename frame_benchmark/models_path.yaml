@@ -25,4 +25,4 @@ pytorch:
    fcos: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
    faster_rcnn: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
    deformable_detr: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
-
+   conformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
