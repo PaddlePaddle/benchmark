@@ -8,7 +8,7 @@ function _set_params(){
     model_item=${1:-"psenet_r50_ic15_736"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
     base_batch_size=${2:-"2"}       # (必选) 每张卡上的batch_size
     fp_item=${3:-"fp32"}            # (必选) fp32|fp16
-    run_process_type=${4:-"MultiP"} # (必选) 单进程 SingleP|多进程 MultiP
+    run_process_type=${4:-"SingleP"} # (必选) 单进程 SingleP|多进程 MultiP
     run_mode=${5:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
     device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
@@ -54,7 +54,7 @@ function _train(){
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
                    
-    train_config="config/psenet/${model_item}.py"
+    train_config="config/psenet/psenet_r50_ic15_736.py"
     train_options="--cfg-options data.batch_size=${batch_size} \
                    train_cfg.epoch=${max_iter} \
                    model.backbone.pretrained=False"

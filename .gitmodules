@@ -13,7 +13,6 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch
 	url = https://github.com/PaddleBenchmark/stylegan2-pytorch.git
 	branch = master
-[submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/PSENet"]
-	path = frame_benchmark/pytorch/dynamic/PaddleOCR/PSENet
-	url = https://github.com/WenmuZhou/PSENet.git
-	branch = python3
+[submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/PSENet"]
+	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/PSENet
+	url = https://github.com/PaddleBenchmark/PSENet.git

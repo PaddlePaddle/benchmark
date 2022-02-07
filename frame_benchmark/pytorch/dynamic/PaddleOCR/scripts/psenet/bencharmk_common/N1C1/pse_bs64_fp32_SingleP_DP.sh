@@ -1,4 +1,4 @@
-item=psenet_r50_ic15_736
+item=det_r50_vd_pse
 #max_token
 bs_item=64
 fp_item=fp32
