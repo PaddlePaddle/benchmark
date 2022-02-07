@@ -51,7 +51,7 @@ class ElementwiseConfig(APIConfig):
 
 
 @benchmark_registry.register("elementwise")
-class PDElementwise(PaddleOpBenchmarkBase):
+class PaddleElementwise(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
