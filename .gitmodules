@@ -1,3 +1,19 @@
+[submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/mmclassification"]
+	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/mmclassification
+	url = https://github.com/open-mmlab/mmclassification.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/HRNet-Image-Classification"]
+	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/HRNet-Image-Classification
+	url = https://github.com/HRNet/HRNet-Image-Classification.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/Twins"]
+	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/Twins
+	url = https://github.com/Meituan-AutoML/Twins.git
+	branch = main
+[submodule "frame_benchmark/mxnet/dynamic/PaddleClas/models/gluon-cv"]
+	path = frame_benchmark/mxnet/dynamic/PaddleClas/models/gluon-cv
+	url = https://github.com/dmlc/gluon-cv.git
+	branch = master
 [submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples"]
 	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
 	url = https://github.com/NVIDIA/DeepLearningExamples.git
@@ -16,3 +32,33 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/PSENet"]
 	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/PSENet
 	url = https://github.com/PaddleBenchmark/PSENet.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
+	url = https://github.com/wenet-e2e/wenet.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer"]
+	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer
+	url = git@github.com:PaddleBenchmark/TimeSformer.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
+	url = https://github.com/open-mmlab/mmdetection.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose
+	url = https://github.com/open-mmlab/mmpose.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/SOLO"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/SOLO
+	url = https://github.com/WXinlong/SOLO.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/jde"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/jde
+	url = https://github.com/nemonameless/jde.git
+	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/fairmot"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/fairmot
+	url = https://github.com/nemonameless/fairmot.git
+	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+	url = https://github.com/open-mmlab/mmsegmentation.git
+	branch = master
