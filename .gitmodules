@@ -14,3 +14,41 @@
 	path = frame_benchmark/mxnet/dynamic/PaddleClas/models/gluon-cv
 	url = https://github.com/dmlc/gluon-cv.git
 	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples"]
+	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
+	url = https://github.com/NVIDIA/DeepLearningExamples.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting"]
+	path = frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
+	url = https://github.com/open-mmlab/mmediting.git
+	branch = develop
+[submodule "frame_benchmark/pytorch/dynamic/PaddleGAN/models/first-order-model"]
+	path = frame_benchmark/pytorch/dynamic/PaddleGAN/models/first-order-model
+	url = https://github.com/PaddleBenchmark/first-order-model.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch"]
+	path = frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch
+	url = https://github.com/PaddleBenchmark/stylegan2-pytorch.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer"]
+	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer
+	url = git@github.com:PaddleBenchmark/TimeSformer.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
+	url = https://github.com/open-mmlab/mmdetection.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose
+	url = https://github.com/open-mmlab/mmpose.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/SOLO"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/SOLO
+	url = https://github.com/WXinlong/SOLO.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/jde"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/jde
+	url = https://github.com/nemonameless/jde.git
+	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/fairmot"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/fairmot
+	url = https://github.com/nemonameless/fairmot.git
+	branch = main
