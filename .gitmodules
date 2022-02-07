@@ -55,3 +55,7 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/fairmot
 	url = https://github.com/nemonameless/fairmot.git
 	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+	url = https://github.com/open-mmlab/mmsegmentation.git
+	branch = master
