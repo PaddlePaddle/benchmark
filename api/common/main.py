@@ -39,6 +39,11 @@ def _check_gpu_device(use_gpu):
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        '--filename',
+        type=str,
+        default=None,
+        help='Specify the benchmark filename')
+    parser.add_argument(
         '--task',
         type=str,
         default="speed",
