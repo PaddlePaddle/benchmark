@@ -30,6 +30,41 @@ class PDInterpLinear(PaddleDynamicAPIBenchmarkBase):
         if config.backward:
             self.append_gradients(out, [x])
 
+    def compute_flop_and_byte(self, config):
+        # at least one of out_shape and scale must be set 
+        x_shape = config.x_shape
+        out_size = config.size
+
+        assert (config.scale_factor is not None or out_size is not None
+                ), "at least one of out_shape and scale must be set"
+        # config.size has higher priority than config.scale_factor
+        if isinstance(out_size, (list, tuple)):
+            out_shape = x_shape[0:-len(out_size)] + out_size
+        elif isinstance(config.scale_factor, (list, tuple)):
+            scale_length = len(config.scale_factor)
+            change_out = x_shape[-scale_length:]
+            scale_out = [
+                i * j for i, j in zip(change_out, config.scale_factor)
+            ]
+            out_shape = x_shape[0:-scale_length] + scale_out
+        elif isinstance(config.scale_factor, float):
+            change_out = x_shape[-1:]
+            scale_out = [i * config.scale_factor for i in change_out]
+            out_shape = x_shape[0:-1] + scale_out
+
+        # forward flops, sub*4 + mul*2 + div*2 + add*1
+        forward_flop = numel(out_shape) * 9
+
+        # forward byte, read 5 address to compute 1 address
+        read_byte = 5 * numel(out_shape) * sizeof(config.x_dtype)
+        write_byte = numel(out_shape) * sizeof(config.x_dtype)
+        forward_byte = read_byte + write_byte
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # to be implemented.
+            return None, None
+
 
 class TorchInterpLinear(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
