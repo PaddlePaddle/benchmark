@@ -14,6 +14,7 @@ function _set_params(){
     model_name=${4}
     max_iter=${5:-"200"}
     dynamic_to_static=${6:-"False"}
+    fp_mode=${7:-"fp32"}
 
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
@@ -30,9 +31,9 @@ function _set_params(){
     arr=($device)
     num_gpu_devices=${#arr[*]}
 
-    log_file=${run_log_path}/dynamic_${model_name}_${index}_${num_gpu_devices}_${run_mode}
-    log_with_profiler=${profiler_path}/dynamic_${model_name}_3_${num_gpu_devices}_${run_mode}
-    profiler_path=${profiler_path}/profiler_dynamic_${model_name}
+    log_file=${run_log_path}/dynamic_${model_name}_bs${base_batch_size}_${fp_mode}_${index}_${num_gpu_devices}_${run_mode}
+    log_with_profiler=${profiler_path}/dynamic_${model_name}_bs${base_batch_size}_${fp_mode}_3_${num_gpu_devices}_${run_mode}
+    profiler_path=${profiler_path}/profiler_dynamic_${model_name}_bs${base_batch_size}_${fp_mode}
     if [[ ${is_profiler} -eq 1 ]]; then log_file=${log_with_profiler}; fi
     log_parse_file=${log_file}
 }
@@ -49,13 +50,17 @@ function _train(){
         exit 1
     fi
     sed -i "s/^to_static_training.*/to_static_training: ${dynamic_to_static}/g" ${config}
-    model_name=${model_name}_bs${base_batch_size}
+    model_name=${model_name}_bs${base_batch_size}_${fp_mode}
     train_cmd="--config=${config}
                --iters=${max_iter}
                --batch_size ${base_batch_size}
                --learning_rate 0.01
                --num_workers 8
                --log_iters 5"
+
+    if [ ${fp_mode} == "fp16" ]; then
+        train_cmd=${train_cmd}" --fp16"
+    fi
 
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u train.py "${train_cmd}

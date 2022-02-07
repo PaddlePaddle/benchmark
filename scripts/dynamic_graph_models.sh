@@ -133,15 +133,15 @@ dy_bert(){
     fp_mode_list=(fp32 fp16)
     for model_mode in ${model_mode_list[@]}; do
         bs_list=(96)
-        seq_list=(seqlen128)
+        seq_item=(seqlen128)
         if [ ${model_mode} == "large" ]; then
             bs_list=(4)
-            seq_list=(seqlen512) # prepare for test large seqlen128|seqlen512
+            seq_item=(seqlen512) # prepare for test large seqlen128|seqlen512
         fi
 
-        for bs_item in ${bs_list[@]}
+        for fp_mode in ${fp_mode_list[@]}
         do
-            for seq_item in ${seq_list[@]}
+            for bs_item  in ${bs_list[@]}
             do
                 model_name="bert_${model_mode}_${fp_mode}_${seq_item}_bs${bs_item}"
                 echo "index is speed, 1gpus, begin, ${model_name}"
@@ -319,19 +319,23 @@ dy_seg(){
     sed -i '/set\ -xe/d' run_benchmark.sh
 
     model_list=(deeplabv3 HRnet)
+    fp_mode_list=(fp32 fp16)
     for model_item in ${model_list[@]}
     do
-        if [ ${model_item} = "HRnet" ]; then
-            bs_item=8
-        elif [ ${model_item} = "deeplabv3" ]; then
-            bs_item=4
-        fi
-        echo "index is speed, ${model_item} 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 ${bs_item} sp ${model_item} 200 | tee ${log_path}/dynamic_seg_${model_item}_bs${bs_item}_speed_1gpus 2>&1
-        sleep 10
-        echo "index is speed, ${model_item} 8gpu begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${bs_item} mp ${model_item} 200 | tee ${log_path}/dynamic_seg_${model_item}_bs${bs_item}_speed_8gpus 2>&1
-        sleep 10
+        for fp_mode in ${fp_mode_list[@]}
+        do
+            if [ ${model_item} = "HRnet" ]; then
+                bs_item=8
+            elif [ ${model_item} = "deeplabv3" ]; then
+                bs_item=4
+            fi
+            echo "index is speed, ${model_item} 1gpu begin"
+            CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 ${bs_item} sp ${model_item} 200 False ${fp_mode} | tee ${log_path}/dynamic_seg_${model_item}_bs${bs_item}_${fp_mode}_speed_1gpus 2>&1
+            sleep 10
+            echo "index is speed, ${model_item} 8gpu begin"
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${bs_item} mp ${model_item} 200 False ${fp_mode} | tee ${log_path}/dynamic_seg_${model_item}_bs${bs_item}_${fp_mode}_speed_8gpus 2>&1
+            sleep 10
+        done
     done
 }
 
@@ -544,7 +548,7 @@ dy_resnet(){
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./
     sed -i '/set\ -xe/d' run_benchmark_resnet.sh
-    model_list=(ResNet152_bs32 ResNet50_bs128 ResNet50_amp_fp16_bs128 ResNet50_amp_fp16_bs256) #ResNet50_pure_fp16_bs128
+    model_list=(ResNet152_bs32 ResNet50_bs128 ResNet50_amp_fp16_bs128 ResNet50_amp_fp16_bs256 ResNet50_pure_fp16_bs128)
     for model_name in ${model_list[@]}
     do
 	batch_size=${model_name#*bs}

@@ -20,7 +20,8 @@ import argparse
 import importlib
 
 package_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(package_path)
+print("-- package_path:", package_path)
+sys.path.insert(0, package_path)
 
 from common import api_param, special_op_list
 
@@ -51,7 +52,9 @@ def collect_subclass_dict(test_cases_dict):
 
 def import_all_tests(test_module_name):
     def _is_special_module(api_name):
-        special_module_list = ["__init__", "common_import", "fused_"]
+        special_module_list = [
+            "__init__", "common_import", "test_main", "fused_"
+        ]
         for name in special_module_list:
             if name in api_name:
                 return True
@@ -66,6 +69,7 @@ def import_all_tests(test_module_name):
             return module
         except Exception as e:
             print("-- Failed to import {}: {}".format(basename, e))
+            print("-- sys.path is {}".format(sys.path))
             return None
 
     tests_path = os.path.join(package_path, test_module_name)
