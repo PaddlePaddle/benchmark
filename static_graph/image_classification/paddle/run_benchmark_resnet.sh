@@ -58,11 +58,11 @@ function _train(){
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
     WORK_ROOT=$PWD
     echo "${model_name}, batch_size: ${batch_size}"
-    if [ ${model_name} == "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ] || [ ${model_name} = "ResNet50_bs96" ]; then
+    if [ ${model_name%%_bs*} == "ResNet50" ]; then
         config_file="ppcls/configs/ImageNet/ResNet/ResNet50.yaml"
-    elif [ ${model_name} == "ResNet101_bs32" ]; then
+    elif [ ${model_name%%_bs*} == "ResNet101" ]; then
          config_file="ppcls/configs/ImageNet/ResNet/ResNet101.yaml"
-    elif [ ${model_name} == "SE_ResNeXt50_32x4d_bs32" ]; then
+    elif [ ${model_name%%_bs*} == "SE_ResNeXt50_32x4d" ]; then
           config_file="ppcls/configs/ImageNet/SENet/SE_ResNeXt50_32x4d.yaml"
     else
         echo "model: $model_name not support!"
@@ -70,7 +70,7 @@ function _train(){
     fi
 
     # Enable the optimization options for ResNet50
-    if [ ${model_name} = "ResNet50_bs32" ] || [ ${model_name} = "ResNet50_bs128" ] || [ ${model_name} = "ResNet50_bs96" ]; then
+    if [ ${model_name%%_bs*} == "ResNet50" ]; then
         fuse_elewise_add_act_ops="True"
         enable_addto="True"
         export FLAGS_max_inplace_grad_add=8
