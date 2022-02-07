@@ -22,14 +22,15 @@ class ReduceConfig(APIConfig):
         self.feed_spec = {"range": [-1, 1]}
         self.api_name = 'sum'
         self.api_list = {'sum': 'sum', 'mean': 'mean'}
+        # TODO(Xreki): the api is different in tf.
 
-#        self.api_list = {
-#            'max': 'reduce_max',
-#            'mean': 'reduce_mean',
-#            'min': 'reduce_min',
-#            'sum': 'reduce_sum',
-#            'prod': 'reduce_prod'
-#        }
+    #        self.api_list = {
+    #            'max': 'reduce_max',
+    #            'mean': 'reduce_mean',
+    #            'min': 'reduce_min',
+    #            'sum': 'reduce_sum',
+    #            'prod': 'reduce_prod'
+    #        }
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(ReduceConfig, self).init_from_json(filename, config_id,
@@ -39,7 +40,7 @@ class ReduceConfig(APIConfig):
 
 
 @benchmark_registry.register("reduce")
-class PDReduce(PaddleOpBenchmarkBase):
+class PaddleReduce(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = self.layers(
