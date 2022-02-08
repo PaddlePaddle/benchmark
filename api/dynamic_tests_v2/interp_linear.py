@@ -55,8 +55,8 @@ class PDInterpLinear(PaddleDynamicAPIBenchmarkBase):
         # forward flops, sub*4 + mul*2 + div*2 + add*1
         forward_flop = numel(out_shape) * 9
 
-        # forward byte, read 5 address to compute 1 address
-        read_byte = 5 * numel(out_shape) * sizeof(config.x_dtype)
+        # forward byte, read 2 address to compute 1 address
+        read_byte = 2 * numel(out_shape) * sizeof(config.x_dtype)
         write_byte = numel(out_shape) * sizeof(config.x_dtype)
         forward_byte = read_byte + write_byte
         if not config.backward:
