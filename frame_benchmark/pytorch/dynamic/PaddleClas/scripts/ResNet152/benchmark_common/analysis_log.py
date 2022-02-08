@@ -68,7 +68,7 @@ if __name__ == "__main__":
         "device_num": args.device_num,
         "model_run_time": os.getenv('model_run_time'),
         "frame_commit": "",
-        "frame_commit": "",
+        "frame_version": os.getenv('frame_version'),
             }
     print(save_content)
     with open(save_file, 'w') as fd:
