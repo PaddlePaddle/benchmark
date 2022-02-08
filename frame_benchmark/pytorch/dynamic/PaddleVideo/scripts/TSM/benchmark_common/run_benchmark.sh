@@ -38,7 +38,7 @@ function _set_params(){
     fi
 }
 function _analysis_log(){
-    python3.7 analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num}
+    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num}
 }
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
@@ -52,9 +52,9 @@ function _train(){
                    --batch-size ${batch_size} \
                    -j ${num_workers}"
     case ${run_process_type} in
-    SingleP) train_cmd="python3.7 main.py ${train_options}" ;;
+    SingleP) train_cmd="python main.py ${train_options}" ;;
     MultiP)
-        train_cmd="python3.7 main.py ${train_options}" ;;
+        train_cmd="python main.py ${train_options}" ;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
 #   以下为通用执行命令，无特殊可不用修改
@@ -71,7 +71,7 @@ function _train(){
     kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 }
 _set_params $@
-export frame_version=`python3.7 -c "import torch;print(torch.__version__)"`
+export frame_version=`python -c "import torch;print(torch.__version__)"`
 echo "---------frame_version is torch ${frame_version}"
 echo "---------model_branch is ${model_branch}"
 echo "---------model_commit is ${model_commit}"
