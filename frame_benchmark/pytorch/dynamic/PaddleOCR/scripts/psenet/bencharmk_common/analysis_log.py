@@ -44,7 +44,7 @@ def parse_args():
     parser.add_argument(
         '--model_mode', type=int, default=-1, help='Analysis mode, default value is -1')
     parser.add_argument(
-        '--ips_unit', type=str, default=None, help='IPS unit')
+        '--speed_unit', type=str, default=None, help='IPS unit')
     parser.add_argument(
         '--model_name', type=str, default=0, help='training model_name, transformer_base')
     parser.add_argument(
@@ -256,7 +256,7 @@ if __name__ == "__main__":
                 skip_steps=args.skip_steps,
                 mode=args.model_mode,
                 run_mode=args.run_mode,
-                unit=args.ips_unit)
+                unit=args.speed_unit)
             try:
                 if int(os.getenv('job_fail_flag')) == 1 or int(run_info["FINAL_RESULT"]) == 0:
                     run_info["JOB_FAIL_FLAG"] = 1

@@ -13,7 +13,7 @@ function _set_params(){
     device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
     model_repo="ocr_PSENet"          # (必选) 模型套件的名字
-    ips_unit="samples/sec"         # (必选)速度指标单位
+    speed_unit="samples/sec"         # (必选)速度指标单位
     skip_steps=10                  # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="ips:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
     convergence_key=""             # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
@@ -44,7 +44,7 @@ function _set_params(){
 
 
 function _analysis_log(){
-    analysis_cmd="python analysis_log.py --filename ${log_file}  --mission_name ${model_name} --run_mode ${run_process_type} --direction_id 0 --keyword 'ips:' --base_batch_size 2 --skip_steps 1 --gpu_num ${num_gpu_devices}  --index 1  --model_mode=-1  --ips_unit=samples/sec --fp_item=${fp_item} --device_num=${device_num} --res_log_file=${speed_log_file}"
+    analysis_cmd="python analysis_log.py --filename ${log_file}  --mission_name ${model_name} --run_mode ${run_process_type} --direction_id 0 --keyword 'ips:' --base_batch_size 2 --skip_steps 1 --gpu_num ${num_gpu_devices}  --index 1  --model_mode=-1  --speed_unit=samples/sec --fp_item=${fp_item} --device_num=${device_num} --res_log_file=${speed_log_file}"
     eval $analysis_cmd
 }
 
@@ -87,7 +87,7 @@ echo "---------model_branch is ${model_branch}"
 echo "---------model_commit is ${model_commit}"
 
 job_bt=`date '+%Y%m%d%H%M%S'`
-#_train
+_train
 job_et=`date '+%Y%m%d%H%M%S'`
 export model_run_time=$((${job_et}-${job_bt}))
 _analysis_log
