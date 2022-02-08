@@ -1,4 +1,14 @@
+mxnet:
+  MobileNetV1: benchmark/frame_benchmark/mxnet/dynamic/PaddleClas/models/gluon-cv
 pytorch:
+   MobileNetV2: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/mmclassification
+   MobileNetV3_large_x1_0: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/mmclassification
+   ResNet152: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/mmclassification
+   ResNet50: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/mmclassification
+   ShuffleNetV2_x1_0: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/mmclassification
+   SwinTransformer_tiny_patch4_window7_224: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/mmclassification
+   HRNet_W48_C: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/HRNet-Image-Classification
+   alt_gvt_base: benchmark/frame_benchmark/paddle/dynamic/PaddleSeg/models/Twins
    StyleGANv2: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch
    FOMM: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/first-order-model
    edvr: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
@@ -16,3 +26,5 @@ pytorch:
    faster_rcnn: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
    deformable_detr: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
    conformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
+   fastscnn: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+   TSM: benchmark/frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module
