@@ -74,6 +74,8 @@ function run_api(){
     LOG "[INFO] Found ${file} modified."
     api=${file#*api/} && api=${api%.*}
     [[ "$api" =~ "common_import" ]] && continue
+    [[ "$api" =~ "test_main" ]] && continue
+    [[ "$api" =~ "__init__" ]] && continue
     [ -f "${BENCHMARK_ROOT}/api/${api}.py" ] && API_NAMES[${#API_NAMES[@]}]=$api
     if [[ "$file" =~ ".json" ]]
     then
@@ -81,8 +83,6 @@ function run_api(){
       for sub_file in $(grep -l "APIConfig(.${api##*/}.)" ${BENCHMARK_ROOT}/api/tests_v2/*.py)
       do
         sub_api=${sub_file#*api/} && sub_api=${sub_api%.*}
-        LOG "[INFO] Found API $sub_api use config $file"
-        API_NAMES[${#API_NAMES[@]}]=$sub_api
       done
     fi
   done

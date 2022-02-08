@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 from common_import import *
 
 
+@benchmark_registry.register("elementwise")
 class ElementwiseConfig(APIConfig):
     def __init__(self, op_type="elementwise"):
         super(ElementwiseConfig, self).__init__(op_type)
@@ -29,7 +30,8 @@ class ElementwiseConfig(APIConfig):
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
     def disabled(self):
-        if self.api_name in ["pow"] and self.x_dtype == "float16":
+        if self.api_name in ["pow", "maximum", "minimum", "divide"
+                             ] and self.x_dtype == "float16":
             print(
                 "Warning:\n"
                 "  1. This config is disabled because float16 is not supported for %s.\n"
@@ -48,7 +50,8 @@ class ElementwiseConfig(APIConfig):
                 short=self.x_shape, long=self.y_shape)
 
 
-class PDElementwise(PaddleDynamicAPIBenchmarkBase):
+@benchmark_registry.register("elementwise")
+class PaddleElementwise(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
@@ -73,7 +76,8 @@ class PDElementwise(PaddleDynamicAPIBenchmarkBase):
             return None, None
 
 
-class TorchElementwise(PytorchAPIBenchmarkBase):
+@benchmark_registry.register("elementwise")
+class TorchElementwise(PytorchOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
@@ -85,8 +89,15 @@ class TorchElementwise(PytorchAPIBenchmarkBase):
             self.append_gradients(result, self.feed_list)
 
 
-if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PDElementwise(),
-        torch_obj=TorchElementwise(),
-        config=ElementwiseConfig())
+@benchmark_registry.register("elementwise")
+class TFElementwise(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+
+        result = self.layers(config.api_name, x=x, y=y)
+
+        self.feed_list = [x, y]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x, y])

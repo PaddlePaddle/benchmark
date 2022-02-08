@@ -14,8 +14,7 @@
             "type": "list",
             "value": "[32L, 32L]"
         }
-    },
-    "repeat": 5000
+    }
 }, {
     "op": "adaptive_avg_pool2d",
     "param_info": {
@@ -33,5 +32,5 @@
             "value": "[32L, 32L]"
         }
     },
-    "repeat": 5000
+    "atol": 1E-3
 }]
