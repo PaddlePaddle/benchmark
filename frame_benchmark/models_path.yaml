@@ -27,4 +27,4 @@ pytorch:
    deformable_detr: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
    conformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
    fastscnn: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
-   TSM: benchmark/frame_benchmark/pytorch/dynamic/PaddleVideo/models/TSM
+   TSM: benchmark/frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module
