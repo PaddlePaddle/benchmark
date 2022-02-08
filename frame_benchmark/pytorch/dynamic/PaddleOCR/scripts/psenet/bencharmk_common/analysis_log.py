@@ -52,11 +52,17 @@ def parse_args():
     parser.add_argument(
         '--direction_id', type=int, default=0, help='training direction_id')
     parser.add_argument(
-        '--run_mode', type=str, default="sp", help='multi process or single process')
+        '--run_mode', type=str, default="SingleP", help='multi process or single process')
     parser.add_argument(
         '--index', type=int, default=1, help='{1: speed, 2:mem, 3:profiler, 6:max_batch_size}')
     parser.add_argument(
         '--gpu_num', type=int, default=1, help='nums of training gpus')
+    parser.add_argument(
+        '--fp_item', type=str, default="fp32", help='fp32|fp16')
+    parser.add_argument(
+        '--device_num', type=str, default="N1C1", help='N1C1|N1C8|N4C8')
+    parser.add_argument(
+        '--res_log_file', type=str, help='speed log file')
     args = parser.parse_args()
     args.separator = None if args.separator == "None" else args.separator
     return args
@@ -123,10 +129,10 @@ class TimeAnalyzer(object):
         print("Extract {} records: separator={}; position={}".format(len(self.records), self.separator, self.position))
 
     def _get_fps(self, mode, batch_size, gpu_num, avg_of_records, run_mode, unit=None):
-        if mode == -1 and run_mode == 'sp':
+        if mode == -1 and run_mode == 'SingleP':
             assert unit, "Please set the unit when mode is -1."
             fps = gpu_num * avg_of_records
-        elif mode == -1 and run_mode == 'mp':
+        elif mode == -1 and run_mode == 'MultiP':
             assert unit, "Please set the unit when mode is -1."
             fps = gpu_num * avg_of_records #temporarily, not used now
             print("------------this is mp")
@@ -152,7 +158,6 @@ class TimeAnalyzer(object):
             unit = "s/epoch"
         else:
             ValueError("Unsupported analysis mode.")
-
         return fps, unit
 
     def analysis(self, batch_size, gpu_num=1, skip_steps=0, mode=-1, run_mode='sp', unit=None):
@@ -219,17 +224,25 @@ class TimeAnalyzer(object):
 
 
 if __name__ == "__main__":
+    import os
     args = parse_args()
-    run_info = dict()
-    run_info["log_file"] = args.filename
-    run_info["model_name"] = args.model_name
-    run_info["mission_name"] = args.mission_name
-    run_info["direction_id"] = args.direction_id
-    run_info["run_mode"] = args.run_mode
-    run_info["index"] = args.index
-    run_info["gpu_num"] = args.gpu_num
-    run_info["FINAL_RESULT"] = 0
-    run_info["JOB_FAIL_FLAG"] = 0
+    run_info = {    
+                "model_branch": os.getenv('model_branch'),
+                "model_commit": os.getenv('model_commit'),
+                "model_name": args.model_name,
+                "batch_size": args.base_batch_size,
+                "fp_item": args.fp_item,
+                "run_process_type": args.run_mode,
+                "run_mode": "DP",
+                "convergence_value": 0,
+                "convergence_key": "",
+                "ips": 0,
+                "speed_unit":"samples/sec",
+                "device_num": args.device_num,
+                "model_run_time": os.getenv('model_run_time'),
+                "frame_commit": "",
+                "frame_version": os.getenv('frame_version'),
+        }
 
     try:
         if args.index == 1:
@@ -237,7 +250,7 @@ if __name__ == "__main__":
                 run_info["log_with_profiler"] = args.log_with_profiler
                 run_info["profiler_path"] = args.profiler_path
             analyzer = TimeAnalyzer(args.filename, args.keyword, args.separator, args.position, args.range)
-            run_info["FINAL_RESULT"], run_info["UNIT"] = analyzer.analysis(
+            run_info["ips"], run_info["speed_unit"] = analyzer.analysis(
                 batch_size=args.base_batch_size,
                 gpu_num=args.gpu_num,
                 skip_steps=args.skip_steps,
@@ -269,5 +282,7 @@ if __name__ == "__main__":
             print("Not support!")
     except Exception:
             traceback.print_exc()
-    print("{}".format(json.dumps(run_info)))  # it's required, for the log file path  insert to the database
-
+    json_info = json.dumps(run_info)
+    print(json_info)
+    with open(args.res_log_file, "w") as of:
+        of.write(json_info)
