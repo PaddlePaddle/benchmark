@@ -28,3 +28,4 @@ pytorch:
    conformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
    fastscnn: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    det_r50_vd_pse: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/PSENet
+   TSM: benchmark/frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module
