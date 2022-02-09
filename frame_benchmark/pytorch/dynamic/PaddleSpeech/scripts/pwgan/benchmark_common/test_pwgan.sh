@@ -3,9 +3,6 @@
 # 创建docker：registry.baidu.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
 export ROOT_DIR=$PWD  # 设置个全局变量
 cd ${ROOT_DIR}
-#clone 2 处的代码
-#git clone https://github.com/mmglove/benchmark.git -b dev_0112 --recursive    # 重构后的benchmark 路径，改动太多，暂未合入
-#git clone ssh://guomengmeng01@icode.baidu.com:8235/baidu/paddle/benchmark-frame
 shell_name=pwgan_bs6_fp32_SingleP_DP.sh
 # shell_name=pwgan_bs26_fp32_SingleP_DP.sh
 # shell_name=pwgan_bs6_fp32_MultiP_DP.sh
