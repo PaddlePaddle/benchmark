@@ -7,7 +7,7 @@ echo `pip --version`
 pip install torch==1.9.0 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install torchvision==0.10.0 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-
+pip install pandas
 ################################# 准备训练数据 如:
 wget -nc -P src/dataset/mot https://paddledet.bj.bcebos.com/data/mot_benchmark.tar
 cd ./src/dataset/mot && tar -xf mot_benchmark.tar && mv -u mot_benchmark/* .
