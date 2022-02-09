@@ -55,7 +55,8 @@ function _train(){
                    
     train_config="--config_file config/icdar2015_resnet18_FPN_DBhead_polyLR.yaml"
     train_options="--cfg-options dataset.train.loader.batch_size=${batch_size} \
-                   trainer.epochs=${max_iter} "
+                   trainer.epochs=${max_iter}\
+                   lr_scheduler.args.warmup_epoch=1"
     
     case ${run_process_type} in
     SingleP) train_cmd="CUDA_VISIBLE_DEVICES=0 python tools/train.py ${train_config} ${train_options}" ;;
