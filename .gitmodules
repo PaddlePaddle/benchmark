@@ -63,3 +63,7 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module
 	url = https://github.com/PaddleBenchmark/temporal-shift-module.git
 	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSpeech/models/ParallelWaveGAN"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSpeech/models/ParallelWaveGAN
+	url = https://github.com/PaddleBenchmark/ParallelWaveGAN.git
+	branch = master
