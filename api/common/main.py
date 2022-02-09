@@ -114,10 +114,11 @@ def parse_args():
     parser.add_argument(
         '--log_level', type=int, default=0, help='level of logging')
     parser.add_argument(
-        '--only_print',
+        '--get_status_without_running',
         type=system.str2bool,
         default=False,
-        help='Print the configuration directly without re-running the program.')
+        help='Get running status directly to print result without re-running the program.'
+    )
     args = parser.parse_args()
     if args.task not in ["speed", "accuracy", "scheduling"]:
         raise ValueError("task should be speed, accuracy or scheduling")
@@ -127,9 +128,19 @@ def parse_args():
         raise ValueError(
             "task should be paddle, tensorflow, tf, pytorch, torch, both")
 
+    if args.get_status_without_running:
+        assert args.task == "scheduling", "task must be 'scheduling' if get_status_without_running is True."
+        assert args.scheduling_times != "{}", "scheduling_times can't be {} if task is 'scheduling' and get_status_without_running is True."
+
     if args.task == "accuracy":
         args.repeat = 1
         args.profiler = "none"
+    elif args.task == "scheduling":
+        assert args.framework == "paddle", "framework must be 'paddle' if task is 'scheduling'."
+        assert args.testing_mode == "dynamic", "testing_mode must be 'dynamic' if task is 'scheduling'."
+        # The performance of the first few steps is unstable.
+        assert args.repeat >= 10, "repeat must be greater than 10 if task is scheduling, but received {}.".format(
+            repeat)
 
     _check_gpu_device(args.use_gpu)
     print(args)
@@ -307,7 +318,7 @@ def test_main_without_json(pd_obj=None,
         pd_dy_outputs, pd_dy_stats = pd_dy_obj.run(
             config, args, feeder_adapter=feeder_adapter)
 
-        if args.task == "speed" or args.task == "scheduling":
+        if args.task in ["speed", "scheduling"]:
             if args.task == "speed":
                 pd_dy_stats["gpu_time"] = args.gpu_time
             if args.task == "scheduling":

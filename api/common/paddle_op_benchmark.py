@@ -384,6 +384,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
 
     def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
         self._layers_function = None
+        self._task = args.task
         if self._testing_mode == "dynamic":
             self._helper = DynamicHelper()
             return self._run_dynamic(config, args, feeder_adapter)
@@ -397,7 +398,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
     def _run_dynamic_impl(self,
                           use_gpu,
                           task,
-                          only_print,
+                          get_status_without_running,
                           config,
                           repeat=1,
                           profiler="none",
@@ -420,8 +421,6 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                         outputs.append(var.numpy())
             return outputs
 
-        self._task = task
-
         # warmup run
         _run_main_iter()
 
@@ -431,7 +430,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         # there's no need to execute code again. 
         # "_run_main_iter" needs to be executed firstly because
         # parameter "self._backward" needs to be update.
-        if only_print:
+        if get_status_without_running:
             stats = self.get_running_stats(use_gpu, config, None)
             return None, stats
 
@@ -474,7 +473,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         outputs, stats = self._run_dynamic_impl(
             use_gpu=args.use_gpu,
             task=args.task,
-            only_print=args.only_print,
+            get_status_without_running=args.get_status_without_running,
             config=config,
             repeat=args.repeat,
             profiler=args.profiler,
