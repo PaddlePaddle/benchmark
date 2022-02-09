@@ -229,7 +229,7 @@ if __name__ == "__main__":
     run_info = {    
                 "model_branch": os.getenv('model_branch'),
                 "model_commit": os.getenv('model_commit'),
-                "model_name": args.model_name,
+                "model_name": args.mission_name,
                 "batch_size": args.base_batch_size,
                 "fp_item": args.fp_item,
                 "run_process_type": args.run_mode,

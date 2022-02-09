@@ -1,11 +1,11 @@
 model_item=det_r50_vd_pse
 #max_token
-bs_item=64
-fp_item=fp64
+bs_item=16
+fp_item=fp32
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
-max_iter=10
+max_iter=5
 num_workers=1
 
 sed -i '/set\ -xe/d' run_benchmark.sh

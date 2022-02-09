@@ -66,3 +66,6 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module
 	url = https://github.com/PaddleBenchmark/temporal-shift-module.git
 	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet.pytorch"]
+	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet.pytorch
+	url = https://github.com/PaddleBenchmark/DBNet.pytorch.git
