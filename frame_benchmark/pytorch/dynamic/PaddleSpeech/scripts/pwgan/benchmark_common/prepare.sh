@@ -9,7 +9,7 @@ echo "*******prepare benchmark start ***********"
 
 ################################# 配置python
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-    test -d venv || virtualenv -p python3.7 venv
+    test -d venv || virtualenv -p python venv
     source venv/bin/activate
 fi
 
