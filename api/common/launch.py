@@ -227,7 +227,7 @@ def launch(benchmark_script,
             return gpu_time
         elif task == "scheduling":
             runner = NsightRunnerForDynamicScheduling()
-            scheduling_time_dict = runner.run(cmd, 5, repeat)
+            scheduling_time_dict = runner.run(cmd, 5, repeat + 1)
             _set_args(benchmark_script_args, "--profiler", "none")
             return scheduling_time_dict
     else:

@@ -140,7 +140,7 @@ def parse_args():
         assert args.testing_mode == "dynamic", "testing_mode must be 'dynamic' if task is 'scheduling'."
         # The performance of the first few steps is unstable.
         assert args.repeat >= 10, "repeat must be greater than 10 if task is scheduling, but received {}.".format(
-            repeat)
+            args.repeat)
 
     _check_gpu_device(args.use_gpu)
     print(args)
