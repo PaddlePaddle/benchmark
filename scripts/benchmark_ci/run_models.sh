@@ -108,7 +108,7 @@ yolov3_bs8(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/yolov3/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 2gpu, begin"
-    CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 mp 100 | tee ${BENCHMARK_ROOT}/logs/dynamic/yolov3_bs1_speed_2gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 mp 200 | tee ${BENCHMARK_ROOT}/logs/dynamic/yolov3_bs1_speed_2gpus 2>&1
     sleep 1s
     cat dynamic_yolov3_1_2_mp
     echo "--------worklog.0"
