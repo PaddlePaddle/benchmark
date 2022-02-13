@@ -30,3 +30,4 @@ pytorch:
    det_r50_vd_pse: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/PSENet
    TSM: benchmark/frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module
    det_res18_db: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet.pytorch
+   xlnet: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers
