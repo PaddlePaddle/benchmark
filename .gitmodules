@@ -29,6 +29,9 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch
 	url = https://github.com/PaddleBenchmark/stylegan2-pytorch.git
 	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/PSENet"]
+	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/PSENet
+	url = https://github.com/PaddleBenchmark/PSENet.git
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
 	url = https://github.com/wenet-e2e/wenet.git
@@ -66,4 +69,10 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSpeech/models/ParallelWaveGAN"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSpeech/models/ParallelWaveGAN
 	url = https://github.com/PaddleBenchmark/ParallelWaveGAN.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet.pytorch"]
+	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet.pytorch
+	url = https://github.com/PaddleBenchmark/DBNet.pytorch.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers"]
+	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers
+	url = https://github.com/huggingface/transformers.git
 	branch = master
