@@ -2,6 +2,7 @@
 
 CUR_DIR=${PWD}
 # 1 安装该模型需要的依赖 (如需开启优化策略请注明)
+bash prepare.sh
 source venv/bin/activate
 
 # 2 拷贝该模型需要数据、预训练模型

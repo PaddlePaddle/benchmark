@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 执行路径在竞品模型库的根目录下
 
-stage=3
+stage=0
 stop_stage=100
 
 echo "*******prepare benchmark start ***********"
