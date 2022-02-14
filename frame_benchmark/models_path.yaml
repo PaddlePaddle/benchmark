@@ -31,3 +31,4 @@ pytorch:
    TSM: benchmark/frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module
    det_res18_db: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet.pytorch
    xlnet: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers
+   pwgan: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/ParallelWaveGAN
