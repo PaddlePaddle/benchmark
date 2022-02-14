@@ -13,5 +13,4 @@ script_benchmark_common=${ROOT_DIR}/benchmark/frame_benchmark/pytorch/dynamic/Pa
 cp ${script_path} ${model_path}
 cp ${script_benchmark_common} ${model_path} -r
 cd ${model_path}
-bash prepare.sh
 bash ${shell_name}
