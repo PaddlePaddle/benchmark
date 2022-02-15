@@ -78,7 +78,8 @@ class BenchmarkRegistry(object):
         #print("-- Insert: {}, {}".format(filename, classobj.__name__))
         if filename not in self.op_meta.keys():
             self.op_meta[filename] = MetaData()
-        self.op_meta[filename].reuse = reuse
+        if reuse is not None:
+            self.op_meta[filename].reuse = reuse
         if issubclass(classobj, PaddleOpBenchmarkBase):
             self.op_meta[filename].paddle_class = classobj
         elif issubclass(classobj, PytorchOpBenchmarkBase):
