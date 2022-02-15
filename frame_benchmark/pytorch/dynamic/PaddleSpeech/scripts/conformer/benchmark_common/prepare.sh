@@ -2,7 +2,13 @@
 # 执行路径在模型库的根目录下
 ################################# 安装框架 如:
 echo "*******prepare benchmark start ***********"
-data_tiny_url="https://paddlespeech.bj.bcebos.com/datasets/tiny_dataset"
+data_tiny_url="None"
+
+if [ ${data_tiny_url} == "None" ]; then
+	echo "please contact the author to get the URL"
+	exit
+fi
+
 set -e
 # 修改竞品的训练日志
 cp replace/executor.py wenet/utils/
