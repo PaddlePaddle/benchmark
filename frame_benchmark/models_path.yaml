@@ -16,15 +16,15 @@ pytorch:
    basicvsr: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
    esrgan: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
    TimeSformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer
-   jde: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/jde
-   fairmot: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/fairmot
-   higherhrnet: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose
-   hrnet: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose
-   solov2: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/SOLO
-   gfl: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
-   fcos: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
-   faster_rcnn: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
-   deformable_detr: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
+   jde_darknet53_30e_1088x608: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/jde
+   fairmot_dla34_30e_1088x608: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/fairmot
+   higherhrnet_hrnet_w32_512: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose
+   hrnet_w32_256x192: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose
+   solov2_r50_fpn_1x_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/SOLO
+   gfl_r50_fpn_1x_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
+   fcos_r50_fpn_1x_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
+   faster_rcnn_r50_fpn_1x_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
+   deformable_detr_r50_1x_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
    conformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
    fastscnn: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    det_r50_vd_pse: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/PSENet
