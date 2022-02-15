@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from common_import import *
+from pad2d import PaddlePad2d, TorchPad2d
 
 
 @benchmark_registry.register("pad3d", reuse="pad2d")
