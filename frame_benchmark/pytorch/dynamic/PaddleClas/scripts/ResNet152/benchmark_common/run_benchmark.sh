@@ -3,7 +3,7 @@
 # Test training benchmark for a model.
 declare -A dic
 dic=( ["MobileNetV2_fp32"]="configs/mobilenet_v2/mobilenet_v2_b32x8_imagenet.py"
-      ["ShuffleNetV2_fp32"]="configs/shufflenet_v2/shufflenet_v2_1x_b64x16_linearlr_bn_nowd_imagenet.py"
+      ["ShuffleNetV2_x1_0_fp32"]="configs/shufflenet_v2/shufflenet_v2_1x_b64x16_linearlr_bn_nowd_imagenet.py"
       ["SwinTransformer_tiny_patch4_window7_224_fp32"]="configs/swin_transformer/swin_base_224_b16x64_300e_imagenet.py"
       ["MobileNetV3_large_x1_0_fp32"]="configs/mobilenet_v3/mobilenet_v3_large_imagenet.py"
       ["ResNet50_fp32"]="configs/resnet/resnet50_b32x8_imagenet.py"

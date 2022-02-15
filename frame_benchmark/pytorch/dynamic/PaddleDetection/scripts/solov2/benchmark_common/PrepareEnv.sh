@@ -8,6 +8,8 @@ pip install torch==1.9.0 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install torchvision==0.10.0 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements/build.txt
 pip install "git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI"
+pip install pycocotools
+pip install matplotlib
 pip install -v -e .
 
 ################################# 准备训练数据 如:
