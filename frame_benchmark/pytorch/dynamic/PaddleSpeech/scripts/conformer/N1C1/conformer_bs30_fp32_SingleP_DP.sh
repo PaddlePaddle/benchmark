@@ -1,4 +1,5 @@
 #!/bin/bash
+bash prepare.sh
 
 CUR_DIR=${PWD}
 # 1 安装该模型需要的依赖 (如需开启优化策略请注明)
