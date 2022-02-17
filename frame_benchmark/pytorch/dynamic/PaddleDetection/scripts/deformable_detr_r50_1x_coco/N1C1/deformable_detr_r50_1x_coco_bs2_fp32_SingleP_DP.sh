@@ -1,4 +1,4 @@
-model_item=deformable_detr
+model_item=deformable_detr_r50_1x_coco
 bs_item=2
 fp_item=fp32
 run_process_type=SingleP

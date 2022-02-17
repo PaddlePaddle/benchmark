@@ -1,4 +1,4 @@
-model_item=fairmot
+model_item=fairmot_dla34_30e_1088x608
 bs_item=22
 fp_item=fp32
 run_process_type=SingleP
