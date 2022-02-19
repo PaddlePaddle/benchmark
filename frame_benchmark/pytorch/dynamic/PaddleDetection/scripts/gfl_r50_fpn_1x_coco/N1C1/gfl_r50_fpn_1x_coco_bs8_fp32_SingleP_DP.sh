@@ -1,4 +1,4 @@
-model_item=gfl
+model_item=gfl_r50_fpn_1x_coco
 bs_item=8
 fp_item=fp32
 run_process_type=SingleP

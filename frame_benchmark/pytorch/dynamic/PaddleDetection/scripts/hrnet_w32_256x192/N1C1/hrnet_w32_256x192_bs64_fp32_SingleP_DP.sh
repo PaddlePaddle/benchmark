@@ -1,4 +1,4 @@
-model_item=hrnet
+model_item=hrnet_w32_256x192
 bs_item=64
 fp_item=fp32
 run_process_type=SingleP

@@ -1,4 +1,4 @@
-model_item=higherhrnet
+model_item=higherhrnet_hrnet_w32_512
 bs_item=24
 fp_item=fp32
 run_process_type=MultiP
