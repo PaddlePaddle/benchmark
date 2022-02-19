@@ -23,8 +23,8 @@ class PaddleTopK(PaddleOpBenchmarkBase):
 
         self.feed_list = [x]
         self.fetch_list = [value, indices]
-        if config.backward:
-            self.append_gradients([value], [x])
+        #if config.backward:
+        #    self.append_gradients([value], [x])
 
 
 @benchmark_registry.register("topk")

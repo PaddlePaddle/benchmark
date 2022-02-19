@@ -19,7 +19,7 @@ from common_import import *
 class PaddleSqueeze(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.squeeze(x=data, axis=config.axis)
+        result = paddle.squeeze(x=x, axis=config.axis)
 
         self.feed_list = [x]
         self.fetch_list = [result]

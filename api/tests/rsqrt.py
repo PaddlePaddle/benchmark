@@ -19,7 +19,7 @@ from common_import import *
 class RsqrtConfig(APIConfig):
     def __init__(self):
         super(RsqrtConfig, self).__init__("rsqrt")
-        self.feed_spec = {"range": [-1, 1]}
+        self.feed_spec = {"range": [0, 10]}
         self.alias_name = "activation"
 
 
