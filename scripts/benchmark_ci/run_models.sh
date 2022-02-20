@@ -108,7 +108,7 @@ yolov3_bs8(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/yolov3/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 2gpu, begin"
-    CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 mp 100 | tee ${BENCHMARK_ROOT}/logs/dynamic/yolov3_bs1_speed_2gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 mp 200 | tee ${BENCHMARK_ROOT}/logs/dynamic/yolov3_bs1_speed_2gpus 2>&1
     sleep 1s
     cat dynamic_yolov3_1_2_mp
     echo "--------worklog.0"
@@ -138,7 +138,7 @@ TSM_bs16(){
     cat dynamic_TSM_1_2_mp
 }
 #deeplabv3
-deeplabv3_bs4(){
+deeplabv3_bs4_fp32(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/
     cd ${cur_model_path}
     pip install  visualdl
@@ -159,7 +159,7 @@ deeplabv3_bs4(){
     echo "index is speed, ${model_item} 2gpu begin"
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 ${bs_item} mp ${model_item} 50 | tee ${BENCHMARK_ROOT}/logs/dynamic/seg_${model_item}_bs${bs_item}_speed_2gpus 2>&1
     sleep 1s
-    cat dynamic_deeplabv3_1_2_mp
+    cat dynamic_deeplabv3_bs4_fp32_1_2_mp
 }
 
 #run CycleGAN
