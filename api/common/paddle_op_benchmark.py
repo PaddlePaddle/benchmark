@@ -369,6 +369,13 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         else:
             return None, None
 
+    def _sync(self, use_gpu):
+        if use_gpu:
+            try:
+                paddle.device.cuda.synchronize(0)
+            except Exception as e:
+                paddle.fluid._cuda_synchronize(paddle.fluid.CUDAPlace(0))
+
     def _run_dynamic_impl(self,
                           use_gpu,
                           config,
@@ -380,8 +387,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
 
         def _run_main_iter():
             self.build_graph(config=config)
-            if use_gpu:
-                paddle.device.cuda.synchronize(0)
+            self._sync(use_gpu)
 
             outputs = None
             if self._need_fetch:
@@ -453,8 +459,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                                    fetch_list=fetch_vars,
                                    use_program_cache=True,
                                    return_numpy=True)
-            if use_gpu:
-                paddle.device.cuda.synchronize(0)
+            self._sync(use_gpu)
             return outputs
 
         if self.name != "null":

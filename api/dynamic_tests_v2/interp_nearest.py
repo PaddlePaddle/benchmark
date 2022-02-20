@@ -35,10 +35,24 @@ class PDInterpNearest(PaddleDynamicAPIBenchmarkBase):
             mode="nearest",
             scale_factor=config.scale_factor,
             data_format=config.data_format)
+
         self.feed_list = [x]
         self.fetch_list = [out]
         if config.backward:
             self.append_gradients(out, [x])
+
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        out_shape = self.fetch_list[0].shape
+        forward_flop = numel(out_shape) * 2 if config.align_corners else numel(
+            out_shape)
+        forward_byte = (
+            numel(x_shape) + numel(out_shape)) * sizeof(config.x_dtype)
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # to be implemented.
+            return None, None
 
 
 class TorchInterpNearest(PytorchAPIBenchmarkBase):
@@ -49,6 +63,7 @@ class TorchInterpNearest(PytorchAPIBenchmarkBase):
             size=config.size,
             mode="nearest",
             scale_factor=config.scale_factor)
+
         self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
