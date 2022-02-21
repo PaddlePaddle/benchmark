@@ -34,7 +34,7 @@ class ActivationConfig(APIConfig):
             'softshrink': 'softshrink',
             'softsign': 'softsign'
         }
-        # TODO(Xreki): hardsigmoid, hardswish, tanhshrink, softshrink, softsign are not supported in tf.
+        # TODO(Xreki): hardsigmoid, hardswish, tanhshrink, softshrink are not supported in tf.
 
     def disabled(self):
         if self.api_name in ["selu"] and self.x_dtype == "float16":
