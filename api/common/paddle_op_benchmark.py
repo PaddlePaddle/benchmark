@@ -401,14 +401,20 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                           get_status_without_running,
                           config,
                           repeat=1,
+                          sync_interval=80,
                           profiler="none",
                           feeder_adapter=None):
         assert self._testing_mode == "dynamic", "Function \"_run_dynamic_impl\" can only be called when self._testing_mode is dynamic, but recieved {}.".format(
             self._testing_mode)
 
-        def _run_main_iter():
+        def _run_main_iter(step=1):
             self.build_graph(config=config)
-            if use_gpu and task != "scheduling":
+            # There is no synchronization when testing 'scheduling' performance.
+            # If 'repeat' is too large, the cuda stream will be full,
+            # resulting in inaccurate scheduling time.
+            # Therefore, synchronize once after a period of time (sync_interval
+            # is set here).
+            if use_gpu and (task != "scheduling" or step % sync_interval == 0):
                 paddle.device.cuda.synchronize(0)
 
             outputs = None
@@ -450,7 +456,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             for i in range(repeat + 1):
                 with profile_context(self.name, use_gpu, profiler, i, 5,
                                      repeat):
-                    outputs = _run_main_iter()
+                    outputs = _run_main_iter(i)
             runtimes = None
 
         self._helper.switch_status()
@@ -476,6 +482,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             get_status_without_running=args.get_status_without_running,
             config=config,
             repeat=args.repeat,
+            sync_interval=args.sync_interval,
             profiler=args.profiler,
             feeder_adapter=feeder_adapter)
         return outputs, stats

@@ -107,6 +107,12 @@ def parse_args():
     parser.add_argument(
         '--repeat', type=int, default=1, help='Iterations of Repeat running')
     parser.add_argument(
+        '--sync_interval',
+        type=int,
+        default=80,
+        help='In scheduling task, synchronization needs to be performed "sync_interval" times at intervals'
+    )
+    parser.add_argument(
         '--allow_adaptive_repeat',
         type=system.str2bool,
         default=False,
