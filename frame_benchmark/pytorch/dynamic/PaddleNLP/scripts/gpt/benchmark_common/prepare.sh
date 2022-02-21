@@ -21,16 +21,22 @@ export PATH=$run_env:${PATH}
 echo `pip --version`
 echo `python3-config --help`
 
-#pip install -U pip
 # echo `pip --version`
 # python ${BENCHMARK_ROOT}/paddlecloud/file_upload_download.py \
 #     --remote-path frame_benchmark/pytorch_req/pytorch_191/ \
 #     --local-path ./  \
 #     --mode download
 # ls
-pip install torch==1.9.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install regex pybind11 Ninja 
-cd ../apex
+unset https_proxy && unset http_proxy
+# pip install -U pip
+pip install torch==1.9.1  -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install regex pybind11 Ninja -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+export http_proxy=${CUSTOM_PROXY}
+export https_proxy=${CUSTOM_PROXY}
+git clone https://github.com/NVIDIA/apex
+unset https_proxy && unset http_proxy
+cd ./apex
 pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 cd -
 echo "*******prepare benchmark end***********"
