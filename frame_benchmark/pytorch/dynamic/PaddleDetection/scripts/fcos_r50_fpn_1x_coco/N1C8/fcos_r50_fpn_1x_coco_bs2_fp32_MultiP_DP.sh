@@ -1,4 +1,4 @@
-model_item=fcos
+model_item=fcos_r50_fpn_1x_coco
 bs_item=2
 fp_item=fp32
 run_process_type=MultiP

@@ -1,4 +1,4 @@
-model_item=jde
+model_item=jde_darknet53_30e_1088x608
 bs_item=14
 fp_item=fp32
 run_process_type=SingleP
