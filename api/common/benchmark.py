@@ -25,6 +25,7 @@ class BenchmarkBase(object):
         self._backward = False
         self._framework = framework
         self._testing_mode = testing_mode
+        self._task = ""
 
     @property
     def backward(self):
