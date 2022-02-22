@@ -35,7 +35,7 @@ except Exception as e:
 
 
 @contextlib.contextmanager
-def profile_context(name, use_gpu, profiler):
+def profile_context(name, use_gpu, profiler, iter_id=0, start=5, end=10):
     if profiler in ["Default", "OpDetail", "AllOpDetail"]:
         profile_type = "All" if use_gpu else "CPU"
         output_file = "./outputs/" + name + ".pd.profile"
@@ -59,6 +59,19 @@ def profile_context(name, use_gpu, profiler):
         paddle.fluid.core.nvprof_start()
         yield
         paddle.fluid.core.nvprof_stop()
+    elif profiler == "nvprof_nvtx":
+        if iter_id == start:
+            paddle.fluid.core.nvprof_start()
+            paddle.fluid.core.nvprof_enable_record_event()
+        if iter_id >= start:
+            paddle.fluid.core.nvprof_nvtx_push(str(iter_id))
+        yield
+        if iter_id < end:
+            paddle.fluid.core.nvprof_nvtx_pop()
+        if iter_id == end:
+            if use_gpu:
+                paddle.device.cuda.synchronize(0)
+            paddle.fluid.core.nvprof_stop()
     else:
         yield
 
@@ -349,16 +362,29 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             else:
                 var_list.append(var_or_list)
 
-        gradients = self._helper.generate_gradients(targets, inputs)
-        self._backward = True
-        if self._testing_mode == "static":
-            print("Gradients: ", gradients)
-            _append_to_list(gradients, self.fetch_vars)
-        else:
-            _append_to_list(gradients, self.fetch_list)
+        if self._task != "scheduling":
+            gradients = self._helper.generate_gradients(targets, inputs)
+            self._backward = True
+            if self._testing_mode == "static":
+                print("Gradients: ", gradients)
+                _append_to_list(gradients, self.fetch_vars)
+            else:
+                _append_to_list(gradients, self.fetch_list)
+        elif self._testing_mode == "dynamic":
+            # If task is "scheduling", "backward" method needs to be
+            # used rather than "paddle.grad" method to build backward
+            # graph.
+            if not isinstance(targets, list):
+                targets.backward()
+            elif len(targets) == 1:
+                targets[0].backward()
+            else:
+                assert False, "Gradients of list is not supported now!"
+            self._backward = True
 
     def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
         self._layers_function = None
+        self._task = args.task
         if self._testing_mode == "dynamic":
             self._helper = DynamicHelper()
             return self._run_dynamic(config, args, feeder_adapter)
@@ -371,16 +397,24 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
 
     def _run_dynamic_impl(self,
                           use_gpu,
+                          task,
+                          get_status_without_running,
                           config,
                           repeat=1,
+                          sync_interval=80,
                           profiler="none",
                           feeder_adapter=None):
         assert self._testing_mode == "dynamic", "Function \"_run_dynamic_impl\" can only be called when self._testing_mode is dynamic, but recieved {}.".format(
             self._testing_mode)
 
-        def _run_main_iter():
+        def _run_main_iter(step=1):
             self.build_graph(config=config)
-            if use_gpu:
+            # There is no synchronization when testing 'scheduling' performance.
+            # If 'repeat' is too large, the cuda stream will be full,
+            # resulting in inaccurate scheduling time.
+            # Therefore, synchronize once after a period of time (sync_interval
+            # is set here).
+            if use_gpu and (task != "scheduling" or step % sync_interval == 0):
                 paddle.device.cuda.synchronize(0)
 
             outputs = None
@@ -396,14 +430,34 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         # warmup run
         _run_main_iter()
 
+        # Sometimes there is no need to execute code again, and
+        # just need to print configuration information. For example,
+        # when executing the "scheduling" task for the second time,
+        # there's no need to execute code again. 
+        # "_run_main_iter" needs to be executed firstly because
+        # parameter "self._backward" needs to be update.
+        if get_status_without_running:
+            stats = self.get_running_stats(use_gpu, config, None)
+            return None, stats
+
         runtimes = []
 
         self._helper.switch_status()
-        with profile_context(self.name, use_gpu, profiler):
-            for i in range(repeat):
-                begin = time.time()
-                outputs = _run_main_iter()
-                runtimes.append(time.time() - begin)
+        if task != "scheduling":
+            with profile_context(self.name, use_gpu, profiler):
+                for i in range(repeat):
+                    begin = time.time()
+                    outputs = _run_main_iter()
+                    runtimes.append(time.time() - begin)
+        else:
+            # The performance of the first few steps is unstable.
+            assert repeat >= 10, "repeat must be greater than 10 if task is scheduling, but received {}.".format(
+                repeat)
+            for i in range(repeat + 1):
+                with profile_context(self.name, use_gpu, profiler, i, 5,
+                                     repeat):
+                    outputs = _run_main_iter(i)
+            runtimes = None
 
         self._helper.switch_status()
         stats = self.get_running_stats(use_gpu, config, runtimes)
@@ -424,8 +478,11 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             self._helper.set_feed_values(feeder_adapter.to_paddle())
         outputs, stats = self._run_dynamic_impl(
             use_gpu=args.use_gpu,
+            task=args.task,
+            get_status_without_running=args.get_status_without_running,
             config=config,
             repeat=args.repeat,
+            sync_interval=args.sync_interval,
             profiler=args.profiler,
             feeder_adapter=feeder_adapter)
         return outputs, stats
