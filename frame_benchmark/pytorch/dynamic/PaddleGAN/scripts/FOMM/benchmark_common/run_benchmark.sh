@@ -66,7 +66,7 @@ function _train(){
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
     fi
-    kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
+    #kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 }
 
 _set_params $@
