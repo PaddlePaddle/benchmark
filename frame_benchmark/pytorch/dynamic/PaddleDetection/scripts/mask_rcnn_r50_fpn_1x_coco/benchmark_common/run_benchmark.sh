@@ -75,7 +75,7 @@ function _train(){
     else
         echo -e "${model_name}, SUCCESS"
     fi
-    kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
+    #kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
     if [ ${run_process_type} = "MultiP" -a -d mylog ]; then
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
