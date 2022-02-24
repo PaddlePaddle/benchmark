@@ -75,7 +75,13 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers"]
 	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers
 	url = https://github.com/huggingface/transformers.git
-	branch = master
+	brancF = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/Megatron-LM"]
+	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/Megatron-LM
+	url = https://github.com/NVIDIA/Megatron-LM.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/apex"]
+	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/apex
+	url = https://github.com/NVIDIA/apex.git
 [submodule "frame_benchmark/paddle/PaddleOCR"]
 	path = frame_benchmark/paddle/PaddleOCR
 	url = https://github.com/PaddlePaddle/PaddleOCR.git

@@ -37,3 +37,4 @@ pytorch:
    hrnet_seg: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    xlnet: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers
    pwgan: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/ParallelWaveGAN
+   gpt: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/Megatron-LM
