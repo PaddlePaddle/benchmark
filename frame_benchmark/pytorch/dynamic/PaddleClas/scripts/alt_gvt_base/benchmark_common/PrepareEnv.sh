@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # install env
-pip3 install torch torchvision
+pip install torch torchvision
 pip install timm==0.4.5
 
 dataset_url="https://paddle-imagenet-models-name.bj.bcebos.com/data/ImageNet1k/ILSVRC2012_val.tar"
