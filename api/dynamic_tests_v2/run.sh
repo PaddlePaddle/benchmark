@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ -z "$(set | grep '^CUDA_VISIBLE_DEVICES=')" ] && export CUDA_VISIBLE_DEVICES="0"   # Set to "" if testing CPU
+[ -z "$(set | grep '^CUDA_VISIBLE_DEVICES=')" ] && export CUDA_VISIBLE_DEVICES="2"   # Set to "" if testing CPU
 
 NVCC=`which nvcc`
 if [ ${NVCC} != "" ]; then
@@ -16,7 +16,7 @@ config_id=${2:-"0"}
 task=${3:-"accuracy"} # "accuracy" or "speed" or "scheduling"
 
 testing_mode="dynamic" # "static" or "dynamic"
-framework="pytorch"  # "paddle" or "tensorflow" or "pytorch"
+framework="paddle"  # "paddle" or "tensorflow" or "pytorch"
 filename="${OP_BENCHMARK_ROOT}/tests_v2/configs/${name}.json"
 if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
   use_gpu=False
@@ -33,7 +33,7 @@ run_args="--task ${task} \
           --profiler none \
           --backward True \
           --use_gpu ${use_gpu} \
-          --repeat 1 \
+          --repeat 1000 \
           --allow_adaptive_repeat False \
           --log_level 0"
 
