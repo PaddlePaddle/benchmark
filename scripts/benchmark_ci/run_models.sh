@@ -55,7 +55,6 @@ bert_base_seqlen128_fp32_bs32(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/bert/paddle/run_benchmark.sh ./run_benchmark.sh
     pip install paddlenlp
     python -c 'import paddlenlp'  #to make dir /root/.paddlenlp/models before model running 
-
     sed -i '/set\ -xe/d' run_benchmark.sh
     model_mode=base
     fp_mode=fp32
