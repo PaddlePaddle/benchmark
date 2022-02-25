@@ -29,8 +29,8 @@ fi
 if [ -f "errorcode.txt" ];then rm -rf errorcode.txt
 fi
 echo success >>log.txt
-python analysis.py --log_path=${BENCHMARK_ROOT}/logs/static --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/static --threshold=0.05 --loss_threshold=1 --paddle_dev=False
-python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=0.05 --loss_threshold=1 --paddle_dev=False
+python analysis.py --log_path=${BENCHMARK_ROOT}/logs/static --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/static --threshold=${model_threshold} --loss_threshold=1 --paddle_dev=False
+python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=${model_threshold} --loss_threshold=1 --paddle_dev=False
 #if the fluctuations is larger than threshold, then rerun in paddle develop for result judging to avoid fluctuations caused by xiaolvyun machines.
 if [ -f "rerun_model.txt" ];then
     echo -e "rerun model in paddle develop start!"
@@ -57,11 +57,11 @@ if [ -f "rerun_model.txt" ];then
         #change standard_value as paddle dev result
         python analysis_dev.py --log_path=${BENCHMARK_ROOT}/logs/static --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/static 
         #compare the result of pr and paddle dev 
-        python analysis.py --log_path=${BENCHMARK_ROOT}/logs/static_pr --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/static --threshold=0.05 --paddle_dev=True 
+        python analysis.py --log_path=${BENCHMARK_ROOT}/logs/static_pr --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/static --threshold=${model_threshold} --paddle_dev=True 
     fi
     if [ -d "${BENCHMARK_ROOT}/logs/dynamic" ];then
         python analysis_dev.py --log_path=${BENCHMARK_ROOT}/logs/dynamic --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic
-        python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic_pr --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=0.05  --paddle_dev=True
+        python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic_pr --standard_path=${BENCHMARK_ROOT}/scripts/benchmark_ci/standard_value/dynamic --threshold=${model_threshold} --paddle_dev=True
     fi
 fi
 errorcode='0'
