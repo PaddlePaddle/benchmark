@@ -35,6 +35,8 @@ pytorch:
    det_res18_db: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet.pytorch
    deeplabv3p: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    hrnet_seg: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+   ocrnet_hrnetw48: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+   segformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    xlnet: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers
    pwgan: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/ParallelWaveGAN
    gpt: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/Megatron-LM
