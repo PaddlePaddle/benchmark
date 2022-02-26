@@ -710,7 +710,11 @@ dy_faster_rcnn_fpn() {
 dy_gpt(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
     cd ${cur_model_path}
+    pip uninstall paddlenlp -y
+    echo "python env is"
+    ls -l ${BENCHMARK_ROOT}/run_env/
     sed -i "s/python3/python3.7/g"  examples/language_model/data_tools/Makefile  # 模型py3默认使用python37， benchmark 镜像python3 默认py35
+    cat examples/language_model/data_tools/Makefile | grep python
     sed -i '/set\ -xe/d' tests/benchmark/run_benchmark.sh
     bash tests/benchmark/run_all.sh dygraph
 }
