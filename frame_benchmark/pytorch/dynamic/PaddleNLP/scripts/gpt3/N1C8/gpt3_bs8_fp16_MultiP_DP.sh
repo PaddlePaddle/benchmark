@@ -1,4 +1,4 @@
-model_item=gpt
+model_item=gpt3
 bs_item=8
 fp_item=fp16
 run_process_type=MultiP
