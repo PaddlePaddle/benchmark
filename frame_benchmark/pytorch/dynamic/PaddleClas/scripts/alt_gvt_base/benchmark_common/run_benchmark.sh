@@ -47,15 +47,14 @@ function _analysis_log(){
 
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
-    total_batch_size=$[${batch_size}*$num_gpu_devices]
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${num_gpu_devices}, batch_size=${batch_size}"
 
-    train_cmd="--model ${model_item} --batch-size ${total_batch_size} --data-path data/imagenet --dist-eval --drop-path 0.3 --epochs ${max_epochs} --num_workers ${num_workers}"
+    train_cmd="--model ${model_item} --batch-size ${batch_size} --data-path data/imagenet --dist-eval --drop-path 0.3 --epochs ${max_epochs} --num_workers ${num_workers}"
     case ${run_process_type} in
     SingleP) train_cmd="python main.py ${train_cmd}" ;;
     MultiP)
-        train_cmd="python -m torch.distributed.launch --nproc_per_node=${num_gpu_devices} --use_env main.py ${train_cmd}" ;;
+        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --use_env main.py ${train_cmd}" ;;
     *) echo "choose run_process_type(SingleP or MultiP)"; exit 1;
     esac
 
