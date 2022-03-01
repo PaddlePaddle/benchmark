@@ -1,0 +1,37 @@
+[{
+    "op": "bincount",
+    "param_info": {
+        "x": {
+            "dtype": "int32",
+            "shape": "[512L]",
+            "type": "Variable"
+        },
+        "w": {
+            "dtype": "int64",
+            "shape": "[512L]",
+            "type": "Variable"
+        },
+        "minlength": {
+            "type": "int32",
+            "value": "1"
+        }
+    }
+}, {
+    "op": "bincount",
+    "param_info": {
+        "x": {
+            "dtype": "int64",
+            "shape": "[256L]",
+            "type": "Variable"
+        },
+        "w": {
+            "dtype": "float32",
+            "shape": "[256L]",
+            "type": "Variable"
+        },
+        "minlength": {
+            "type": "int32",
+            "value": "0"
+        }
+    }
+}]
