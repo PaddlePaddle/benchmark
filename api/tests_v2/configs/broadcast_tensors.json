@@ -1,0 +1,24 @@
+[{
+    "op": "broadcast_tensors",
+    "param_info": {
+        "input":{
+            "type": "list<Variable>",
+            "input0": {
+                "dtype": "float32",
+                "shape": "[1L, 20L, 30L, 40L]",
+                "type": "Variable"
+            },
+            "input1": {
+                "dtype": "float32",
+                "shape": "[1L, 20L, 1L, 40L]",
+                "type": "Variable"
+            },
+            "input2": {
+                "dtype": "float32",
+                "shape": "[1L, 1L, 30L, 1L]",
+                "type": "Variable"
+            }
+        }
+    },
+    "repeat": 5000
+}]
