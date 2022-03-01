@@ -35,7 +35,7 @@ class PDMaxPool3d(PaddleDynamicAPIBenchmarkBase):
 class TorchMaxPool3d(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.nn.max_pool3d(
+        result = torch.nn.functional.max_pool3d(
             x,
             kernel_size=config.kernel_size,
             stride=config.stride,
