@@ -7,12 +7,30 @@
         },
         "label": {
             "dtype": "float32",
-            "shape": "[32L, 1L]",
+            "shape": "[3072L, 1L]",
             "type": "Variable"
         },
         "input": {
             "dtype": "float32",
-            "shape": "[32L, 1L]",
+            "shape": "[3072L, 1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "log_loss",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "0.001"
+        },
+        "label": {
+            "dtype": "float32",
+            "shape": "[3072L, 1L]",
+            "type": "Variable"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[3072L, 1L]",
             "type": "Variable"
         }
     }
