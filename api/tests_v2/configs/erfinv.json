@@ -1,0 +1,19 @@
+[{
+    "op": "erfinv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "erfinv",
+    "param_info": {
+        "x": {
+            "dtype": "float64",
+            "shape": "[1L, 2L, 3L, 4L, 5L, 6L]",
+            "type": "Variable"
+        }
+    }
+}]

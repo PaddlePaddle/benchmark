@@ -15,32 +15,30 @@
 from common_import import *
 
 
-class PaddleBincount(PaddleDynamicAPIBenchmarkBase):
+class PaddleErfinv(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
-        result = paddle.bincount(x=x, weights=w, minlength=config.minlength)
+        result = paddle.erfinv(x)
 
-        self.feed_list = [x, w]
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, w])
+            self.append_gradients(result, [x])
 
 
-class TorchBincount(PytorchAPIBenchmarkBase):
+class TorchErfinv(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
-        result = torch.bincount(input=x, weights=w, minlength=config.minlength)
+        result = torch.erfinv(input=x)
 
-        self.feed_list = [x, w]
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, w])
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddleBincount(),
-        torch_obj=TorchBincount(),
-        config=APIConfig('bincount'))
+        pd_dy_obj=PaddleErfinv(),
+        torch_obj=TorchErfinv(),
+        config=APIConfig('erfinv'))

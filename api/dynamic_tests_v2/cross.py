@@ -15,32 +15,32 @@
 from common_import import *
 
 
-class PaddleBincount(PaddleDynamicAPIBenchmarkBase):
+class PaddleCross(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
-        result = paddle.bincount(x=x, weights=w, minlength=config.minlength)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = paddle.cross(x=x, y=y, axis=config.axis)
 
-        self.feed_list = [x, w]
+        self.feed_list = [x, y]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, w])
+            self.append_gradients(result, [x, y])
 
 
-class TorchBincount(PytorchAPIBenchmarkBase):
+class TorchCross(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
-        result = torch.bincount(input=x, weights=w, minlength=config.minlength)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = torch.lerp(input=x, other=y, dim=config.axis)
 
-        self.feed_list = [x, w]
+        self.feed_list = [x, y]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, w])
+            self.append_gradients(result, [x, y])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddleBincount(),
-        torch_obj=TorchBincount(),
-        config=APIConfig('bincount'))
+        pd_dy_obj=PaddleCross(),
+        torch_obj=TorchCross(),
+        config=APIConfig('cross'))

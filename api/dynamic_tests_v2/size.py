@@ -15,32 +15,30 @@
 from common_import import *
 
 
-class PaddleBincount(PaddleDynamicAPIBenchmarkBase):
+class PaddleSize(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
-        result = paddle.bincount(x=x, weights=w, minlength=config.minlength)
+        input = self.variable(name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = paddle.fluid.layers.size(input)
 
-        self.feed_list = [x, w]
+        self.feed_list = [input]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, w])
+            self.append_gradients(result, [input])
 
 
-class TorchBincount(PytorchAPIBenchmarkBase):
+class TorchSize(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
-        result = torch.bincount(input=x, weights=w, minlength=config.minlength)
+        input = self.variable(name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = torch.numel(input=input)
 
-        self.feed_list = [x, w]
+        self.feed_list = [input]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, w])
+            self.append_gradients(result, [input])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddleBincount(),
-        torch_obj=TorchBincount(),
-        config=APIConfig('bincount'))
+        pd_dy_obj=PaddleSize(),
+        torch_obj=TorchSize(),
+        config=APIConfig('size'))

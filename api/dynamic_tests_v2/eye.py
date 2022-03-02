@@ -15,32 +15,36 @@
 from common_import import *
 
 
-class PaddleBincount(PaddleDynamicAPIBenchmarkBase):
+class PaddleEye(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
-        result = paddle.bincount(x=x, weights=w, minlength=config.minlength)
+        result = paddle.eye(num_rows=config.num_rows, num_columns=config.num_columns, dtype=config.dtype)
 
-        self.feed_list = [x, w]
+        self.feed_list = []
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, w])
+            self.append_gradients(result, [])
 
 
-class TorchBincount(PytorchAPIBenchmarkBase):
+class TorchEye(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
-        result = torch.bincount(input=x, weights=w, minlength=config.minlength)
+        dtype_map = {
+            "float16": torch.float16,
+            "float32": torch.float32,
+            "float64": torch.float64,
+            "int32": torch.int32,
+            "int64": torch.int64,
+            "bool": torch.bool
+        }
+        result = torch.eye(n=config.num_rows, m=config.num_columns, dtype=dtype_map[config.dtype])
 
-        self.feed_list = [x, w]
+        self.feed_list = []
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [x, w])
+            self.append_gradients(result, [])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddleBincount(),
-        torch_obj=TorchBincount(),
-        config=APIConfig('bincount'))
+        pd_dy_obj=PaddleEye(),
+        torch_obj=TorchEye(),
+        config=APIConfig('eye'))

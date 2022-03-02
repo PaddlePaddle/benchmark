@@ -1,0 +1,28 @@
+[{
+    "op": "size",
+    "param_info": {
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "size",
+    "param_info": {
+        "input": {
+            "dtype": "float16",
+            "shape": "[1L, 2L, 3L, 4L, 5L, 6L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "size",
+    "param_info": {
+        "input": {
+            "dtype": "int64",
+            "shape": "[512L]",
+            "type": "Variable"
+        }
+    }
+}]

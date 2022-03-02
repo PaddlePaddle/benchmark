@@ -1,0 +1,49 @@
+[{
+    "op": "eye",
+    "param_info": {
+        "num_rows": {
+            "type": "int32",
+            "value": "1024"
+        },
+        "num_columns": {
+            "type": "int32",
+            "value": "2048"
+        },
+        "dtype": {
+            "type": "string",
+            "value": "float64"
+        }
+    }
+}, {
+    "op": "eye",
+    "param_info": {
+        "num_rows": {
+            "type": "int32",
+            "value": "2048"
+        },
+        "num_columns": {
+            "type": "int32",
+            "value": "2048"
+        },
+        "dtype": {
+            "type": "string",
+            "value": "int64"
+        }
+    }
+}, {
+    "op": "eye",
+    "param_info": {
+        "num_rows": {
+            "type": "int32",
+            "value": "4096"
+        },
+        "num_columns": {
+            "type": "int32",
+            "value": "4096"
+        },
+        "dtype": {
+            "type": "string",
+            "value": "float16"
+        }
+    }
+}]
