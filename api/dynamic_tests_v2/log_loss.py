@@ -30,7 +30,6 @@ class PDLogLoss(PaddleDynamicAPIBenchmarkBase):
             name='label', shape=config.label_shape, dtype=config.label_dtype)
         result = paddle.nn.functional.log_loss(
             input=input, label=label, epsilon=config.epsilon)
-
         self.feed_list = [input, label]
         self.fetch_list = [result]
         if config.backward:
