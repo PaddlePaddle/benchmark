@@ -31,7 +31,7 @@ class TorchCross(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        result = torch.lerp(input=x, other=y, dim=config.axis)
+        result = torch.cross(input=x, other=y, dim=config.axis)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]
