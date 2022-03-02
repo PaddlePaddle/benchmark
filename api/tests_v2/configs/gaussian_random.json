@@ -1,0 +1,51 @@
+[{
+    "op": "gaussian_random",
+    "param_info": {
+        "shape": {
+            "type": "list",
+            "value": "[16L, 1024L]"
+        },
+        "mean": {
+            "type": "float",
+            "value": "0.0"
+        },
+        "std": {
+            "type": "float",
+            "value": "1.0"
+        },
+        "seed": {
+            "type": "int",
+            "value": "0"
+        },
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        }
+    },
+    "repeat": 1000
+}, {
+    "op": "gaussian_random",
+    "param_info": {
+        "shape": {
+            "type": "list",
+            "value": "[16L, 1024L, 16L]"
+        },
+        "mean": {
+            "type": "float",
+            "value": "1.0"
+        },
+        "std": {
+            "type": "float",
+            "value": "2.0"
+        },
+        "seed": {
+            "type": "int",
+            "value": "2022"
+        },
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        }
+    },
+    "repeat": 1000
+}]
