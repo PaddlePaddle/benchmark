@@ -1,5 +1,6 @@
 [{
     "op": "eigh",
+    "atol": 0.00001,
     "param_info": {
         "UPLO": {
             "type": "string",
@@ -13,6 +14,7 @@
     }
 }, {
     "op": "eigh",
+    "atol": 0.00001,
     "param_info": {
         "UPLO": {
             "type": "string",
