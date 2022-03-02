@@ -1,7 +1,7 @@
 model_item=TSM
 bs_item=30
 fp_item=fp32
-run_process_type=SingleP
+run_process_type=MultiP
 run_mode=DP
 device_num=N1C8
 
