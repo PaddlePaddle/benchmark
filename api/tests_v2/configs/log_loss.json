@@ -7,15 +7,16 @@
         },
         "label": {
             "dtype": "float32",
-            "shape": "[3072L, 1L]",
+            "shape": "[30720L, 1L]",
             "type": "Variable"
         },
         "input": {
             "dtype": "float32",
-            "shape": "[3072L, 1L]",
+            "shape": "[30720L, 1L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 10000
 }, {
     "op": "log_loss",
     "param_info": {
@@ -25,13 +26,14 @@
         },
         "label": {
             "dtype": "float32",
-            "shape": "[3072L, 1L]",
+            "shape": "[40960L, 1L]",
             "type": "Variable"
         },
         "input": {
             "dtype": "float32",
-            "shape": "[3072L, 1L]",
+            "shape": "[40960L, 1L]",
             "type": "Variable"
         }
-    }
+    },
+    "repeat": 10000
 }]
