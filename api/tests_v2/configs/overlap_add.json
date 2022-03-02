@@ -1,0 +1,14 @@
+[{
+    "op": "overlap_add",
+    "param_info": {
+        "x": {
+            "dtype": "float64",
+            "shape": "[20L, 100L]",
+            "type": "Variable"
+        },
+        "hop_length": {
+            "type": "int",
+            "value": "4"
+        }
+    }
+}]

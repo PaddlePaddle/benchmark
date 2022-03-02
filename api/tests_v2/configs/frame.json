@@ -1,0 +1,43 @@
+[{
+    "op": "frame",
+    "param_info": {
+        "x": {
+            "dtype": "float64",
+            "shape": "[100L]",
+            "type": "Variable"
+        },
+        "hop_length": {
+            "type": "int",
+            "value": "4"
+        },
+        "frame_length": {
+            "type": "int",
+            "value": "2"
+        },
+        "axis": {
+            "type": "int",
+            "value": "0"
+        }
+    }
+}, {
+    "op": "frame",
+    "param_info": {
+        "x": {
+            "dtype": "float64",
+            "shape": "[100L, 20L, -1L]",
+            "type": "Variable"
+        },
+        "hop_length": {
+            "type": "int",
+            "value": "13"
+        },
+        "frame_length": {
+            "type": "int",
+            "value": "27"
+        },
+        "axis": {
+            "type": "int",
+            "value": "0"
+        }
+    }
+}]
