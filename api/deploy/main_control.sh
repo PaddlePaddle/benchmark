@@ -2,7 +2,7 @@
 
 function print_usage() {
     echo "Usage:"
-    echo "    bash ${0} test_dir json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file framework testing_mode"
+  echo "    bash ${0} test_dir json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file framework testing_mode"
     echo ""
     echo "Arguments:"
     echo "  test_dir                - the directory of tests case"
@@ -22,7 +22,7 @@ function print_arguments() {
     echo ""
     echo "test_dir        : ${TEST_DIR}"
     echo "json_config_dir : ${JSON_CONFIG_DIR}"
-    echo "output_dir      : ${OUTPUT_DIR}" 
+    echo "output_dir      : ${OUTPUT_DIR}"
     echo "gpu_ids         : ${GPU_IDS}"
     echo "device_set      : ${DEVICE_SET[@]}"
     echo "task_set        : ${TASK_SET[@]}"
@@ -105,7 +105,7 @@ if [ "${OP_LIST_FILE}" == "" ]; then
     fi
 fi
 
-TESTING_MODE="static"
+TESTING_MODE="dynamic"
 FRAMEWORK_SET=("paddle" "tensorflow")
 if [ $# -ge 8 ]; then
     if [ $# -ge 9 ]; then
@@ -214,7 +214,7 @@ function execute_one_case() {
     local api_name=$(echo $line | cut -d ',' -f1)
     local name=$(echo $line | cut -d ',' -f2)
     local has_backward=$(echo $line | cut -d ',' -f4)
-    if [ ${has_backward} = False ]; then  
+    if [ ${has_backward} = False ]; then
         direction_set=("forward")
     else
         direction_set=("forward" "backward")
@@ -228,7 +228,7 @@ function execute_one_case() {
     DETAIL_KEY_CONTENT_MAP[$detail_key]="[${config_id}]: api_name=${api_name}, name=${name}, json_file=${json_file_path}, num_configs=${cases_num}, json_id=${i}"
 
     # DEVICE_SET is specified by argument: "gpu", "cpu"
-    for device in ${DEVICE_SET[@]}; do 
+    for device in ${DEVICE_SET[@]}; do
         if [ ${device} = "gpu" ]; then
             local use_gpu="True"
             local repeat=1000
@@ -238,13 +238,13 @@ function execute_one_case() {
         fi
 
         # TASK_SET is specified by argument: "speed", "accuracy"
-        for task in "${TASK_SET[@]}"; do 
+        for task in "${TASK_SET[@]}"; do
             # FRAMEWORK_SET is specified by argument: "paddle", "tensorflow"
-            for framework in "${FRAMEWORK_SET[@]}"; do 
+            for framework in "${FRAMEWORK_SET[@]}"; do
                 [ "${task}" == "accuracy" -a "${framework}" == "tensorflow" ] && continue
                 [ "${task}" == "accuracy" -a "${framework}" == "pytorch" ] && continue
                 # direction_set: "forward", "backward"
-                for direction in "${direction_set[@]}"; 
+                for direction in "${direction_set[@]}";
                 do
                     if [ ${direction} = "forward" ]; then
                         local backward="False"
@@ -350,7 +350,7 @@ function run_all_cases() {
         else
             local case_name_id=""
         fi
-    
+
         for((i=0;i<cases_num;i++)); do
             [ -n "${case_name_id}" -a "${case_name_id}" != "${i}" ] && continue
             [ -n "${case_name_id}" ] && line=${line//:${case_name_id}/}
