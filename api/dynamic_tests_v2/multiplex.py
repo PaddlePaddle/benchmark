@@ -24,10 +24,15 @@ class MultiplexConfig(APIConfig):
 
 class PaddleMultiplex(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        inputs = self.variable(
-            name='inputs', shape=config.x_shape, dtype=config.x_dtype)
+        inputs = []
+        for i in range(len(config.inputs_shape)):
+            input = self.variable(
+                name='input_' + str(i),
+                shape=config.inputs_shape[i],
+                dtype=config.inputs_dtype[i])
+            inputs.append(input)
         index = self.variable(
-            name='index', shape=config.y_shape, dtype=config.y_dtype)
+            name='index', shape=config.index_shape, dtype=config.index_dtype)
         result = paddle.multiplex(inputs=inputs, index=index)
 
         self.feed_list = [inputs, index]

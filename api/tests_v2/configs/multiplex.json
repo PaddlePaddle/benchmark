@@ -2,13 +2,31 @@
     "op": "multiplex",
     "param_info": {
         "inputs": {
-            "dtype": "int32",
-            "shape": "[8L, 1024L, 1024L]",
-            "type": "Variable"
+            "type": "list<Variable>",
+            "input0": {
+                "dtype": "int32",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            },
+            "input1": {
+                "dtype": "int32",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            },
+            "input2": {
+                "dtype": "int32",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            },
+            "input3": {
+                "dtype": "int32",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            }
         },
-        "indexs": {
+        "index": {
             "dtype": "int32",
-            "shape": "[8L, 1L]",
+            "shape": "[4L, 1L]",
             "type": "Variable"
         }
     }
@@ -16,13 +34,31 @@
     "op": "multiplex",
     "param_info": {
         "inputs": {
-            "dtype": "int64",
-            "shape": "[8L, 1024L, 1024L]",
-            "type": "Variable"
+            "type": "list<Variable>",
+            "input0": {
+                "dtype": "int64",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            },
+            "input1": {
+                "dtype": "int64",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            },
+            "input2": {
+                "dtype": "int64",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            },
+            "input3": {
+                "dtype": "int64",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            }
         },
-        "indexs": {
+        "index": {
             "dtype": "int32",
-            "shape": "[8L, 1L]",
+            "shape": "[4L, 1L]",
             "type": "Variable"
         }
     }
@@ -30,13 +66,31 @@
     "op": "multiplex",
     "param_info": {
         "inputs": {
-            "dtype": "float32",
-            "shape": "[8L, 1024L, 1024L]",
-            "type": "Variable"
+            "type": "list<Variable>",
+            "input0": {
+                "dtype": "float32",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            },
+            "input1": {
+                "dtype": "float32",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            },
+            "input2": {
+                "dtype": "float32",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            },
+            "input3": {
+                "dtype": "float32",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            }
         },
-        "indexs": {
+        "index": {
             "dtype": "int32",
-            "shape": "[8L, 1L]",
+            "shape": "[4L, 1L]",
             "type": "Variable"
         }
     }
@@ -44,13 +98,31 @@
     "op": "multiplex",
     "param_info": {
         "inputs": {
-            "dtype": "float64",
-            "shape": "[8L, 1024L, 1024L]",
-            "type": "Variable"
+            "type": "list<Variable>",
+            "input0": {
+                "dtype": "float64",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            },
+            "input1": {
+                "dtype": "float64",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            },
+            "input2": {
+                "dtype": "float64",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            },
+            "input3": {
+                "dtype": "float64",
+                "shape": "[512L, 512L]",
+                "type": "Variable"
+            }
         },
-        "indexs": {
+        "index": {
             "dtype": "int32",
-            "shape": "[8L, 1L]",
+            "shape": "[4L, 1L]",
             "type": "Variable"
         }
     }
