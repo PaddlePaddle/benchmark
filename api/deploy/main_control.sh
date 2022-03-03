@@ -13,7 +13,7 @@ function print_usage() {
     echo "  task (optional)         - speed, accuracy, both"
     echo "  op_list_file (optional) - the path which specified op list to test"
     echo "  framework (optional)    - paddle, tensorflow, pytorch, both"
-    echo "  testing_mode (optional) - the testing_mode of paddle. static(default)|dynamic."
+    echo "  testing_mode (optional) - the testing_mode of paddle. dynamic(default)|static."
 }
 
 function print_arguments() {
@@ -105,7 +105,7 @@ if [ "${OP_LIST_FILE}" == "" ]; then
     fi
 fi
 
-TESTING_MODE="static"
+TESTING_MODE="dynamic"
 FRAMEWORK_SET=("paddle" "tensorflow")
 if [ $# -ge 8 ]; then
     if [ $# -ge 9 ]; then
