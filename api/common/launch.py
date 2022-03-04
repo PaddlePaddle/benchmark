@@ -464,10 +464,14 @@ if __name__ == "__main__":
             _set_args(args.benchmark_script_args,
                       "--get_status_without_running", "True")
 
-    launch(
-        args.benchmark_script,
-        args.benchmark_script_args,
-        task,
-        repeat,
-        sync_interval,
-        with_nvprof=False)
+    if "tests/test_main.py" in args.benchmark_script:
+        from tests import test_main
+        test_main.main()
+    else:
+        launch(
+            args.benchmark_script,
+            args.benchmark_script_args,
+            task,
+            repeat,
+            sync_interval,
+            with_nvprof=False)

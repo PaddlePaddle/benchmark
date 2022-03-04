@@ -98,7 +98,8 @@ if [ "${OP_LIST_FILE}" == "" ]; then
     OP_LIST_FILE=${OUTPUT_DIR}/api_info.txt
     python ${DEPLOY_DIR}/collect_api_info.py \
         --test_module_name ${TEST_MODULE_NAME} \
-        --info_file ${OP_LIST_FILE}
+        --info_file ${OP_LIST_FILE} \
+        --specified_op_list "abs"
     return_status=$?
     if [ ${return_status} -ne 0 ] || [ ! -f "${OP_LIST_FILE}" ]; then
         OP_LIST_FILE=${DEPLOY_DIR}/api_info.txt
