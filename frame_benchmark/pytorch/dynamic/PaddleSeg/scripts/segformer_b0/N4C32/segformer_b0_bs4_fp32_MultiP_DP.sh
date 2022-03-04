@@ -1,5 +1,5 @@
-model_item=hrnet_seg
-bs_item=8
+model_item=segformer_b0
+bs_item=4
 fp_item=fp32
 run_process_type=MultiP
 run_mode=DP

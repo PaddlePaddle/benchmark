@@ -1,5 +1,5 @@
-model_item=segformer
-bs_item=2
+model_item=deeplabv3p_resnet50
+bs_item=4
 fp_item=fp32
 run_process_type=MultiP
 run_mode=DP

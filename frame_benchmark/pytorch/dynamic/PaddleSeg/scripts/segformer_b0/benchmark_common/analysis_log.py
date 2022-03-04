@@ -8,28 +8,31 @@ import json
 import os
 
 def analyze(model_name, log_file, res_log_file, device_num):
-    gpu_ids_pat = re.compile(r"gpu_ids = [[](.*)[]]") #  re.compile(r"[(](.*)[)]", re.S)
     bs_pat = re.compile(r"samples_per_gpu=(.*),")
     time_pat = re.compile(r"time: (.*), data_time")
     loss_pat = re.compile(r"loss: (.*)")
 
     logs = open(log_file).readlines()
     logs = ";".join(logs)
-    gpu_ids_res = gpu_ids_pat.findall(logs)
     bs_res = bs_pat.findall(logs)
     time_res = time_pat.findall(logs)
     loss_res = loss_pat.findall(logs)
 
+    print("---device_num:-", device_num)
+    index_c = device_num.index('C')
+    print("---index_c:-", index_c)
+    gpu_num = int(device_num[index_c + 1:len(device_num)])
+    print("-----gpu_num:", gpu_num)
+
     run_mode = ""
-    gpu_num = 0
+    # gpu_num = 0
     ips = 0
     fp_item = "fp32"
     bs = 0
-
-    if gpu_ids_res == [] or time_res == []:
+    run_process_type = "SingleP"
+    if time_res == []:
         ips = 0
     else:
-        gpu_num = int(gpu_ids_res[0]) + 1
         run_process_type = "SingleP" if gpu_num == 1 else "MultiP"
         bs = int(bs_res[0])
 
