@@ -1,0 +1,15 @@
+[{
+    "op": "segment_pool",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[50000, 128]",
+            "type": "Variable"
+        },
+        "segment_ids": {
+            "dtype": "int32",
+            "shape": "[50000]",
+            "type": "Variable"
+        }
+    }
+}]
