@@ -1,0 +1,19 @@
+[{
+    "op": "is_empty",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16L, 1000L]",
+            "type": "Variable"
+        }
+    }
+},{
+    "op": "is_empty",
+    "param_info": {
+        "x": {
+            "dtype": "int32",
+            "shape": "[16L, 1000L]",
+            "type": "Variable"
+        }
+    }
+}]
