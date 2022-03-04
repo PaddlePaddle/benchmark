@@ -3,12 +3,12 @@
     "param_info": {
         "x": {
             "dtype": "int32",
-            "shape": "[512L]",
+            "shape": "[51200L]",
             "type": "Variable"
         },
         "w": {
             "dtype": "int64",
-            "shape": "[512L]",
+            "shape": "[51200L]",
             "type": "Variable"
         },
         "minlength": {
@@ -21,12 +21,12 @@
     "param_info": {
         "x": {
             "dtype": "int64",
-            "shape": "[256L]",
+            "shape": "[25600L]",
             "type": "Variable"
         },
         "w": {
             "dtype": "float32",
-            "shape": "[256L]",
+            "shape": "[25600L]",
             "type": "Variable"
         },
         "minlength": {

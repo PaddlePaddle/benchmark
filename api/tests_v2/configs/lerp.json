@@ -3,12 +3,12 @@
     "param_info": {
         "x": {
             "dtype": "float32",
-            "shape": "[-1L, 1024L]",
+            "shape": "[-1L, 102400L]",
             "type": "Variable"
         },
         "y": {
             "dtype": "float32",
-            "shape": "[-1L, 1024L]",
+            "shape": "[-1L, 102400L]",
             "type": "Variable"
         },
         "w": {
@@ -21,12 +21,12 @@
     "param_info": {
         "x": {
             "dtype": "float64",
-            "shape": "[-1L, 2048L]",
+            "shape": "[-1L, 204800L]",
             "type": "Variable"
         },
         "y": {
             "dtype": "float64",
-            "shape": "[-1L, 2048L]",
+            "shape": "[-1L, 204800L]",
             "type": "Variable"
         },
         "w": {

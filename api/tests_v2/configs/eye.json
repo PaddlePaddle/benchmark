@@ -3,11 +3,11 @@
     "param_info": {
         "num_rows": {
             "type": "int32",
-            "value": "1024"
+            "value": "10240"
         },
         "num_columns": {
             "type": "int32",
-            "value": "2048"
+            "value": "20480"
         },
         "dtype": {
             "type": "string",
@@ -19,11 +19,11 @@
     "param_info": {
         "num_rows": {
             "type": "int32",
-            "value": "2048"
+            "value": "20480"
         },
         "num_columns": {
             "type": "int32",
-            "value": "2048"
+            "value": "20480"
         },
         "dtype": {
             "type": "string",
