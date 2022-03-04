@@ -17,7 +17,7 @@ from common_import import *
 
 class PoissonConfig(APIConfig):
     def __init__(self):
-        super(PoissonConfig, self).__init__('triangular_solve')
+        super(PoissonConfig, self).__init__('poisson')
         self.feed_spec = [{"range": [0, 100]}]
 
 
@@ -49,4 +49,4 @@ if __name__ == '__main__':
     test_main(
         pd_dy_obj=PaddlePoisson(),
         torch_obj=TorchPoisson(),
-        config=APIConfig("poisson"))
+        config=PoissonConfig())
