@@ -1,9 +1,9 @@
-model_item=segformer
-bs_item=4
+model_item=segformer_b0
+bs_item=2
 fp_item=fp32
-run_process_type=SingleP
+run_process_type=MultiP
 run_mode=DP
-device_num=N1C1
+device_num=N1C8
 max_iter=500
 num_workers=5
 
