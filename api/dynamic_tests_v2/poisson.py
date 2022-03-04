@@ -17,7 +17,7 @@ from common_import import *
 
 class PoissonConfig(APIConfig):
     def __init__(self):
-        super(TriangularSolveConfig, self).__init__('triangular_solve')
+        super(PoissonConfig, self).__init__('triangular_solve')
         self.feed_spec = [{"range": [0, 100]}]
 
 
