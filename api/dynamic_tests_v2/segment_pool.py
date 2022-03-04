@@ -27,10 +27,12 @@ class SegmentPoolConfig(APIConfig):
             {
                 "range": [0, 1]
             },  # x
-            {
-                "range": [1, self.x_shape[0] // 10]
-            },  # segment_ids
         ]
+
+        segment = np.random.randint(
+            0, self.x_shape[0] // 20, size=[self.x_shape[0]])
+        segment = np.sort(segment)
+        self.segment_ids_value = segment.astype(self.segment_ids_dtype)
 
 
 class PaddleSegmentPool(PaddleDynamicAPIBenchmarkBase):
@@ -39,12 +41,11 @@ class PaddleSegmentPool(PaddleDynamicAPIBenchmarkBase):
         segment_ids = self.variable(
             name='segment_ids',
             shape=config.segment_ids_shape,
-            dtype=config.segment_ids_dtype)
-        segment_ids_sorted = paddle.sort(segment_ids)
-        result = getattr(paddle.incubate, config.pool_type)(x,
-                                                            segment_ids_sorted)
+            dtype=config.segment_ids_dtype,
+            value=config.segment_ids_value)
+        result = getattr(paddle.incubate, config.pool_type)(x, segment_ids)
 
-        self.feed_vars = [x, segment_ids]
+        self.feed_vars = [x]
         self.fetch_vars = [result]
 
 
