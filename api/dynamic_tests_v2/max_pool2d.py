@@ -18,13 +18,24 @@ from common_import import *
 class PDMaxPool2d(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.nn.functional.max_pool2d(
-            x=x,
-            kernel_size=config.kernel_size,
-            stride=config.stride,
-            padding=config.padding,
-            ceil_mode=config.ceil_mode,
-            data_format=config.data_format)
+        if config.return_mask:
+            result, max_indices = paddle.nn.functional.max_pool2d(
+                x=x,
+                kernel_size=config.kernel_size,
+                stride=config.stride,
+                padding=config.padding,
+                ceil_mode=config.ceil_mode,
+                return_mask=config.return_mask,
+                data_format=config.data_format)
+        else:
+            result = paddle.nn.functional.max_pool2d(
+                x=x,
+                kernel_size=config.kernel_size,
+                stride=config.stride,
+                padding=config.padding,
+                ceil_mode=config.ceil_mode,
+                return_mask=config.return_mask,
+                data_format=config.data_format)
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -35,12 +46,22 @@ class PDMaxPool2d(PaddleDynamicAPIBenchmarkBase):
 class TorchMaxPool2d(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.nn.functional.max_pool2d(
-            x,
-            kernel_size=config.kernel_size,
-            stride=config.stride,
-            padding=config.padding,
-            ceil_mode=config.ceil_mode)
+        if config.return_mask:
+            result, max_indices = torch.nn.functional.max_pool2d(
+                x,
+                kernel_size=config.kernel_size,
+                stride=config.stride,
+                padding=config.padding,
+                ceil_mode=config.ceil_mode,
+                return_mask=config.return_mask)
+        else:
+            result = torch.nn.functional.max_pool2d(
+                x,
+                kernel_size=config.kernel_size,
+                stride=config.stride,
+                padding=config.padding,
+                ceil_mode=config.ceil_mode,
+                return_mask=config.return_mask)
 
         self.feed_list = [x]
         self.fetch_list = [result]
