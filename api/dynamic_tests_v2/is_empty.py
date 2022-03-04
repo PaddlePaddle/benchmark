@@ -19,10 +19,6 @@ class IsemptyConfig(APIConfig):
     def __init__(self):
         super(IsemptyConfig, self).__init__('is_empty')
         self.run_torch = False
-        self.api_name = 'is_empty'
-        self.api_list = {
-            'is_empty': 'is_empty'
-        }
         self.feed_spec = [{"range": [-1, 1]}]
 
 
