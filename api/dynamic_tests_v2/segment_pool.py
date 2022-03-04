@@ -19,6 +19,13 @@ class SegmentPoolConfig(APIConfig):
     def __init__(self):
         super(SegmentPoolConfig, self).__init__('segment_pool')
         self.run_torch = False
+        self.api_name = 'segment_sum'
+        self.api_list = {
+            'segment_sum': 'segment_sum',
+            'segment_mean': 'segment_mean',
+            'segment_max': 'segment_max',
+            'segment_min': 'segment_min',
+        }
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(SegmentPoolConfig, self).init_from_json(filename, config_id,
@@ -43,7 +50,11 @@ class PaddleSegmentPool(PaddleDynamicAPIBenchmarkBase):
             shape=config.segment_ids_shape,
             dtype=config.segment_ids_dtype,
             value=config.segment_ids_value)
-        result = getattr(paddle.incubate, config.pool_type)(x, segment_ids)
+        result = self.layers(
+            api_name=config.api_name,
+            module_name="paddle.incubate",
+            data=x,
+            segment_ids=segment_ids)
 
         self.feed_vars = [x]
         self.fetch_vars = [result]

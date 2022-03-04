@@ -10,46 +10,6 @@
             "dtype": "int32",
             "shape": "[50000]",
             "type": "Variable"
-        },
-        "pool_type": {
-            "type": "string",
-            "value": "segment_sum"
-        }
-    }
-}, {
-    "op": "segment_pool",
-    "param_info": {
-        "x": {
-            "dtype": "float32",
-            "shape": "[50000, 128]",
-            "type": "Variable"
-        },
-        "segment_ids": {
-            "dtype": "int32",
-            "shape": "[50000]",
-            "type": "Variable"
-        },
-        "pool_type": {
-            "type": "string",
-            "value": "segment_mean"
-        }
-    }
-}, {
-    "op": "segment_pool",
-    "param_info": {
-        "x": {
-            "dtype": "float32",
-            "shape": "[50000, 128]",
-            "type": "Variable"
-        },
-        "segment_ids": {
-            "dtype": "int32",
-            "shape": "[50000]",
-            "type": "Variable"
-        },
-        "pool_type": {
-            "type": "string",
-            "value": "segment_max"
         }
     }
 }]
