@@ -1,0 +1,39 @@
+[{
+    "op": "log_loss",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "0.0001"
+        },
+        "label": {
+            "dtype": "float32",
+            "shape": "[30720L, 1L]",
+            "type": "Variable"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[30720L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "op": "log_loss",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "0.001"
+        },
+        "label": {
+            "dtype": "float32",
+            "shape": "[40960L, 1L]",
+            "type": "Variable"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[40960L, 1L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}]

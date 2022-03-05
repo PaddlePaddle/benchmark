@@ -1,0 +1,47 @@
+[{
+    "op": "graph_send_recv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[50000, 128]",
+            "type": "Variable"
+        },
+        "src_index": {
+            "dtype": "int32",
+            "shape": "[5000]",
+            "type": "Variable"
+        },
+        "dst_index": {
+            "dtype": "int32",
+            "shape": "[5000]",
+            "type": "Variable"
+        },
+        "pool_type": {
+            "type": "string",
+            "value": "mean"
+        }
+    }
+}, {
+    "op": "graph_send_recv",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[50000, 128]",
+            "type": "Variable"
+        },
+        "src_index": {
+            "dtype": "int32",
+            "shape": "[5000]",
+            "type": "Variable"
+        },
+        "dst_index": {
+            "dtype": "int32",
+            "shape": "[5000]",
+            "type": "Variable"
+        },
+        "pool_type": {
+            "type": "string",
+            "value": "max"
+        }
+    }
+}]
