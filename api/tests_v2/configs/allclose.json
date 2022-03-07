@@ -3,12 +3,12 @@
   "param_info": {
       "x": {
           "dtype": "float32",
-          "shape": "[16L, 10L, 10L]",
+          "shape": "[16L, 10L, 100L]",
           "type": "Variable"
       },
       "y": {
           "dtype": "float32",
-          "shape": "[16L, 10L, 10L]",
+          "shape": "[16L, 10L, 100L]",
           "type": "Variable"
       },
       "rtol": {
