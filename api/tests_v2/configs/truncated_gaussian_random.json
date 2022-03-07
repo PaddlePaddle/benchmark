@@ -20,6 +20,11 @@
         "dtype": {
             "type": "string",
             "value": "float32"
+        },
+        "w": {
+            "dtype": "float32",
+            "shape": "[16L, 8192L]",
+            "type": "Variable"
         }
     },
     "repeat": 1000
@@ -45,6 +50,11 @@
         "dtype": {
             "type": "string",
             "value": "float32"
+        },
+        "w": {
+            "dtype": "float32",
+            "shape": "[16L, 8192L, 4L]",
+            "type": "Variable"
         }
     },
     "repeat": 1000
@@ -70,6 +80,11 @@
         "dtype": {
             "type": "string",
             "value": "float16"
+        },
+        "w": {
+            "dtype": "float16",
+            "shape": "[16L, 8192L]",
+            "type": "Variable"
         }
     },
     "repeat": 1000
@@ -95,6 +110,11 @@
         "dtype": {
             "type": "string",
             "value": "float16"
+        },
+        "w": {
+            "dtype": "float16",
+            "shape": "[16L, 8192L, 4L]",
+            "type": "Variable"
         }
     },
     "repeat": 1000

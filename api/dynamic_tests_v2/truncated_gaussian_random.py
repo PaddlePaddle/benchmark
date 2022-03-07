@@ -28,7 +28,7 @@ class PaddleTruncatedGaussianRandom(PaddleDynamicAPIBenchmarkBase):
         paddle.seed(config.seed)
         normal = paddle.nn.initializer.TruncatedNormal(
             mean=config.mean, std=config.std)
-        w = paddle.empty(shape=config.shape, dtype=config.dtype)
+        w = self.variable(name="w", shape=config.w_shape, dtype=config.w_dtype)
         result = normal(w)
         self.feed_list = []
         self.fetch_list = [result]
@@ -37,4 +37,4 @@ class PaddleTruncatedGaussianRandom(PaddleDynamicAPIBenchmarkBase):
 if __name__ == '__main__':
     test_main(
         pd_dy_obj=PaddleTruncatedGaussianRandom(),
-        config=APIConfig("truncated_gaussian_random"))
+        config=TruncatedGaussianRandomConfig())
