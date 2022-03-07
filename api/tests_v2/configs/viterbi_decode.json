@@ -7,12 +7,12 @@
         },
         "emission": {
             "dtype": "float32",
-            "shape": "[20L, 40L, 30L]",
+            "shape": "[20L, 40L, 100L]",
             "type": "Variable"
         },
         "transition": {
             "dtype": "float32",
-            "shape": "[30L, 30L]",
+            "shape": "[100L, 100L]",
             "type": "Variable"
         },
         "length": {
@@ -30,17 +30,17 @@
         },
         "emission": {
             "dtype": "float32",
-            "shape": "[40L, 80L, 40L]",
+            "shape": "[20L, 80L, 100L]",
             "type": "Variable"
         },
         "transition": {
             "dtype": "float32",
-            "shape": "[40L, 40L]",
+            "shape": "[100L, 100L]",
             "type": "Variable"
         },
         "length": {
             "dtype": "int64",
-            "shape": "[40L]",
+            "shape": "[20L]",
             "type": "Variable"
         }
     }
