@@ -48,10 +48,10 @@ class ReduceConfig(APIConfig):
     def to_tensorflow(self):
         # The change of self.api_list should be in front of the calling of parent's function.
         self.api_list = {
-            'max': 'reduce_max',
-            'mean': 'reduce_mean',
-            'min': 'reduce_min',
             'sum': 'reduce_sum',
+            'mean': 'reduce_mean',
+            'max': 'reduce_max',
+            'min': 'reduce_min',
             'prod': 'reduce_prod'
         }
         tf_config = super(ReduceConfig, self).to_tensorflow()
