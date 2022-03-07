@@ -15,38 +15,30 @@
 from common_import import *
 
 
-class PoissonConfig(APIConfig):
-    def __init__(self):
-        super(PoissonConfig, self).__init__('poisson')
-        self.feed_spec = [{"range": [0, 100]}]
-
-
-class PaddlePoisson(PaddleDynamicAPIBenchmarkBase):
+class PaddleErfinv(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.poisson(x=x)
+        result = paddle.erfinv(x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-
         if config.backward:
             self.append_gradients(result, [x])
 
 
-class TorchPoisson(PytorchAPIBenchmarkBase):
+class TorchErfinv(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.poisson(x=x)
+        result = torch.erfinv(input=x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-
         if config.backward:
             self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddlePoisson(),
-        torch_obj=TorchPoisson(),
-        config=PoissonConfig())
+        pd_dy_obj=PaddleErfinv(),
+        torch_obj=TorchErfinv(),
+        config=APIConfig('erfinv'))

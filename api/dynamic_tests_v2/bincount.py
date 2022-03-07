@@ -15,38 +15,32 @@
 from common_import import *
 
 
-class PoissonConfig(APIConfig):
-    def __init__(self):
-        super(PoissonConfig, self).__init__('poisson')
-        self.feed_spec = [{"range": [0, 100]}]
-
-
-class PaddlePoisson(PaddleDynamicAPIBenchmarkBase):
+class PaddleBincount(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.poisson(x=x)
+        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
+        result = paddle.bincount(x=x, weights=w, minlength=config.minlength)
 
-        self.feed_list = [x]
+        self.feed_list = [x, w]
         self.fetch_list = [result]
-
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(result, [x, w])
 
 
-class TorchPoisson(PytorchAPIBenchmarkBase):
+class TorchBincount(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.poisson(x=x)
+        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
+        result = torch.bincount(input=x, weights=w, minlength=config.minlength)
 
-        self.feed_list = [x]
+        self.feed_list = [x, w]
         self.fetch_list = [result]
-
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(result, [x, w])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddlePoisson(),
-        torch_obj=TorchPoisson(),
-        config=PoissonConfig())
+        pd_dy_obj=PaddleBincount(),
+        torch_obj=TorchBincount(),
+        config=APIConfig('bincount'))

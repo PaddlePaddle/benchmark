@@ -15,38 +15,30 @@
 from common_import import *
 
 
-class PoissonConfig(APIConfig):
-    def __init__(self):
-        super(PoissonConfig, self).__init__('poisson')
-        self.feed_spec = [{"range": [0, 100]}]
-
-
-class PaddlePoisson(PaddleDynamicAPIBenchmarkBase):
+class PaddleSize(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.poisson(x=x)
+        input = self.variable(name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = paddle.fluid.layers.size(input)
 
-        self.feed_list = [x]
+        self.feed_list = [input]
         self.fetch_list = [result]
-
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(result, [input])
 
 
-class TorchPoisson(PytorchAPIBenchmarkBase):
+class TorchSize(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.poisson(x=x)
+        input = self.variable(name='input', shape=config.input_shape, dtype=config.input_dtype)
+        result = torch.numel(input=input)
 
-        self.feed_list = [x]
+        self.feed_list = [input]
         self.fetch_list = [result]
-
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(result, [input])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddlePoisson(),
-        torch_obj=TorchPoisson(),
-        config=PoissonConfig())
+        pd_dy_obj=PaddleSize(),
+        torch_obj=TorchSize(),
+        config=APIConfig('size'))

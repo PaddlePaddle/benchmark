@@ -15,38 +15,36 @@
 from common_import import *
 
 
-class PoissonConfig(APIConfig):
-    def __init__(self):
-        super(PoissonConfig, self).__init__('poisson')
-        self.feed_spec = [{"range": [0, 100]}]
-
-
-class PaddlePoisson(PaddleDynamicAPIBenchmarkBase):
+class PaddleEye(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.poisson(x=x)
+        result = paddle.eye(num_rows=config.num_rows, num_columns=config.num_columns, dtype=config.dtype)
 
-        self.feed_list = [x]
+        self.feed_list = []
         self.fetch_list = [result]
-
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(result, [])
 
 
-class TorchPoisson(PytorchAPIBenchmarkBase):
+class TorchEye(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.poisson(x=x)
+        dtype_map = {
+            "float16": torch.float16,
+            "float32": torch.float32,
+            "float64": torch.float64,
+            "int32": torch.int32,
+            "int64": torch.int64,
+            "bool": torch.bool
+        }
+        result = torch.eye(n=config.num_rows, m=config.num_columns, dtype=dtype_map[config.dtype])
 
-        self.feed_list = [x]
+        self.feed_list = []
         self.fetch_list = [result]
-
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(result, [])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddlePoisson(),
-        torch_obj=TorchPoisson(),
-        config=PoissonConfig())
+        pd_dy_obj=PaddleEye(),
+        torch_obj=TorchEye(),
+        config=APIConfig('eye'))

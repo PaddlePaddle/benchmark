@@ -15,38 +15,32 @@
 from common_import import *
 
 
-class PoissonConfig(APIConfig):
-    def __init__(self):
-        super(PoissonConfig, self).__init__('poisson')
-        self.feed_spec = [{"range": [0, 100]}]
-
-
-class PaddlePoisson(PaddleDynamicAPIBenchmarkBase):
+class PaddleLerp(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.poisson(x=x)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = paddle.lerp(x=x, y=y, weight=config.w)
 
-        self.feed_list = [x]
+        self.feed_list = [x, y]
         self.fetch_list = [result]
-
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(result, [x, y])
 
 
-class TorchPoisson(PytorchAPIBenchmarkBase):
+class TorchLerp(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.poisson(x=x)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = torch.lerp(input=x, end=y, weight=config.w)
 
-        self.feed_list = [x]
+        self.feed_list = [x, y]
         self.fetch_list = [result]
-
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(result, [x, y])
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddlePoisson(),
-        torch_obj=TorchPoisson(),
-        config=PoissonConfig())
+        pd_dy_obj=PaddleLerp(),
+        torch_obj=TorchLerp(),
+        config=APIConfig('lerp'))

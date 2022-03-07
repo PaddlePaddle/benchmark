@@ -15,38 +15,25 @@
 from common_import import *
 
 
-class PoissonConfig(APIConfig):
+class MaxoutConfig(APIConfig):
     def __init__(self):
-        super(PoissonConfig, self).__init__('poisson')
-        self.feed_spec = [{"range": [0, 100]}]
+        super(MaxoutConfig, self).__init__('maxout')
+        self.feed_spec = {"range": [-1, 1]}
+        self.run_torch = False
 
 
-class PaddlePoisson(PaddleDynamicAPIBenchmarkBase):
+class PaddleMaxout(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = paddle.poisson(x=x)
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.nn.functional.maxout(x=x,
+                                             groups=config.groups,
+                                             axis=config.axis)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-
-        if config.backward:
-            self.append_gradients(result, [x])
-
-
-class TorchPoisson(PytorchAPIBenchmarkBase):
-    def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.poisson(x=x)
-
-        self.feed_list = [x]
-        self.fetch_list = [result]
-
         if config.backward:
             self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PaddlePoisson(),
-        torch_obj=TorchPoisson(),
-        config=PoissonConfig())
+    test_main(pd_dy_obj=PaddleMaxout(), config=MaxoutConfig())
