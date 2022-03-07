@@ -15,25 +15,26 @@
 from common_import import *
 
 
-class GaussianRandomConfig(APIConfig):
+class TruncatedGaussianRandomConfig(APIConfig):
     def __init__(self):
-        super(GaussianRandomConfig, self).__init__("gaussian_random")
+        super(TruncatedGaussianRandomConfig,
+              self).__init__("truncated_gaussian_random")
         self.run_torch = False
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
 
-class PaddleGaussianRandom(PaddleDynamicAPIBenchmarkBase):
+class PaddleTruncatedGaussianRandom(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        result = paddle.fluid.layers.gaussian_random(
-            shape=config.shape,
-            mean=config.mean,
-            std=config.std,
-            seed=config.seed,
-            dtype=config.dtype)
-
+        paddle.seed(config.seed)
+        normal = paddle.nn.initializer.TruncatedNormal(
+            mean=config.mean, std=config.std)
+        w = self.variable(name="w", shape=config.w_shape, dtype=config.w_dtype)
+        result = normal(w)
         self.feed_list = []
         self.fetch_list = [result]
 
 
 if __name__ == '__main__':
-    test_main(pd_dy_obj=PaddleGaussianRandom(), config=GaussianRandomConfig())
+    test_main(
+        pd_dy_obj=PaddleTruncatedGaussianRandom(),
+        config=TruncatedGaussianRandomConfig())
