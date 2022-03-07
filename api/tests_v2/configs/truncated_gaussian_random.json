@@ -1,0 +1,121 @@
+[{
+    "op": "truncated_gaussian_random",
+    "param_info": {
+        "shape": {
+            "type": "list",
+            "value": "[16L, 8192L]"
+        },
+        "mean": {
+            "type": "float",
+            "value": "0.0"
+        },
+        "std": {
+            "type": "float",
+            "value": "1.0"
+        },
+        "seed": {
+            "type": "int",
+            "value": "0"
+        },
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "w": {
+            "dtype": "float32",
+            "shape": "[16L, 8192L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 1000
+}, {
+    "op": "truncated_gaussian_random",
+    "param_info": {
+        "shape": {
+            "type": "list",
+            "value": "[16L, 8192L, 4L]"
+        },
+        "mean": {
+            "type": "float",
+            "value": "1.0"
+        },
+        "std": {
+            "type": "float",
+            "value": "2.0"
+        },
+        "seed": {
+            "type": "int",
+            "value": "2022"
+        },
+        "dtype": {
+            "type": "string",
+            "value": "float32"
+        },
+        "w": {
+            "dtype": "float32",
+            "shape": "[16L, 8192L, 4L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 1000
+}, {
+    "op": "truncated_gaussian_random",
+    "param_info": {
+        "shape": {
+            "type": "list",
+            "value": "[16L, 8192L]"
+        },
+        "mean": {
+            "type": "float",
+            "value": "0.0"
+        },
+        "std": {
+            "type": "float",
+            "value": "1.0"
+        },
+        "seed": {
+            "type": "int",
+            "value": "0"
+        },
+        "dtype": {
+            "type": "string",
+            "value": "float16"
+        },
+        "w": {
+            "dtype": "float16",
+            "shape": "[16L, 8192L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 1000
+}, {
+    "op": "truncated_gaussian_random",
+    "param_info": {
+        "shape": {
+            "type": "list",
+            "value": "[16L, 8192L, 4L]"
+        },
+        "mean": {
+            "type": "float",
+            "value": "1.0"
+        },
+        "std": {
+            "type": "float",
+            "value": "2.0"
+        },
+        "seed": {
+            "type": "int",
+            "value": "2022"
+        },
+        "dtype": {
+            "type": "string",
+            "value": "float16"
+        },
+        "w": {
+            "dtype": "float16",
+            "shape": "[16L, 8192L, 4L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 1000
+}]
