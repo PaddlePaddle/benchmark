@@ -1,0 +1,40 @@
+[
+  {
+    "op": "take_along_axis",
+    "param_info": {
+      "arr": {
+        "dtype": "float32",
+        "shape": "[200, 300]",
+        "type": "Variable"
+      },
+      "indices": {
+        "dtype": "int",
+        "shape": "[1, 1]",
+        "type": "Variable"
+      },
+      "axis": {
+        "type": "int",
+        "value": "0"
+      }
+    }
+  },
+  {
+    "op": "take_along_axis",
+    "param_info": {
+      "arr": {
+        "dtype": "float32",
+        "shape": "[1024L, 3072L]",
+        "type": "Variable"
+      },
+      "indices": {
+        "dtype": "int",
+        "shape": "[1, 1]",
+        "type": "Variable"
+      },
+      "axis": {
+        "type": "int",
+        "value": "0"
+      }
+    }
+  }
+]
