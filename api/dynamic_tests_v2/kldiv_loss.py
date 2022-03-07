@@ -24,7 +24,6 @@ class KLDivLossConfig(APIConfig):
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(KLDivLossConfig, self).init_from_json(filename, config_id,
                                                     unknown_dim)
-        self.feed_spec = []
         input = np.random.rand(*self.input_shape).astype(self.input_dtype)
         self.input_value = input / input.sum(axis=-1, keepdims=True)
 
