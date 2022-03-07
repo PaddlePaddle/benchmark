@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ from common_import import *
 class ShardIndexConfig(APIConfig):
     def __init__(self):
         super(ShardIndexConfig, self).__init__("shard_index")
-        self.feed_spec = {"range": [0, 999]}
+        self.feed_spec = {"range": [0, 99999]}
         self.run_torch = False
 
 
@@ -26,7 +26,7 @@ class PDShardIndex(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
             name="input", shape=config.input_shape, dtype=config.input_dtype)
-        result = paddle.shard_index(input=input, index_num=1000, nshards=10, shard_id=0)
+        result = paddle.shard_index(input=input, index_num=100000, nshards=100, shard_id=0)
         self.feed_list = [input]
         self.fetch_list = [result]
 
