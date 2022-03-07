@@ -106,17 +106,23 @@ if [ "${OP_LIST_FILE}" == "" ]; then
 fi
 
 TESTING_MODE="dynamic"
-FRAMEWORK_SET=("paddle" "tensorflow")
+FRAMEWORK_SET=("paddle" "pytorch")
 if [ $# -ge 8 ]; then
     if [ $# -ge 9 ]; then
         TESTING_MODE=${9}
+    elif [ ${TEST_MODULE_NAME} == "dynamic_tests_v2" ]; then
+        TESTING_MODE="dynamic"
+    elif [ ${TEST_MODULE_NAME} == "tests_v2" ]; then
+        TESTING_MODE="static"
     fi
 
     if [ ${TESTING_MODE} == "static" ]; then
         if [[ ${8} == "paddle"  || ${8} == "tensorflow" ]]; then
             FRAMEWORK_SET=(${8})
-        elif [ ${8} != "both" ]; then
-           echo "The static testing mode only can test paddle or tensorflow."
+        elif [ ${8} == "both" ]; then
+            FRAMEWORK_SET=("paddle" "tensorflow")
+        else
+            echo "The static testing mode only can test paddle or tensorflow."
         fi
     elif [ ${TESTING_MODE} == "dynamic" ]; then
         if [[ ${8} == "paddle"  || ${8} == "pytorch" ]]; then
