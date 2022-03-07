@@ -1,0 +1,35 @@
+[{
+    "op": "psroi_pool",
+    "param_info": {
+        "x": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[2L, 490L, 280L, 280L]"
+        },
+        "output_size": {
+            "type": "int",
+            "value": "7"
+        },
+        "spatial_scale": {
+            "type": "float",
+            "value": "1.0"
+        }
+    }
+}, {
+    "op": "psroi_pool",
+    "param_info": {
+        "x": {
+            "type": "Variable",
+            "dtype": "float32",
+            "shape": "[2L, 117L, 600L, 400L]"
+        },
+        "output_size": {
+            "type": "int",
+            "value": "3"
+        },
+        "spatial_scale": {
+            "type": "float",
+            "value": "0.25"
+        }
+    }
+}]
