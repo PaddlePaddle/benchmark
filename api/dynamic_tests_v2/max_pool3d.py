@@ -27,6 +27,8 @@ class PDMaxPool3d(PaddleDynamicAPIBenchmarkBase):
                 ceil_mode=config.ceil_mode,
                 return_mask=config.return_mask,
                 data_format=config.data_format)
+            self.feed_list = [x]
+            self.fetch_list = [result, max_indices]
         else:
             result = paddle.nn.functional.max_pool3d(
                 x=x,
@@ -36,9 +38,9 @@ class PDMaxPool3d(PaddleDynamicAPIBenchmarkBase):
                 ceil_mode=config.ceil_mode,
                 return_mask=config.return_mask,
                 data_format=config.data_format)
+            self.feed_list = [x]
+            self.fetch_list = [result]
 
-        self.feed_list = [x]
-        self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x])
 
@@ -54,6 +56,8 @@ class TorchMaxPool3d(PytorchAPIBenchmarkBase):
                 padding=config.padding,
                 ceil_mode=config.ceil_mode,
                 return_indices=config.return_mask)
+            self.feed_list = [x]
+            self.fetch_list = [result, max_indices]
         else:
             result = torch.nn.functional.max_pool3d(
                 x,
@@ -62,9 +66,9 @@ class TorchMaxPool3d(PytorchAPIBenchmarkBase):
                 padding=config.padding,
                 ceil_mode=config.ceil_mode,
                 return_indices=config.return_mask)
+            self.feed_list = [x]
+            self.fetch_list = [result]
 
-        self.feed_list = [x]
-        self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x])
 
