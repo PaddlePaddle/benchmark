@@ -367,6 +367,9 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             self._backward = True
             if self._testing_mode == "static":
                 print("Gradients: ", gradients)
+                if not hasattr(self, "fetch_vars") and hasattr(self,
+                                                               "fetch_list"):
+                    self.fetch_vars = self.fetch_list
                 _append_to_list(gradients, self.fetch_vars)
             else:
                 _append_to_list(gradients, self.fetch_list)
