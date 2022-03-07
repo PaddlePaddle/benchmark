@@ -101,9 +101,10 @@ def compare():
                             print("{}, FAIL".format(model))
                             print(
                                 "Performance of model {} has been increased from {} to {},"
-                                "which is greater than threshold, "
+                                "({}-{})/{} equals {},"
+                                "which is greater than threshold {},"
                                 "please contact xiege01 or heya02 to modify the standard value"
-                                .format(model, standard_result, result))
+                                .format(model, standard_result, result, result, standard_result, standard_result, ranges, args.threshold))
                         else:
                             print("Performance of model {} has been increased from {} to {},"
                                   "rerun in paddle develop".format(model, standard_result, result))
@@ -116,8 +117,9 @@ def compare():
                             os.system(command)
                             print("{}, FAIL".format(model))
                             print("Performance of model {} has been decreased from {} to {},"
-                                  "which is greater than threshold."
-                                  .format(model, standard_result, result))
+                                  "({}-{})/{} equals {}," 
+                                  "which is greater than threshold {}."
+                                  .format(model, standard_result, result, standard_result, result, standard_result, -ranges, args.threshold))
                         else:
                             print("Performance of model {} has been decreased from {} to {},"
                                   "rerun in paddle develop".format(model, standard_result, result))
