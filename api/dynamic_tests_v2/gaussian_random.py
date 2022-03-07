@@ -36,5 +36,4 @@ class PaddleGaussianRandom(PaddleDynamicAPIBenchmarkBase):
 
 
 if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PaddleGaussianRandom(), config=APIConfig("gaussian_random"))
+    test_main(pd_dy_obj=PaddleGaussianRandom(), config=GaussianRandomConfig())
