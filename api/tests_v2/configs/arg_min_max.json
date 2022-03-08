@@ -1,0 +1,10 @@
+[{
+    "op": "arg_min_max",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[50000, 128]",
+            "type": "Variable"
+        }
+    }
+}]
