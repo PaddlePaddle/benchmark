@@ -16,7 +16,7 @@
 
 
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
+dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_clas_repo dy_ocr_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
 
 
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
@@ -110,6 +110,9 @@ dy_clas_repo(){
             echo "${package} installed"
         fi
     done
+    pip uninstall opencv-python -y
+    rm -rf /usr/local/lib/python3.7/site-packages/opencv-python
+    pip install opencv-python
     # prepare data    # 脚本内为下载ILSVRC2012,太过耗时
     mkdir -p ./dataset/ILSVRC2012
     ln -s ${data_path}/dygraph_data/imagenet100_data/* ./dataset/ILSVRC2012
