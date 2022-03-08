@@ -100,7 +100,7 @@ dy_clas_repo(){
     echo "dy_clas_repo"
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas/
     cd ${cur_model_path}/
-    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy pandas wget h5py sklearn opencv-python visualdl)
+    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy pandas wget h5py sklearn visualdl)   # opencv-python
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
             echo "${package} have already installed"
