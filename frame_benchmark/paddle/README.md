@@ -1,0 +1,1 @@
+paddle 模型benchmark脚本均已合入到各个套件中

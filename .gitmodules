@@ -82,31 +82,6 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/apex"]
 	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/apex
 	url = https://github.com/NVIDIA/apex.git
-[submodule "frame_benchmark/paddle/PaddleOCR"]
-	path = frame_benchmark/paddle/PaddleOCR
-	url = https://github.com/PaddlePaddle/PaddleOCR.git
-	branch = dygraph
-[submodule "frame_benchmark/paddle/PaddleClas"]
-	path = frame_benchmark/paddle/PaddleClas
-	url = https://github.com/PaddlePaddle/PaddleClas.git
-	branch = develop
-[submodule "frame_benchmark/paddle/PaddleSeg"]
-	path = frame_benchmark/paddle/PaddleSeg
-	url = https://github.com/PaddlePaddle/PaddleSeg.git
-	branch = develop
-[submodule "frame_benchmark/paddle/PaddleVideo"]
-	path = frame_benchmark/paddle/PaddleVideo
-	url = https://github.com/PaddlePaddle/PaddleVideo.git
-	branch = develop
-[submodule "frame_benchmark/paddle/PaddleDetection"]
-	path = frame_benchmark/paddle/PaddleDetection
-	url = https://github.com/PaddlePaddle/PaddleDetection.git
-	branch = develop
-[submodule "frame_benchmark/paddle/PaddleGAN"]
-	path = frame_benchmark/paddle/PaddleGAN
-	url = https://github.com/PaddlePaddle/PaddleGAN.git
-	branch = develop
-[submodule "frame_benchmark/paddle/PaddleSpeech"]
-	path = frame_benchmark/paddle/PaddleSpeech
-	url = https://github.com/PaddlePaddle/PaddleSpeech.git
-	branch = develop
+
+
+
