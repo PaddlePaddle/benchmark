@@ -25,8 +25,6 @@ class SetValueConfig(APIConfig):
                                                 unknown_dim)
 
 
-
-
 class PDSetValue(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
@@ -46,8 +44,6 @@ class PDSetValue(PaddleDynamicAPIBenchmarkBase):
 
             self.feed_list = [input]
             self.fetch_list = [input]
-
-
 
 
 if __name__ == "__main__":
