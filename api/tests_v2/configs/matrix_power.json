@@ -7,7 +7,7 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[512L,512L]",
+            "shape": "[512L, 512L]",
             "type": "Variable"
         }
     }
@@ -20,7 +20,7 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[512L,512L]",
+            "shape": "[512L, 512L]",
             "type": "Variable"
         }
     }
@@ -33,7 +33,7 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[256L,256L]",
+            "shape": "[256L, 256L]",
             "type": "Variable"
         }
     }
