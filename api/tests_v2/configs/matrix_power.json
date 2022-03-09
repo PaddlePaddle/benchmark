@@ -1,0 +1,40 @@
+[{
+    "op": "matrix_power",
+    "param_info": {
+        "n": {
+            "type": "int",
+            "value": "2"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[512L,512L]",
+            "type": "Variable"
+        }
+    }
+},{
+    "op": "matrix_power",
+    "param_info": {
+        "n": {
+            "type": "int",
+            "value": "3"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[512L,512L]",
+            "type": "Variable"
+        }
+    }
+},{
+    "op": "matrix_power",
+    "param_info": {
+        "n": {
+            "type": "int",
+            "value": "4"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[256L,256L]",
+            "type": "Variable"
+        }
+    }
+}]
