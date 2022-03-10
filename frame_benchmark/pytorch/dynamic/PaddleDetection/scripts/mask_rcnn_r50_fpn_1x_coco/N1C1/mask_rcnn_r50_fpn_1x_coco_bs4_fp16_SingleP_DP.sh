@@ -1,10 +1,10 @@
-model_item=higherhrnet_hrnet_w32_512
-bs_item=24
-fp_item=fp32
+model_item=mask_rcnn_r50_fpn_1x_coco
+bs_item=4
+fp_item=fp16
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
-max_epochs=2
+max_epochs=1
 num_workers=2
 
 sed -i '/set\ -xe/d' run_benchmark.sh
