@@ -23,17 +23,17 @@ class ReduceAllAnyConfig(APIConfig):
         self.api_name = 'all'
         self.api_list = {'all': 'all', 'any': 'any'}
 
-    def init_from_json(self, filename, config_id=3, unknown_dim=16):
-        super(ReduceAllAnyConfig, self).init_from_json(filename, config_id,
-                                                       unknown_dim)
-        if self.axis == None:
-            self.axis = []
-
     def to_tensorflow(self):
         # The change of self.api_list should be in front of the calling of parent's function.
         self.api_list = {'all': 'reduce_all', 'any': 'reduce_any'}
         tf_config = super(ReduceAllAnyConfig, self).to_tensorflow()
         return tf_config
+
+    def to_pytorch(self):
+        torch_config = super(ReduceAllAnyConfig, self).to_pytorch()
+        if torch_config.axis == None:
+            torch_config.axis = []
+        return torch_config
 
     def squeeze_shape(self):
         if len(self.axis) == 1:
