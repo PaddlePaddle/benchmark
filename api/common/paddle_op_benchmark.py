@@ -395,13 +395,6 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         else:
             return None, None
 
-    def _sync(self, use_gpu):
-        if use_gpu:
-            try:
-                paddle.device.cuda.synchronize(0)
-            except Exception as e:
-                paddle.fluid._cuda_synchronize(paddle.fluid.CUDAPlace(0))
-
     def _run_dynamic_impl(self,
                           use_gpu,
                           task,
@@ -422,7 +415,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             # Therefore, synchronize once after a period of time (sync_interval
             # is set here).
             if use_gpu and (task != "scheduling" or step % sync_interval == 0):
-                self._sync(use_gpu)
+                paddle.device.cuda.synchronize(0)
 
             outputs = None
             if self._need_fetch:
@@ -517,7 +510,8 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                                    fetch_list=fetch_vars,
                                    use_program_cache=True,
                                    return_numpy=True)
-            self._sync(use_gpu)
+            if use_gpu:
+                paddle.device.cuda.synchronize(0)
             return outputs
 
         if self.name != "null":
