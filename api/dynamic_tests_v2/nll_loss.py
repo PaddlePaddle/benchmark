@@ -17,7 +17,7 @@ from common_import import *
 
 class NllLossConfig(APIConfig):
     def __init__(self):
-        super(NllLossConfig, self).__init__("nll_loss")
+        super(NllLossConfig, self).__init__("nll_loss") 
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(NllLossConfig, self).init_from_json(filename, config_id,
