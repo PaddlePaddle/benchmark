@@ -14,26 +14,18 @@
 
 from common_import import *
 
-
-class GaussianRandomConfig(APIConfig):
+class AllcloseConfig(APIConfig):
     def __init__(self):
-        super(GaussianRandomConfig, self).__init__("gaussian_random")
-        self.run_torch = False
+        super(AllcloseConfig, self).__init__("allclose")
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
-
-class PaddleGaussianRandom(PaddleDynamicAPIBenchmarkBase):
+class PaddleAllclose(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        result = paddle.fluid.layers.gaussian_random(
-            shape=config.shape,
-            mean=config.mean,
-            std=config.std,
-            seed=config.seed,
-            dtype=config.dtype)
-
-        self.feed_list = []
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = paddle.allclose(x=x, y=y)
+        self.feed_list = [x, y]
         self.fetch_list = [result]
 
-
 if __name__ == '__main__':
-    test_main(pd_dy_obj=PaddleGaussianRandom(), config=GaussianRandomConfig())
+    test_main(pd_dy_obj=PaddleAllclose(), config=AllcloseConfig())

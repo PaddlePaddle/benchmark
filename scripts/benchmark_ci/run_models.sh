@@ -94,7 +94,7 @@ transformer_base_bs4096_amp_fp16(){
 }
 #yolov3
 yolov3_bs8(){
-    export model_threshold=0.08
+    export model_threshold=0.1
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     git branch    #develop 分支
     cd ${cur_model_path}
