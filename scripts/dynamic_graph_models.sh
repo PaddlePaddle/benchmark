@@ -16,7 +16,7 @@
 
 
 cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
+dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_clas_repo dy_ocr_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
 
 
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
@@ -72,6 +72,7 @@ dy_video_TimeSformer(){
     echo "dy_video_TimeSformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
     cd ${cur_model_path}/benchmark/TimeSformer/
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt       # 解决个模型之间对该依赖版本要求不同导致依赖反复卸载安装，但卸载有残留无法成功再次安装问题
     pip install -r requirements.txt
     pip install scikit-image==0.18.2
     pip install pooch==1.5.2
@@ -100,7 +101,7 @@ dy_clas_repo(){
     echo "dy_clas_repo"
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas/
     cd ${cur_model_path}/
-    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy pandas wget h5py sklearn opencv-python visualdl)
+    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy pandas wget h5py sklearn visualdl opencv-python)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
             echo "${package} have already installed"
@@ -159,6 +160,7 @@ dy_bert(){
 dy_mobilenet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
 
     # Prepare data
@@ -248,6 +250,7 @@ dy_tsn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
     pip install wget av
     pip install scikit-image==0.18.2
@@ -282,6 +285,7 @@ dy_gan(){
         echo "pooch not installed"
     fi
 
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
     pip install scikit-image==0.18.2
     # Prepare data
@@ -342,6 +346,7 @@ dy_seg(){
 dy_slowfast(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
     pip install tqdm
     pip install decord
@@ -370,6 +375,7 @@ dy_mask_rcnn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     pip install Cython
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt 
 
     # Install cocoapi
@@ -423,6 +429,7 @@ dy_yolov3(){
     git branch    #develop 分支
     cd ${cur_model_path}
     pip install Cython
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt 
    
     if python -c "import pycocotools" >/dev/null 2>&1
@@ -444,7 +451,6 @@ dy_yolov3(){
     echo "-------before data prepare"
     ls -l ./dataset/coco/
     ln -s ${data_path}/coco/* ./dataset/coco/
-    pip install -r ./dataset/coco/requirements.txt
     echo "-------after data prepare"
     ls -l ./dataset/coco/
     rm -rf run_benchmark.sh
@@ -462,6 +468,7 @@ dy_tsm(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
     pip install wget av decord
     pip install scikit-image==0.18.2
@@ -495,6 +502,8 @@ dy_wavenet(){
     ln -s ${data_path}/dygraph_data/wavenet/ljspeech ${cur_model_path}/
 
     apt-get install  libsndfile1 -y
+
+    sed -i "s/opencv-python.*/opencv-python/g" ${data_path}/dygraph_data/wavenet/requirement.txt
     pip install -r ${data_path}/dygraph_data/wavenet/requirement.txt 
     # Running ...
     rm -f ./run_benchmark.sh
@@ -542,6 +551,7 @@ dy_senta(){
 dy_resnet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
    
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
@@ -659,6 +669,7 @@ dy_faster_rcnn_fpn() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     pip install Cython
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
 
     # Install cocoapi
@@ -738,6 +749,7 @@ dy_xlnet() {
     export PATH=$run_env:${PATH}
 
     # 2. 安装该模型需要的依赖 (如需开启优化策略请注明)
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
     pip install sentencepiece -i https://mirror.baidu.com/pypi/simple # 安装 sentencepiece
     pip install -e ./

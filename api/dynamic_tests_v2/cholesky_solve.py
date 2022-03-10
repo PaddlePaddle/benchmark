@@ -15,25 +15,24 @@
 from common_import import *
 
 
-class GaussianRandomConfig(APIConfig):
+class CholeskySolveConfig(APIConfig):
     def __init__(self):
-        super(GaussianRandomConfig, self).__init__("gaussian_random")
+        super(CholeskySolveConfig, self).__init__('cholesky_solve')
         self.run_torch = False
-        self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
 
-class PaddleGaussianRandom(PaddleDynamicAPIBenchmarkBase):
+class PDCholeskySolve(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        result = paddle.fluid.layers.gaussian_random(
-            shape=config.shape,
-            mean=config.mean,
-            std=config.std,
-            seed=config.seed,
-            dtype=config.dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = paddle.linalg.cholesky_solve(x=x, y=y, upper=config.upper)
 
-        self.feed_list = []
+        self.feed_list = [x, y]
         self.fetch_list = [result]
+
+        if config.backward:
+            self.append_gradients(result, [x, y])
 
 
 if __name__ == '__main__':
-    test_main(pd_dy_obj=PaddleGaussianRandom(), config=GaussianRandomConfig())
+    test_main(pd_dy_obj=PDCholeskySolve(), config=CholeskySolveConfig())
