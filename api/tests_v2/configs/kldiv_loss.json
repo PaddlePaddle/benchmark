@@ -1,0 +1,37 @@
+[{
+    "op": "kldiv_loss",
+    "param_info": {
+        "reduction": {
+            "type": "string",
+            "value": "mean"
+        },
+        "input": {
+            "dtype": "float32",
+            "shape": "[3100L, 3856L]",
+            "type": "Variable"
+        },
+        "label": {
+            "dtype": "float32",
+            "shape": "[3100L, 3856L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "kldiv_loss",
+    "param_info": {
+        "reduction": {
+            "type": "string",
+            "value": "sum"
+        },
+        "input": {
+            "dtype": "float16",
+            "shape": "[3100L, 3856L]",
+            "type": "Variable"
+        },
+        "label": {
+            "dtype": "float16",
+            "shape": "[3100L, 3856L]",
+            "type": "Variable"
+        }
+    }
+}]
