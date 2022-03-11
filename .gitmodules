@@ -80,8 +80,7 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/apex
 	url = https://github.com/NVIDIA/apex.git
 
-
-
 [submodule "frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer"]
 	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer
 	url = https://github.com/PaddleBenchmark/TimeSformer.git
+
