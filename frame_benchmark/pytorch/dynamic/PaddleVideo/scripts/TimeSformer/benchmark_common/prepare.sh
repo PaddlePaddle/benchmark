@@ -9,8 +9,9 @@ echo `pip --version`
 pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple --no-cache-dir
 pip install simplejson
 
-################################# 安装torch 1.8.1
+################################# 安装torch 1.8.1和torchvision 0.9.1
 pip install torch==1.8.1 -i https://pypi.tuna.tsinghua.edu.cn/simple --force-reinstall
+pip install torchvision==0.9.1 -i https://pypi.tuna.tsinghua.edu.cn/simple --force-reinstall
 
 ################################# 以包的形式安装TimeSformer(使用pip安装)
 python setup.py build
