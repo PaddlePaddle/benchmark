@@ -14,8 +14,6 @@
 
 from common_import import *
 
-# TODO(Xreki): to support tf.
-
 
 @benchmark_registry.register("reduce_all_any")
 class ReduceAllAnyConfig(APIConfig):
@@ -25,11 +23,17 @@ class ReduceAllAnyConfig(APIConfig):
         self.api_name = 'all'
         self.api_list = {'all': 'all', 'any': 'any'}
 
-    def init_from_json(self, filename, config_id=3, unknown_dim=16):
-        super(ReduceAllAnyConfig, self).init_from_json(filename, config_id,
-                                                       unknown_dim)
-        if self.axis == None:
-            self.axis = []
+    def to_tensorflow(self):
+        # The change of self.api_list should be in front of the calling of parent's function.
+        self.api_list = {'all': 'reduce_all', 'any': 'reduce_any'}
+        tf_config = super(ReduceAllAnyConfig, self).to_tensorflow()
+        return tf_config
+
+    def to_pytorch(self):
+        torch_config = super(ReduceAllAnyConfig, self).to_pytorch()
+        if torch_config.axis == None:
+            torch_config.axis = []
+        return torch_config
 
     def squeeze_shape(self):
         if len(self.axis) == 1:
@@ -80,6 +84,21 @@ class TorchReduceAllAny(PytorchOpBenchmarkBase):
         else:
             result = self.layers(
                 config.api_name, input=x, dim=axis, keepdim=config.keepdim)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+
+
+@benchmark_registry.register("reduce_all_any")
+class TFReduceAllAny(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = self.layers(
+            config.api_name,
+            module_name="tensorflow.math",
+            input_tensor=x,
+            axis=config.axis,
+            keepdims=config.keepdim)
 
         self.feed_list = [x]
         self.fetch_list = [result]

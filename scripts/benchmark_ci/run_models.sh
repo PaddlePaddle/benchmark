@@ -86,6 +86,7 @@ transformer_base_bs4096_amp_fp16(){
     fp_item=amp_fp16
     bs=4096
     model_name="transformer_${mode_item}_bs${bs}_${fp_item}"
+
     echo "index is speed, ${model_name} 2gpu begin"
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 mp 100 ${mode_item} ${fp_item} | tee  ${BENCHMARK_ROOT}/logs/dynamic/${model_name}_speed_2gpus 2>&1   
     sleep 1s
@@ -93,7 +94,7 @@ transformer_base_bs4096_amp_fp16(){
 }
 #yolov3
 yolov3_bs8(){
-    export model_threshold=0.06
+    export model_threshold=0.1
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     git branch    #develop 分支
     cd ${cur_model_path}

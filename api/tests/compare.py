@@ -29,16 +29,18 @@ class CompareConfig(APIConfig):
             'equal': 'eq'
         }
 
-        # TODO(Xreki): the api of tf and pytorch is different.
-
-    #        self.api_list = {
-    #            'less_than': 'less',
-    #            'less_equal': 'less_equal',
-    #            'not_equal': 'not_equal',
-    #            'greater_than': 'greater',
-    #            'greater_equal': 'greater_equal',
-    #            'equal': 'equal'
-    #        }
+    def to_tensorflow(self):
+        # The change of self.api_list should be in front of the calling of parent's function.
+        self.api_list = {
+            'less_than': 'less',
+            'less_equal': 'less_equal',
+            'not_equal': 'not_equal',
+            'greater_than': 'greater',
+            'greater_equal': 'greater_equal',
+            'equal': 'equal'
+        }
+        tf_config = super(CompareConfig, self).to_tensorflow()
+        return tf_config
 
 
 @benchmark_registry.register("compare")
