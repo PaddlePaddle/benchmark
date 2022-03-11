@@ -8,16 +8,16 @@
         },
         "hermitian": {
             "type": "bool",
-            "value": "True"
+            "value": "False"
         },
         "x": {
             "dtype": "float32",
-            "shape": "[3L, 4L, 5L, 5L]",
+            "shape": "[5L, 24L, 10L, 10L]",
             "type": "Variable"
         }
     }
 }, {
-    "config_id": 0,
+    "config_id": 1,
     "op": "matrix_rank",
     "param_info": {
         "tol": {
@@ -30,7 +30,7 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[64L, 24L, 8L, 8L]",
+            "shape": "[10L, 12L, 8L, 8L]",
             "type": "Variable"
         }
     }
