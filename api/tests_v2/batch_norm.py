@@ -32,7 +32,7 @@ class BatchNormConfig(APIConfig):
 
     def to_tensorflow(self):
         tf_config = super(BatchNormConfig, self).to_tensorflow()
-        if len(self.x_shape) == 4:
+        if len(tf_config.x_shape) == 4:
             tf_config.axis = 1 if self.data_format == "NCHW" else 3
         else:
             tf_config.axis = 1
