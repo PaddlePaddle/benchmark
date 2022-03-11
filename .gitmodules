@@ -69,7 +69,7 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSpeech/models/ParallelWaveGAN"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSpeech/models/ParallelWaveGAN
 	url = https://github.com/PaddleBenchmark/ParallelWaveGAN.git
-[submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet.pytorch"]
+[submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet-pytorch"]
 	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet.pytorch
 	url = https://github.com/PaddleBenchmark/DBNet.pytorch.git
 [submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers"]
