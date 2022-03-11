@@ -1,0 +1,32 @@
+[{
+    "op": "set_value",
+    "param_info": {
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 1000000L]",
+            "type": "Variable"
+        },
+        "value": {
+            "dtype": "float32",
+            "shape": "[-1L, 1L]",
+            "type": "Variable"
+        },
+        "is_tensor_value": {
+            "type": "bool",
+            "value": "True"
+        }
+    }
+}, {
+    "op": "set_value",
+    "param_info": {
+        "input": {
+            "dtype": "float32",
+            "shape": "[-1L, 60, 20000L]",
+            "type": "Variable"
+        },
+        "is_tensor_value": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}]
