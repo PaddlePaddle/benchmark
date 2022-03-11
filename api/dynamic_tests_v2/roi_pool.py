@@ -44,8 +44,8 @@ class PDROIPool(PaddleDynamicAPIBenchmarkBase):
             dtype=config.boxes_num_dtype,
             value=config.boxes_num_value)
 
-        result = paddle.vision.ops.roi_align(x, boxes, boxes_num,
-                                             config.output_size)
+        result = paddle.vision.ops.roi_pool(x, boxes, boxes_num,
+                                            config.output_size)
 
         self.feed_vars = [x, boxes, boxes_num]
         self.fetch_vars = [result]
