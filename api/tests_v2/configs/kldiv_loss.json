@@ -24,12 +24,12 @@
             "value": "sum"
         },
         "input": {
-            "dtype": "float16",
+            "dtype": "float64",
             "shape": "[3100L, 3856L]",
             "type": "Variable"
         },
         "label": {
-            "dtype": "float16",
+            "dtype": "float64",
             "shape": "[3100L, 3856L]",
             "type": "Variable"
         }

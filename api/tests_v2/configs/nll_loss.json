@@ -29,7 +29,7 @@
             "type": "Variable"
         },
         "input": {
-            "dtype": "float16",
+            "dtype": "float64",
             "shape": "[5100L, 38506L]",
             "type": "Variable"
         }
