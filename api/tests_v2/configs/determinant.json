@@ -1,0 +1,29 @@
+[{
+  "op": "determinant",
+  "param_info": {
+      "x": {
+          "dtype": "float32",
+          "shape": "[16L, 100L, 100L]",
+          "type": "Variable"
+      },
+      "y": {
+          "dtype": "float32",
+          "shape": "[16L, 1L, 1L]",
+          "type": "Variable"
+      }
+  }
+}, {
+  "op": "determinant",
+  "param_info": {
+      "x": {
+          "dtype": "float64",
+          "shape": "[16L, 100L, 100L]",
+          "type": "Variable"
+      },
+      "y": {
+          "dtype": "float64",
+          "shape": "[16L,  1L, 1L]",
+          "type": "Variable"
+      }
+  }
+}]
