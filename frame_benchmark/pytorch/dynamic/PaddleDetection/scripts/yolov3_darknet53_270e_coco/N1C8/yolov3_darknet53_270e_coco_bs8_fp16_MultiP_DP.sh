@@ -1,11 +1,11 @@
-model_item=higherhrnet_hrnet_w32_512
-bs_item=24
-fp_item=fp32
-run_process_type=SingleP
+model_item=yolov3_darknet53_270e_coco
+bs_item=8
+fp_item=fp16
+run_process_type=MultiP
 run_mode=DP
-device_num=N1C1
-max_epochs=2
-num_workers=2
+device_num=N1C8
+max_epochs=1
+num_workers=4
 
 sed -i '/set\ -xe/d' run_benchmark.sh
 bash PrepareEnv.sh;
