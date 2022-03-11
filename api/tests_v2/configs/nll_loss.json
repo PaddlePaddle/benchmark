@@ -25,12 +25,12 @@
         },
         "label": {
             "dtype": "int64",
-            "shape": "[5100L]",
+            "shape": "[6100]",
             "type": "Variable"
         },
         "input": {
-            "dtype": "float64",
-            "shape": "[5100L, 38506L]",
+            "dtype": "float32",
+            "shape": "[6100L, 28506L]",
             "type": "Variable"
         }
     }
