@@ -1,0 +1,37 @@
+[{
+    "config_id": 0,
+    "op": "matrix_rank",
+    "param_info": {
+        "tol": {
+            "type": "float",
+            "value": "0.01"
+        },
+        "hermitian": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[5L, 24L, 10L, 10L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 1,
+    "op": "matrix_rank",
+    "param_info": {
+        "tol": {
+            "type": "float",
+            "value": "0.01"
+        },
+        "hermitian": {
+            "type": "bool",
+            "value": "True"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[10L, 12L, 8L, 8L]",
+            "type": "Variable"
+        }
+    }
+}]

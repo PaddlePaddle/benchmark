@@ -22,28 +22,22 @@ class ActivationConfig(APIConfig):
         self.api_name = 'sigmoid'
         self.api_list = {
             'sigmoid': 'sigmoid',
-            'relu': 'relu',
-            'relu6': 'relu6',
-            'leaky_relu': 'leaky_relu',
-            'elu': 'elu',
             'hardsigmoid': 'hardsigmoid',
             'hardswish': 'hardswish',
-            'selu': 'selu',
             'softplus': 'softplus',
             'tanhshrink': 'tanhshrink',
             'softshrink': 'softshrink',
             'softsign': 'softsign'
         }
-        # TODO(Xreki): hardsigmoid, hardswish, tanhshrink, softshrink are not supported in tf.
 
-    def disabled(self):
-        if self.api_name in ["selu"] and self.x_dtype == "float16":
-            print(
-                "Warning:\n"
-                "  1. This config is disabled because float16 is not supported for %s.\n"
-                % (self.api_name))
-            return True
-        return super(ActivationConfig, self).disabled()
+    @property
+    def run_tf(self):
+        if self.api_name in [
+                "hardsigmoid", "hardswish", "tanhshrink", "softshrink"
+        ]:
+            print("-- %s is not supported in tf." % self.api_name)
+            return False
+        return True
 
 
 @benchmark_registry.register("activation")

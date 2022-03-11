@@ -8,7 +8,7 @@ if [ $# -lt 3 ]; then
     exit
 fi
 
-if [ "${BENCHMAKR_ROOT}" == "" ]; then
+if [ "${BENCHMARK_ROOT}" == "" ]; then
     export BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")/../../.." && pwd )"
 fi
 
