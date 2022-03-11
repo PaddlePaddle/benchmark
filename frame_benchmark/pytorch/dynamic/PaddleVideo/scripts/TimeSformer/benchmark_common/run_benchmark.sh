@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Test training benchmark for a model.
+# 在TimeSformer目录下执行
 # Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_name} ${run_mode} ${fp_item} ${bs_item} ${max_iter} ${num_workers}
 function _set_params(){
     model_item=${1:-"TimeSformer"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
@@ -24,7 +25,7 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}  # （必填） TRAIN_LOG_DIR  benchmark框架设置该参数为全局变量
     profiling_log_path=${PROFILING_LOG_DIR:-$(pwd)}  # （必填） PROFILING_LOG_DIR benchmark框架设置该参数为全局变量
     speed_log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}
-    # mmsegmentation_fastscnn_bs2_fp32_MultiP_DP_N1C1_log
+    # TimeSformer_TimeSformer_bs*_fp*_*P_*_N*C*_log
     train_log_file=${run_log_path}/${model_repo}_${model_name}_${device_num}_log
     profiling_log_file=${profiling_log_path}/${model_repo}_${model_name}_${device_num}_profiling
     speed_log_file=${speed_log_path}/${model_repo}_${model_name}_${device_num}_speed
@@ -42,15 +43,18 @@ function _analysis_log(){
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡单进程时,请在_train函数中计算出多卡需要的bs
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
-    device_num_int=${#device[@]}
+    accu_steps=8  # TimeSformer梯度累加8次
     train_config="--cfg configs/Kinetics/TimeSformer_divST_8x32_224.yaml"
+    batch_size_all_gpu=`expr ${batch_size} \* ${num_gpu_devices}`  # 所有卡的单次bs之和
+    batch_size_all_gpu_acc=`expr ${batch_size_all_gpu} \* ${accu_steps}`  # 所有卡的accu次bs之和
+    # TRAIN.BATCH_SIZE是全部卡的bs之和
     train_options="TEST.ENABLE False \
                    TRAIN.AUTO_RESUME False \
                    DATA.PATH_TO_DATA_DIR ./annotations \
                    DATA.PATH_PREFIX ./videos \
                    NUM_GPUS ${num_gpu_devices} \
-                   TRAIN.BATCH_SIZE ${batch_size} \
-                   GLOBAL_BATCH_SIZE $((${num_gpu_devices}*${batch_size})) \
+                   TRAIN.BATCH_SIZE ${batch_size_all_gpu} \
+                   GLOBAL_BATCH_SIZE ${batch_size_all_gpu_acc} \
                    TIMESFORMER.PRETRAINED_MODEL ./jx_vit_base_p16_224-80ecf9dd.pth \
                    SOLVER.MAX_EPOCH ${max_epoch}"
     case ${run_process_type} in
@@ -73,8 +77,8 @@ function _train(){
     #kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 }
 _set_params $@
-# export model_branch=`git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3`
-# export model_commit=$(git log|head -n1|awk '{print $2}')
+export model_branch=`git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3`
+export model_commit=$(git log|head -n1|awk '{print $2}')
 export frame_version=`python -c "import torch;print(torch.__version__)"`
 echo "---------frame_version is torch ${frame_version}"
 echo "---------model_branch is ${model_branch}"
