@@ -22,8 +22,6 @@ class PaddleSize(PaddleDynamicAPIBenchmarkBase):
 
         self.feed_list = [input]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [input])
 
 
 class TorchSize(PytorchAPIBenchmarkBase):
@@ -33,8 +31,6 @@ class TorchSize(PytorchAPIBenchmarkBase):
 
         self.feed_list = [input]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [input])
 
 
 if __name__ == '__main__':

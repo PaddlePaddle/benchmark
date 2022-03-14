@@ -23,8 +23,6 @@ class PaddleBincount(PaddleDynamicAPIBenchmarkBase):
 
         self.feed_list = [x, w]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x, w])
 
 
 class TorchBincount(PytorchAPIBenchmarkBase):
@@ -35,8 +33,6 @@ class TorchBincount(PytorchAPIBenchmarkBase):
 
         self.feed_list = [x, w]
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [x, w])
 
 
 if __name__ == '__main__':
