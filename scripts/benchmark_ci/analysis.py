@@ -20,11 +20,6 @@ def parse_args():
         default='../../scripts/benchmark_ci/standard_value/static',
         help='path of standard_value')
     parser.add_argument(
-        '--threshold',
-        type=float,
-        default=0.05,
-        help='threshold')
-    parser.add_argument(
         '--loss_threshold',
         type=float,
         default=0.3,
@@ -88,12 +83,17 @@ def compare():
             print("model:{}".format(model))
             standard_record = os.path.join(args.standard_path, model + '.txt')
             loss_standard_record =  os.path.join(args.standard_path, model + '_loss' + '.txt')
+            threshold_record = os.path.join(args.standard_path, model + '_threshold' + '.txt')
+            with open(threshold_record, 'r') as f:
+                for line in f:
+                    threshold = float(line.strip('\n'))
+                    print("threshold:{}".format(threshold))
             with open(standard_record, 'r') as f:
                 for line in f:
                     standard_result = float(line.strip('\n'))
                     print("standard_result:{}".format(standard_result))
                     ranges = round((float(result) - standard_result) / standard_result, 4)
-                    if ranges >= args.threshold:
+                    if ranges >= threshold:
                         if args.paddle_dev:
                             command = 'sed -i "s/success/fail/g" log.txt'
                             errorcode = errorcode | 2
@@ -104,13 +104,13 @@ def compare():
                                 "({}-{})/{} equals {},"
                                 "which is greater than threshold {},"
                                 "please contact xiege01 or heya02 to modify the standard value"
-                                .format(model, standard_result, result, result, standard_result, standard_result, ranges, args.threshold))
+                                .format(model, standard_result, result, result, standard_result, standard_result, ranges, threshold))
                         else:
                             print("Performance of model {} has been increased from {} to {},"
                                   "rerun in paddle develop".format(model, standard_result, result))
                             f = open('rerun_model.txt', 'a')
                             f.writelines(model+'\n')             
-                    elif ranges <= -args.threshold:
+                    elif ranges <= -threshold:
                         if args.paddle_dev:
                             command = 'sed -i "s/success/fail/g" log.txt'
                             errorcode = errorcode | 2
@@ -119,7 +119,7 @@ def compare():
                             print("Performance of model {} has been decreased from {} to {},"
                                   "({}-{})/{} equals {}," 
                                   "which is greater than threshold {}."
-                                  .format(model, standard_result, result, standard_result, result, standard_result, -ranges, args.threshold))
+                                  .format(model, standard_result, result, standard_result, result, standard_result, -ranges, threshold))
                         else:
                             print("Performance of model {} has been decreased from {} to {},"
                                   "rerun in paddle develop".format(model, standard_result, result))

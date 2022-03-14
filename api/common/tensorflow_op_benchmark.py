@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
 import sys
 import json
 import time
@@ -41,35 +39,34 @@ except Exception as e:
 class Profiler(object):
     def __init__(self, name, sess, profiler):
         self.name = name
-        self.sess = sess
         self.profiler = profiler
-        self.profiler_handle = None
+        self._sess = sess
+        self._profiler_handle = None
         self.run_options = None
         self.run_metadata = None
         self.generate_timeline = False
 
     def __enter__(self):
-        if self.profiler == "pyprof":
+        if self.profiler == "nvprof":
+            import ctypes
+            self._cudart = ctypes.CDLL('libcudart.so')
+            self._cudart.cudaProfilerStart()
+        elif self.profiler == "pyprof":
             import cProfile
-            self.profiler_handle = cProfile.Profile()
-            self.profiler_handle.enable()
+            self._profiler_handle = cProfile.Profile()
+            self._profiler_handle.enable()
         elif self.profiler != "none":
-            self.profiler_handle = model_analyzer.Profiler(
+            self._profiler_handle = model_analyzer.Profiler(
                 graph=self.sess.graph)
-            if tf.__version__ < "1.15.0":
-                self.run_options = tf.RunOptions(
-                    trace_level=tf.RunOptions.FULL_TRACE)
-                self.run_metadata = tf.RunMetadata()
-            else:
-                self.run_options = tf.compat.v1.RunOptions(
-                    trace_level=tf.compat.v1.RunOptions.FULL_TRACE)
-                self.run_metadata = tf.compat.v1.RunMetadata()
+            self.run_options = tf.compat.v1.RunOptions(
+                trace_level=tf.compat.v1.RunOptions.FULL_TRACE)
+            self.run_metadata = tf.compat.v1.RunMetadata()
         return self
 
     def add_step(self, step):
-        if self.profiler != "none" and self.profiler != "pyprof":
+        if self.profiler == "native":
             # Update profiler
-            self.profiler_handle.add_step(
+            self._profiler_handle.add_step(
                 step=step, run_meta=self.run_metadata)
             if self.generate_timeline:
                 # For timeline
@@ -79,20 +76,23 @@ class Profiler(object):
                 trace_file.write(chrome_trace)
 
     def __exit__(self, exception_type, exception_value, traceback):
-        if self.profiler == "pyprof":
+        if self.profiler == "nvprof":
+            self._cudart.cudaProfilerStop()
+        elif self.profiler == "pyprof":
             import pstats, StringIO
-            self.profiler_handle.disable()
+            self._profiler_handle.disable()
             # self.profiler_handle.dump_stats("./outputs/" + self.name + ".pyprof")
             s = StringIO.StringIO()
             ps = pstats.Stats(
-                self.profiler_handle, stream=s).sort_stats("cumulative")
+                self._profiler_handle, stream=s).sort_stats("cumulative")
             ps.print_stats()
             print(s.getvalue())
-        elif self.profiler != "none":
+        elif self.profiler == "native":
             # Generate profiling result
             profile_op_builder = option_builder.ProfileOptionBuilder().select(
                 ['micros', 'occurrence']).order_by('micros').with_max_depth(5)
-            self.profiler_handle.profile_operations(profile_op_builder.build())
+            self._profiler_handle.profile_operations(profile_op_builder.build(
+            ))
         return self
 
 
@@ -104,8 +104,9 @@ class TensorflowAPIBenchmarkBase(BenchmarkBase):
         try:
             import tensorflow as tf
             self.graph = tf.Graph()
-            if tf.__version__ > "1.15.0":
-                tf.compat.v1.disable_eager_execution()
+            assert tf.__version__ >= "1.15.0", "The installed tensorflow's version is expected to be newer than 1.15.0, but recieved {}".format(
+                tf.__version__)
+            tf.compat.v1.disable_eager_execution()
         except Exception as e:
             sys.stderr.write(
                 "Cannot import tensorflow, maybe tensorflow is not installed.\n"
@@ -113,11 +114,7 @@ class TensorflowAPIBenchmarkBase(BenchmarkBase):
 
     def placeholder(self, name, shape, dtype):
         tf_dtype = tf.as_dtype(dtype)
-        if tf.__version__ >= "1.15.0":
-            var = tf.compat.v1.placeholder(
-                name=name, shape=shape, dtype=tf_dtype)
-        else:
-            var = tf.placeholder(name=name, shape=shape, dtype=tf_dtype)
+        var = tf.compat.v1.placeholder(name=name, shape=shape, dtype=tf_dtype)
         return var
 
     def variable(self, name, shape, dtype, value=None):
@@ -200,8 +197,6 @@ class TensorflowAPIBenchmarkBase(BenchmarkBase):
 
     def run_impl(self, use_gpu, config, feed, repeat=1, profiler="none"):
         sess = self._init_session(use_gpu)
-
-        #tf.debugging.set_log_device_placement(True)
 
         def _run_main_iter(run_options=None, run_metadata=None):
             feed_dict = feed if self._need_feed else None
@@ -308,23 +303,16 @@ class TensorflowAPIBenchmarkBase(BenchmarkBase):
         return outputs, stats
 
     def _init_session(self, use_gpu):
-        if tf.__version__ >= "1.15.0":
-            config = tf.compat.v1.ConfigProto()
-            if use_gpu:
-                config.gpu_options.allow_growth = self.allow_growth
-            else:
-                # In default, TF use full cpu cores, but Paddle use one cpu core.
-                # To make the same experiment, set TF use one cpu core as well.
-                # See https://github.com/PaddlePaddle/Paddle/issues/18665#issuecomment-513780210
-                config.intra_op_parallelism_threads = 1
-                config.inter_op_parallelism_threads = 1
-            sess = tf.compat.v1.Session(config=config)
-            sess.run(tf.compat.v1.global_variables_initializer())
-            sess.run(tf.compat.v1.local_variables_initializer())
-        else:
-            config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
+        if use_gpu:
             config.gpu_options.allow_growth = self.allow_growth
-            sess = tf.Session(config=config)
-            sess.run(tf.global_variables_initializer())
-            sess.run(tf.local_variables_initializer())
+        else:
+            # In default, TF use full cpu cores, but Paddle use one cpu core.
+            # To make the same experiment, set TF use one cpu core as well.
+            # See https://github.com/PaddlePaddle/Paddle/issues/18665#issuecomment-513780210
+            config.intra_op_parallelism_threads = 1
+            config.inter_op_parallelism_threads = 1
+        sess = tf.compat.v1.Session(config=config)
+        sess.run(tf.compat.v1.global_variables_initializer())
+        sess.run(tf.compat.v1.local_variables_initializer())
         return sess

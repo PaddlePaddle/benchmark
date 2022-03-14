@@ -15,28 +15,32 @@
 from common_import import *
 
 
-class PaddleBincount(PaddleDynamicAPIBenchmarkBase):
+class MatrixRankConfig(APIConfig):
+    def __init__(self):
+        super(MatrixRankConfig, self).__init__("matrix_rank")
+        self.feed_spec = [{"range": [-1, 1]}]
+
+
+class PaddleMatrixRank(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
-        result = paddle.bincount(x=x, weights=w, minlength=config.minlength)
-
-        self.feed_list = [x, w]
+        result = paddle.linalg.matrix_rank(
+            x=x, tol=config.tol, hermitian=config.hermitian)
+        self.feed_list = [x]
         self.fetch_list = [result]
 
 
-class TorchBincount(PytorchAPIBenchmarkBase):
+class TorchMatrixRank(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
-        result = torch.bincount(input=x, weights=w, minlength=config.minlength)
-
-        self.feed_list = [x, w]
+        result = torch.linalg.matrix_rank(
+            input=x, tol=config.tol, hermitian=config.hermitian)
+        self.feed_list = [x]
         self.fetch_list = [result]
 
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PaddleBincount(),
-        torch_obj=TorchBincount(),
-        config=APIConfig('bincount'))
+        pd_dy_obj=PaddleMatrixRank(),
+        torch_obj=TorchMatrixRank(),
+        config=MatrixRankConfig())

@@ -21,22 +21,41 @@ class ReduceConfig(APIConfig):
         super(ReduceConfig, self).__init__('reduce')
         self.feed_spec = {"range": [-1, 1]}
         self.api_name = 'sum'
-        self.api_list = {'sum': 'sum', 'mean': 'mean'}
-        # TODO(Xreki): the api is different in tf.
+        self.api_list = {
+            'sum': 'sum',
+            'mean': 'mean',
+            'max': 'max',
+            'min': 'min',
+            'prod': 'prod'
+        }
 
-    #        self.api_list = {
-    #            'max': 'reduce_max',
-    #            'mean': 'reduce_mean',
-    #            'min': 'reduce_min',
-    #            'sum': 'reduce_sum',
-    #            'prod': 'reduce_prod'
-    #        }
+    def disabled(self):
+        if self.api_name in ["max", "min", "prod"
+                             ] and self.x_dtype == "float16":
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s.\n"
+                % (self.api_name))
+            return True
+        return super(ReduceConfig, self).disabled()
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(ReduceConfig, self).init_from_json(filename, config_id,
                                                  unknown_dim)
         if self.axis == None:
             self.axis = []
+
+    def to_tensorflow(self):
+        # The change of self.api_list should be in front of the calling of parent's function.
+        self.api_list = {
+            'sum': 'reduce_sum',
+            'mean': 'reduce_mean',
+            'max': 'reduce_max',
+            'min': 'reduce_min',
+            'prod': 'reduce_prod'
+        }
+        tf_config = super(ReduceConfig, self).to_tensorflow()
+        return tf_config
 
 
 @benchmark_registry.register("reduce")
