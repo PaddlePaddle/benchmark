@@ -2,6 +2,8 @@
 
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
 docker pull ${ImageName}
+nvidia-docker stop test_torch_seg
+nvidia-docker rm test_torch_seg
 
 run_cmd="cp /workspace/scripts/PrepareEnv.sh ./;
          bash PrepareEnv.sh;

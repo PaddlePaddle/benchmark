@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,25 +15,31 @@
 from common_import import *
 
 
-class PDZerosLike(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        data = self.variable(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = fluid.layers.zeros_like(x=data)
-
-        self.feed_vars = [data]
-        self.fetch_vars = [result]
-
-
-class TFZerosLike(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("zeros_like")
+class PaddleZerosLike(PaddleOpBenchmarkBase):
     def build_graph(self, config):
-        data = self.variable(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.zeros_like(input=data)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.zeros_like(x=x)
 
-        self.feed_list = [data]
+        self.feed_list = [x]
         self.fetch_list = [result]
 
 
-if __name__ == '__main__':
-    test_main(PDZerosLike(), TFZerosLike(), config=APIConfig("zeros_like"))
+@benchmark_registry.register("zeros_like")
+class TorchZerosLike(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = torch.zeros_like(input=x)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+
+
+@benchmark_registry.register("zeros_like")
+class TFZerosLike(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.zeros_like(input=x)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]

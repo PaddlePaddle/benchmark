@@ -1,0 +1,34 @@
+paddle_group:
+    models
+    PaddleClas
+    PaddleDetection
+    PaddleSeg
+    PaddleSpeech
+    PaddleOCR
+    PaddleNLP
+    PaddleVideo
+    PaddleGAN
+other_frame_group:    
+    OtherFrame/video/PyTorch/models/TimeSformer
+    OtherFrame/nlp/PyTorch/scripts/NLP/gpt/Megatron-LM
+    OtherFrame/nlp/PyTorch/apex
+    OtherFrame/Speech/PyTorch/wenet/models/wenet
+    OtherFrame/seg/PyTorch/models/mmseg
+    OtherFrame/clas/mxnet/models/gluon-cv
+    OtherFrame/clas/PyTorch/models/mmclassification
+    OtherFrame/clas/PyTorch/models/HRNet-Image-Classification
+    OtherFrame/clas/PyTorch/models/Twins
+    OtherFrame/gan/PyTorch/mmedting/models/mmedi
+    OtherFrame/ocr/PyTorch/models/PSENet
+    OtherFrame/nlp/PyTorch/models/xlnet/transformers
+    OtherFrame/detection/PyTorch/models/jde
+    OtherFrame/detection/PyTorch/models/fairmot
+    OtherFrame/Speech/PyTorch/PWGAN/models/Parakeet/PWGAN/ParallelWaveGAN
+    OtherFrame/detection/PyTorch/models/mmdetection
+    OtherFrame/detection/PyTorch/models/SOLO
+    OtherFrame/detection/PyTorch/models/mmpose
+    OtherFrame/nlp/PyTorch/models/xlnet
+    OtherFrame/gan/PyTorch/fomm/models/fomm
+    OtherFrame/gan/PyTorch/styleganv2/models/styleganv2
+    OtherFrame/ocr/PyTorch/models/DB
+    OtherFrame/ocr/TensorFlow/models/EAST

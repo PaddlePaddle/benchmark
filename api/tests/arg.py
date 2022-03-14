@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 from common_import import *
 
 
+@benchmark_registry.register("arg")
 class ArgConfig(APIConfig):
     def __init__(self):
         super(ArgConfig, self).__init__('arg')
@@ -22,23 +23,31 @@ class ArgConfig(APIConfig):
         self.api_list = {'argmax': 'argmax', 'argmin': 'argmin'}
 
 
-class PDArg(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
+@benchmark_registry.register("arg")
+class PaddleArg(PaddleOpBenchmarkBase):
+    def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.fluid_layers(config.api_name, x=x, axis=config.axis)
+        result = self.layers(config.api_name, x=x, axis=config.axis)
 
-        self.feed_vars = [x]
-        self.fetch_vars = [result]
+        self.feed_list = [x]
+        self.fetch_list = [result]
 
 
-class TFArg(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("arg")
+class TorchArg(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = self.layers(config.api_name, input=x, dim=config.axis)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+
+
+@benchmark_registry.register("arg")
+class TFArg(TensorflowOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = self.layers(config.api_name, input=x, axis=config.axis)
 
         self.feed_list = [x]
         self.fetch_list = [result]
-
-
-if __name__ == '__main__':
-    test_main(PDArg(), TFArg(), config=ArgConfig())

@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,34 +15,59 @@
 from common_import import *
 
 
+@benchmark_registry.register("activation")
 class ActivationConfig(APIConfig):
     def __init__(self):
         super(ActivationConfig, self).__init__('activation')
-        self.api_name = 'cos'
+        self.api_name = 'sigmoid'
         self.api_list = {
-            'cos': 'cos',
-            'exp': 'exp',
-            'floor': 'floor',
-            'sin': 'sin',
-            'square': 'square',
-            'tanh': 'tanh',
             'sigmoid': 'sigmoid',
-            'sqrt': 'sqrt'
+            'hardsigmoid': 'hardsigmoid',
+            'hardswish': 'hardswish',
+            'softplus': 'softplus',
+            'tanhshrink': 'tanhshrink',
+            'softshrink': 'softshrink',
+            'softsign': 'softsign'
         }
 
+    @property
+    def run_tf(self):
+        if self.api_name in [
+                "hardsigmoid", "hardswish", "tanhshrink", "softshrink"
+        ]:
+            print("-- %s is not supported in tf." % self.api_name)
+            return False
+        return True
 
-class PDActivation(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
+
+@benchmark_registry.register("activation")
+class PaddleActivation(PaddleOpBenchmarkBase):
+    def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = self.fluid_layers(config.api_name, x=x)
+        result = self.layers(
+            config.api_name, module_name="paddle.nn.functional", x=x)
 
-        self.feed_vars = [x]
-        self.fetch_vars = [result]
+        self.feed_list = [x]
+        self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x])
 
 
-class TFActivation(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("activation")
+class TorchActivation(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = self.layers(
+            config.api_name, module_name="torch.nn.functional", input=x)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
+
+
+@benchmark_registry.register("activation")
+class TFActivation(TensorflowOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = self.layers(config.api_name, x=x)
@@ -51,7 +76,3 @@ class TFActivation(TensorflowAPIBenchmarkBase):
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x])
-
-
-if __name__ == '__main__':
-    test_main(PDActivation(), TFActivation(), config=ActivationConfig())

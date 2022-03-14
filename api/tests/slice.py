@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,9 +15,38 @@
 from common_import import *
 
 
+@benchmark_registry.register("slice")
 class SliceConfig(APIConfig):
     def __init__(self):
-        super(SliceConfig, self).__init__('slice')
+        super(SliceConfig, self).__init__("slice")
+
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(SliceConfig, self).init_from_json(filename, config_id,
+                                                unknown_dim)
+
+        if len(self.axes) > 1:
+            print(
+                "Warning:\n"
+                "  1. parameter axes with length greater than 1 is not supported \n"
+                "in torch.narrow(), torch.narrow() will be executed")
+            self.run_torch = False
+        if len(self.starts) > 1:
+            print(
+                "Warning:\n"
+                "  2. parameter starts with length greater than 1 is not supported \n"
+                "in torch.narrow(), torch.narrow() will be executed")
+            self.run_torch = False
+        if len(self.ends) > 1:
+            print(
+                "Warning:\n"
+                "  3. parameter ends with length greater than 1 is not supported \n"
+                "in torch.narrow(), torch.narrow() will be executed")
+            self.run_torch = False
+
+    def to_pytorch(self):
+        torch_config = super(SliceConfig, self).to_pytorch()
+        torch_config.length = self.ends[0] - self.starts[0]
+        return torch_config
 
     def to_tensorflow(self):
         tf_config = super(SliceConfig, self).to_tensorflow()
@@ -38,23 +67,39 @@ class SliceConfig(APIConfig):
         return tf_config
 
 
-class PDSlice(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
-        result = fluid.layers.slice(
-            input=input,
-            axes=config.axes,
-            starts=config.starts,
-            ends=config.ends)
+@benchmark_registry.register("slice")
+class PaddleSlice(PaddleOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(
+            name='x', shape=config.input_shape, dtype=config.input_dtype)
+        result = paddle.slice(
+            input=x, axes=config.axes, starts=config.starts, ends=config.ends)
 
-        self.feed_vars = [input]
-        self.fetch_vars = [result]
+        self.feed_list = [x]
+        self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [input])
+            self.append_gradients(result, [x])
 
 
-class TFSlice(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("slice")
+class TorchSlice(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(
+            name='x', shape=config.input_shape, dtype=config.input_dtype)
+        result = torch.narrow(
+            input=x,
+            dim=config.axes[0],
+            start=config.starts[0],
+            length=config.length)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
+
+
+@benchmark_registry.register("slice")
+class TFSlice(TensorflowOpBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
             name='input', shape=config.input_shape, dtype=config.input_dtype)
@@ -64,7 +109,3 @@ class TFSlice(TensorflowAPIBenchmarkBase):
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [input])
-
-
-if __name__ == '__main__':
-    test_main(PDSlice(), TFSlice(), config=SliceConfig())

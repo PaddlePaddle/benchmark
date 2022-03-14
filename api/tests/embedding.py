@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 from common_import import *
 
 
+@benchmark_registry.register("embedding")
 class EmbeddingConfig(APIConfig):
     def __init__(self):
         super(EmbeddingConfig, self).__init__('embedding')
@@ -24,58 +25,71 @@ class EmbeddingConfig(APIConfig):
                                                     unknown_dim)
         self.feed_spec = [
             {
-                "range": [0, self.size[0]]
+                "range": [0, self.weight_shape[0]]
             },  # input
             {
                 "range": [0, 1]
             }  # table
         ]
-        if self.is_sparse or self.padding_idx is not None:
+        if self.sparse or self.padding_idx is not None:
             self.run_tf = False
 
-    def disabled(self):
-        if self.dtype == "float16" and not use_gpu():
-            print(
-                "Warning:\n"
-                "  1. This config is disabled because float16 is not supported for %s on CPU.\n"
-                % (self.api_name))
-            return True
-        return super(EmbeddingConfig, self).disabled()
 
-
-class PDEmbedding(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
-        table = self.variable(
-            name='table', shape=config.size, dtype=config.dtype)
-        result = fluid.embedding(
-            input=input,
-            size=config.size,
-            is_sparse=config.is_sparse,
-            padding_idx=config.padding_idx,
-            param_attr='table',
-            dtype=config.dtype)
-
-        self.feed_vars = [input, table]
-        self.fetch_vars = [result]
-        if config.backward:
-            self.append_gradients(result, [table])
-
-
-class TFEmbedding(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("embedding")
+class PaddleEmbedding(PaddleOpBenchmarkBase):
     def build_graph(self, config):
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
-        table = self.variable(
-            name='table', shape=config.size, dtype=config.dtype)
-        result = tf.nn.embedding_lookup(ids=input, params=table, max_norm=None)
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        weight = self.variable(
+            name='weight',
+            shape=config.weight_shape,
+            dtype=config.weight_dtype)
 
-        self.feed_list = [input, table]
+        result = paddle.nn.functional.embedding(
+            x=x,
+            weight=weight,
+            sparse=config.sparse,
+            padding_idx=config.padding_idx)
+
+        self.feed_list = [x, weight]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [table])
+            self.append_gradients(result, [weight])
 
 
-if __name__ == '__main__':
-    test_main(PDEmbedding(), TFEmbedding(), config=EmbeddingConfig())
+@benchmark_registry.register("embedding")
+class TorchEmbedding(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        weight = self.variable(
+            name='weight',
+            shape=config.weight_shape,
+            dtype=config.weight_dtype)
+
+        result = torch.nn.functional.embedding(
+            input=x,
+            weight=weight,
+            padding_idx=config.padding_idx,
+            sparse=config.sparse)
+
+        self.feed_list = [x, weight]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [weight])
+
+
+@benchmark_registry.register("embedding")
+class TFEmbedding(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+
+        weight = self.variable(
+            name='weight',
+            shape=config.weight_shape,
+            dtype=config.weight_dtype)
+
+        result = tf.nn.embedding_lookup(ids=x, params=weight, max_norm=None)
+
+        self.feed_list = [x, weight]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [weight])

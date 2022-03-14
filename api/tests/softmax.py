@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,30 +15,45 @@
 from common_import import *
 
 
-class PDSoftmax(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
-        result = fluid.layers.softmax(
-            input=input, use_cudnn=config.use_cudnn, axis=config.axis)
+@benchmark_registry.register("softmax")
+class SoftmaxConfig(APIConfig):
+    def __init__(self):
+        super(SoftmaxConfig, self).__init__("softmax")
+        self.feed_spec = {"range": [-1, 1]}
 
-        self.feed_vars = [input]
-        self.fetch_vars = [result]
+
+@benchmark_registry.register("softmax")
+class PaddleSoftmax(PaddleOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.nn.functional.softmax(x=x, axis=config.axis)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [input])
+            self.append_gradients(result, [x])
 
 
-class TFSoftmax(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("softmax")
+class TorchSoftmax(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = torch.nn.functional.softmax(input=x, dim=config.axis)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
+
+
+@benchmark_registry.register("softmax")
+class TFSoftmax(TensorflowOpBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
+            name='input', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.nn.softmax(logits=input, axis=config.axis)
 
         self.feed_list = [input]
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [input])
-
-
-if __name__ == '__main__':
-    test_main(PDSoftmax(), TFSoftmax(), config=APIConfig("softmax"))

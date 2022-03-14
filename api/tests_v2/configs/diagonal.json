@@ -1,0 +1,43 @@
+[{
+    "op": "diagonal",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[3100L, 3100L]",
+            "type": "Variable"
+        },
+        "offset": {
+            "type": "int",
+            "value": "0"
+        },
+        "axis1": {
+            "type": "int",
+            "value": "0"
+        },
+        "axis2": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "op": "diagonal",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L, 512L, 128L]",
+            "type": "Variable"
+        },
+        "offset": {
+            "type": "int",
+            "value": "0"
+        },
+        "axis1": {
+            "type": "int",
+            "value": "0"
+        },
+        "axis2": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}]

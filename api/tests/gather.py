@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 from common_import import *
 
 
+@benchmark_registry.register("gather")
 class GatherConfig(APIConfig):
     def __init__(self):
         super(GatherConfig, self).__init__('gather')
@@ -24,45 +25,59 @@ class GatherConfig(APIConfig):
                                                  unknown_dim)
         self.feed_spec = [
             {
-                "range": [-10, 10]
+                "range": [8, 10]
             },  # input
             {
-                "range": [0, self.input_shape[0]]
+                "range": [1, self.input_shape[self.axis]]
             }  # index
         ]
+        if len(self.index_shape) > 1:
+            self.run_torch = False
 
 
-class PDGather(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
+@benchmark_registry.register("gather")
+class PaddleGather(PaddleOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(
+            name='x', shape=config.input_shape, dtype=config.input_dtype)
         index = self.variable(
             name='index',
             shape=config.index_shape,
             dtype=config.index_dtype,
             stop_gradient=True)
-        result = fluid.layers.gather(
-            input=input, index=index, overwrite=config.overwrite)
+        result = paddle.gather(x=x, index=index, axis=config.axis)
 
-        self.feed_vars = [input, index]
-        self.fetch_vars = [result]
+        self.feed_list = [x, index]
+        self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [input])
+            self.append_gradients(result, [x])
 
 
-class TFGather(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("gather")
+class TorchGather(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(
+            name='x', shape=config.input_shape, dtype=config.input_dtype)
+        index = self.variable(
+            name='index', shape=config.index_shape, dtype="int64")
+        result = torch.index_select(input=x, index=index, dim=config.axis)
+
+        self.feed_list = [x, index]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
+
+
+@benchmark_registry.register("gather")
+class TFGather(TensorflowOpBenchmarkBase):
     def build_graph(self, config):
         params = self.variable(
             name='params', shape=config.input_shape, dtype=config.input_dtype)
         indices = self.variable(
             name='indices', shape=config.index_shape, dtype=config.index_dtype)
-        result = tf.gather(params=params, indices=indices)
+        result = tf.gather(params=params, indices=indices, axis=config.axis)
 
         self.feed_list = [params, indices]
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [params])
-
-
-if __name__ == '__main__':
-    test_main(PDGather(), TFGather(), config=GatherConfig())

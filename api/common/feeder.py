@@ -12,13 +12,99 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
 import collections
 import numpy as np
 
-from . import paddle_api_benchmark as paddle_api
-from . import tensorflow_api_benchmark as tensorflow_api
+
+def _convert_paddle_dtype(dtype, to_string=True):
+    import paddle
+
+    def _trans(to_string, dtype_str, np_dtype):
+        dtype = dtype_str if to_string else np.dtype(np_dtype)
+        return dtype
+
+    if not isinstance(dtype, paddle.fluid.core.VarDesc.VarType):
+        raise TypeError("dtype is not of type fluid.core.VarDesc.VarType")
+    if dtype == paddle.fluid.core.VarDesc.VarType.FP32:
+        return _trans(to_string, "float32", np.float32)
+    elif dtype == paddle.fluid.core.VarDesc.VarType.FP64:
+        return _trans(to_string, "float64", np.float64)
+    elif dtype == paddle.fluid.core.VarDesc.VarType.FP16:
+        return _trans(to_string, "float16", np.float16)
+    elif dtype == paddle.fluid.core.VarDesc.VarType.INT32:
+        return _trans(to_string, "int32", np.int32)
+    elif dtype == paddle.fluid.core.VarDesc.VarType.INT16:
+        return _trans(to_string, "int16", np.int16)
+    elif dtype == paddle.fluid.core.VarDesc.VarType.INT64:
+        return _trans(to_string, "int64", np.int64)
+    elif dtype == paddle.fluid.core.VarDesc.VarType.BOOL:
+        return _trans(to_string, "bool", np.bool)
+    elif dtype == paddle.fluid.core.VarDesc.VarType.INT16:
+        return _trans(to_string, "uint16", np.uint16)
+    elif dtype == paddle.fluid.core.VarDesc.VarType.UINT8:
+        return _trans(to_string, "uint8", np.uint8)
+    elif dtype == paddle.fluid.core.VarDesc.VarType.INT8:
+        return _trans(to_string, "int8", np.int8)
+    else:
+        raise ValueError("Unsupported dtype %s" % dtype)
+
+
+def _convert_tensorflow_dtype(dtype, to_string=True):
+    import tensorflow as tf
+
+    def _trans(to_string, dtype_str, np_dtype):
+        dtype = dtype_str if to_string else np.dtype(np_dtype)
+        return dtype
+
+    if dtype == tf.float16:
+        # tf.float16: 16-bit half-precision floating-point.
+        return _trans(to_string, "float16", np.float16)
+    elif dtype == tf.float32:
+        # tf.float32: 32-bit single-precision floating-point.
+        return _trans(to_string, "float32", np.float32)
+    elif dtype == tf.float64:
+        # tf.float64: 64-bit double-precision floating-point.
+        return _trans(to_string, "float64", np.float64)
+    elif dtype == tf.int8:
+        # tf.int8: 8-bit signed integer.
+        return _trans(to_string, "int8", np.int8)
+    elif dtype == tf.uint8:
+        # tf.uint8: 8-bit unsigned integer.
+        return _trans(to_string, "uint8", np.uint8)
+    elif dtype == tf.uint16:
+        # tf.uint16: 16-bit unsigned integer.
+        return _trans(to_string, "uint16", np.uint16)
+    elif dtype == tf.uint32:
+        # tf.uint32: 32-bit unsigned integer.
+        return _trans(to_string, "uint32", np.uint32)
+    elif dtype == tf.uint64:
+        # tf.uint64: 64-bit unsigned integer.
+        return _trans(to_string, "uint64", np.uint64)
+    elif dtype == tf.int16:
+        # tf.int16: 16-bit signed integer.
+        return _trans(to_string, "int16", np.int16)
+    elif dtype == tf.int32:
+        # tf.int32: 32-bit signed integer.
+        return _trans(to_string, "int32", np.int32)
+    elif dtype == tf.int64:
+        # tf.int64: 64-bit signed integer.
+        return _trans(to_string, "int64", np.int64)
+    elif dtype == tf.bool:
+        # tf.bool: Boolean.
+        return _trans(to_string, "bool", np.bool)
+    else:
+        # tf.bfloat16: 16-bit truncated floating-point.
+        # tf.complex64: 64-bit single-precision complex.
+        # tf.complex128: 128-bit double-precision complex.
+        # tf.string: String.
+        # tf.qint8: Quantized 8-bit signed integer.
+        # tf.quint8: Quantized 8-bit unsigned integer.
+        # tf.qint16: Quantized 16-bit signed integer.
+        # tf.quint16: Quantized 16-bit unsigned integer.
+        # tf.qint32: Quantized 32-bit signed integer.
+        # tf.resource: Handle to a mutable resource.
+        # tf.variant: Values of arbitrary types.
+        raise ValueError("Unsupported dtype %s" % dtype)
 
 
 def copy_feed_spec(feed_spec):
@@ -132,7 +218,7 @@ class FeederAdapter(object):
 
                     # Check shape and dtype
                     var_shape = var.shape
-                    var_dtype = paddle_api.convert_dtype(
+                    var_dtype = _convert_paddle_dtype(
                         var.dtype, to_string=True)
                     value = check_shape_and_dtype(var_shape, var_dtype, value)
 
@@ -173,7 +259,7 @@ class FeederAdapter(object):
                 var = feed_list[i]
                 var_shape = var.shape
                 if target_framework == "tensorflow":
-                    var_dtype = tensorflow_api.convert_dtype(
+                    var_dtype = _convert_tensorflow_dtype(
                         var.dtype, to_string=True)
                 value = check_shape_and_dtype(var_shape, var_dtype, value)
 

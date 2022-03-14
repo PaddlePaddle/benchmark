@@ -1,0 +1,79 @@
+[{
+    "op": "triangular_solve",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 256L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 256L, 128L]",
+            "type": "Variable"
+        },
+        "upper": {
+            "type": "bool",
+            "value": "True"
+        },
+        "transpose": {
+            "type": "bool",
+            "value": "False"
+        },
+        "unitriangular": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}, {
+    "op": "triangular_solve",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 16L, 16L, 16L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[-1L, 16L, 16L, 16L]",
+            "type": "Variable"
+        },
+        "upper": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose": {
+            "type": "bool",
+            "value": "True"
+        },
+        "unitriangular": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}, {
+    "op": "triangular_solve",
+    "param_info": {
+        "x": {
+            "dtype": "float64",
+            "shape": "[-1L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float64",
+            "shape": "[-1L, 128L, 128L]",
+            "type": "Variable"
+        },
+        "upper": {
+            "type": "bool",
+            "value": "False"
+        },
+        "transpose": {
+            "type": "bool",
+            "value": "False"
+        },
+        "unitriangular": {
+            "type": "bool",
+            "value": "True"
+        }
+    }
+}]

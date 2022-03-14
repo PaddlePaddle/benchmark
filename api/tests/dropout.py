@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,32 +15,39 @@
 from common_import import *
 
 
-class PDDropout(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = fluid.layers.dropout(
-            x=x,
-            dropout_prob=config.dropout_prob,
-            seed=123,
-            dropout_implementation=config.dropout_implementation)
-
-        self.feed_vars = [x]
-        self.fetch_vars = [result]
-        if config.backward:
-            self.append_gradients(result, [x])
-
-
-class TFDropout(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("dropout")
+class PaddleDropout(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.nn.dropout(
-            x=x, rate=config.dropout_prob, noise_shape=None, seed=123)
+        result = paddle.nn.functional.dropout(
+            x=x, p=config.p, axis=config.axis, mode=config.mode)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, self.feed_list)
+
+
+@benchmark_registry.register("dropout")
+class TorchDropout(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        m = torch.nn.Dropout(p=config.p)
+        result = m(x)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, self.feed_list)
+
+
+@benchmark_registry.register("dropout")
+class TFDropout(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.nn.dropout(x=x, rate=config.p, noise_shape=None)
 
         self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x])
-
-
-if __name__ == '__main__':
-    test_main(PDDropout(), TFDropout(), config=APIConfig("dropout"))

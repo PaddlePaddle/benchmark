@@ -24,10 +24,7 @@ import numpy as np
 
 from common import utils
 from common import system
-from common import api_param
 from common import special_op_list
-from common import pytorch_api_benchmark
-from common import paddle_dynamic_api_benchmark
 
 
 def _check_gpu_device(use_gpu):
@@ -42,10 +39,15 @@ def _check_gpu_device(use_gpu):
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        '--filename',
+        type=str,
+        default=None,
+        help='Specify the benchmark filename')
+    parser.add_argument(
         '--task',
         type=str,
         default="speed",
-        help='Specify the task: [speed|accuracy]')
+        help='Specify the task: [speed|accuracy|scheduling]')
     parser.add_argument(
         '--testing_mode',
         type=str,
@@ -98,7 +100,18 @@ def parse_args():
         default=0,
         help='Total GPU kernel time parsed from nvprof')
     parser.add_argument(
+        '--scheduling_times',
+        type=str,
+        default="{}",
+        help='Scheduling times parsed from nvprof')
+    parser.add_argument(
         '--repeat', type=int, default=1, help='Iterations of Repeat running')
+    parser.add_argument(
+        '--sync_interval',
+        type=int,
+        default=80,
+        help='In scheduling task, synchronization needs to be performed "sync_interval" times at intervals'
+    )
     parser.add_argument(
         '--allow_adaptive_repeat',
         type=system.str2bool,
@@ -106,18 +119,34 @@ def parse_args():
         help='Whether use the value repeat in json config [True|False]')
     parser.add_argument(
         '--log_level', type=int, default=0, help='level of logging')
+    parser.add_argument(
+        '--get_status_without_running',
+        type=system.str2bool,
+        default=False,
+        help='Get running status directly to print result without re-running the program.'
+    )
     args = parser.parse_args()
-    if args.task not in ["speed", "accuracy"]:
-        raise ValueError("task should be speed, accuracy")
+    if args.task not in ["speed", "accuracy", "scheduling"]:
+        raise ValueError("task should be speed, accuracy or scheduling")
     if args.framework not in [
             "paddle", "tensorflow", "tf", "pytorch", "torch", "both"
     ]:
         raise ValueError(
             "task should be paddle, tensorflow, tf, pytorch, torch, both")
 
+    if args.get_status_without_running:
+        assert args.task == "scheduling", "task must be 'scheduling' if get_status_without_running is True."
+        assert args.scheduling_times != "{}", "scheduling_times can't be {} if task is 'scheduling' and get_status_without_running is True."
+
     if args.task == "accuracy":
         args.repeat = 1
         args.profiler = "none"
+    elif args.task == "scheduling":
+        assert args.framework == "paddle", "framework must be 'paddle' if task is 'scheduling'."
+        assert args.testing_mode == "dynamic", "testing_mode must be 'dynamic' if task is 'scheduling'."
+        # The performance of the first few steps is unstable.
+        assert args.repeat >= 10, "repeat must be greater than 10 if task is scheduling, but received {}.".format(
+            args.repeat)
 
     _check_gpu_device(args.use_gpu)
     print(args)
@@ -170,13 +199,13 @@ def test_main(pd_obj=None,
         test_main_without_json(pd_obj, tf_obj, pd_dy_obj, torch_obj, config)
 
 
-def _is_paddle_enabled(args, config):
+def is_paddle_enabled(args, config):
     if args.task == "accuracy" or args.framework in ["paddle", "both"]:
         return True
     return False
 
 
-def _is_tensorflow_enabled(args, config):
+def is_tensorflow_enabled(args, config):
     if config.run_tf and args.testing_mode == "static":
         if args.task == "accuracy" or args.framework in [
                 "tensorflow", "tf", "both"
@@ -185,7 +214,7 @@ def _is_tensorflow_enabled(args, config):
     return False
 
 
-def _is_torch_enabled(args, config):
+def is_torch_enabled(args, config):
     if config.run_torch and args.testing_mode == "dynamic":
         if args.task == "accuracy" or args.framework in [
                 "torch", "pytorch", "both"
@@ -231,7 +260,7 @@ def test_main_without_json(pd_obj=None,
     use_feed_fetch = True if args.task == "accuracy" else False
 
     feeder_adapter = None
-    if _is_tensorflow_enabled(args, config):
+    if is_tensorflow_enabled(args, config):
         assert tf_obj is not None, "TensorFlow object is None."
         tf_config = config.to_tensorflow()
         print(tf_config)
@@ -243,10 +272,11 @@ def test_main_without_json(pd_obj=None,
             tf_stats["gpu_time"] = args.gpu_time
             utils.print_benchmark_result(
                 tf_stats,
+                task=args.task,
                 log_level=args.log_level,
                 config_params=config.to_string())
 
-    if _is_paddle_enabled(args, config) and args.testing_mode == "static":
+    if is_paddle_enabled(args, config) and args.testing_mode == "static":
         assert pd_obj is not None, "Paddle object is None."
         print(config)
         pd_outputs, pd_stats = pd_obj.run(config, args, use_feed_fetch,
@@ -256,13 +286,14 @@ def test_main_without_json(pd_obj=None,
             pd_stats["gpu_time"] = args.gpu_time
             utils.print_benchmark_result(
                 pd_stats,
+                task=args.task,
                 log_level=args.log_level,
                 config_params=config.to_string())
 
         if pd_outputs == False:
             sys.exit(1)
 
-    if _is_torch_enabled(args, config):
+    if is_torch_enabled(args, config):
         assert torch_obj is not None, "PyTorch object is None."
         import torch
         try:
@@ -283,19 +314,24 @@ def test_main_without_json(pd_obj=None,
             torch_stats["gpu_time"] = args.gpu_time
             utils.print_benchmark_result(
                 torch_stats,
+                task=args.task,
                 log_level=args.log_level,
                 config_params=config.to_string())
 
-    if _is_paddle_enabled(args, config) and args.testing_mode == "dynamic":
+    if is_paddle_enabled(args, config) and args.testing_mode == "dynamic":
         assert pd_dy_obj is not None, "Paddle dynamic object is None."
         print(config)
-        pd_dy_outputs, pd_dy_stats = pd_dy_obj.run(config, args,
-                                                   feeder_adapter)
+        pd_dy_outputs, pd_dy_stats = pd_dy_obj.run(
+            config, args, feeder_adapter=feeder_adapter)
 
-        if args.task == "speed":
-            pd_dy_stats["gpu_time"] = args.gpu_time
+        if args.task in ["speed", "scheduling"]:
+            if args.task == "speed":
+                pd_dy_stats["gpu_time"] = args.gpu_time
+            if args.task == "scheduling":
+                pd_dy_stats["scheduling_times"] = args.scheduling_times
             utils.print_benchmark_result(
                 pd_dy_stats,
+                task=args.task,
                 log_level=args.log_level,
                 config_params=config.to_string())
 

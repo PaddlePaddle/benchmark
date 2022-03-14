@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,30 +15,57 @@
 from common_import import *
 
 
+@benchmark_registry.register("matmul")
 class MatmulConfig(APIConfig):
     def __init__(self):
         super(MatmulConfig, self).__init__("matmul")
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
 
-class PDMatmul(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
+@benchmark_registry.register("matmul")
+class PaddleMatmul(PaddleOpBenchmarkBase):
+    def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        result = fluid.layers.matmul(
+        result = paddle.matmul(
             x=x,
             y=y,
             transpose_x=config.transpose_x,
-            transpose_y=config.transpose_y,
-            alpha=config.alpha)
+            transpose_y=config.transpose_y)
 
-        self.feed_vars = [x, y]
-        self.fetch_vars = [result]
+        self.feed_list = [x, y]
+        self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x, y])
 
 
-class TFMatmul(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("matmul")
+class TorchMatmul(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        if config.transpose_x:
+            rank_of_x = len(config.x_shape)
+            x_transposed = torch.transpose(
+                input=x, dim0=rank_of_x - 2, dim1=rank_of_x - 1)
+        else:
+            x_transposed = x
+        if config.transpose_y:
+            rank_of_y = len(config.y_shape)
+            y_transposed = torch.transpose(
+                input=y, dim0=rank_of_y - 2, dim1=rank_of_y - 1)
+        else:
+            y_transposed = y
+        result = torch.matmul(input=x_transposed, other=y_transposed)
+
+        self.feed_list = [x, y]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x, y])
+
+
+@benchmark_registry.register("matmul")
+class TFMatmul(TensorflowOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
@@ -56,7 +83,3 @@ class TFMatmul(TensorflowAPIBenchmarkBase):
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x, y])
-
-
-if __name__ == '__main__':
-    test_main(PDMatmul(), TFMatmul(), config=MatmulConfig())

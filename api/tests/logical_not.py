@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,25 +15,31 @@
 from common_import import *
 
 
-class PDLogicalNot(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        data = self.variable(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = fluid.layers.logical_not(x=data)
-
-        self.feed_vars = [data]
-        self.fetch_vars = [result]
-
-
-class TFLogicalNot(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("logical_not")
+class PaddleLogicalNot(PaddleOpBenchmarkBase):
     def build_graph(self, config):
-        data = self.variable(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.math.logical_not(x=data)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.logical_not(x=x)
 
-        self.feed_list = [data]
+        self.feed_list = [x]
         self.fetch_list = [result]
 
 
-if __name__ == '__main__':
-    test_main(PDLogicalNot(), TFLogicalNot(), config=APIConfig("logical_not"))
+@benchmark_registry.register("logical_not")
+class TorchLogicalNot(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = torch.logical_not(input=x)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+
+
+@benchmark_registry.register("logical_not")
+class TFLogicalNot(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.math.logical_not(x=x)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]

@@ -77,7 +77,7 @@ class ArrayComparator(object):
 def _check_type(output, target):
     def _is_numpy_dtype(value):
         if type(value) in [
-                np.float32, np.float16, np.int32, np.int64, np.bool, np.bool_
+                np.float32, np.float16, np.int32, np.int64, bool, np.bool_
         ]:
             return True
         else:
@@ -177,13 +177,17 @@ def check_outputs(output_list,
             target = target_list[i]
 
             if testing_mode == "static":
-                if isinstance(
-                        target,
-                        tf.python.framework.indexed_slices.IndexedSlicesValue):
-                    print(
-                        "---- Warning: Th %d-th target's type is IndexedSlicesValue and the check is skipped. "
-                        "It will be fixed later." % i)
-                    continue
+                try:
+                    if isinstance(target, tf.python.framework.indexed_slices.
+                                  IndexedSlicesValue):
+                        print(
+                            "---- Warning: Th %d-th target's type is IndexedSlicesValue and the check is skipped. "
+                            "It will be fixed later." % i)
+                        continue
+                except Exception as e:
+                    if tf.__version__ < "2.4.0":
+                        # I am not sure about the exact version
+                        print("Meets an exception: {}".format(e))
 
             output, target = _check_type(output, target)
             output, target = _check_shape(name, output, target, i)
@@ -265,7 +269,10 @@ def check_outputs(output_list,
         sys.exit(1)
 
 
-def print_benchmark_result(result, log_level=0, config_params=None):
+def print_benchmark_result(result,
+                           task="speed",
+                           log_level=0,
+                           config_params=None):
     assert isinstance(result, dict), "Input result should be a dict."
 
     status = collections.OrderedDict()
@@ -274,6 +281,10 @@ def print_benchmark_result(result, log_level=0, config_params=None):
     status["name"] = result["name"]
     status["device"] = result["device"]
     status["backward"] = result["backward"]
+
+    scheduling_times = result.get("scheduling_times", "{}")
+    if task == "scheduling" and scheduling_times is not None:
+        status["scheduling"] = eval(scheduling_times)
 
     runtimes = result.get("total", None)
     if runtimes is None:

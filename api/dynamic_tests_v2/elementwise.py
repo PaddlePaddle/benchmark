@@ -24,13 +24,14 @@ class ElementwiseConfig(APIConfig):
             'maximum': 'maximum',
             'minimum': 'minimum',
             'multiply': 'multiply',
-            'subtract': 'subtract'
+            'subtract': 'subtract',
+            "fmax": "fmax",
+            "fmin": "fmin"
         }
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
     def disabled(self):
-        if self.api_name in ["pow", "maximum", "minimum"
-                             ] and self.x_dtype == "float16":
+        if self.api_name in ["pow"] and self.x_dtype == "float16":
             print(
                 "Warning:\n"
                 "  1. This config is disabled because float16 is not supported for %s.\n"

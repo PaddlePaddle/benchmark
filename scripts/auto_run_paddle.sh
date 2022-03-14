@@ -57,7 +57,7 @@ function prepare(){
     apt-get install libmysqlclient20=5.7.33-0ubuntu0.16.04.1 --allow-downgrades
     apt-get install libmysqlclient-dev git curl psmisc -y
     pip install MySQL-python
-
+    pip install shyaml
 
     save_log_dir=${all_path}/logs/${paddle_version}/${implement_type}
 
@@ -86,12 +86,21 @@ function prepare(){
     cd ${ROOT_PATH}
     rm -rf *
 
-    git clone https://github.com/PaddlePaddle/benchmark.git --recursive
-    echo "****************${implement_type} prepare had done*****************"
-
+    git clone https://github.com/PaddlePaddle/benchmark.git
     cd ${BENCHMARK_ROOT}
     benchmark_commit_id=$(git log|head -n1|awk '{print $2}')
     echo "benchmark_commit_id is: "${benchmark_commit_id}
+    
+    init_group="paddle_group"     # 可配到任务参数里
+    repo_list=`cat submodule.yaml | shyaml get-value ${init_group}`
+    echo $repo_list
+    for i in ${repo_list[@]}
+    do
+        git submodule init $i
+        git submodule update $i
+    done
+    echo "*******************init submodule done******************************" 
+    echo "****************${implement_type} prepare had done*****************"
 
     # 动态图升级到cuda10.1 python3.7，静态图切cuda10.1 python3.7
     if [[ 'dynamic_graph' == ${implement_type} ]] || [[ 'static_graph' == ${implement_type} ]] || [[ 'dynamic_to_static' == ${implement_type} ]]; then
@@ -99,7 +108,8 @@ function prepare(){
         mkdir run_env
         ln -s $(which python3.7) run_env/python
         ln -s $(which pip3.7) run_env/pip
-        ln -s $(which python3.7)m-config run_env/python3-config
+	ln -s $(which python3.7m-config) run_env/python3-config
+	ln -s $(which python3.7m-config) run_env/python3.7-config
         export PATH=$(pwd)/run_env:${PATH}
         pip install -U pip
         echo `pip --version`

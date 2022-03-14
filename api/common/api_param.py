@@ -165,13 +165,13 @@ class APIConfig(object):
     def __init__(self, op_type, params=None):
         self.__name = op_type
         self.__framework = "paddle"
+        self.__run_tf = True
         self.api_name = self.name
         self.params = params
         self.variable_list = None
         self.params_list = None
         self.backward = False
         self.feed_spec = None
-        self.run_tf = True
         self.run_torch = True
         self.alias_name = None
 
@@ -202,6 +202,14 @@ class APIConfig(object):
     @property
     def framework(self):
         return self.__framework
+
+    @property
+    def run_tf(self):
+        return self.__run_tf
+
+    @run_tf.setter
+    def run_tf(self, value):
+        self.__run_tf = value
 
     def compute_dtype(self):
         dtype = None
@@ -315,7 +323,7 @@ class APIConfig(object):
         ]
         if self.framework != "paddle":
             exclude_attrs.append("run_torch")
-            exclude_attrs.append("run_tf")
+            exclude_attrs.append("_APIConfig__run_tf")
         prefix = ""
         debug_str = ('[%s][%s] %s {\n') % (self.framework, self.name,
                                            self.api_name)
@@ -326,8 +334,8 @@ class APIConfig(object):
                         '  %s: np.ndarray(shape=%s, dtype=%s)\n') % (
                             name, str(value.shape), value.dtype)
                 else:
-                    debug_str = debug_str + ('  %s%s: %s\n') % (prefix, name,
-                                                                value)
+                    debug_str = debug_str + ('  %s%s: %s\n') % (
+                        prefix, name.replace("_APIConfig__", ""), value)
         debug_str = debug_str + prefix + '}'
         return debug_str
 

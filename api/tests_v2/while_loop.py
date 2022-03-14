@@ -73,21 +73,13 @@ class TFWhileLoop(TensorflowAPIBenchmarkBase):
             return i < loop_len
 
         def body(i, loop_len, input, result):
-            if tf.__version__ <= "1.15.0":
-                result = tf.contrib.layers.fully_connected(
-                    inputs=input,
-                    num_outputs=config.size,
-                    weights_initializer=tf.constant_initializer(0.5),
-                    biases_initializer=tf.constant_initializer(0.1),
-                    activation_fn=None)
-            else:
-                result = tf.compat.v1.layers.dense(
-                    inputs=input,
-                    units=config.size,
-                    activation=None,
-                    use_bias=True,
-                    kernel_initializer=tf.constant_initializer(0.5),
-                    bias_initializer=tf.constant_initializer(0.1))
+            result = tf.compat.v1.layers.dense(
+                inputs=input,
+                units=config.size,
+                activation=None,
+                use_bias=True,
+                kernel_initializer=tf.constant_initializer(0.5),
+                bias_initializer=tf.constant_initializer(0.1))
             return [i + 1, loop_len, input, result]
 
         input = self.variable(

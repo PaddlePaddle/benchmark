@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,29 +15,37 @@
 from common_import import *
 
 
-class PDSqueeze(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        data = self.variable(
-            name='data', shape=config.input_shape, dtype=config.input_dtype)
-        result = fluid.layers.squeeze(input=data, axes=config.axes)
-
-        self.feed_vars = [data]
-        self.fetch_vars = [result]
-        if config.backward:
-            self.append_gradients(result, [data])
-
-
-class TFSqueeze(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("squeeze")
+class PaddleSqueeze(PaddleOpBenchmarkBase):
     def build_graph(self, config):
-        data = self.variable(
-            name='data', shape=config.input_shape, dtype=config.input_dtype)
-        result = tf.squeeze(input=data, axis=config.axes)
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.squeeze(x=x, axis=config.axis)
 
-        self.feed_list = [data]
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [data])
+            self.append_gradients(result, [x])
 
 
-if __name__ == '__main__':
-    test_main(PDSqueeze(), TFSqueeze(), config=APIConfig("squeeze"))
+@benchmark_registry.register("squeeze")
+class TorchSqueeze(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = torch.squeeze(x)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
+
+
+@benchmark_registry.register("squeeze")
+class TFSqueeze(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.squeeze(input=x, axis=config.axis)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])

@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,29 +15,35 @@
 from common_import import *
 
 
-class PDTopK(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        data = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
-        value, indices = fluid.layers.topk(input=data, k=config.k)
-
-        self.feed_vars = [data]
-        self.fetch_vars = [value, indices]
-        if config.backward:
-            self.append_gradients([value], [data])
-
-
-class TFTopK(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("topk")
+class PaddleTopK(PaddleOpBenchmarkBase):
     def build_graph(self, config):
-        data = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
-        value, indices = tf.math.top_k(input=data, k=config.k)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        value, indices = paddle.topk(x=x, k=config.k)
 
-        self.feed_list = [data]
+        self.feed_list = [x]
+        self.fetch_list = [value, indices]
+        #if config.backward:
+        #    self.append_gradients([value], [x])
+
+
+@benchmark_registry.register("topk")
+class TorchTopK(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        value, indices = torch.topk(input=x, k=config.k)
+
+        self.feed_list = [x]
+        self.fetch_list = [value, indices]
+
+
+@benchmark_registry.register("topk")
+class TFTopK(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        value, indices = tf.math.top_k(input=x, k=config.k)
+
+        self.feed_list = [x]
         self.fetch_list = [value, indices]
         if config.backward:
-            self.append_gradients([value], [data])
-
-
-if __name__ == '__main__':
-    test_main(PDTopK(), TFTopK(), config=APIConfig("topk"))
+            self.append_gradients([value], [x])

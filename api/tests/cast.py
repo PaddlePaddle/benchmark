@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,31 +15,49 @@
 from common_import import *
 
 
+@benchmark_registry.register("cast")
 class CastConfig(APIConfig):
     def __init__(self):
         super(CastConfig, self).__init__('cast')
         self.feed_spec = {"range": [-10, 10]}
 
 
-class PDCast(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        data = self.variable(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = fluid.layers.cast(x=data, dtype=config.dtype)
-
-        self.feed_vars = [data]
-        self.fetch_vars = [result]
-
-
-class TFCast(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("cast")
+class PaddleCast(PaddleOpBenchmarkBase):
     def build_graph(self, config):
-        data = self.variable(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.dtypes.cast(x=data, dtype=config.dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.cast(x=x, dtype=config.dtype)
 
-        self.feed_list = [data]
+        self.feed_list = [x]
         self.fetch_list = [result]
 
 
-if __name__ == '__main__':
-    test_main(PDCast(), TFCast(), config=CastConfig())
+@benchmark_registry.register("cast")
+class TorchCast(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        dtype_map = {
+            "float16": torch.float16,
+            "float32": torch.float32,
+            "float64": torch.float64,
+            "int32": torch.int32,
+            "int64": torch.int64,
+            "bool": torch.bool
+        }
+        if config.dtype in dtype_map.keys():
+            result = x.to(dtype_map[config.dtype])
+        else:
+            assert False, "Not supported yet!"
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+
+
+@benchmark_registry.register("cast")
+class TFCast(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.dtypes.cast(x=x, dtype=config.dtype)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]

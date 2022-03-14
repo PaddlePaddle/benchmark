@@ -5,10 +5,10 @@ function _set_params(){
     run_mode=${1:-"sp"}
     batch_size=${2:-"64"}
     fp_item=${3:-"fp32"}        # fp32|fp16
-    max_iter=${4:-"10"}       # 如果需要修改代码提前中断
-    run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
+    max_epoch=${4:-"10"}       # 如果需要修改代码提前中断
+    run_log_path=$(pwd)
 
-    model_name="ocr_PSENet"
+    model_name="det_r50_vd_pse"_bs${batch_size}_${fp_item}
     mission_name="OCR"            # 模型所属任务名称，具体可参考scripts/config.ini  必填）
     direction_id=0                 # 任务所属方向，0：CV，1：NLP，2：Rec。     (必填)
     ips_unit="samples/sec"
@@ -26,7 +26,7 @@ function _train(){
     rm -rf checkpoints/
     # 如需开启特殊优化flag、参数请注明
 
-    train_cmd="config/psenet/psenet_r50_ic15_736.py --cfg-options data.batch_size=${batch_size} train_cfg.epoch=${max_iter} model.backbone.pretrained=False"
+    train_cmd="config/psenet/psenet_r50_ic15_736.py --cfg-options data.batch_size=${batch_size} train_cfg.epoch=${max_epoch} model.backbone.pretrained=False"
     case ${run_mode} in
     sp) train_cmd="python3.7 train.py "${train_cmd} ;;
     mp)
@@ -42,20 +42,15 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
-
-    if [ $run_mode = "mp" -a -d mylog ]; then
-        rm ${log_file}
-        cp mylog/workerlog.0 ${log_file}
-    fi
 }
 
 function _analysis_log(){
-    analysis_cmd="python3.7 analysis_log.py --filename ${log_file}  --mission_name ${model_name} --run_mode ${run_mode} --direction_id 0 --keyword 'ips:' --base_batch_size ${batch_size} --skip_steps 1 --gpu_num ${num_gpu_devices}  --index 1  --model_mode=-1  --ips_unit=samples/sec"
+    analysis_cmd="python3.7 analysis_log.py --filename ${log_file}  --model_name ${model_name} --mission_name ${mission_name} --run_mode ${run_mode} --direction_id 0 --keyword 'ips:' --base_batch_size ${batch_size} --skip_steps 1 --gpu_num ${num_gpu_devices}  --index 1  --model_mode=-1  --ips_unit=images/sec"
     eval $analysis_cmd
 }
 
 function _kill_process(){
-    kill -9 `ps -ef|grep 'python3.7'|awk '{print $2}'`
+    kill -9 `ps -ef|grep 'python3.7'|awk '{print $2}'` >/dev/null 2>&1
 }
 _set_params $@
 _train

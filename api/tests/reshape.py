@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,19 +15,32 @@
 from common_import import *
 
 
-class PDReshape(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        data = self.variable(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = fluid.layers.reshape(x=data, shape=config.shape)
+@benchmark_registry.register("reshape")
+class PaddleReshape(PaddleOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.reshape(x=x, shape=config.shape)
 
-        self.feed_vars = [data]
-        self.fetch_vars = [result]
+        self.feed_list = [x]
+        self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [data])
+            self.append_gradients(result, self.feed_list)
 
 
-class TFReshape(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("reshape")
+class TorchReshape(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = torch.reshape(x=x, shape=config.shape)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, self.feed_list)
+
+
+@benchmark_registry.register("reshape")
+class TFReshape(TensorflowOpBenchmarkBase):
     def build_graph(self, config):
         data = self.variable(
             name='data', shape=config.x_shape, dtype=config.x_dtype)
@@ -37,7 +50,3 @@ class TFReshape(TensorflowAPIBenchmarkBase):
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [data])
-
-
-if __name__ == '__main__':
-    test_main(PDReshape(), TFReshape(), config=APIConfig("reshape"))

@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,30 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import copy
-
 from common_import import *
 
 
+@benchmark_registry.register("elementwise")
 class ElementwiseConfig(APIConfig):
-    def __init__(self):
-        super(ElementwiseConfig, self).__init__('elementwise')
-        self.api_name = 'elementwise_add'
+    def __init__(self, op_type="elementwise"):
+        super(ElementwiseConfig, self).__init__(op_type)
+        self.api_name = 'add'
         self.api_list = {
-            'elementwise_add': 'add',
-            'elementwise_div': 'divide',
-            'elementwise_max': 'maximum',
-            'elementwise_min': 'minimum',
-            'elementwise_sub': 'subtract',
-            'elementwise_mul': 'multiply',
-            'elementwise_pow': 'pow'
+            'add': 'add',
+            'maximum': 'maximum',
+            'minimum': 'minimum',
+            'multiply': 'multiply',
+            'subtract': 'subtract'
         }
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
     def disabled(self):
-        if self.api_name in [
-                "elementwise_max", "elementwise_min", "elementwise_pow"
-        ] and self.x_dtype == "float16":
+        if self.api_name in ["pow"] and self.x_dtype == "float16":
             print(
                 "Warning:\n"
                 "  1. This config is disabled because float16 is not supported for %s.\n"
@@ -43,60 +38,65 @@ class ElementwiseConfig(APIConfig):
             return True
         return super(ElementwiseConfig, self).disabled()
 
-    def to_tensorflow(self):
-        tf_config = super(ElementwiseConfig, self).to_tensorflow()
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(ElementwiseConfig, self).init_from_json(filename, config_id,
+                                                      unknown_dim)
         if len(self.x_shape) > len(self.y_shape) and self.y_shape != [1]:
-            tf_config.y_shape_unsqueezed = self._unsqueeze_short(
+            self.y_shape = unsqueeze_short(
                 short=self.y_shape, long=self.x_shape)
         elif len(self.x_shape) < len(self.y_shape) and self.x_shape != [1]:
-            tf_config.x_shape_unsqueezed = self._unsqueeze_short(
+            self.x_shape_unsqueezed = unsqueeze_short(
                 short=self.x_shape, long=self.y_shape)
-        return tf_config
-
-    def _unsqueeze_short(self, short, long):
-        short_extend = np.ones([len(long)], dtype=np.int32).tolist()
-        start = 0
-        for value in short:
-            for i in range(start, len(long)):
-                if long[i] == value:
-                    short_extend[i] = value
-                    start = i
-                    break
-        return short_extend
 
 
-class PDElementwise(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        result = self.fluid_layers(
-            config.api_name, x=x, y=y, axis=config.axis, act=None)
-
-        self.feed_vars = [x, y]
-        self.fetch_vars = [result]
-        if config.backward:
-            self.append_gradients(result, [x, y])
-
-
-class TFElementwise(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("elementwise")
+class PaddleElementwise(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
-        if hasattr(config, "x_shape_unsqueezed"):
-            x_reshape = tf.reshape(tensor=x, shape=config.x_shape_unsqueezed)
+        result = self.layers(config.api_name, x=x, y=y)
+
+        self.feed_list = [x, y]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, self.feed_list)
+
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        y_shape = config.y_shape
+        out_shape = self.fetch_list[0].shape
+        forward_flop = numel(out_shape)
+        forward_byte = (numel(x_shape) + numel(y_shape) + numel(out_shape)
+                        ) * sizeof(config.x_dtype)
+        if not config.backward:
+            return forward_flop, forward_byte
         else:
-            x_reshape = x
-        if hasattr(config, "y_shape_unsqueezed"):
-            y_reshape = tf.reshape(tensor=y, shape=config.y_shape_unsqueezed)
-        else:
-            y_reshape = y
-        result = self.layers(config.api_name, x=x_reshape, y=y_reshape)
+            # To be implemented.
+            return None, None
+
+
+@benchmark_registry.register("elementwise")
+class TorchElementwise(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+        result = self.layers(config.api_name, input=x, other=y)
+
+        self.feed_list = [x, y]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, self.feed_list)
+
+
+@benchmark_registry.register("elementwise")
+class TFElementwise(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
+
+        result = self.layers(config.api_name, x=x, y=y)
 
         self.feed_list = [x, y]
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x, y])
-
-
-if __name__ == '__main__':
-    test_main(PDElementwise(), TFElementwise(), config=ElementwiseConfig())

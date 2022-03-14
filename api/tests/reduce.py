@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,49 +15,104 @@
 from common_import import *
 
 
+@benchmark_registry.register("reduce")
 class ReduceConfig(APIConfig):
     def __init__(self):
         super(ReduceConfig, self).__init__('reduce')
         self.feed_spec = {"range": [-1, 1]}
-        self.api_name = 'reduce_mean'
+        self.api_name = 'sum'
         self.api_list = {
-            'reduce_mean': 'reduce_mean',
-            'reduce_sum': 'reduce_sum',
-            'reduce_prod': 'reduce_prod'
+            'sum': 'sum',
+            'mean': 'mean',
+            'max': 'max',
+            'min': 'min',
+            'prod': 'prod'
         }
 
+    def disabled(self):
+        if self.api_name in ["max", "min", "prod"
+                             ] and self.x_dtype == "float16":
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s.\n"
+                % (self.api_name))
+            return True
+        return super(ReduceConfig, self).disabled()
 
-class PDReduce(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        data = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
-        result = self.fluid_layers(
-            config.api_name,
-            input=data,
-            dim=config.dim,
-            keep_dim=config.keep_dim)
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(ReduceConfig, self).init_from_json(filename, config_id,
+                                                 unknown_dim)
+        if self.axis == None:
+            self.axis = []
 
-        self.feed_vars = [data]
-        self.fetch_vars = [result]
-        if config.backward:
-            self.append_gradients(result, [data])
+    def to_tensorflow(self):
+        # The change of self.api_list should be in front of the calling of parent's function.
+        self.api_list = {
+            'sum': 'reduce_sum',
+            'mean': 'reduce_mean',
+            'max': 'reduce_max',
+            'min': 'reduce_min',
+            'prod': 'reduce_prod'
+        }
+        tf_config = super(ReduceConfig, self).to_tensorflow()
+        return tf_config
 
 
-class TFReduce(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("reduce")
+class PaddleReduce(PaddleOpBenchmarkBase):
     def build_graph(self, config):
-        data = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = self.layers(
-            config.api_name,
-            input_tensor=data,
-            axis=config.dim,
-            keepdims=config.keep_dim)
+            config.api_name, x=x, axis=config.axis, keepdim=config.keepdim)
 
-        self.feed_list = [data]
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [data])
+            self.append_gradients(result, [x])
+
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        out_shape = self.fetch_list[0].shape
+        forward_flop = numel(x_shape)
+        forward_byte = (
+            numel(x_shape) + numel(out_shape)) * sizeof(config.x_dtype)
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
 
 
-if __name__ == '__main__':
-    test_main(PDReduce(), TFReduce(), config=ReduceConfig())
+@benchmark_registry.register("reduce")
+class TorchReduce(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        if len(config.axis) == 0:
+            result = self.layers(config.api_name, input=x)
+        else:
+            result = self.layers(
+                config.api_name,
+                input=x,
+                dim=config.axis,
+                keepdim=config.keepdim)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
+
+
+@benchmark_registry.register("reduce")
+class TFReduce(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = self.layers(
+            config.api_name,
+            input_tensor=x,
+            axis=config.axis,
+            keepdims=config.keepdim)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])

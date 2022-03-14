@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 from common_import import *
 
 
+@benchmark_registry.register("one_hot")
 class OneHotConfig(APIConfig):
     def __init__(self):
         super(OneHotConfig, self).__init__('one_hot')
@@ -22,26 +23,39 @@ class OneHotConfig(APIConfig):
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(OneHotConfig, self).init_from_json(filename, config_id,
                                                  unknown_dim)
-        self.feed_spec = {"range": [0, self.depth]}
+        self.feed_spec = {"range": [0, self.num_classes]}
 
 
-class PDOneHot(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        data = self.variable(
-            name='data', shape=config.input_shape, dtype=config.input_dtype)
-        result = fluid.one_hot(input=data, depth=config.depth)
+@benchmark_registry.register("one_hot")
+class PaddleOneHot(PaddleOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.nn.functional.one_hot(
+            x=x, num_classes=config.num_classes)
 
-        self.feed_vars = [data]
-        self.fetch_vars = [result]
+        self.feed_list = [x]
+        self.fetch_list = [result]
 
 
-class TFOneHot(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("one_hot")
+class TorchOneHot(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = torch.nn.functional.one_hot(
+            input=x, num_classes=config.num_classes)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+
+
+@benchmark_registry.register("one_hot")
+class TFOneHot(TensorflowOpBenchmarkBase):
     def build_graph(self, config):
         data = self.variable(
-            name='data', shape=config.input_shape, dtype=config.input_dtype)
+            name='data', shape=config.x_shape, dtype=config.x_dtype)
         result = tf.one_hot(
             indices=data,
-            depth=config.depth,
+            depth=config.num_classes,
             on_value=None,
             off_value=None,
             axis=None,
@@ -49,7 +63,3 @@ class TFOneHot(TensorflowAPIBenchmarkBase):
 
         self.feed_list = [data]
         self.fetch_list = [result]
-
-
-if __name__ == '__main__':
-    test_main(PDOneHot(), TFOneHot(), config=OneHotConfig())

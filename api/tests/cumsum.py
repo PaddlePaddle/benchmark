@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,37 +15,38 @@
 from common_import import *
 
 
+@benchmark_registry.register("cumsum")
 class CumsumConfig(APIConfig):
     def __init__(self):
         super(CumsumConfig, self).__init__('cumsum')
         self.feed_spec = {"range": [-1, 1]}
 
 
-class PDCumsum(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = fluid.layers.cumsum(
-            x=x,
-            axis=config.axis,
-            exclusive=config.exclusive,
-            reverse=config.reverse)
-
-        self.feed_vars = [x]
-        self.fetch_vars = [result]
-
-
-class TFCumsum(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("cumsum")
+class PaddleCumsum(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.cumsum(
-            x=x,
-            axis=config.axis,
-            exclusive=config.exclusive,
-            reverse=config.reverse)
+        result = paddle.cumsum(x=x, axis=config.axis)
 
         self.feed_list = [x]
         self.fetch_list = [result]
 
 
-if __name__ == '__main__':
-    test_main(PDCumsum(), TFCumsum(), config=CumsumConfig())
+@benchmark_registry.register("cumsum")
+class TorchCumsum(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = torch.cumsum(x=x, axis=config.axis)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+
+
+@benchmark_registry.register("cumsum")
+class TFCumsum(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.cumsum(x=x, axis=config.axis)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]

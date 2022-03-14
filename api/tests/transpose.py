@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,29 +15,71 @@
 from common_import import *
 
 
-class PDTranspose(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        data = self.variable(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = fluid.layers.transpose(x=data, perm=config.perm)
+@benchmark_registry.register("transpose")
+class TransposeConfig(APIConfig):
+    def __init__(self):
+        super(TransposeConfig, self).__init__("transpose")
 
-        self.feed_vars = [data]
-        self.fetch_vars = [result]
-        if config.backward:
-            self.append_gradients(result, [data])
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(TransposeConfig, self).init_from_json(filename, config_id,
+                                                    unknown_dim)
+        changed_dims = []
+        for i in range(len(self.perm)):
+            if self.perm[i] != i:
+                changed_dims.append(i)
+
+        if len(changed_dims) != 2:
+            print(
+                "Warning:\n"
+                "  1. transpose is only supported to swap two dimensions in pytorch.\n"
+            )
+            self.run_torch = False
+        else:
+            self.dim0 = changed_dims[0]
+            self.dim1 = changed_dims[1]
 
 
-class TFTranspose(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("transpose")
+class PaddleTranspose(PaddleOpBenchmarkBase):
     def build_graph(self, config):
-        data = self.variable(
-            name='data', shape=config.x_shape, dtype=config.x_dtype)
-        result = tf.transpose(a=data, perm=config.perm)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.transpose(x, config.perm)
 
-        self.feed_list = [data]
+        self.feed_list = [x]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [data])
+            self.append_gradients(result, [x])
+
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        forward_flop = 0
+        forward_byte = 2 * numel(x_shape) * sizeof(config.x_dtype)
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
 
 
-if __name__ == '__main__':
-    test_main(PDTranspose(), TFTranspose(), config=APIConfig("transpose"))
+@benchmark_registry.register("transpose")
+class TorchTranspose(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = torch.transpose(input=x, dim0=config.dim0, dim1=config.dim1)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
+
+
+@benchmark_registry.register("transpose")
+class TFTranspose(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = tf.transpose(x, config.perm)
+
+        self.feed_list = [x]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])

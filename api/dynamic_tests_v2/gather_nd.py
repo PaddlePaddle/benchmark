@@ -49,14 +49,5 @@ class PDGatherNd(PaddleDynamicAPIBenchmarkBase):
             self.append_gradients(result, [x])
 
 
-class TorchGatherNd(PytorchAPIBenchmarkBase):
-    def build_graph(self, config):
-        x = self.variable(
-            name='x', shape=config.input_shape, dtype=config.input_dtype)
-
-
 if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PDGatherNd(),
-        torch_obj=TorchGatherNd(),
-        config=GatherNdConfig())
+    test_main(pd_dy_obj=PDGatherNd(), config=GatherNdConfig())

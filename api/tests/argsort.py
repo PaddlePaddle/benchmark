@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
 from common_import import *
 
 
+@benchmark_registry.register("argsort")
 class ArgsortConfig(APIConfig):
     def __init__(self):
         super(ArgsortConfig, self).__init__("argsort")
 
     def to_tensorflow(self):
-        tf_config = self
+        tf_config = super(ArgsortConfig, self).to_tensorflow()
         if self.descending:
             tf_config.direction = "DESCENDING"
         else:
@@ -28,30 +29,37 @@ class ArgsortConfig(APIConfig):
         return tf_config
 
 
-class PDArgsort(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
-        result, indices = fluid.layers.argsort(
-            input=input, axis=config.axis, descending=config.descending)
-
-        self.feed_vars = [input]
-        self.fetch_vars = [indices]
-
-
-class TFArgsort(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("argsort")
+class PaddleArgsort(PaddleOpBenchmarkBase):
     def build_graph(self, config):
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        indices = paddle.argsort(
+            x=x, axis=config.axis, descending=config.descending)
+
+        self.feed_list = [x]
+        self.fetch_list = [indices]
+
+
+@benchmark_registry.register("argsort")
+class TorchArgsort(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
+        indices = torch.argsort(
+            x=x, axis=config.axis, descending=config.descending)
+
+        self.feed_list = [x]
+        self.fetch_list = [indices]
+
+
+@benchmark_registry.register("argsort")
+class TFArgsort(TensorflowOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         indices = tf.argsort(
-            values=input,
+            values=x,
             axis=config.axis,
             direction=config.direction,
             stable=False)
 
-        self.feed_list = [input]
+        self.feed_list = [x]
         self.fetch_list = [indices]
-
-
-if __name__ == '__main__':
-    test_main(PDArgsort(), TFArgsort(), config=ArgsortConfig())

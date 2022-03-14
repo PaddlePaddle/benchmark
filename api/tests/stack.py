@@ -1,4 +1,4 @@
-#   Copyright (c) 2019 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
 from common_import import *
 
 
-class PDStack(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
+@benchmark_registry.register("stack")
+class PaddleStack(PaddleOpBenchmarkBase):
+    def build_graph(self, config):
         xs = []
         for i in range(len(config.x_shape)):
             x_i = self.variable(
@@ -24,15 +25,34 @@ class PDStack(PaddleAPIBenchmarkBase):
                 shape=config.x_shape[i],
                 dtype=config.x_dtype[i])
             xs.append(x_i)
-        result = fluid.layers.stack(x=xs, axis=config.axis)
+        result = paddle.stack(x=xs, axis=config.axis)
 
-        self.feed_vars = xs
-        self.fetch_vars = [result]
+        self.feed_list = xs
+        self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, xs)
 
 
-class TFStack(TensorflowAPIBenchmarkBase):
+@benchmark_registry.register("stack")
+class TorchStack(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        values = []
+        for i in range(len(config.x_shape)):
+            value_i = self.variable(
+                name='value_' + str(i),
+                shape=config.x_shape[i],
+                dtype=config.x_dtype[i])
+            values.append(value_i)
+        result = torch.stack(tensors=values, dim=config.axis)
+
+        self.feed_list = values
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, values)
+
+
+@benchmark_registry.register("stack")
+class TFStack(TensorflowOpBenchmarkBase):
     def build_graph(self, config):
         values = []
         for i in range(len(config.x_shape)):
@@ -47,7 +67,3 @@ class TFStack(TensorflowAPIBenchmarkBase):
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, values)
-
-
-if __name__ == '__main__':
-    test_main(PDStack(), TFStack(), config=APIConfig("stack"))

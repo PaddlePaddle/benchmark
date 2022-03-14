@@ -48,10 +48,16 @@ function _train(){
     if [[ ${model_name} = "ResNet152_bs32" ]]; then
         config_file="ResNet152.yaml"
         file_list="train_list_resnet152.txt"
-    elif [[ ${model_name} == *fp16* ]]; then
-        config_file="ResNet50_fp16_dygraph.yaml"
+    elif [[ ${model_name} == *pure_fp16* ]]; then
+        config_file="ResNet50_amp_O2.yaml"
 	file_list="train_list.txt"
         max_epoch=3
+	level=O2
+    elif [[ ${model_name} == *amp_fp16* ]]; then
+	config_file="ResNet50_amp_O1.yaml"
+        file_list="train_list.txt"
+        max_epoch=3
+	level=O1
     else
         config_file="ResNet50.yaml"
         file_list="train_list.txt"
@@ -65,8 +71,8 @@ function _train(){
                -o DataLoader.Train.dataset.cls_label_path=./dataset/imagenet100_data/${file_list}
                -o DataLoader.Train.loader.num_workers=8"
     # pure pf16 args
-    if [[ ${model_name} == *pure_fp16* ]]; then
-        train_cmd=${train_cmd}" -o AMP.use_pure_fp16=True"
+    if [[ ${model_name} == *fp16* ]]; then
+        train_cmd=${train_cmd}" -o AMP.level=${level}"
     fi
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}

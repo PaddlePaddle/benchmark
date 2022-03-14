@@ -2,6 +2,8 @@
 ImageName="registry.baidubce.com/paddlepaddle/paddle:2.1.2-gpu-cuda10.2-cudnn7";
 docker pull ${ImageName}
 export BENCHMARK_ROOT=/workspace # 对应实际地址 benchmark/OtherFrameworks/video/PyTorch
+nvidia-docker stop test_torch_video
+nvidia-docker rm test_torch_video
 
 run_cmd="bash PrepareEnv.sh
         cd ${BENCHMARK_ROOT}/models/TimeSformer;

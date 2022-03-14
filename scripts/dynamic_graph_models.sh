@@ -15,8 +15,8 @@
 # limitations under the License.
 
 
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_mask_rcnn dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_speech_repo_conformer dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo dy_gpt)
+cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
+dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_clas_repo dy_ocr_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
 
 
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
@@ -51,6 +51,11 @@ dy_speech_repo_pwgan(){
 }
 
 dy_speech_repo_conformer(){
+    echo " dy_speech_repo_conformer prepare python3 env "
+	cd ${BENCHMARK_ROOT}/
+    ln -s $(which python3.7) run_env/python3
+    ln -s $(which pip3.7) run_env/pip3
+    export PATH=$(pwd)/run_env:${PATH}
     echo "dy_speech_repo_conformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
     cd ${cur_model_path}/tests/benchmark/conformer/
@@ -67,8 +72,11 @@ dy_video_TimeSformer(){
     echo "dy_video_TimeSformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
     cd ${cur_model_path}/benchmark/TimeSformer/
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt       # 解决个模型之间对该依赖版本要求不同导致依赖反复卸载安装，但卸载有残留无法成功再次安装问题
+    pip install -r requirements.txt
     pip install scikit-image==0.18.2
-	bash run_all.sh local
+    pip install pooch==1.5.2
+    bash run_all.sh local
     rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
 
@@ -93,7 +101,7 @@ dy_clas_repo(){
     echo "dy_clas_repo"
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas/
     cd ${cur_model_path}/
-    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy pandas wget h5py sklearn opencv-python visualdl)
+    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy pandas wget h5py sklearn visualdl opencv-python)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
             echo "${package} have already installed"
@@ -125,33 +133,24 @@ dy_bert(){
     model_mode_list=(base large)
     fp_mode_list=(fp32 fp16)
     for model_mode in ${model_mode_list[@]}; do
-        seq_list=(seqlen128)
+        bs_list=(96)
+        seq_item=(seqlen128)
         if [ ${model_mode} == "large" ]; then
-            seq_list=(seqlen512) # prepare for test large seqlen128|seqlen512
+            bs_list=(4)
+            seq_item=(seqlen512) # prepare for test large seqlen128|seqlen512
         fi
-        for fp_mode in ${fp_mode_list[@]}; do
-            # 监控内外部benchmark，因而参数配置多
-            if [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp32" ]; then
-                bs_list=(32 48)
-            elif [ ${model_mode} == "base" ] && [ ${fp_mode} == "fp16" ]; then
-                bs_list=(64 96)
-            elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp32" ]; then
-                bs_list=(2) # 64
-            elif [ ${model_mode} == "large" ] && [ ${fp_mode} == "fp16" ]; then
-                bs_list=(4) # 64
-            fi
-            for bs_item in ${bs_list[@]}
+
+        for fp_mode in ${fp_mode_list[@]}
+        do
+            for bs_item  in ${bs_list[@]}
             do
-                for seq_item in ${seq_list[@]}
-                do
-                    model_name="bert_${model_mode}_${fp_mode}_${seq_item}_bs${bs_item}"
-                    echo "index is speed, 1gpus, begin, ${model_name}"
-                    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp ${bs_item} 500 ${seq_item} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
-                    sleep 60
-                    echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-                    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp ${bs_item} 400  ${seq_item} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
-                    sleep 60
-                done
+                model_name="bert_${model_mode}_${fp_mode}_${seq_item}_bs${bs_item}"
+                echo "index is speed, 1gpus, begin, ${model_name}"
+                CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} sp ${bs_item} 500 ${seq_item} | tee ${log_path}/${model_name}_speed_1gpus 2>&1
+                sleep 60
+                echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
+                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_mode} ${fp_mode} mp ${bs_item} 400  ${seq_item} | tee ${log_path}/${model_name}_speed_8gpus8p 2>&1
+                sleep 60
             done
         done
     done
@@ -161,6 +160,7 @@ dy_bert(){
 dy_mobilenet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
 
     # Prepare data
@@ -250,8 +250,11 @@ dy_tsn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
+    pip install -r requirements.txt
     pip install wget av
     pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
 	# Prepare pretrained modles
     rm -rf ResNet50_pretrain.pdparams
     ln -s ${prepare_path}/tsn/ResNet50_pretrain.pdparams ${cur_model_path}/
@@ -282,6 +285,7 @@ dy_gan(){
         echo "pooch not installed"
     fi
 
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
     pip install scikit-image==0.18.2
     # Prepare data
@@ -319,29 +323,39 @@ dy_seg(){
     sed -i '/set\ -xe/d' run_benchmark.sh
 
     model_list=(deeplabv3 HRnet)
+    fp_mode_list=(fp32 fp16)
     for model_item in ${model_list[@]}
     do
-        if [ ${model_item} = "HRnet" ]; then
-            bs_item=8
-        elif [ ${model_item} = "deeplabv3" ]; then
-            bs_item=4
-        fi
-        echo "index is speed, ${model_item} 1gpu begin"
-        CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 ${bs_item} sp ${model_item} 200 | tee ${log_path}/dynamic_seg_${model_item}_bs${bs_item}_speed_1gpus 2>&1
-        sleep 10
-        echo "index is speed, ${model_item} 8gpu begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${bs_item} mp ${model_item} 200 | tee ${log_path}/dynamic_seg_${model_item}_bs${bs_item}_speed_8gpus 2>&1
-        sleep 10
+        for fp_mode in ${fp_mode_list[@]}
+        do
+            if [ ${model_item} = "HRnet" ]; then
+                bs_item=8
+            elif [ ${model_item} = "deeplabv3" ]; then
+                bs_item=4
+            fi
+            echo "index is speed, ${model_item} 1gpu begin"
+            CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 ${bs_item} sp ${model_item} 200 False ${fp_mode} | tee ${log_path}/dynamic_seg_${model_item}_bs${bs_item}_${fp_mode}_speed_1gpus 2>&1
+            sleep 10
+            echo "index is speed, ${model_item} 8gpu begin"
+            CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${bs_item} mp ${model_item} 200 False ${fp_mode} | tee ${log_path}/dynamic_seg_${model_item}_bs${bs_item}_${fp_mode}_speed_8gpus 2>&1
+            sleep 10
+        done
     done
 }
 
 dy_slowfast(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
+    pip install -r requirements.txt
     pip install tqdm
     pip install decord
     pip install pandas av
     pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
+    echo "------------pip list is"
+    pip list
+    
 	# Prepare data
     rm -rf data
     ln -s ${data_path}/dygraph_data/slowfast/data/ ${cur_model_path}/
@@ -361,6 +375,7 @@ dy_mask_rcnn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     pip install Cython
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt 
 
     # Install cocoapi
@@ -414,6 +429,7 @@ dy_yolov3(){
     git branch    #develop 分支
     cd ${cur_model_path}
     pip install Cython
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt 
    
     if python -c "import pycocotools" >/dev/null 2>&1
@@ -435,7 +451,6 @@ dy_yolov3(){
     echo "-------before data prepare"
     ls -l ./dataset/coco/
     ln -s ${data_path}/coco/* ./dataset/coco/
-    pip install -r ./dataset/coco/requirements.txt
     echo "-------after data prepare"
     ls -l ./dataset/coco/
     rm -rf run_benchmark.sh
@@ -453,7 +468,11 @@ dy_tsm(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
+    pip install -r requirements.txt
     pip install wget av decord
+    pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
     # Prepare pretrained modles
     ln -s ${prepare_path}/tsm/ResNet50_pretrain.pdparams ${cur_model_path}/
     # Prepare data
@@ -483,6 +502,8 @@ dy_wavenet(){
     ln -s ${data_path}/dygraph_data/wavenet/ljspeech ${cur_model_path}/
 
     apt-get install  libsndfile1 -y
+
+    sed -i "s/opencv-python.*/opencv-python/g" ${data_path}/dygraph_data/wavenet/requirement.txt
     pip install -r ${data_path}/dygraph_data/wavenet/requirement.txt 
     # Running ...
     rm -f ./run_benchmark.sh
@@ -530,13 +551,14 @@ dy_senta(){
 dy_resnet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
    
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./
     sed -i '/set\ -xe/d' run_benchmark_resnet.sh
-    model_list=(ResNet152_bs32 ResNet50_bs32 ResNet50_bs128 ResNet50_amp_fp16_bs128 ResNet50_amp_fp16_bs256) #ResNet50_pure_fp16_bs128
+    model_list=(ResNet152_bs32 ResNet50_bs128 ResNet50_amp_fp16_bs128 ResNet50_amp_fp16_bs256 ResNet50_pure_fp16_bs128)
     for model_name in ${model_list[@]}
     do
 	batch_size=${model_name#*bs}
@@ -617,6 +639,7 @@ dy_bmn() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
     pip install scikit-image==0.18.2
+    pip install pooch==1.5.2
     package_check_list=(tqdm PyYAML numpy decord pandas av)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
@@ -646,6 +669,7 @@ dy_faster_rcnn_fpn() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     pip install Cython
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
 
     # Install cocoapi
@@ -697,7 +721,11 @@ dy_faster_rcnn_fpn() {
 dy_gpt(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
     cd ${cur_model_path}
+    pip uninstall paddlenlp -y
+    echo "python env is"
+    ls -l ${BENCHMARK_ROOT}/run_env/
     sed -i "s/python3/python3.7/g"  examples/language_model/data_tools/Makefile  # 模型py3默认使用python37， benchmark 镜像python3 默认py35
+    cat examples/language_model/data_tools/Makefile | grep python
     sed -i '/set\ -xe/d' tests/benchmark/run_benchmark.sh
     bash tests/benchmark/run_all.sh dygraph
 }
@@ -721,6 +749,7 @@ dy_xlnet() {
     export PATH=$run_env:${PATH}
 
     # 2. 安装该模型需要的依赖 (如需开启优化策略请注明)
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
     pip install sentencepiece -i https://mirror.baidu.com/pypi/simple # 安装 sentencepiece
     pip install -e ./

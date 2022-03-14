@@ -1,4 +1,4 @@
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,114 +13,77 @@
 # limitations under the License.
 
 from common_import import *
-from conv2d import Conv2dConfig
+
+# TODO(Xreki): to support tf.
 
 
-class Conv2dTransposeConfig(Conv2dConfig):
+@benchmark_registry.register("conv2d_transpose")
+class Conv2dTransposeConfig(APIConfig):
     def __init__(self):
         super(Conv2dTransposeConfig, self).__init__("conv2d_transpose")
+        self.feed_spec = [
+            {
+                "range": [-1, 1]
+            },  # input
+            {
+                "range": [-1, 1],
+            }  # filters
+        ]
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(Conv2dTransposeConfig, self).init_from_json(filename, config_id,
                                                           unknown_dim)
-        self.filter_shape = [
-            self.num_channels // self.groups, self.num_filters,
-            self.filter_size[0], self.filter_size[1]
-        ]
-
-        # The argument padding of tf's conv2d_transpose must be a string and
-        # the value is "SAME" or "VALID".
-        if not isinstance(
-                self.padding,
-                str) and self.padding != [0, 0] and self.padding != [1, 1]:
-            print(
-                "Warning:\n"
-                "  1. tf is disabled becuase the argument padding of tf's "
-                "conv2d_transpose must be a string and the value is \"SAME\" "
-                "or \"VALID\". Please add rule to convert this kind of padding to string.\n"
-            )
-            self.run_tf = False
-
-    def to_tensorflow(self):
-        assert self.output_size is not None
-        tf_config = super(Conv2dTransposeConfig, self).to_tensorflow()
-        tf_config.filter_shape = [
-            self.filter_size[0], self.filter_size[1], self.num_filters,
-            self.num_channels // self.groups
-        ]
-        if self.data_format == "NCHW":
-            tf_config.output_size = [
-                self.input_shape[0], self.num_filters, self.output_size[0],
-                self.output_size[1]
-            ]
-        elif self.data_format == "NHWC":
-            tf_config.output_size = [
-                self.input_shape[0], self.output_size[0], self.output_size[1],
-                self.num_filters
-            ]
-        tf_config.padding = self._convert_padding(self.padding)
-        return tf_config
-
-    def _convert_padding(self, padding):
-        if isinstance(padding, str):
-            return padding
-
-        assert isinstance(padding, list)
-
-        # It works for current configs, but maybe we need to add some check.
-        return "VALID" if padding == [0, 0] else "SAME"
+        if self.groups == None:
+            self.groups = 1
 
 
-class PDConv2dTranspose(PaddleAPIBenchmarkBase):
-    def build_program(self, config):
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
-        filter = self.variable(
-            name='filter', shape=config.filter_shape, dtype=config.input_dtype)
-        result = fluid.layers.conv2d_transpose(
-            input=input,
-            num_filters=config.num_filters,
-            output_size=config.output_size,
-            filter_size=config.filter_size,
-            padding=config.padding,
+@benchmark_registry.register("conv2d_transpose")
+class PaddleConv2dTranspose(PaddleOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        weight = self.variable(
+            name="weight",
+            shape=config.weight_shape,
+            dtype=config.weight_dtype)
+
+        result = paddle.nn.functional.conv2d_transpose(
+            x=x,
+            weight=weight,
+            bias=None,
             stride=config.stride,
+            padding=config.padding,
+            output_padding=0,
             dilation=config.dilation,
             groups=config.groups,
-            param_attr="filter",
-            bias_attr=False,
-            use_cudnn=config.use_cudnn,
-            act=None,
+            output_size=config.output_size,
             data_format=config.data_format)
 
-        self.feed_vars = [input, filter]
-        self.fetch_vars = [result]
-        if config.backward:
-            self.append_gradients(result, [input, filter])
-
-
-class TFConv2dTranspose(TensorflowAPIBenchmarkBase):
-    def build_graph(self, config):
-        input = self.variable(
-            name='input', shape=config.input_shape, dtype=config.input_dtype)
-        filter = self.variable(
-            name='filter', shape=config.filter_shape, dtype=config.input_dtype)
-        result = tf.nn.conv2d_transpose(
-            input=input,
-            filters=filter,
-            output_shape=config.output_size,
-            strides=config.stride,
-            padding=config.padding,
-            data_format=config.data_format,
-            dilations=config.dilation)
-
-        self.feed_list = [input, filter]
+        self.feed_list = [x, weight]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [input, filter])
+            self.append_gradients(result, [x, weight])
 
 
-if __name__ == '__main__':
-    test_main(
-        PDConv2dTranspose(),
-        TFConv2dTranspose(),
-        config=Conv2dTransposeConfig())
+@benchmark_registry.register("conv2d_transpose")
+class TorchConv2dTranspose(PytorchOpBenchmarkBase):
+    def build_graph(self, config):
+        x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
+        weight = self.variable(
+            name="weight",
+            shape=config.weight_shape,
+            dtype=config.weight_dtype)
+
+        result = torch.nn.functional.conv_transpose2d(
+            input=x,
+            weight=weight,
+            bias=None,
+            stride=config.stride,
+            padding=config.padding,
+            output_padding=0,
+            dilation=config.dilation,
+            groups=config.groups)
+
+        self.feed_list = [x, weight]
+        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x, weight])
