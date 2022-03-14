@@ -6,27 +6,23 @@ stop_stage=100
 
 echo "*******prepare benchmark start ***********"
 
-
-################################# 配置python
-if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-    test -d venv || virtualenv -p python venv
-    source venv/bin/activate
-fi
+set -e 
 
 ################################# 安装框架 如:
 
 # 安装 pyrtorch
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+    pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple
     pip install -U pip
     echo `pip --version`
     echo "install pytorch..."
-    pip install torch==1.9.0+cu102 -f https://download.pytorch.org/whl/torch_stable.html
+    pip install torch==1.9.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html
     echo "pytorch installed"
 fi
 # 拉取模型代码并安装
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     echo "install pwgan..."
-    pip install -e .
+    pip install .
     echo "pwgan installed"
     echo "install apex..."
     # If you want to use distributed training, please run following command to install apex.

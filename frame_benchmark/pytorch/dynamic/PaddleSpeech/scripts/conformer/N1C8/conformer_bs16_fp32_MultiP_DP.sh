@@ -4,7 +4,6 @@ bash prepare.sh
 
 CUR_DIR=${PWD}
 # 1 安装该模型需要的依赖 (如需开启优化策略请注明)
-source venv/bin/activate
 
 # 2 拷贝该模型需要数据、预训练模型
 cp run_benchmark.sh examples/aishell/s0
@@ -28,5 +27,3 @@ bash run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_process_type} ${
 
 popd
 
-
-cp examples/aishell/s0/wenet* .

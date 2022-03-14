@@ -34,7 +34,6 @@ def analyze(model_name, log_file, res_log_file, device_num):
         clip_ips_res = ips_res[skip_num:]
         clip_ips_res = [float(item.split(" ")[0]) for item in clip_ips_res]
         ips = sum(clip_ips_res) / len(clip_ips_res)
-        ips = round((ips * int(gpu_num)), 3)
 
         info = {"model_branch": os.getenv('model_branch'),
                 "model_commit": os.getenv('model_commit'),
