@@ -8,7 +8,7 @@
         },
         "boxes": {
             "dtype": "float32",
-            "shape": "[1000L, 4L]",
+            "shape": "[960L, 4L]",
             "type": "Variable"
         },
         "boxes_num": {
@@ -31,7 +31,7 @@
         },
         "boxes": {
             "dtype": "float32",
-            "shape": "[1000L, 4L]",
+            "shape": "[960L, 4L]",
             "type": "Variable"
         },
         "boxes_num": {
