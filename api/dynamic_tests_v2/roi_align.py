@@ -27,7 +27,8 @@ class ROIAlignConfig(APIConfig):
         boxes[:, 2] += boxes[:, 0] + 50
         boxes[:, 3] += boxes[:, 1] + 50
         self.boxes_value = boxes
-        self.boxes_num_value = np.array([60] * unknown_dim).astype('int32')
+        self.boxes_num_value = np.array([960 // unknown_dim] *
+                                        unknown_dim).astype('int32')
 
 
 class PDROIAlign(PaddleDynamicAPIBenchmarkBase):
