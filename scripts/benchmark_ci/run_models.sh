@@ -1,6 +1,5 @@
 #run resnet
 ResNet50_bs32_dygraph(){
-    export model_threshold=0.05
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
     git checkout 98db91b2118deb0f6f1c0bf90708c1bc34687f8d
@@ -20,7 +19,6 @@ ResNet50_bs32_dygraph(){
 }
 
 ResNet50_bs32(){
-    export model_threshold=0.05
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
     python -m pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda100
@@ -43,7 +41,6 @@ ResNet50_bs32(){
 
 #run bert_base_fp32
 bert_base_seqlen128_fp32_bs32(){
-    export model_threshold=0.05
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/bert/
     cd ${cur_model_path}
     ln -s ${data_path}/Bert/hdf5_lower_case_1_seq_len_512_max_pred_80_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en_seqlen512 ${cur_model_path}/wikicorpus_en_seqlen512 
@@ -71,7 +68,6 @@ bert_base_seqlen128_fp32_bs32(){
 }
 #transformer
 transformer_base_bs4096_amp_fp16(){
-    export model_threshold=0.05
     pip install paddlenlp==2.0.5
     pip install attrdict
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/machine_translation/transformer
@@ -94,7 +90,6 @@ transformer_base_bs4096_amp_fp16(){
 }
 #yolov3
 yolov3_bs8(){
-    export model_threshold=0.1
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     git branch    #develop 分支
     cd ${cur_model_path}
@@ -124,7 +119,6 @@ yolov3_bs8(){
 }
 #tsm
 TSM_bs16(){
-    export model_threshold=0.05
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
@@ -146,7 +140,6 @@ TSM_bs16(){
 }
 #deeplabv3
 deeplabv3_bs4_fp32(){
-    export model_threshold=0.05
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/
     cd ${cur_model_path}
     pip install  visualdl
@@ -172,7 +165,6 @@ deeplabv3_bs4_fp32(){
 
 #run CycleGAN
 CycleGAN_bs1(){
-    export model_threshold=0.05
     cur_model_path=${BENCHMARK_ROOT}/PaddleGAN
     cd ${cur_model_path}
 
@@ -203,7 +195,6 @@ CycleGAN_bs1(){
 #mask_rcnn
 mask_rcnn_bs1(){
 #ResNet50_bs32_dygraph
-    export model_threshold=0.05
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     pip install Cython
@@ -239,7 +230,6 @@ mask_rcnn_bs1(){
 }
 
 PPOCR_mobile_2_bs8(){
-    export model_threshold=0.05
     cur_model_path=${BENCHMARK_ROOT}/PaddleOCR
     cd ${cur_model_path}
     pip install -r requirements.txt
@@ -281,7 +271,6 @@ PPOCR_mobile_2_bs8(){
 }
 
 seq2seq_bs128(){
-    export model_threshold=0.05
     cur_model_path=${BENCHMARK_ROOT}/models/dygraph/seq2seq
     cd ${cur_model_path}
     # Prepare data
