@@ -1,0 +1,27 @@
+[{
+    "op": "unstack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L, 512L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "unstack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "-1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 800L, 500L]",
+            "type": "Variable"
+        }
+    }
+}]
