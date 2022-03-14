@@ -23,11 +23,11 @@ class ROIAlignConfig(APIConfig):
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         super(ROIAlignConfig, self).init_from_json(filename, config_id,
                                                    unknown_dim)
-        boxes = np.random.rand(1000, 4)
+        boxes = np.random.rand(960, 4)
         boxes[:, 2] += boxes[:, 0] + 50
         boxes[:, 3] += boxes[:, 1] + 50
         self.boxes_value = boxes
-        self.boxes_num_value = np.array([1000] * unknown_dim).astype('int32')
+        self.boxes_num_value = np.array([60] * unknown_dim).astype('int32')
 
 
 class PDROIAlign(PaddleDynamicAPIBenchmarkBase):
