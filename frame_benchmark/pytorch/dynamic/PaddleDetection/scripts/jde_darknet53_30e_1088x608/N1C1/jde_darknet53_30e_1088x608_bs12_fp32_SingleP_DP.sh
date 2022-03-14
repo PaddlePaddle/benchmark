@@ -1,9 +1,9 @@
-model_item=fairmot_dla34_30e_1088x608
-bs_item=22
+model_item=jde_darknet53_30e_1088x608
+bs_item=12
 fp_item=fp32
-run_process_type=MultiP
+run_process_type=SingleP
 run_mode=DP
-device_num=N1C8
+device_num=N1C1
 max_epochs=1
 num_workers=2
 
