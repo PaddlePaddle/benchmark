@@ -259,7 +259,6 @@ PPOCR_mobile_2_bs8(){
     ln -s ${data_path}/PPOCR_mobile_2.0/icdar2015 ${cur_model_path}/train_data/icdar2015
     rm -rf pretrain_models
     ln -s ${prepare_path}/PPOCR_mobile_2.0/pretrain_models ./pretrain_models
-    
     # Running ...
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/ppocr_mobile_2/paddle/run_benchmark.sh ./
