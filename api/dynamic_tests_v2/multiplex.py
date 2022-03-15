@@ -21,24 +21,34 @@ class MultiplexConfig(APIConfig):
         self.run_torch = False
         print("[WARNING]: Pytorch dosen`t support multiplex currently.")
 
+    def init_from_json(self, filename, config_id=0, unknown_dim=16):
+        super(MultiplexConfig, self).init_from_json(filename, config_id,
+                                                    unknown_dim)
+
+        index = np.array([[3], [0], [1], [2]])
+        self.index_value = index.astype(self.index_dtype)
+
 
 class PaddleMultiplex(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         inputs = []
         for i in range(len(config.inputs_shape)):
             input = self.variable(
-                name='input_' + str(i),
+                name='input' + str(i),
                 shape=config.inputs_shape[i],
                 dtype=config.inputs_dtype[i])
             inputs.append(input)
         index = self.variable(
-            name='index', shape=config.index_shape, dtype=config.index_dtype)
+            name='index',
+            shape=config.index_shape,
+            dtype=config.index_dtype,
+            value=config.index_value)
         result = paddle.multiplex(inputs=inputs, index=index)
 
         self.feed_list = [inputs, index]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [inputs])
+            self.append_gradients(result, [index])
 
 
 if __name__ == '__main__':

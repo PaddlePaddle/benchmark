@@ -5,22 +5,22 @@
             "type": "list<Variable>",
             "input0": {
                 "dtype": "int32",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             },
             "input1": {
                 "dtype": "int32",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             },
             "input2": {
                 "dtype": "int32",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             },
             "input3": {
                 "dtype": "int32",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             }
         },
@@ -37,22 +37,22 @@
             "type": "list<Variable>",
             "input0": {
                 "dtype": "int64",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             },
             "input1": {
                 "dtype": "int64",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             },
             "input2": {
                 "dtype": "int64",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             },
             "input3": {
                 "dtype": "int64",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             }
         },
@@ -69,22 +69,22 @@
             "type": "list<Variable>",
             "input0": {
                 "dtype": "float32",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             },
             "input1": {
                 "dtype": "float32",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             },
             "input2": {
                 "dtype": "float32",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             },
             "input3": {
                 "dtype": "float32",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             }
         },
@@ -101,22 +101,22 @@
             "type": "list<Variable>",
             "input0": {
                 "dtype": "float64",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             },
             "input1": {
                 "dtype": "float64",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             },
             "input2": {
                 "dtype": "float64",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             },
             "input3": {
                 "dtype": "float64",
-                "shape": "[512L, 512L]",
+                "shape": "[4L, 4L]",
                 "type": "Variable"
             }
         },
