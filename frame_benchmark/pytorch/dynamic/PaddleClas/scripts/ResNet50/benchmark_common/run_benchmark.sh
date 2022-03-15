@@ -8,6 +8,7 @@ dic=( ["MobileNetV2_fp32"]="configs/mobilenet_v2/mobilenet_v2_b32x8_imagenet.py"
       ["MobileNetV3_large_x1_0_fp32"]="configs/mobilenet_v3/mobilenet_v3_large_imagenet.py"
       ["ResNet50_fp32"]="configs/resnet/resnet50_b32x8_imagenet.py"
       ["ResNet152_fp32"]="configs/resnet/resnet152_b32x8_imagenet.py"
+      ["ResNet50_fp16"]="configs/fp16/resnet50_b32x8_fp16_imagenet.py"
 	)
 
 # Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_name} ${run_mode} ${fp_item} ${bs_item} ${max_epochs} ${num_workers}
