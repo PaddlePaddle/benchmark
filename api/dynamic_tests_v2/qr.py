@@ -32,7 +32,7 @@ class PaddleQr(PaddleDynamicAPIBenchmarkBase):
         self.fetch_list = [result]
 
         if config.backward:
-            self.append_gradients(result, [x])
+            self.append_gradients(list(result), x)
 
 
 if __name__ == '__main__':

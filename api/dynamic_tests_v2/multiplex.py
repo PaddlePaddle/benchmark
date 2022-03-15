@@ -48,7 +48,7 @@ class PaddleMultiplex(PaddleDynamicAPIBenchmarkBase):
         self.feed_list = [inputs, index]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [index])
+            self.append_gradients(result, inputs)
 
 
 if __name__ == '__main__':
