@@ -1,28 +1,27 @@
 [{
-    "op": "cumprod",
+    "op": "unstack",
     "param_info": {
-        "dim": {
+        "axis": {
             "type": "int",
-            "value": "0"
+            "value": "1"
         },
         "x": {
             "dtype": "float32",
-            "shape": "[1700971L, 1L]",
+            "shape": "[-1L, 1024L, 512L]",
             "type": "Variable"
         }
     }
 }, {
-    "op": "cumprod",
+    "op": "unstack",
     "param_info": {
-        "dim": {
+        "axis": {
             "type": "int",
-            "value": "0"
+            "value": "-1"
         },
         "x": {
             "dtype": "float32",
-            "shape": "[1700971L, 100L]",
+            "shape": "[-1L, 800L, 500L]",
             "type": "Variable"
         }
-    },
-    "repeat": 10
+    }
 }]

@@ -15,26 +15,22 @@
 from common_import import *
 
 
-class PaddleSize(PaddleDynamicAPIBenchmarkBase):
+class DeterminantConfig(APIConfig):
+    def __init__(self):
+        super(DeterminantConfig, self).__init__('determinant')
+        self.feed_spec = [{"range": [-1, 1]}]
+
+class PaddleDeterminant(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        input = self.variable(name='input', shape=config.input_shape, dtype=config.input_dtype)
-        result = paddle.fluid.layers.size(input)
+        x = self.variable(
+            name='x', shape=config.x_shape, dtype=config.x_dtype)
+        result = paddle.linalg.det(x=x)
 
-        self.feed_list = [input]
+        self.feed_list = [x]
         self.fetch_list = [result]
-
-
-class TorchSize(PytorchAPIBenchmarkBase):
-    def build_graph(self, config):
-        input = self.variable(name='input', shape=config.input_shape, dtype=config.input_dtype)
-        result = torch.numel(input=input)
-
-        self.feed_list = [input]
-        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(result, [x])
 
 
 if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PaddleSize(),
-        torch_obj=TorchSize(),
-        config=APIConfig('size'))
+    test_main(pd_dy_obj=PaddleDeterminant(), config=DeterminantConfig())

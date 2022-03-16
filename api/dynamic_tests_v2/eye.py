@@ -21,8 +21,6 @@ class PaddleEye(PaddleDynamicAPIBenchmarkBase):
 
         self.feed_list = []
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [])
 
 
 class TorchEye(PytorchAPIBenchmarkBase):
@@ -39,8 +37,6 @@ class TorchEye(PytorchAPIBenchmarkBase):
 
         self.feed_list = []
         self.fetch_list = [result]
-        if config.backward:
-            self.append_gradients(result, [])
 
 
 if __name__ == '__main__':

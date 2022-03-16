@@ -1,0 +1,129 @@
+[{
+    "op": "multiplex",
+    "param_info": {
+        "inputs": {
+            "type": "list<Variable>",
+            "input0": {
+                "dtype": "int32",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            },
+            "input1": {
+                "dtype": "int32",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            },
+            "input2": {
+                "dtype": "int32",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            },
+            "input3": {
+                "dtype": "int32",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            }
+        },
+        "index": {
+            "dtype": "int32",
+            "shape": "[4L, 1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "multiplex",
+    "param_info": {
+        "inputs": {
+            "type": "list<Variable>",
+            "input0": {
+                "dtype": "int64",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            },
+            "input1": {
+                "dtype": "int64",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            },
+            "input2": {
+                "dtype": "int64",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            },
+            "input3": {
+                "dtype": "int64",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            }
+        },
+        "index": {
+            "dtype": "int32",
+            "shape": "[4L, 1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "multiplex",
+    "param_info": {
+        "inputs": {
+            "type": "list<Variable>",
+            "input0": {
+                "dtype": "float32",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            },
+            "input1": {
+                "dtype": "float32",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            },
+            "input2": {
+                "dtype": "float32",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            },
+            "input3": {
+                "dtype": "float32",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            }
+        },
+        "index": {
+            "dtype": "int32",
+            "shape": "[4L, 1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "multiplex",
+    "param_info": {
+        "inputs": {
+            "type": "list<Variable>",
+            "input0": {
+                "dtype": "float64",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            },
+            "input1": {
+                "dtype": "float64",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            },
+            "input2": {
+                "dtype": "float64",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            },
+            "input3": {
+                "dtype": "float64",
+                "shape": "[256L, 256L]",
+                "type": "Variable"
+            }
+        },
+        "index": {
+            "dtype": "int32",
+            "shape": "[4L, 1L]",
+            "type": "Variable"
+        }
+    }
+}]

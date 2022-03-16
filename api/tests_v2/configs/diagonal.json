@@ -23,8 +23,8 @@
     "op": "diagonal",
     "param_info": {
         "x": {
-            "dtype": "float16",
-            "shape": "[3100L, 3100L]",
+            "dtype": "float32",
+            "shape": "[1024L, 512L, 128L]",
             "type": "Variable"
         },
         "offset": {
@@ -39,5 +39,6 @@
             "type": "int",
             "value": "1"
         }
-    }
+    },
+    "repeat": 100
 }]

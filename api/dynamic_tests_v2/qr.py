@@ -15,28 +15,25 @@
 from common_import import *
 
 
-class PaddleBincount(PaddleDynamicAPIBenchmarkBase):
+class QrConfig(APIConfig):
+    def __init__(self):
+        super(QrConfig, self).__init__('qr')
+        self.run_torch = False
+        print("[WARNING]: Pytorch dosen`t support qr currently.")
+
+
+class PaddleQr(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
-        result = paddle.bincount(x=x, weights=w, minlength=config.minlength)
 
-        self.feed_list = [x, w]
+        result = paddle.linalg.qr(x=x, mode=config.mode)
+
+        self.feed_list = [x]
         self.fetch_list = [result]
 
-
-class TorchBincount(PytorchAPIBenchmarkBase):
-    def build_graph(self, config):
-        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        w = self.variable(name='w', shape=config.w_shape, dtype=config.w_dtype)
-        result = torch.bincount(input=x, weights=w, minlength=config.minlength)
-
-        self.feed_list = [x, w]
-        self.fetch_list = [result]
+        if config.backward:
+            self.append_gradients(list(result), x)
 
 
 if __name__ == '__main__':
-    test_main(
-        pd_dy_obj=PaddleBincount(),
-        torch_obj=TorchBincount(),
-        config=APIConfig('bincount'))
+    test_main(pd_dy_obj=PaddleQr(), config=QrConfig())
