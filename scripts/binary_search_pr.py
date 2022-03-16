@@ -35,6 +35,24 @@ def parse_args():
         type=str,
         default='CUDA_VISIBLE_DEVICES=7 bash run_benchmark.sh 1 sp 300',
         help='command of running the script.'
+	)
+    parser.add_argument(
+        '--compile_WITH_DISTRIBUTE',
+        type=str,
+        default='ON',
+        help='compile parameter:WITH_DISTRIBUTE'
+    )
+    parser.add_argument(
+        '--compile_ON_INFER',
+        type=str,
+        default='OFF',
+        help='compile parameter:ON_INFER'
+    )
+    parser.add_argument(
+        '--compile_PY_VERSION',
+        type=str,
+        default='3.7',
+        help='compile parameter:PY_VERSION'
     )
     parser.add_argument(
         '--standard_value',
@@ -47,6 +65,12 @@ def parse_args():
         type=float,
         default=0.05,
         help='the threshold of alarming, default is 0.05.'
+    )
+    parser.add_argument(
+        '--key_word',
+        type=str,
+        default='FINAL_RESULT',
+        help='the key word for finding performance data in log.'
     )
     parser.add_argument(
         '--model_name',
@@ -68,7 +92,7 @@ def compile(commit_id):
     build_path = os.path.join(paddle_path, 'build')
     os.chdir(build_path)
     print('commit {} build start'.format(commit_id))
-    cmake_command = 'cmake .. -DPY_VERSION=3.7 -DWITH_GPU=ON -DWITH_DISTRIBUTE=ON -DWITH_AMD_GPU=OFF -DWITH_MKL=ON -DWITH_NGRAPH=OFF -DWITH_AVX=ON -DWITH_GOLANG=OFF -DWITH_CONTRIB=ON -DWITH_INFERENCE_API_TEST=ON -DWITH_HIGH_LEVEL_API_TEST=OFF -DWITH_GRPC=ON -DWITH_TESTING=OFF -DWITH_INFERENCE_API_TEST=OFF -DON_INFER=OFF -DCMAKE_BUILD_TYPE=Release'
+    cmake_command = 'cmake .. -DPY_VERSION={} -DWITH_GPU=ON -DWITH_DISTRIBUTE={} -DWITH_AMD_GPU=OFF -DWITH_MKL=ON -DWITH_NGRAPH=OFF -DWITH_AVX=ON -DWITH_GOLANG=OFF -DWITH_CONTRIB=ON -DWITH_INFERENCE_API_TEST=ON -DWITH_HIGH_LEVEL_API_TEST=OFF -DWITH_GRPC=ON -DWITH_TESTING=OFF -DWITH_INFERENCE_API_TEST=OFF -DON_INFER={} -DCMAKE_BUILD_TYPE=Release'.format(args.compile_PY_VERSION, args.compile_WITH_DISTRIBUTE, args.compile_ON_INFER)
     build_command = 'make -j12'
     os.system(cmake_command)
     build_res = os.system(build_command)
@@ -114,7 +138,7 @@ def check_success(commit_id):
         f = open('log.txt', 'w')
         f.writelines(log[1])
         f.close()
-        cmd = 'cat log.txt | tr "," "\n" | grep FINAL_RESULT'
+        cmd = 'cat log.txt | tr "," "\n" | grep {}'.format(args.key_word)
         log_result = subprocess.getstatusoutput(cmd)
         f = open('log_result.txt', 'w')
         f.writelines(log_result[1])
