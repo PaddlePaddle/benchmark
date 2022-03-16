@@ -10,9 +10,9 @@ function _set_params(){
     device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
     model_repo="DeepLearningExamples"          # (必选) 模型套件的名字
-    speed_unit="tokens/s"         # (必选)速度指标单位
+    speed_unit="step/s"         # (必选)速度指标单位
     skip_steps=10                  # (必选)解析日志，跳过模型前几个性能不稳定的step
-    keyword="tokens/s:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
+    keyword="it/s:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
     convergence_key=""             # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
     max_iter=${7:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"3"}             # (可选)
@@ -45,8 +45,9 @@ function _train(){
     DATA_DIR_PHASE2=/workspace/bert/data/pretrain/phase2/bin_size_64/parquet
     DATA_DIR_PHASE1=/workspace/bert/data/hdf5_lower_case_1_seq_len_128_max_pred_20_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en # change this for other datasets
     DATA_DIR_PHASE=/workspace/bert/data/pretrain/phase1/unbinned/parquet
-    CHECKPOINTS_DIR=/workspace/bert/results/checkpoints
-    BERT_CONFIG=bert_config_base.json
+    RESULTS_DIR=/workspace/bert/results/
+    CHECKPOINTS_DIR=${RESULTS_DIR}/checkpoints
+    BERT_CONFIG=/workspace/bert/bert_config_base.json
 
     PREC=""
     if [ ${fp_item} = "fp16" ];then
@@ -56,12 +57,12 @@ function _train(){
     ALL_REDUCE_POST_ACCUMULATION="--allreduce_post_accumulation"
     ALL_REDUCE_POST_ACCUMULATION_FP16="--allreduce_post_accumulation_fp16"
     CHECKPOINT=""
+    INIT_CHECKPOINT=""
     ACCUMULATE_GRADIENTS="--gradient_accumulation_steps=128"
     
     CMD=" --input_dir=$DATA_DIR_PHASE1"
     CMD+=" --output_dir=$CHECKPOINTS_DIR"
     CMD+=" --config_file=${BERT_CONFIG}"
-    CMD+=" --vocab_file=vocab/vocab"
     CMD+=" --train_batch_size=${base_batch_size}"
     CMD+=" --max_seq_length=128"
     CMD+=" --max_predictions_per_seq=80"
@@ -76,15 +77,14 @@ function _train(){
     CMD+=" $CHECKPOINT"
     CMD+=" $ALL_REDUCE_POST_ACCUMULATION"
     CMD+=" $ALL_REDUCE_POST_ACCUMULATION_FP16"
-    CMD+=" --do_train --phase2 --resume_from_checkpoint --phase1_end_step=7038"
-    CMD+=" --json-summary /workspace/bert/results/dllogger.json"
-    CMD+=" --disable_progress_bar"
-    CMD+=" --num_workers=${num_workers}"
+    CMD+=" $INIT_CHECKPOINT"
+    CMD+=" --do_train"
+    CMD+=" --json-summary ${RESULTS_DIR}/dllogger.json"
 
     case ${run_process_type} in
-    SingleP) train_cmd="/workspace/bert/run_pretraining.py  --num_workers=1 ${CMD}" ;;
+    SingleP) train_cmd="python3 /workspace/bert/run_pretraining.py ${CMD}" ;;
     MultiP)
-        train_cmd="python3 -m torch.distributed.launch  /workspace/bert/run_pretraining.py  ${CMD}" ;;
+        train_cmd="python3 -m torch.distributed.launch  --nproc_per_node=8 /workspace/bert/run_pretraining.py  ${CMD}" ;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
 #   以下为通用执行命令，无特殊可不用修改
