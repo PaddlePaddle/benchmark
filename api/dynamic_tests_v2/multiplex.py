@@ -31,6 +31,7 @@ class MultiplexConfig(APIConfig):
 
 class PaddleMultiplex(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
+        # The input of multiplex op is a list
         inputs = []
         for i in range(len(config.inputs_shape)):
             input = self.variable(
