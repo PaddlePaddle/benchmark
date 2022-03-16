@@ -1,6 +1,6 @@
-model_item=bert_base
+model_item=bert_base_seqlen128
 bs_item=96
-fp_item=fp16
+fp_item=fp32
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1

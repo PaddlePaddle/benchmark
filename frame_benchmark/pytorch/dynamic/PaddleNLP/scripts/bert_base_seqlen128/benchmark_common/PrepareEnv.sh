@@ -1,5 +1,6 @@
 echo "*******prepare benchmark start ***********"
 
+ROOT_DIR=$(PWD)
 
 cd PyTorch/LanguageModeling/BERT
 
@@ -31,7 +32,8 @@ cd /workspace/bert/data/
 wget https://bj.bcebos.com/paddlenlp/data/bert_128_wiki_demo_data.zip
 unzip bert_128_wiki_demo_data.zip
 
-cd /workspace/bert
-mv bert_config_base.json /workspace/bert
+cd ${ROOT_DIR}
+
+cp bert_config_base.json /workspace/bert
 
 echo "*******prepare benchmark end***********"

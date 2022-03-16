@@ -1,9 +1,9 @@
-model_item=bert_large
+model_item=bert_large_seqlen512
 bs_item=10
-fp_item=fp16
+fp_item=fp32
 run_process_type=MultiP
 run_mode=DP
-device_num=N1C1
+device_num=N1C8
 max_iter=100
 num_workers=1
 

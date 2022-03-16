@@ -1,4 +1,4 @@
-model_item=bert_large
+model_item=bert_large_seqlen512
 bs_item=10
 fp_item=fp32
 run_process_type=SingleP

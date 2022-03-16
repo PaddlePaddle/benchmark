@@ -1,9 +1,9 @@
-model_item=bert_base
+model_item=bert_base_seqlen128
 bs_item=32
 fp_item=fp32
-run_process_type=SingleP
+run_process_type=MultiP
 run_mode=DP
-device_num=N1C1
+device_num=N1C8
 max_iter=200
 num_workers=1
 

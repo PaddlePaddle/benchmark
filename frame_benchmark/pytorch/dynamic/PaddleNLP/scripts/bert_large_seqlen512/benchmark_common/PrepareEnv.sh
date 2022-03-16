@@ -1,5 +1,6 @@
 echo "*******prepare benchmark start ***********"
 
+ROOT_DIR=$(PWD)
 
 cd PyTorch/LanguageModeling/BERT
 
@@ -8,7 +9,6 @@ ln -s  $PWD /workspace/bert
 mkdir /workspace/bert/data
 
 export BERT_PREP_WORKING_DIR=/workspace/bert/data
-
 
 apt-get update && apt-get install -y pbzip2 pv bzip2 cabextract
 
@@ -31,5 +31,7 @@ cd /workspace/bert/data/
 # hdf5_lower_case_1_seq_len_512_max_pred_80_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en
 wget https://bj.bcebos.com/paddlenlp/data/bert_512_wiki_demo_data.zip
 unzip bert_512_wiki_demo_data.zip
+
+cd ${ROOT_DIR}
 
 echo "*******prepare benchmark end***********"
