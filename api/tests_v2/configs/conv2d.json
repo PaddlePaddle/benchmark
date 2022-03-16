@@ -105,7 +105,8 @@
             "value": "(2, 1)"
         }
     },
-    "atol": 0.05
+    "atol": 0.05,
+    "repeat": 100
 }, {
     "config_id": 3,
     "op": "conv2d",

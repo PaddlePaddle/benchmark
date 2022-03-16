@@ -41,8 +41,7 @@
             "type": "int",
             "value": "0"
         }
-    },
-    "repeat": 850000
+    }
 }, {
     "op": "embedding",
     "param_info": {
@@ -64,8 +63,7 @@
             "type": "string",
             "value": "None"
         }
-    },
-    "repeat": 100000
+    }
 }, {
     "op": "embedding",
     "param_info": {
