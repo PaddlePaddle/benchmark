@@ -50,10 +50,10 @@ function _train(){
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
 
-    train_config="configs/solov2/solov2_r50_fpn_8gpu_1x.py"
+    train_config="custom_configs/${model_item}_bs${base_batch_size}_${fp_item}.py"
 
     case ${run_process_type} in
-    SingleP) train_cmd="python tools/train.py ${train_config}" ;;
+    SingleP) train_cmd="python tools/train.py ${train_config} --autoscale-lr" ;;
     MultiP) train_cmd="bash ./tools/dist_train.sh ${train_config} 8" ;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
