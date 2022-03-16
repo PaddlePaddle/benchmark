@@ -36,7 +36,7 @@ def analyze(model_item, log_file, res_log_file, device_num):
         for i in range(skip_num, len(time_res)):
             total_time += float(time_res[i])
         avg_time = total_time / (len(time_res) - skip_num)
-        ips = round(bs / avg_time, 3)
+        ips = round(bs / avg_time, 3) * gpu_num
     model_name = model_item+"_"+"bs"+str(bs)+"_"+fp_item+"_"+run_mode
     info = {    "model_branch": os.getenv('model_branch'),
                 "model_commit": os.getenv('model_commit'),
