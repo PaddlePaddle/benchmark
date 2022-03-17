@@ -51,8 +51,10 @@ function _train(){
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
 
 
-    yq e ".dataset_conf.batch_size=${batch_size}" conf/train_${model_item}.yaml > conf/train_bs_${model_item}.yaml
+    cat conf/train_${model_item}.yaml > conf/train_bs_${model_item}.yaml
+    sed -i "s/batch_size: 16/batch_size: ${batch_size}/g" conf/train_bs_${model_item}.yaml
     sed -i "s/max_epoch: 240/max_epoch: ${max_epoch}/g" conf/train_bs_${model_item}.yaml
+    sed -i "s/accum_grad: 4/accum_grad: 1/g" conf/train_bs_${model_item}.yaml
 
     train_conf="conf/train_bs_${model_item}.yaml"
     echo "log_file:"${log_file}

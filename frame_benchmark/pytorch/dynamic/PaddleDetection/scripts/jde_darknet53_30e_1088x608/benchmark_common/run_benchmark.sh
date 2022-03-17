@@ -6,7 +6,7 @@
 
 function _set_params(){
     model_item=${1:-"model_item"}   # (必选) 模型 item
-    base_batch_size=${2:-"2"}       # (必选) 每张卡上的batch_size
+    base_batch_size=${2:-"2"}       # (必选) 总的batch_size
     fp_item=${3:-"fp32"}            # (必选) fp32|fp16
     run_process_type=${4:-"MultiP"} # (必选) 单卡 SingleP|多卡 MultiP
     run_mode=${5:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
@@ -21,8 +21,10 @@ function _set_params(){
     max_epochs=${7:-"1"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"2"}             # (可选)
 
+    num_gpus=${device_num: -1}
+    batch_size=`expr ${base_batch_size} / ${num_gpus}`  # 单卡bs
     #   以下为通用拼接log路径，无特殊可不用修改
-    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_process_type}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
+    model_name=${model_item}_bs${batch_size}_${fp_item}_${run_process_type}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
@@ -42,15 +44,13 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} ${base_batch_size} ${fp_item}
+    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} ${batch_size} ${fp_item}
 }
 
 function _train(){
-    batch_size=${base_batch_size}  # 如果模型跑多卡单进程时,请在_train函数中计算出多卡需要的bs
-
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
 
-    train_options="--batch-size=${batch_size} --epochs=${max_epochs} --print-interval=1"
+    train_options="--batch-size=${base_batch_size} --epochs=${max_epochs} --print-interval=1"
 
     case ${run_process_type} in
     SingleP) train_cmd="python train.py ${train_options} --lr=0.00125 " ;;

@@ -1,11 +1,10 @@
-model_item=det_res18_db
-#max_token
-bs_item=16
-fp_item=fp64
+model_item=bert_large_seqlen512
+bs_item=10
+fp_item=fp16
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
-max_iter=2
+max_iter=100
 num_workers=1
 
 sed -i '/set\ -xe/d' run_benchmark.sh

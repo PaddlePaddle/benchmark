@@ -69,9 +69,9 @@ function _train(){
                     --save-dir /workspace/checkpoints   \
                     --distributed-init-method env://"
     case ${run_process_type} in
-    SingleP) train_cmd="python train.py ${train_config} ${train_options}" ;;
+    SingleP) train_cmd="python PyTorch/Translation/Transformer/train.py ${train_config} ${train_options}" ;;
     MultiP)
-        train_cmd="python train.py ${train_config} ${train_options}" ;;
+        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 PyTorch/Translation/Transformer/train.py ${train_config} ${train_options}" ;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
 #   以下为通用执行命令，无特殊可不用修改

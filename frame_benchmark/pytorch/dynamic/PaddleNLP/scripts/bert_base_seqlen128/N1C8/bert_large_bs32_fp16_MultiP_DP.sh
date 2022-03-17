@@ -1,11 +1,10 @@
-model_item=det_r50_vd_pse
-#max_token
-bs_item=16
-fp_item=fp64
+model_item=bert_base_seqlen128
+bs_item=32
+fp_item=fp16
 run_process_type=MultiP
 run_mode=DP
 device_num=N1C8
-max_iter=5
+max_iter=200
 num_workers=1
 
 sed -i '/set\ -xe/d' run_benchmark.sh

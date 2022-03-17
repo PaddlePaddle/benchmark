@@ -5,7 +5,7 @@ echo "*******prepare benchmark start ***********"
 data_tiny_url="None"
 
 if [ ${data_tiny_url} == "None" ]; then
-	echo "please contact the author to get the URL"
+	echo "Error!! please contact the author to get the URL"
 	exit
 fi
 
@@ -15,11 +15,7 @@ cp replace/executor.py wenet/utils/
 cp replace/run.sh examples/aishell/s0
 cp replace/download_and_untar.sh examples/aishell/s0/local
 
-#pip install -U pip
-#echo `pip --version`
 
-test -d venv || virtualenv -p python venv
-source venv/bin/activate
 # pip install torch==1.9.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 #conda install pytorch torchvision torchaudio cudatoolkit=11.1 -c pytorch -c conda-forge

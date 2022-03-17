@@ -1,13 +1,11 @@
-model_item=det_r50_vd_pse
-#max_token
-bs_item=8
-fp_item=fp64
+model_item=fastscnn
+bs_item=4
+fp_item=fp32
 run_process_type=SingleP
 run_mode=DP
-device_num=N1C1
-max_iter=5
-num_workers=1
+device_num=N4C32
+max_iter=500
+num_workers=5
 
-sed -i '/set\ -xe/d' run_benchmark.sh
-bash PrepareEnv.sh;
+bash prepare.sh;
 bash run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_process_type} ${run_mode} ${device_num} ${max_iter} ${num_workers} 2>&1;

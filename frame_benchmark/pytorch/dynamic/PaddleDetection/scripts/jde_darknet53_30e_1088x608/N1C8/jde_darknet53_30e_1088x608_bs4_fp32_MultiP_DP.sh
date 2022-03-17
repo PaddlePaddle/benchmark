@@ -1,5 +1,5 @@
 model_item=jde_darknet53_30e_1088x608
-bs_item=4
+bs_item=32
 fp_item=fp32
 run_process_type=MultiP
 run_mode=DP

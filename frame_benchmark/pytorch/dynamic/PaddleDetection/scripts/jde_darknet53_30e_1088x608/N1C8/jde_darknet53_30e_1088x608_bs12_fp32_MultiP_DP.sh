@@ -1,10 +1,10 @@
 model_item=jde_darknet53_30e_1088x608
-bs_item=14
+bs_item=96
 fp_item=fp32
-run_process_type=SingleP
+run_process_type=MultiP
 run_mode=DP
-device_num=N1C1
-max_epochs=1
+device_num=N1C8
+max_epochs=4
 num_workers=2
 
 sed -i '/set\ -xe/d' run_benchmark.sh
