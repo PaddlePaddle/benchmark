@@ -11,8 +11,7 @@
             "shape": "[1L]",
             "type": "Variable"
         }
-    },
-    "repeat": 10000
+    }
 }, {
     "op": "prelu",
     "param_info": {
@@ -26,6 +25,5 @@
             "shape": "[1024L]",
             "type": "Variable"
         }
-    },
-    "repeat": 10000
+    }
 }]
