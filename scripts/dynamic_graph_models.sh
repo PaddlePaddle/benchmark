@@ -15,9 +15,12 @@
 # limitations under the License.
 
 
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_clas_repo dy_ocr_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
+cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_slowfast dy_gan dy_seq2seq dy_ptb_medium dy_mobilenet \
+dy_seg_repo dy_video_TimeSformer dy_xlnet dy_clas_repo dy_ocr_repo dy_gan_repo dy_gpt dy_speech_repo_conformer dy_seg)
 
+# 20220316,迁移部分模型到PDC,备份全量模型列表
+# cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
+# dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_clas_repo dy_ocr_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
 
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
 #    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
@@ -313,6 +316,7 @@ dy_seg(){
 
     #apt-get install lsb-core -y
     pip install  visualdl
+    pip install -U opencv-python==4.2.0.32  # 版本升级后8卡性能会下降
     # Prepare data
     mkdir -p ${cur_model_path}/data
     ln -s ${data_path}/dygraph_data/cityscapes_hrnet_torch ${cur_model_path}/data/cityscapes
