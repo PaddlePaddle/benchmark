@@ -11,8 +11,8 @@ pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -e .
 pip list
 
-wget https://paddleseg.bj.bcebos.com/benchmark/mmseg/mmseg_benchmark_configs.tar.gz
-tar -zxf mmseg_benchmark_configs.tar.gz
+mkdir mmseg_benchmark_configs
+mv fcn_hrnetw18.py mmseg_benchmark_configs/
 ################################# 准备训练数据 如:
 mkdir -p data
 wget https://paddleseg.bj.bcebos.com/dataset/cityscapes_30imgs.tar.gz \
