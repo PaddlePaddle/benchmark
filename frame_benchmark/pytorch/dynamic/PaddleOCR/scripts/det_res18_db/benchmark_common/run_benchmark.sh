@@ -12,7 +12,7 @@ function _set_params(){
     run_mode=${5:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
     device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
-    model_repo="DBNet.pytorch"          # (必选) 模型套件的名字
+    model_repo="DBNet-pytorch"          # (必选) 模型套件的名字
     speed_unit="samples/sec"         # (必选)速度指标单位
     skip_steps=10                  # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="speed:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
@@ -59,8 +59,8 @@ function _train(){
                    lr_scheduler.args.warmup_epoch=1"
     
     case ${run_process_type} in
-    SingleP) train_cmd="CUDA_VISIBLE_DEVICES=0 python tools/train.py ${train_config} ${train_options}" ;;
-    MultiP) train_cmd="CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python -m torch.distributed.launch --nproc_per_node=8 tools/train.py ${train_config}  ${train_options}" ;;
+    SingleP) train_cmd="python tools/train.py ${train_config} ${train_options}" ;;
+    MultiP) train_cmd="python -m torch.distributed.launch --nproc_per_node=8 tools/train.py ${train_config}  ${train_options}" ;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
 
