@@ -1,0 +1,31 @@
+[{
+    "op": "prelu",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 1024L, 3072L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[1L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "op": "prelu",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 1024L, 3072L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[1024L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}]
