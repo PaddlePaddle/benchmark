@@ -55,12 +55,9 @@ function _train(){
                --iters=${max_iter}
                --batch_size ${base_batch_size}
                --learning_rate 0.01
+	       --precision ${fp_mode}
                --num_workers 8
                --log_iters 5"
-
-    if [ ${fp_mode} == "fp16" ]; then
-        train_cmd=${train_cmd}" --fp16"
-    fi
 
     if [ ${run_mode} = "sp" ]; then
         train_cmd="python -u train.py "${train_cmd}
