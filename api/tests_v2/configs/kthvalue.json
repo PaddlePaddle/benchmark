@@ -1,0 +1,35 @@
+[{
+    "op": "kthvalue",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 10000L]",
+            "type": "Variable"
+        },
+        "k": {
+            "type": "int",
+            "value": "5"
+        },
+        "keepdim": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}, {
+    "op": "kthvalue",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 3000L]",
+            "type": "Variable"
+        },
+        "k": {
+            "type": "int",
+            "value": "1"
+        },
+        "keepdim": {
+            "type": "bool",
+            "value": "True"
+        }
+    }
+}]
