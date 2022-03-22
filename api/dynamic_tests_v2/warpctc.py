@@ -28,6 +28,7 @@ class PaddleWarpctc(PaddleDynamicAPIBenchmarkBase):
         result = paddle.nn.functional.ctc_loss(log_probs=log_probs, labels=labels, input_lengths=input_lengths, 
                                     label_lengths=label_lengths, blank=config.blank, 
                                     reduction=config.reduction, norm_by_times=config.norm_by_times)
+        
         self.feed_list = [log_probs, labels, input_lengths, label_lengths]
         self.fetch_list = [result]
         if config.backward:
