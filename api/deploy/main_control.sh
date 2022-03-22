@@ -95,10 +95,14 @@ if [ $# -ge 7 ]; then
     fi
 fi
 if [ "${OP_LIST_FILE}" == "" ]; then
+    op_list="None"
+    if [ $# -ge 10 ]; then
+        op_list=${10}
+    fi
     OP_LIST_FILE=${OUTPUT_DIR}/api_info.txt
     python ${DEPLOY_DIR}/collect_api_info.py \
         --test_module_name ${TEST_MODULE_NAME} \
-        --specified_op_list ${10} \
+        --specified_op_list ${op_list} \
         --info_file ${OP_LIST_FILE}
     return_status=$?
     if [ ${return_status} -ne 0 ] || [ ! -f "${OP_LIST_FILE}" ]; then

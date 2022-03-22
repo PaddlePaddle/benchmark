@@ -60,7 +60,7 @@ if __name__ == '__main__':
         '--op_list',
         type=str,
         default=None,
-        help='Specify the operator list.')
+        help='specify the operator list.')
     args = parser.parse_args()
     base_dir = args.base_dir
     main_control = base_dir + "/deploy/main_control.sh"
