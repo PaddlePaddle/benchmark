@@ -71,9 +71,9 @@ if __name__ == '__main__':
     if oplist is None:
         oplist = get_phi_op_list()
     cmd = "bash {} {} {} {} 0 gpu speed none both dynamic {}".format(main_control,
-                                                                              module_name,
-                                                                              configs,
-                                                                              logdir,
-                                                                              oplist)
+                                                                     module_name,
+                                                                     configs,
+                                                                     logdir,
+                                                                     oplist)
     print("[cmd] {}".format(cmd))
     os.system(cmd)
