@@ -17,9 +17,11 @@ from common_import import *
 class PaddleWarpctc(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         logits_length = self.variable(name='logits_length', shape=config.logits_length_shape, 
-                                      dtype=config.logits_length_dtype, value=np.array([config.max_seq_length]*config.batch_size).astype("int64"))
+                                      dtype=config.logits_length_dtype, 
+                                      value=np.array([config.max_seq_length]*config.batch_size).astype("int64"))
         label_length = self.variable(name='label_length', shape=config.label_length_shape, 
-                                     dtype=config.label_length_dtype, value=np.array([config.max_label_length]*config.batch_size).astype("int64"))
+                                     dtype=config.label_length_dtype, 
+                                     value=np.array([config.max_label_length]*config.batch_size).astype("int64"))
         logits = self.variable(name='logits', shape=config.logits_shape, dtype=config.logits_dtype)
         label = self.variable(name='label', shape=config.label_shape, dtype=config.label_dtype)
         result = paddle.fluid.layers.warpctc(input=logits, label=label, input_length=logits_length, 
@@ -27,7 +29,7 @@ class PaddleWarpctc(PaddleDynamicAPIBenchmarkBase):
         self.feed_list = [logits_length, label_length, logits, label]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [logits_length, label_length, logits, label])
+            self.append_gradients(result, [logits])
 
 if __name__ == '__main__':
     test_main(
