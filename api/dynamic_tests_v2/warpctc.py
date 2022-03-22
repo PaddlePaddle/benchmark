@@ -16,12 +16,12 @@ from common_import import *
 
 class PaddleWarpctc(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        log_probs = self.variable(name='logits', shape=config.log_probs_shape, dtype=config.log_probs_dtype)
-        labels = self.variable(name='label', shape=config.labels_shape, dtype=config.labels_dtype)
-        input_lengths = self.variable(name='logits_length', shape=config.input_lengths_shape, 
+        log_probs = self.variable(name='log_probs', shape=config.log_probs_shape, dtype=config.log_probs_dtype)
+        labels = self.variable(name='labels', shape=config.labels_shape, dtype=config.labels_dtype)
+        input_lengths = self.variable(name='input_lengths', shape=config.input_lengths_shape, 
                                       dtype=config.input_lengths_dtype, 
                                       value=np.array([config.max_seq_length]*config.batch_size).astype("int64"))
-        label_lengths = self.variable(name='label_length', shape=config.label_lengths_shape, 
+        label_lengths = self.variable(name='label_lengths', shape=config.label_lengths_shape, 
                                      dtype=config.label_lengths_dtype, 
                                      value=np.array([config.max_label_length]*config.batch_size).astype("int64"))
 
