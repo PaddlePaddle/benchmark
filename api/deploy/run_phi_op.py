@@ -1,7 +1,6 @@
 import datetime
 import os
 import argparse
-import time
 
 import yaml
 import wget
@@ -36,7 +35,6 @@ def get_phi_op_list():
     for i in yml:
         phi_op_list.append(i["api"])
     phi_op_string = ",".join(i for i in phi_op_list)
-    # print(phi_op_string)
     return phi_op_string
 
 
