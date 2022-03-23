@@ -1,6 +1,6 @@
-model_item=segformer_b0
+model_item=deeplabv3p_resnet50
 bs_item=4
-fp_item=fp32
+fp_item=fp16
 run_mode=DP
 device_num=N1C1
 max_iter=500

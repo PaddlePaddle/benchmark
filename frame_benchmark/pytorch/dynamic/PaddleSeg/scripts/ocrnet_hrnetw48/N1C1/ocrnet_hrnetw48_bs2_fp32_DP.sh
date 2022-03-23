@@ -1,5 +1,5 @@
-model_item=segformer_b0
-bs_item=4
+model_item=ocrnet_hrnetw48
+bs_item=2
 fp_item=fp32
 run_mode=DP
 device_num=N1C1

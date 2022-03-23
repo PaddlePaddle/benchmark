@@ -1,4 +1,4 @@
-model_item=segformer_b0
+model_item=ocrnet_hrnetw48
 bs_item=4
 fp_item=fp32
 run_mode=DP

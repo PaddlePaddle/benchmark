@@ -1,8 +1,8 @@
-model_item=segformer_b0
-bs_item=4
-fp_item=fp32
+model_item=fcn_hrnetw18
+bs_item=8
+fp_item=fp16
 run_mode=DP
-device_num=N1C1
+device_num=N4C32
 max_iter=500
 num_workers=5
 

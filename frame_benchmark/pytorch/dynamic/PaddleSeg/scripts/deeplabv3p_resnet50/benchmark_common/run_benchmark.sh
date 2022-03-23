@@ -8,9 +8,8 @@ function _set_params(){
     model_item=${1:-"model_item"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
     base_batch_size=${2:-"2"}       # (必选) 每张卡上的batch_size
     fp_item=${3:-"fp32"}            # (必选) fp32|fp16
-    run_process_type=${4:-"MultiP"} # (必选) 单进程 SingleP|多进程 MultiP
-    run_mode=${5:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
-    device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
+    run_mode=${4:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
+    device_num=${5:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
     model_repo="mmsegmentation"          # (必选) 模型套件的名字
     ips_unit="samples/sec"         # (必选)速度指标单位
@@ -18,11 +17,11 @@ function _set_params(){
     keyword="ips:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
 
     convergence_key=""             # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
-    max_iter=${7:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
-    num_workers=${8:-"3"}             # (可选)
+    max_iter=${6:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
+    num_workers=${7:-"3"}             # (可选)
 
     #   以下为通用拼接log路径，无特殊可不用修改
-    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_process_type}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
+    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
@@ -57,16 +56,14 @@ function _train(){
                    runner.max_iters=${max_iter} \
                    data.samples_per_gpu=${batch_size}  \
                    data.workers_per_gpu=${num_workers}"
-
     if [ ${fp_item} = "fp16" ];then
         fp16_option=" optimizer_config.type='Fp16OptimizerHook' optimizer_config.loss_scale=512. fp16="
         train_options=${train_options}${fp16_option}
     fi
-
-    case ${run_process_type} in
-    SingleP) train_cmd="python tools/train.py ${train_config} ${train_options}" ;;
-    MultiP) train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" ;;
-    *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
+    case ${device_num} in
+    N1C1) train_cmd="python tools/train.py ${train_config} ${train_options}" ;;
+    N1C8) train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" ;;
+    *) echo "choose device_num(N1C1 or N1C8)"; exit 1;
     esac
 
     echo "=============="
@@ -74,6 +71,7 @@ function _train(){
     echo "=============="
 
 #   以下为通用执行命令，无特殊可不用修改
+    echo ${train_cmd}
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
@@ -81,7 +79,7 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
     fi
     #kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
-    if [ ${run_process_type} = "MultiP" -a -d mylog ]; then
+    if [ ${device_num} != "N1C1" -a -d mylog ]; then
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
     fi
