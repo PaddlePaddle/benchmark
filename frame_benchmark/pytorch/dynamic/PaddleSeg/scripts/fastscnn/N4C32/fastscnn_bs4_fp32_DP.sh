@@ -1,8 +1,8 @@
-model_item=segformer_b0
+model_item=fastscnn
 bs_item=4
 fp_item=fp32
 run_mode=DP
-device_num=N1C1
+device_num=N4C32
 max_iter=500
 num_workers=5
 

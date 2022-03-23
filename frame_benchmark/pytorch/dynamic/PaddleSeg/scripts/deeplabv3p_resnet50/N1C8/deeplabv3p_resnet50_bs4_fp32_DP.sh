@@ -1,8 +1,8 @@
-model_item=segformer_b0
+model_item=deeplabv3p_resnet50
 bs_item=4
 fp_item=fp32
 run_mode=DP
-device_num=N1C1
+device_num=N1C8
 max_iter=500
 num_workers=5
 
