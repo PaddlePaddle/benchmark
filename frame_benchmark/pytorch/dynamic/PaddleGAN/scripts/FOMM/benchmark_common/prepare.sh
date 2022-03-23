@@ -5,7 +5,7 @@ pip install -U pip
 echo `pip --version`
 pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple
 imageio_download_bin ffmpeg
-
+pip list 
 ################################# 准备训练数据 如:
 
 mkdir -p data

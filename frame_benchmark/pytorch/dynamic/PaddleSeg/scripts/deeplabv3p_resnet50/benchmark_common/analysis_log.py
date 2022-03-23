@@ -9,7 +9,7 @@ import os
 
 def analyze(model_name, log_file, res_log_file, device_num):
     bs_pat = re.compile(r"samples_per_gpu=(.*),")
-    time_pat = re.compile(r"time: (.*), data_time")
+    time_pat = re.compile(r"(?<=, time: )\d+\.?\d*")
     loss_pat = re.compile(r"loss: (.*)")
 
     logs = open(log_file).readlines()
@@ -29,11 +29,9 @@ def analyze(model_name, log_file, res_log_file, device_num):
     ips = 0
     fp_item = "fp32"
     bs = 0
-    run_process_type = "SingleP"
     if time_res == []:
         ips = 0
     else:
-        run_process_type = "SingleP" if gpu_num == 1 else "MultiP"
         bs = int(bs_res[0])
 
         skip_num = 4
@@ -48,7 +46,6 @@ def analyze(model_name, log_file, res_log_file, device_num):
                 "model_name": model_name,
                 "batch_size": bs,
                 "fp_item": fp_item,
-                "run_process_type": run_process_type,
                 "run_mode": "DP",
                 "convergence_value": loss_res[-1],
                 "convergence_key": "loss",

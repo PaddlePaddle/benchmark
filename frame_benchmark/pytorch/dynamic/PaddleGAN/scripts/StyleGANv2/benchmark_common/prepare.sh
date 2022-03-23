@@ -8,7 +8,7 @@ pip install torchvision==0.4.2 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install lmdb               -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install Ninja              -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install tqdm               -i https://pypi.tuna.tsinghua.edu.cn/simple
-
+pip list 
 ################################# 准备训练数据 如:
 mkdir -p data
 wget https://paddlegan.bj.bcebos.com/datasets/stylegan_process.tar \
