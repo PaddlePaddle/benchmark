@@ -1,9 +1,9 @@
-model_item=fastscnn
+model_item=deeplabv3p_resnet50
 bs_item=4
-fp_item=fp32
-run_process_type=SingleP
+fp_item=fp16
+run_process_type=MultiP
 run_mode=DP
-device_num=N4C32
+device_num=N1C8
 max_iter=500
 num_workers=5
 

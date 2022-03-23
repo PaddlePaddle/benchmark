@@ -63,6 +63,9 @@ function _train(){
     MultiP) train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" ;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
+    echo "=============="
+    echo $train_cmd
+    echo "=============="
 
 #   以下为通用执行命令，无特殊可不用修改
     timeout 15m ${train_cmd} > ${log_file} 2>&1
