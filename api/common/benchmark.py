@@ -52,7 +52,12 @@ class BenchmarkBase(object):
     def append_gradients(self, targets, inputs):
         pass
 
-    def get_running_stats(self, use_gpu, config, runtimes, walltimes=None):
+    def get_running_stats(self,
+                          use_gpu,
+                          config,
+                          runtimes,
+                          walltimes=None,
+                          repeat=None):
         try:
             module_name = "torch" if self._framework == "pytorch" else self._framework
             module = importlib.import_module(module_name)
@@ -73,9 +78,17 @@ class BenchmarkBase(object):
         if walltimes is not None:
             stats["wall_time"] = walltimes
 
-        flop, byte = self.compute_flop_and_byte(config)
-        if flop is not None:
-            stats["flop"] = flop
-        if byte is not None:
-            stats["byte"] = byte
+        if repeat is not None:
+            stats["repeat"] = repeat
+
+        try:
+            flop, byte = self.compute_flop_and_byte(config)
+            if flop is not None:
+                stats["flop"] = flop
+            if byte is not None:
+                stats["byte"] = byte
+        except Exception:
+            print("Failed to call compute_flops_and_byte for %s." %
+                  (self._framework))
+
         return stats

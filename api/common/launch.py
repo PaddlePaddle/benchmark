@@ -458,6 +458,8 @@ if __name__ == "__main__":
         if task == "speed":
             args.benchmark_script_args.append(" --gpu_time ")
             args.benchmark_script_args.append(str(output_time))
+            _set_args(args.benchmark_script_args,
+                      "--get_status_without_running", "True")
         if task == "scheduling":
             args.benchmark_script_args.append(" --scheduling_times ")
             args.benchmark_script_args.append("\"" + str(output_time) + "\"")

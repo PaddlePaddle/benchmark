@@ -270,33 +270,27 @@ def check_outputs(output_list,
         sys.exit(1)
 
 
-def print_benchmark_result(result,
-                           task="speed",
-                           log_level=0,
-                           config_params=None):
-    assert isinstance(result, dict), "Input result should be a dict."
-
-    status = collections.OrderedDict()
-    status["framework"] = result["framework"]
-    status["version"] = result["version"]
-    status["name"] = result["name"]
-    status["device"] = result["device"]
-    status["backward"] = result["backward"]
-
-    scheduling_times = result.get("scheduling_times", "{}")
-    if task == "scheduling" and scheduling_times is not None:
-        status["scheduling"] = eval(scheduling_times)
-
-    runtimes = result.get("total", None)
+def _print_runtime(log_level, runtimes, walltimes):
     if runtimes is None:
-        status["parameters"] = config_params
-        print(json.dumps(status))
         return
 
-    walltimes = result.get("wall_time", None)
-    gpu_time = result.get("gpu_time", None)
-    stable = result.get("stable", None)
-    diff = result.get("diff", None)
+    # print all times
+    repeat = len(runtimes)
+    seg_range = [0, 0]
+    if log_level == 0:
+        seg_range = [0, repeat]
+    elif log_level == 1 and repeat > 20:
+        seg_range = [10, repeat - 10]
+    for i in range(repeat):
+        if i < seg_range[0] or i >= seg_range[1]:
+            walltime = walltimes[i] if walltimes is not None else 0
+            print("Iter %4d, Runtime: %.5f ms, Walltime: %.5f ms" %
+                  (i, runtimes[i], walltime))
+
+
+def _compute_average_runtime(runtimes, walltimes):
+    if runtimes is None:
+        return 0, 0, 0, 0
 
     repeat = len(runtimes)
     for i in range(repeat):
@@ -320,47 +314,70 @@ def print_benchmark_result(result,
         avg_walltime = np.average(np.sort(walltimes)[begin:end])
     else:
         avg_walltime = 0
+    return begin, end, avg_runtime, avg_walltime
 
-    # print all times
-    seg_range = [0, 0]
-    if log_level == 0:
-        seg_range = [0, repeat]
-    elif log_level == 1 and repeat > 20:
-        seg_range = [10, repeat - 10]
-    for i in range(len(runtimes)):
-        if i < seg_range[0] or i >= seg_range[1]:
-            walltime = walltimes[i] if walltimes is not None else 0
-            print("Iter %4d, Runtime: %.5f ms, Walltime: %.5f ms" %
-                  (i, runtimes[i], walltime))
 
-    if avg_runtime - avg_walltime > 0.001:
-        total = avg_runtime - avg_walltime
-    else:
-        print(
-            "Average runtime (%.5f ms) is less than average walltime (%.5f ms)."
-            % (avg_runtime, avg_walltime))
-        total = 0.001
+def print_benchmark_result(result,
+                           task="speed",
+                           log_level=0,
+                           config_params=None):
+    assert isinstance(result, dict), "Input result should be a dict."
 
+    status = collections.OrderedDict()
+    status["framework"] = result["framework"]
+    status["version"] = result["version"]
+    status["name"] = result["name"]
+    status["device"] = result["device"]
+    status["backward"] = result["backward"]
+
+    scheduling_times = result.get("scheduling_times", "{}")
+    if task == "scheduling" and scheduling_times is not None:
+        status["scheduling"] = eval(scheduling_times)
+        status["parameters"] = config_params
+        print(json.dumps(status))
+        return
+
+    stable = result.get("stable", None)
+    diff = result.get("diff", None)
     if stable is not None and diff is not None:
         status["precision"] = collections.OrderedDict()
         status["precision"]["stable"] = stable
         status["precision"]["diff"] = diff
-    status["speed"] = collections.OrderedDict()
-    status["speed"]["repeat"] = repeat
-    status["speed"]["begin"] = begin
-    status["speed"]["end"] = end
-    status["speed"]["total"] = total
-    status["speed"]["wall_time"] = avg_walltime
-    status["speed"]["total_include_wall_time"] = avg_runtime
-    if gpu_time is not None:
-        avg_gpu_time = gpu_time / repeat
-        status["speed"]["gpu_time"] = avg_gpu_time
 
-        flop = result.get("flop", None)
-        byte = result.get("byte", None)
-        if flop is not None and abs(avg_gpu_time) > 1E-6:
-            status["speed"]["gflops"] = float(flop) * 1E-6 / avg_gpu_time
-        if byte is not None and abs(avg_gpu_time) > 1E-6:
-            status["speed"]["gbs"] = float(byte) * 1E-6 / avg_gpu_time
+    if task == "speed":
+        runtimes = result.get("total", None)
+        walltimes = result.get("wall_time", None)
+        gpu_time = result.get("gpu_time", None)
+
+        repeat = len(runtimes) if runtimes is not None else result.get(
+            "repeat", 1)
+        begin, end, avg_runtime, avg_walltime = _compute_average_runtime(
+            runtimes, walltimes)
+        _print_runtime(log_level, runtimes, walltimes)
+        if avg_runtime - avg_walltime > 0.001:
+            total = avg_runtime - avg_walltime
+        else:
+            print(
+                "Average runtime (%.5f ms) is less than average walltime (%.5f ms)."
+                % (avg_runtime, avg_walltime))
+            total = 0.001
+
+        status["speed"] = collections.OrderedDict()
+        status["speed"]["repeat"] = repeat
+        status["speed"]["begin"] = begin
+        status["speed"]["end"] = end
+        status["speed"]["total"] = total
+        status["speed"]["wall_time"] = avg_walltime
+        status["speed"]["total_include_wall_time"] = avg_runtime
+        if gpu_time is not None:
+            avg_gpu_time = gpu_time / repeat
+            status["speed"]["gpu_time"] = avg_gpu_time
+
+            flop = result.get("flop", None)
+            byte = result.get("byte", None)
+            if flop is not None and abs(avg_gpu_time) > 1E-6:
+                status["speed"]["gflops"] = float(flop) * 1E-6 / avg_gpu_time
+            if byte is not None and abs(avg_gpu_time) > 1E-6:
+                status["speed"]["gbs"] = float(byte) * 1E-6 / avg_gpu_time
     status["parameters"] = config_params
     print(json.dumps(status))
