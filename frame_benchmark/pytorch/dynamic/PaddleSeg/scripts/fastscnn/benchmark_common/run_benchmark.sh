@@ -62,6 +62,9 @@ function _train(){
     N1C8) train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" ;;
     *) echo "choose device_num(N1C1 or N1C8)"; exit 1;
     esac
+    echo "=============="
+    echo $train_cmd
+    echo "=============="
 
 #   以下为通用执行命令，无特殊可不用修改
     echo  ${train_cmd}
