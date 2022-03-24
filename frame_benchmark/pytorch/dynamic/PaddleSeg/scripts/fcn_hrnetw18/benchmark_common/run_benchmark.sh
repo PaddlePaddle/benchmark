@@ -56,12 +56,20 @@ function _train(){
                    runner.max_iters=${max_iter} \
                    data.samples_per_gpu=${batch_size}  \
                    data.workers_per_gpu=${num_workers}"
+    if [ ${fp_item} = "fp16" ];then
+        fp16_option=" optimizer_config.type='Fp16OptimizerHook' optimizer_config.loss_scale=512. fp16="
+        train_options=${train_options}${fp16_option}
+    fi
 
     if [ ${device_num} = "N1C1" ]; then
         train_cmd="python tools/train.py ${train_config} ${train_options}" 
     else 
         train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" ;;
     fi
+
+    echo "=============="
+    echo $train_cmd
+    echo "=============="
 
 #   以下为通用执行命令，无特殊可不用修改
     echo ${train_cmd}

@@ -62,6 +62,7 @@ function _train(){
     else
         train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" ;;
     fi
+
 #   以下为通用执行命令，无特殊可不用修改
     echo ${train_cmd}
     timeout 15m ${train_cmd} > ${log_file} 2>&1
