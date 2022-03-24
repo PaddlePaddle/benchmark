@@ -9,18 +9,17 @@ function _set_params(){
     model_item=${1:-"model_item"}
     base_batch_size=${2:-"2"}       
     fp_item=${3:-"fp32"}        # fp32 or fp16
-    run_process_type=${4:-"MultiP"}
-    run_mode=${5:-"DP"}  
-    device_num=${6:-"N1C1"}  
+    run_mode=${4:-"DP"}  
+    device_num=${5:-"N1C1"}  
     profiling=${PROFILING:-"false"} 
     model_repo="mmedit"
     speed_unit="samples/sec"
     skip_steps=10  
-    max_iter=${7:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
-    num_workers=${8:-"3"}             # (可选)
+    max_iter=${6:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
+    num_workers=${7:-"3"}             # (可选)
 
     #   以下为通用拼接log路径，无特殊可不用修改
-    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_process_type}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
+    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
@@ -49,15 +48,15 @@ function _train(){
     train_config="mmedi_benchmark_configs/${model_name}.py"
     train_options="--no-validate "
 
-    case ${run_process_type} in
-    SingleP) train_cmd="./tools/dist_train.sh ${train_config} 1 ${train_options}" ;;
-    MultiP)
+    case ${device_num} in
+    N1C1) train_cmd="./tools/dist_train.sh ${train_config} 1 ${train_options}" ;;
+    N1C8)
         case ${model_name} in
         basicvsr_mp_bs2|basicvsr_mp_bs4) train_cmd="./tools/dist_train.sh ${train_config} 4 ${train_options}" ;;
         *) train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}"
         esac
         ;;
-    *) echo "choose run_mode(sp or mp)"; exit 1;
+    *) echo "choose device_num(N1C1 or N1C8)"; exit 1;
     esac
 
     timeout 15m ${train_cmd} > ${log_file} 2>&1
@@ -66,7 +65,7 @@ function _train(){
     else
         echo -e "${model_name}, SUCCESS"
     fi
-    if [ ${run_process_type} = "MultiP" -a -d mylog ]; then
+    if [ ${device_num} != "N1C1" -a -d mylog ]; then
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
     fi

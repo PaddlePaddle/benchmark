@@ -56,12 +56,13 @@ function _train(){
                    runner.max_iters=${max_iter} \
                    data.samples_per_gpu=${batch_size}  \
                    data.workers_per_gpu=${num_workers}"
+                   
+    if [ ${device_num} = "N1C1" ]; then
+        train_cmd="python tools/train.py ${train_config} ${train_options}" ;;
+    else
+        train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" ;;
+    fi
 
-    case ${device_num} in
-    N1C1) train_cmd="python tools/train.py ${train_config} ${train_options}" ;;
-    N1C8) train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" ;;
-    *) echo "choose device_num(N1C1 or N1C8)"; exit 1;
-    esac
     echo "=============="
     echo $train_cmd
     echo "=============="
