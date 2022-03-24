@@ -61,11 +61,11 @@ function _train(){
         train_options=${train_options}${fp16_option}
     fi
 
-    case ${device_num} in
-    N1C1) train_cmd="python tools/train.py ${train_config} ${train_options}" ;;
-    N1C8) train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" ;;
-    *) echo "choose device_num(N1C1 or N1C8)"; exit 1;
-    esac
+    if [ ${device_num} = "N1C1" ]; then
+        train_cmd="python tools/train.py ${train_config} ${train_options}" 
+    else 
+        train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" ;;
+    fi
 
     echo "=============="
     echo $train_cmd
