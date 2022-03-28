@@ -14,6 +14,7 @@ set -e
 cp replace/executor.py wenet/utils/
 cp replace/run.sh examples/aishell/s0
 cp replace/download_and_untar.sh examples/aishell/s0/local
+rm -rf examples/librispeech/s1
 
 
 # pip install torch==1.9.1 -i https://pypi.tuna.tsinghua.edu.cn/simple

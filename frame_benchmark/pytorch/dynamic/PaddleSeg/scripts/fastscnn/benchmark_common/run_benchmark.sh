@@ -58,9 +58,9 @@ function _train(){
                    data.workers_per_gpu=${num_workers}"
                    
     if [ ${device_num} = "N1C1" ]; then
-        train_cmd="python tools/train.py ${train_config} ${train_options}" ;;
+        train_cmd="python tools/train.py ${train_config} ${train_options}"
     else
-        train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" ;;
+        train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}"
     fi
 
     echo "=============="
