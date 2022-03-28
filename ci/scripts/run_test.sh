@@ -74,6 +74,7 @@ function run_api(){
     LOG "[INFO] Found ${file} modified."
     api=${file#*api/} && api=${api%.*}
     [[ "$api" =~ "common_import" ]] && continue
+    [[ "$api" =~ "fused_" ]] && continue
     [[ "$api" =~ "test_main" ]] && continue
     [[ "$api" =~ "__init__" ]] && continue
     [ -f "${BENCHMARK_ROOT}/api/${api}.py" ] && API_NAMES[${#API_NAMES[@]}]=$api

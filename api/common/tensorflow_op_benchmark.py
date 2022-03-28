@@ -21,12 +21,14 @@ import numpy as np
 from common import special_op_list
 from common.benchmark import BenchmarkBase
 
+from . import env
 from . import utils
 from . import api_param
 from . import feeder
 
 try:
     import tensorflow as tf
+
     from tensorflow.python.profiler import model_analyzer
     from tensorflow.python.profiler import option_builder
     from tensorflow.core.protobuf import config_pb2
@@ -55,9 +57,9 @@ class Profiler(object):
             import cProfile
             self._profiler_handle = cProfile.Profile()
             self._profiler_handle.enable()
-        elif self.profiler != "none":
+        elif self.profiler == "native":
             self._profiler_handle = model_analyzer.Profiler(
-                graph=self.sess.graph)
+                graph=self._sess.graph)
             self.run_options = tf.compat.v1.RunOptions(
                 trace_level=tf.compat.v1.RunOptions.FULL_TRACE)
             self.run_metadata = tf.compat.v1.RunMetadata()
@@ -247,8 +249,10 @@ class TensorflowAPIBenchmarkBase(BenchmarkBase):
             assert use_feed_fetch, "Argument use_feed_fetch must be True when feeder_adapter is initialized by paddle."
 
         if feeder_adapter is None or feeder_adapter.framework != "tensorflow":
-            self._need_feed = config.name == "feed"
-            self._need_fetch = use_feed_fetch or config.name == "fetch"
+            self._need_feed = env.benchmark_need_feed(
+            ) or config.name == "feed"
+            self._need_fetch = env.benchmark_need_fetch(
+            ) or use_feed_fetch or config.name == "fetch"
             self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
             self._feed_dict = {}
 
@@ -294,12 +298,14 @@ class TensorflowAPIBenchmarkBase(BenchmarkBase):
         self.fetch_list = fetch_list
 
         self.allow_growth = False if args.task == "speed" else True
-        outputs, stats = self.run_impl(
-            use_gpu=args.use_gpu,
-            config=config,
-            feed=feed,
-            repeat=args.repeat,
-            profiler=args.profiler)
+        device = "GPU:0" if args.use_gpu else "CPU"
+        with tf.device(device):
+            outputs, stats = self.run_impl(
+                use_gpu=args.use_gpu,
+                config=config,
+                feed=feed,
+                repeat=args.repeat,
+                profiler=args.profiler)
         return outputs, stats
 
     def _init_session(self, use_gpu):

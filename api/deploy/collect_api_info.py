@@ -51,8 +51,16 @@ def collect_subclass_dict(test_cases_dict):
 
 
 def import_all_tests(test_module_name):
+    def _is_special_module(api_name):
+        special_module_list = [
+            "__init__", "common_import", "test_main", "fused_"
+        ]
+        for name in special_module_list:
+            if name in api_name:
+                return True
+        return False
+
     test_cases_dict = {}
-    special_module_list = ["__init__", "common_import", "test_main"]
 
     def _import_api(test_module_name, basename):
         try:
@@ -68,7 +76,7 @@ def import_all_tests(test_module_name):
     for filename in sorted(os.listdir(tests_path)):
         api_name = os.path.splitext(filename)[0]
         file_extension = os.path.splitext(filename)[1]
-        if file_extension == '.py' and api_name not in special_module_list:
+        if file_extension == '.py' and not _is_special_module(api_name):
             module = _import_api(test_module_name, api_name)
             if module:
                 test_cases_dict[api_name] = module
@@ -134,7 +142,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--test_module_name',
         type=str,
-        default="tests",
+        default="tests_v2",
         help='The module_name under benchmark/api (tests|tests_v2|dynamic_tests_v2).'
     )
     parser.add_argument(
