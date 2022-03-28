@@ -55,9 +55,9 @@ class Profiler(object):
             import cProfile
             self._profiler_handle = cProfile.Profile()
             self._profiler_handle.enable()
-        elif self.profiler != "none":
+        elif self.profiler == "native":
             self._profiler_handle = model_analyzer.Profiler(
-                graph=self.sess.graph)
+                graph=self._sess.graph)
             self.run_options = tf.compat.v1.RunOptions(
                 trace_level=tf.compat.v1.RunOptions.FULL_TRACE)
             self.run_metadata = tf.compat.v1.RunMetadata()
