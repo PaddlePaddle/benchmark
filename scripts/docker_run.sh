@@ -132,7 +132,7 @@ function build_paddle(){
       -e "no_proxy=bcebos.com" \
       ${PADDLE_DEV_NAME} \
        /bin/bash -c "
-	  export no_proxy=agent.baidu.com:8118,localhost,127.0.0.1,localaddress,.localdomain.com,.cdn.bcebos.com,.baidu.com,.bcebos.com;
+	  export no_proxy=localhost,127.0.0.1,localaddress,.localdomain.com,.cdn.bcebos.com,.baidu.com,.bcebos.com;
 export https_proxy=${HTTP_PROXY};
 export http_proxy=${HTTP_PROXY};
 git config --global http.proxy ${HTTP_PROXY};
