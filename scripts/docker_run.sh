@@ -88,10 +88,9 @@ function construnct_version2(){
         image_commit_id=`cat commitid|grep commitID:|awk -F 'commitID:' '{print $2}'`
         image_commit_id6=${image_commit_id:0:6}
         echo "image_commit_id is: "${image_commit_id}"\n image_commit_id6 is : "${image_commit_id6}
-        sed -i 's/:/-/g' commitid
-        sed -i 's/ /-/g' commitid
-        commit_datatime=`cat commitid |grep commitIDtime-|awk -F '+0800' '{print $1}'|awk -F 'commitIDtime-' '{print $2}'`
-        PADDLE_VERSION=${commit_datatime}post118.develop.${image_commit_id6}
+        version_temp=`tail -1 commitid|awk -F '+0800' '{print $1}' |awk -F 'commitIDtime:' '{print $2}'`  # 2022-04-01 21:18:53
+        version=`date -d  "${version_temp}" "+%Y.%m%d.%H%M%S"`   # 2022.0401.211853
+        PADDLE_VERSION=${version}.post118.develop.${image_commit_id6}
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.post11.2_cudnn8.1_develop-cp37-cp37m-linux_x86_64.whl
         mkdir ${all_path}/images/${PADDLE_VERSION}
         wget https://paddle-qa.bj.bcebos.com/WheelBenchmark/linux-gpu-cuda11.2-cudnn8-mkl-gcc8.2-avx/${image_commit_id}/${IMAGE_NAME} -P ${all_path}/images/${PADDLE_VERSION}/
@@ -102,10 +101,9 @@ function construnct_version2(){
         image_commit_id=`cat commitid|grep commitID:|awk -F 'commitID:' '{print $2}'`
         image_commit_id6=${image_commit_id:0:6}
         echo "image_commit_id is: "${image_commit_id}"\n image_commit_id6 is : "${image_commit_id6}
-        sed -i 's/:/-/g' commitid
-        sed -i 's/ /-/g' commitid
-        commit_datatime=`cat commitid |grep commitIDtime-|awk -F '+0800' '{print $1}'|awk -F 'commitIDtime-' '{print $2}'`
-        PADDLE_VERSION=${commit_datatime}post101.develop.${image_commit_id6}
+        version_temp=`tail -1 commitid|awk -F '+0800' '{print $1}' |awk -F 'commitIDtime:' '{print $2}'`  # 2022-04-01 21:18:53
+        version=`date -d  "${version_temp}" "+%Y.%m%d.%H%M%S"`   # 2022.0401.211853
+        PADDLE_VERSION=${version}.post101.develop.${image_commit_id6}
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.post10.1_cudnn7.6_develop-cp37-cp37m-linux_x86_64.whl
         mkdir ${all_path}/images/${PADDLE_VERSION}
         wget https://paddle-qa.bj.bcebos.com/WheelBenchmark/linux-gpu-cuda10.1-cudnn7-mkl-gcc5.4-avx/${image_commit_id}/${IMAGE_NAME} -P ${all_path}/images/${PADDLE_VERSION}/
