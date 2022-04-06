@@ -211,7 +211,8 @@ EOF
 
 # create containers based on mirror ${RUN_IMAGE_NAME} and run jobs
 function run_models(){
-    construnct_version2
+    # construnct_version2
+    construnct_version
     # Determine if the whl exists
     if [[ -s ${all_path}/images/${PADDLE_VERSION}/${IMAGE_NAME} ]]; then echo "image found"; else exit 1; fi
     run_cmd="cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/scripts;
