@@ -1,0 +1,35 @@
+[{
+    "op": "clip",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 1024L]",
+            "type": "Variable"
+        },
+        "min": {
+            "type": "float",
+            "value": "0.2"
+        },
+        "max": {
+            "type": "float",
+            "value": "0.8"
+        }
+    }
+}, {
+    "op": "clip",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 2048L]",
+            "type": "Variable"
+        },
+        "min": {
+            "type": "float",
+            "value": "0.4"
+        },
+        "max": {
+            "type": "float",
+            "value": "0.6"
+        }
+    }
+}]
