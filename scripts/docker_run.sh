@@ -93,6 +93,7 @@ function construnct_version2(){
         PADDLE_VERSION=${version}.post118.develop.${image_commit_id6}
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.post11.2_cudnn8.1_develop-cp37-cp37m-linux_x86_64.whl
         mkdir ${all_path}/images/${PADDLE_VERSION}
+        unset ${http_proxy} && unset ${https_proxy} 
         wget https://paddle-qa.bj.bcebos.com/WheelBenchmark/linux-gpu-cuda11.2-cudnn8-mkl-gcc8.2-avx/${image_commit_id}/${IMAGE_NAME} -P ${all_path}/images/${PADDLE_VERSION}/
                 
     else 
@@ -106,6 +107,7 @@ function construnct_version2(){
         PADDLE_VERSION=${version}.post101.develop.${image_commit_id6}
         IMAGE_NAME=paddlepaddle_gpu-0.0.0.post10.1_cudnn7.6_develop-cp37-cp37m-linux_x86_64.whl
         mkdir ${all_path}/images/${PADDLE_VERSION}
+        unset ${http_proxy} && unset ${https_proxy} 
         wget https://paddle-qa.bj.bcebos.com/WheelBenchmark/linux-gpu-cuda10.1-cudnn7-mkl-gcc5.4-avx/${image_commit_id}/${IMAGE_NAME} -P ${all_path}/images/${PADDLE_VERSION}/
         
     echo "----------------- PADDLE_VERSION is: ${PADDLE_VERSION}"
@@ -209,7 +211,8 @@ EOF
 
 # create containers based on mirror ${RUN_IMAGE_NAME} and run jobs
 function run_models(){
-    construnct_version2
+    # construnct_version2
+    construnct_version
     # Determine if the whl exists
     if [[ -s ${all_path}/images/${PADDLE_VERSION}/${IMAGE_NAME} ]]; then echo "image found"; else exit 1; fi
     run_cmd="cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/scripts;
@@ -272,7 +275,7 @@ function run_models(){
             ${RUN_IMAGE_NAME} \
             /bin/bash -c "${run_cmd}"
         else
-            nvidia-docker run -i  \
+            nvidia-docker run -i --rm \
             -v /ssd2/ce_home:/home \
             -v ${all_path}:${all_path} \
             -v /usr/bin/nvidia-smi:/usr/bin/nvidia-smi \
