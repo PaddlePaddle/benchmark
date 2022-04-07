@@ -211,7 +211,7 @@ EOF
 
 # create containers based on mirror ${RUN_IMAGE_NAME} and run jobs
 function run_models(){
-    # construnct_version2
+    # construnct_version2   #         -n ${all_path}/images/${PADDLE_VERSION}/${IMAGE_NAME} \
     construnct_version
     # Determine if the whl exists
     if [[ -s ${all_path}/images/${PADDLE_VERSION}/${IMAGE_NAME} ]]; then echo "image found"; else exit 1; fi
@@ -219,7 +219,7 @@ function run_models(){
         bash auto_run_paddle.sh -m $model \
         -c ${cuda_version} \
         -d ${cudnn_version} \
-        -n ${all_path}/images/${PADDLE_VERSION}/${IMAGE_NAME} \
+        -n ${all_path}/images/${IMAGE_NAME} \
         -i ${image_commit_id} \
         -a ${image_branch} \
         -v ${PADDLE_VERSION} \
