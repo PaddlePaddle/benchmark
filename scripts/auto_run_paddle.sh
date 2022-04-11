@@ -139,6 +139,8 @@ function prepare(){
 
 function run(){
     export ${implement_type}
+    export FLAGS_enable_eager_mode=1
+    echo "------FLAGS_enable_eager_mode: ${FLAGS_enable_eager_mode}"
     if [ ${implement_type} == "static_graph" ]; then
       source ${BENCHMARK_ROOT}/scripts/static_graph_models.sh
     elif [ ${implement_type} == "dynamic_graph" ]; then
@@ -146,7 +148,6 @@ function run(){
     else
       source ${BENCHMARK_ROOT}/scripts/dynamic_to_static_models.sh
     fi
-
     if [ $model = "all" ]
     then
         for model_name in ${cur_model_list[@]}
