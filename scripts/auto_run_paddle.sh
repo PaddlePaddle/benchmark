@@ -139,8 +139,8 @@ function prepare(){
 
 function run(){
     export ${implement_type}
-    export FLAGS_enable_eager_mode=1
-    echo "------FLAGS_enable_eager_mode: ${FLAGS_enable_eager_mode}"
+    # export FLAGS_enable_eager_mode=1
+    # echo "------FLAGS_enable_eager_mode: ${FLAGS_enable_eager_mode}"
     if [ ${implement_type} == "static_graph" ]; then
       source ${BENCHMARK_ROOT}/scripts/static_graph_models.sh
     elif [ ${implement_type} == "dynamic_graph" ]; then
