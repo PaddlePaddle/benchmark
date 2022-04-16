@@ -1,6 +1,6 @@
 model_item=mobilevit_small
 bs_item=128
-fp_item=fp32
+fp_item=fp16
 run_process_type=MultiP
 device_num=N1C8
 run_mode=DP
