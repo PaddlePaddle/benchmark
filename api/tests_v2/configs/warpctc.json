@@ -1,0 +1,49 @@
+[{
+    "op": "warpctc",
+    "param_info": {
+        "batch_size": {
+            "type": "int32",
+            "value": "16"
+        },
+        "max_seq_length": {
+            "type": "int32",
+            "value": "400"
+        },
+        "max_label_length": {
+            "type": "int32",
+            "value": "200"
+        },
+        "log_probs": {
+            "dtype": "float32",
+            "shape": "[400L, 16L, 6L]",
+            "type": "Variable"
+        },
+        "labels": {
+            "dtype": "int32",
+            "shape": "[16L, 200L]",
+            "type": "Variable"
+        },
+        "input_lengths": {
+            "dtype": "int64",
+            "shape": "[16L]",
+            "type": "Variable"
+        },
+        "label_lengths": {
+            "dtype": "int64",
+            "shape": "[16L]",
+            "type": "Variable"
+        },
+        "blank": {
+            "type": "int32",
+            "value": "0"
+        },
+        "reduction": {
+            "type": "string",
+            "value": "none"
+        },
+        "norm_by_times": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}]

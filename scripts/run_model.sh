@@ -25,6 +25,7 @@ function _run(){
     sleep 9
     ps -ef
     rm -rf /tmp/*    # 释放空间 解决数据插入时报错mypython找不到的问题
+    df -h
     model_commit_id=$(git log|head -n1|awk '{print $2}')
     paddle_commit_id=$(echo `python -c "import paddle;print(paddle.version.commit)"`)
     echo "---------Model commit is ${model_commit_id}"

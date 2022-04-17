@@ -14,6 +14,7 @@ function print_usage() {
     echo "  op_list_file (optional) - the path which specified op list to test"
     echo "  framework (optional)    - paddle, tensorflow, pytorch, both"
     echo "  testing_mode (optional) - the testing_mode of paddle. dynamic(default)|static."
+    echo "  op_name (optional)      - specified op name or list string. such as conv2d | conv1d,conv2d,conv3d."
 }
 
 function print_arguments() {
@@ -29,6 +30,7 @@ function print_arguments() {
     echo "op_list_file    : ${OP_LIST_FILE}"
     echo "framework       : ${FRAMEWORK_SET[@]}"
     echo "testing_mode    : ${TESTING_MODE}"
+    echo "op_name    : ${OP_NAME}"
     echo ""
 }
 
@@ -95,9 +97,14 @@ if [ $# -ge 7 ]; then
     fi
 fi
 if [ "${OP_LIST_FILE}" == "" ]; then
+    OP_NAME="None"
+    if [ $# -ge 10 ]; then
+        OP_NAME=${10}
+    fi
     OP_LIST_FILE=${OUTPUT_DIR}/api_info.txt
     python ${DEPLOY_DIR}/collect_api_info.py \
         --test_module_name ${TEST_MODULE_NAME} \
+        --specified_op_list ${OP_NAME} \
         --info_file ${OP_LIST_FILE}
     return_status=$?
     if [ ${return_status} -ne 0 ] || [ ! -f "${OP_LIST_FILE}" ]; then

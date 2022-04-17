@@ -81,6 +81,41 @@ function construnct_version(){
     echo "-----------------build PADDLE_DEV_NAME is: ${PADDLE_DEV_NAME}"
 }
 
+function construnct_version2(){
+    if [[ ${cuda_version} == '11.2' ]];then
+        rm -rf commitid
+        wget https://paddle-qa.bj.bcebos.com/WheelBenchmark/linux-gpu-cuda11.2-cudnn8-mkl-gcc8.2-avx/commitid
+        image_commit_id=`cat commitid|grep commitID:|awk -F 'commitID:' '{print $2}'`
+        image_commit_id6=${image_commit_id:0:6}
+        echo "image_commit_id is: "${image_commit_id}"\n image_commit_id6 is : "${image_commit_id6}
+        version_temp=`tail -1 commitid|awk -F '+0800' '{print $1}' |awk -F 'commitIDtime:' '{print $2}'`  # 2022-04-01 21:18:53
+        version=`date -d  "${version_temp}" "+%Y.%m%d.%H%M%S"`   # 2022.0401.211853
+        PADDLE_VERSION=${version}.post118.develop.${image_commit_id6}
+        IMAGE_NAME=paddlepaddle_gpu-0.0.0.post11.2_cudnn8.1_develop-cp37-cp37m-linux_x86_64.whl
+        mkdir ${all_path}/images/${PADDLE_VERSION}
+        unset ${http_proxy} && unset ${https_proxy} 
+        wget https://paddle-qa.bj.bcebos.com/WheelBenchmark/linux-gpu-cuda11.2-cudnn8-mkl-gcc8.2-avx/${image_commit_id}/${IMAGE_NAME} -P ${all_path}/images/${PADDLE_VERSION}/
+                
+    else 
+        rm -rf commitid
+        wget https://paddle-qa.bj.bcebos.com/WheelBenchmark/linux-gpu-cuda10.1-cudnn7-mkl-gcc5.4-avx/commitid
+        image_commit_id=`cat commitid|grep commitID:|awk -F 'commitID:' '{print $2}'`
+        image_commit_id6=${image_commit_id:0:6}
+        echo "image_commit_id is: "${image_commit_id}"\n image_commit_id6 is : "${image_commit_id6}
+        version_temp=`tail -1 commitid|awk -F '+0800' '{print $1}' |awk -F 'commitIDtime:' '{print $2}'`  # 2022-04-01 21:18:53
+        version=`date -d  "${version_temp}" "+%Y.%m%d.%H%M%S"`   # 2022.0401.211853
+        PADDLE_VERSION=${version}.post101.develop.${image_commit_id6}
+        IMAGE_NAME=paddlepaddle_gpu-0.0.0.post10.1_cudnn7.6_develop-cp37-cp37m-linux_x86_64.whl
+        mkdir ${all_path}/images/${PADDLE_VERSION}
+        unset ${http_proxy} && unset ${https_proxy} 
+        wget https://paddle-qa.bj.bcebos.com/WheelBenchmark/linux-gpu-cuda10.1-cudnn7-mkl-gcc5.4-avx/${image_commit_id}/${IMAGE_NAME} -P ${all_path}/images/${PADDLE_VERSION}/
+        
+    echo "----------------- PADDLE_VERSION is: ${PADDLE_VERSION}"
+    echo "----------------- IMAGE_NAME is: ${IMAGE_NAME}"
+    fi
+}
+
+
 #build paddle whl and put it to ${all_path}/images
 function build_paddle(){
     construnct_version
@@ -131,7 +166,13 @@ function build_paddle(){
       -e "https_proxy=${HTTP_PROXY}" \
       -e "no_proxy=bcebos.com" \
       ${PADDLE_DEV_NAME} \
-       /bin/bash -c "paddle/scripts/paddle_build.sh build_only"
+       /bin/bash -c "
+	    export no_proxy=localhost,127.0.0.1,localaddress,.localdomain.com,.cdn.bcebos.com,.baidu.com,.bcebos.com;
+        export https_proxy=${HTTP_PROXY};
+        export http_proxy=${HTTP_PROXY};
+        git config --global http.proxy ${HTTP_PROXY};
+        git config --global https.proxy ${HTTP_PROXY};
+        git config --global http.postBuffer 1048576000;paddle/scripts/paddle_build.sh build_only"
      build_name=${IMAGE_NAME}
 
     if [[ -d ${all_path}/images ]]; then
@@ -170,14 +211,15 @@ EOF
 
 # create containers based on mirror ${RUN_IMAGE_NAME} and run jobs
 function run_models(){
-    construnct_version
+    construnct_version2   #         -n ${all_path}/images/${PADDLE_VERSION}/${IMAGE_NAME} \
+    # construnct_version
     # Determine if the whl exists
-    if [[ -s ${all_path}/images/${IMAGE_NAME} ]]; then echo "image found"; else exit 1; fi
+    if [[ -s ${all_path}/images/${PADDLE_VERSION}/${IMAGE_NAME} ]]; then echo "image found"; else exit 1; fi
     run_cmd="cd ${benchmark_work_path}/baidu/paddle/benchmark/libs/scripts;
         bash auto_run_paddle.sh -m $model \
         -c ${cuda_version} \
         -d ${cudnn_version} \
-        -n ${all_path}/images/${IMAGE_NAME} \
+        -n ${all_path}/images/${PADDLE_VERSION}/${IMAGE_NAME}  \
         -i ${image_commit_id} \
         -a ${image_branch} \
         -v ${PADDLE_VERSION} \
