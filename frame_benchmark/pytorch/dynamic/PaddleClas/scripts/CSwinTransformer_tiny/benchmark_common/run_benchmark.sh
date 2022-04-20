@@ -17,9 +17,8 @@ function _set_params(){
     model_item=${1:-"model_item"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
     base_batch_size=${2:-"2"}       # (必选) 每张卡上的batch_size
     fp_item=${3:-"fp32"}            # (必选) fp32|fp16
-    run_process_type=${4:-"MultiP"} # (必选) 单进程 SingleP|多进程 MultiP
-    run_mode=${5:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
-    device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
+    run_mode=${4:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
+    device_num=${5:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
     model_repo="CSwin-Transformer"          # (必选) 模型套件的名字
     ips_unit="samples/sec"         # (必选)速度指标单位
@@ -31,7 +30,7 @@ function _set_params(){
     num_workers=${8:-"4"}             # (可选)
 
     #   以下为通用拼接log路径，无特殊可不用修改
-    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_process_type}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
+    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
@@ -66,24 +65,24 @@ function _train(){
 		   --drop-path=0.2 \
 		   --img-size=224"
 
-    case ${run_process_type} in
-    SingleP) train_cmd="python -u main.py ${train_options}" ;;
-    MultiP) train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --master_port=29500 main.py ${train_config} ${train_options}" ;;
+    case ${device_num} in
+    N1C1) train_cmd="python -u main.py ${train_options}" ;;
+    N1C8) train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --master_port=29500 main.py ${train_config} ${train_options}" ;;
     *) echo "choose run_process_type(SingleP or MultiP)"; exit 1;
     esac
 
 #   以下为通用执行命令，无特殊可不用修改
-    timeout 5m ${train_cmd} > ${log_file} 2>&1
+    timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
     else
         echo -e "${model_name}, SUCCESS"
     fi
-    #kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
-    #if [ ${run_process_type} = "MultiP" -a -d mylog ]; then
-    #    rm ${log_CUDA_file}
-    #    cp mylog/workerlog.0 ${log_file}
-    #fi
+    kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
+    if [ ${device_num} != "N1C1" -a -d mylog  ]; then
+        rm ${log_CUDA_file}
+        cp mylog/workerlog.0 ${log_file}
+    fi
 }
 
 _set_params $@

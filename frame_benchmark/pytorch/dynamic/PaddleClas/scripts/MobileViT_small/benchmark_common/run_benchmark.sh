@@ -17,9 +17,8 @@ function _set_params(){
     model_item=${1:-"model_item"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
     base_batch_size=${2:-"2"}       # (必选) 每张卡上的batch_size
     fp_item=${3:-"fp32"}            # (必选) fp32|fp16
-    run_process_type=${4:-"MultiP"} # (必选) 单进程 SingleP|多进程 MultiP
-    run_mode=${5:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
-    device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
+    run_mode=${4:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
+    device_num=${5:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
     model_repo="ml-cvnets"          # (必选) 模型套件的名字
     ips_unit="samples/sec"         # (必选)速度指标单位
@@ -31,7 +30,7 @@ function _set_params(){
     num_workers=${8:-"4"}             # (可选)
 
     #   以下为通用拼接log路径，无特殊可不用修改
-    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_process_type}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
+    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
@@ -78,16 +77,16 @@ function _train(){
     sed -ri 's/^.*max_crop_size_height.*//'  config/classification/mobilevit_small.yaml
     sed -ri 's/^.*check_scale.*//'  config/classification/mobilevit_small.yaml
 
-    case ${run_process_type} in
-    SingleP) sed -ri '/ddp/{n;s/(enable: )true/\1flase/;}' config/classification/mobilevit_small.yaml ;;
-    MultiP) sed -ri 's/(^\s*dist_port: )[0-9]*/\129500/' config/classification/mobilevit_small.yaml ;;
+    case ${device_num} in
+    N1C1) sed -ri '/ddp/{n;s/(enable: )true/\1flase/;}' config/classification/mobilevit_small.yaml ;;
+    N1C8) sed -ri 's/(^\s*dist_port: )[0-9]*/\129500/' config/classification/mobilevit_small.yaml ;;
     *) echo "choose run_process_type(SingleP or MultiP)"; exit 1;
     esac
 
     train_cmd="python -u main_train.py --common.config-file ${train_config} --common.results-loc results_mobilevit_small"
 
 #   以下为通用执行命令，无特殊可不用修改
-    timeout 5m ${train_cmd} > ${log_file} 2>&1
+    timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
     else

@@ -16,6 +16,7 @@ ln -s ILSVRC2012_val/ILSVRC2012_val_dirs train
 ln -s ILSVRC2012_val/ILSVRC2012_val_dirs val
 sed -ri 's/ILSVRC2012_val_dirs\///' ILSVRC2012_val/val_list.txt
 sed -ri 's/ .*//' ILSVRC2012_val/val_list.txt
+rm -rf ILSVRC2012_name_train.txt ILSVRC2012_name_val.txt
 ln -s ILSVRC2012_val/val_list.txt ILSVRC2012_name_train.txt
 ln -s ILSVRC2012_val/val_list.txt ILSVRC2012_name_val.txt
 cd ..
