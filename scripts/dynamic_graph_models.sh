@@ -74,11 +74,12 @@ dy_speech_repo_conformer(){
 dy_video_TimeSformer(){
     echo "dy_video_TimeSformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
-    cd ${cur_model_path}/benchmark/TimeSformer/
+    cd ${cur_model_path}/
     sed -i "s/opencv-python.*/opencv-python/g" requirements.txt       # 解决个模型之间对该依赖版本要求不同导致依赖反复卸载安装，但卸载有残留无法成功再次安装问题
     pip install -r requirements.txt
     pip install scikit-image==0.18.2
     pip install pooch==1.5.2
+    cd ${cur_model_path}/benchmark/TimeSformer/
     bash run_all.sh local
     rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
