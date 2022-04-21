@@ -19,8 +19,8 @@
 #dy_seg_repo dy_video_TimeSformer dy_xlnet dy_clas_repo dy_ocr_repo dy_gan_repo dy_gpt dy_speech_repo_conformer dy_seg)
 
 # 20220316,迁移部分模型到PDC,备份全量模型列表
-cur_model_list=(dy_bert dy_lac dy_transformer dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_clas_repo dy_ocr_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
+cur_model_list=(dy_bmn dy_tsn dy_tsm dy_slowfast dy_video_TimeSformer dy_bert dy_lac dy_transformer dy_yolov3 dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_faster_rcnn_fpn \
+dy_seg_repo  dy_xlnet dy_detection_repo dy_clas_repo dy_ocr_repo dy_gan_repo dy_speech_repo_pwgan dy_gpt dy_speech_repo_conformer)
 # 同模型放确认新系统下线senta 系列模型,dy_wavenet模型 20220329
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
 #    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
@@ -74,11 +74,12 @@ dy_speech_repo_conformer(){
 dy_video_TimeSformer(){
     echo "dy_video_TimeSformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
-    cd ${cur_model_path}/benchmark/TimeSformer/
+    cd ${cur_model_path}/
     sed -i "s/opencv-python.*/opencv-python/g" requirements.txt       # 解决个模型之间对该依赖版本要求不同导致依赖反复卸载安装，但卸载有残留无法成功再次安装问题
     pip install -r requirements.txt
     pip install scikit-image==0.18.2
     pip install pooch==1.5.2
+    cd ${cur_model_path}/benchmark/TimeSformer/
     bash run_all.sh local
     rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
