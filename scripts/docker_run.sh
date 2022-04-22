@@ -109,7 +109,6 @@ function construnct_version2(){
             mkdir ${all_path}/images/${PADDLE_VERSION}
             unset ${http_proxy} && unset ${https_proxy} 
             wget https://paddle-qa.bj.bcebos.com/WheelBenchmark/linux-gpu-cuda11.2-cudnn8-mkl-gcc8.2-avx/release/${image_branch}/${image_commit_id}/${IMAGE_NAME} -P ${all_path}/images/${PADDLE_VERSION}/
-        
     elif [[ ${cuda_version} == '10.1' ]];then
         if [[ ${image_branch} == 'develop' ]];then 
             rm -rf commitid
