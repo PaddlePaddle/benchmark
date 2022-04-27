@@ -49,12 +49,12 @@ function _train(){
         config_file="ResNet152.yaml"
         file_list="train_list_resnet152.txt"
     elif [[ ${model_name} == *pure_fp16* ]]; then
-        config_file="ResNet50_amp_O2.yaml"
-	file_list="train_list.txt"
+        config_file="ResNet50_amp_O2_ultra.yaml"
+        file_list="train_list.txt"
         max_epoch=3
 	level=O2
     elif [[ ${model_name} == *amp_fp16* ]]; then
-	config_file="ResNet50_amp_O1.yaml"
+	config_file="ResNet50_amp_O1_ultra.yaml"
         file_list="train_list.txt"
         max_epoch=3
 	level=O1
