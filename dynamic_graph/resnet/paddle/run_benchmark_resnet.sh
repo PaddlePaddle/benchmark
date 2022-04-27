@@ -62,6 +62,7 @@ function _train(){
         config_file="ResNet50.yaml"
         file_list="train_list.txt"
     fi 
+    
     train_cmd="-c ./ppcls/configs/ImageNet/ResNet/${config_file}
                -o Global.epochs=${max_epoch}
                -o Global.eval_during_train=False
