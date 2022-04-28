@@ -2,6 +2,7 @@ import os
 import argparse
 import json
 import re
+import datetime
 
 
 def parse_args():
@@ -23,21 +24,20 @@ def get_log_file(path):
 
 
 def calculate_ips(log_list, batch_size):
-    log_list = list(filter(lambda l: "Elapsed time" in l, log_list))
+    log_list = list(filter(lambda l: "Epoch:   0 [" in l and "/10000000]" in l, log_list))
 
     if len(log_list) < 5:
-        print('log number is smaller than 5, the ips may be inaccurate!')
-    else:
-        log_list = log_list[4:]
+        print('log number is smaller than 5, the ips unable to be counted!')
+        return 0
 
-    total_time = 0
-    for line in log_list:
-        time_ = re.findall(r"Elapsed time:\s*(\d+\.?\d*)", line)[0]
-        total_time += eval(time_)
+    start_tic = log_list[0][:19]
+    end_tic = log_list[-1][:19]
+    start_tic = datetime.datetime.strptime(start_tic, "%Y-%m-%d %H:%M:%S")
+    end_tic = datetime.datetime.strptime(end_tic, "%Y-%m-%d %H:%M:%S")
 
-    avg_time = total_time / len(log_list)
-    ips = batch_size / avg_time
-    return ips
+    elapse = (end_tic - start_tic).seconds
+
+    return 50000/elapse
 
 
 if __name__ == "__main__":

@@ -76,6 +76,7 @@ function _train(){
     sed -ri 's/^.*min_crop_size_height.*//'  config/classification/mobilevit_small.yaml
     sed -ri 's/^.*max_crop_size_height.*//'  config/classification/mobilevit_small.yaml
     sed -ri 's/^.*check_scale.*//'  config/classification/mobilevit_small.yaml
+    sed -ri "s/(log_freq: )[0-9]*/\11/" config/classification/mobilevit_small.yaml
 
     case ${device_num} in
     N1C1) sed -ri '/ddp/{n;s/(enable: )true/\1flase/;}' config/classification/mobilevit_small.yaml ;;
@@ -101,7 +102,7 @@ export frame_version=`python -c "import torch;print(torch.__version__)"`
 echo "---------frame_version is torch ${frame_version}"
 echo "---------model_branch is ${model_branch}"
 echo "---------model_commit is ${model_commit}"
-
+rm -rf results_mobilevit_small
 job_bt=`date '+%Y%m%d%H%M%S'`
 _train
 job_et=`date '+%Y%m%d%H%M%S'`
