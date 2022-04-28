@@ -23,7 +23,7 @@ def get_log_file(path):
 
 
 def calculate_ips(log_list, batch_size):
-    log_list = list(filter(lambda l: "Time:" in l and "Train" in l, log_list))
+    log_list = list(filter(lambda l: "Time:" in l and "Train: 0" in l, log_list))
 
     if len(log_list) < 5:
         print('log number is smaller than 5, the ips may be inaccurate!')

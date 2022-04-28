@@ -8,6 +8,8 @@ dataset_url="https://paddle-imagenet-models-name.bj.bcebos.com/data/ImageNet1k/I
 # prepare data
 rm -rf dataset/ILSVRC2012_val.tar
 rm -rf dataset/ILSVRC2012_val
+rm -rf dataset/ILSVRC2012_name_train.txt
+rm -rf dataset/ILSVRC2012_name_val.txt
 
 cd dataset
 wget -c ${dataset_url}

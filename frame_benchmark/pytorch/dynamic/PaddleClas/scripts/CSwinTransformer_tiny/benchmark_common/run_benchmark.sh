@@ -63,7 +63,8 @@ function _train(){
                    --batch-size=${batch_size}  \
                    --workers=${num_workers} \
 		   --drop-path=0.2 \
-		   --img-size=224"
+		   --img-size=224 \
+		   --log-interval=1"
 
     case ${device_num} in
     N1C1) train_cmd="python -u main.py ${train_options}" ;;
