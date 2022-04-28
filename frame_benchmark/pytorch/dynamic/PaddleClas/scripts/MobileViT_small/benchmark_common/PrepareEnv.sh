@@ -2,6 +2,7 @@
 
 # install env
 pip install -r requirements.txt
+pip install pyyaml
 
 dataset_url="https://paddle-imagenet-models-name.bj.bcebos.com/data/ImageNet1k/ILSVRC2012_val.tar"
 
