@@ -27,17 +27,11 @@ def calculate_ips(log_list, batch_size):
 
     if len(log_list) < 5:
         print('log number is smaller than 5, the ips may be inaccurate!')
-    else:
-        log_list = log_list[4:]
+    line = log_list[-1]
+    avg_time = re.findall(r"time: (\d+\.?\d*)", line)[0]
+    avg_time = float(avg_time)
 
-    total_time = 0
-    for line in log_list:
-        time_ = re.findall(r"time: (\d+\.?\d*)", line)[0]
-        total_time += eval(time_)
-
-    avg_time = total_time / len(log_list)
-    ips = batch_size / avg_time
-    return ips
+    return batch_size / avg_time
 
 
 if __name__ == "__main__":

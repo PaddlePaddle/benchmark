@@ -3,7 +3,7 @@ bs_item=128
 fp_item=fp32
 device_num=N1C8
 run_mode=DP
-max_epoch=100
+max_epoch=1
 num_workers=4
 
 bash PrepareEnv.sh;

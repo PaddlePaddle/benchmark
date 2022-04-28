@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # install env
+# PVTV2 rely on torch==1.7.0
 pip install -r classification/requirements.txt
 
 dataset_url="https://paddle-imagenet-models-name.bj.bcebos.com/data/ImageNet1k/ILSVRC2012_val.tar"

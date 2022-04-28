@@ -91,6 +91,7 @@ echo "---------model_commit is ${model_commit}"
 cd ./classification
 job_bt=`date '+%Y%m%d%H%M%S'`
 rm -rf work_dirs
+sed -ri 's/print_freq = 10/print_freq=1/' engine.py
 _train
 job_et=`date '+%Y%m%d%H%M%S'`
 cd ../
