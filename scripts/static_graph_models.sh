@@ -77,7 +77,7 @@ image_classification(){
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 1 | tee ${log_path}/${FUNCNAME}_${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} mp 1 | tee ${log_path}/${FUNCNAME}_${model_name}_speed_8gpus8p 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} mp 2 | tee ${log_path}/${FUNCNAME}_${model_name}_speed_8gpus8p 2>&1
         sleep 60
     done
 
@@ -97,7 +97,7 @@ image_classification(){
             if [ ${bs_item} == 128 ]; then
                 sleep 60
                 echo "bs=${bs_item}, model is ${model_name}, index is speed, 8gpus, run_mode is multi_process, begin"
-                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_fp16.sh 1 ${bs_item} mp 1 ${fp_mode}  | tee ${log_path}/${FUNCNAME}_${model_name}_speed_8gpus8p 2>&1
+                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_fp16.sh 1 ${bs_item} mp 2 ${fp_mode}  | tee ${log_path}/${FUNCNAME}_${model_name}_speed_8gpus8p 2>&1
             fi
             sleep 60
         done

@@ -55,10 +55,10 @@ function _train(){
 
     if [ ${mode} == "amp" ]; then
         level=O1
-        config_file="ppcls/configs/ImageNet/ResNet/ResNet50_amp_O1.yaml"
+        config_file="ppcls/configs/ImageNet/ResNet/ResNet50_amp_O1_ultra.yaml"
     elif [ ${mode} == "pure" ]; then
         level=O2
-	config_file="ppcls/configs/ImageNet/ResNet/ResNet50_amp_O2.yaml"
+	config_file="ppcls/configs/ImageNet/ResNet/ResNet50_amp_O2_ultra.yaml"
     else
         echo "check your mode!"
     fi
@@ -69,7 +69,7 @@ function _train(){
                -o DataLoader.Train.dataset.image_root=./dataset/imagenet100_data
                -o DataLoader.Train.dataset.cls_label_path=./dataset/imagenet100_data/train_list.txt
                -o DataLoader.Train.loader.num_workers=8
-               -o Global.print_batch_step=10
+               -o Global.print_batch_step=5
                -o Global.device=gpu
                -o Global.image_shape=[4,224,224]
                -o AMP.level=${level}
