@@ -140,8 +140,8 @@ function prepare(){
 function run(){
     export ${implement_type}
     # # 批量测试新动态图
-    # export FLAGS_enable_eager_mode=1
-    # export FLAGS_retain_grad_for_all_tensor=0
+    export FLAGS_enable_eager_mode=1
+    export FLAGS_retain_grad_for_all_tensor=0
     echo "------FLAGS_enable_eager_mode: ${FLAGS_enable_eager_mode},----FLAGS_retain_grad_for_all_tensor: ${FLAGS_retain_grad_for_all_tensor}"
     if [ ${implement_type} == "static_graph" ]; then
       source ${BENCHMARK_ROOT}/scripts/static_graph_models.sh
