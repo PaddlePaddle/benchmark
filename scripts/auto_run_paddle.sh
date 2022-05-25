@@ -154,6 +154,10 @@ function run(){
         for model_name in ${cur_model_list[@]}
         do
             echo "=====================${model_name} run begin=================="
+            if [ ${model_name} == "dy_resnet" ]; then
+                # dali install dali会引起video模型环境报错，故只在resnet时安装
+                pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda$(echo ${cuda_version}|cut -d "." -f1)0    # note: dali 版本格式是cuda100 & cuda110
+            fi 
             $model_name
             sleep 60
             echo "*********************${model_name} run end!!******************"
