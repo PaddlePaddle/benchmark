@@ -51,7 +51,7 @@ bert_base_seqlen128_fp32_bs32(){
     rm -rf run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/bert/paddle/run_benchmark.sh ./run_benchmark.sh
     #pip install paddlenlp
-    pip uninstall paddlenlp
+    pip uninstall -y paddlenlp
     python setup.py install
     python -c 'import paddlenlp'  #to make dir /root/.paddlenlp/models before model running
  
