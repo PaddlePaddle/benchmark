@@ -20,7 +20,7 @@
 
 # 20220316,迁移部分模型到PDC,备份全量模型列表
 cur_model_list=(dy_bmn dy_tsn dy_tsm dy_slowfast dy_video_TimeSformer dy_bert dy_lac dy_transformer dy_yolov3 dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_faster_rcnn_fpn \
-dy_seg_repo  dy_xlnet dy_detection_repo dy_clas_repo dy_ocr_repo dy_gan_repo dy_speech_repo_pwgan dy_gpt dy_speech_repo_conformer)
+dy_mask_rcnn_fpn dy_seg_repo  dy_xlnet dy_detection_repo dy_clas_repo dy_ocr_repo dy_gan_repo dy_speech_repo_pwgan dy_gpt dy_speech_repo_conformer)
 # 同模型放确认新系统下线senta 系列模型,dy_wavenet模型 20220329
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
 #    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
@@ -49,6 +49,7 @@ dy_speech_repo_pwgan(){
     echo "dy_speech_repo_pwgan"
     cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
     cd ${cur_model_path}/tests/benchmark/pwgan/
+    pip install -U setuptools==58.0.4   #  60版本会报AttributeError: module 'distutils' has no attribute 'version'
     pip install jsonlines
     bash run_all.sh
 }
@@ -64,6 +65,7 @@ dy_speech_repo_conformer(){
     cd ${cur_model_path}/tests/benchmark/conformer/
     rm -rf ${cur_model_path}/dataset/aishell/aishell.py
     cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/dataset/aishell/
+    pip install -U setuptools==58.0.4   #  60版本会报AttributeError: module 'distutils' has no attribute 'version'
     pip install loguru
     echo "bash run.sh --stage 0 --stop_stage 0" >> prepare.sh             # 第一轮数据处理会报错
 	bash prepare.sh             
@@ -379,7 +381,7 @@ dy_slowfast(){
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 1 | tee ${log_path}/dynamic_slowfast_bs8_speed_8gpus 2>&1
 }
 
-dy_mask_rcnn(){
+dy_mask_rcnn_fpn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     pip install Cython
@@ -426,10 +428,10 @@ dy_mask_rcnn(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/mask_rcnn/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 500 | tee ${log_path}/dynamic_mask_rcnn_bs1_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 500 | tee ${log_path}/dynamic_mask_rcnn_fpn_bs4_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus begin, mp"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_mask_rcnn_bs1_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_mask_rcnn_fpn_bs4_speed_8gpus 2>&1
 }
 
 dy_yolov3(){
