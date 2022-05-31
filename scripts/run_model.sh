@@ -31,6 +31,7 @@ function _run(){
     echo "---------Model commit is ${model_commit_id}"
     echo "---------Paddle commit is ${paddle_commit_id}"
     pip list | grep opencv
+    pip list | grep dali
 
     if [[ ${index} -eq 1 ]]; then
         job_bt=`date '+%Y%m%d%H%M%S'`
