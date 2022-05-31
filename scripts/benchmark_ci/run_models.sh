@@ -41,6 +41,10 @@ ResNet50_bs32(){
 
 #run bert_base_fp32
 bert_base_seqlen128_fp32_bs32(){
+    paddlenlp_dir=${BENCHMARK_ROOT}/PaddleNLP
+    cd ${paddlenlp_dir}
+    pip uninstall -y paddlenlp
+    python setup.py install
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/model_zoo/bert/
     cd ${cur_model_path}
     ln -s ${data_path}/Bert/hdf5_lower_case_1_seq_len_512_max_pred_80_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en_seqlen512 ${cur_model_path}/wikicorpus_en_seqlen512 
@@ -51,8 +55,6 @@ bert_base_seqlen128_fp32_bs32(){
     rm -rf run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/bert/paddle/run_benchmark.sh ./run_benchmark.sh
     #pip install paddlenlp
-    pip uninstall -y paddlenlp
-    python setup.py install
     python -c 'import paddlenlp'  #to make dir /root/.paddlenlp/models before model running
  
     sed -i '/set\ -xe/d' run_benchmark.sh
