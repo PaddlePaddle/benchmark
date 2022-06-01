@@ -159,6 +159,7 @@ function run(){
                 pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda$(echo ${cuda_version}|cut -d "." -f1)0    # note: dali 版本格式是cuda100 & cuda110
             fi 
             $model_name
+            pip uninstall nvidia-dali-cuda$(echo ${cuda_version}|cut -d "." -f1)0 
             sleep 60
             echo "*********************${model_name} run end!!******************"
         done

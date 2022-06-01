@@ -226,9 +226,9 @@ bert(){
     ln -s ${data_path}/Bert/hdf5_lower_case_1_seq_len_512_max_pred_80_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en_seqlen512 ${cur_model_path}/wikicorpus_en_seqlen512
     ln -s ${data_path}/Bert/wikicorpus_en_seqlen128 ${cur_model_path}/wikicorpus_en_seqlen128
     cp ${BENCHMARK_ROOT}/static_graph/BERT/paddle/run_benchmark.sh ./run_benchmark.sh
-    pip install paddlenlp
-
     sed -i '/set\ -xe/d' run_benchmark.sh
+    pip install h5py
+    pip install paddlenlp
 
     model_mode_list=(base large)
     fp_mode_list=(fp32 fp16)
@@ -652,8 +652,9 @@ gpt(){
     pip uninstall paddlenlp -y
     echo "python env is"
     ls -l ${BENCHMARK_ROOT}/run_env/
-    sed -i "s/python3/python3.7/g"  examples/language_model/data_tools/Makefile  # 模型py3默认使用python37， benchmark >镜像python3 默认py35
-    cat examples/language_model/data_tools/Makefile | grep python
+    sed -i "s/python3/python/g" examples/language_model/gpt/data_tools/Makefile  # 模型py3默认使用python37， benchmark 镜像python3 默认py35
+    sed -i "s/python-config/python3.7m-config/g" examples/language_model/gpt/data_tools/Makefile
+    cat examples/language_model/gpt/data_tools/Makefile | grep python
     sed -i '/set\ -xe/d' tests/benchmark/run_benchmark.sh
     bash tests/benchmark/run_all.sh static
 }
