@@ -51,24 +51,35 @@ dy_speech_repo_pwgan(){
     cd ${cur_model_path}/tests/benchmark/pwgan/
     pip install -U setuptools==58.0.4   #  60版本会报AttributeError: module 'distutils' has no attribute 'version'
     pip install jsonlines
+    apt-get install libsndfile1 -y 
+    pip install yacs -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install pytest-runner  -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install kaldiio  -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install loguru
     bash run_all.sh
 }
 
 dy_speech_repo_conformer(){
     echo " dy_speech_repo_conformer prepare python3 env "
-	cd ${BENCHMARK_ROOT}/
+    cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
+    cd ${cur_model_path}/tests/benchmark/conformer/
+    mkdir run_env
     ln -s $(which python3.7) run_env/python3
     ln -s $(which pip3.7) run_env/pip3
     export PATH=$(pwd)/run_env:${PATH}
     echo "dy_speech_repo_conformer"
-    cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
-    cd ${cur_model_path}/tests/benchmark/conformer/
     rm -rf ${cur_model_path}/dataset/aishell/aishell.py
     cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/dataset/aishell/
+    apt-get install libsndfile1 -y 
     pip install -U setuptools==58.0.4   #  60版本会报AttributeError: module 'distutils' has no attribute 'version'
+    pip install yacs -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install pytest-runner  -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install kaldiio  -i https://pypi.tuna.tsinghua.edu.cn/simple
     pip install loguru
     echo "bash run.sh --stage 0 --stop_stage 0" >> prepare.sh             # 第一轮数据处理会报错
-	bash prepare.sh             
+	bash prepare.sh 
+    pip install jsonlines
+    pip list            
     bash run.sh
     rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/dataset/aishell    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
@@ -130,6 +141,7 @@ dy_bert(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/
     cd ${cur_model_path}
     pip install -r requirements.txt
+    pip install h5py
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/bert/
     cd ${cur_model_path}
     ln -s ${data_path}/Bert/hdf5_lower_case_1_seq_len_512_max_pred_80_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en_seqlen512 ${cur_model_path}/wikicorpus_en_seqlen512 ./data
@@ -732,21 +744,19 @@ dy_gpt(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
     cd ${cur_model_path}
     pip uninstall paddlenlp -y
-    echo "python env is"
-    ls -l ${BENCHMARK_ROOT}/run_env/
-    sed -i "s/python3/python3.7/g"  examples/language_model/data_tools/Makefile  # 模型py3默认使用python37， benchmark 镜像python3 默认py35
-    cat examples/language_model/data_tools/Makefile | grep python
+    sed -i "s/python3/python/g" examples/language_model/gpt/data_tools/Makefile  # 模型py3默认使用python37， benchmark 镜像python3 默认py35
+    sed -i "s/python-config/python3.7m-config/g" examples/language_model/gpt/data_tools/Makefile
+    cat examples/language_model/gpt/data_tools/Makefile | grep python
     sed -i '/set\ -xe/d' tests/benchmark/run_benchmark.sh
     bash tests/benchmark/run_all.sh dygraph
 }
 
 
-dy_xlnet() {
-    cd ${BENCHMARK_ROOT}
-    run_env=$BENCHMARK_ROOT/run_env
+dy_xlnet() {    
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
     cd ${cur_model_path}
-
+    mkdir run_env
+    run_env=$cur_model_path/run_env
     profile=${1:-"off"}
 
     # 1. 配置python环境:
