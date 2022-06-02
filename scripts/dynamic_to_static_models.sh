@@ -21,6 +21,10 @@ dy_to_static_bert() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/
     cd ${cur_model_path}
     pip install -r requirements.txt
+    pip install h5py
+    pip uninstall -y paddlenlp
+    pip install attrdict
+    python setup.py install
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/bert/
     cd ${cur_model_path}
     ln -s ${data_path}/Bert/hdf5_lower_case_1_seq_len_512_max_pred_80_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en_seqlen512 ${cur_model_path}/wikicorpus_en_seqlen512 ./data
@@ -181,8 +185,10 @@ dy_to_st_seg(){
 
 dy_to_st_transformer(){
     echo "###########pip install paddlenlp"
-    pip install paddlenlp
+    cd ${BENCHMARK_ROOT}/PaddleNLP
+    pip uninstall -y paddlenlp
     pip install attrdict
+    python setup.py install
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/machine_translation/transformer
     cd ${cur_model_path}
     # prepare data
