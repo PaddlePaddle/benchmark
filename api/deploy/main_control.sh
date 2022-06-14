@@ -30,7 +30,7 @@ function print_arguments() {
     echo "op_list_file    : ${OP_LIST_FILE}"
     echo "framework       : ${FRAMEWORK_SET[@]}"
     echo "testing_mode    : ${TESTING_MODE}"
-    echo "op_name    : ${OP_NAME}"
+    echo "op_name         : ${OP_NAME}"
     echo ""
 }
 

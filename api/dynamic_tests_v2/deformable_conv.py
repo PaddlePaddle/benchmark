@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from common_import import *
-import torchvision
 
 
 class DeformableConvConfig(APIConfig):
@@ -78,6 +77,8 @@ class PDDeformableConv(PaddleDynamicAPIBenchmarkBase):
 
 class TorchDeformableConv(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
+        import torchvision
+
         input = self.variable(
             name='x', shape=config.x_shape, dtype=config.x_dtype)
         weight = self.variable(
