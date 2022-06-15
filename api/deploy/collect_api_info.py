@@ -82,7 +82,7 @@ def main(args):
     subclass_dict = collect_subclass_dict(test_cases_dict)
 
     specified_op_list = None
-    if args.specified_op_list:
+    if args.specified_op_list is not None and args.specified_op_list != "None":
         specified_op_list = args.specified_op_list.split(",")
         print("-- Speficified op list: ", specified_op_list)
 
