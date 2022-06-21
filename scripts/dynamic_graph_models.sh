@@ -461,6 +461,7 @@ dy_yolov3(){
     pip install Cython
     sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt 
+    pip install -U opencv-python==4.2.0.32  # 版本升级后8卡性能会下降
    
     if python -c "import pycocotools" >/dev/null 2>&1
     then
