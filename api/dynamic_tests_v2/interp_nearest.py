@@ -44,8 +44,10 @@ class PDInterpNearest(PaddleDynamicAPIBenchmarkBase):
     def compute_flop_and_byte(self, config):
         x_shape = config.x_shape
         out_shape = self.fetch_list[0].shape
-        forward_flop = numel(out_shape) * 2 if config.align_corners else numel(
-            out_shape)
+        # out[out_index] = in[in_index], the calculation of index is somewhat complicated,
+        # but there is actually no floating point computation, and we do not count the
+        # numbers of index-related opertions to flop.
+        forward_flop = 0
         forward_byte = (
             numel(x_shape) + numel(out_shape)) * sizeof(config.x_dtype)
         if not config.backward:

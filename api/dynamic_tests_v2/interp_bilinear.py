@@ -49,7 +49,7 @@ class PDInterpBilinear(PaddleDynamicAPIBenchmarkBase):
     def compute_flop_and_byte(self, config):
         x_shape = config.x_shape
         out_shape = self.fetch_list[0].shape
-        # forward flops, sub*10 + mul*9 + div*1 + add*3
+        # forward flop, sub * 10 + mul * 9 + div * 1 + add * 3
         forward_flop = numel(out_shape) * 23
         forward_byte = (
             numel(x_shape) + numel(out_shape)) * sizeof(config.x_dtype)
