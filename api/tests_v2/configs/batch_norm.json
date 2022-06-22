@@ -23,7 +23,8 @@
             "type": "float",
             "value": "0.9"
         }
-    }
+    },
+    "atol": 1E-5
 }, {
     "config_id": 1,
     "op": "batch_norm",
@@ -49,7 +50,8 @@
             "type": "float",
             "value": "0.9"
         }
-    }
+    },
+    "atol": 1E-4
 }, {
     "config_id": 2,
     "op": "batch_norm",

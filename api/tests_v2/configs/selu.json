@@ -1,0 +1,37 @@
+[{
+    "op": "selu",
+    "param_info": {
+        "scale": {
+            "type": "float32",
+            "value": "1.05070"
+        },
+        "alpha": {
+            "type": "float32",
+            "value": "1.673263"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 1024L, 3072L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "op": "selu",
+    "param_info": {
+        "scale": {
+            "type": "float32",
+            "value": "2.05070"
+        },
+        "alpha": {
+            "type": "float32",
+            "value": "2.673263"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 1024L, 3072L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}]

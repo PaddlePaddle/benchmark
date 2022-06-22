@@ -20,7 +20,16 @@ class ReduceConfig(APIConfig):
         super(ReduceConfig, self).__init__('reduce')
         self.feed_spec = {"range": [-1, 1]}
         self.api_name = 'sum'
-        self.api_list = {'sum': 'sum', 'mean': 'mean'}
+        self.api_list = {'sum': 'sum', 'mean': 'mean', 'prod': 'prod'}
+
+    def disabled(self):
+        if self.api_name in ["prod"] and self.x_dtype == "float16":
+            print(
+                "Warning:\n"
+                "  1. This config is disabled because float16 is not supported for %s.\n"
+                % (self.api_name))
+            return True
+        return super(ReduceConfig, self).disabled()
 
     def init_from_json(self, filename, config_id=3, unknown_dim=16):
         super(ReduceConfig, self).init_from_json(filename, config_id,

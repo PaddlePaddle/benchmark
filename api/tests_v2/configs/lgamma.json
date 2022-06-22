@@ -1,0 +1,19 @@
+[{
+    "op": "lgamma",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[510L, 18506L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "lgamma",
+    "param_info": {
+        "x": {
+            "dtype": "float64",
+            "shape": "[510L, 18506L]",
+            "type": "Variable"
+        }
+    }
+}]

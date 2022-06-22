@@ -34,8 +34,8 @@ def is_ampere_gpu():
 
 
 class NvprofRunner(object):
-    def run(self, cmd):
-        stdout, exit_code = self._nvprof(cmd)
+    def run(self, cmd, profile_from_start=False):
+        stdout, exit_code = self._nvprof(cmd, profile_from_start)
         if exit_code == 0:
             parse_status, gpu_time = self._parse_logs(stdout.split("\n"))
             if parse_status:
@@ -43,9 +43,12 @@ class NvprofRunner(object):
         print("Running Error:\n {}".format(stdout))
         return 0.0
 
-    def _nvprof(self, cmd):
-        return system.run_command("nvprof --profile-from-start off {}".format(
-            cmd))
+    def _nvprof(self, cmd, profile_from_start):
+        if profile_from_start:
+            profile_cmd = "nvprof {}".format(cmd)
+        else:
+            profile_cmd = "nvprof --profile-from-start off {}".format(cmd)
+        return system.run_command(profile_cmd)
 
     def _parse_logs(self, logs):
         line_from = None
@@ -91,8 +94,8 @@ class NvprofRunner(object):
 
 
 class NsightRunner(object):
-    def run(self, cmd):
-        stdout, exit_code = self._nsight(cmd)
+    def run(self, cmd, profile_from_start=False):
+        stdout, exit_code = self._nsight(cmd, profile_from_start)
         if exit_code == 0:
             parse_status, gpu_time = self._parse_logs(stdout.split("\n"))
             if parse_status:
@@ -100,9 +103,13 @@ class NsightRunner(object):
         print("Running Error:\n {}".format(stdout))
         return 0.0
 
-    def _nsight(self, cmd):
-        return system.run_command(
-            "nsys nvprof --profile-from-start=off -o tmp.qdrep {}".format(cmd))
+    def _nsight(self, cmd, profile_from_start):
+        if profile_from_start:
+            profile_cmd = "nsys nvprof -o tmp.qdrep {}".format(cmd)
+        else:
+            profile_cmd = "nsys nvprof --profile-from-start=off -o tmp.qdrep {}".format(
+                cmd)
+        return system.run_command(profile_cmd)
 
     def _parse_logs(self, logs):
         kernel_line_from = None
@@ -362,7 +369,8 @@ def launch(benchmark_script,
            task="speed",
            repeat=1,
            sync_interval=80,
-           with_nvprof=False):
+           with_nvprof=False,
+           profile_from_start=True):
     """
     If with_nvprof is True, it will launch the following command firstly to
     get the gpu_time:
@@ -372,7 +380,7 @@ def launch(benchmark_script,
         python benchmark_script benchmark_script_args
     """
     if with_nvprof:
-        if task == "speed":
+        if task == "speed" and not profile_from_start:
             _set_args(benchmark_script_args, "--profiler", "nvprof")
         elif task == "scheduling":
             _set_args(benchmark_script_args, "--profiler", "nvprof_nvtx")
@@ -384,7 +392,7 @@ def launch(benchmark_script,
                 runner = NsightRunner()
             else:
                 runner = NvprofRunner()
-            gpu_time = runner.run(cmd)
+            gpu_time = runner.run(cmd, profile_from_start)
             _set_args(benchmark_script_args, "--profiler", "none")
             return gpu_time
         elif task == "scheduling":
@@ -425,6 +433,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='OP Benchmark of PaddlePaddle')
 
+    parser.add_argument(
+        '--profile_from_start',
+        type=system.str2bool,
+        default=False,
+        help='Whether profiling from start, which is used for debuging purpose of speed task..'
+    )
+
     # positional
     parser.add_argument(
         "benchmark_script",
@@ -454,7 +469,8 @@ if __name__ == "__main__":
             task,
             repeat,
             sync_interval,
-            with_nvprof=True)
+            with_nvprof=True,
+            profile_from_start=args.profile_from_start)
         if task == "speed":
             args.benchmark_script_args.append(" --gpu_time ")
             args.benchmark_script_args.append(str(output_time))

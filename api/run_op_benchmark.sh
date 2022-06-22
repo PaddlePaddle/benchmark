@@ -98,7 +98,8 @@ main() {
     testing_mode="dynamic"
     # For ampere, need to install the nightly build cuda11.3 version using the following command:
     # pip install --pre torch -f https://download.pytorch.org/whl/nightly/cu113/torch_nightly.html
-    install_package "torch" "1.10.0"
+    install_package "torch" "1.11.0"
+    install_package "torchvision" "0.12.0"
   else
     testing_mode="static"
     install_package "tensorflow" "2.3.1"

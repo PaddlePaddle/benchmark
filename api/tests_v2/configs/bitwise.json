@@ -1,0 +1,71 @@
+[{
+    "op": "bitwise",
+    "param_info": {
+        "x": {
+            "dtype": "bool",
+            "shape": "[-1L, 256L, 256L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "bool",
+            "shape": "[-1L, 256L, 256L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "bitwise",
+    "param_info": {
+        "x": {
+            "dtype": "int8",
+            "shape": "[-1L, 36864L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "int8",
+            "shape": "[-1L, 36864L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "bitwise",
+    "param_info": {
+        "x": {
+            "dtype": "int16",
+            "shape": "[35L, -1L, 1500L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "int16",
+            "shape": "[35L, -1L, 1500L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "bitwise",
+    "param_info": {
+        "x": {
+            "dtype": "int32",
+            "shape": "[-1L, 16L, 16L, 16L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "int32",
+            "shape": "[-1L, 16L, 16L, 16L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "bitwise",
+    "param_info": {
+        "x": {
+            "dtype": "int64",
+            "shape": "[-1L, 128L,768L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "int64",
+            "shape": "[-1L, 128L,768L]",
+            "type": "Variable"
+        }
+    }
+}]

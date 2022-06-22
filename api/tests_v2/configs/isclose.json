@@ -1,0 +1,54 @@
+[{
+    "op": "isclose",
+    "param_info": {
+        "rtol": {
+            "type": "float32",
+            "value": "1e-5"
+        },
+        "atol": {
+            "type": "float32",
+            "value": "1e-8"
+        },
+        "equal_nan": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1700971L, 1L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1700971L, 1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "isclose",
+    "param_info": {
+        "rtol": {
+            "type": "float32",
+            "value": "1e-5"
+        },
+        "atol": {
+            "type": "float32",
+            "value": "1e-8"
+        },
+        "equal_nan": {
+            "type": "bool",
+            "value": "False"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[17009L, 100L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[17009L, 100L]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 100
+}]

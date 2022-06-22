@@ -121,9 +121,6 @@ function prepare(){
         pip install ${all_path}/tools/opencv_python-4.5.1.48-cp37-cp37m-manylinux2014_x86_64.whl
     fi
 
-    # dali install
-    pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda$(echo ${cuda_version}|cut -d "." -f1)0    # note: dali 版本格式是cuda100 & cuda110
-
     # fix ssl temporarily
     if [ ${cuda_version} == 10.1 ]; then
         export LD_LIBRARY_PATH=${all_path}/tools/ssl/lib:${LD_LIBRARY_PATH}
@@ -139,20 +136,30 @@ function prepare(){
 
 function run(){
     export ${implement_type}
+    # 批量测试新动态图
+    # export FLAGS_enable_eager_mode=1
+    # export FLAGS_retain_grad_for_all_tensor=0
+    echo "------FLAGS_enable_eager_mode: ${FLAGS_enable_eager_mode},----FLAGS_retain_grad_for_all_tensor: ${FLAGS_retain_grad_for_all_tensor}"
     if [ ${implement_type} == "static_graph" ]; then
+      # dali install dali会引起video模型环境报错，故只在静态图时安装
+      pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda$(echo ${cuda_version}|cut -d "." -f1)0    # note: dali 版本格式是cuda100 & cuda110
       source ${BENCHMARK_ROOT}/scripts/static_graph_models.sh
     elif [ ${implement_type} == "dynamic_graph" ]; then
       source ${BENCHMARK_ROOT}/scripts/dynamic_graph_models.sh
     else
       source ${BENCHMARK_ROOT}/scripts/dynamic_to_static_models.sh
     fi
-
     if [ $model = "all" ]
     then
         for model_name in ${cur_model_list[@]}
         do
             echo "=====================${model_name} run begin=================="
+            if [ ${model_name} == "dy_resnet" ]; then
+                # dali install dali会引起video模型环境报错，故只在resnet时安装
+                pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda$(echo ${cuda_version}|cut -d "." -f1)0    # note: dali 版本格式是cuda100 & cuda110
+            fi 
             $model_name
+            pip uninstall nvidia-dali-cuda$(echo ${cuda_version}|cut -d "." -f1)0 
             sleep 60
             echo "*********************${model_name} run end!!******************"
         done

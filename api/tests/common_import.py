@@ -75,8 +75,9 @@ def unsqueeze_short(short, long):
 
 
 def numel(shape):
-    assert isinstance(
-        shape, list), "Expect shape to be a list, but recieved {}".format(
+    assert isinstance(shape, list) or isinstance(
+        shape,
+        tuple), "Expect shape to be a list or tuple, but recieved {}".format(
             type(shape))
     return np.prod(np.array(shape))
 

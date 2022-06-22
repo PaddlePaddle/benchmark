@@ -367,6 +367,9 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             self._backward = True
             if self._testing_mode == "static":
                 print("Gradients: ", gradients)
+                if not hasattr(self,
+                               "fetch_vars") and self.fetch_list is not None:
+                    self.fetch_vars = self.fetch_list
                 _append_to_list(gradients, self.fetch_vars)
             else:
                 _append_to_list(gradients, self.fetch_list)
@@ -385,6 +388,8 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
     def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
         self._layers_function = None
         self._task = args.task
+        self.feed_list = None
+        self.fetch_list = None
         if self._testing_mode == "dynamic":
             self._helper = DynamicHelper()
             return self._run_dynamic(config, args, feeder_adapter)

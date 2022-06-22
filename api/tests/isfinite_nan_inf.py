@@ -25,13 +25,16 @@ class IsfiniteNanInfConfig(APIConfig):
             'isnan': 'isnan',
             'isinf': 'isinf'
         }
-        # TODO(Xreki): the tf's api are different.
 
-    #        self.api_list = {
-    #            'isfinite': 'is_finite',
-    #            'isnan': 'is_nan',
-    #            'isinf': 'is_inf'
-    #        }
+    def to_tensorflow(self):
+        # The change of self.api_list should be in front of the calling of parent's function.
+        self.api_list = {
+            'isfinite': 'is_finite',
+            'isnan': 'is_nan',
+            'isinf': 'is_inf'
+        }
+        tf_config = super(IsfiniteNanInfConfig, self).to_tensorflow()
+        return tf_config
 
 
 @benchmark_registry.register("isfinite_nan_inf")

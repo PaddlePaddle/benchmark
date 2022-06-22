@@ -1,0 +1,47 @@
+[{
+    "op": "roi_align",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 3L, 512L, 1024L]",
+            "type": "Variable"
+        },
+        "boxes": {
+            "dtype": "float32",
+            "shape": "[960L, 4L]",
+            "type": "Variable"
+        },
+        "boxes_num": {
+            "dtype": "int32",
+            "shape": "[-1L]",
+            "type": "Variable"
+        },
+        "output_size": {
+            "type": "list",
+            "value": "[8, 10]"
+        }
+    }
+}, {
+    "op": "roi_align",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 16L, 512L, 256L]",
+            "type": "Variable"
+        },
+        "boxes": {
+            "dtype": "float32",
+            "shape": "[960L, 4L]",
+            "type": "Variable"
+        },
+        "boxes_num": {
+            "dtype": "int32",
+            "shape": "[-1L]",
+            "type": "Variable"
+        },
+        "output_size": {
+            "type": "int",
+            "value": "16"
+        }
+    }
+}]

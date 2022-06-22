@@ -13,7 +13,8 @@ function print_usage() {
     echo "  task (optional)         - speed, accuracy, both"
     echo "  op_list_file (optional) - the path which specified op list to test"
     echo "  framework (optional)    - paddle, tensorflow, pytorch, both"
-    echo "  testing_mode (optional) - the testing_mode of paddle. static(default)|dynamic."
+    echo "  testing_mode (optional) - the testing_mode of paddle. dynamic(default)|static."
+    echo "  op_name (optional)      - specified op name or list string. such as conv2d | conv1d,conv2d,conv3d."
 }
 
 function print_arguments() {
@@ -29,6 +30,7 @@ function print_arguments() {
     echo "op_list_file    : ${OP_LIST_FILE}"
     echo "framework       : ${FRAMEWORK_SET[@]}"
     echo "testing_mode    : ${TESTING_MODE}"
+    echo "op_name         : ${OP_NAME}"
     echo ""
 }
 
@@ -95,29 +97,39 @@ if [ $# -ge 7 ]; then
     fi
 fi
 if [ "${OP_LIST_FILE}" == "" ]; then
+    OP_NAME="None"
+    if [ $# -ge 10 ]; then
+        OP_NAME=${10}
+    fi
     OP_LIST_FILE=${OUTPUT_DIR}/api_info.txt
     python ${DEPLOY_DIR}/collect_api_info.py \
         --test_module_name ${TEST_MODULE_NAME} \
-        --info_file ${OP_LIST_FILE} \
-        --specified_op_list "abs"
+        --specified_op_list ${OP_NAME} \
+        --info_file ${OP_LIST_FILE}
     return_status=$?
     if [ ${return_status} -ne 0 ] || [ ! -f "${OP_LIST_FILE}" ]; then
         OP_LIST_FILE=${DEPLOY_DIR}/api_info.txt
     fi
 fi
 
-TESTING_MODE="static"
-FRAMEWORK_SET=("paddle" "tensorflow")
+TESTING_MODE="dynamic"
+FRAMEWORK_SET=("paddle" "pytorch")
 if [ $# -ge 8 ]; then
     if [ $# -ge 9 ]; then
         TESTING_MODE=${9}
+    elif [ ${TEST_MODULE_NAME} == "dynamic_tests_v2" ]; then
+        TESTING_MODE="dynamic"
+    elif [ ${TEST_MODULE_NAME} == "tests_v2" ]; then
+        TESTING_MODE="static"
     fi
 
     if [ ${TESTING_MODE} == "static" ]; then
         if [[ ${8} == "paddle"  || ${8} == "tensorflow" ]]; then
             FRAMEWORK_SET=(${8})
-        elif [ ${8} != "both" ]; then
-           echo "The static testing mode only can test paddle or tensorflow."
+        elif [ ${8} == "both" ]; then
+            FRAMEWORK_SET=("paddle" "tensorflow")
+        else
+            echo "The static testing mode only can test paddle or tensorflow."
         fi
     elif [ ${TESTING_MODE} == "dynamic" ]; then
         if [[ ${8} == "paddle"  || ${8} == "pytorch" ]]; then

@@ -15,10 +15,13 @@
 # limitations under the License.
 
 
-cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_slowfast dy_tsn dy_tsm dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_bmn dy_faster_rcnn_fpn \
-dy_seg_repo dy_speech_repo_pwgan dy_video_TimeSformer dy_xlnet dy_detection_repo dy_ocr_repo dy_clas_repo dy_gan_repo dy_gpt dy_speech_repo_conformer)
+#cur_model_list=(dy_bert dy_lac dy_transformer dy_wavenet dy_senta dy_yolov3 dy_slowfast dy_gan dy_seq2seq dy_ptb_medium dy_mobilenet \
+#dy_seg_repo dy_video_TimeSformer dy_xlnet dy_clas_repo dy_ocr_repo dy_gan_repo dy_gpt dy_speech_repo_conformer dy_seg)
 
-
+# 20220316,迁移部分模型到PDC,备份全量模型列表
+cur_model_list=(dy_bmn dy_tsn dy_tsm dy_slowfast dy_video_TimeSformer dy_bert dy_lac dy_transformer dy_yolov3 dy_gan dy_seg dy_seq2seq dy_resnet dy_ptb_medium dy_mobilenet dy_ppocr_mobile_2 dy_faster_rcnn_fpn \
+dy_mask_rcnn_fpn dy_seg_repo dy_detection_repo dy_clas_repo dy_ocr_repo dy_gan_repo dy_speech_repo_pwgan dy_gpt dy_xlnet dy_speech_repo_conformer)
+# 同模型放确认新系统下线senta 系列模型,dy_wavenet模型 20220329
 #if  [ ${RUN_PROFILER} = "PROFILER" ]; then
 #    log_path=${PROFILER_LOG_DIR:-$(pwd)}  #  benchmark系统指定该参数,如果需要跑profile时,log_path指向存profile的目录
 #fi
@@ -46,24 +49,37 @@ dy_speech_repo_pwgan(){
     echo "dy_speech_repo_pwgan"
     cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
     cd ${cur_model_path}/tests/benchmark/pwgan/
+    pip install -U setuptools==58.0.4   #  60版本会报AttributeError: module 'distutils' has no attribute 'version'
     pip install jsonlines
+    apt-get install libsndfile1 -y 
+    pip install yacs -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install pytest-runner  -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install kaldiio  -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install loguru
     bash run_all.sh
 }
 
 dy_speech_repo_conformer(){
     echo " dy_speech_repo_conformer prepare python3 env "
-	cd ${BENCHMARK_ROOT}/
+    cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
+    cd ${cur_model_path}/tests/benchmark/conformer/
+    mkdir run_env
     ln -s $(which python3.7) run_env/python3
     ln -s $(which pip3.7) run_env/pip3
     export PATH=$(pwd)/run_env:${PATH}
     echo "dy_speech_repo_conformer"
-    cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
-    cd ${cur_model_path}/tests/benchmark/conformer/
     rm -rf ${cur_model_path}/dataset/aishell/aishell.py
     cp ${data_path}/dygraph_data/conformer/aishell.py ${cur_model_path}/dataset/aishell/
+    apt-get install libsndfile1 -y 
+    pip install -U setuptools==58.0.4   #  60版本会报AttributeError: module 'distutils' has no attribute 'version'
+    pip install yacs -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install pytest-runner  -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install kaldiio  -i https://pypi.tuna.tsinghua.edu.cn/simple
     pip install loguru
     echo "bash run.sh --stage 0 --stop_stage 0" >> prepare.sh             # 第一轮数据处理会报错
-	bash prepare.sh             
+	bash prepare.sh 
+    pip install jsonlines
+    pip list            
     bash run.sh
     rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/dataset/aishell    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
@@ -71,10 +87,12 @@ dy_speech_repo_conformer(){
 dy_video_TimeSformer(){
     echo "dy_video_TimeSformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
-    cd ${cur_model_path}/benchmark/TimeSformer/
+    cd ${cur_model_path}/
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt       # 解决个模型之间对该依赖版本要求不同导致依赖反复卸载安装，但卸载有残留无法成功再次安装问题
     pip install -r requirements.txt
     pip install scikit-image==0.18.2
     pip install pooch==1.5.2
+    cd ${cur_model_path}/benchmark/TimeSformer/
     bash run_all.sh local
     rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
 }
@@ -100,7 +118,7 @@ dy_clas_repo(){
     echo "dy_clas_repo"
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas/
     cd ${cur_model_path}/
-    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy pandas wget h5py sklearn opencv-python visualdl)
+    package_check_list=(imageio tqdm Cython pycocotools tb_paddle scipy pandas wget h5py sklearn visualdl opencv-python)
     for package in ${package_check_list[@]}; do
         if python -c "import ${package}" >/dev/null 2>&1; then
             echo "${package} have already installed"
@@ -120,6 +138,14 @@ dy_clas_repo(){
 
 #run_bert
 dy_bert(){
+    cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/
+    cd ${cur_model_path}
+    pip install -r requirements.txt
+    pip install h5py
+    pip uninstall -y paddlenlp
+    pip install attrdict
+    python setup.py install
+
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/bert/
     cd ${cur_model_path}
     ln -s ${data_path}/Bert/hdf5_lower_case_1_seq_len_512_max_pred_80_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en_seqlen512 ${cur_model_path}/wikicorpus_en_seqlen512 ./data
@@ -159,6 +185,7 @@ dy_bert(){
 dy_mobilenet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
 
     # Prepare data
@@ -217,8 +244,12 @@ dy_ptb_medium(){
 # transformer
 dy_transformer(){
     echo "###########pip install paddlenlp"
-    pip install paddlenlp
+    cd ${BENCHMARK_ROOT}/PaddleNLP
+    pip install -r requirements.txt
+    pip install h5py
+    pip uninstall -y paddlenlp
     pip install attrdict
+    python setup.py install
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/machine_translation/transformer
     cd ${cur_model_path}
     # prepare data
@@ -248,6 +279,7 @@ dy_tsn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
     pip install wget av
     pip install scikit-image==0.18.2
@@ -282,6 +314,7 @@ dy_gan(){
         echo "pooch not installed"
     fi
 
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
     pip install scikit-image==0.18.2
     # Prepare data
@@ -309,6 +342,7 @@ dy_seg(){
 
     #apt-get install lsb-core -y
     pip install  visualdl
+    pip install -U opencv-python==4.2.0.32  # 版本升级后8卡性能会下降
     # Prepare data
     mkdir -p ${cur_model_path}/data
     ln -s ${data_path}/dygraph_data/cityscapes_hrnet_torch ${cur_model_path}/data/cityscapes
@@ -342,6 +376,7 @@ dy_seg(){
 dy_slowfast(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
     pip install tqdm
     pip install decord
@@ -366,10 +401,11 @@ dy_slowfast(){
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 1 | tee ${log_path}/dynamic_slowfast_bs8_speed_8gpus 2>&1
 }
 
-dy_mask_rcnn(){
+dy_mask_rcnn_fpn(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     pip install Cython
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt 
 
     # Install cocoapi
@@ -412,10 +448,10 @@ dy_mask_rcnn(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/mask_rcnn/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 1gpu begin"
-    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 500 | tee ${log_path}/dynamic_mask_rcnn_bs1_speed_1gpus 2>&1
+    CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh  1 sp 500 | tee ${log_path}/dynamic_mask_rcnn_fpn_bs4_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus begin, mp"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_mask_rcnn_bs1_speed_8gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 | tee ${log_path}/dynamic_mask_rcnn_fpn_bs4_speed_8gpus 2>&1
 }
 
 dy_yolov3(){
@@ -423,7 +459,9 @@ dy_yolov3(){
     git branch    #develop 分支
     cd ${cur_model_path}
     pip install Cython
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt 
+    pip install -U opencv-python==4.2.0.32  # 版本升级后8卡性能会下降
    
     if python -c "import pycocotools" >/dev/null 2>&1
     then
@@ -444,7 +482,6 @@ dy_yolov3(){
     echo "-------before data prepare"
     ls -l ./dataset/coco/
     ln -s ${data_path}/coco/* ./dataset/coco/
-    pip install -r ./dataset/coco/requirements.txt
     echo "-------after data prepare"
     ls -l ./dataset/coco/
     rm -rf run_benchmark.sh
@@ -462,6 +499,7 @@ dy_tsm(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
 
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
     pip install wget av decord
     pip install scikit-image==0.18.2
@@ -495,6 +533,8 @@ dy_wavenet(){
     ln -s ${data_path}/dygraph_data/wavenet/ljspeech ${cur_model_path}/
 
     apt-get install  libsndfile1 -y
+
+    sed -i "s/opencv-python.*/opencv-python/g" ${data_path}/dygraph_data/wavenet/requirement.txt
     pip install -r ${data_path}/dygraph_data/wavenet/requirement.txt 
     # Running ...
     rm -f ./run_benchmark.sh
@@ -542,6 +582,7 @@ dy_senta(){
 dy_resnet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
    
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
@@ -556,13 +597,18 @@ dy_resnet(){
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} sp 1 | tee ${log_path}/dynamic_${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "model is ${model_name}, index is speed, 8gpu begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} mp 1 | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} mp 3 | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
         sleep 60
     done
 }
 
 # lac
 dy_lac(){
+    cd ${BENCHMARK_ROOT}/PaddleNLP
+    pip install -r requirements.txt
+    pip uninstall -y paddlenlp
+    pip install attrdict
+    python setup.py install
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/lexical_analysis
     cd ${cur_model_path}
 
@@ -570,7 +616,6 @@ dy_lac(){
     ln -s ${data_path}/dygraph_data/lac/lexical_analysis_dataset_tiny/ ${cur_model_path}/data
 
     echo "###########pip install paddlenlp"
-    pip install paddlenlp 
     # Running ...
     rm -f ./run_benchmark.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/lac/paddle/run_benchmark.sh ./
@@ -659,6 +704,7 @@ dy_faster_rcnn_fpn() {
     cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
     cd ${cur_model_path}
     pip install Cython
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt
 
     # Install cocoapi
@@ -711,21 +757,20 @@ dy_gpt(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
     cd ${cur_model_path}
     pip uninstall paddlenlp -y
-    echo "python env is"
-    ls -l ${BENCHMARK_ROOT}/run_env/
-    sed -i "s/python3/python3.7/g"  examples/language_model/data_tools/Makefile  # 模型py3默认使用python37， benchmark 镜像python3 默认py35
-    cat examples/language_model/data_tools/Makefile | grep python
+    sed -i "s/python3/python/g" examples/language_model/gpt/data_tools/Makefile  # 模型py3默认使用python37， benchmark 镜像python3 默认py35
+    sed -i "s/python-config/python3.7m-config/g" examples/language_model/gpt/data_tools/Makefile
+    cat examples/language_model/gpt/data_tools/Makefile | grep python
     sed -i '/set\ -xe/d' tests/benchmark/run_benchmark.sh
     bash tests/benchmark/run_all.sh dygraph
 }
 
 
 dy_xlnet() {
-    cd ${BENCHMARK_ROOT}
-    run_env=$BENCHMARK_ROOT/run_env
+    pip uninstall paddlenlp -y
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP
     cd ${cur_model_path}
-
+    mkdir run_env
+    run_env=$cur_model_path/run_env
     profile=${1:-"off"}
 
     # 1. 配置python环境:
@@ -738,6 +783,7 @@ dy_xlnet() {
     export PATH=$run_env:${PATH}
 
     # 2. 安装该模型需要的依赖 (如需开启优化策略请注明)
+    sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
     pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
     pip install sentencepiece -i https://mirror.baidu.com/pypi/simple # 安装 sentencepiece
     pip install -e ./

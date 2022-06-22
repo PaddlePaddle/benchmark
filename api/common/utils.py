@@ -48,6 +48,10 @@ class ArrayComparator(object):
         else:
             return self.max_absolute_diff > other.max_absolute_diff
 
+    def is_nan(self):
+        return np.isnan(self.max_relative_diff) or np.isnan(
+            self.max_absolute_diff)
+
     def to_string(self):
         return "max_absolute_diff = %.3e, max_relative_diff = %.3e, offset = %d, %s vs %s" % (
             self.max_absolute_diff, self.max_relative_diff, self.offset,
@@ -77,7 +81,7 @@ class ArrayComparator(object):
 def _check_type(output, target):
     def _is_numpy_dtype(value):
         if type(value) in [
-                np.float32, np.float16, np.int32, np.int64, np.bool, np.bool_
+                np.float32, np.float16, np.int32, np.int64, bool, np.bool_
         ]:
             return True
         else:
@@ -137,6 +141,29 @@ def _permute_order(name, output, target):
     return choosed_permutations
 
 
+def _check_elements(i, output, target, name, atol):
+    diff_comparator_i = None
+    if output.shape == target.shape:
+        diff_comparator_i = ArrayComparator(output, target, atol)
+
+    if diff_comparator_i is None or diff_comparator_i > atol:
+        # Try to compare output with permuted target.
+        choosed_permutations = _permute_order(name, output, target)
+        permutation = None
+        for permutation_tmp in choosed_permutations:
+            target_transposed = np.transpose(target, permutation_tmp)
+            diff_comparator_i_tmp = ArrayComparator(output, target_transposed,
+                                                    atol)
+            if diff_comparator_i is None or diff_comparator_i > diff_comparator_i_tmp:
+                diff_comparator_i = diff_comparator_i_tmp
+                permutation = permutation_tmp
+        if permutation is not None:
+            print(
+                "---- Warning: The %d-th output need permute. The permutation is %s, outputs shape are %s vs %s."
+                % (i, str(permutation), str(output.shape), str(target.shape)))
+    return diff_comparator_i
+
+
 def check_outputs(output_list,
                   target_list,
                   testing_mode,
@@ -145,11 +172,6 @@ def check_outputs(output_list,
                   use_gpu=True,
                   backward=False,
                   config_params=None):
-    try:
-        import tensorflow as tf
-    except ImportError:
-        pass
-
     if not isinstance(output_list, list) or not isinstance(target_list, list):
         raise TypeError(
             "input argument's type should be list of numpy.ndarray.")
@@ -177,13 +199,18 @@ def check_outputs(output_list,
             target = target_list[i]
 
             if testing_mode == "static":
-                if isinstance(
-                        target,
-                        tf.python.framework.indexed_slices.IndexedSlicesValue):
-                    print(
-                        "---- Warning: Th %d-th target's type is IndexedSlicesValue and the check is skipped. "
-                        "It will be fixed later." % i)
-                    continue
+                try:
+                    import tensorflow as tf
+                    if isinstance(target, tf.python.framework.indexed_slices.
+                                  IndexedSlicesValue):
+                        print(
+                            "---- Warning: Th %d-th target's type is IndexedSlicesValue and the check is skipped. "
+                            "It will be fixed later." % i)
+                        continue
+                except Exception as e:
+                    if tf.__version__ < "2.4.0":
+                        # I am not sure about the exact version
+                        print("Meets an exception: {}".format(e))
 
             output, target = _check_type(output, target)
             output, target = _check_shape(name, output, target, i)
@@ -193,36 +220,14 @@ def check_outputs(output_list,
                     "---- Warning: The %d-the output's data type is different, %s vs %s."
                     % (i, str(output.dtype), str(target.dtype)))
 
-            diff_comparator_i = None
-            if output.shape == target.shape:
-                diff_comparator_i = ArrayComparator(output, target, atol)
-
-            if np.isnan(diff_comparator_i.max_relative_diff) or np.isnan(
-                    diff_comparator_i.max_absolute_diff):
+            diff_comparator_i = _check_elements(i, output, target, name, atol)
+            if diff_comparator_i.is_nan():
                 max_diff = "nan"
                 consistent = False
                 print(
                     "---- Warning: The %d-th output has 'nan' value, please checkout the op's output"
                     % i)
             else:
-                if diff_comparator_i is None or diff_comparator_i > atol:
-                    # Try to compare output with permuted target.
-                    choosed_permutations = _permute_order(name, output, target)
-                    permutation = None
-                    for permutation_tmp in choosed_permutations:
-                        target_transposed = np.transpose(target,
-                                                         permutation_tmp)
-                        diff_comparator_i_tmp = ArrayComparator(
-                            output, target_transposed, atol)
-                        if diff_comparator_i is None or diff_comparator_i > diff_comparator_i_tmp:
-                            diff_comparator_i = diff_comparator_i_tmp
-                            permutation = permutation_tmp
-                    if permutation is not None:
-                        print(
-                            "---- Warning: The %d-th output need permute. The permutation is %s, outputs shape are %s vs %s."
-                            % (i, str(permutation), str(output.shape),
-                               str(target.shape)))
-
                 if diff_comparator_i > 1E-6 or diff_comparator_i.max_relative_diff > 1E-6:
                     print(
                         "---- Warning: The %d-th output (shape: %s, data type: %s) has diff. Detail: %s, atol is %.2e."

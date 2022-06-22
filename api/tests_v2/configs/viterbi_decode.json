@@ -1,0 +1,47 @@
+[{
+    "op": "viterbi_decode",
+    "param_info": {
+        "include_bos_eos_tag": {
+            "type": "bool",
+            "value": "True"
+        },
+        "emission": {
+            "dtype": "float32",
+            "shape": "[20L, 40L, 100L]",
+            "type": "Variable"
+        },
+        "transition": {
+            "dtype": "float32",
+            "shape": "[100L, 100L]",
+            "type": "Variable"
+        },
+        "length": {
+            "dtype": "int64",
+            "shape": "[20L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "viterbi_decode",
+    "param_info": {
+        "include_bos_eos_tag": {
+            "type": "bool",
+            "value": "False"
+        },
+        "emission": {
+            "dtype": "float32",
+            "shape": "[20L, 80L, 100L]",
+            "type": "Variable"
+        },
+        "transition": {
+            "dtype": "float32",
+            "shape": "[100L, 100L]",
+            "type": "Variable"
+        },
+        "length": {
+            "dtype": "int64",
+            "shape": "[20L]",
+            "type": "Variable"
+        }
+    }
+}]

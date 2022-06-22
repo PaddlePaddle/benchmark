@@ -24,7 +24,10 @@ class ElementwiseConfig(APIConfig):
             'maximum': 'maximum',
             'minimum': 'minimum',
             'multiply': 'multiply',
-            'subtract': 'subtract'
+            'subtract': 'subtract',
+            "fmax": "fmax",
+            "fmin": "fmin",
+            "mod": "modulo"
         }
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 
@@ -56,7 +59,7 @@ class PDElementwise(PaddleDynamicAPIBenchmarkBase):
 
         self.feed_list = [x, y]
         self.fetch_list = [result]
-        if config.backward:
+        if config.backward and config.api_name != "mod":
             self.append_gradients(result, self.feed_list)
 
     def compute_flop_and_byte(self, config):
@@ -81,7 +84,7 @@ class TorchElementwise(PytorchAPIBenchmarkBase):
 
         self.feed_list = [x, y]
         self.fetch_list = [result]
-        if config.backward:
+        if config.backward and config.api_name != "mod":
             self.append_gradients(result, self.feed_list)
 
 
