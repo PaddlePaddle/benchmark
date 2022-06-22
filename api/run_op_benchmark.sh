@@ -50,11 +50,7 @@ run_op_benchmark() {
   fi
   echo "-- output_dir: ${output_dir}"
   
-  if [ ${test_module_name} = "tests" ]; then
-    config_dir=${OP_BENCHMARK_ROOT}/tests/configs
-  else
-    config_dir=${OP_BENCHMARK_ROOT}/tests_v2/configs
-  fi
+  config_dir=${OP_BENCHMARK_ROOT}/tests_v2/configs
   echo "-- config_dir: ${config_dir}"
   
   tests_dir=${OP_BENCHMARK_ROOT}/${test_module_name}
@@ -78,13 +74,8 @@ run_specified_op() {
   fi
   echo "-- output_dir: ${output_dir}"
   
-  if [ "${test_module_name}" == "tests" ]; then
-    config_dir=${OP_BENCHMARK_ROOT}/tests/op_configs
-    op_list=${OUTPUT_ROOT}/api_info_${op_type}.txt
-  else
-    config_dir=${OP_BENCHMARK_ROOT}/tests_v2/op_configs
-    op_list=${OUTPUT_ROOT}/api_info_v2_${op_type}.txt
-  fi
+  config_dir=${OP_BENCHMARK_ROOT}/tests_v2/op_configs
+  op_list=${OUTPUT_ROOT}/api_info_v2_${op_type}.txt
   echo "-- config_dir: ${config_dir}"
  
   tests_dir=${OP_BENCHMARK_ROOT}/${test_module_name}

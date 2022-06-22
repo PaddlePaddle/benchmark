@@ -266,7 +266,12 @@ function execute_one_case() {
                     fi
 
                     case_id=$[$case_id+1]
-                    run_cmd="python -m common.launch ${TEST_DIR}/${name}.py \
+                    if [ "${TEST_MODULE_NAME}" = "tests" ]; then
+                        test_script="${TEST_DIR}/test_main.py --filename ${name}"
+                    else
+                        test_script="${TEST_DIR}/${name}.py"
+                    fi
+                    run_cmd="python -m common.launch ${test_script} \
                           --api_name ${api_name} \
                           --task ${task} \
                           --framework ${framework} \

@@ -33,6 +33,17 @@ class PaddleSoftmax(PaddleOpBenchmarkBase):
         if config.backward:
             self.append_gradients(result, [x])
 
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        # (exp(x[i, j]) - max(x[i, j])) / sum(exp(x[i, j]) - max(x[i, j]))
+        forward_flop = numel(x_shape) * 5
+        forward_byte = numel(x_shape) * 2 * sizeof(config.x_dtype)
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
+
 
 @benchmark_registry.register("softmax")
 class TorchSoftmax(PytorchOpBenchmarkBase):
