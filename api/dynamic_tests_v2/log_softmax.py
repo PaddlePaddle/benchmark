@@ -35,9 +35,10 @@ class PDLogSoftmax(PaddleDynamicAPIBenchmarkBase):
 
     def compute_flop_and_byte(self, config):
         x_shape = config.x_shape
-        # log((exp(x[i, j]) - max(x[i, j])) / sum(exp(x[i, j]) - max(x[i, j]))) =
-        # (x[i, j] - max(x[i, j])) - log(sum(exp(x[i, j] - max(x, j))))
-        forward_flop = numel(x_shape) * 5
+        # log((exp(x[i, j]) - max(x[i, j])) / sum_j(exp(x[i, j]) - max(x[i, j]))) =
+        # (x[i, j] - max(x[i, j])) - log(sum_j(exp(x[i, j] - max(i, j))))
+        softmax_dim = x_shape[config.axis]
+        forward_flop = numel(x_shape) * 5 + numel(x_shape) / softmax_dim
         forward_byte = numel(x_shape) * 2 * sizeof(config.x_dtype)
         if not config.backward:
             return forward_flop, forward_byte
