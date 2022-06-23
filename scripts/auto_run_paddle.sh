@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 function usage () {
   cat <<EOF
   usage: $0 [options]
