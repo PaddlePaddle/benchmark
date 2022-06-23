@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 function usage () {
   cat <<EOF
   usage: $0 [options]
@@ -120,6 +121,8 @@ function prepare(){
     if [ $? -ne 0 ]; then
         pip install ${all_path}/tools/opencv_python-4.5.1.48-cp37-cp37m-manylinux2014_x86_64.whl
     fi
+    pip install -U setuptools==58.0.4   #  60版本会报AttributeError: module 'distutils' has no attribute 'version'
+    pip install setuptools-scm==6.4.2   # 7.0版本下安装jiaba报错导致NLP不能安装  
 
     # fix ssl temporarily
     if [ ${cuda_version} == 10.1 ]; then
