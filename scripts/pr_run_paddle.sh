@@ -93,7 +93,9 @@ function prepare(){
     then
         echo "paddle import success!"
     fi
-    
+    pip install -U setuptools==58.0.4   #  60版本会报AttributeError: module 'distutils' has no attribute 'version'
+    pip install setuptools-scm==6.4.2   # 7.0版本下安装jiaba报错导致NLP不能安装  
+
     echo "*******prepare end!***********"
 }
 
