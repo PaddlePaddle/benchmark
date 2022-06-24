@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .common_import import *
+from common_import import *
 
 
 @benchmark_registry.register("abs")
@@ -35,6 +35,17 @@ class PaddleAbs(PaddleOpBenchmarkBase):
         self.fetch_list = [result]
         if config.backward:
             self.append_gradients(result, [x])
+
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        # Consider |x| a common float operation.
+        forward_flop = numel(x_shape)
+        forward_byte = numel(x_shape) * 2 * sizeof(config.x_dtype)
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
 
 
 @benchmark_registry.register("abs")

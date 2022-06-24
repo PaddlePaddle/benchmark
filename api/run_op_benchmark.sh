@@ -2,12 +2,12 @@
 
 OP_BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
 
-test_module_name=${1:-"dynamic_tests_v2"}  # "tests_v2", "dynamic_tests_v2"
+test_module_name=${1:-"dynamic_tests_v2"}  # "tests", "tests_v2", "dynamic_tests_v2"
 gpu_ids=${2:-"0"}
 op_type=${3:-"all"}  # "all" or specified op_type, such as elementwise
 
-if [ ${test_module_name} != "tests_v2" ] && [ ${test_module_name} != "dynamic_tests_v2" ]; then
-  echo "Please set test_module_name (${test_module_name}) to \"tests_v2\" or \"dynamic_tests_v2\"!"
+if [ ${test_module_name} != "tests" ] && [ ${test_module_name} != "tests_v2" ] && [ ${test_module_name} != "dynamic_tests_v2" ]; then
+  echo "Please set test_module_name (${test_module_name}) to \"tests\", \"tests_v2\" or \"dynamic_tests_v2\"!"
   exit
 fi
 
@@ -50,11 +50,7 @@ run_op_benchmark() {
   fi
   echo "-- output_dir: ${output_dir}"
   
-  if [ ${test_module_name} = "tests" ]; then
-    config_dir=${OP_BENCHMARK_ROOT}/tests/configs
-  else
-    config_dir=${OP_BENCHMARK_ROOT}/tests_v2/configs
-  fi
+  config_dir=${OP_BENCHMARK_ROOT}/tests_v2/configs
   echo "-- config_dir: ${config_dir}"
   
   tests_dir=${OP_BENCHMARK_ROOT}/${test_module_name}
@@ -78,13 +74,8 @@ run_specified_op() {
   fi
   echo "-- output_dir: ${output_dir}"
   
-  if [ "${test_module_name}" == "tests" ]; then
-    config_dir=${OP_BENCHMARK_ROOT}/tests/op_configs
-    op_list=${OUTPUT_ROOT}/api_info_${op_type}.txt
-  else
-    config_dir=${OP_BENCHMARK_ROOT}/tests_v2/op_configs
-    op_list=${OUTPUT_ROOT}/api_info_v2_${op_type}.txt
-  fi
+  config_dir=${OP_BENCHMARK_ROOT}/tests_v2/op_configs
+  op_list=${OUTPUT_ROOT}/api_info_v2_${op_type}.txt
   echo "-- config_dir: ${config_dir}"
  
   tests_dir=${OP_BENCHMARK_ROOT}/${test_module_name}
@@ -94,7 +85,7 @@ run_specified_op() {
 }
 
 main() {
-  if [ "${test_module_name}" == "dynamic_tests_v2" ]; then
+  if [ ${test_module_name} == "tests" ] || [ "${test_module_name}" == "dynamic_tests_v2" ]; then
     testing_mode="dynamic"
     # For ampere, need to install the nightly build cuda11.3 version using the following command:
     # pip install --pre torch -f https://download.pytorch.org/whl/nightly/cu113/torch_nightly.html

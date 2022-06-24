@@ -36,6 +36,19 @@ class PaddleLogSoftmax(PaddleOpBenchmarkBase):
         if config.backward:
             self.append_gradients(out, [x])
 
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        # log((exp(x[i, j]) - max(x[i, j])) / sum_j(exp(x[i, j]) - max(x[i, j]))) =
+        # (x[i, j] - max(x[i, j])) - log(sum_j(exp(x[i, j] - max(i, j))))
+        softmax_dim = x_shape[config.axis]
+        forward_flop = numel(x_shape) * 5 + numel(x_shape) / softmax_dim
+        forward_byte = numel(x_shape) * 2 * sizeof(config.x_dtype)
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
+
 
 @benchmark_registry.register("log_softmax")
 class TorchLogSoftmax(PytorchOpBenchmarkBase):

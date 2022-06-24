@@ -59,7 +59,8 @@ class PDActivation(PaddleDynamicAPIBenchmarkBase):
         x_shape = config.x_shape
         # Consider exp(x) a common float operation.
         if config.api_name == "sigmoid":
-            forward_flop = numel(x_shape) * 4
+            # 1 / (1 + exp(-x)) = exp(x) / (exp(x) + 1)
+            forward_flop = numel(x_shape) * 3
         else:
             forward_flop = None
         forward_byte = numel(x_shape) * 2 * sizeof(config.x_dtype)
