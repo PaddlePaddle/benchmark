@@ -32,6 +32,7 @@ function _run(){
     echo "---------Paddle commit is ${paddle_commit_id}"
     pip list | grep opencv
     pip list | grep dali
+    env |grep FLAGS
 
     if [[ ${index} -eq 1 ]]; then
         job_bt=`date '+%Y%m%d%H%M%S'`
