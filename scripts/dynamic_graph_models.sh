@@ -63,7 +63,6 @@ dy_speech_repo_pwgan(){
 }
 
 dy_speech_repo_conformer(){
-    export FLAGS_cudnn_exhaustive_search=1 
     echo " dy_speech_repo_conformer prepare python3 env "
     cur_model_path=${BENCHMARK_ROOT}/PaddleSpeech/
     cd ${cur_model_path}/tests/benchmark/conformer/
@@ -86,7 +85,6 @@ dy_speech_repo_conformer(){
     pip list            
     bash run.sh
     rm -rf ${BENCHMARK_ROOT}/PaddleSpeech/dataset/aishell    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
-    unset FLAGS_cudnn_exhaustive_search
 }
 
 dy_video_TimeSformer(){
