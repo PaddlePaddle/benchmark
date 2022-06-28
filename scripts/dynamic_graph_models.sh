@@ -36,6 +36,7 @@ dy_seg_repo(){
 }
 
 dy_gan_repo(){
+    export FLAGS_cudnn_exhaustive_search=1 
     echo "dy_gan_repo"
     cur_model_path=${BENCHMARK_ROOT}/PaddleGAN/
     cd ${cur_model_path}
@@ -43,6 +44,8 @@ dy_gan_repo(){
     pip install -v -e .
     sed -i '/set\ -xe/d' benchmark/run_benchmark.sh
     bash benchmark/run_all.sh
+    unset FLAGS_cudnn_exhaustive_search
+
 }
 
 dy_speech_repo_pwgan(){
@@ -85,6 +88,7 @@ dy_speech_repo_conformer(){
 }
 
 dy_video_TimeSformer(){
+    export FLAGS_cudnn_exhaustive_search=1 
     echo "dy_video_TimeSformer"
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo/
     cd ${cur_model_path}/
@@ -95,6 +99,7 @@ dy_video_TimeSformer(){
     cd ${cur_model_path}/benchmark/TimeSformer/
     bash run_all.sh local
     rm -rf ${BENCHMARK_ROOT}/PaddleVideo/    # 避免数据集占用docker内过多空间,在执行最后一个模型后删掉
+    unset FLAGS_cudnn_exhaustive_search
 }
 
 dy_detection_repo(){
@@ -336,6 +341,7 @@ dy_gan(){
 
 #deeplabv3 and HRnet
 dy_seg(){
+    export FLAGS_cudnn_exhaustive_search=1 
     cur_model_path=${BENCHMARK_ROOT}/PaddleSeg/
     cd ${cur_model_path}
     #git checkout develop    # 静态图监控benchmark分支，已将默认分支切为benchmark。故而静态图训练完毕后，需切下分支
@@ -371,6 +377,7 @@ dy_seg(){
             sleep 10
         done
     done
+    unset FLAGS_cudnn_exhaustive_search
 }
 
 dy_slowfast(){
@@ -580,6 +587,7 @@ dy_senta(){
 }
 
 dy_resnet(){
+    export FLAGS_cudnn_exhaustive_search=1 
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
     sed -i "s/opencv-python.*/opencv-python/g" requirements.txt
@@ -600,6 +608,8 @@ dy_resnet(){
         CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_resnet.sh 1 ${batch_size} ${model_name} mp 3 | tee ${log_path}/dynamic_${model_name}_speed_8gpus 2>&1
         sleep 60
     done
+    unset FLAGS_cudnn_exhaustive_search
+
 }
 
 # lac
@@ -671,6 +681,7 @@ dy_ppocr_mobile_2() {
 }
 
 dy_bmn() {
+    export FLAGS_cudnn_exhaustive_search=1 
     cur_model_path=${BENCHMARK_ROOT}/PaddleVideo
     cd ${cur_model_path}
     pip install scikit-image==0.18.2
@@ -698,6 +709,8 @@ dy_bmn() {
     sleep 60
     echo "index is speed, 8gpus begin, mp"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 1 | tee ${log_path}/dynamic_bmn_bs8_speed_8gpus 2>&1
+    unset FLAGS_cudnn_exhaustive_search
+
 }
 
 dy_faster_rcnn_fpn() {
