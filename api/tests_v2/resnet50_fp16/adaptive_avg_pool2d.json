@@ -1,0 +1,35 @@
+[{
+    "op": "adaptive_avg_pool2d",
+    "param_info": {
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 7L, 7L, 2048L]",
+            "type": "Variable"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "output_size": {
+            "type": "list",
+            "value": "[1L, 1L]"
+        }
+    }
+}, {
+    "op": "adaptive_avg_pool2d",
+    "param_info": {
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 2048L, 7L, 7L]",
+            "type": "Variable"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "output_size": {
+            "type": "list",
+            "value": "[1L, 1L]"
+        }
+    }
+}]

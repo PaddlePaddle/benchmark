@@ -1,0 +1,67 @@
+[{
+    "op": "max_pool2d",
+    "param_info": {
+        "ceil_mode": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 112L, 112L, 64L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[1, 1]"
+        },
+        "kernel_size": {
+            "type": "list",
+            "value": "[3L, 3L]"
+        },
+        "stride": {
+            "type": "list",
+            "value": "[2, 2]"
+        },
+        "return_mask": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}, {
+    "op": "max_pool2d",
+    "param_info": {
+        "ceil_mode": {
+            "type": "bool",
+            "value": "False"
+        },
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 64L, 112L, 112L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[1, 1]"
+        },
+        "kernel_size": {
+            "type": "list",
+            "value": "[3L, 3L]"
+        },
+        "stride": {
+            "type": "list",
+            "value": "[2, 2]"
+        },
+        "return_mask": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}]
