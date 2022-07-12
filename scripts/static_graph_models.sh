@@ -15,7 +15,6 @@
 # limitations under the License.
 
 # cur_model_list=(transformer bert  gpt)
-
 # 20220323迁移CV模型到PDC,备份全量模型
 cur_model_list=(detection mask_rcnn image_classification seg_model transformer bert yolov3  gpt)
 
