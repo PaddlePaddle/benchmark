@@ -241,12 +241,12 @@ def check_results(model_name, index, run_machine_type, cur_value, html_results, 
     results = bm.ViewJobResult.objects.filter(
         model_name=model_name, report_index_id=index, job_type=check_job_type, cuda_version=args.cuda_version,
         cudnn_version=args.cudnn_version, device_type=args.device_type, model_implement_type=args.implement_type,
-        frame_name="paddlepaddle", run_machine_type=run_machine_type, outlier=0).order_by('-version')
+        frame_name="paddlepaddle", image_branch=args.image_branch, run_machine_type=run_machine_type, outlier=0).order_by('-version')
 
     benchmark_results = bm.ViewJobResult.objects.filter(
         model_name=model_name, report_index_id=index, job_type=check_job_type, cuda_version=args.cuda_version,
         cudnn_version=args.cudnn_version, device_type=args.device_type, model_implement_type=args.implement_type,
-        frame_name="paddlepaddle", run_machine_type=run_machine_type, benchmark=1, outlier=0).order_by('-version')
+        frame_name="paddlepaddle", image_branch=args.image_branch, run_machine_type=run_machine_type, benchmark=1, outlier=0).order_by('-version')
 
     results_list = []
     count = 0
