@@ -33,7 +33,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
-
 res = {}
 TABLE_HEADER = ["case_name", "指标", "标准值", "当前值", "波动范围"]
 CHECK_KEY = OrderedDict()
@@ -334,6 +333,7 @@ def construct_alarm_email(timestamp, alarm_results):
                                          args.op_result_dir)
         email_t.construct_email_content()
 
+
 # The newly added dump_mysql class and method are
 # in the file write_mysql.py, thus this function
 # may be considered to be deleted.
@@ -470,7 +470,8 @@ if __name__ == '__main__':
         if framework is not None and framework != "paddle":
             if compare_framework:
                 assert framework == compare_framework, "Framework name parsed from result's filename \
-                    is expected to be %s, but recieved %s." % (compare_framework, framework)
+                    is expected to be %s, but recieved %s." % (
+                    compare_framework, framework)
             else:
                 compare_framework = framework
 

@@ -35,8 +35,7 @@ def dump_text(benchmark_result_list,
                               (compare_framework + "(total)").ljust(20),
                               "status".ljust(10))
     title_kernel = "%s%s%s" % ("paddle(kernel)".ljust(20),
-                               "Pytorch(kernel)".ljust(20),
-                               "status".ljust(10))
+                               "Pytorch(kernel)".ljust(20), "status".ljust(10))
     title_else = "%s%s" % ("accuracy".ljust(10), "paramaters")
     gpu_title = "%s%s%s%s%s\n" % ("case_id".ljust(8), "case_name".ljust(40),
                                   title_total, title_kernel, title_else)
@@ -62,15 +61,15 @@ def dump_text(benchmark_result_list,
 
     with open(output_path, 'w') as f:
         for direction in ["Forward", "Backward"]:
-            f.writelines("=" * 72 + " %s Running on GPU " %
-                         direction + "=" * 72 + "\n")
+            f.writelines("=" * 72 + " %s Running on GPU " % direction + "=" *
+                         72 + "\n")
             f.writelines(gpu_title)
             f.writelines(output_str_list["gpu_" + direction.lower()])
             f.writelines("\n")
 
         for direction in ["Forward", "Backward"]:
-            f.writelines("=" * 72 + " %s Running on CPU " %
-                         direction + "=" * 72 + "\n")
+            f.writelines("=" * 72 + " %s Running on CPU " % direction + "=" *
+                         72 + "\n")
             f.writelines(cpu_title)
             f.writelines(output_str_list["cpu_" + direction.lower()])
             f.writelines("\n")

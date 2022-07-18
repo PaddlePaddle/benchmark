@@ -6,7 +6,7 @@
 * [使用方法](#使用方法)
 
 ## 功能介绍
-- OP Benchmark系统的主要功能如下: 
+- OP Benchmark系统的主要功能如下:
   - 测试OP的性能和精度, 验证OP优化效果
   - 拦截OP逻辑被修改而导致性能下降的问题
 
@@ -21,7 +21,7 @@
   - 精度测试：OP Benchmark支持OP精度和性能测试，默认测试OP精度。用户进入测试脚本目录，输入以下指令即可执行测试任务。另外，用户只需要替换`api_name`和`config_id`就能执行不同的测试任务。
       ```shell
       bash run.sh   api_name  config_id
-      
+
       # api_name ：测试脚本的文件名
       # config_id：配置信息在Json中的id号
       ```
@@ -35,7 +35,7 @@
   - OP Benchmark支持一次性完成多OP、多配置的测试任务。用户需进入[deploy](https://github.com/PaddlePaddle/benchmark/tree/master/api/deploy)目录，仿照[api_info_v2](https://github.com/PaddlePaddle/benchmark/blob/master/api/deploy/api_info_v2.txt)文件构建自己需要测试的OP列表，再输入以下指令，即可全量测试这些OP的在全部配置信息下的性能或精度。
     ```shell
       bash  main_control.sh  test_dir  config_dir  result_dir  gpu_id  device_set  task_set  list_file  framework mode
-    
+
       # test_dir   : 被测OP的脚本目录​
       # config_dir : 被测OP的配置目录​
       # result_dir : 测试结果存放的目录​
