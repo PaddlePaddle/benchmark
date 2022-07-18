@@ -17,6 +17,8 @@
 summary script
 """
 from __future__ import print_function
+import op_benchmark_unit
+from common import system
 
 import os
 import sys
@@ -31,8 +33,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
-from common import system
-import op_benchmark_unit
 
 res = {}
 TABLE_HEADER = ["case_name", "指标", "标准值", "当前值", "波动范围"]
@@ -334,6 +334,10 @@ def construct_alarm_email(timestamp, alarm_results):
                                          args.op_result_dir)
         email_t.construct_email_content()
 
+# The newly added dump_mysql class and method are
+# in the file write_mysql.py, thus this function
+# may be considered to be deleted.
+
 
 def dump_mysql(data, version, construct_email):
     """
@@ -427,7 +431,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--dump_to_mysql',
         type=system.str2bool,
-        default=True,
+        default=False,
         help='Whether dumping summary data to mysql database [True|False]')
     parser.add_argument(
         '--dump_to_json',
@@ -465,8 +469,8 @@ if __name__ == '__main__':
             os.path.join(op_result_dir, filename), specified_op_list)
         if framework is not None and framework != "paddle":
             if compare_framework:
-                assert framework == compare_framework, "Framework name parsed from result's filename is expected to be %s, but recieved %s." % (
-                    compare_framework, framework)
+                assert framework == compare_framework, "Framework name parsed from result's filename \
+                    is expected to be %s, but recieved %s." % (compare_framework, framework)
             else:
                 compare_framework = framework
 
@@ -494,7 +498,7 @@ if __name__ == '__main__':
         import write_text
 
         write_text.dump_text(benchmark_result_list, args.output_path,
-                             args.dump_with_parameters)
+                             compare_framework, args.dump_with_parameters)
 
     if args.dump_to_excel:
         import write_excel
@@ -506,11 +510,16 @@ if __name__ == '__main__':
     if args.dump_to_json:
         import write_json
 
-        write_json.dump_json(benchmark_result_list, args.output_path)
+        write_json.dump_json(benchmark_result_list, args.output_path,
+                             compare_framework, args.dump_with_parameters)
 
     if args.dump_to_mysql:
+        from write_mysql import DB
+        db = DB()
         try:
-            dump_mysql(data, args.version, args.construct_email)
+            db.init_mission()
+            db.save(benchmark_result_list, compare_framework)
         except Exception as e:
             print("dump data into mysql failed, please check reason!")
             print(e)
+            db.error()

@@ -46,11 +46,14 @@
       # framework  : 测试paddle、tensorflow、pytorch​
       # mode       : 测试动态图dynamic或静态图static
     ```
-  - OP Benchmark还提供了多任务测试结果的汇总功能，用户在[deploy](https://github.com/PaddlePaddle/benchmark/tree/master/api/deploy)目录下输入以下指令便能够获得数据汇总信息.
+  - OP Benchmark还提供了多任务测试结果的汇总功能，用户在[deploy](https://github.com/PaddlePaddle/benchmark/tree/master/api/deploy)使用`python summary.py -h` 可以得到查看使用帮助，此外，在该目录下还可以使用如下命令生成数据的汇总信息.
     ```shell
-      python summary.py  result_dir  --dump_to_excel True --dump_to_mysql False​
+      python summary.py  result_dir  --dump_to_excel True
 
-      # result_dir    : 测试结果存放的目录​
-      # dump_to_excel : 是否使用excel汇总数据​
-      # dump_to_mysql : 是否需要写入数据库
+      # result_dir      : 测试结果存放的目录​
+      # ------------------------------------------------------------
+      # dump_to_excel : 汇总数据​到 excel 表格   [True|default = False]
+      # dump_to_text  : 汇总数据​到 text 文件    [True|default = False]
+      # dump_to_json  : 汇总数据​到 json 文件    [True|default = False]
+      # dump_to_mysql : 汇总数据​到 mysql 数据库 [True|default = False]
     ```

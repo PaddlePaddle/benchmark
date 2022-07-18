@@ -14,18 +14,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import time
+import op_benchmark_unit
 
-def dump_text(benchmark_result_list, output_path, dump_with_parameters):
+
+def dump_text(benchmark_result_list,
+              output_path=None,
+              compare_framework=None,
+              dump_with_parameters=None):
+    """
+    dump data to a text
+    """
     if output_path is None:
         timestamp = time.strftime('%Y-%m-%d', time.localtime(int(time.time())))
         output_path = "op_benchmark_summary-%s.txt" % timestamp
         print("Output path is not specified, use %s." % output_path)
+    print("-- Write to %s." % output_path)
 
-    title_total = "%s%s%s" % ("Paddle(total)".ljust(20),
-                              "Tensorflow(total)".ljust(20),
+    title_total = "%s%s%s" % ("paddle(total)".ljust(20),
+                              (compare_framework + "(total)").ljust(20),
                               "status".ljust(10))
-    title_kernel = "%s%s%s" % ("Paddle(kernel)".ljust(20),
-                               "Tensorflow(kernel)".ljust(20),
+    title_kernel = "%s%s%s" % ("paddle(kernel)".ljust(20),
+                               "Pytorch(kernel)".ljust(20),
                                "status".ljust(10))
     title_else = "%s%s" % ("accuracy".ljust(10), "paramaters")
     gpu_title = "%s%s%s%s%s\n" % ("case_id".ljust(8), "case_name".ljust(40),
@@ -50,24 +60,17 @@ def dump_text(benchmark_result_list, output_path, dump_with_parameters):
                     op_unit.to_string(device, direction, dump_with_parameters))
                 output_str_list[key] += case_line + "\n"
 
-    _, compare_result_str = summary_compare_result(benchmark_result_list)
-
     with open(output_path, 'w') as f:
-        f.writelines(compare_result_str + "\n")
         for direction in ["Forward", "Backward"]:
-            f.writelines(
-                "================================================================== %s Running on GPU ==================================================================\n"
-                % direction)
-            f.writelines(gpu_title.encode("utf-8"))
-            f.writelines(output_str_list["gpu_" + direction.lower()].encode(
-                "utf-8"))
+            f.writelines("=" * 72 + " %s Running on GPU " %
+                         direction + "=" * 72 + "\n")
+            f.writelines(gpu_title)
+            f.writelines(output_str_list["gpu_" + direction.lower()])
             f.writelines("\n")
 
         for direction in ["Forward", "Backward"]:
-            f.writelines(
-                "========================================== %s Running on CPU =======================================\n"
-                % direction)
-            f.writelines(cpu_title.encode("utf-8"))
-            f.writelines(output_str_list["cpu_" + direction.lower()].encode(
-                "utf-8"))
+            f.writelines("=" * 72 + " %s Running on CPU " %
+                         direction + "=" * 72 + "\n")
+            f.writelines(cpu_title)
+            f.writelines(output_str_list["cpu_" + direction.lower()])
             f.writelines("\n")
