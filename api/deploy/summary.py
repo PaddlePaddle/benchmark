@@ -17,8 +17,6 @@
 summary script
 """
 from __future__ import print_function
-import op_benchmark_unit
-from common import system
 
 import os
 import sys
@@ -32,6 +30,9 @@ import numpy as np
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
+from common import system
+import op_benchmark_unit
 
 res = {}
 TABLE_HEADER = ["case_name", "指标", "标准值", "当前值", "波动范围"]
@@ -432,7 +433,7 @@ if __name__ == '__main__':
         '--dump_to_mysql',
         type=system.str2bool,
         default=False,
-        help='Whether dumping summary data to mysql database [True|False]')
+        help='Whether dumping summary data to MySQL database [True|False]')
     parser.add_argument(
         '--dump_to_json',
         type=system.str2bool,
@@ -448,6 +449,19 @@ if __name__ == '__main__':
         type=system.str2bool,
         default=True,
         help='Whether constructing alarm email [True|False]')
+    parser.add_argument(
+        "--card", type=str, default=None, help="Card number, default is 0")
+    parser.add_argument(
+        "--host", type=str, default=None, help="MySQL database host address")
+
+    parser.add_argument(
+        "--user", type=str, default=None, help="MySQL database user name")
+
+    parser.add_argument(
+        "--password", type=str, default=None, help="MySQL database password")
+
+    parser.add_argument(
+        "--database", type=str, default=None, help="Selected database name")
     args = parser.parse_args()
 
     op_result_dir = os.path.abspath(args.op_result_dir)
@@ -515,12 +529,15 @@ if __name__ == '__main__':
                              compare_framework, args.dump_with_parameters)
 
     if args.dump_to_mysql:
-        from write_mysql import DB
-        db = DB()
-        try:
-            db.init_mission()
-            db.save(benchmark_result_list, compare_framework)
-        except Exception as e:
-            print("dump data into mysql failed, please check reason!")
-            print(e)
-            db.error()
+        if args.host is None or args.user is None or args.password is None \
+                or args.database is None:
+            print("Please complete the database information!")
+        else:
+            from write_mysql import DB
+            db = DB(args.host, args.user, args.password, args.database)
+            try:
+                db.write_database(benchmark_result_list, compare_framework,
+                                  args.card)
+            except Exception as e:
+                print("dump data into mysql failed, please check reason!")
+                print(e)

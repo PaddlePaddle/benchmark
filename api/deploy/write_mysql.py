@@ -1,6 +1,6 @@
 #!/bin/python
 # -*- coding: UTF-8 -*-
-#   Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+#   Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,13 +27,13 @@ import socket
 from datetime import datetime
 
 COMPARE_RESULT_SHOWS = {
-    "Better": "Better",
-    "Equal": "Equal",
-    "Less": "Less",
-    "Unknown": "Unknown",
-    "Unsupport": "Unsupport",
-    "Others": "Others",
-    "Total": "Total"
+    "Better": "优于",
+    "Equal": "打平",
+    "Less": "差于",
+    "Unknown": "未知",
+    "Unsupport": "不支持",
+    "Others": "其他",
+    "Total": "汇总"
 }
 
 
@@ -43,32 +43,31 @@ class DB(object):
     dump data to mysql database
     """
 
-    def __init__(self):
+    def __init__(self, address, usr, pwd, database):
         self.db = pymysql.connect(
-            # 手动填写内容
-            host='xxxxxx',  # 数据库地址
-            user='xxxxxx',  # 数据库用户名
-            password='******',  # 数据库密码
-            db='xxxxxx',  # 数据库名称
+            host=address,
+            user=usr,
+            password=pwd,
+            db=database,
             port=3306,
             use_unicode=True,
             charset="utf8"
-            # charset = 'utf8 -- UTF-8 Unicode'
+            # charset = 'utf8 -- UTF-8 Unicode
         )
         self.cursor = self.db.cursor()
 
     def timestamp(self):
         """
-        时间戳控制
+        timestamp control
         """
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    def init_mission(self):
+    def init_mission(self, card):
         """init mission"""
         sql = (
             "insert into `jobs` (`create_time`, `update_time`, `status`, `paddle_commit`, "
-            "`paddle_version`, `torch_version`, `mode`, `hostname`,`system`) "
-            "values ('{}','{}','{}', '{}', '{}', '{}', '{}', '{}', '{}' );".
+            "`paddle_version`, `torch_version`, `mode`, `hostname`, `place`,`card`,`system`) "
+            "values ('{}','{}','{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}' );".
             format(
                 self.timestamp(),
                 self.timestamp(),
@@ -78,6 +77,8 @@ class DB(object):
                 torch.__version__,
                 "op-benchmark",
                 socket.gethostname(),
+                "cpu + gpu",
+                card,
                 platform.platform(), ))
         try:
             self.cursor.execute(sql)
@@ -87,7 +88,7 @@ class DB(object):
             print(e)
 
     def save(self, benchmark_result_list, compare_framework=None):
-        """更新job状态"""
+        """update job status"""
         retry = 3
         for i in range(retry):
             sql = "update `jobs` set `update_time`='{}', `status`='{}' where id='{}';".format(
@@ -97,11 +98,11 @@ class DB(object):
                 self.db.commit()
                 break
             except Exception:
-                # 防止超时失联
+                # prevent timeout
                 self.db.ping(True)
                 continue
-        # 插入数据
 
+        # insert data
         json_result = {"paddle": dict(), "pytorch": dict(), "compare": dict()}
 
         for device in ["cpu", "gpu"]:
@@ -125,16 +126,18 @@ class DB(object):
                 sql = (
                     "insert into `cases`(`jid`, `case_name`, `result`, `create_time`) "
                     "values ('{}', '{}', '{}', '{}')".format(
-                        self.job_id, json_result[framework]["case_name"],
-                        json.dumps(json_result), self.timestamp()))
-                print(type(sql))
+                        self.job_id,
+                        json_result[framework]["case_name"],
+                        json.dumps(
+                            json_result, ensure_ascii=False),
+                        self.timestamp()))
                 try:
                     self.cursor.execute(sql)
                     self.db.commit()
                 except Exception as e:
                     print(e)
 
-        # 更新job状态
+        # update job status
         sql = "update `jobs` set `update_time`='{}', `status`='{}' where id='{}';".format(
             self.timestamp(), "done", self.job_id)
         try:
@@ -143,8 +146,23 @@ class DB(object):
         except Exception as e:
             print(e)
 
+    def set_place(self, card=None):
+        """init place"""
+        if paddle.is_compiled_with_cuda() and torch.cuda.is_available(
+        ) is True:
+            if card is None:
+                paddle.set_device("gpu:0")
+                torch.device(0)
+                return '0'
+            else:
+                paddle.set_device("gpu:{}".format(card))
+                torch.device(card)
+                return card
+        else:
+            raise EnvironmentError
+
     def error(self):
-        """错误配置"""
+        """configuration error"""
         retry = 3
         for i in range(retry):
             sql = "update `jobs` set `update_time`='{}', `status`='{}' where id='{}';".format(
@@ -154,7 +172,20 @@ class DB(object):
                 self.db.commit()
                 break
             except Exception as e:
-                # 防止超时失联
+                # prevent timeout
                 self.db.ping(True)
                 print(e)
                 continue
+
+    def write_database(self,
+                       benchmark_result_list,
+                       compare_framework=None,
+                       card=None):
+        """write data into mysql database"""
+        try:
+            card = self.set_place(card)
+            self.init_mission(card)
+            self.save(benchmark_result_list, compare_framework)
+        except Exception as e:
+            print(e)
+            self.error()
