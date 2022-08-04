@@ -68,7 +68,7 @@ def parse_args():
                         default='')
 
     # Added code for distributed training
-    parser.add_argument('--distributed', action='store_true', help='use in training')
+    parser.add_argument('--distributed', action='store_true', help='distributed training')
     # Added code for distributed training
     args = parser.parse_args()
     update_config(config, args)
@@ -85,7 +85,9 @@ def main():
     if args.distributed:
         rank = int(os.environ["RANK"])
         local_rank = int(int(os.environ["LOCAL_RANK"]))
-    if args.distributed and local_rank == 0:
+    else:
+        local_rank = 0
+    if local_rank == 0:
         logger.info(pprint.pformat(args))
         logger.info(pprint.pformat(config))
     # Added code for distributed training
@@ -102,22 +104,23 @@ def main():
         (1, 3, config.MODEL.IMAGE_SIZE[1], config.MODEL.IMAGE_SIZE[0])
     )
     # Added code for distributed training
-    if args.distributed and local_rank == 0:
+    if local_rank == 0:
         logger.info(get_model_summary(model, dump_input))
     # Added code for distributed training
 
     # copy model file
     # Added code for distributed training
-    if args.distributed and local_rank == 0:
+    if local_rank == 0:
         this_dir = os.path.dirname(__file__)
         models_dst_dir = os.path.join(final_output_dir, 'models')
         if os.path.exists(models_dst_dir):
             shutil.rmtree(models_dst_dir)
         shutil.copytree(os.path.join(this_dir, '../lib/models'), models_dst_dir)
 
-    dist.init_process_group(backend="nccl")
-    torch.cuda.set_device(rank % torch.cuda.device_count())
-    device = torch.device("cuda", local_rank)
+    if args.distributed:
+        dist.init_process_group(backend="nccl")
+        torch.cuda.set_device(rank % torch.cuda.device_count())
+        device = torch.device("cuda", local_rank)
     # Added code for distributed training
     
     writer_dict = {
@@ -127,9 +130,10 @@ def main():
     }
 
     gpus = list(config.GPUS)
-    # model = torch.nn.DataParallel(model, device_ids=gpus).cuda()  
+    # Added code for distributed training
     # define loss function (criterion) and optimizer
     criterion = torch.nn.CrossEntropyLoss().cuda('cuda:{}'.format(local_rank))
+    # Added code for distributed training
 
     optimizer = get_optimizer(config, model)
 
@@ -201,8 +205,22 @@ def main():
     )
 
     # Added code for distributed training
-    model = model.to(device)
-    model = DDP(model, device_ids=[local_rank], output_device=local_rank)
+    if args.distributed:
+        model = model.to(device)
+        model = DDP(model, device_ids=[local_rank], output_device=local_rank)
+    else:
+        class CudaModel(torch.nn.Module):
+            def __init__(self, model, device):
+                super(CudaModel, self).__init__()
+                self.model = model
+                self.device = device
+            
+            def forward(self, input):
+                with torch.no_grad():
+                    input = input.to(self.device)
+                return self.model(input)
+        model = model.to(torch.device("cuda", local_rank))
+        model = CudaModel(model, torch.device("cuda", local_rank))
     # creat distributed dataset
     if args.distributed:
         dist_sampler = DistributedSampler(train_dataset, shuffle=True)
@@ -234,7 +252,7 @@ def main():
         else:
             best_model = False
 
-        if args.distributed and local_rank == 0:
+        if local_rank == 0:
             logger.info('=> saving checkpoint to {}'.format(final_output_dir))
             save_checkpoint({
                 'epoch': epoch + 1,
@@ -244,7 +262,7 @@ def main():
                 'optimizer': optimizer.state_dict(),
             }, best_model, final_output_dir, filename='checkpoint.pth.tar')
 
-    if args.distributed and local_rank == 0:
+    if local_rank == 0:
         final_model_state_file = os.path.join(final_output_dir,
                                             'final_state.pth.tar')
         logger.info('saving final model state to {}'.format(

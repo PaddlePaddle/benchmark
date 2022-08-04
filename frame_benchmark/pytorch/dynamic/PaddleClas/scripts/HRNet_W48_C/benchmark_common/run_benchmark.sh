@@ -62,8 +62,10 @@ function _train(){
     sed -i "s/WORKERS: 4/WORKERS: $num_workers/g" experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
     if [ ${multi_nodes} = "true" ];then
             train_cmd="python -m torch.distributed.run --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} --nproc_per_node=8 tools/train.py --distributed --cfg experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml"
-        else
+        elif [ ${run_process_type} = 'MultiP' ];then
             train_cmd="python -m torch.distributed.run --nproc_per_node=8 tools/train.py --distributed --cfg experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml"
+        else
+            train_cmd="python tools/train.py --cfg experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml"
     fi
 
 
@@ -99,6 +101,8 @@ echo "---------model_commit is ${model_commit}"
 
 job_bt=`date '+%Y%m%d%H%M%S'`
 rm -rf work_dirs
+rm -rf output/imagenet
+cp train.py tools/
 sed -i 's/view/reshape/g' lib/core/evaluate.py
 sed -i 's/PRINT_FREQ: 1000/PRINT_FREQ: 10/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
 _train
