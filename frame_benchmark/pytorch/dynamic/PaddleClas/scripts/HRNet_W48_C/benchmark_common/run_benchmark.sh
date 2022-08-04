@@ -21,7 +21,6 @@ function _set_params(){
     num_workers=${8:-"4"}          # (可选)
 
     # Added for distributed training
-    multi_nodes=${MULTINODES:-"false"}      # (必选) 多卡训练开关，默认关闭，通过全局变量传递
     node_num=${9:-"1"}                      #（可选） 节点数量
     node_rank=${10:-"0"}                    # (可选)  节点rank
     master_addr=${11:-"127.0.0.1"}       # (可选) 主节点ip地址
@@ -60,9 +59,9 @@ function _train(){
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
     sed -i "s/BATCH_SIZE_PER_GPU: 32/BATCH_SIZE_PER_GPU: $batch_size/g" experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
     sed -i "s/WORKERS: 4/WORKERS: $num_workers/g" experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
-    if [ ${multi_nodes} = "true" ];then
+    if [ ${device_num:3} = '32' ];then
             train_cmd="python -m torch.distributed.run --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} --nproc_per_node=8 tools/train.py --distributed --cfg experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml"
-        elif [ ${run_process_type} = 'MultiP' ];then
+        elif [ ${device_num:3} = "8" ];then
             train_cmd="python -m torch.distributed.run --nproc_per_node=8 tools/train.py --distributed --cfg experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml"
         else
             train_cmd="python tools/train.py --cfg experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml"
