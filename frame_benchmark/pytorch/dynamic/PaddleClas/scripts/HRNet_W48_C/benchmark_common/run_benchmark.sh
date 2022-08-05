@@ -77,7 +77,7 @@ function _train(){
     esac
 
 #   以下为通用执行命令，无特殊可不用修改
-    timeout 5m ${train_cmd} > ${log_file} 2>&1
+    timeout 10m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
     else
