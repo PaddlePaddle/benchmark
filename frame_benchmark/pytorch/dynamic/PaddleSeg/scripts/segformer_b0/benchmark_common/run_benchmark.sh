@@ -60,7 +60,7 @@ function _train(){
     if [ ${device_num} = "N1C1" ]; then
         train_cmd="python tools/train.py ${train_config} ${train_options}" 
     else
-        train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" 
+        train_cmd="./tools/dist_train.sh ${train_config} 8 ${device_num:1:1} ${train_options}" 
     fi
 
 #   以下为通用执行命令，无特殊可不用修改
