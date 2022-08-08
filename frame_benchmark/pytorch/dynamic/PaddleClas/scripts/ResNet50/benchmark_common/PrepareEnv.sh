@@ -4,6 +4,7 @@
 pip install torch torchvision
 pip install openmim
 mim install -e .
+mim install -r requirements/mminstall.txt
 
 dataset_url="https://paddle-imagenet-models-name.bj.bcebos.com/data/ImageNet1k/ILSVRC2012_val.tar"
 
@@ -21,3 +22,4 @@ cp ../val_list.txt val.txt
 cd ../../../
 
 echo "*******prepare benchmark end***********"
+

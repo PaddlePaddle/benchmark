@@ -4,6 +4,8 @@
 pip install torch torchvision
 pip install openmim
 mim install -e .
+mim install -r requirements/mminstall.txt
+pip install opencv-python==4.5.5.64
 
 dataset_url="https://paddle-imagenet-models-name.bj.bcebos.com/data/ImageNet1k/ILSVRC2012_val.tar"
 
