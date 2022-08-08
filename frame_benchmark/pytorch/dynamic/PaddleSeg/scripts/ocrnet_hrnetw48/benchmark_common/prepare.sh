@@ -24,7 +24,8 @@ fi
 
 #pip install torch==1.9.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
 #pip install torchvision==0.10.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install mmcv-full==1.3.13 -f https://download.openmmlab.com/mmcv/dist/cu102/torch1.9.0/index.html
+#pip install mmcv-full==1.3.13 -f https://download.openmmlab.com/mmcv/dist/cu102/torch1.9.0/index.html
+pip3.7 install mmcv-full==1.3.13 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -e .
 pip list
