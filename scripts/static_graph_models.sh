@@ -16,7 +16,7 @@
 
 # cur_model_list=(transformer bert  gpt)
 # 20220323迁移CV模型到PDC,备份全量模型
-cur_model_list=(detection mask_rcnn image_classification seg_model transformer bert yolov3  gpt)
+cur_model_list=(image_classification seg_model transformer bert gpt)
 
 export log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
 
