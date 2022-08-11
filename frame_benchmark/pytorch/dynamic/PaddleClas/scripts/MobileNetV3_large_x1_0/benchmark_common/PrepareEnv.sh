@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 # install env
-pip install torch torchvision
+pip install torch==1.12.0+cu113 torchvision==0.13.0+cu113 -f https://download.pytorch.org/whl/torch_stable.html
 pip install openmim
+pip install -U setuptools>=49.6.0
 mim install -e .
 mim install -r requirements/mminstall.txt
 pip install opencv-python==4.5.5.64
