@@ -31,7 +31,6 @@ function _set_params(){
     num_workers=${8:-"4"}             # (可选)
 
     # Added for distributed training
-    multi_nodes=${MULTINODES:-"false"}      # (必选) 多卡训练开关，默认关闭，通过全局变量传递
     node_num=${9:-"2"}                      #（可选） 节点数量
     node_rank=${10:-"0"}                    # (可选)  节点rank
     master_addr=${11:-"127.0.0.1"}       # (可选) 主节点ip地址
