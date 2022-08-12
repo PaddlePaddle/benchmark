@@ -10,23 +10,28 @@ set -e
 
 ################################# 安装框架 如:
 
+rm -rf apex/
+WHEEL_URL_PREFIX="https://paddle-wheel.bj.bcebos.com/benchmark"
 # 安装 pyrtorch
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple
-    pip install -U pip
+    #pip install -U pip
     echo `pip --version`
     echo "install pytorch..."
-    pip install torch==1.9.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html
+    wget "$WHEEL_URL_PREFIX/torch-1.9.1%2Bcu111-cp37-cp37m-linux_x86_64.whl"
+    pip install torch-1.9.1+cu111-cp37-cp37m-linux_x86_64.whl
+    #pip install torch==1.9.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html
     echo "pytorch installed"
 fi
 # 拉取模型代码并安装
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
+    #apt-get install jq
     echo "install pwgan..."
     pip install .
     echo "pwgan installed"
     echo "install apex..."
     # If you want to use distributed training, please run following command to install apex.
-    git clone https://github.com/NVIDIA/apex.git
+    git clone http://github.com/NVIDIA/apex.git
     pushd apex
     git checkout 3303b3e
     pip install -v --disable-pip-version-check --no-cache-dir ./
@@ -35,14 +40,21 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 
     # install nkf
     apt-get install nkf -y
+    echo "apt-get install nkf -y"
     apt-get install sox -y
+    echo "apt-get install sox -y"
     apt-get install jq -y
+    echo " apt-get install jq -y"
 
 fi
 
 ################################# 准备训练数据 如:
+cp data_download.sh egs/csmsc/voc1/local/data_download.sh
+cp data_prep.sh egs/csmsc/voc1/local/data_prep.sh
+cp run.sh egs/csmsc/voc1/run.sh
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     pushd egs/csmsc/voc1
+    dirs -p -v
     bash run.sh --stage -1 --stop-stage 1
     popd
 fi

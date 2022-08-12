@@ -58,6 +58,9 @@ function _train(){
 
     train_conf="conf/train_bs_${model_item}.yaml"
     echo "log_file:"${log_file}
+
+    export "device_gpu="${device_num:1:1}""
+
     case ${run_process_type} in
     SingleP) train_cmd="bash run.sh --stage 4 --stop_stage 4 --train_config "${train_conf}"" ;;
     MultiP) train_cmd="bash run.sh  --stage 4 --stop_stage 4 --train_config "${train_conf}"" ;;

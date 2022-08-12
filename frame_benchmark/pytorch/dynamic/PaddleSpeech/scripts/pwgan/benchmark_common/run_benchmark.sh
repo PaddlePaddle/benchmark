@@ -56,6 +56,8 @@ function _train(){
 
     train_cmd="--batch-size ${batch_size} --max-iter ${max_iter}" 
 
+    export "device_gpu="${device_num:1:1}""
+
     case ${run_process_type} in
     SingleP) train_cmd="bash run.sh --stage 2 --stop-stage 2 --n-gpus 1 ${train_cmd}" ;;
     MultiP)  train_cmd="bash run.sh --stage 2 --stop-stage 2 --n-gpus 8 ${train_cmd}" ;;
