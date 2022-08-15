@@ -13,7 +13,7 @@ bs_item=6
 fp_item=fp32
 run_process_type=MultiP
 run_mode=DP
-device_num=N4C8
+device_num=N4C32
 max_iter=100
 
 bash run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_process_type} ${run_mode} ${device_num} ${max_iter}  2>&1;
