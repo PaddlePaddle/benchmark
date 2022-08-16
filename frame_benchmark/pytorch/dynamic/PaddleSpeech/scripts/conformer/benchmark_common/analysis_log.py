@@ -27,7 +27,8 @@ def analyze(model_item, log_file, res_log_file, device_num, batch_size, run_proc
         ips = 0
     else:
         gpu_ids_res = [int(item) for item in gpu_ids_res]
-        gpu_num = int(max(gpu_ids_res) - min(gpu_ids_res) + 1)
+        #gpu_num = int(max(gpu_ids_res) - min(gpu_ids_res) + 1)
+        gpu_num = int(device_num[3:])
         print ("gpu_num",gpu_num)
         run_mode = "SP" if gpu_num == 1 else "MP"
 
