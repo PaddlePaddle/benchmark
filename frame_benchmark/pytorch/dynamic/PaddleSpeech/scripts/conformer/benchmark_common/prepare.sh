@@ -23,6 +23,8 @@ wget "$WHEEL_URL_PREFIX/torch-1.9.1%2Bcu111-cp37-cp37m-linux_x86_64.whl"
 wget "$WHEEL_URL_PREFIX/torchvision-0.10.1%2Bcu111-cp37-cp37m-linux_x86_64.whl"
 pip install torch-1.9.1+cu111-cp37-cp37m-linux_x86_64.whl
 pip install torchvision-0.10.1+cu111-cp37-cp37m-linux_x86_64.whl
+wget https://paddle-wheel.bj.bcebos.com/benchmark/torchaudio-0.9.1-cp37-cp37m-manylinux1_x86_64.whl
+pip install torchaudio-0.9.1-cp37-cp37m-manylinux1_x86_64.whl
 # pip install torch==1.9.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 #conda install pytorch torchvision torchaudio cudatoolkit=11.1 -c pytorch -c conda-forge
