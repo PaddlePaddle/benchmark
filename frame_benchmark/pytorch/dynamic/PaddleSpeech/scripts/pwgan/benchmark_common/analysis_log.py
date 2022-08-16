@@ -16,7 +16,7 @@ def analyze(model_name, log_file, res_log_file, device_num):
     ips = 0
     fail_flag = 0
     ips_res = []
-    gpu_num = int(device_num[1]) * int(device_num[-1])
+    gpu_num = int(device_num[3:])
 
     print("gpu_num:", gpu_num)
 
