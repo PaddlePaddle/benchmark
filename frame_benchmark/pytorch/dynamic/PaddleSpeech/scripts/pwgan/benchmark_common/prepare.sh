@@ -25,7 +25,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
 fi
 # 拉取模型代码并安装
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-    #apt-get install jq
+    apt-get install jq
     pip install librosa==0.8.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
     pip install kaldiio -i https://pypi.tuna.tsinghua.edu.cn/simple
     pip install h5py -i https://pypi.tuna.tsinghua.edu.cn/simple
