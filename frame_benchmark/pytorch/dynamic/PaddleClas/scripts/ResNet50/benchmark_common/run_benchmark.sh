@@ -68,7 +68,7 @@ function _train(){
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
     train_config=${dic["${model_item}_${fp_item}"]}
     train_options="--no-validate \
-                   --cfg-options log_config.interval=10 \
+                   --cfg-options log_config.interval=1 \
                    runner.max_epochs=${max_epochs} \
                    data.samples_per_gpu=${batch_size}  \
                    data.workers_per_gpu=${num_workers}"

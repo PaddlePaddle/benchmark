@@ -4,7 +4,7 @@ fp_item=fp32
 run_process_type=MultiP
 run_mode=DP
 device_num=N4C32
-max_epoch=5
+max_epoch=1
 num_workers=4
 
 node_num=${PADDLE_TRAINERS_NUM}
