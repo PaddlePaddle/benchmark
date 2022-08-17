@@ -25,7 +25,7 @@ pip install torch-1.9.1+cu111-cp37-cp37m-linux_x86_64.whl
 pip install torchvision-0.10.1+cu111-cp37-cp37m-linux_x86_64.whl
 wget https://paddle-wheel.bj.bcebos.com/benchmark/torchaudio-0.9.1-cp37-cp37m-manylinux1_x86_64.whl
 pip install torchaudio-0.9.1-cp37-cp37m-manylinux1_x86_64.whl
-pip install importlib-metadata -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install -U importlib-metadata -i https://pypi.tuna.tsinghua.edu.cn/simple
 apt-get install libsndfile1-dev -y
 # pip install torch==1.9.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
