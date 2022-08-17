@@ -12,6 +12,7 @@ set -e
 
 rm -rf apex/
 WHEEL_URL_PREFIX="https://paddle-wheel.bj.bcebos.com/benchmark"
+pip install setuptools==50.3.2 -i https://pypi.tuna.tsinghua.edu.cn/simple
 # 安装 pyrtorch
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple
