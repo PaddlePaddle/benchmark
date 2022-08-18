@@ -141,7 +141,7 @@ class OpBenchmarkUnit(object):
                 result["compare"][key].ljust(10))
         case_line += "%s" % result["accuracy"].ljust(10)
         if with_parameters:
-            case_line += parameters
+            case_line += self.parameters
         return case_line
 
     def get(self, device, direction):
@@ -277,7 +277,7 @@ class CompareResult(object):
             compare_result_str = "%s" % (category.ljust(category_width))
 
         content_width = 16
-        for compare_result_key in compare_result_keys:
+        for compare_result_key in self.compare_result_keys:
             compare_result_str += "%s" % compare_result_key.ljust(
                 content_width)
         compare_result_str += "\n"
@@ -285,7 +285,7 @@ class CompareResult(object):
         for key, value in sorted(compare_result_list.items(), reverse=True):
             compare_result_str += "%s" % key.ljust(category_width)
             num_total_cases = value["Total"]
-            for compare_result_key in compare_result_keys:
+            for compare_result_key in self.compare_result_keys:
                 ratio = float(value[compare_result_key]) / float(
                     num_total_cases)
                 ratio_str = "%.2f" % (ratio * 100)
