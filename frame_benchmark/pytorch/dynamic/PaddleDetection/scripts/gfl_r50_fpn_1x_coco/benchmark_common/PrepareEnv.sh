@@ -4,6 +4,13 @@
 echo "*******prepare benchmark start ***********"
 #pip install -U pip
 echo `pip --version`
+
+echo "https_proxy $HTTPS_PRO" 
+echo "http_proxy $HTTP_PRO" 
+export https_proxy=$HTTPS_PRO
+export http_proxy=$HTTP_PRO
+export no_proxy=localhost,bj.bcebos.com,su.bcebos.com
+
 pip install setuptools==50.3.2 -i https://pypi.tuna.tsinghua.edu.cn/simple 
 pip install Cython -i https://pypi.tuna.tsinghua.edu.cn/simple some-package
 #pip install torch==1.10.0 torchvision==0.11.1
