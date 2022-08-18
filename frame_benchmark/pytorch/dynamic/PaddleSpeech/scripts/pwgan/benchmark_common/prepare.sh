@@ -8,6 +8,12 @@ echo "*******prepare benchmark start ***********"
 
 set -e 
 
+echo "https_proxy $HTTPS_PRO" 
+echo "http_proxy $HTTP_PRO" 
+export https_proxy=$HTTPS_PRO
+export http_proxy=$HTTP_PRO
+export no_proxy=localhost,bj.bcebos.com,su.bcebos.com
+
 ################################# 安装框架 如:
 
 rm -rf apex/
