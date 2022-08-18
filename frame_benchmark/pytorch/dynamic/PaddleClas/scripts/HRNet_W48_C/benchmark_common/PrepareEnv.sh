@@ -5,6 +5,12 @@ pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/web/simple
 pip install https://paddle-wheel.bj.bcebos.com/benchmark/torch-1.12.0%2Bcu113-cp37-cp37m-linux_x86_64.whl
 pip install https://paddle-wheel.bj.bcebos.com/benchmark/torchvision-0.13.0%2Bcu113-cp37-cp37m-linux_x86_64.whl
 
+echo "https_proxy $HTTPS_PRO" 
+echo "http_proxy $HTTP_PRO" 
+export https_proxy=$HTTPS_PRO
+export http_proxy=$HTTP_PRO
+export no_proxy=localhost,bj.bcebos.com,su.bcebos.com
+
 sed -i "s/opencv-python==3.4.1.15/opencv-python==4.4.0.46/g" requirements.txt
 sed -i "s/shapely==1.6.4/shapely/g" requirements.txt
 pip install -r requirements.txt
