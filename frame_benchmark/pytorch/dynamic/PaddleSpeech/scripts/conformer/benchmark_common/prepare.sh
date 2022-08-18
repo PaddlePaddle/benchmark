@@ -10,6 +10,13 @@ if [ ${data_tiny_url} == "None" ]; then
 fi
 
 set -e
+
+echo "https_proxy $HTTPS_PRO" 
+echo "http_proxy $HTTP_PRO" 
+export https_proxy=$HTTPS_PRO
+export http_proxy=$HTTP_PRO
+export no_proxy=localhost,bj.bcebos.com,su.bcebos.com
+
 # 修改竞品的训练日志
 cp replace/executor.py wenet/utils/
 cp replace/run.sh examples/aishell/s0
