@@ -13,7 +13,8 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_nu
     logs = ";".join(logs)
     ips_res = ips_pat.findall(logs)
 
-    gpu_num = int(device_num[-1])
+    gpu_num = int(device_num[3:])
+    print("gpu_num", gpu_num)
     run_mode = "SP" if gpu_num == 1 else "MP"
     bs = int(bs)
     ips = 0
