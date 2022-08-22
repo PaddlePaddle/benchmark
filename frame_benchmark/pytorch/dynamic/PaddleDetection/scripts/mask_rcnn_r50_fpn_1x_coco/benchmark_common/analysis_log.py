@@ -14,7 +14,7 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_nu
     time_res = time_pat.findall(logs)
 
     gpu_num = int(device_num[3:])
-    run_mode = "SP" if gpu_num == 1 else "MP"
+    run_mode = "DP"
     bs = int(bs)
     ips = 0
 
