@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -xe
 
 # Test training benchmark for a model.
 
@@ -17,6 +16,13 @@ function _set_params(){
     skip_steps=10  
     max_iter=${6:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${7:-"3"}             # (可选)
+
+    # Added for distributed training
+    node_num=${8:-"2"}                      #（可选） 节点数量
+    node_rank=${9:-"0"}                    # (可选)  节点rank
+    master_addr=${10:-"127.0.0.1"}       # (可选) 主节点ip地址
+    master_port=${11:-"1928"}               # (可选) 主节点端口号
+    # Added for distributed training
 
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
@@ -51,6 +57,10 @@ function _train(){
     N1C1) train_cmd="python train.py --batch ${base_batch_size} data/process  --iter 300 ${train_config}" ;;
     N1C8)
         train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --master_port=12345 train.py  --batch ${base_batch_size} data/process  --iter 300 ${train_options}" ;;
+    N4C32)
+        train_cmd="python -m torch.distributed.launch --nnodes=${node_num} --node_rank=${node_rank} \
+                                --nproc_per_node=8 --master_port=${master_port} --master_addr=${master_addr} \
+                                train.py --batch ${base_batch_size} data/process  --iter 300 ${train_options}" ;;
     *) echo "choose device_num(N1C1 or N1C8)"; exit 1;
     esac
 
