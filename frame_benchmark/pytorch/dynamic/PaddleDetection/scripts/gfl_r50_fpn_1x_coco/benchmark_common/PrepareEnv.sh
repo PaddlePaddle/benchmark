@@ -16,7 +16,13 @@ pip install Cython -i https://pypi.tuna.tsinghua.edu.cn/simple some-package
 #pip install torch==1.10.0 torchvision==0.11.1
 wget https://paddle-wheel.bj.bcebos.com/benchmark/torch-1.10.0%2Bcu111-cp37-cp37m-linux_x86_64.whl -O torch-1.10.0+cu111-cp37-cp37m-linux_x86_64.whl
 wget https://paddle-wheel.bj.bcebos.com/benchmark/torchvision-0.11.1%2Bcu111-cp37-cp37m-linux_x86_64.whl -O torchvision-0.11.1+cu111-cp37-cp37m-linux_x86_64.whl
-wget https://paddle-wheel.bj.bcebos.com/benchmark/mmcv_full-1.4.4-cp37-cp37m-linux_x86_64_A100.whl -O mmcv_full-1.4.4-cp37-cp37m-linux_x86_64.whl
+if [ `nvidia-smi --list-gpus | grep A100 | wc -l` -ne "0" ]; then
+    echo "Run on A100 Cluster"
+    wget https://paddle-wheel.bj.bcebos.com/benchmark/mmcv_full-1.4.4-cp37-cp37m-linux_x86_64_A100.whl -O mmcv_full-1.4.4-cp37-cp37m-linux_x86_64.whl
+else
+    echo "Run on V100 Cluster"
+    wget https://paddle-wheel.bj.bcebos.com/benchmark/mmcv_full-1.4.4-cp37-cp37m-linux_x86_64_V100.whl -O mmcv_full-1.4.4-cp37-cp37m-linux_x86_64.whl
+fi
 pip install torch-1.10.0+cu111-cp37-cp37m-linux_x86_64.whl
 pip install torchvision-0.11.1+cu111-cp37-cp37m-linux_x86_64.whl
 pip install mmcv_full-1.4.4-cp37-cp37m-linux_x86_64.whl -i https://pypi.tuna.tsinghua.edu.cn/simple
