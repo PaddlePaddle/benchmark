@@ -15,7 +15,7 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_nu
 
     gpu_num = int(device_num[3:])
     print("gpu_num", gpu_num)
-    run_mode = "SP" if gpu_num == 1 else "MP"
+    run_mode = "DP"
     bs = int(bs)
     ips = 0
 
