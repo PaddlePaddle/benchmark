@@ -37,8 +37,11 @@ def calculate_ips(log_list, gpu_num):
     if len(log_list) < 5:
         print('log number is smaller than 5, the ips may be inaccurate!')
     else:
-        log_list = log_list[4:]
-    return sum(log_list) * gpu_num/ len(log_list)
+        if gpu_num > 1:
+            log_list = log_list[32:]
+        else:
+            log_list = log_list[4:]
+    return sum(log_list) * gpu_num / len(log_list)
 
 
 if __name__ == "__main__":
@@ -50,7 +53,7 @@ if __name__ == "__main__":
     except Exception as e:
         ips = 0
 
-    run_mode = 'SP' if num_gpu == 1 else 'MP'
+    run_mode = 'DP'
     if args.save_path:
         save_file = args.save_path
     else:
