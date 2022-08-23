@@ -102,6 +102,7 @@ job_bt=`date '+%Y%m%d%H%M%S'`
 rm -rf work_dirs
 rm -rf output/imagenet
 cp train.py tools/
+cp utils_backup.py lib/utils/utils.py
 sed -i 's/view/reshape/g' lib/core/evaluate.py
 sed -i 's/PRINT_FREQ: 1000/PRINT_FREQ: 10/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
 _train
