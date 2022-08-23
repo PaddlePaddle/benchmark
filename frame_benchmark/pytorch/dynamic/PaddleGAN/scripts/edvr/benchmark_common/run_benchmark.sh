@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -xe
 
 # Test training benchmark for a model.
 
@@ -7,17 +6,23 @@ set -xe
 
 function _set_params(){
     model_item=${1:-"model_item"}
-    base_batch_size=${2:-"2"}       
+    base_batch_size=${2:-"2"}
     fp_item=${3:-"fp32"}        # fp32 or fp16
-    run_process_type=${4:-"MultiP"}
-    run_mode=${5:-"DP"}  
-    device_num=${6:-"N1C1"}  
-    profiling=${PROFILING:-"false"} 
+    run_mode=${4:-"DP"}
+    device_num=${5:-"N1C1"}
+    profiling=${PROFILING:-"false"}
     model_repo="mmedit"
     speed_unit="samples/sec"
-    skip_steps=10  
-    max_iter=${7:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
-    num_workers=${8:-"3"}             # (可选)
+    skip_steps=10
+    max_iter=${6:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
+    num_workers=${7:-"3"}               # (可选)
+
+    # Added for distributed training
+    node_num=${8:-"2"}                      #（可选） 节点数量
+    node_rank=${9:-"0"}                    # (可选)  节点rank
+    master_addr=${10:-"127.0.0.1"}       # (可选) 主节点ip地址
+    master_port=${11:-"1928"}               # (可选) 主节点端口号
+    # Added for distributed training
 
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
@@ -44,29 +49,33 @@ function _analysis_log(){
 }
 
 function _train(){
-    batch_size=${base_batch_size} 
+    batch_size=${base_batch_size}
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
     train_config="mmedi_benchmark_configs/${model_name}.py"
     train_options="--no-validate "
 
-    case ${run_process_type} in
-    SingleP) train_cmd="./tools/dist_train.sh ${train_config} 1 ${train_options}" ;;
-    MultiP)
+    case ${device_num} in
+    N1C1) train_cmd="./tools/dist_train.sh ${train_config} 1 ${train_options}" ;;
+    N1C8)
         case ${model_name} in
         basicvsr_mp_bs2|basicvsr_mp_bs4) train_cmd="./tools/dist_train.sh ${train_config} 4 ${train_options}" ;;
         *) train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}"
         esac
         ;;
-    *) echo "choose run_mode(sp or mp)"; exit 1;
+    N4C32)
+        train_cmd="python -m torch.distributed.launch --nnodes=${node_num} --node_rank=${node_rank} \
+                                --nproc_per_node=8 --master_port=${master_port} --master_addr=${master_addr} \
+                                tools/train.py ${train_config} --launcher pytorch ${train_options}" ;;
+    *) echo "choose device_num(N1C1, N1C8 or N4C32)"; exit 1;
     esac
 
-    timeout 15m ${train_cmd} > ${log_file} 2>&1
+    timeout 5m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
     else
         echo -e "${model_name}, SUCCESS"
     fi
-    if [ ${run_process_type} = "MultiP" -a -d mylog ]; then
+    if [ ${device_num} != "N1C1" -a -d mylog ]; then
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
     fi
