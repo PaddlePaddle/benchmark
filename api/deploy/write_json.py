@@ -15,6 +15,8 @@
 # limitations under the License.
 
 import sys
+import os
+import time
 import json
 import op_benchmark_unit
 
@@ -29,9 +31,11 @@ COMPARE_RESULT_SHOWS = {
 }
 
 
-def create_summary_json(compare_result, category):
+def _create_summary_json(compare_result, category):
+    """
+    dump summary json files
+    """
     summary_json_result = list()
-    compare_result_colors = {"Better": "green", "Less": "red"}
 
     compare_result_keys = compare_result.compare_result_keys
     titles = {"title": 1, "row_0": category}
@@ -41,8 +45,8 @@ def create_summary_json(compare_result, category):
 
     for device in ["gpu", "cpu"]:
         for direction in ["forward", "backward"]:
-            for method in ["total", "kernel"]:
-                if device == "cpu": continue
+            method_set = ["total"] if device == "cpu" else ["total", "kernel"]
+            for method in method_set:
                 data = {
                     "title": 0,
                     "row_0": "{} {} ({})".format(device.upper(),
@@ -66,22 +70,67 @@ def create_summary_json(compare_result, category):
     return summary_json_result
 
 
-def dump_json(benchmark_result_list, output_path=None):
+def dump_json(benchmark_result_list,
+              output_path=None,
+              compare_framework=None,
+              dump_with_parameters=None):
     """
-    dump data to a json file
+    dump summary json files && detail json files for each OP
     """
     if output_path is None:
-        print("Output path is not specified, will not dump json.")
-        return
+        timestamp = time.strftime('%Y-%m-%d', time.localtime(int(time.time())))
+        output_path = "op_benchmark_summary-%s-json" % timestamp
+        print("Output path is not specified, use %s." % output_path)
+    print("-- Write json files into %s." % output_path)
 
+    pwd = os.getcwd()
+    save_path = os.path.join(pwd, output_path)
+    if not os.path.exists(save_path):
+        os.mkdir(save_path)
+
+    # dump summary json files
+    # case_level summary
     compare_result_case_level = op_benchmark_unit.summary_compare_result(
         benchmark_result_list)
-    compare_result_op_level = op_benchmark_unit.summary_compare_result_op_level(
-        benchmark_result_list)
+    summary_case_json = _create_summary_json(compare_result_case_level,
+                                             "case_level")
+    with open(save_path + "/" + "case_level.json", 'w') as f:
+        f.write(json.dumps(summary_case_json, ensure_ascii=False))
 
-    with open(output_path, 'w') as f:
-        summary_case_json = create_summary_json(compare_result_case_level,
-                                                "case_level")
-        summary_op_json = create_summary_json(compare_result_op_level,
-                                              "case_level")
-        f.write(json.dumps(summary_case_json + summary_op_json))
+    # op_level summary
+    compare_result_op_level, compare_result_dict_ops_detail = op_benchmark_unit.summary_compare_result_op_level(
+        benchmark_result_list, return_op_detail=True)
+    summary_op_json = _create_summary_json(compare_result_op_level, "op_level")
+    with open(save_path + "/" + "op_level.json", 'w') as f:
+        f.write(json.dumps(summary_op_json, ensure_ascii=False))
+
+    # summary detail for each op
+    for op_type, op_compare_result in sorted(
+            compare_result_dict_ops_detail.items()):
+        summary_op_result = _create_summary_json(op_compare_result, op_type)
+        with open(save_path + "/" + op_type + ".json", 'w') as f:
+            f.write(json.dumps(summary_op_result, ensure_ascii=False))
+
+    # dump detail json files for each OP
+    json_result = {"paddle": dict(), "pytorch": dict(), "compare": dict()}
+
+    for device in ["cpu", "gpu"]:
+        json_result["device"] = device
+        for case_id in range(len(benchmark_result_list)):
+            op_unit = benchmark_result_list[case_id]
+            for direction in ["forward", "backward", "backward_forward"]:
+                result = op_unit.get(device, direction)
+                time_set = ["total",
+                            "gpu_time"] if device == "gpu" else ["total"]
+                for key in time_set:
+                    compare_result = COMPARE_RESULT_SHOWS.get(
+                        result["compare"][key], "--")
+                    json_result["compare"][direction + key] = compare_result
+                    for framework in ["paddle", compare_framework]:
+                        json_result[framework]["case_name"] = op_unit.case_name
+                        json_result[framework][direction + key] = result[
+                            framework][key]
+            with open(save_path + "/" + json_result[framework]["case_name"] +
+                      "_" + device + ".json", 'w') as f:
+                f.write(json.dumps(json_result, ensure_ascii=False))
+                f.write("\n")
