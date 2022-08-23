@@ -24,7 +24,7 @@ def analyze(model_name, batch_size, log_file, res_log_file, device_num):
         fail_flag = 1
     else:
         gpu_num = log_file.split('_')[-1]
-        run_mode = "SP" if gpu_num == 1 else "MP"
+        run_mode = "DP"
 
         skip_num = 4
         total_time = 0

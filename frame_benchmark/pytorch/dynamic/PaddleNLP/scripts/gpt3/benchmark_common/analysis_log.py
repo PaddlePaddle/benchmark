@@ -38,7 +38,7 @@ def analyze(model_item, log_file, res_log_file, device_num):
         # delete first 20 steps
         iter_times = [float(x) for x in  time_res[20:-1]]
         gpu_num = int(gpu_ids_res[-1])
-        run_mode = "SP" if gpu_num == 1 else "MP"
+        run_mode = "DP"
         run_process_type = "SingleP" if gpu_num == 1 else "MultiP"
         if fp_res[-1].strip().lower() == "true":
             fp_item = "fp16" 

@@ -21,7 +21,7 @@ def analyze(model_item: str, log_file: str, res_log_file: str, device_num: int):
 
     log_file_name_split = os.path.basename(log_file).split("_")
     gpu_num = int(log_file_name_split[-2][-1])
-    run_mode = "SP" if gpu_num == 1 else "MP"
+    run_mode = "DP"
     fp_item = log_file_name_split[-5]
     bs = int(log_file_name_split[2][2:])
 
