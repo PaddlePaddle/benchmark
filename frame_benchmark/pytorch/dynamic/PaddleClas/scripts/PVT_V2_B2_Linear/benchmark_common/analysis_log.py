@@ -43,7 +43,7 @@ if __name__ == "__main__":
     except Exception as e:
         ips = 0
 
-    run_mode = 'SP' if num_gpu == 1 else 'MP'
+    run_mode = 'DP'
     if args.save_path:
         save_file = args.save_path
     else:
