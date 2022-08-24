@@ -22,7 +22,7 @@ def analyze(model_item: str, log_file: str, res_log_file: str, device_num: int):
     log_file_name_split = os.path.basename(log_file).split("_")
     gpu_num = int(device_num[3:])
     run_mode = "DP"
-    fp_item = log_file_name_split[-5]
+    fp_item = log_file_name_split[-4]
     bs = int(log_file_name_split[2][2:])
 
     skip_num = 4
