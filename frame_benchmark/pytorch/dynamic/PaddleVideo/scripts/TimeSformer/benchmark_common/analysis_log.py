@@ -20,7 +20,7 @@ def analyze(model_item: str, log_file: str, res_log_file: str, device_num: int):
     ips_res: list = ips_pat.findall(logs)
 
     log_file_name_split = os.path.basename(log_file).split("_")
-    gpu_num = int(log_file_name_split[-2][-1])
+    gpu_num = int(device_num[3:])
     run_mode = "DP"
     fp_item = log_file_name_split[-5]
     bs = int(log_file_name_split[2][2:])
@@ -45,7 +45,7 @@ def analyze(model_item: str, log_file: str, res_log_file: str, device_num: int):
         "run_mode": run_mode,
         "convergence_value": 0,
         "convergence_key": '"loss":',
-        "ips": avg_ips,
+        "ips": avg_ips * gpu_num,
         "speed_unit": "instance/sec",
         "device_num": device_num,
         "model_run_time": os.getenv('model_run_time'),
