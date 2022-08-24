@@ -62,7 +62,6 @@ dy_to_static_bert() {
 dy_to_static_mobilenet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout -b develop_to_static_mobilenet d5c1700fafd160ea704927f2845a8e41629a57dd
     pip install -r requirements.txt
 
     # Prepare data
@@ -127,7 +126,6 @@ dy_to_static_yolov3(){
 dy_to_static_resnet(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout -b develop_to_static_resnet d5c1700fafd160ea704927f2845a8e41629a57dd
     pip install -r requirements.txt
    
     ln -s ${data_path}/dygraph_data/imagenet100_data/ ${cur_model_path}/dataset
