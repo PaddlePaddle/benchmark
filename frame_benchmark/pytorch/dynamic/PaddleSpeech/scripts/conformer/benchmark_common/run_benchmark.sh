@@ -22,7 +22,7 @@ function _set_params(){
     num_workers=${8:-"3"}             # (可选)
 
     #   以下为通用拼接log路径，无特殊可不用修改
-    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_process_type}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
+    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
@@ -58,6 +58,9 @@ function _train(){
 
     train_conf="conf/train_bs_${model_item}.yaml"
     echo "log_file:"${log_file}
+
+    export "device_gpu="${device_num:1:1}""
+
     case ${run_process_type} in
     SingleP) train_cmd="bash run.sh --stage 4 --stop_stage 4 --train_config "${train_conf}"" ;;
     MultiP) train_cmd="bash run.sh  --stage 4 --stop_stage 4 --train_config "${train_conf}"" ;;
