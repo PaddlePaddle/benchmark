@@ -21,7 +21,7 @@ function _set_params(){
     max_epochs=${7:-"1"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"2"}             # (可选)
 
-    num_gpus=${device_num: -1}
+    num_gpus=${device_num:3}
     batch_size=`expr ${base_batch_size} / ${num_gpus}`  # 单卡bs
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
@@ -50,13 +50,20 @@ function _analysis_log(){
 function _train(){
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
 
-    train_options="--batch-size=${base_batch_size} --epochs=${max_epochs} --print-interval=1"
+    train_options="--batch-size=${batch_size} --epochs=${max_epochs} --print-interval=1"
 
-    case ${run_process_type} in
-    SingleP) train_cmd="python train.py ${train_options} --lr=0.00125 " ;;
-    MultiP) train_cmd="python train.py ${train_options} --lr=0.01 " ;;
-    *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
-    esac
+    PORT=${PORT:-29510}
+    nodes=${device_num:1:1}
+
+    if [[ $nodes -gt 1 ]];then
+        train_cmd="python -m torch.distributed.run --nproc_per_node=8 --nnodes=$nodes --node_rank=$PADDLE_TRAINER_ID --master_addr=$POD_0_IP --master_port=$PORT train.py ${train_options} --lr=0.01 "
+    else
+        case ${run_process_type} in
+        SingleP) train_cmd="python train.py ${train_options} --lr=0.00125 " ;;
+        MultiP) train_cmd="python -m torch.distributed.run --nproc_per_node=8 --master_port=$PORT train.py ${train_options} --lr=0.01 " ;;
+        *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
+        esac
+    fi
 
 #   以下为通用执行命令，无特殊可不用修改
     timeout 15m ${train_cmd} > ${log_file} 2>&1
