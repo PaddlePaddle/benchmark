@@ -43,7 +43,6 @@ def analyze(model_item, log_file, res_log_file, device_num, batch_size, run_proc
                 "model_name": model_name,
                 "batch_size": bs,
                 "fp_item": fp_item,
-                "run_process_type": run_process_type,
                 "run_mode": run_mode,
                 "convergence_value": 0,
                 "convergence_key": "",
