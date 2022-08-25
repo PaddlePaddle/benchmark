@@ -11,7 +11,7 @@ import os
 def analyze(model_name, log_file, res_log_file, device_num):
     log_file_name = log_file.split("/")[-1]
     # model_name: pwgan_bs6_fp32_SingleP_DP
-    model_item, bs, fp_item, run_process_type, run_mode = "DP"
+    model_item, bs, fp_item, run_mode = model_name.split("_")
     gpu_num = 0
     ips = 0
     fail_flag = 0
@@ -40,7 +40,6 @@ def analyze(model_name, log_file, res_log_file, device_num):
                 "model_name": model_name,
                 "batch_size": int(bs[2:]),
                 "fp_item": fp_item,
-                "run_process_type": run_process_type,
                 "run_mode": run_mode,
                 "convergence_value": 0,
                 "convergence_key": "",
