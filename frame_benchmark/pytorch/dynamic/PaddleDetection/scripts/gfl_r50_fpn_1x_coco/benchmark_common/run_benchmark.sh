@@ -64,7 +64,7 @@ function _train(){
 
     case ${run_process_type} in
     SingleP) train_cmd="python tools/train.py ${train_config} ${train_options} optimizer.lr=0.00125 " ;;
-    MultiP) train_cmd="bash ./tools/dist_train.sh ${train_config} 8 ${train_options} optimizer.lr=0.01 " ;;
+    MultiP) train_cmd="bash ./tools/dist_train.sh ${train_config} 8 ${device_num:1:1} ${train_options} optimizer.lr=0.01 " ;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
 
