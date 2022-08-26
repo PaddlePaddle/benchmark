@@ -1,6 +1,6 @@
-model_item=icdar2015_resnet18_FPN_DBhead_polyLR
+model_item=icdar2015_resnet50_FPN_DBhead_polyLR
 #max_token
-bs_item=16
+bs_item=8
 fp_item=fp32
 run_process_type=SingleP
 run_mode=DP
