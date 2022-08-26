@@ -59,7 +59,7 @@ function _train(){
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
 
-    train_config="configs/mask_rcnn/mask_rcnn_r50_fpn_1x_coco.py"
+    train_config="configs/yolo/yolov3_d53_mstrain-608_273e_coco.py"
     if [ ${fp_item} = "fp16" ]; then
         set_fp_item="fp16.loss_scale=512."
     else

@@ -62,7 +62,7 @@ function _train(){
     if [ ${device_num:3} = '32' ];then
             train_cmd="python -m torch.distributed.run --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} --nproc_per_node=8 tools/train.py --distributed --cfg experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml"
         elif [ ${device_num:3} = "8" ];then
-            train_cmd="python -m torch.distributed.run --nproc_per_node=8 tools/train.py --distributed --cfg experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml"
+            train_cmd="python -m torch.distributed.run --nproc_per_node=8 --master_port=14233 tools/train.py --distributed --cfg experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml"
         else
             train_cmd="python tools/train.py --cfg experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml"
     fi
