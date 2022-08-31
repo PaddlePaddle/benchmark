@@ -10,7 +10,7 @@ CUDA_VERSION=`nvcc -run detect_cuda.cu | awk -F. '{print $1}'`
 
 WHEEL_URL_PREFIX="https://paddle-wheel.bj.bcebos.com/benchmark"
 apt-get install -y axel
-if [[ $CUDA_VERSION -ge 11 ]]; then
+if [ `nvidia-smi --list-gpus | grep A100 | wc -l` -ne "0" ]; then
   axel -n 16 "$WHEEL_URL_PREFIX/torch-1.9.1%2Bcu111-cp37-cp37m-linux_x86_64.whl"
   axel -n 16 "$WHEEL_URL_PREFIX/torchvision-0.10.1%2Bcu111-cp37-cp37m-linux_x86_64.whl"
   pip install torch-1.9.1+cu111-cp37-cp37m-linux_x86_64.whl
