@@ -29,7 +29,6 @@ def analyze(model_name, batch_size, log_file, res_log_file, device_num):
     if gpu_ids_res == [] or time_res == []:
         fail_flag = 1
     else:
-        gpu_num = int(gpu_ids_res[0][-1])
 
         skip_num = 4
         total_time = 0
@@ -46,7 +45,7 @@ def analyze(model_name, batch_size, log_file, res_log_file, device_num):
                 "run_mode": "DP",
                 "convergence_value": 0,
                 "convergence_key": "",
-                "ips": ips * gpu_num,
+                "ips": ips * int(gpu_num),
                 "speed_unit":"images/s",
                 "device_num": device_num,
                 "model_run_time": os.getenv('model_run_time'),
