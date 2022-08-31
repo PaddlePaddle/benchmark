@@ -1,5 +1,5 @@
 model_item=esrgan
-bs_item=32
+bs_item=64
 fp_item=fp32
 run_mode=DP
 device_num=N4C32

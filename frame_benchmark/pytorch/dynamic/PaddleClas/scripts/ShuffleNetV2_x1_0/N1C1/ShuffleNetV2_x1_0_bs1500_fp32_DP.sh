@@ -1,5 +1,5 @@
 model_item=ShuffleNetV2_x1_0
-bs_item=1536
+bs_item=1500
 fp_item=fp32
 run_process_type=SingleP
 run_mode=DP
