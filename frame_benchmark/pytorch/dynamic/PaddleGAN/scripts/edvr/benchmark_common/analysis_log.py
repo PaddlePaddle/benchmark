@@ -25,7 +25,6 @@ def analyze(model_name, batch_size, log_file, res_log_file, device_num):
     fail_flag = 0
     run_mode = ""
     fp_item = "fp32"
-    gpu_num = 0
     ips = 0
 
     if gpu_ids_res == [] or time_res == []:
