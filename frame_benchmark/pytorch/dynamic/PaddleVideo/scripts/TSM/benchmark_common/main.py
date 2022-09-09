@@ -423,7 +423,7 @@ def check_rootfolders():
     for folder in folders_util:
         if not os.path.exists(folder):
             print('creating folder ' + folder)
-            os.mkdir(folder)
+            os.makedirs(folder, exist_ok=True)
 
 
 if __name__ == '__main__':
