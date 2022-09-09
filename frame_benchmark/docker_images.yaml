@@ -27,8 +27,8 @@ pytorch:
    solov2_r50_fpn_1x_coco: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda10.2-cudnn7
    gfl_r50_fpn_1x_coco: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    fcos_r50_fpn_1x_coco: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda10.2-cudnn7
-   faster_rcnn_r50_fpn_1x_coco: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda10.2-cudnn7
-   deformable_detr_r50_1x_coco: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda10.2-cudnn7
+   faster_rcnn_r50_fpn_1x_coco: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
+   deformable_detr_r50_1x_coco: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    mask_rcnn_r50_1x_coco: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda10.2-cudnn7
    mask_rcnn_r50_fpn_1x_coco: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    yolov3_darknet53_270e_coco: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
