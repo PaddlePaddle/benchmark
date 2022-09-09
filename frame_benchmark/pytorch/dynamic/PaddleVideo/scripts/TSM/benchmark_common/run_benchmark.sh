@@ -42,6 +42,9 @@ function _analysis_log(){
 }
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
+    
+    PORT=${PORT:-29500}
+
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
     train_options="kinetics RGB \
                    --arch resnet50 --num_segments 8 \
@@ -51,12 +54,20 @@ function _train(){
                    --epochs ${max_epoch} \
                    --batch-size ${batch_size} \
                    -j ${num_workers}"
-    case ${run_process_type} in
-    SingleP) train_cmd="python main.py ${train_options}" ;;
-    MultiP)
-        train_cmd="python main.py ${train_options}" ;;
-    *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
-    esac
+    
+    nodes="${device_num:1:1}"
+
+    if [[ nodes -gt 1 ]];then
+        train_cmd="python -m torch.distributed.run --nproc_per_node=8  --master_port=$PORT \
+            --nnodes=$nodes --node_rank=$PADDLE_TRAINER_ID --master_addr=$POD_0_IP main.py ${train_options}"
+    else
+        case ${run_process_type} in
+        SingleP) train_cmd="python main.py ${train_options}" ;;
+        MultiP)
+            train_cmd="python -m torch.distributed.run --nproc_per_node=8 --master_port=$PORT main.py ${train_options}" ;;
+        *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
+        esac
+    fi
 #   以下为通用执行命令，无特殊可不用修改
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
