@@ -53,7 +53,11 @@ function _train(){
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
                    
-    train_config="--config_file config/${model_item}.yaml"
+    if [ ${model_item} = "det_res18_db" ]; then
+        train_config="--config_file config/icdar2015_resnet18_FPN_DBhead_polyLR.yaml"
+    else
+        train_config="--config_file config/icdar2015_resnet50_FPN_DBhead_polyLR.yaml"
+    fi
     train_options="--cfg-options dataset.train.loader.batch_size=${batch_size} \
                    trainer.epochs=${max_iter}\
                    lr_scheduler.args.warmup_epoch=1"

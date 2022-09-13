@@ -1,4 +1,4 @@
-model_item=icdar2015_resnet50_FPN_DBhead_polyLR
+model_item=det_res50_db
 #max_token
 bs_item=16
 fp_item=fp32
