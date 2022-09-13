@@ -267,6 +267,11 @@ void SetConfig<paddle::AnalysisConfig>(paddle::AnalysisConfig* config, std::stri
   } else {
     config->DisableGpu();
     config->EnableMKLDNN();
+
+    // this model unreasonably set a output tensor persistable, 
+    // so I disable constant_folding_pass
+    auto pass_builder = config->pass_builder();
+    pass_builder->DeletePass("constant_folding_pass");
     config->SetCpuMathLibraryNumThreads(FLAGS_num_threads);
   }
   config->SwitchIrOptim(true);
