@@ -16,16 +16,20 @@ def analyze(model_name, batch_size, log_file, res_log_file, device_num):
     gpu_ids_res = gpu_ids_pat.findall(logs)
     time_res = time_pat.findall(logs)
 
+    print("---device_num:-", device_num)
+    index_c = device_num.index('C')
+    print("---index_c:-", index_c)
+    gpu_num = int(device_num[index_c + 1:len(device_num)])
+    print("-----gpu_num:", gpu_num)
+
     fail_flag = 0
     run_mode = ""
     fp_item = "fp32"
-    gpu_num = 0
     ips = 0
 
     if gpu_ids_res == [] or time_res == []:
         fail_flag = 1
     else:
-        gpu_num = int(gpu_ids_res[0][-1])
         run_mode = "DP"
 
         skip_num = 4
@@ -44,7 +48,7 @@ def analyze(model_name, batch_size, log_file, res_log_file, device_num):
                 "run_mode": run_mode,
                 "convergence_value": 0,
                 "convergence_key": "",
-                "ips": ips,
+                "ips": ips * int(gpu_num),
                 "speed_unit":"images/s",
                 "device_num": device_num,
                 "model_run_time": os.getenv('model_run_time'),
