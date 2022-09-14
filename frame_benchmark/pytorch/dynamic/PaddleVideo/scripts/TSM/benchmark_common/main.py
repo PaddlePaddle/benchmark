@@ -228,12 +228,8 @@ def main():
 
         adjust_learning_rate(optimizer, epoch, args.lr_type, args.lr_steps)
 
-        print("1,:")
-
         # train for one epoch
         train(train_loader, model, criterion, optimizer, epoch, log_training, tf_writer)
-
-        print("2,:")
 
         # evaluate on validation set
         if (epoch + 1) % args.eval_freq == 0 or epoch == args.epochs - 1:
@@ -277,7 +273,6 @@ def train(train_loader, model, criterion, optimizer, epoch, log, tf_writer):
     end = time.time()
     for i, (input, target) in enumerate(train_loader):
 
-        print("i = ", i)
         # measure data loading time
         data_time.update(time.time() - end)
 
@@ -369,9 +364,9 @@ def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
                           'Prec@5 {top5.val:.3f}'.format(
                     i, len(val_loader), batch_time=batch_time, data_time=data_time, ips=input.size(0)/batch_time.val, loss=losses,
                     top1=top1, top5=top5))
-                print(output)
-                print("input.size(0) = , batch_time.val = ", input.size(0), batch_time.val)
-                print("args.print_freq =", args.print_freq)
+                #print(output)
+                #print("input.size(0) = , batch_time.val = ", input.size(0), batch_time.val)
+                #print("args.print_freq =", args.print_freq)
                 if log is not None:
                     log.write(output + '\n')
                     log.flush()
