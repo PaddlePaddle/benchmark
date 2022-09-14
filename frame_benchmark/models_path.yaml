@@ -37,8 +37,8 @@ pytorch:
    TSM: benchmark/frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module
    deeplabv3p_resnet50: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    fcn_hrnetw18: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
-   det_res18_db: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet.pytorch
-   det_res50_db: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet.pytorch
+   det_res18_db: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet-pytorch
+   det_res50_db: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet-pytorch
    ocrnet_hrnetw48: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    segformer_b0: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    xlnet: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers
