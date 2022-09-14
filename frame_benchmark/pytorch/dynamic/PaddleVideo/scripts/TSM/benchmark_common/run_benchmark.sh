@@ -17,8 +17,15 @@ function _set_params(){
     convergence_key=""             # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
     max_epoch=${7:-"2"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"3"}             # (可选)
-    #   以下为通用拼接log路径，无特殊可不用修改
-   model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
+    
+    # Added for distributed training
+    node_num=${9:-"2"}                      #（可选） 节点数量
+    node_rank=${10:-"0"}                    # (可选)  节点rank
+    master_addr=${11:-"127.0.0.1"}       # (可选) 主节点ip地址
+    master_port=${12:-"1928"}               # (可选) 主节点端口号 
+
+    # 以下为通用拼接log路径，无特殊可不用修改
+    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
@@ -54,7 +61,11 @@ function _train(){
     case ${run_process_type} in
     SingleP) train_cmd="python main.py ${train_options}" ;;
     MultiP)
-        train_cmd="python main.py ${train_options}" ;;
+    if [ ${device_num:3} = '8' ];then
+        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 main.py --parallel ${train_options}"
+    elif [ ${device_num:3} = '32' ];then
+        train_cmd="python -m torch.distributed.launch --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} --nproc_per_node=8 main.py --parallel ${train_options}"
+    fi ;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
 #   以下为通用执行命令，无特殊可不用修改

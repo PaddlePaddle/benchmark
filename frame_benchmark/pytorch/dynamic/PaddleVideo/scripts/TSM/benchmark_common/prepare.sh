@@ -4,14 +4,11 @@
 echo "*******prepare benchmark start ***********"
 pip install -U pip
 echo `pip --version`
-python ${BENCHMARK_ROOT}/paddlecloud/file_upload_download.py \
-    --remote-path frame_benchmark/pytorch_req/pytorch_191/ \
-    --local-path ./  \
-    --mode download
-ls
+
 # pip install torch==1.9.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install torch-1.9.1-cp37-cp37m-manylinux1_x86_64.whl -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install torchvision==0.10.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install https://paddle-wheel.bj.bcebos.com/benchmark/torch-1.12.0%2Bcu113-cp37-cp37m-linux_x86_64.whl
+pip install https://paddle-wheel.bj.bcebos.com/benchmark/torchvision-0.13.0%2Bcu113-cp37-cp37m-linux_x86_64.whl
+
 pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 ################################# 准备训练数据 如:
