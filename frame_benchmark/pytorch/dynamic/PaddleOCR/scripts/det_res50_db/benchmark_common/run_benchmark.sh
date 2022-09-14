@@ -52,13 +52,12 @@ function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
-    
+                   
     if [ ${model_item} = "det_res18_db" ]; then
         train_config="--config_file config/icdar2015_resnet18_FPN_DBhead_polyLR.yaml"
     else
         train_config="--config_file config/icdar2015_resnet50_FPN_DBhead_polyLR.yaml"
     fi
-
     train_options="--cfg-options dataset.train.loader.batch_size=${batch_size} \
                    trainer.epochs=${max_iter}\
                    lr_scheduler.args.warmup_epoch=1"
