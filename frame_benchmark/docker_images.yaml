@@ -36,7 +36,7 @@ pytorch:
    fastscnn: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    TSM: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    det_res18_db: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda10.2-cudnn7
-   det_res50_db: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda10.2-cudnn7
+   det_res50_db_v2_0: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda10.2-cudnn7
    deeplabv3p_resnet50: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    fcn_hrnetw18: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda10.2-cudnn7
    ocrnet_hrnetw48: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
