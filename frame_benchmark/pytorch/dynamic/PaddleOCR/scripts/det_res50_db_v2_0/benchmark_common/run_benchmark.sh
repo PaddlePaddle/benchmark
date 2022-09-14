@@ -44,7 +44,7 @@ function _set_params(){
 
 
 function _analysis_log(){
-    analysis_cmd="python analysis_log.py --filename ${log_file}  --mission_name ${model_name} --run_mode ${run_process_type} --direction_id 0 --keyword ${keyword} --base_batch_size 2 --skip_steps 1 --gpu_num ${num_gpu_devices}  --index 1  --model_mode=-1  --speed_unit=samples/sec --fp_item=${fp_item} --device_num=${device_num} --res_log_file=${speed_log_file}"
+    analysis_cmd="python analysis_log.py --filename ${log_file}  --mission_name ${model_name} --run_mode ${run_process_type} --direction_id 0 --keyword ${keyword} --base_batch_size ${base_batch_size} --skip_steps 1 --gpu_num ${num_gpu_devices}  --index 1  --model_mode=-1  --speed_unit=samples/sec --fp_item=${fp_item} --device_num=${device_num} --res_log_file=${speed_log_file}"
     eval $analysis_cmd
 }
 

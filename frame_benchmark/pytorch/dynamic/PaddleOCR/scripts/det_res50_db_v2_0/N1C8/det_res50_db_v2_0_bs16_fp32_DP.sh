@@ -1,4 +1,4 @@
-model_item=det_res50_db
+model_item=det_res50_db_v2_0
 #max_token
 bs_item=16
 fp_item=fp32
