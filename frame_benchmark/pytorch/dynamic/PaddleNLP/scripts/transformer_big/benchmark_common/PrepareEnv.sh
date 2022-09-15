@@ -2,17 +2,19 @@ echo "*******prepare benchmark start ***********"
 
 # git clone https://github.com/NVIDIA/DeepLearningExamples.git 
 cd PyTorch/Translation/Transformer
-chmod 777 scripts/*
-scripts/run_preprocessing.sh
+
+# download processed data
+wget https://paddlenlp.bj.bcebos.com/models/transformers/transformer/wmt14_en_de_joined_dict.tar.gz
+mkdir /data
+tar -zxvf wmt14_en_de_joined_dict.tar.gz -C /data
+rm wmt14_en_de_joined_dict.tar.gz
+cp train.py /data
 # back to PyTorch/Translation/
 cd ..
-
 
 pip install --no-cache-dir \
       sacrebleu \
       sentencepiece
-
-pip install fairseq
 
 apt-get update
 
@@ -32,11 +34,12 @@ cd  sentencepiece \
 cd ../../Transformer/
 
 export PYTHONPATH=examples/translation/subword-nmt/
-cd ..
+
+ldconfig
+
 git clone https://github.com/rsennrich/subword-nmt.git Transformer/examples/translation/subword-nmt/
 git clone https://github.com/NVIDIA/cutlass.git && cd cutlass && git checkout ed2ed4d6 && cd ..
 
-cd Transformer
 pip install -e .
 pip install git+https://github.com/NVIDIA/dllogger@v0.1.0#egg=dllogger
 
