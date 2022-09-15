@@ -65,7 +65,7 @@ function _train(){
     if [ ${device_num} = "N1C1" ]; then
         train_cmd="python tools/train.py ${train_config} ${train_options}"
     else
-        train_cmd="python -m torch.distributed.launch --nnodes=${device_num:1:1} --node_rank=${PADDLE_TRAINER_ID} --nproc_per_node=${device_num:3:3} --master_addr=${POD_0_IP} --master_port=8877 tools/train.py ${train_config}  ${train_options}"
+        train_cmd="python -m torch.distributed.launch --nnodes=${device_num:1:1} --node_rank=${PADDLE_TRAINER_ID} --nproc_per_node=8 --master_addr=${POD_0_IP} --master_port=8877 tools/train.py ${train_config}  ${train_options}"
     fi
 
     echo "=============="
