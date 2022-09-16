@@ -12,6 +12,12 @@ cp train.py /data
 # back to PyTorch/Translation/
 cd ..
 
+echo "https_proxy $HTTPS_PRO" 
+echo "http_proxy $HTTP_PRO" 
+export https_proxy=$HTTPS_PRO
+export http_proxy=$HTTP_PRO
+export no_proxy=localhost,bj.bcebos.com,su.bcebos.com 
+
 pip install --no-cache-dir \
       sacrebleu \
       sentencepiece
