@@ -49,9 +49,8 @@ then
   rm -rf data
 fi
 
-mkdir data && cd data
-wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt2/dataset/my-gpt2_text_document.idx
-wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt2/dataset/my-gpt2_text_document.bin
+wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt2/dataset/gpt-benchmarkdata.tar.gz
+tar -zxvf gpt-benchmarkdata.tar.gz
 cd -
 
 if [ -d token_files ]

@@ -5,7 +5,7 @@ run_process_type=MultiP
 run_mode=DP
 device_num=N1C8
 max_iter=200
-num_workers=1
+num_workers=8
 
 sed -i '/set\ -xe/d' run_benchmark.sh
 bash prepare.sh;
