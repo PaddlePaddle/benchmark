@@ -32,8 +32,11 @@ unset https_proxy && unset http_proxy
 pip install torch==1.9.1  -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install regex pybind11 Ninja -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-export http_proxy=${CUSTOM_PROXY}
-export https_proxy=${CUSTOM_PROXY}
+echo "https_proxy $HTTPS_PRO" 
+echo "http_proxy $HTTP_PRO" 
+export https_proxy=$HTTPS_PRO
+export http_proxy=$HTTP_PRO
+export no_proxy=localhost,bj.bcebos.com,su.bcebos.com
 git clone https://github.com/NVIDIA/apex
 unset https_proxy && unset http_proxy
 cd ./apex
