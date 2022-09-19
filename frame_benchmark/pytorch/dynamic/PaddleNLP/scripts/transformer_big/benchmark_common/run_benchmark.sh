@@ -2,7 +2,7 @@
 # Test training benchmark for a model.
 # Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_name} ${run_mode} ${fp_item} ${bs_item} ${max_iter} ${num_workers}
 function _set_params(){
-    model_item=${1:-"model_item"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
+    model_item=${1:-"transformer_big"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
     base_batch_size=${2:-"2"}       # (必选) 每张卡上的batch_size
     fp_item=${3:-"fp32"}            # (必选) fp32|fp16
     run_process_type=${4:-"MultiP"} # (必选) 单进程 SingleP|多进程 MultiP
@@ -12,10 +12,18 @@ function _set_params(){
     model_repo="DeepLearningExamples"          # (必选) 模型套件的名字
     speed_unit="tokens/s"         # (必选)速度指标单位
     skip_steps=10                  # (必选)解析日志，跳过模型前几个性能不稳定的step
-    keyword="tokens/s:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
+    keyword="|tokens/s"                 # (必选)解析日志，筛选出性能数据所在行的关键字
     convergence_key=""             # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
     max_iter=${7:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"3"}             # (可选)
+
+    # Added for distributed training
+    node_num=${9:-"2"}                      #（可选） 节点数量
+    node_rank=${10:-"0"}                    # (可选)  节点rank
+    master_addr=${11:-"127.0.0.1"}       # (可选) 主节点ip地址
+    master_port=${12:-"1928"}               # (可选) 主节点端口号
+    # Added for distributed training
+
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -37,7 +45,7 @@ function _set_params(){
     fi
 }
 function _analysis_log(){
-    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num}
+    python analysis_log.py --filename ${log_file} --keyword ${keyword} --model_name ${model_name} --run_process_type ${run_process_type} --skip_steps ${skip_steps} --device_num=${device_num} --res_log_file=${speed_log_file}
 }
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
@@ -46,13 +54,12 @@ function _train(){
     if [ ${fp_item} = "fp16" ];then
         train_config="/data/wmt14_en_de_joined_dict  --amp  "
     fi
-    train_options="--nproc_per_node ${num_workers} \
+    train_options=" --log-interval 5 \
                     --max-tokens ${batch_size}  \
-                    --max_update ${max_iter} \
+                    --max-update ${max_iter} \
                     --arch transformer_wmt_en_de_big_t2t  \
                     --share-all-embeddings  \
                     --optimizer adam  \
-                    --adam-betas 0.9 0.997  \
                     --adam-eps "1e-9"  \
                     --clip-norm 0.0  \
                     --lr-scheduler inverse_sqrt   \
@@ -66,12 +73,15 @@ function _train(){
                     --label-smoothing 0.1  \
                     --seed 1  \
                     --fuse-layer-norm   \
-                    --save-dir /workspace/checkpoints   \
-                    --distributed-init-method env://"
+                    --no-save "
     case ${run_process_type} in
-    SingleP) train_cmd="python PyTorch/Translation/Transformer/train.py ${train_config} ${train_options}" ;;
+    SingleP) train_cmd="python -u /data/train.py ${train_config} ${train_options}" ;;
     MultiP)
-        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 PyTorch/Translation/Transformer/train.py ${train_config} ${train_options}" ;;
+    if [ ${device_num:3} = '32' ];then
+        train_cmd="python -u -m torch.distributed.launch --nproc_per_node=${num_workers} --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} /data/train.py ${train_config} ${train_options}"
+    else
+        train_cmd="python -u -m torch.distributed.launch --nproc_per_node=${num_workers} /data/train.py ${train_config} ${train_options}"
+    fi;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
 #   以下为通用执行命令，无特殊可不用修改
