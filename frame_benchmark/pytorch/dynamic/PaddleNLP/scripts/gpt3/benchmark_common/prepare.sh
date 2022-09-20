@@ -13,7 +13,9 @@ echo `which python3.7`
 ln -s $(which python3.7)m-config  $run_env/python3-config
 #ln -s /usr/local/python3.7.0/lib/python3.7m-config /usr/local/bin/python3-config
 ln -s $(which python3.7) $run_env/python
+ln -s $(which python3.7) $run_env/python3
 ln -s $(which pip) $run_env/pip
+ln -s $(which pip) $run_env/pip3
 
 export PATH=$run_env:${PATH}
 
