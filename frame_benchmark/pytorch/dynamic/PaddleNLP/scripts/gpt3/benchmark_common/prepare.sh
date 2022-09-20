@@ -54,7 +54,7 @@ fi
 
 wget https://paddlenlp.bj.bcebos.com/models/transformers/gpt2/dataset/gpt-benchmarkdata.tar.gz
 tar -zxvf gpt-benchmarkdata.tar.gz
-cd -
+
 
 if [ -d token_files ]
 then
