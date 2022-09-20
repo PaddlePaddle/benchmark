@@ -60,7 +60,7 @@ function _train(){
     fi
     train_options="--cfg-options dataset.train.loader.batch_size=${batch_size} \
                    trainer.epochs=${max_iter}\
-                   lr_scheduler.args.warmup_epoch=1"
+                   lr_scheduler.args.warmup_epoch=1 arch.backbone.pretrained=False"
     
     if [ ${device_num} = "N1C1" ]; then
         train_cmd="python tools/train.py ${train_config} ${train_options}"
