@@ -31,7 +31,8 @@ echo `python3-config --help`
 # ls
 unset https_proxy && unset http_proxy
 # pip install -U pip
-pip install torch==1.9.1  -i https://pypi.tuna.tsinghua.edu.cn/simple
+wget https://paddle-wheel.bj.bcebos.com/benchmark/torch-1.9.1%2Bcu111-cp37-cp37m-linux_x86_64.whl
+pip install torch-1.9.1%2Bcu111-cp37-cp37m-linux_x86_64.whl
 pip install regex pybind11 Ninja -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 echo "https_proxy $HTTPS_PRO" 
