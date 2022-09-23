@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -xe
 echo "*******prepare benchmark***********"
+# update megatron/__init__.py
+rm -rf ./megatron/__init__.py
+cp __init__.py ./megatron
+
 ################################# 创建一些log目录,如:
 # export BENCHMARK_ROOT=/workspace   # 起容器的时候映射的目录  benchmark/OtherFrameworks/PyTorch/
 run_env=$ROOT_DIR/run_env
