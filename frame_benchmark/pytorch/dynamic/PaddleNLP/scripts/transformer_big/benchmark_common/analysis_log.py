@@ -10,9 +10,6 @@ import argparse
 def analyze(args, run_info):
     log_file = args.filename
     res_log_file = args.res_log_file
-    gpu_num = int(args.device_num[3:])
-    if gpu_num == 32: 
-        gpu_num = 8
 
     # caculate and update ips
     all_speed_logs =[]
@@ -27,7 +24,7 @@ def analyze(args, run_info):
         all_speed_logs = all_speed_logs[args.skip_steps: ]
 
     ips = sum(all_speed_logs) / len(all_speed_logs)
-    run_info["ips"] = round(ips / gpu_num, 3)
+    run_info["ips"] = round(ips, 3)
 
     # write file
     run_info = json.dumps(run_info)
