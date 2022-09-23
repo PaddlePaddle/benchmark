@@ -3,7 +3,7 @@
 # Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_name} ${run_mode} ${fp_item} ${bs_item} ${max_iter} ${num_workers}
 
 function _set_params(){
-    model_item=${1:-"model_item"}        # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
+    model_item=${1:-"gpt3"}        # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
     base_batch_size=${2:-"2"}            # (必选) 每张卡上的batch_size
     fp_item=${3:-"fp32"}                 # (必选) fp32|fp16
     run_process_type=${4:-"MultiP"}      # (必选) 单进程 SingleP|多进程 MultiP
@@ -17,6 +17,13 @@ function _set_params(){
     convergence_key=""                   # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
     max_iter=${7:-"100"}                 # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"3"}                # (可选)
+
+    # Added for distributed training
+    node_num=${9:-"2"}                      #（可选） 节点数量
+    node_rank=${10:-"0"}                    # (可选)  节点rank
+    master_addr=${11:-"127.0.0.1"}       # (可选) 主节点ip地址
+    master_port=${12:-"1928"}               # (可选) 主节点端口号
+    # Added for distributed training
 
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
@@ -47,7 +54,7 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num}
+    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} $(($batch_size*${device_num:3})) ${fp_item} ${run_process_type}
 }
 
 function _train(){
@@ -69,7 +76,7 @@ function _train(){
        --hidden-size 768\
        --num-attention-heads 12\
        --micro-batch-size $batch_size \
-       --global-batch-size $(($batch_size*$num_gpu_devices)) \
+       --global-batch-size $(($batch_size*${device_num:3})) \
        --seq-length 1024 \
        --max-position-embeddings 1024 \
        --train-iters $max_iter\
@@ -91,15 +98,18 @@ function _train(){
        --log-interval 1 \
        --save-interval 2000 \
        --eval-interval 500 \
-       --eval-iters 10 \
+       --eval-iters 0 \
        $use_fp16_cmd
     "
-    DISTRIBUTED_ARGS="--nproc_per_node $num_gpu_devices --nnodes 1 --node_rank 0 --master_addr localhost --master_port 6010"
-    
+
     case ${run_process_type} in
-    SingleP) train_cmd="python -u pretrain_gpt.py "${train_cmd} ;;
+    SingleP) train_cmd="python -u pretrain_gpt.py ${train_cmd}" ;;
     MultiP)
-        train_cmd="python -m torch.distributed.launch $DISTRIBUTED_ARGS pretrain_gpt.py "${train_cmd} ;;
+    if [ ${device_num:3} = '32' ];then
+        train_cmd="python -u -m torch.distributed.launch --nproc_per_node ${num_workers} --nnodes ${node_num} --node_rank ${node_rank} --master_addr ${master_addr} --master_port ${master_port} pretrain_gpt.py ${train_cmd}"
+    else
+        train_cmd="python -u -m torch.distributed.launch --nproc_per_node ${num_workers} pretrain_gpt.py ${train_cmd}"
+    fi;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
 
