@@ -237,7 +237,7 @@ class APIConfig(object):
         Convert all variables' dtype to float16.
         """
         for name, value in vars(self).items():
-            if name.endswith("_dtype") and value != "float16" and value != "int64" and value != "int32":
+            if name.endswith("_dtype") and value not in ["float16", "int32", "int64"]:
                 setattr(self, name, "float16")
 
         for var in self.variable_list:
