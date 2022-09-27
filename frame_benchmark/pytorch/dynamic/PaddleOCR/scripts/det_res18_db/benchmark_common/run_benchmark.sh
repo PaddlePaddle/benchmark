@@ -25,6 +25,7 @@ function _set_params(){
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
+    num_gpu_devices=$[num_gpu_devices * ${device_num:1:1}]
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}  # （必填） TRAIN_LOG_DIR  benchmark框架设置该参数为全局变量
     profiling_log_path=${PROFILING_LOG_DIR:-$(pwd)}  # （必填） PROFILING_LOG_DIR benchmark框架设置该参数为全局变量
     speed_log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}
@@ -61,7 +62,7 @@ function _train(){
 
     train_options="--cfg-options dataset.train.loader.batch_size=${batch_size} \
                    trainer.epochs=${max_iter}\
-                   lr_scheduler.args.warmup_epoch=1"
+                   lr_scheduler.args.warmup_epoch=1  arch.backbone.pretrained=False"
     
     if [ ${device_num} = "N1C1" ]; then
         train_cmd="python tools/train.py ${train_config} ${train_options}"
