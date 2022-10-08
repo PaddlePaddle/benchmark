@@ -53,12 +53,12 @@ function prepare_env(){
   for package in "tensorflow==2.3.0" "tensorflow-probability" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9"
   do
     LOG "[INFO] Installing $package, this could take a few minutes ..."
-    env http_proxy="" https_proxy="" pip install $package > /dev/null
+    env http_proxy="" https_proxy="" pip install $package -i https://pypi.tuna.tsinghua.edu.cn/simple > /dev/null
     [ $? -ne 0 ] && LOG "[FATAL] Install $package failed!" && exit -1
   done
   # Install pytorch
   LOG "[INFO] Installing pytorch, this could take a few minutes ..."
-  pip install torch==1.10.0 torchvision torchaudio
+  pip install torch==1.12.0 torchvision -i https://pypi.tuna.tsinghua.edu.cn/simple
   [ $? -ne 0 ] && LOG "[FATAL] Install pytorch failed!" && exit -1
   python -c "import tensorflow as tf; print(tf.__version__)" > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install tensorflow success, but it can't work!" && exit -1
