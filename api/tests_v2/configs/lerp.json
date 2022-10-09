@@ -20,13 +20,13 @@
     "op": "lerp",
     "param_info": {
         "x": {
-            "dtype": "float64",
-            "shape": "[-1L, 204800L]",
+            "dtype": "float32",
+            "shape": "[16L, 1L, 1L, 1L]",
             "type": "Variable"
         },
         "y": {
-            "dtype": "float64",
-            "shape": "[-1L, 204800L]",
+            "dtype": "float32",
+            "shape": "[16L, 3L, 224L, 224L]",
             "type": "Variable"
         },
         "w": {
