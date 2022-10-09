@@ -1,5 +1,7 @@
 [{
     "op": "allclose",
+    "paddle_api": "paddle.allclose(x, y, rtol, atol, equal_nan)",
+    "torch_api": "torch.allclose(input, other, rtol, atol, equal_nan)",
     "param_info": {
         "x": {
             "dtype": "float32",
@@ -26,6 +28,8 @@
     }
 }, {
     "op": "allclose",
+    "paddle_api": "paddle.allclose(x, y, rtol, atol, equal_nan)",
+    "torch_api": "torch.allclose(input, other, rtol, atol, equal_nan)",
     "param_info": {
         "x": {
             "dtype": "float64",

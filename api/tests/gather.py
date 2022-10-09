@@ -28,7 +28,7 @@ class GatherConfig(APIConfig):
                 "range": [8, 10]
             },  # input
             {
-                "range": [1, self.input_shape[self.axis]]
+                "range": [1, self.x_shape[self.axis]]
             }  # index
         ]
         if len(self.index_shape) > 1:
@@ -38,8 +38,7 @@ class GatherConfig(APIConfig):
 @benchmark_registry.register("gather")
 class PaddleGather(PaddleOpBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x', shape=config.input_shape, dtype=config.input_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         index = self.variable(
             name='index',
             shape=config.index_shape,
@@ -56,8 +55,7 @@ class PaddleGather(PaddleOpBenchmarkBase):
 @benchmark_registry.register("gather")
 class TorchGather(PytorchOpBenchmarkBase):
     def build_graph(self, config):
-        x = self.variable(
-            name='x', shape=config.input_shape, dtype=config.input_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         index = self.variable(
             name='index', shape=config.index_shape, dtype="int64")
         result = torch.index_select(input=x, index=index, dim=config.axis)
@@ -72,7 +70,7 @@ class TorchGather(PytorchOpBenchmarkBase):
 class TFGather(TensorflowOpBenchmarkBase):
     def build_graph(self, config):
         params = self.variable(
-            name='params', shape=config.input_shape, dtype=config.input_dtype)
+            name='params', shape=config.x_shape, dtype=config.x_dtype)
         indices = self.variable(
             name='indices', shape=config.index_shape, dtype=config.index_dtype)
         result = tf.gather(params=params, indices=indices, axis=config.axis)
