@@ -142,7 +142,12 @@ class PytorchAPIBenchmarkBase(BenchmarkBase):
             if self._need_fetch:
                 outputs = []
                 for var in self.fetch_list:
-                    outputs.append(var.to("cpu").detach().numpy())
+                    if isinstance(var, torch.Tensor):
+                        outputs.append(var.to("cpu").detach().numpy())
+                    elif isinstance(var, list):
+                        outputs.append(np.array(var))
+                    else:
+                        outputs.append(np.array([var]))
             return outputs
 
         # warmup run

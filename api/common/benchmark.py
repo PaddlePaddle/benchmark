@@ -59,6 +59,15 @@ class BenchmarkBase(object):
             args = args_str.replace(")", "").split(",")
             return callable_api, args
 
+        def _get_argument_name(args_dict, paddle_args, name):
+            if self._framework == "paddle":
+                assert name in paddle_args, "{} is expected to be in the argument list ({}).".format(
+                    name, paddle_args)
+                arg_name = name
+            elif self._framework == "pytorch":
+                arg_name = args_dict[name]
+            return arg_name
+
         assert config is not None
 
         if self._test_func is None or self._test_kwargs is None:
@@ -81,27 +90,23 @@ class BenchmarkBase(object):
             self._test_func = _get_func(callable_api)
             self._test_kwargs = {}
 
+            self.feed_list = []
             for var in config.variable_list:
                 var_shape = getattr(config, var.name + '_shape')
                 var_dtype = getattr(config, var.name + '_dtype')
-                if self._framework == "paddle":
-                    assert var.name in paddle_args, "{} is expected to be in the argument list ({}).".format(
-                        var.name, paddle_args)
-                    arg_name = var.name
-                elif self._framework == "pytorch":
-                    arg_name = args_dict[var.name]
-                self._test_kwargs[arg_name] = self.variable(
+                arg_name = _get_argument_name(args_dict, paddle_args, var.name)
+                feed_var = self.variable(
                     name=var.name, shape=var_shape, dtype=var_dtype)
+                self._test_kwargs[arg_name] = feed_var
+                self.feed_list.append(feed_var)
+
             for param in config.params_list:
-                if self._framework == "paddle":
-                    assert param.name in paddle_args, "{} is expected to be in the argument list ({}).".format(
-                        param.name, paddle_args)
-                    arg_name = param.name
-                elif self._framework == "pytorch":
-                    arg_name = args_dict[param.name]
+                arg_name = _get_argument_name(args_dict, paddle_args,
+                                              param.name)
                 self._test_kwargs[arg_name] = getattr(config, param.name)
 
-        self._test_func(**self._test_kwargs)
+        outputs = self._test_func(**self._test_kwargs)
+        self.fetch_list = outputs if isinstance(outputs, list) else [outputs]
 
     @abc.abstractmethod
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
