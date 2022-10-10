@@ -15,14 +15,13 @@
 from common_import import *
 
 
-class SoftmaxWithCrossEntropyConfig(APIConfig):
+class CrossEntropyConfig(APIConfig):
     def __init__(self):
-        super(SoftmaxWithCrossEntropyConfig,
-              self).__init__("softmax_with_cross_entropy")
+        super(CrossEntropyConfig, self).__init__("cross_entropy")
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(SoftmaxWithCrossEntropyConfig, self).init_from_json(
-            filename, config_id, unknown_dim)
+        super(CrossEntropyConfig, self).init_from_json(filename, config_id,
+                                                       unknown_dim)
         self.feed_spec = [
             {
                 "range": [0, 1]
@@ -32,8 +31,8 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
             }  # label
         ]
 
-        logits_rank = len(self.logits_shape)
-        if not hasattr(self, "axis") or self.axis == logits_rank - 1:
+        input_rank = len(self.input_shape)
+        if not hasattr(self, "axis") or self.axis == input_rank - 1:
             self.axis = -1
 
         if self.soft_label or self.axis != -1:
@@ -43,10 +42,10 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
             )
             self.run_torch = False
         else:
-            if logits_rank != 2:
-                self.logits_shape = [
-                    np.prod(self.logits_shape[0:logits_rank - 1]),
-                    self.logits_shape[-1]
+            if input_rank != 2:
+                self.input_shape = [
+                    np.prod(self.input_shape[0:input_rank - 1]),
+                    self.input_shape[-1]
                 ]
 
             label_rank = len(self.label_shape)
@@ -56,7 +55,7 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
                 ]
 
     def to_pytorch(self):
-        torch_config = super(SoftmaxWithCrossEntropyConfig, self).to_pytorch()
+        torch_config = super(CrossEntropyConfig, self).to_pytorch()
         if self.label_shape[-1] == 1:
             label_rank = len(self.label_shape)
             torch_config.label_shape = [
@@ -65,36 +64,35 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
         return torch_config
 
 
-class PDSoftmaxWithCrossEntropy(PaddleDynamicAPIBenchmarkBase):
+class PDCrossEntropy(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
-        logits = self.variable(
-            name="logits",
-            shape=config.logits_shape,
-            dtype=config.logits_dtype)
+        input = self.variable(
+            name="input", shape=config.input_shape, dtype=config.input_dtype)
         label = self.variable(
             name="label",
             shape=config.label_shape,
             dtype=config.label_dtype,
             stop_gradient=True)
-        result = paddle.nn.functional.softmax_with_cross_entropy(
-            logits=logits,
+        result = paddle.nn.functional.cross_entropy(
+            input=input,
             label=label,
-            soft_label=config.soft_label,
+            weight=None,
             ignore_index=config.ignore_index,
-            numeric_stable_mode=True,
-            return_softmax=False,
-            axis=config.axis)
+            soft_label=config.soft_label,
+            use_softmax=True,
+            axis=config.axis,
+            reduction="none")
 
-        self.feed_list = [logits, label]
+        self.feed_list = [input, label]
         self.fetch_list = [result]
         if config.backward:
-            self.append_gradients(result, [logits])
+            self.append_gradients(result, [input])
 
 
-class TorchSoftmaxWithCrossEntropy(PytorchAPIBenchmarkBase):
+class TorchCrossEntropy(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         input = self.variable(
-            name="input", shape=config.logits_shape, dtype=config.logits_dtype)
+            name="input", shape=config.input_shape, dtype=config.input_dtype)
         label = self.variable(
             name='label',
             shape=config.label_shape,
@@ -115,6 +113,6 @@ class TorchSoftmaxWithCrossEntropy(PytorchAPIBenchmarkBase):
 
 if __name__ == '__main__':
     test_main(
-        pd_dy_obj=PDSoftmaxWithCrossEntropy(),
-        torch_obj=TorchSoftmaxWithCrossEntropy(),
-        config=SoftmaxWithCrossEntropyConfig())
+        pd_dy_obj=PDCrossEntropy(),
+        torch_obj=TorchCrossEntropy(),
+        config=CrossEntropyConfig())
