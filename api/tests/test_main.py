@@ -20,6 +20,7 @@ sys.path.append(package_path)
 
 from common.main import parse_args, is_paddle_enabled, is_tensorflow_enabled, is_torch_enabled, test_main, test_main_without_json
 from common.registry import benchmark_registry
+from common.pytorch_op_benchmark import PytorchAPIBenchmarkBase as PytorchOpBenchmarkBase
 
 
 def import_tests(filename=None):
@@ -72,7 +73,8 @@ def main():
         if is_paddle_enabled(args, config):
             pd_dy_obj = info.paddle_class("dynamic")
         if is_torch_enabled(args, config):
-            torch_obj = info.pytorch_class()
+            torch_obj = info.pytorch_class(
+            ) if info.pytorch_class is not None else PytorchOpBenchmarkBase()
     elif args.testing_mode == "static":
         if is_paddle_enabled(args, config):
             pd_obj = info.paddle_class("static")

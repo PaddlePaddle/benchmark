@@ -30,6 +30,12 @@ BENCHMARK_ROOT=$(cd $(dirname $0)/../.. && pwd)
 [ -z "$CUDA_VISIBLE_DEVICES" ] && CUDA_VISIBLE_DEVICES="0"
 
 function prepare_env(){
+  num_changed_files=$(git diff --name-only master | grep -E "api/(common)?(dynamic_)?(tests)?(_v2)?/(.*\.py|configs/.*\.json)" | wc -l)
+  if [ ${num_changed_files} -eq 0 ]; then
+    LOG "[INFO] This pull request doesn't change any files of op benchmark, skip the CI."
+    exit 0
+  fi
+
   LOG "[INFO] Device Id: ${CUDA_VISIBLE_DEVICES}"
   # Update pip
   LOG "[INFO] Update pip ..."
@@ -50,19 +56,17 @@ function prepare_env(){
   env http_proxy="" https_proxy="" pip install -U ${PADDLE_WHL} > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install paddle failed!" && exit -1
   
-  # Install tensorflow and other packages
-  for package in "tensorflow==2.3.0" "tensorflow-probability" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9"
+  # Install tensorflow, pytorch and other packages
+  for package in "torch==1.12.0" "torchvision" "tensorflow==2.3.0" "tensorflow-probability" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9"
   do
     LOG "[INFO] Installing $package, this could take a few minutes ..."
     env http_proxy="" https_proxy="" pip install $package -i https://pypi.tuna.tsinghua.edu.cn/simple > /dev/null
     [ $? -ne 0 ] && LOG "[FATAL] Install $package failed!" && exit -1
   done
-  # Install pytorch
-  LOG "[INFO] Installing pytorch, this could take a few minutes ..."
-  env http_proxy="" https_proxy="" pip install torch==1.12.0 torchvision -i https://pypi.tuna.tsinghua.edu.cn/simple > /dev/null
-  [ $? -ne 0 ] && LOG "[FATAL] Install pytorch failed!" && exit -1
   python -c "import tensorflow as tf; print(tf.__version__)" > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install tensorflow success, but it can't work!" && exit -1
+  python -c "import torch ; print(torch.__version__)" > /dev/null
+  [ $? -ne 0 ] && LOG "[FATAL] Install pytorch success, but it can't work!" && exit -1
   
   apt-get update > /dev/null 2> /dev/null
 }
@@ -116,10 +120,8 @@ function check_style(){
   pre-commit install >&2
   commit_files=on
   LOG "[INFO] Check code style via per-commit, this could take a few minutes ..."
-  for file_name in $(git diff --name-only upstream/master)
-  do
-    env http_proxy="" https_proxy="" pre-commit run --files $file_name >&2 || commit_files=off
-  done
+  filenames=$(git diff --name-only upstream/master)
+  env http_proxy="" https_proxy="" pre-commit run --files $filenames >&2 || commit_files=off
   [ $commit_files == 'off' ] && git diff && return -1 || return 0
 }
 
