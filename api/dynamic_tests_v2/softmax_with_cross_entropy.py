@@ -28,7 +28,7 @@ class SoftmaxWithCrossEntropyConfig(APIConfig):
                 "range": [0, 1]
             },  # input
             {
-                "range": [0, self.logits_shape[-1]]
+                "range": [0, self.logits_shape[self.axis]]
             }  # label
         ]
 
