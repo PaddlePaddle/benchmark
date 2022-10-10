@@ -27,7 +27,7 @@ class CrossEntropyConfig(APIConfig):
                 "range": [0, 1]
             },  # input
             {
-                "range": [0, self.logits_shape[self.axis]]
+                "range": [0, self.input_shape[self.axis]]
             }  # label
         ]
 
