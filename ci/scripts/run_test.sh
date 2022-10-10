@@ -50,19 +50,17 @@ function prepare_env(){
   env http_proxy="" https_proxy="" pip install -U ${PADDLE_WHL} > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install paddle failed!" && exit -1
   
-  # Install tensorflow and other packages
-  for package in "tensorflow==2.3.0" "tensorflow-probability" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9"
+  # Install tensorflow, pytorch and other packages
+  for package in "torch==1.12.0" "torchvision" "tensorflow==2.3.0" "tensorflow-probability" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9"
   do
     LOG "[INFO] Installing $package, this could take a few minutes ..."
     env http_proxy="" https_proxy="" pip install $package -i https://pypi.tuna.tsinghua.edu.cn/simple > /dev/null
     [ $? -ne 0 ] && LOG "[FATAL] Install $package failed!" && exit -1
   done
-  # Install pytorch
-  LOG "[INFO] Installing pytorch, this could take a few minutes ..."
-  env http_proxy="" https_proxy="" pip install torch==1.12.0 torchvision -i https://pypi.tuna.tsinghua.edu.cn/simple > /dev/null
-  [ $? -ne 0 ] && LOG "[FATAL] Install pytorch failed!" && exit -1
   python -c "import tensorflow as tf; print(tf.__version__)" > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install tensorflow success, but it can't work!" && exit -1
+  python -c "import torch ; print(torch.__version__)" > /dev/null
+  [ $? -ne 0 ] && LOG "[FATAL] Install pytorch success, but it can't work!" && exit -1
   
   apt-get update > /dev/null 2> /dev/null
 }
