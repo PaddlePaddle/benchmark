@@ -16,7 +16,7 @@ config_id=${2:-"0"}
 task=${3:-"speed"} # "accuracy" or "speed"
 
 testing_mode="dynamic" # "static" or "dynamic"
-framework="pytorch"  # "paddle" or "tensorflow" or "pytorch"
+framework="paddle"  # "paddle" or "tensorflow" or "pytorch"
 filename="${OP_BENCHMARK_ROOT}/tests_v2/configs/${name}.json"
 if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
   use_gpu=False
@@ -32,7 +32,7 @@ run_args="--filename ${name}
           --json_file ${filename} \
           --config_id ${config_id} \
           --profiler none \
-          --backward False \
+          --backward True \
           --use_gpu ${use_gpu} \
           --repeat 1000 \
           --allow_adaptive_repeat False \

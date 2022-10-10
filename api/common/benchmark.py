@@ -14,21 +14,23 @@
 
 import abc, six
 import importlib
-import inspect
 
 
 @six.add_metaclass(abc.ABCMeta)
 class BenchmarkBase(object):
     def __init__(self, framework, testing_mode):
         self.name = self.__class__.__name__
+        self._framework = framework
+        self._testing_mode = testing_mode
+        self._task = ""
+        self.reset()
+
+    def reset(self):
         self.feed_list = None
         self.fetch_list = None
         self._backward = False
-        self._framework = framework
-        self._testing_mode = testing_mode
         self._test_func = None
         self._test_kwargs = None
-        self._task = ""
 
     @property
     def backward(self):

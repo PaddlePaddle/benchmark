@@ -50,7 +50,7 @@ def profile_context(name, use_gpu, profiler):
 class PytorchAPIBenchmarkBase(BenchmarkBase):
     def __init__(self):
         super(PytorchAPIBenchmarkBase, self).__init__("pytorch", "dynamic")
-        self._reset()
+        self.reset()
 
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         if self._status == BEFORE_RUN:
@@ -169,7 +169,7 @@ class PytorchAPIBenchmarkBase(BenchmarkBase):
     def run(self, config, args):
         self.name = config.api_name
 
-        self._reset()
+        self.reset()
         self._feed_spec = feeder.copy_feed_spec(config.feed_spec)
         self._need_fetch = args.task == "accuracy"
         if args.use_gpu and torch.cuda.is_available():
@@ -183,13 +183,11 @@ class PytorchAPIBenchmarkBase(BenchmarkBase):
             profiler=args.profiler)
         return outputs, stats
 
-    def _reset(self):
-        self.feed_list = None
-        self.fetch_list = None
+    def reset(self):
+        super(PytorchAPIBenchmarkBase, self).reset()
         self._feed_spec = None
         self._generated_feed_values = []
         self._feed_dict = {}
-        self._backward = False
         self._status = BEFORE_RUN
         self._layers_function = None
         self._ones_like_targets = []
