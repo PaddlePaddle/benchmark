@@ -167,6 +167,8 @@ class APIConfig(object):
         self.__framework = "paddle"
         self.__run_tf = True
         self.api_name = self.name
+        self.paddle_api = None
+        self.torch_api = None
         self.params = params
         self.variable_list = None
         self.params_list = None
@@ -258,6 +260,12 @@ class APIConfig(object):
             assert op == self.name or op == self.alias_name, "The op type (%s) in json file is different from the name (%s) and the alias name (%s). " \
                 "The filename: %s, config_id: %d." % (
                     op, self.name, self.alias_name, filename, config_id)
+
+            if data[config_id].get("paddle_api", None) is not None:
+                self.paddle_api = parse_string(data[config_id]["paddle_api"])
+            if data[config_id].get("torch_api", None) is not None:
+                self.torch_api = parse_string(data[config_id]["torch_api"])
+
             self.params = data[config_id]["param_info"]
 
             if data[config_id].get("atol", None) is not None:

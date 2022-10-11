@@ -1,0 +1,805 @@
+[{
+    "config_id": "0",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 224L, 224L, 4L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[64L, 3L, 7L, 7L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "3"
+        },
+        "stride": {
+            "type": "int",
+            "value": "2"
+        }
+    }
+}, {
+    "config_id": "1",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 56L, 56L, 64L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[64L, 64L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "2",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 56L, 56L, 64L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[64L, 64L, 3L, 3L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "3",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 56L, 56L, 64L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[256L, 64L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "4",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 56L, 56L, 256L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[64L, 256L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 56L, 56L, 256L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[128L, 256L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "6",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 56L, 56L, 128L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[128L, 128L, 3L, 3L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "2"
+        }
+    }
+}, {
+    "config_id": "7",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 28L, 28L, 128L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[512L, 128L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "8",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 56L, 56L, 256L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[512L, 256L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "2"
+        }
+    }
+}, {
+    "config_id": "9",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 28L, 28L, 512L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[128L, 512L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "10",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 28L, 28L, 128L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[128L, 128L, 3L, 3L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "11",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 28L, 28L, 512L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[256L, 512L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "12",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 28L, 28L, 256L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[256L, 256L, 3L, 3L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "2"
+        }
+    }
+}, {
+    "config_id": "13",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 14L, 14L, 256L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[1024L, 256L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "14",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 28L, 28L, 512L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[1024L, 512L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "2"
+        }
+    }
+}, {
+    "config_id": "15",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 14L, 14L, 1024L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[256L, 1024L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "16",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 14L, 14L, 256L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[256L, 256L, 3L, 3L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "17",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 14L, 14L, 1024L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[512L, 1024L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "18",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 14L, 14L, 512L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[512L, 512L, 3L, 3L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "2"
+        }
+    }
+}, {
+    "config_id": "19",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 7L, 7L, 512L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[2048L, 512L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "20",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 14L, 14L, 1024L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[2048L, 1024L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "2"
+        }
+    }
+}, {
+    "config_id": "21",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 7L, 7L, 2048L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[512L, 2048L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "0"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}, {
+    "config_id": "22",
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NHWC"
+        },
+        "dilation": {
+            "type": "int",
+            "value": "1"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[-1L, 7L, 7L, 512L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float16",
+            "shape": "[512L, 512L, 3L, 3L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "int",
+            "value": "1"
+        },
+        "stride": {
+            "type": "int",
+            "value": "1"
+        }
+    }
+}]
