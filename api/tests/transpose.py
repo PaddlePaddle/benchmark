@@ -16,30 +16,6 @@ from common_import import *
 
 
 @benchmark_registry.register("transpose")
-class TransposeConfig(APIConfig):
-    def __init__(self):
-        super(TransposeConfig, self).__init__("transpose")
-
-    def init_from_json(self, filename, config_id=0, unknown_dim=16):
-        super(TransposeConfig, self).init_from_json(filename, config_id,
-                                                    unknown_dim)
-        changed_dims = []
-        for i in range(len(self.perm)):
-            if self.perm[i] != i:
-                changed_dims.append(i)
-
-        if len(changed_dims) != 2:
-            print(
-                "Warning:\n"
-                "  1. transpose is only supported to swap two dimensions in pytorch.\n"
-            )
-            self.run_torch = False
-        else:
-            self.dim0 = changed_dims[0]
-            self.dim1 = changed_dims[1]
-
-
-@benchmark_registry.register("transpose")
 class PaddleTranspose(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
@@ -65,7 +41,11 @@ class PaddleTranspose(PaddleOpBenchmarkBase):
 class TorchTranspose(PytorchOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = torch.transpose(input=x, dim0=config.dim0, dim1=config.dim1)
+        if len(config.perm) == 2:
+            result = torch.transpose(
+                input=x, dim0=config.perm[0], dim1=config.perm[1]).contiguous()
+        else:
+            result = torch.permute(input=x, dims=config.perm).contiguous()
 
         self.feed_list = [x]
         self.fetch_list = [result]
