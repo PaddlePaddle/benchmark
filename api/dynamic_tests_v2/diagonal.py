@@ -15,12 +15,6 @@
 from common_import import *
 
 
-class DiagonalConfig(APIConfig):
-    def __init__(self):
-        super(DiagonalConfig, self).__init__("diagonal")
-        self.feed_spec = {"range": [-1, 1]}
-
-
 class PaddleDiagonal(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
@@ -40,7 +34,7 @@ class TorchDiagonal(PytorchAPIBenchmarkBase):
             input=x,
             offset=config.offset,
             dim1=config.axis1,
-            dim2=config.axis2)
+            dim2=config.axis2).contiguous()
 
         self.feed_list = [x]
         self.fetch_list = [result]
@@ -52,4 +46,4 @@ if __name__ == '__main__':
     test_main(
         pd_dy_obj=PaddleDiagonal(),
         torch_obj=TorchDiagonal(),
-        config=DiagonalConfig())
+        config=APIConfig("diagonal"))
