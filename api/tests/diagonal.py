@@ -16,13 +16,6 @@ from common_import import *
 
 
 @benchmark_registry.register("diagonal")
-class DiagonalConfig(APIConfig):
-    def __init__(self):
-        super(DiagonalConfig, self).__init__("diagonal")
-        self.feed_spec = {"range": [-1, 1]}
-
-
-@benchmark_registry.register("diagonal")
 class PaddleDiagonal(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
@@ -43,7 +36,7 @@ class TorchDiagonal(PytorchOpBenchmarkBase):
             input=x,
             offset=config.offset,
             dim1=config.axis1,
-            dim2=config.axis2)
+            dim2=config.axis2).contiguous()
 
         self.feed_list = [x]
         self.fetch_list = [result]
