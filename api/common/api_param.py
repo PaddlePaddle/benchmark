@@ -239,15 +239,18 @@ class APIConfig(object):
         Convert all variables' dtype to float16.
         """
         for name, value in vars(self).items():
-            if name.endswith("_dtype") and value != "float16":
+            if name.endswith("_dtype") and value not in ["float16", "int32", "int64"]:
                 setattr(self, name, "float16")
 
         for var in self.variable_list:
             if var.type == "Variable":
                 var.dtype = "float16"
             elif var.type == "list<Variable>":
-                for i in range(var.dtype):
+                for i in range(len(var.dtype)):
                     var.dtype[i] = "float16"
+                for name, value in vars(self).items():
+                    if name.endswith("_dtype") and value != "int64" and value != "int32":
+                        setattr(self, name, var.dtype)
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         filename = self.alias_filename(filename)
