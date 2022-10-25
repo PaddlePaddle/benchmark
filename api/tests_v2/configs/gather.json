@@ -6,7 +6,7 @@
             "shape": "[-1L]",
             "type": "Variable"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[-1L, 1L]",
             "type": "Variable"
@@ -24,7 +24,7 @@
             "shape": "[-1L, 1L]",
             "type": "Variable"
         },
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[-1L, 256L, 14L, 14L]",
             "type": "Variable"

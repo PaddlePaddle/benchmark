@@ -30,38 +30,43 @@ BENCHMARK_ROOT=$(cd $(dirname $0)/../.. && pwd)
 [ -z "$CUDA_VISIBLE_DEVICES" ] && CUDA_VISIBLE_DEVICES="0"
 
 function prepare_env(){
+  num_changed_files=$(git diff --name-only master | grep -E "api/(common)?(dynamic_)?(tests)?(_v2)?/(.*\.py|configs/.*\.json)" | wc -l)
+  if [ ${num_changed_files} -eq 0 ]; then
+    LOG "[INFO] This pull request doesn't change any files of op benchmark, skip the CI."
+    exit 0
+  fi
+
   LOG "[INFO] Device Id: ${CUDA_VISIBLE_DEVICES}"
   # Update pip
   LOG "[INFO] Update pip ..."
   env http_proxy="" https_proxy="" pip install -U pip > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Update pip failed!" && exit -1
 
-  # Install latest paddle
   PADDLE_WHL="paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl"
   if [ ! -f "${PADDLE_WHL}" ]
   then
-    PADDLE_URL="https://paddle-wheel.bj.bcebos.com/0.0.0-gpu-cuda10-cudnn7-mkl/${PADDLE_WHL}"
+    # if develop compiling failed, install the latest nightly built paddle
+    PADDLE_WHL="paddlepaddle_gpu-0.0.0.post101-cp37-cp37m-linux_x86_64.whl"
+    PADDLE_URL="https://paddle-wheel.bj.bcebos.com/develop/linux/linux-gpu-cuda10.1-cudnn7-mkl-gcc5.4-avx/${PADDLE_WHL}"
     LOG "[INFO] Downloading paddle wheel from ${PADDLE_URL}, this could take a few minutes ..."
     wget -q -O ${PADDLE_WHL} ${PADDLE_URL}
     [ $? -ne 0 ] && LOG "[FATAL] Download paddle wheel failed!" && exit -1
   fi
-  LOG "[INFO] Installing paddle, this could take a few minutes ..."
+  LOG "[INFO] Installing paddlepaddle, this could take a few minutes ..."
   env http_proxy="" https_proxy="" pip install -U ${PADDLE_WHL} > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install paddle failed!" && exit -1
   
-  # Install tensorflow and other packages
-  for package in "tensorflow==2.3.0" "tensorflow-probability" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9"
+  # Install tensorflow, pytorch and other packages
+  for package in "torch==1.12.0" "torchvision" "tensorflow==2.3.0" "tensorflow-probability" "pre-commit==1.21" "pylint==1.9.4" "pytest==4.6.9"
   do
     LOG "[INFO] Installing $package, this could take a few minutes ..."
     env http_proxy="" https_proxy="" pip install $package -i https://pypi.tuna.tsinghua.edu.cn/simple > /dev/null
     [ $? -ne 0 ] && LOG "[FATAL] Install $package failed!" && exit -1
   done
-  # Install pytorch
-  LOG "[INFO] Installing pytorch, this could take a few minutes ..."
-  pip install torch==1.12.0 torchvision -i https://pypi.tuna.tsinghua.edu.cn/simple
-  [ $? -ne 0 ] && LOG "[FATAL] Install pytorch failed!" && exit -1
   python -c "import tensorflow as tf; print(tf.__version__)" > /dev/null
   [ $? -ne 0 ] && LOG "[FATAL] Install tensorflow success, but it can't work!" && exit -1
+  python -c "import torch ; print(torch.__version__)" > /dev/null
+  [ $? -ne 0 ] && LOG "[FATAL] Install pytorch success, but it can't work!" && exit -1
   
   apt-get update > /dev/null 2> /dev/null
 }
@@ -96,7 +101,7 @@ function run_api(){
     for device_type in "GPU" "CPU"
     do
       [ $device_type == "GPU" ] && device_limit="" || device_limit="env CUDA_VISIBLE_DEVICES="
-      ${device_limit} bash ${BENCHMARK_ROOT}/api/${name%/*}/run.sh ${name##*/} -1 >&2
+      ${device_limit} bash ${BENCHMARK_ROOT}/api/${name%/*}/run.sh ${name##*/} -1 accuracy >&2
       [ $? -ne 0 ] && fail_name[${#fail_name[@]}]="${name}(Run on ${device_type})"
     done
   done
@@ -115,10 +120,8 @@ function check_style(){
   pre-commit install >&2
   commit_files=on
   LOG "[INFO] Check code style via per-commit, this could take a few minutes ..."
-  for file_name in $(git diff --name-only upstream/master)
-  do
-    env http_proxy="" https_proxy="" pre-commit run --files $file_name >&2 || commit_files=off
-  done
+  filenames=$(git diff --name-only upstream/master)
+  env http_proxy="" https_proxy="" pre-commit run --files $filenames >&2 || commit_files=off
   [ $commit_files == 'off' ] && git diff && return -1 || return 0
 }
 
