@@ -25,17 +25,16 @@ class GatherConfig(APIConfig):
         self.feed_spec = [
             {
                 "range": [8, 10]
-            },  # input
+            },  # x
             {
-                "range": [1, self.input_shape[self.axis]]
+                "range": [1, self.x_shape[self.axis]]
             }  # index
         ]
 
 
 class PDGather(PaddleAPIBenchmarkBase):
     def build_program(self, config):
-        x = self.variable(
-            name='x', shape=config.input_shape, dtype=config.input_dtype)
+        x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         index = self.variable(
             name='index',
             shape=config.index_shape,
@@ -52,7 +51,7 @@ class PDGather(PaddleAPIBenchmarkBase):
 class TFGather(TensorflowAPIBenchmarkBase):
     def build_graph(self, config):
         params = self.variable(
-            name='params', shape=config.input_shape, dtype=config.input_dtype)
+            name='params', shape=config.x_shape, dtype=config.x_dtype)
         indices = self.variable(
             name='indices', shape=config.index_shape, dtype=config.index_dtype)
         result = tf.gather(params=params, indices=indices, axis=config.axis)
