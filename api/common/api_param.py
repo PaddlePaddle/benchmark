@@ -242,12 +242,14 @@ class APIConfig(object):
             if var.type == "Variable" and var.dtype not in [
                     "float16", "int32", "int64"
             ]:
-                setattr(self, var.name + "_dtype", "float16")
+                var.dtype = "float16"
+                setattr(self, var.name + "_dtype", var.dtype)
             elif var.type == "list<Variable>":
                 # convert each list member in list<Variable> from fp32 into fp16 type
                 for i in range(len(var.dtype)):
                     if var.dtype[i] not in ["float16", "int32", "int64"]:
                         var.dtype[i] = "float16"
+                setattr(self, var.name + "_dtype", var.dtype)
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         filename = self.alias_filename(filename)
