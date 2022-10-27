@@ -29,7 +29,7 @@ def analyze(model_item, log_file, res_log_file, device_num):
     else:
         gpu_num = int(gpu_ids_res[0][4]) - int(gpu_ids_res[0][1])
         bs = int(bs_res[0])
-        run_mode = "SP" if gpu_num == 1 else "MP"
+        run_mode = "DP"
 
         skip_num = 4
         total_time = 0

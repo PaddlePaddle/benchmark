@@ -58,9 +58,9 @@ function _train(){
                    data.workers_per_gpu=${num_workers}"
                    
     if [ ${device_num} = "N1C1" ]; then
-        train_cmd="python tools/train.py ${train_config} ${train_options}" ;;
+        train_cmd="python tools/train.py ${train_config} ${train_options}"
     else
-        train_cmd="./tools/dist_train.sh ${train_config} 8 ${train_options}" ;;
+        train_cmd="./tools/dist_train.sh ${train_config} 8 ${device_num:1:1} ${train_options}"
     fi
 
     echo "=============="
@@ -95,4 +95,3 @@ _train
 job_et=`date '+%Y%m%d%H%M%S'`
 export model_run_time=$((${job_et}-${job_bt}))
 _analysis_log
-

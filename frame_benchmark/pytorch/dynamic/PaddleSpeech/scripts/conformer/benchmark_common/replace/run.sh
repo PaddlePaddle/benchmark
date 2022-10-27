@@ -16,12 +16,20 @@ stop_stage=5
 
 # The num of machines(nodes) for multi-machine training, 1 is for one machine.
 # NFS is required if num_nodes > 1.
-num_nodes=1
+num_nodes="$device_gpu"
+PORT=${PORT:-29500}
+
+echo "num_nodes = $num_nodes"
 
 # The rank of each node or machine, which ranges from 0 to `num_nodes - 1`.
 # You should set the node_rank=0 on the first machine, set the node_rank=1
 # on the second machine, and so on.
-node_rank=0
+if [[ $num_nodes -gt 1 ]]; then
+  node_rank=$PADDLE_TRAINER_ID
+  echo "PADDLE_TRAINER_ID = $PADDLE_TRAINER_ID"
+else
+  node_rank=0
+fi
 # data
 data=data_store  #/export/data/asr-data/OpenSLR/33/
 data_tiny_url=
@@ -46,6 +54,9 @@ train_set=train
 # 5. conf/train_u2++_conformer.yaml: U2++ conformer
 # 6. conf/train_u2++_transformer.yaml: U2++ transformer
 train_config=conf/train_conformer.yaml
+
+echo "PWD = $PWD"
+
 cmvn=true
 dir=exp/conformer
 checkpoint=
@@ -81,7 +92,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     rm data/${x}/text.org
   done
 
-  tools/compute_cmvn_stats.py --num_workers 16 --train_config $train_config \
+  python tools/compute_cmvn_stats.py --num_workers 16 --train_config $train_config \
     --in_scp data/${train_set}/wav.scp \
     --out_cmvn data/$train_set/global_cmvn
 fi
@@ -131,6 +142,20 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
   # train.py rewrite $train_config to $dir/train.yaml with model input
   # and output dimension, and $dir/train.yaml will be used for inference
   # and export.
+
+  if [[ $num_nodes -gt 1 ]]; then
+    init_method="env://"
+    export MASTER_ADDR="$POD_0_IP"
+    export MASTER_PORT="$PORT"
+    export NNODES="$num_nodes"
+    export NODE_RANK="$PADDLE_TRAINER_ID"
+
+    echo "MASTER_ADDR="$POD_0_IP""
+    echo "MASTER_PORT="$PORT""
+    echo "NNODES="$num_nodes""
+    echo "NODE_RANK="$PADDLE_TRAINER_ID""
+  fi
+  
   for ((i = 0; i < $num_gpus; ++i)); do
   {
     gpu_id=$(echo $CUDA_VISIBLE_DEVICES | cut -d',' -f$[$i+1])

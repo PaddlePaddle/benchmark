@@ -14,11 +14,11 @@ def analyze(model_name, batch_size, log_file, res_log_file, device_num):
     logs = ";".join(logs)
     time_res = time_pat.findall(logs)
 
-    print("---device_num:-", device_num)
+    print("---device_num: ", device_num)
     index_c = device_num.index('C')
-    print("---index_c:-", index_c)
+    print("---index_c: ", index_c)
     gpu_num = int(device_num[index_c + 1:len(device_num)])
-    print("-----gpu_num:", gpu_num)
+    print("-----gpu_num: ", gpu_num)
 
     fail_flag = 0
     fp_item = "fp32"
@@ -27,15 +27,11 @@ def analyze(model_name, batch_size, log_file, res_log_file, device_num):
     if time_res == []:
         fail_flag = 1
     else:
-        gpu_num = log_file.split('_')[-1]
-
         skip_num = 4
-        total_time = 0
+        total_ips = 0
         for i in range(skip_num, len(time_res)):
-            total_time += float(time_res[i])
-        avg_time = total_time / (len(time_res) - skip_num)
-        ips = float(batch_size) * round(1 / avg_time, 3)
-
+            total_ips += float(time_res[i])
+        ips = total_ips / (len(time_res) - skip_num)
     info = {    "model_branch": os.getenv('model_branch'),
                 "model_commit": os.getenv('model_commit'),
                 "model_name": model_name,

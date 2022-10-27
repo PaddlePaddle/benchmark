@@ -21,10 +21,11 @@ function _set_params(){
     num_workers=${8:-"3"}             # (可选)
 
     #   以下为通用拼接log路径，无特殊可不用修改
-    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_process_type}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
+    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
+    num_gpu_devices=$[num_gpu_devices * ${device_num:1:1}]
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}  # （必填） TRAIN_LOG_DIR  benchmark框架设置该参数为全局变量
     profiling_log_path=${PROFILING_LOG_DIR:-$(pwd)}  # （必填） PROFILING_LOG_DIR benchmark框架设置该参数为全局变量
     speed_log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}
@@ -44,7 +45,7 @@ function _set_params(){
 
 
 function _analysis_log(){
-    analysis_cmd="python analysis_log.py --filename ${log_file}  --mission_name ${model_name} --run_mode ${run_process_type} --direction_id 0 --keyword ${keyword} --base_batch_size 2 --skip_steps 1 --gpu_num ${num_gpu_devices}  --index 1  --model_mode=-1  --speed_unit=samples/sec --fp_item=${fp_item} --device_num=${device_num} --res_log_file=${speed_log_file}"
+    analysis_cmd="python analysis_log.py --filename ${log_file}  --mission_name ${model_name} --run_mode ${run_process_type} --direction_id 0 --keyword ${keyword} --base_batch_size ${base_batch_size} --skip_steps 1 --gpu_num ${num_gpu_devices}  --index 1  --model_mode=-1  --speed_unit=samples/sec --fp_item=${fp_item} --device_num=${device_num} --res_log_file=${speed_log_file}"
     eval $analysis_cmd
 }
 
@@ -52,18 +53,27 @@ function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
-                   
-    train_config="--config_file config/icdar2015_resnet18_FPN_DBhead_polyLR.yaml"
+    
+    if [ ${model_item} = "det_res18_db" ]; then
+        train_config="--config_file config/icdar2015_resnet18_FPN_DBhead_polyLR.yaml"
+    else
+        train_config="--config_file config/icdar2015_resnet50_FPN_DBhead_polyLR.yaml"
+    fi
+
     train_options="--cfg-options dataset.train.loader.batch_size=${batch_size} \
                    trainer.epochs=${max_iter}\
-                   lr_scheduler.args.warmup_epoch=1"
+                   lr_scheduler.args.warmup_epoch=1  arch.backbone.pretrained=False"
     
-    case ${run_process_type} in
-    SingleP) train_cmd="python tools/train.py ${train_config} ${train_options}" ;;
-    MultiP) train_cmd="python -m torch.distributed.launch --nproc_per_node=8 tools/train.py ${train_config}  ${train_options}" ;;
-    *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
-    esac
+    if [ ${device_num} = "N1C1" ]; then
+        train_cmd="python tools/train.py ${train_config} ${train_options}"
+    else
+        train_cmd="python -m torch.distributed.launch --nnodes=${device_num:1:1} --node_rank=${PADDLE_TRAINER_ID} --nproc_per_node=8 --master_addr=${POD_0_IP} --master_port=8877 tools/train.py ${train_config}  ${train_options}"
+    fi
 
+    echo "=============="
+    echo $train_cmd
+    echo "=============="
+    
 #   以下为通用执行命令，无特殊可不用修改
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then

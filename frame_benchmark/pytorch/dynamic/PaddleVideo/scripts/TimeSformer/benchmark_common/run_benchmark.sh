@@ -18,7 +18,7 @@ function _set_params(){
     max_epoch=${7:-"1"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"4"}             # (可选)
     #   以下为通用拼接log路径，无特殊可不用修改
-    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_process_type}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
+    model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
@@ -42,11 +42,16 @@ function _analysis_log(){
 }
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡单进程时,请在_train函数中计算出多卡需要的bs
+
+    PORT=${PORT:-29500}
+
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
     accu_steps=8  # TimeSformer梯度累加8次
     train_config="--cfg configs/Kinetics/TimeSformer_divST_8x32_224.yaml"
     batch_size_all_gpu=`expr ${batch_size} \* ${num_gpu_devices}`  # 所有卡的单次bs之和
     batch_size_all_gpu_acc=`expr ${batch_size_all_gpu} \* ${accu_steps}`  # 所有卡的accu次bs之和
+    echo "batch_size_all_gpu = $batch_size_all_gpu"
+    echo "batch_size_all_gpu_acc = $batch_size_all_gpu_acc"
     # TRAIN.BATCH_SIZE是全部卡的bs之和
     train_options="TEST.ENABLE False \
                    TRAIN.AUTO_RESUME False \
@@ -57,12 +62,30 @@ function _train(){
                    GLOBAL_BATCH_SIZE ${batch_size_all_gpu_acc} \
                    TIMESFORMER.PRETRAINED_MODEL ./jx_vit_base_p16_224-80ecf9dd.pth \
                    SOLVER.MAX_EPOCH ${max_epoch}"
-    case ${run_process_type} in
-    SingleP) train_cmd="python tools/run_net.py ${train_config} ${train_options}" ;;
-    MultiP)
-        train_cmd="python tools/run_net.py ${train_config} ${train_options}" ;;
-    *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
-    esac
+
+    nodes="${device_num:1:1}"
+
+    if [[ nodes -gt 1 ]];then
+        init_method="env://"
+        export MASTER_ADDR="$POD_0_IP"
+        export MASTER_PORT="$PORT"
+        export NNODES="$nodes"
+        export NODE_RANK="$PADDLE_TRAINER_ID"
+
+        echo "MASTER_ADDR="$POD_0_IP""
+        echo "MASTER_PORT="$PORT""
+        echo "NNODES="$nodes""
+        echo "NODE_RANK="$PADDLE_TRAINER_ID""
+        train_cmd="python tools/run_net.py --shard_id $NODE_RANK --num_shards $NNODES --init_method $init_method ${train_config} ${train_options}"
+    else
+        case ${run_process_type} in
+        SingleP) train_cmd="python tools/run_net.py ${train_config} ${train_options}" ;;
+        MultiP)
+            train_cmd="python tools/run_net.py ${train_config} ${train_options}" ;;
+        *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
+        esac
+    fi
+
 #   以下为通用执行命令，无特殊可不用修改
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then

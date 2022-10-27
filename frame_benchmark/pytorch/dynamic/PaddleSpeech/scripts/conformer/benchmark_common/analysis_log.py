@@ -27,9 +27,10 @@ def analyze(model_item, log_file, res_log_file, device_num, batch_size, run_proc
         ips = 0
     else:
         gpu_ids_res = [int(item) for item in gpu_ids_res]
-        gpu_num = int(max(gpu_ids_res) - min(gpu_ids_res) + 1)
+        #gpu_num = int(max(gpu_ids_res) - min(gpu_ids_res) + 1)
+        gpu_num = int(device_num[3:])
         print ("gpu_num",gpu_num)
-        run_mode = "SP" if gpu_num == 1 else "MP"
+        run_mode = "DP"
 
         skip_num = 4
         total_time = 0
@@ -42,7 +43,6 @@ def analyze(model_item, log_file, res_log_file, device_num, batch_size, run_proc
                 "model_name": model_name,
                 "batch_size": bs,
                 "fp_item": fp_item,
-                "run_process_type": run_process_type,
                 "run_mode": run_mode,
                 "convergence_value": 0,
                 "convergence_key": "",

@@ -84,3 +84,12 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/TimeSformer
 	url = https://github.com/PaddleBenchmark/TimeSformer.git
 
+[submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/CSWin-Transformer"]
+	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/CSWin-Transformer
+	url = https://github.com/microsoft/CSWin-Transformer.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/PVT"]
+	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/PVT
+	url = https://github.com/whai362/PVT.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/ml-cvnets"]
+	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/ml-cvnets
+	url = https://github.com/apple/ml-cvnets.git
