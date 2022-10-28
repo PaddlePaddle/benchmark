@@ -42,9 +42,9 @@ function _train(){
     export PYTHONPATH=$(pwd):{PYTHONPATH}
     export FLAGS_cudnn_exhaustive_search=1
     if [ ${model_name} = "HRnet" ]; then
-        config="benchmark/hrnet.yml"
+        config="tests/benchmark/hrnet.yml"
     elif [ ${model_name} = "deeplabv3" ]; then
-        config="benchmark/deeplabv3p.yml"
+        config="tests/benchmark/deeplabv3p.yml"
     else
         echo "------------------>model_name should be HRnet or deeplabv3!"
         exit 1
