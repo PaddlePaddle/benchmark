@@ -296,6 +296,27 @@ class CompareResult(object):
         return compare_result_str
 
 
+def count_results_for_devices(benchmark_result_list):
+    def _calc_num_values(arg):
+        num_values = 0
+        if isinstance(arg, dict):
+            for v in arg.values():
+                if v != "--":
+                    num_values += 1
+        return num_values
+
+    num_gpu_results = 0
+    num_cpu_results = 0
+    for op_unit in benchmark_result_list:
+        if _calc_num_values(op_unit.gpu_forward) > 0 or _calc_num_values(
+                op_unit.gpu_backward) > 0:
+            num_gpu_results += 1
+        if _calc_num_values(op_unit.cpu_forward) > 0 or _calc_num_values(
+                op_unit.cpu_backward) > 0:
+            num_gpu_results += 1
+    return num_gpu_results, num_cpu_results
+
+
 def summary_compare_result(benchmark_result_list, op_type=None):
     compare_result = CompareResult()
 
