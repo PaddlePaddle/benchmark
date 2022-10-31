@@ -18,6 +18,10 @@ export https_proxy=$HTTPS_PRO
 export http_proxy=$HTTP_PRO
 export no_proxy=localhost,bj.bcebos.com,su.bcebos.com 
 
+git clone https://github.com/NVIDIA/apex
+cd ./apex
+pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+
 pip install --no-cache-dir \
       sacrebleu \
       sentencepiece
