@@ -79,6 +79,7 @@ NO_BACKWARD_OPS = [
     "eye",
     "floor_divide",
     "full",
+    "gaussian_random",
     "greater",
     "isclose",
     "less",

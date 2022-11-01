@@ -315,9 +315,20 @@ def dump_excel(benchmark_result_list,
     _write_summary_worksheet(benchmark_result_list, ws, title_format,
                              cell_formats)
 
+    num_gpu_results, num_cpu_results = op_benchmark_unit.count_results_for_devices(
+        benchmark_result_list)
+    print("-- num_gpu_results={}, num_cpu_results={}".format(num_gpu_results,
+                                                             num_cpu_results))
+
+    device_types = []
+    if num_gpu_results > 0:
+        device_types.append("gpu")
+    if num_cpu_results > 0:
+        device_types.append("cpu")
+
     if url_prefix:
         print("url prefix: ", url_prefix)
-    for device in ["gpu", "cpu"]:
+    for device in device_types:
         for direction in ["forward", "backward", "backward_forward"]:
             worksheet_name = device + "_" + direction
             ws = wb.add_worksheet(worksheet_name)
