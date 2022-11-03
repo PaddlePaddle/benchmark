@@ -136,7 +136,8 @@ class ExcelWriter(object):
                     row += 1
         return row
 
-    def add_summary_worksheet(self, benchmark_result_list):
+    def add_summary_worksheet(self, fp32_benchmark_result_list,
+                              fp16_benchmark_result_list):
         assert self.workbook is not None
 
         worksheet = self.workbook.add_worksheet("summary")
@@ -148,22 +149,37 @@ class ExcelWriter(object):
 
         row = 0
         # case_level summary
-        compare_result_case_level = op_benchmark_unit.summary_compare_result(
-            benchmark_result_list)
-        row = self._write_summary_unit(compare_result_case_level, "case_level",
-                                       worksheet, row)
+        for precision in ["fp32", "fp16"]:
+            benchmark_result_list = fp32_benchmark_result_list if precision == "fp32" else fp16_benchmark_result_list
+            if len(benchmark_result_list) == 0:
+                continue
+            compare_result_case_level = op_benchmark_unit.summary_compare_result(
+                benchmark_result_list)
+            row = self._write_summary_unit(compare_result_case_level,
+                                           "case_level ({})".format(precision),
+                                           worksheet, row)
 
         # op_level summary
-        compare_result_op_level, compare_result_dict_ops_detail = op_benchmark_unit.summary_compare_result_op_level(
-            benchmark_result_list, return_op_detail=True)
-        row = self._write_summary_unit(compare_result_op_level, "op_level",
-                                       worksheet, row + 1)
+        for precision in ["fp32", "fp16"]:
+            benchmark_result_list = fp32_benchmark_result_list if precision == "fp32" else fp16_benchmark_result_list
+            if len(benchmark_result_list) == 0:
+                continue
+            compare_result_op_level, compare_result_dict_ops_detail = op_benchmark_unit.summary_compare_result_op_level(
+                benchmark_result_list, return_op_detail=True)
+            row = self._write_summary_unit(compare_result_op_level,
+                                           "op_level ({})".format(precision),
+                                           worksheet, row + 1)
 
         # summary detail for each op
         for op_type, op_compare_result in sorted(
                 compare_result_dict_ops_detail.items()):
-            row = self._write_summary_unit(op_compare_result, op_type,
-                                           worksheet, row + 1)
+            for precision in ["fp32", "fp16"]:
+                benchmark_result_list = fp32_benchmark_result_list if precision == "fp32" else fp16_benchmark_result_list
+                if len(benchmark_result_list) == 0:
+                    continue
+                row = self._write_summary_unit(
+                    op_compare_result, "{} ({})".format(op_type, precision),
+                    worksheet, row + 1)
 
     def _write_speed_accuracy_unit(self, worksheet, row, col, case_name, task,
                                    content, op_result_dir, framework, device,
@@ -229,7 +245,8 @@ class ExcelWriter(object):
         for col in range(len(title_names)):
             worksheet.write(0, col, title_names[col], self.title_format)
 
-    def add_detail_worksheet(self, benchmark_result_list, worksheet_name,
+    def add_detail_worksheet(self, fp32_benchmark_result_list,
+                             fp16_benchmark_result_list, worksheet_name,
                              device, direction, op_result_dir,
                              op_frequency_dict):
         worksheet = self.workbook.add_worksheet(worksheet_name)
@@ -239,8 +256,8 @@ class ExcelWriter(object):
                                                op_frequency_dict)
 
         row = 0
-        for case_id in range(len(benchmark_result_list)):
-            op_unit = benchmark_result_list[case_id]
+        for case_id in range(len(fp32_benchmark_result_list)):
+            op_unit = fp32_benchmark_result_list[case_id]
             if direction in [
                     "backward", "backward_forward"
             ] and op_unit.op_type in special_op_list.NO_BACKWARD_OPS:
@@ -302,7 +319,8 @@ class ExcelWriter(object):
             worksheet.write(row, col + 1, op_unit.parameters)
 
 
-def dump_excel(benchmark_result_list,
+def dump_excel(fp32_benchmark_result_list,
+               fp16_benchmark_result_list,
                op_result_dir,
                url_prefix=None,
                output_path=None,
@@ -318,14 +336,21 @@ def dump_excel(benchmark_result_list,
     print("-- Write to %s." % output_path)
 
     writer = ExcelWriter(output_path, url_prefix, compare_framework)
-    writer.add_summary_worksheet(benchmark_result_list)
+    writer.add_summary_worksheet(fp32_benchmark_result_list,
+                                 fp16_benchmark_result_list)
 
-    num_gpu_results, num_cpu_results = op_benchmark_unit.count_results_for_devices(
-        benchmark_result_list)
-    print("-- num_gpu_results={}, num_cpu_results={}".format(num_gpu_results,
-                                                             num_cpu_results))
+    num_fp32_gpu_results, num_fp32_cpu_results = op_benchmark_unit.count_results_for_devices(
+        fp32_benchmark_result_list)
+    num_fp16_gpu_results, num_fp16_cpu_results = op_benchmark_unit.count_results_for_devices(
+        fp16_benchmark_result_list)
+    print("-- num_fp32_gpu_results={}, num_fp32_cpu_results={}".format(
+        num_fp32_gpu_results, num_fp32_cpu_results))
+    print("-- num_fp16_gpu_results={}, num_fp16_cpu_results={}".format(
+        num_fp16_gpu_results, num_fp16_cpu_results))
 
     device_types = []
+    num_gpu_results = num_fp32_gpu_results + num_fp16_gpu_results
+    num_cpu_results = num_fp32_cpu_results + num_fp16_cpu_results
     if num_gpu_results > 0:
         device_types.append("gpu")
     if num_cpu_results > 0:
@@ -336,7 +361,8 @@ def dump_excel(benchmark_result_list,
     for device in device_types:
         for direction in ["forward", "backward", "backward_forward"]:
             worksheet_name = device + "_" + direction
-            writer.add_detail_worksheet(benchmark_result_list, worksheet_name,
-                                        device, direction, op_result_dir,
-                                        op_frequency_dict)
+            writer.add_detail_worksheet(fp32_benchmark_result_list,
+                                        fp16_benchmark_result_list,
+                                        worksheet_name, device, direction,
+                                        op_result_dir, op_frequency_dict)
     writer.close()
