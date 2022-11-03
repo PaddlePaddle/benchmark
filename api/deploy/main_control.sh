@@ -2,19 +2,20 @@
 
 function print_usage() {
     echo "Usage:"
-    echo "    bash ${0} test_dir json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file framework testing_mode"
+    echo "    bash ${0} test_dir json_config_dir output_dir gpu_id cpu|gpu|both speed|accuracy|both op_list_file framework testing_mode precision"
     echo ""
     echo "Arguments:"
-    echo "  test_dir                - the directory of tests case"
-    echo "  json_config_dir         - the directory of json configs"
-    echo "  output_dir              - the output directory"
-    echo "  gpu_id (optional)       - the GPU id. Only one GPU can be specified."
-    echo "  device (optional)       - cpu, gpu, both"
-    echo "  task (optional)         - speed, accuracy, both"
-    echo "  op_list_file (optional) - the path which specified op list to test"
-    echo "  framework (optional)    - paddle, tensorflow, pytorch, both"
-    echo "  testing_mode (optional) - the testing_mode of paddle. dynamic(default)|static."
-    echo "  op_name (optional)      - specified op name or list string. such as conv2d | conv1d,conv2d,conv3d."
+    echo "   1. test_dir                - the directory of tests case"
+    echo "   2. json_config_dir         - the directory of json configs"
+    echo "   3. output_dir              - the output directory"
+    echo "   4. gpu_id (optional)       - the GPU id. Only one GPU can be specified."
+    echo "   5. device (optional)       - cpu, gpu, both"
+    echo "   6. task (optional)         - speed, accuracy, both"
+    echo "   7. op_list_file (optional) - the path which specified op list to test"
+    echo "   8. framework (optional)    - paddle, tensorflow, pytorch, both"
+    echo "   9. testing_mode (optional) - the testing_mode of paddle, dynamic(default)|static."
+    echo "  10. op_name (optional)      - specified op name or list string. such as conv2d | conv1d,conv2d,conv3d."
+    echo "  11. precision (optional)    - the precision to test, fp32|fp16|both"
 }
 
 function print_arguments() {
@@ -31,6 +32,7 @@ function print_arguments() {
     echo "framework       : ${FRAMEWORK_SET[@]}"
     echo "testing_mode    : ${TESTING_MODE}"
     echo "op_name         : ${OP_NAME}"
+    echo "precision       : ${PRECISION_SET}"
     echo ""
 }
 
@@ -139,6 +141,15 @@ if [ $# -ge 8 ]; then
         else
             echo "The dynamic testing mode only can test paddle or pytorch."
         fi
+    fi
+fi
+
+PRECISION_SET=("fp32")
+if [ $# -ge 11 ]; then
+    if [[ ${11} == "fp32" || ${11} == "fp16" ]]; then
+        PRECISION_SET=(${11})
+    elif [[ ${11} == "both" ]]; then
+        PRECISION_SET=("fp32" "fp16")
     fi
 fi
 
@@ -265,65 +276,73 @@ function execute_one_case() {
                         local backward="True"
                     fi
 
-                    case_id=$[$case_id+1]
-                    if [ "${TEST_MODULE_NAME}" = "tests" ]; then
-                        test_script="${TEST_DIR}/test_main.py --filename ${name}"
-                    else
-                        test_script="${TEST_DIR}/${name}.py"
-                    fi
-                    run_cmd="python -m common.launch ${test_script} \
-                          --api_name ${api_name} \
-                          --task ${task} \
-                          --framework ${framework} \
-                          --testing_mode ${TESTING_MODE} \
-                          --json_file ${json_file_path} \
-                          --config_id $i \
-                          --backward ${backward} \
-                          --use_gpu ${use_gpu} \
-                          --repeat $repeat \
-                          --allow_adaptive_repeat True"
-
-                    while true
+                    for precision in "${PRECISION_SET[@]}"; 
                     do
-                        for device_id in ${!DEVICE_TASK_PID_MAP[*]}
-                        do
-                            task_pid=${DEVICE_TASK_PID_MAP[$device_id]}
-                            if [ $task_pid -eq 0 -o -z "$(ps -opid | grep -w $task_pid)" ]
-                            then
-                                gpu_id=$device_id
-                                finished_task_pid=$task_pid
-                                break 2
-                            fi
-                        done
-                        sleep 1s
-                    done
+                        [ "${device}" == "cpu" -a "${precision}" == "fp16" ] && continue
 
-                    run_start=`date +%s%N`
-                    if [ "${OUTPUT_DIR}" != "" ]; then
-                        logfile=${OUTPUT_DIR}/${api_name}"_"${i}"-"${framework}"_"${device}"_"${task}"_"${direction}".txt"
-                        # Set maxmimum runtime to 10min, or it will be considered
-                        #  hanged and will be killed.
-                        if [ ${device} = "gpu" ]; then
-                            CUDA_VISIBLE_DEVICES="${gpu_id}" timeout 600s ${run_cmd} > $logfile 2>&1 &
+                        case_id=$[$case_id+1]
+                        if [ "${TEST_MODULE_NAME}" = "tests" ]; then
+                            test_script="${TEST_DIR}/test_main.py --filename ${name}"
                         else
-                            CUDA_VISIBLE_DEVICES="" taskset -c ${gpu_id} timeout 600s ${run_cmd} > $logfile 2>&1 &
+                            test_script="${TEST_DIR}/${name}.py"
                         fi
-                        task_pid=$!
-                    else
-                        logfile=""
-                        if [ ${device} = "gpu" ]; then
-                            CUDA_VISIBLE_DEVICES="${gpu_id}" ${run_cmd} &
+                        run_cmd="python -m common.launch ${test_script} \
+                              --api_name ${api_name} \
+                              --task ${task} \
+                              --framework ${framework} \
+                              --testing_mode ${TESTING_MODE} \
+                              --json_file ${json_file_path} \
+                              --config_id $i \
+                              --backward ${backward} \
+                              --use_gpu ${use_gpu} \
+                              --repeat $repeat \
+                              --allow_adaptive_repeat True"
+                        if [[ "${precision}" == "fp16" ]]; then
+                            run_cmd="${run_cmd} --convert_to_fp16 True"
+                        fi
+
+                        while true
+                        do
+                            for device_id in ${!DEVICE_TASK_PID_MAP[*]}
+                            do
+                                task_pid=${DEVICE_TASK_PID_MAP[$device_id]}
+                                if [ $task_pid -eq 0 -o -z "$(ps -opid | grep -w $task_pid)" ]
+                                then
+                                    gpu_id=$device_id
+                                    finished_task_pid=$task_pid
+                                    break 2
+                                fi
+                            done
+                            sleep 1s
+                        done
+
+                        run_start=`date +%s%N`
+                        if [ "${OUTPUT_DIR}" != "" ]; then
+                            logfile=${OUTPUT_DIR}/${api_name}"_"${i}"-"${framework}"_"${device}"_"${task}"_"${direction}"_"${precision}".txt"
+                            # Set maxmimum runtime to 10min, or it will be considered
+                            #  hanged and will be killed.
+                            if [ ${device} = "gpu" ]; then
+                                CUDA_VISIBLE_DEVICES="${gpu_id}" timeout 600s ${run_cmd} > $logfile 2>&1 &
+                            else
+                                CUDA_VISIBLE_DEVICES="" taskset -c ${gpu_id} timeout 600s ${run_cmd} > $logfile 2>&1 &
+                            fi
+                            task_pid=$!
                         else
-                            CUDA_VISIBLE_DEVICES="" taskset -c ${gpu_id} ${run_cmd} &
+                            logfile=""
+                            if [ ${device} = "gpu" ]; then
+                                CUDA_VISIBLE_DEVICES="${gpu_id}" ${run_cmd} &
+                            else
+                                CUDA_VISIBLE_DEVICES="" taskset -c ${gpu_id} ${run_cmd} &
+                            fi
+                            task_pid=$!
                         fi
-                        task_pid=$!
-                    fi
-                    task_pids="${task_pids} ${task_pid}"
-                    TASK_PID_RUN_START_MAP[$task_pid]=$run_start
-                    DEVICE_TASK_PID_MAP[$gpu_id]=$task_pid
-                    TASK_PID_INFO_MAP[$task_pid]="${config_id} ${case_id} ${device} ${backward} ${logfile} ${gpu_id}"
-                    TASK_PID_DETAIL_KEY_MAP[$task_pid]=$detail_key
-                    [ $finished_task_pid -ne 0 ] && print_finished_task_detail $finished_task_pid $run_start
+                        task_pids="${task_pids} ${task_pid}"
+                        TASK_PID_RUN_START_MAP[$task_pid]=$run_start
+                        DEVICE_TASK_PID_MAP[$gpu_id]=$task_pid
+                        TASK_PID_INFO_MAP[$task_pid]="${config_id} ${case_id} ${device} ${backward} ${logfile} ${gpu_id}"
+                        TASK_PID_DETAIL_KEY_MAP[$task_pid]=$detail_key
+                        [ $finished_task_pid -ne 0 ] && print_finished_task_detail $finished_task_pid $run_start
+                    done
                  done
             done
         done

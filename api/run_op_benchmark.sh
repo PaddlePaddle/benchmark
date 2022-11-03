@@ -6,6 +6,7 @@ test_module_name=${1:-"dynamic_tests_v2"}  # "tests", "tests_v2", "dynamic_tests
 gpu_ids=${2:-"0"}
 op_type=${3:-"all"}  # "all" or specified op_type, such as elementwise
 device_type=${4:-"both"}
+precision=${5:-"fp32"}
 
 if [ ${test_module_name} != "tests" ] && [ ${test_module_name} != "tests_v2" ] && [ ${test_module_name} != "dynamic_tests_v2" ]; then
   echo "Please set test_module_name (${test_module_name}) to \"tests\", \"tests_v2\" or \"dynamic_tests_v2\"!"
@@ -14,6 +15,11 @@ fi
 
 if [ ${device_type} != "both" ] && [ ${device_type} != "gpu" ] && [ ${device_type} != "cpu" ]; then
   echo "Please set device_type (${device_type}) to \"both\", \"cpu\" or \"gpu\"!"
+  exit
+fi
+
+if [ ${precision} != "both" ] && [ ${precision} != "fp32" ] && [ ${precision} != "fp16" ]; then
+  echo "Please set precision (${precision}) to \"both\", \"fp32\" or \"fp16\"!"
   exit
 fi
 
@@ -99,7 +105,7 @@ main() {
     testing_mode="dynamic"
     # For ampere, need to install the nightly build cuda11.3 version using the following command:
     # pip install --pre torch -f https://download.pytorch.org/whl/nightly/cu113/torch_nightly.html
-    install_package "torch" "1.13.0"
+    install_package "torch" "1.12.0"
     install_package "torchvision"
   else
     testing_mode="static"
