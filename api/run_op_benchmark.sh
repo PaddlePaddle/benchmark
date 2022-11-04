@@ -72,7 +72,7 @@ run_op_benchmark() {
   tests_dir=${OP_BENCHMARK_ROOT}/${test_module_name}
   echo "-- tests_dir: ${tests_dir}"
   log_path=${OUTPUT_ROOT}/log_${test_module_name}_${timestamp}.txt
-  bash ${OP_BENCHMARK_ROOT}/deploy/main_control.sh ${tests_dir} ${config_dir} ${output_dir} ${gpu_ids} ${device_type} "both" "none" "both" "${testing_mode}" > ${log_path} 2>&1 &
+  bash ${OP_BENCHMARK_ROOT}/deploy/main_control.sh ${tests_dir} ${config_dir} ${output_dir} ${gpu_ids} ${device_type} "both" "none" "both" "${testing_mode}" "None" "${precision}" > ${log_path} 2>&1 &
 }
 
 run_specified_op() {

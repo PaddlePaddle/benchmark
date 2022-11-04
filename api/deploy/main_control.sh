@@ -299,6 +299,9 @@ function execute_one_case() {
                               --allow_adaptive_repeat True"
                         if [[ "${precision}" == "fp16" ]]; then
                             run_cmd="${run_cmd} --convert_to_fp16 True"
+                            suffix="_fp16"
+                        else
+                            suffix=""
                         fi
 
                         while true
@@ -318,7 +321,7 @@ function execute_one_case() {
 
                         run_start=`date +%s%N`
                         if [ "${OUTPUT_DIR}" != "" ]; then
-                            logfile=${OUTPUT_DIR}/${api_name}"_"${i}"-"${framework}"_"${device}"_"${task}"_"${direction}"_"${precision}".txt"
+                            logfile=${OUTPUT_DIR}/${api_name}"_"${i}"-"${framework}"_"${device}"_"${task}"_"${direction}""${suffix}".txt"
                             # Set maxmimum runtime to 10min, or it will be considered
                             #  hanged and will be killed.
                             if [ ${device} = "gpu" ]; then
