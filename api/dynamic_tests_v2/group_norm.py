@@ -35,17 +35,6 @@ class GroupNormConfig(APIConfig):
                 "1. PyTorch does not have data_format param, it only support NCHW format.\n"
             )
             self.run_torch = False
-        # The device parameter setting will only be provided when the torch version is greater than or equal to 1.9, 
-        # which can ensure that all parameters are on the same device
-        if torch.__version__ >= "1.9.0":
-            pass
-        else:
-            print(
-                "Warning:\n"
-                "1. PyTorch does not support group_norm operator in  CUDA version currently!\n"
-            )
-            self.run_torch = False
-
 
 class PDGroupNorm(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
