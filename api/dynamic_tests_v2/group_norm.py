@@ -66,17 +66,10 @@ class TorchGroupNorm(PytorchAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
 
-        if torch.__version__ >= "1.9.0":
-            pytorch_group_norm = torch.nn.GroupNorm(
-                num_groups=config.num_groups,
-                num_channels=config.num_channels,
-                device=self._device,
-                eps=config.epsilon)
-        else:
-            pytorch_group_norm = torch.nn.GroupNorm(
-                num_groups=config.num_groups,
-                num_channels=config.num_channels,
-                eps=config.epsilon)
+        pytorch_group_norm = torch.nn.GroupNorm(
+            num_groups=config.num_groups,
+            num_channels=config.num_channels,
+            eps=config.epsilon)
         result = pytorch_group_norm(x)
 
         self.feed_list = [x]
