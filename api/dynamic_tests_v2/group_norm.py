@@ -58,6 +58,7 @@ class TorchGroupNorm(PytorchAPIBenchmarkBase):
         pytorch_group_norm = torch.nn.GroupNorm(
             num_groups=config.num_groups,
             num_channels=config.num_channels,
+            device=self._device,
             eps=config.epsilon)
         result = pytorch_group_norm(x)
 
