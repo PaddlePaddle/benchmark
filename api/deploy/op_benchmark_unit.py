@@ -313,7 +313,7 @@ def count_results_for_devices(benchmark_result_list):
             num_gpu_results += 1
         if _calc_num_values(op_unit.cpu_forward) > 0 or _calc_num_values(
                 op_unit.cpu_backward) > 0:
-            num_gpu_results += 1
+            num_cpu_results += 1
     return num_gpu_results, num_cpu_results
 
 
