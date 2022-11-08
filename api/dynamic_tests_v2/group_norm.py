@@ -36,6 +36,7 @@ class GroupNormConfig(APIConfig):
             )
             self.run_torch = False
 
+
 class PDGroupNorm(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
