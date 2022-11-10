@@ -16,6 +16,7 @@ pytorch:
    edvr: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    transformer_big: registry.baidu.com/paddle-benchmark/pytorch-ngc:21.11-py3 
    bert_base_seqlen128: registry.baidu.com/paddle-benchmark/pytorch-ngc:21.11-py3 
+   bert_large_seqlen512: registry.baidu.com/paddle-benchmark/pytorch-ngc:21.11-py3 
    basicvsr: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda10.2-cudnn7 
    esrgan: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    conformer: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
