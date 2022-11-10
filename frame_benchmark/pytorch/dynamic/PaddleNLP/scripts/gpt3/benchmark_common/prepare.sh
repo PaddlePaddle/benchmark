@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -xe
+#set -xe
 echo "*******prepare benchmark***********"
 # update megatron/__init__.py
 rm -rf ./megatron/__init__.py
@@ -41,14 +41,20 @@ pip install regex pybind11 Ninja -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 echo "https_proxy $HTTPS_PRO" 
 echo "http_proxy $HTTP_PRO" 
-export https_proxy=$HTTPS_PRO
+export https_proxy=$HTTP_PRO
 export http_proxy=$HTTP_PRO
+echo $http_proxy  $https_proxy 
 export no_proxy=localhost,bj.bcebos.com,su.bcebos.com
-git clone https://github.com/NVIDIA/apex
-unset https_proxy && unset http_proxy
+echo "---------clone apex:"
+git clone https://github.com/NVIDIA/apex 
+ls
 cd ./apex
+# 20221109,apex升级后会报错
+git checkout -b 1d7711100bb58dc761a2fad89f30d41239450f58 1d7711100bb58dc761a2fad89f30d41239450f58 
 pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 cd -
+pip list
+unset http_proxy && unset https_proxy 
 echo "*******prepare benchmark end***********"
 
 

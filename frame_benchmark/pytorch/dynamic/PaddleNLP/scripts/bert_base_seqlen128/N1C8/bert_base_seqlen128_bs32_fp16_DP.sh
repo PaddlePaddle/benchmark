@@ -1,10 +1,10 @@
 model_item=bert_base_seqlen128
-bs_item=96
-fp_item=fp32
-run_process_type=SingleP
+bs_item=32
+fp_item=fp16
+run_process_type=MultiP
 run_mode=DP
-device_num=N1C1
-max_iter=200
+device_num=N1C8
+max_iter=20
 num_workers=1
 
 sed -i '/set\ -xe/d' run_benchmark.sh
