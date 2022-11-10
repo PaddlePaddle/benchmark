@@ -1,7 +1,8 @@
 echo "*******prepare benchmark start ***********"
+# /paddle/DeepLearningExamples/PyTorch/LanguageModeling/BERT
+ROOT_DIR=$PWD
 
-ROOT_DIR=$(PWD)
-
+echo "--------ROOT_DIR:" $ROOT_DIR
 cd PyTorch/LanguageModeling/BERT
 
 ln -s  $PWD /workspace/bert
@@ -26,7 +27,7 @@ apt-get install -y iputils-ping
 # bash data/create_datasets_from_start.sh
 cd /workspace/bert/data/
 # hdf5_lower_case_1_seq_len_128_max_pred_20_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en
-wget https://bj.bcebos.com/paddlenlp/data/hdf5_lower_case_1_seq_len_128_max_pred_20_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5.zip
+wget -q https://bj.bcebos.com/paddlenlp/data/hdf5_lower_case_1_seq_len_128_max_pred_20_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5.zip
 unzip hdf5_lower_case_1_seq_len_128_max_pred_20_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5.zip
 
 cd ${ROOT_DIR}

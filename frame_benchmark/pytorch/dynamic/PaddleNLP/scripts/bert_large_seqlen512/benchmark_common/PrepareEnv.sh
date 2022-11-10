@@ -1,6 +1,6 @@
 echo "*******prepare benchmark start ***********"
 
-ROOT_DIR=$(PWD)
+ROOT_DIR=$PWD
 
 cd PyTorch/LanguageModeling/BERT
 

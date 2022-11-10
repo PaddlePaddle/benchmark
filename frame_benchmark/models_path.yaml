@@ -43,4 +43,5 @@ pytorch:
    segformer_b0: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    xlnet: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers
    pwgan: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/ParallelWaveGAN
+   bert_base_seqlen128:benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
    gpt3: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/Megatron-LM

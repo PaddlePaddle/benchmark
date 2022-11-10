@@ -50,21 +50,22 @@ function _train(){
     # train_config="/data/wmt14_en_de_joined_dict"
     PREC=""
     if [ ${fp_item} = "fp16" ];then
-        PREC="fp16"
+        PREC="--fp16"
     fi
 
     ALL_REDUCE_POST_ACCUMULATION="--allreduce_post_accumulation"
     ALL_REDUCE_POST_ACCUMULATION_FP16="--allreduce_post_accumulation_fp16"
     CHECKPOINT=""
-    ACCUMULATE_GRADIENTS="--gradient_accumulation_steps=128"
-
+    gradient_accumulation_steps=$(expr 67584 \/ $base_batch_size \/ $num_gpu_devices)
+    train_batch_size=$(expr 67584 \/ $num_gpu_devices)   # total batch_size per gpu
+    
     CMD=" --input_dir=$DATA_DIR_PHASE2"
     CMD+=" --output_dir=$CHECKPOINTS_DIR"
     CMD+=" --config_file=$BERT_CONFIG"
-    CMD+=" --train_batch_size=${base_batch_size}"
+    CMD+=" --train_batch_size=${train_batch_size}"
     CMD+=" --max_seq_length=512"
     CMD+=" --max_predictions_per_seq=80"
-    CMD+=" --max_steps=1563"
+    CMD+=" --max_steps=${max_iter}"
     CMD+=" --warmup_proportion=0.128"
     CMD+=" --num_steps_per_checkpoint=200"
     CMD+=" --learning_rate=4e-3"
@@ -77,17 +78,18 @@ function _train(){
     CMD+=" --do_train --phase2 --resume_from_checkpoint --phase1_end_step=0"
     CMD+=" --json-summary /workspace/bert/results/dllogger.json"
     CMD+=" --disable_progress_bar"
-    CMD+=" --num_workers=${num_workers}"
+    # CMD+=" --num_workers=${num_workers}"
 
-
+    rm -rf ${CHECKPOINTS_DIR}
     case ${run_process_type} in
-    SingleP) train_cmd="python3 /workspace/bert/run_pretraining.py  ${CMD}" ;;
+    SingleP) train_cmd="python3 -m torch.distributed.launch --nproc_per_node=1  /workspace/bert/run_pretraining.py  ${CMD}" ;;
     MultiP)
         train_cmd="python3 -m torch.distributed.launch  --nproc_per_node=8 /workspace/bert/run_pretraining.py  ${CMD}" ;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
 #   以下为通用执行命令，无特殊可不用修改
-    timeout 15m ${train_cmd} > ${log_file} 2>&1
+    echo ${train_cmd}
+    timeout 40m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
     else
@@ -97,6 +99,8 @@ function _train(){
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
     fi
+    echo ${train_cmd} >> ${log_file}
+    cat ${log_file}
     #kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 }
 _set_params $@
