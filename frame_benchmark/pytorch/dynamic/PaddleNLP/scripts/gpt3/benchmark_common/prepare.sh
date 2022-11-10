@@ -49,6 +49,7 @@ echo "---------clone apex:"
 git clone https://github.com/NVIDIA/apex 
 ls
 cd ./apex
+# 20221109,apex升级后会报错
 git checkout -b 1d7711100bb58dc761a2fad89f30d41239450f58 1d7711100bb58dc761a2fad89f30d41239450f58 
 pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 cd -
