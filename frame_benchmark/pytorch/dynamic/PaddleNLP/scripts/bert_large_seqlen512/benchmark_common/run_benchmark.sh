@@ -37,7 +37,9 @@ function _set_params(){
     fi
 }
 function _analysis_log(){
-    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num}
+    cmd="python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} ${fp_item} ${base_batch_size}"
+    echo $cmd
+    eval $cmd
 }
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
