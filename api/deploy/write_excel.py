@@ -63,16 +63,48 @@ def _get_speed_unit_color(compare_result_str, op_time=None):
     return color
 
 
-def _write_summary_worksheet(benchmark_result_list, worksheet, title_format,
-                             cell_formats):
-    def _write_summary_unit(compare_result, category, worksheet, row):
+class ExcelWriter(object):
+    def __init__(self, output_path, url_prefix, compare_framework):
+        self.workbook = xlw.Workbook(output_path)
+        self.align = self.workbook.add_format({"align": "left"})
+        self.title_format = self.workbook.add_format({
+            'bold': True,
+            'font_color': 'black',
+            'bg_color': '#6495ED'
+        })
+        self.cell_formats = {}
+        for underline in [False, True]:
+            for color in ["green", "red", "black", "blue"]:
+                key = color + "_underline" if underline else color
+                if underline and color == "red":
+                    value = self.workbook.add_format({
+                        'bold': True,
+                        'underline': underline,
+                        'font_color': color,
+                        'bg_color': '#F5F5F5'
+                    })
+                else:
+                    value = self.workbook.add_format({
+                        'bold': True,
+                        'underline': underline,
+                        'font_color': color
+                    })
+                self.cell_formats[key] = value
+        self.url_prefix = url_prefix
+        self.compare_framework = compare_framework
+
+    def close(self):
+        self.workbook.close()
+        self.workbook = None
+
+    def _write_summary_unit(self, compare_result, category, worksheet, row):
         compare_result_keys = compare_result.compare_result_keys
         compare_result_colors = {"Better": "green", "Less": "red"}
         if category is not None:
-            worksheet.write(row, 0, category, title_format)
+            worksheet.write(row, 0, category, self.title_format)
         for col in range(len(compare_result_keys)):
             title = COMPARE_RESULT_SHOWS[compare_result_keys[col]]
-            worksheet.write(row, col + 1, title, title_format)
+            worksheet.write(row, col + 1, title, self.title_format)
 
         row += 1
         for device in ["gpu", "cpu"]:
@@ -100,83 +132,71 @@ def _write_summary_worksheet(benchmark_result_list, worksheet, title_format,
                             color = "black"
                             this_str = "--"
                         worksheet.write(row, col + 1, this_str,
-                                        cell_formats[color])
+                                        self.cell_formats[color])
                     row += 1
         return row
 
-    column_width = [40, 20, 20, 20, 20, 20, 20]
-    for col in range(len(column_width)):
-        col_char = chr(ord("A") + col)
-        worksheet.set_column(col_char + ":" + col_char, column_width[col])
+    def add_summary_worksheet(self, benchmark_result_list):
+        assert self.workbook is not None
 
-    row = 0
-    # case_level summary
-    compare_result_case_level = op_benchmark_unit.summary_compare_result(
-        benchmark_result_list)
-    row = _write_summary_unit(compare_result_case_level, "case_level",
-                              worksheet, row)
+        worksheet = self.workbook.add_worksheet("summary")
 
-    # op_level summary
-    compare_result_op_level, compare_result_dict_ops_detail = op_benchmark_unit.summary_compare_result_op_level(
-        benchmark_result_list, return_op_detail=True)
-    row = _write_summary_unit(compare_result_op_level, "op_level", worksheet,
-                              row + 1)
+        column_width = [40, 20, 20, 20, 20, 20, 20]
+        for col in range(len(column_width)):
+            col_char = chr(ord("A") + col)
+            worksheet.set_column(col_char + ":" + col_char, column_width[col])
 
-    # summary detail for each op
-    for op_type, op_compare_result in sorted(
-            compare_result_dict_ops_detail.items()):
-        row = _write_summary_unit(op_compare_result, op_type, worksheet,
-                                  row + 1)
+        row = 0
+        # case_level summary
+        compare_result_case_level = op_benchmark_unit.summary_compare_result(
+            benchmark_result_list)
+        row = self._write_summary_unit(compare_result_case_level, "case_level",
+                                       worksheet, row)
 
+        # op_level summary
+        compare_result_op_level, compare_result_dict_ops_detail = op_benchmark_unit.summary_compare_result_op_level(
+            benchmark_result_list, return_op_detail=True)
+        row = self._write_summary_unit(compare_result_op_level, "op_level",
+                                       worksheet, row + 1)
 
-def _write_speed_accuracy_unit(ws,
-                               row,
-                               col,
-                               case_name,
-                               task,
-                               content,
-                               op_result_dir,
-                               framework,
-                               device,
-                               direction,
-                               cell_formats,
-                               color,
-                               url_prefix=None):
-    framework = "paddle" if task == "accuracy" else framework
-    op_result_path = _op_result_path(op_result_dir, case_name, framework,
-                                     device, task, direction)
-    if url_prefix and os.path.exists(op_result_path):
-        op_result_url = _op_result_url(url_prefix, case_name, framework,
-                                       device, task, direction)
-        ws.write_url(
-            row,
-            col,
-            url=op_result_url,
-            string=content,
-            cell_format=cell_formats[color + "_underline"])
-    else:
-        ws.write(row, col, content, cell_formats[color])
+        # summary detail for each op
+        for op_type, op_compare_result in sorted(
+                compare_result_dict_ops_detail.items()):
+            row = self._write_summary_unit(op_compare_result, op_type,
+                                           worksheet, row + 1)
 
+    def _write_speed_accuracy_unit(self, worksheet, row, col, case_name, task,
+                                   content, op_result_dir, framework, device,
+                                   direction, color):
+        framework = "paddle" if task == "accuracy" else framework
+        op_result_path = _op_result_path(op_result_dir, case_name, framework,
+                                         device, task, direction)
+        if self.url_prefix and os.path.exists(op_result_path):
+            op_result_url = _op_result_url(self.url_prefix, case_name,
+                                           framework, device, task, direction)
+            worksheet.write_url(
+                row,
+                col,
+                url=op_result_url,
+                string=content,
+                cell_format=self.cell_formats[color + "_underline"])
+        else:
+            worksheet.write(row, col, content, self.cell_formats[color])
 
-def _write_compare_result_unit(ws, row, col, compare_result, compare_ratio,
-                               cell_formats, color):
-    if compare_ratio != "--" and compare_ratio != 0.0:
-        # compare_ratio >= 1.0
-        compare_ratio = compare_ratio if compare_ratio >= 1.0 else 1.0 / compare_ratio
-        if compare_ratio >= 2.0:
-            compare_result += " (%.2fx)" % (compare_ratio - 1.0)
-        else:  #  1.0 <= compare_ratio < 2.0
-            compare_percent = "%.2f" % ((compare_ratio - 1.0) * 100)
-            compare_result += " (" + compare_percent + "%)"
-    ws.write(row, col, compare_result, cell_formats[color])
+    def _write_compare_result_unit(self, worksheet, row, col, compare_result,
+                                   compare_ratio, color):
+        if compare_ratio != "--" and compare_ratio != 0.0:
+            # compare_ratio >= 1.0
+            compare_ratio = compare_ratio if compare_ratio >= 1.0 else 1.0 / compare_ratio
+            if compare_ratio >= 2.0:
+                compare_result += " (%.2fx)" % (compare_ratio - 1.0)
+            else:  #  1.0 <= compare_ratio < 2.0
+                compare_percent = "%.2f" % ((compare_ratio - 1.0) * 100)
+                compare_result += " (" + compare_percent + "%)"
+        worksheet.write(row, col, compare_result, self.cell_formats[color])
 
-
-def _write_detail_worksheet(benchmark_result_list, worksheet, device,
-                            direction, op_result_dir, url_prefix,
-                            compare_framework, op_frequency_dict, align,
-                            title_format, cell_formats):
-    def _write_title_and_set_column_width(worksheet, device, compare_framework,
-                                          title_format):
+    def _write_title_and_set_column_width(self, worksheet, device, direction,
+                                          op_frequency_dict):
         title_names = ["case_name"]
         column_width = [36]
         if op_frequency_dict is not None:
@@ -186,7 +206,7 @@ def _write_detail_worksheet(benchmark_result_list, worksheet, device,
         time_set = ["total"] if device == "cpu" else ["total", "kernel"]
         for key in time_set:
             title_names.append("paddle(%s)" % key)
-            title_names.append(compare_framework + "(%s)" % key)
+            title_names.append(self.compare_framework + "(%s)" % key)
             title_names.append("compare result")
             column_width.append(16)
             column_width.append(16)
@@ -207,75 +227,79 @@ def _write_detail_worksheet(benchmark_result_list, worksheet, device,
             worksheet.set_column(col_char + ":" + col_char, column_width[col])
 
         for col in range(len(title_names)):
-            worksheet.write(0, col, title_names[col], title_format)
+            worksheet.write(0, col, title_names[col], self.title_format)
 
-    # row 0: titles
-    _write_title_and_set_column_width(worksheet, device, compare_framework,
-                                      title_format)
+    def add_detail_worksheet(self, benchmark_result_list, worksheet_name,
+                             device, direction, op_result_dir,
+                             op_frequency_dict):
+        worksheet = self.workbook.add_worksheet(worksheet_name)
 
-    row = 0
-    for case_id in range(len(benchmark_result_list)):
-        op_unit = benchmark_result_list[case_id]
-        if direction in [
-                "backward", "backward_forward"
-        ] and op_unit.op_type in special_op_list.NO_BACKWARD_OPS:
-            continue
+        # row 0: titles
+        self._write_title_and_set_column_width(worksheet, device, direction,
+                                               op_frequency_dict)
 
-        result = op_unit.get(device, direction)
+        row = 0
+        for case_id in range(len(benchmark_result_list)):
+            op_unit = benchmark_result_list[case_id]
+            if direction in [
+                    "backward", "backward_forward"
+            ] and op_unit.op_type in special_op_list.NO_BACKWARD_OPS:
+                continue
 
-        row += 1
-        worksheet.write(row, 0, op_unit.case_name)
+            result = op_unit.get(device, direction)
 
-        if op_frequency_dict is not None:
-            num_frequency = 0
-            if op_unit.op_type in op_frequency_dict.keys():
-                num_frequency = op_frequency_dict[op_unit.op_type]
-            worksheet.write_number(row, 1, num_frequency, align)
-            col = 2
-        else:
-            col = 1
+            row += 1
+            worksheet.write(row, 0, op_unit.case_name)
 
-        time_set = ["total"] if device == "cpu" else ["total", "gpu_time"]
-        for key in time_set:
-            for framework in ["paddle", compare_framework]:
-                op_time = result[framework][key]
-                color = _get_speed_unit_color(
-                    result["compare"][key], op_time=op_time)
-                _write_speed_accuracy_unit(
-                    worksheet, row, col, op_unit.case_name, "speed", op_time,
-                    op_result_dir, framework, device, direction, cell_formats,
-                    color, url_prefix)
+            if op_frequency_dict is not None:
+                num_frequency = 0
+                if op_unit.op_type in op_frequency_dict.keys():
+                    num_frequency = op_frequency_dict[op_unit.op_type]
+                worksheet.write_number(row, 1, num_frequency, self.align)
+                col = 2
+            else:
+                col = 1
+
+            time_set = ["total"] if device == "cpu" else ["total", "gpu_time"]
+            for key in time_set:
+                for framework in ["paddle", self.compare_framework]:
+                    op_time = result[framework][key]
+                    color = _get_speed_unit_color(
+                        result["compare"][key], op_time=op_time)
+                    self._write_speed_accuracy_unit(
+                        worksheet, row, col, op_unit.case_name, "speed",
+                        op_time, op_result_dir, framework, device, direction,
+                        color)
+                    col += 1
+
+                compare_result = COMPARE_RESULT_SHOWS.get(
+                    result["compare"][key], "--")
+                compare_ratio = result["compare"][key + "_ratio"]
+                color = _get_speed_unit_color(result["compare"][key])
+                self._write_compare_result_unit(
+                    worksheet, row, col, compare_result, compare_ratio, color)
                 col += 1
 
-            compare_result = COMPARE_RESULT_SHOWS.get(result["compare"][key],
-                                                      "--")
-            compare_ratio = result["compare"][key + "_ratio"]
-            color = _get_speed_unit_color(result["compare"][key])
-            _write_compare_result_unit(worksheet, row, col, compare_result,
-                                       compare_ratio, cell_formats, color)
-            col += 1
+            # Write gflops and gbs of paddle, only for gpu_forward and gpu_backward now.
+            if device == "gpu" and direction in ["forward", "backward"]:
+                color = _get_speed_unit_color(result["compare"]["gpu_time"])
+                for key in ["gflops", "gbs"]:
+                    perf = result["paddle"][key]
+                    self._write_speed_accuracy_unit(
+                        worksheet, row, col, op_unit.case_name, "speed", perf,
+                        op_result_dir, "paddle", device, direction, color)
+                    col += 1
 
-        # Write gflops and gbs of paddle, only for gpu_forward and gpu_backward now.
-        if device == "gpu" and direction in ["forward", "backward"]:
-            color = _get_speed_unit_color(result["compare"]["gpu_time"])
-            for key in ["gflops", "gbs"]:
-                perf = result["paddle"][key]
-                _write_speed_accuracy_unit(worksheet, row, col,
-                                           op_unit.case_name, "speed", perf,
-                                           op_result_dir, "paddle", device,
-                                           direction, cell_formats, color)
-                col += 1
+            color = "red" if result["accuracy"] in ["False", "false"
+                                                    ] else "black"
+            difference = result["difference"]
+            if difference != "--" and difference != "-" and difference != "0.0":
+                difference = "%.2E" % (float(difference))
+            self._write_speed_accuracy_unit(
+                worksheet, row, col, op_unit.case_name, "accuracy", difference,
+                op_result_dir, "paddle", device, direction, color)
 
-        color = "red" if result["accuracy"] in ["False", "false"] else "black"
-        difference = result["difference"]
-        if difference != "--" and difference != "-" and difference != "0.0":
-            difference = "%.2E" % (float(difference))
-        _write_speed_accuracy_unit(worksheet, row, col, op_unit.case_name,
-                                   "accuracy", difference, op_result_dir,
-                                   "paddle", device, direction, cell_formats,
-                                   color, url_prefix)
-
-        worksheet.write(row, col + 1, op_unit.parameters)
+            worksheet.write(row, col + 1, op_unit.parameters)
 
 
 def dump_excel(benchmark_result_list,
@@ -293,36 +317,26 @@ def dump_excel(benchmark_result_list,
         print("Output path is not specified, use %s." % output_path)
     print("-- Write to %s." % output_path)
 
-    wb = xlw.Workbook(output_path)
-    align = wb.add_format({"align": "left"})
-    title_format = wb.add_format({
-        'bold': True,
-        'font_color': 'black',
-        'bg_color': '#6495ED'
-    })
-    cell_formats = {}
-    for underline in [False, True]:
-        for color in ["green", "red", "black", "blue"]:
-            key = color + "_underline" if underline else color
-            value = wb.add_format({
-                'bold': True,
-                'underline': underline,
-                'font_color': color
-            })
-            cell_formats[key] = value
+    writer = ExcelWriter(output_path, url_prefix, compare_framework)
+    writer.add_summary_worksheet(benchmark_result_list)
 
-    ws = wb.add_worksheet("summary")
-    _write_summary_worksheet(benchmark_result_list, ws, title_format,
-                             cell_formats)
+    num_gpu_results, num_cpu_results = op_benchmark_unit.count_results_for_devices(
+        benchmark_result_list)
+    print("-- num_gpu_results={}, num_cpu_results={}".format(num_gpu_results,
+                                                             num_cpu_results))
+
+    device_types = []
+    if num_gpu_results > 0:
+        device_types.append("gpu")
+    if num_cpu_results > 0:
+        device_types.append("cpu")
 
     if url_prefix:
         print("url prefix: ", url_prefix)
-    for device in ["gpu", "cpu"]:
+    for device in device_types:
         for direction in ["forward", "backward", "backward_forward"]:
             worksheet_name = device + "_" + direction
-            ws = wb.add_worksheet(worksheet_name)
-            _write_detail_worksheet(benchmark_result_list, ws, device,
-                                    direction, op_result_dir, url_prefix,
-                                    compare_framework, op_frequency_dict,
-                                    align, title_format, cell_formats)
-    wb.close()
+            writer.add_detail_worksheet(benchmark_result_list, worksheet_name,
+                                        device, direction, op_result_dir,
+                                        op_frequency_dict)
+    writer.close()

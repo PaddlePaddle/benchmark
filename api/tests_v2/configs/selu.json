@@ -14,8 +14,7 @@
             "shape": "[8L, 1024L, 3072L]",
             "type": "Variable"
         }
-    },
-    "repeat": 10000
+    }
 }, {
     "op": "selu",
     "param_info": {
@@ -32,6 +31,5 @@
             "shape": "[8L, 1024L, 3072L]",
             "type": "Variable"
         }
-    },
-    "repeat": 10000
+    }
 }]

@@ -385,11 +385,18 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                 assert False, "Gradients of list is not supported now!"
             self._backward = True
 
-    def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
+    def reset(self):
+        super(PaddleOpBenchmarkBase, self).reset()
         self._layers_function = None
+        self._helper = None
+
+    def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
         self._task = args.task
-        self.feed_list = None
-        self.fetch_list = None
+
+        self.reset()
+        if paddle.device.is_compiled_with_cuda() and args.use_gpu:
+            paddle.device.cuda.empty_cache()
+
         if self._testing_mode == "dynamic":
             self._helper = DynamicHelper()
             return self._run_dynamic(config, args, feeder_adapter)
