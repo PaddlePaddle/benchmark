@@ -51,8 +51,8 @@ function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
     train_fp16=""
-    if [ ${fp_item} = 'amp_fp16' ];then
-        train_fp16="--fp16"
+    if [ ${fp_item} = 'fp16' ];then   
+        train_fp16="--fp16"   # O1
     fi
     train_options="--model_name_or_path=xlnet-base-cased
                --logging_dir=${run_log_path}
