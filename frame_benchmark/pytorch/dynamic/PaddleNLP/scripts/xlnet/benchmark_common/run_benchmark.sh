@@ -19,6 +19,7 @@ function _set_params(){
     max_iter=${7:-"100"}                 # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"3"}                # (可选)
 
+
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -41,14 +42,19 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num}
+    cmd="python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} ${fp_item} ${base_batch_size}"
+    echo ${cmd}
+    eval ${cmd}
 }
 
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
-    train_config=""
-    train_options="--model_name_or_path=${model_name}
+    train_fp16=""
+    if [ ${fp_item} = 'amp_fp16' ];then
+        train_fp16="--fp16"
+    fi
+    train_options="--model_name_or_path=xlnet-base-cased
                --logging_dir=${run_log_path}
                --task_name=sst2
                --max_seq_length=128
@@ -58,21 +64,23 @@ function _train(){
                --max_steps=${max_iter}
                --pad_to_max_length=True
                --logging_strategy=steps
-               --logging_steps=1
+               --logging_steps=10
                --do_train
                --output_dir=${run_log_path}
                --overwrite_output_dir
+               ${train_fp16}
                "
 
     case ${run_process_type} in
     SingleP)
-        train_cmd="python transformers/examples/pytorch/text-classification/run_glue.py ${train_cmd}" ;;
+        train_cmd="python examples/pytorch/text-classification/run_glue.py ${train_options}" ;;
     MultiP)
-        train_cmd="python transformers/examples/pytorch/text-classification/run_glue.py ${train_cmd}" ;;
+        train_cmd="python examples/pytorch/text-classification/run_glue.py ${train_options}" ;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
 
 #   以下为通用执行命令，无特殊可不用修改
+    echo ${train_cmd}
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
@@ -84,6 +92,8 @@ function _train(){
         cp mylog/workerlog.0 ${log_file}
     fi
     #kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
+    echo ${train_cmd} >> ${log_file}
+    cat ${log_file}
 }
 
 _set_params $@
