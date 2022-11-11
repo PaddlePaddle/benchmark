@@ -7,58 +7,50 @@ import sys
 import json
 import os
 
-
-def analyze(model_item, log_file, res_log_file, device_num):
-    bs_pat = re.compile(r"batch size per device = (.*)")
-    time_pat = re.compile(r"train_samples_per_second': (.*)")
-    gpu_ids_pat = re.compile(r"n_gpu =(.*)")
-
+def analyze(model_item, log_file, res_log_file, device_num, fp_item, bs_item):
+    time_pat = re.compile(r"train_samples_per_second = (.*)")
+     
     logs = open(log_file).readlines()
     logs = ";".join(logs)
-    bs_res = bs_pat.findall(logs)
     time_res = time_pat.findall(logs)
-    gpu_ids_res = gpu_ids_pat.findall(logs)
 
-    run_mode = ""
-    gpu_num = 0
+    run_mode = "DP"
+    gpu_num = 1
     ips = 0
-    fp_item = "fp32"
-    bs = 0
-
-    if gpu_ids_res == [] or time_res == []:
+    print("------time_res:", time_res[0])
+    print("---device_num:-", device_num)
+    index_c = device_num.index('C')
+    print("---index_c:-", index_c)
+    gpu_num = int(device_num[index_c + 1:len(device_num)])
+    print("-----gpu_num:", gpu_num)    
+ 
+    if time_res == []:
         ips = 0
     else:
-        gpu_num = int(gpu_ids_res[-1])
-        run_mode = "DP"
-        ips = time_res[-1]
-        bs = int(bs_res[-1])
-
-    model_name = model_item+"_"+"bs"+str(bs)+"_"+fp_item+"_"+run_mode
-    info = {
-                "model_branch": os.getenv('model_branch'),
+        ips = round(float(time_res[0]), 3)
+    model_name = model_item+"_"+"bs"+str(bs_item)+"_"+fp_item+"_"+run_mode
+    info = {    "model_branch": os.getenv('model_branch'),
                 "model_commit": os.getenv('model_commit'),
                 "model_name": model_name,
-                "batch_size": bs,
+                "batch_size": bs_item,
                 "fp_item": fp_item,
-                "run_process_type": "MultiP",
                 "run_mode": run_mode,
                 "convergence_value": 0,
                 "convergence_key": "",
                 "ips": ips,
-                "speed_unit": "sequences/s",
+                "speed_unit":"sequences/s",
                 "device_num": device_num,
                 "model_run_time": os.getenv('model_run_time'),
                 "frame_commit": "",
                 "frame_version": os.getenv('frame_version'),
-    }
+        }
     json_info = json.dumps(info)
     print(json_info)
     with open(res_log_file, "w") as of:
         of.write(json_info)
 
-
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 7:
         print("Usage:" + sys.argv[0] + " model_item path/to/log/file path/to/res/log/file")
         sys.exit()
 
@@ -66,4 +58,6 @@ if __name__ == "__main__":
     log_file = sys.argv[2]
     res_log_file = sys.argv[3]
     device_num = sys.argv[4]
-    analyze(model_item, log_file, res_log_file, device_num)
+    fp_item  = sys.argv[5]
+    bs_item = sys.argv[6]
+    analyze(model_item, log_file, res_log_file, device_num, fp_item, bs_item)
