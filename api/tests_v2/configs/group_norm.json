@@ -11,12 +11,34 @@
         },
         "x": {
             "dtype": "float32",
-            "shape": "[8L, 6L, 10L, 10L]",
+            "shape": "[1L, 128L, 768L, 1280L]",
             "type": "Variable"
         },
         "num_groups": {
             "type": "int",
-            "value": "3"
+            "value": "32"
+        }
+    },
+    "atol": 1E-5
+}, {
+    "op": "group_norm",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1L, 768L, 96L, 160L]",
+            "type": "Variable"
+        },
+        "num_groups": {
+            "type": "int",
+            "value": "32"
         }
     },
     "atol": 1E-5
