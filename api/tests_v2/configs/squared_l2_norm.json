@@ -1,0 +1,23 @@
+[{
+    "config_id": 0,
+    "op": "squared_l2_norm",
+    "atol": 0.5,
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L, 128L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 1,
+    "op": "squared_l2_norm",
+    "atol": 0.5,
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1024L, 32L, 32L]",
+            "type": "Variable"
+        }
+    }
+}]
