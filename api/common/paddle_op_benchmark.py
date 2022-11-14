@@ -315,6 +315,17 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             paddle.enable_static()
         else:
             paddle.disable_static()
+        flags = paddle.get_flags(['FLAGS_use_autotune'])
+        self.use_autotune = flags['FLAGS_use_autotune']
+        if self.use_autotune:
+            config = {
+                "kernel": {
+                    "enable": True,
+                    "tuning_range": [-1, 10],
+                },
+            }
+            paddle.incubate.autotune.set_config(config)
+            paddle.fluid.core.update_autotune_status()
 
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         return self._helper.variable(name, shape, dtype, value, stop_gradient)
@@ -437,6 +448,8 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                         outputs.append(var)
                     else:
                         outputs.append(var.numpy())
+            if self.use_autotune and not self.backward:
+                paddle.fluid.core.update_autotune_status()
             return outputs
 
         # warmup run
