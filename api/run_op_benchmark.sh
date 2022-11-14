@@ -60,7 +60,11 @@ run_op_benchmark() {
   fi
   
   timestamp=`date '+%Y%m%d-%H%M%S'`
-  output_dir=${OUTPUT_ROOT}/${test_module_name}/${timestamp}
+  if [ ${test_module_name} == "tests" ]; then
+    output_dir=${OUTPUT_ROOT}/${test_module_name}_${testing_mode}/${timestamp}
+  else
+    output_dir=${OUTPUT_ROOT}/${test_module_name}/${timestamp}
+  fi
   if [ ! -d ${output_dir} ]; then
     mkdir -p ${output_dir}
   fi
