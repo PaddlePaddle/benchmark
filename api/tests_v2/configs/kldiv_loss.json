@@ -3,7 +3,7 @@
     "param_info": {
         "reduction": {
             "type": "string",
-            "value": "mean"
+            "value": "none"
         },
         "input": {
             "dtype": "float32",
@@ -21,7 +21,7 @@
     "param_info": {
         "reduction": {
             "type": "string",
-            "value": "sum"
+            "value": "none"
         },
         "input": {
             "dtype": "float32",

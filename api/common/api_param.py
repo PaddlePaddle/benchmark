@@ -245,13 +245,13 @@ class APIConfig(object):
             return False
 
         for var in self.variable_list:
-            if var.type == "Variable" and is_floating_point_type(var.dtype):
+            if var.type == "Variable" and _is_floating_point_type(var.dtype):
                 var.dtype = "float16"
                 setattr(self, var.name + "_dtype", var.dtype)
             elif var.type == "list<Variable>":
                 # convert each list member in list<Variable> from fp32 into fp16 type
                 for i in range(len(var.dtype)):
-                    if is_floating_point_type(var.dtype[i]):
+                    if _is_floating_point_type(var.dtype[i]):
                         var.dtype[i] = "float16"
                 setattr(self, var.name + "_dtype", var.dtype)
 
