@@ -22,9 +22,6 @@ from paddle.fluid.layer_helper import LayerHelper
 class SquaredL2NormConfig(APIConfig):
     def __init__(self):
         super(SquaredL2NormConfig, self).__init__("squared_l2_norm")
-        # abs belongs to activation op series which only has one parameter
-        # thus abs can reuse activation.json. 
-        self.alias_name = "squared_l2_norm"
 
 
 class PDSquaredL2Norm(PaddleDynamicAPIBenchmarkBase):
