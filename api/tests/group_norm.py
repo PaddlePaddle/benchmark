@@ -37,14 +37,6 @@ class GroupNormConfig(APIConfig):
                 "1. PyTorch does not have data_format param, it only support NCHW format.\n"
             )
             self.run_torch = False
-        # The device parameter setting will only be provided when the torch version is greater than or equal to 1.9, 
-        # which can ensure that all parameters are on the same device
-        if torch.__version__ < "1.9.0":
-            print(
-                "Warning:\n"
-                "1. PyTorch does not support group_norm operator in  CUDA version currently!\n"
-            )
-            self.run_torch = False
 
 
 @benchmark_registry.register("group_norm")
@@ -68,17 +60,11 @@ class TorchGroupNorm(PytorchOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
 
-        if torch.__version__ >= "1.9.0":
-            pytorch_group_norm = torch.nn.GroupNorm(
-                num_groups=config.num_groups,
-                num_channels=config.num_channels,
-                device=self._device,
-                eps=config.epsilon)
-        else:
-            pytorch_group_norm = torch.nn.GroupNorm(
-                num_groups=config.num_groups,
-                num_channels=config.num_channels,
-                eps=config.epsilon)
+        pytorch_group_norm = torch.nn.GroupNorm(
+            num_groups=config.num_groups,
+            num_channels=config.num_channels,
+            device=self._device,
+            eps=config.epsilon)
         result = pytorch_group_norm(x)
 
         self.feed_list = [x]
