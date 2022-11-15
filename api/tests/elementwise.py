@@ -25,7 +25,10 @@ class ElementwiseConfig(APIConfig):
             'maximum': 'maximum',
             'minimum': 'minimum',
             'multiply': 'multiply',
-            'subtract': 'subtract'
+            'subtract': 'subtract',
+            "fmax": "fmax",
+            "fmin": "fmin",
+            "mod": "modulo"
         }
         self.feed_spec = [{"range": [-1, 1]}, {"range": [-1, 1]}]
 

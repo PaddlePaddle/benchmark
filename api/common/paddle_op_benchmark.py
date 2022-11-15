@@ -315,6 +315,17 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             paddle.enable_static()
         else:
             paddle.disable_static()
+        flags = paddle.get_flags(['FLAGS_use_autotune'])
+        self.use_autotune = flags['FLAGS_use_autotune']
+        if self.use_autotune:
+            config = {
+                "kernel": {
+                    "enable": True,
+                    "tuning_range": [-1, 10],
+                },
+            }
+            paddle.incubate.autotune.set_config(config)
+            paddle.fluid.core.update_autotune_status()
 
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         return self._helper.variable(name, shape, dtype, value, stop_gradient)
@@ -385,11 +396,18 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                 assert False, "Gradients of list is not supported now!"
             self._backward = True
 
-    def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
+    def reset(self):
+        super(PaddleOpBenchmarkBase, self).reset()
         self._layers_function = None
+        self._helper = None
+
+    def run(self, config, args, use_feed_fetch=True, feeder_adapter=None):
         self._task = args.task
-        self.feed_list = None
-        self.fetch_list = None
+
+        self.reset()
+        if paddle.device.is_compiled_with_cuda() and args.use_gpu:
+            paddle.device.cuda.empty_cache()
+
         if self._testing_mode == "dynamic":
             self._helper = DynamicHelper()
             return self._run_dynamic(config, args, feeder_adapter)
@@ -430,6 +448,8 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                         outputs.append(var)
                     else:
                         outputs.append(var.numpy())
+            if self.use_autotune and not self.backward:
+                paddle.fluid.core.update_autotune_status()
             return outputs
 
         # warmup run

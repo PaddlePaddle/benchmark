@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from common_import import *
-from conv2d import Conv2dConfig, PDConv2d, TorchConv2d
+from conv2d import Conv2dConfig, PaddleConv2d, TorchConv2d
 
 
 @benchmark_registry.register("depthwise_conv2d", reuse="conv2d")

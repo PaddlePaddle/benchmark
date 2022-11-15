@@ -13,9 +13,9 @@ export PYTHONPATH=${OP_BENCHMARK_ROOT}:${PYTHONPATH}
 
 name=${1:-"abs"}
 config_id=${2:-"0"}
-task=${3:-"accuracy"} # "accuracy" or "speed"
+task=${3:-"speed"} # "accuracy" or "speed"
 
-testing_mode="static" # "static" or "dynamic"
+testing_mode="dynamic" # "static" or "dynamic"
 framework="paddle"  # "paddle" or "tensorflow" or "pytorch"
 filename="${OP_BENCHMARK_ROOT}/tests_v2/configs/${name}.json"
 if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
@@ -34,7 +34,7 @@ run_args="--filename ${name}
           --profiler none \
           --backward True \
           --use_gpu ${use_gpu} \
-          --repeat 1 \
+          --repeat 1000 \
           --allow_adaptive_repeat False \
           --log_level 0"
 
@@ -44,8 +44,5 @@ if [ $# -ge 4 ]; then
             --api_name ${api_name}"
 fi
 
-#python -m common.launch ${OP_BENCHMARK_ROOT}/tests/paddle/${name}.py \
-#         ${run_args}
-
-python -u ${OP_BENCHMARK_ROOT}/tests/test_main.py \
+python -m common.launch ${OP_BENCHMARK_ROOT}/tests/test_main.py \
          ${run_args}

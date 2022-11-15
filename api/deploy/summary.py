@@ -335,6 +335,11 @@ def construct_alarm_email(timestamp, alarm_results):
         email_t.construct_email_content()
 
 
+# The newly added dump_mysql class and method are
+# in the file write_mysql.py, thus this function
+# may be considered to be deleted.
+
+
 def dump_mysql(data, version, construct_email):
     """
     dump data to mysql database
@@ -427,8 +432,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '--dump_to_mysql',
         type=system.str2bool,
-        default=True,
-        help='Whether dumping summary data to mysql database [True|False]')
+        default=False,
+        help='Whether dumping summary data to MySQL database [True|False]')
     parser.add_argument(
         '--dump_to_json',
         type=system.str2bool,
@@ -444,6 +449,19 @@ if __name__ == '__main__':
         type=system.str2bool,
         default=True,
         help='Whether constructing alarm email [True|False]')
+    parser.add_argument(
+        "--card", type=str, default=None, help="Card number, default is 0")
+    parser.add_argument(
+        "--host", type=str, default=None, help="MySQL database host address")
+
+    parser.add_argument(
+        "--user", type=str, default=None, help="MySQL database user name")
+
+    parser.add_argument(
+        "--password", type=str, default=None, help="MySQL database password")
+
+    parser.add_argument(
+        "--database", type=str, default=None, help="Selected database name")
     args = parser.parse_args()
 
     op_result_dir = os.path.abspath(args.op_result_dir)
@@ -465,7 +483,8 @@ if __name__ == '__main__':
             os.path.join(op_result_dir, filename), specified_op_list)
         if framework is not None and framework != "paddle":
             if compare_framework:
-                assert framework == compare_framework, "Framework name parsed from result's filename is expected to be %s, but recieved %s." % (
+                assert framework == compare_framework, "Framework name parsed from result's filename \
+                    is expected to be %s, but recieved %s." % (
                     compare_framework, framework)
             else:
                 compare_framework = framework
@@ -494,7 +513,7 @@ if __name__ == '__main__':
         import write_text
 
         write_text.dump_text(benchmark_result_list, args.output_path,
-                             args.dump_with_parameters)
+                             compare_framework, args.dump_with_parameters)
 
     if args.dump_to_excel:
         import write_excel
@@ -506,11 +525,19 @@ if __name__ == '__main__':
     if args.dump_to_json:
         import write_json
 
-        write_json.dump_json(benchmark_result_list, args.output_path)
+        write_json.dump_json(benchmark_result_list, args.output_path,
+                             compare_framework, args.dump_with_parameters)
 
     if args.dump_to_mysql:
-        try:
-            dump_mysql(data, args.version, args.construct_email)
-        except Exception as e:
-            print("dump data into mysql failed, please check reason!")
-            print(e)
+        if args.host is None or args.user is None or args.password is None \
+                or args.database is None:
+            print("Please complete the database information!")
+        else:
+            from write_mysql import DB
+            db = DB(args.host, args.user, args.password, args.database)
+            try:
+                db.write_database(benchmark_result_list, compare_framework,
+                                  args.card)
+            except Exception as e:
+                print("dump data into mysql failed, please check reason!")
+                print(e)

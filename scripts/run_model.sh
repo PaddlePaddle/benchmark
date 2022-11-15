@@ -29,8 +29,9 @@ function _run(){
     model_commit_id=$(git log|head -n1|awk '{print $2}')
     paddle_commit_id=$(echo `python -c "import paddle;print(paddle.version.commit)"`)
     echo "---------Model commit is ${model_commit_id}"
-    echo "---------Paddle commit is ${paddle_commit_id}"
-    pip list | grep opencv
+    echo "---------Paddle commit is ${paddle_commit_id}" 
+    pip list
+    env |grep FLAGS
 
     if [[ ${index} -eq 1 ]]; then
         job_bt=`date '+%Y%m%d%H%M%S'`

@@ -167,6 +167,8 @@ class APIConfig(object):
         self.__framework = "paddle"
         self.__run_tf = True
         self.api_name = self.name
+        self.paddle_api = None
+        self.torch_api = None
         self.params = params
         self.variable_list = None
         self.params_list = None
@@ -236,16 +238,18 @@ class APIConfig(object):
         """
         Convert all variables' dtype to float16.
         """
-        for name, value in vars(self).items():
-            if name.endswith("_dtype") and value != "float16":
-                setattr(self, name, "float16")
-
         for var in self.variable_list:
-            if var.type == "Variable":
+            if var.type == "Variable" and var.dtype not in [
+                    "float16", "int32", "int64"
+            ]:
                 var.dtype = "float16"
+                setattr(self, var.name + "_dtype", var.dtype)
             elif var.type == "list<Variable>":
-                for i in range(var.dtype):
-                    var.dtype[i] = "float16"
+                # convert each list member in list<Variable> from fp32 into fp16 type
+                for i in range(len(var.dtype)):
+                    if var.dtype[i] not in ["float16", "int32", "int64"]:
+                        var.dtype[i] = "float16"
+                setattr(self, var.name + "_dtype", var.dtype)
 
     def init_from_json(self, filename, config_id=0, unknown_dim=16):
         filename = self.alias_filename(filename)
@@ -258,6 +262,12 @@ class APIConfig(object):
             assert op == self.name or op == self.alias_name, "The op type (%s) in json file is different from the name (%s) and the alias name (%s). " \
                 "The filename: %s, config_id: %d." % (
                     op, self.name, self.alias_name, filename, config_id)
+
+            if data[config_id].get("paddle_api", None) is not None:
+                self.paddle_api = parse_string(data[config_id]["paddle_api"])
+            if data[config_id].get("torch_api", None) is not None:
+                self.torch_api = parse_string(data[config_id]["torch_api"])
+
             self.params = data[config_id]["param_info"]
 
             if data[config_id].get("atol", None) is not None:

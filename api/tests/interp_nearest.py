@@ -44,6 +44,21 @@ class PaddleInterpNearest(PaddleOpBenchmarkBase):
         if config.backward:
             self.append_gradients(out, [x])
 
+    def compute_flop_and_byte(self, config):
+        x_shape = config.x_shape
+        out_shape = self.fetch_list[0].shape
+        # out[out_index] = in[in_index], the calculation of index is somewhat complicated,
+        # but there is actually no floating point computation, and we do not count the
+        # numbers of index-related opertions to flop.
+        forward_flop = 0
+        forward_byte = (
+            numel(x_shape) + numel(out_shape)) * sizeof(config.x_dtype)
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # to be implemented.
+            return None, None
+
 
 @benchmark_registry.register("interp_nearest")
 class TorchInterpNearest(PytorchOpBenchmarkBase):

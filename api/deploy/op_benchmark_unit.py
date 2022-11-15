@@ -141,7 +141,7 @@ class OpBenchmarkUnit(object):
                 result["compare"][key].ljust(10))
         case_line += "%s" % result["accuracy"].ljust(10)
         if with_parameters:
-            case_line += parameters
+            case_line += self.parameters
         return case_line
 
     def get(self, device, direction):
@@ -277,7 +277,7 @@ class CompareResult(object):
             compare_result_str = "%s" % (category.ljust(category_width))
 
         content_width = 16
-        for compare_result_key in compare_result_keys:
+        for compare_result_key in self.compare_result_keys:
             compare_result_str += "%s" % compare_result_key.ljust(
                 content_width)
         compare_result_str += "\n"
@@ -285,7 +285,7 @@ class CompareResult(object):
         for key, value in sorted(compare_result_list.items(), reverse=True):
             compare_result_str += "%s" % key.ljust(category_width)
             num_total_cases = value["Total"]
-            for compare_result_key in compare_result_keys:
+            for compare_result_key in self.compare_result_keys:
                 ratio = float(value[compare_result_key]) / float(
                     num_total_cases)
                 ratio_str = "%.2f" % (ratio * 100)
@@ -294,6 +294,27 @@ class CompareResult(object):
                 compare_result_str += "%s" % str(this_str).ljust(content_width)
             compare_result_str += "\n"
         return compare_result_str
+
+
+def count_results_for_devices(benchmark_result_list):
+    def _calc_num_values(arg):
+        num_values = 0
+        if isinstance(arg, dict):
+            for v in arg.values():
+                if v != "--":
+                    num_values += 1
+        return num_values
+
+    num_gpu_results = 0
+    num_cpu_results = 0
+    for op_unit in benchmark_result_list:
+        if _calc_num_values(op_unit.gpu_forward) > 0 or _calc_num_values(
+                op_unit.gpu_backward) > 0:
+            num_gpu_results += 1
+        if _calc_num_values(op_unit.cpu_forward) > 0 or _calc_num_values(
+                op_unit.cpu_backward) > 0:
+            num_gpu_results += 1
+    return num_gpu_results, num_cpu_results
 
 
 def summary_compare_result(benchmark_result_list, op_type=None):

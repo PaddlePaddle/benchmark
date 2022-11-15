@@ -15,9 +15,8 @@
 # limitations under the License.
 
 # cur_model_list=(transformer bert  gpt)
-
 # 20220323迁移CV模型到PDC,备份全量模型
-cur_model_list=(detection mask_rcnn image_classification seg_model transformer bert yolov3  gpt)
+cur_model_list=(image_classification seg_model transformer bert gpt)
 
 export log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
 
@@ -47,10 +46,7 @@ seg_model(){
         CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp ${model_item} 180 ${bs_item} | tee ${log_path}/${FUNCNAME}_${model_item}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, ${model_item} 8gpu begin"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 180 ${bs_item} | tee ${log_path}/${FUNCNAME}_${model_item}_speed_8gpus 2>&1
-        sleep 60
-        echo "index is speed, 1gpu, profiler is on, begin"
-#       CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp ${model_item} 200  | tee ${log_path}/${model_item}_speed_1gpus_profiler 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp ${model_item} 180 ${bs_item} | tee ${log_path}/${FUNCNAME}_${model_item}_speed_8gpus8p 2>&1
         sleep 60
     done
 }
@@ -77,7 +73,7 @@ image_classification(){
         CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} sp 1 | tee ${log_path}/${FUNCNAME}_${model_name}_speed_1gpus 2>&1
         sleep 60
         echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} mp 1 | tee ${log_path}/${FUNCNAME}_${model_name}_speed_8gpus8p 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${run_batchsize} ${model_name} mp 3 | tee ${log_path}/${FUNCNAME}_${model_name}_speed_8gpus8p 2>&1
         sleep 60
     done
 
@@ -97,7 +93,7 @@ image_classification(){
             if [ ${bs_item} == 128 ]; then
                 sleep 60
                 echo "bs=${bs_item}, model is ${model_name}, index is speed, 8gpus, run_mode is multi_process, begin"
-                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_fp16.sh 1 ${bs_item} mp 1 ${fp_mode}  | tee ${log_path}/${FUNCNAME}_${model_name}_speed_8gpus8p 2>&1
+                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark_fp16.sh 1 ${bs_item} mp 2 ${fp_mode}  | tee ${log_path}/${FUNCNAME}_${model_name}_speed_8gpus8p 2>&1
             fi
             sleep 60
         done
@@ -149,10 +145,6 @@ detection(){
         sleep 60
         echo "index is speed, 1gpu, profiler is on  begin, ${model_name}"
 #        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 ${model_name} sp 600 | tee ${log_path}/${model_name}_speed_1gpus_profiler 2>&1
-        sleep 60
-        echo "index is speed, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 ${model_name} sp 300 | tee ${log_path}/${FUNCNAME}_${model_name}_bs${batch_size}_speed_8gpus 2>&1
-        sleep 60
     done
 }
 
@@ -203,16 +195,9 @@ mask_rcnn(){
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs1_speed_1gpus 2>&1
     sleep 60
     echo "index is speed, 1gpu, profiler is on begin"
-
 #    CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_bs1_speed_1gpus_profiler 2>&1
-    echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs1_speed_8gpus 2>&1
-    sleep 60
     echo "index is maxbs, 1gpu, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 200 | tee ${log_path}/${FUNCNAME}_bs1_maxbs_1gpus 2>&1
-    sleep 60
-    echo "index is maxbs, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 6 sp 200 | tee ${log_path}/${FUNCNAME}_bs1_maxbs_8gpus 2>&1
     sleep 60
     echo "index is speed, 8gpus, run_mode is multi_process, begin"
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 600 | tee ${log_path}/${FUNCNAME}_bs1_speed_8gpus8p 2>&1
@@ -221,13 +206,17 @@ mask_rcnn(){
 
 #run_bert
 bert(){
+    cd ${BENCHMARK_ROOT}/PaddleNLP
+    pip install -r requirements.txt
+    pip install h5py
+    pip uninstall -y paddlenlp
+    pip install attrdict
+    python setup.py install
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/language_model/bert/static
     cd ${cur_model_path}
     ln -s ${data_path}/Bert/hdf5_lower_case_1_seq_len_512_max_pred_80_masked_lm_prob_0.15_random_seed_12345_dupe_factor_5/wikicorpus_en_seqlen512 ${cur_model_path}/wikicorpus_en_seqlen512
     ln -s ${data_path}/Bert/wikicorpus_en_seqlen128 ${cur_model_path}/wikicorpus_en_seqlen128
     cp ${BENCHMARK_ROOT}/static_graph/BERT/paddle/run_benchmark.sh ./run_benchmark.sh
-    pip install paddlenlp
-
     sed -i '/set\ -xe/d' run_benchmark.sh
 
     model_mode_list=(base large)
@@ -264,8 +253,12 @@ bert(){
 
 #run_transformer
 transformer(){
-    pip install paddlenlp
+    cd ${BENCHMARK_ROOT}/PaddleNLP
+    pip install -r requirements.txt
+    pip install h5py
+    pip uninstall -y paddlenlp
     pip install attrdict
+    python setup.py install
     cur_model_path=${BENCHMARK_ROOT}/PaddleNLP/examples/machine_translation/transformer/static
     cd ${cur_model_path}
     # prepare data
@@ -293,9 +286,6 @@ transformer(){
                 model_name="transformer_${mode_item}_bs${bs_item}_${fp_item}"
                 echo "index is speed, ${model_name} 1gpu begin"
                 CUDA_VISIBLE_DEVICES=5 bash run_benchmark.sh 1 sp 600 ${mode_item} ${fp_item} ${bs_item} | tee   ${log_path}/${model_name}_speed_1gpus 2>&1
-                sleep 60
-                echo "index is speed, ${model_name} 8gpus begin, sp"
-                CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 ${mode_item} ${fp_item} ${bs_item} | tee  ${log_path}/${model_name}_speed_8gpus 2>&1
                 sleep 60
                 echo "index is speed, ${model_name} 8gpus begin, mp"
                 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 mp 500 ${mode_item} ${fp_item} ${bs_item} | tee  ${log_path}/${model_name}_speed_8gpus8p 2>&1
@@ -335,9 +325,6 @@ yolov3(){
     #sleep 60
     #echo "index is speed, 1gpu, profiler on, begin"
     #CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 sp 600 | tee ${log_path}/${FUNCNAME}_bs8_speed_1gpus_profiler 2>&1
-    sleep 60
-    echo "index is speed, 8gpus, begin"
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 sp 600 | tee ${log_path}/${FUNCNAME}_bs${bs_item}_speed_8gpus 2>&1
     sleep 60
     echo "index is maxbs, 1gpus, begin"
     CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 6 sp 600 | tee ${log_path}/${FUNCNAME}_maxbs_1gpus 2>&1
@@ -639,10 +626,6 @@ nextvlad(){
         sleep 60
         echo "index is speed, 1gpu, prfoiler is on, begin, ${model_name}"
 #        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh 3 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_bs32_speed_1gpus_profiler 2>&1
-        sleep 60
-        echo "index is speed, 8gpus, begin, ${model_name}"
-        PYTHONPATH=$(pwd):${PYTHONPATH} CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh 1 32 ${model_name} sp 2 | tee ${log_path}/${model_name}_bs32_speed_8gpus 2>&1
-        sleep 60
     done
 }
 
@@ -652,8 +635,9 @@ gpt(){
     pip uninstall paddlenlp -y
     echo "python env is"
     ls -l ${BENCHMARK_ROOT}/run_env/
-    sed -i "s/python3/python3.7/g"  examples/language_model/data_tools/Makefile  # 模型py3默认使用python37， benchmark >镜像python3 默认py35
-    cat examples/language_model/data_tools/Makefile | grep python
+    sed -i "s/python3/python/g" examples/language_model/gpt/data_tools/Makefile  # 模型py3默认使用python37， benchmark 镜像python3 默认py35
+    sed -i "s/python-config/python3.7m-config/g" examples/language_model/gpt/data_tools/Makefile
+    cat examples/language_model/gpt/data_tools/Makefile | grep python
     sed -i '/set\ -xe/d' tests/benchmark/run_benchmark.sh
     bash tests/benchmark/run_all.sh static
 }
