@@ -44,8 +44,8 @@ class TorchIsclose(PytorchOpBenchmarkBase):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
         result = torch.isclose(
-            x=x,
-            y=y,
+            input=x,
+            other=y,
             rtol=config.rtol,
             atol=config.atol,
             equal_nan=config.equal_nan)
