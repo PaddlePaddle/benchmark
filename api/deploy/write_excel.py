@@ -257,11 +257,12 @@ class ExcelWriter(object):
         time_set = ["total"] if device == "cpu" else ["total", "kernel"]
         for key in time_set:
             title_names.append("paddle(%s)" % key)
-            title_names.append(self.compare_framework + "(%s)" % key)
-            title_names.append("compare result")
             column_width.append(16)
-            column_width.append(16)
-            column_width.append(16)
+            if self.compare_framework is not None:
+                title_names.append(self.compare_framework + "(%s)" % key)
+                title_names.append("compare result")
+                column_width.append(16)
+                column_width.append(16)
         if device == "gpu" and direction in ["forward", "backward"]:
             title_names.append("paddle(gflops)")
             title_names.append("paddle(gbs)")
@@ -336,7 +337,11 @@ class ExcelWriter(object):
                 time_set = ["total"
                             ] if device == "cpu" else ["total", "gpu_time"]
                 for key in time_set:
-                    for framework in ["paddle", self.compare_framework]:
+                    if self.compare_framework is not None:
+                        framework_set = ["paddle", self.compare_framework]
+                    else:
+                        framework_set = ["paddle"]
+                    for framework in framework_set:
                         op_time = result[framework][key]
                         color = _get_speed_unit_color(
                             result["compare"][key], op_time=op_time)
@@ -346,14 +351,15 @@ class ExcelWriter(object):
                             direction, color)
                         col += 1
 
-                    compare_result = COMPARE_RESULT_SHOWS.get(
-                        result["compare"][key], "--")
-                    compare_ratio = result["compare"][key + "_ratio"]
-                    color = _get_speed_unit_color(result["compare"][key])
-                    self._write_compare_result_unit(worksheet, precision, row,
-                                                    col, compare_result,
-                                                    compare_ratio, color)
-                    col += 1
+                    if self.compare_framework is not None:
+                        compare_result = COMPARE_RESULT_SHOWS.get(
+                            result["compare"][key], "--")
+                        compare_ratio = result["compare"][key + "_ratio"]
+                        color = _get_speed_unit_color(result["compare"][key])
+                        self._write_compare_result_unit(
+                            worksheet, precision, row, col, compare_result,
+                            compare_ratio, color)
+                        col += 1
 
                 # Write gflops and gbs of paddle, only for gpu_forward and gpu_backward now.
                 if device == "gpu" and direction in ["forward", "backward"]:
