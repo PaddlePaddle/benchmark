@@ -7,6 +7,8 @@ gpu_ids=${2:-"0"}
 op_type=${3:-"all"}  # "all" or specified op_type, such as elementwise
 device_type=${4:-"both"}
 precision=${5:-"fp32"}
+task=${6:-"both"}
+framework=${7:-"both"}
 
 if [ ${test_module_name} != "tests" ] && [ ${test_module_name} != "tests_v2" ] && [ ${test_module_name} != "dynamic_tests_v2" ]; then
   echo "Please set test_module_name (${test_module_name}) to \"tests\", \"tests_v2\" or \"dynamic_tests_v2\"!"
@@ -22,6 +24,9 @@ if [ ${precision} != "both" ] && [ ${precision} != "fp32" ] && [ ${precision} !=
   echo "Please set precision (${precision}) to \"both\", \"fp32\" or \"fp16\"!"
   exit
 fi
+
+#export FLAGS_use_autotune=1
+#export GLOG_vmodule=switch_autotune=3
 
 install_package() {
   local package_name=$1
@@ -104,7 +109,7 @@ run_specified_op() {
   tests_dir=${OP_BENCHMARK_ROOT}/${test_module_name}
   echo "-- tests_dir: ${tests_dir}"
   log_path=${OUTPUT_ROOT}/log_${test_module_name}_${timestamp}.txt
-  bash ${OP_BENCHMARK_ROOT}/deploy/main_control.sh ${tests_dir} ${config_dir} ${output_dir} "${gpu_ids}" "gpu" "both" "none" "both" "${testing_mode}" "${op_type}" "${precision}" > ${log_path} 2>&1 &
+  bash ${OP_BENCHMARK_ROOT}/deploy/main_control.sh ${tests_dir} ${config_dir} ${output_dir} "${gpu_ids}" "gpu" "${task}" "none" "${framework}" "${testing_mode}" "${op_type}" "${precision}" > ${log_path} 2>&1 &
 }
 
 main() {
@@ -128,8 +133,5 @@ main() {
       ;;
   esac
 }
-
-#export FLAGS_use_autotune=1
-#export GLOG_vmodule=switch_autotune=3
 
 main
