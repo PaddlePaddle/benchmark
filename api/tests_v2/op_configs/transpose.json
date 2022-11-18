@@ -1,0 +1,1133 @@
+[{
+    "config_id": 0,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 3, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 14L, 1L, 1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 1,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 3, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 19L, 513L, 513L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 2,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 128L, 256L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 3,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[2, 3, 0, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4L, 12L, 512L, 896L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 4,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[2, 3, 0, 1]"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[4L, 12L, 512L, 896L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 5,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[1, 2, 0, 3]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4L, 512L, 512L, 1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 6,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[1, 2, 0, 3]"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[4L, 512L, 512L, 1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 7,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 1, 3, 2]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 128, 256, 32]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 8,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 1, 3, 2]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 1024, 256, 32]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 9,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[1, 0]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[64, 8]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 10,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[1, 0]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[128, 4]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 11,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 3, 1, 2]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 256, 256, 128]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 12,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[1, 2, 0]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[64, 8, 8]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 13,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 3, 1, 4]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 256, 256, 4, 16]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 14,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 3, 1, 4]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 4, 256, 256, 64]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 15,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 1, 3, 4, 2]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 256, 256, 4, 32]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 16,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 1, 3, 4, 2]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 1024, 256, 8, 8]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 17,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 1, 3, 2, 4]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 256, 4, 256, 32]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 18,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 1, 3, 2, 4]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 65536, 1, 4, 16]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 19,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 1, 2, 4, 3]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 256, 256, 4, 32]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 20,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 1, 2, 4, 3]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 256, 128, 8, 32]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 21,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[2, 1, 0]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 8, 64]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 22,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[2, 1, 0]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[4, 32, 128]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 23,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 1, 3]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 256, 12, 8]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 24,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 1, 3]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 12, 256, 8]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 25,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 256, 256]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 26,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 128, 256]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 27,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 3, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 1024, 32, 256]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 28,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 3, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 128, 256, 256]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 29,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 1, 2, 3, 4]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 256, 1024, 8, 8]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 30,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 3, 2, 1]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 1024, 256, 1]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 31,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 1, 4, 3]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 32, 256, 256, 32]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 32,
+    "op": "transpose",
+    "param_info": {
+        "perm": {
+            "type": "list",
+            "value": "[0, 1, 4, 2, 3]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 256, 32, 32, 256]",
+            "type": "Variable"
+        }
+    },
+    "repeat": 10000
+}, {
+    "config_id": 33,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16, 46, 4233]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[1,0,2]"
+        }
+    }
+}, {
+    "config_id": 34,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16, 40, 256]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1]"
+        }
+    }
+}, {
+    "config_id": 35,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16, 256, 40]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1]"
+        }
+    }
+}, {
+    "config_id": 36,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16, 4, 40, 64]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1,3]"
+        }
+    }
+}, {
+    "config_id": 37,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16, 256, 47, 19]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1,3]"
+        }
+    }
+}, {
+    "config_id": 38,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[16, 256, 48, 19]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1,3]"
+        }
+    }
+}, {
+    "config_id": 39,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 2, 64, 64]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,3,1]"
+        }
+    }
+}, {
+    "config_id": 40,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[8, 11, 64, 64, 2]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,1,4,2,3]"
+        }
+    }
+}, {
+    "config_id": 41,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 8, 1024, 32]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1,3]"
+        }
+    }
+}, {
+    "config_id": 42,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 65536, 256]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1]"
+        }
+    }
+}, {
+    "config_id": 43,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 19, 1024, 1024]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,3,1]"
+        }
+    }
+}, {
+    "config_id": 44,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 1, 65536, 32]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1,3]"
+        }
+    }
+}, {
+    "config_id": 45,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 2, 16384, 32]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1,3]"
+        }
+    }
+}, {
+    "config_id": 46,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 5, 4096, 32]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1,3]"
+        }
+    }
+}, {
+    "config_id": 47,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 64, 64, 160]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,3,1,2]"
+        }
+    }
+}, {
+    "config_id": 48,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2, 4096, 160]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1]"
+        }
+    }
+}, {
+    "config_id": 49,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[512, 65, 65, 1, 1, 1]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,3,1,4,2,5]"
+        }
+    }
+}, {
+    "config_id": 50,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1536, 33, 33, 1, 1, 1]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,3,1,4,2,5]"
+        }
+    }
+}, {
+    "config_id": 51,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1536, 1, 16, 16]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,3,1]"
+        }
+    }
+}, {
+    "config_id": 52,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[3, 8, 1, 8, 1, 1]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,1,3,5,2,4]"
+        }
+    }
+}, {
+    "config_id": 53,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[512, 33, 33, 1, 1, 1]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,3,1,4,2,5]"
+        }
+    }
+}, {
+    "config_id": 54,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1536, 1, 15, 15]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,3,1]"
+        }
+    }
+}, {
+    "config_id": 55,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[3, 512, 512, 3, 3]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1,3,4]"
+        }
+    }
+}, {
+    "config_id": 56,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[768, 128, 128, 1, 1, 1]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,3,1,4,2,5]"
+        }
+    }
+}, {
+    "config_id": 57,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[32, 128, 128, 1, 12]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,4,1,2,3]"
+        }
+    }
+}, {
+    "config_id": 58,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[128, 32, 768]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[1,0,2]"
+        }
+    }
+}, {
+    "config_id": 59,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[32, 12, 128, 1, 2]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,4,1,3]"
+        }
+    }
+}, {
+    "config_id": 60,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[128, 32, 12, 2]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[1,2,0,3]"
+        }
+    }
+}, {
+    "config_id": 61,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[32, 12, 128, 1, 128]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,1,2,4,3]"
+        }
+    }
+}, {
+    "config_id": 62,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[768, 768]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,1]"
+        }
+    }
+}, {
+    "config_id": 63,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[32, 12, 128, 128]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[2,0,1,3]"
+        }
+    }
+}, {
+    "config_id": 64,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[32, 12, 128, 1, 256]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,1,2,4,3]"
+        }
+    }
+}, {
+    "config_id": 65,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[14, 8, 196, 768]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1,3]"
+        }
+    }
+}, {
+    "config_id": 66,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[112, 12, 197, 64]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1,3]"
+        }
+    }
+}, {
+    "config_id": 67,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[112, 768, 196]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1]"
+        }
+    }
+}, {
+    "config_id": 68,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2744, 12, 8, 64]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,1,3]"
+        }
+    }
+}, {
+    "config_id": 69,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[112, 197, 3, 12, 64]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[2,0,3,1,4]"
+        }
+    }
+}, {
+    "config_id": 70,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[112, 12, 197, 64]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,1,3,2]"
+        }
+    }
+}, {
+    "config_id": 71,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2744, 8, 3, 12, 64]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[2,0,3,1,4]"
+        }
+    }
+}, {
+    "config_id": 72,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[14, 14, 14, 8, 768]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,3,1,2,4]"
+        }
+    }
+}, {
+    "config_id": 73,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[14, 8, 14, 14, 768]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,2,3,1,4]"
+        }
+    }
+}, {
+    "config_id": 74,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[2744, 12, 8, 64]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0,1,3,2]"
+        }
+    }
+}, {
+    "config_id": 75,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 256, 1024, 8]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0, 1, 3, 2]"
+        }
+    }
+}, {
+    "config_id": 76,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 256, 1024, 8, 8]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0, 1, 2, 4, 3]"
+        }
+    }
+}, {
+    "config_id": 77,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 32, 256, 256, 32]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0, 3, 1, 4, 2]"
+        }
+    }
+}, {
+    "config_id": 78,
+    "op": "transpose",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[1, 256, 32, 32, 256]",
+            "type": "Variable"
+        },
+        "perm": {
+            "type": "list",
+            "value": "[0, 2, 4, 1, 3]"
+        }
+    }
+}]
