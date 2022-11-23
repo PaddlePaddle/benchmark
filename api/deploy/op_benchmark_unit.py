@@ -301,8 +301,15 @@ def count_results_for_devices(benchmark_result_list):
         num_values = 0
         if isinstance(arg, dict):
             for v in arg.values():
-                if v != "--":
-                    num_values += 1
+                if isinstance(v, dict):
+                    num_values += _calc_num_values(v)
+                elif isinstance(v, str):
+                    if v != "--":
+                        num_values += 1
+                elif not isinstance(v, float):
+                    raise TypeError(
+                        "Type {} is not supported, the content is: {}!".format(
+                            type(v), arg))
         return num_values
 
     num_gpu_results = 0
@@ -313,7 +320,7 @@ def count_results_for_devices(benchmark_result_list):
             num_gpu_results += 1
         if _calc_num_values(op_unit.cpu_forward) > 0 or _calc_num_values(
                 op_unit.cpu_backward) > 0:
-            num_gpu_results += 1
+            num_cpu_results += 1
     return num_gpu_results, num_cpu_results
 
 

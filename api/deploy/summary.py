@@ -34,7 +34,6 @@ sys.path.append(
 from common import system
 import op_benchmark_unit
 
-res = {}
 TABLE_HEADER = ["case_name", "指标", "标准值", "当前值", "波动范围"]
 CHECK_KEY = OrderedDict()
 CHECK_KEY["gpu_time"] = "GPU正向内核"
@@ -88,7 +87,7 @@ def _read_last_line(inputfile):
     return last_line
 
 
-def _parse_disabled_status(case_name, last_line):
+def _parse_disabled_status(res, case_name, last_line):
     assert res.get(case_name, None) is not None
 
     case_detail = res[case_name]
@@ -101,7 +100,7 @@ def _parse_disabled_status(case_name, last_line):
             pass
 
 
-def _parse_parameters(case_name, last_line):
+def _parse_parameters(res, case_name, last_line):
     assert res.get(case_name, None) is not None
 
     case_detail = res[case_name]
@@ -114,7 +113,7 @@ def _parse_parameters(case_name, last_line):
             pass
 
 
-def _parse_speed(case_name, statistic_type, last_line):
+def _parse_speed(res, case_name, statistic_type, last_line):
     assert res.get(case_name, None) is not None
 
     speed_key_map = {
@@ -169,7 +168,7 @@ def _parse_speed(case_name, statistic_type, last_line):
             res[case_name][gbs_key] = "--"
 
 
-def _parse_accuracy(case_name, statistic_type, last_line):
+def _parse_accuracy(res, case_name, statistic_type, last_line):
     assert res.get(case_name, None) is not None
 
     difference_key = statistic_type.replace("accuracy", "difference")
@@ -193,7 +192,7 @@ def _parse_accuracy(case_name, statistic_type, last_line):
         res[case_name][difference_key] = "--"
 
 
-def get_job_res(inputfile, specified_op_list=None):
+def get_job_res(res, inputfile, specified_op_list=None):
     """
     implements within avoiding too large file
 
@@ -223,6 +222,7 @@ def get_job_res(inputfile, specified_op_list=None):
       inputfile (str) -- directory path
     """
     file_name = os.path.splitext(os.path.basename(inputfile))[0]
+    file_name = file_name.replace("_fp32", "").replace("_fp16", "")
     case_name = file_name.split("-")[0]
     op_type = op_benchmark_unit.parse_op_type(case_name)
     if specified_op_list and op_type not in specified_op_list:
@@ -240,16 +240,16 @@ def get_job_res(inputfile, specified_op_list=None):
     last_line = _read_last_line(inputfile)
 
     # Parse "disabled" status.
-    _parse_disabled_status(case_name, last_line)
+    _parse_disabled_status(res, case_name, last_line)
 
     # Parse parameters of current case from the result dict.
-    _parse_parameters(case_name, last_line)
+    _parse_parameters(res, case_name, last_line)
 
     if last_line and "_speed_" in statistic_type:
-        _parse_speed(case_name, statistic_type, last_line)
+        _parse_speed(res, case_name, statistic_type, last_line)
 
     if last_line and "_accuracy_" in statistic_type:
-        _parse_accuracy(case_name, statistic_type, last_line)
+        _parse_accuracy(res, case_name, statistic_type, last_line)
 
     return framework
 
@@ -387,6 +387,47 @@ def dump_mysql(data, version, construct_email):
         construct_alarm_email(timestamp, alarm_results)
 
 
+def parse_logs(op_result_dir, specified_op_list):
+    filenames = os.listdir(op_result_dir)
+    if "api_info.txt" in filenames:
+        filenames.remove('api_info.txt')
+    assert len(filenames) > 0, "Directory %s is empty." % op_result_dir
+
+    fp32_res = {}
+    fp16_res = {}
+    compare_framework = None
+    for filename in sorted(filenames):
+        res = fp16_res if "_fp16" in filename else fp32_res
+        framework = get_job_res(res,
+                                os.path.join(op_result_dir, filename),
+                                specified_op_list)
+        if framework is not None and framework != "paddle":
+            if compare_framework:
+                assert framework == compare_framework, "Framework name parsed from result's filename \
+                    is expected to be %s, but recieved %s." % (
+                    compare_framework, framework)
+            else:
+                compare_framework = framework
+
+    fp32_benchmark_result_list = []
+    fp16_benchmark_result_list = []
+    for precision in ["fp32", "fp16"]:
+        res = fp32_res if precision == "fp32" else fp16_res
+        for key, value in sorted(
+                res.items(),
+                key=lambda t: op_benchmark_unit.unify_case_name(t[0])):
+            case_detail = value.copy()
+            case_detail['name'] = key
+            op_unit = op_benchmark_unit.OpBenchmarkUnit(case_detail,
+                                                        compare_framework)
+            if precision == "fp32":
+                fp32_benchmark_result_list.append(op_unit)
+            else:
+                fp16_benchmark_result_list.append(op_unit)
+
+    return fp32_benchmark_result_list, fp16_benchmark_result_list, compare_framework
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -468,39 +509,12 @@ if __name__ == '__main__':
     assert os.path.exists(
         op_result_dir), "Directory %s does not exist." % op_result_dir
 
-    filenames = os.listdir(op_result_dir)
-    if "api_info.txt" in filenames:
-        filenames.remove('api_info.txt')
-    assert len(filenames) > 0, "Directory %s is empty." % op_result_dir
-
     specified_op_list = None
     if args.specified_op_list:
         specified_op_list = args.specified_op_list.split()
 
-    compare_framework = None
-    for filename in sorted(filenames):
-        framework = get_job_res(
-            os.path.join(op_result_dir, filename), specified_op_list)
-        if framework is not None and framework != "paddle":
-            if compare_framework:
-                assert framework == compare_framework, "Framework name parsed from result's filename \
-                    is expected to be %s, but recieved %s." % (
-                    compare_framework, framework)
-            else:
-                compare_framework = framework
-
-    data = []
-    benchmark_result_list = []
-    for key, value in sorted(
-            res.items(),
-            key=lambda t: op_benchmark_unit.unify_case_name(t[0])):
-        case_detail = value.copy()
-        case_detail['name'] = key
-        data.append(case_detail)
-
-        op_unit = op_benchmark_unit.OpBenchmarkUnit(case_detail,
-                                                    compare_framework)
-        benchmark_result_list.append(op_unit)
+    fp32_benchmark_result_list, fp16_benchmark_result_list, compare_framework = parse_logs(
+        op_result_dir, specified_op_list)
 
     op_frequency_dict = None
     if args.op_frequency_path:
@@ -512,20 +526,21 @@ if __name__ == '__main__':
     if args.dump_to_text:
         import write_text
 
-        write_text.dump_text(benchmark_result_list, args.output_path,
+        write_text.dump_text(fp32_benchmark_result_list, args.output_path,
                              compare_framework, args.dump_with_parameters)
 
     if args.dump_to_excel:
         import write_excel
 
-        write_excel.dump_excel(benchmark_result_list, op_result_dir,
+        write_excel.dump_excel(fp32_benchmark_result_list,
+                               fp16_benchmark_result_list, op_result_dir,
                                args.url_prefix, args.output_path,
                                compare_framework, op_frequency_dict)
 
     if args.dump_to_json:
         import write_json
 
-        write_json.dump_json(benchmark_result_list, args.output_path,
+        write_json.dump_json(fp32_benchmark_result_list, args.output_path,
                              compare_framework, args.dump_with_parameters)
 
     if args.dump_to_mysql:
@@ -536,8 +551,8 @@ if __name__ == '__main__':
             from write_mysql import DB
             db = DB(args.host, args.user, args.password, args.database)
             try:
-                db.write_database(benchmark_result_list, compare_framework,
-                                  args.card)
+                db.write_database(fp32_benchmark_result_list,
+                                  compare_framework, args.card)
             except Exception as e:
                 print("dump data into mysql failed, please check reason!")
                 print(e)

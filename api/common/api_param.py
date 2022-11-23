@@ -238,16 +238,20 @@ class APIConfig(object):
         """
         Convert all variables' dtype to float16.
         """
+
+        def _is_floating_point_type(dtype):
+            if dtype in ["float", "float32", "double", "float64"]:
+                return True
+            return False
+
         for var in self.variable_list:
-            if var.type == "Variable" and var.dtype not in [
-                    "float16", "int32", "int64"
-            ]:
+            if var.type == "Variable" and _is_floating_point_type(var.dtype):
                 var.dtype = "float16"
                 setattr(self, var.name + "_dtype", var.dtype)
             elif var.type == "list<Variable>":
                 # convert each list member in list<Variable> from fp32 into fp16 type
                 for i in range(len(var.dtype)):
-                    if var.dtype[i] not in ["float16", "int32", "int64"]:
+                    if _is_floating_point_type(var.dtype[i]):
                         var.dtype[i] = "float16"
                 setattr(self, var.name + "_dtype", var.dtype)
 
