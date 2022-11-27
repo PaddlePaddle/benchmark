@@ -14,10 +14,6 @@
 
 from common_import import *
 
-import paddle
-from paddle import _C_ops
-from paddle.fluid.layer_helper import LayerHelper
-
 
 class SquaredL2NormConfig(APIConfig):
     def __init__(self):
@@ -27,7 +23,7 @@ class SquaredL2NormConfig(APIConfig):
 class PDSquaredL2Norm(PaddleDynamicAPIBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name="x", shape=config.x_shape, dtype=config.x_dtype)
-        result = _C_ops.squared_l2_norm(x)
+        result = paddle._C_ops.squared_l2_norm(x)
 
         self.feed_list = [x]
         self.fetch_list = [result]
