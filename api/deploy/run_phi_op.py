@@ -45,33 +45,20 @@ def main():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        '--base_dir',
-        type=str,
-        help='input the benchmark code directory'
-    )
+        '--base_dir', type=str, help='input the benchmark code directory')
+    parser.add_argument('--log_dir', type=str, help='input the log dir')
     parser.add_argument(
-        '--log_dir',
-        type=str,
-        help='input the log dir'
-    )
-    parser.add_argument(
-        '--op_list',
-        type=str,
-        default=None,
-        help='specify the operator list.')
+        '--op_list', type=str, default=None, help='specify the operator list.')
     args = parser.parse_args()
     base_dir = args.base_dir
     main_control = base_dir + "/deploy/main_control.sh"
-    module_name = base_dir + "/dynamic_tests_v2"
+    module_name = base_dir + "/tests"
     configs = base_dir + "/tests_v2/configs"
     logdir = args.log_dir
     oplist = args.op_list
     if oplist is None:
         oplist = get_phi_op_list()
-    cmd = "bash {} {} {} {} 0 gpu speed none both dynamic {}".format(main_control,
-                                                                     module_name,
-                                                                     configs,
-                                                                     logdir,
-                                                                     oplist)
+    cmd = "bash {} {} {} {} 0 gpu speed none both dynamic {}".format(
+        main_control, module_name, configs, logdir, oplist)
     print("[cmd] {}".format(cmd))
     os.system(cmd)

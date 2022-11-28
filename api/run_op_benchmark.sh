@@ -2,7 +2,7 @@
 
 OP_BENCHMARK_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
 
-test_module_name=${1:-"dynamic_tests_v2"}  # "tests", "tests_v2", "dynamic_tests_v2"
+test_module_name=${1:-"tests"}  # "tests", "tests_v2"
 gpu_ids=${2:-"0"}
 op_type=${3:-"all"}  # "all" or specified op_type, such as elementwise
 device_type=${4:-"both"}
@@ -10,8 +10,8 @@ precision=${5:-"fp32"}
 task=${6:-"both"}
 framework=${7:-"both"}
 
-if [ ${test_module_name} != "tests" ] && [ ${test_module_name} != "tests_v2" ] && [ ${test_module_name} != "dynamic_tests_v2" ]; then
-  echo "Please set test_module_name (${test_module_name}) to \"tests\", \"tests_v2\" or \"dynamic_tests_v2\"!"
+if [ ${test_module_name} != "tests" ] && [ ${test_module_name} != "tests_v2" ]; then
+  echo "Please set test_module_name (${test_module_name}) to \"tests\", \"tests_v2\"!"
   exit
 fi
 
@@ -113,7 +113,7 @@ run_specified_op() {
 }
 
 main() {
-  if [ ${test_module_name} == "tests" ] || [ "${test_module_name}" == "dynamic_tests_v2" ]; then
+  if [ ${test_module_name} == "tests" ]; then
     testing_mode="dynamic"
     # For ampere, need to install the nightly build cuda11.3 version using the following command:
     # pip install --pre torch -f https://download.pytorch.org/whl/nightly/cu113/torch_nightly.html

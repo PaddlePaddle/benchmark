@@ -135,8 +135,7 @@ if __name__ == '__main__':
         '--test_module_name',
         type=str,
         default="tests",
-        help='The module_name under benchmark/api (tests|tests_v2|dynamic_tests_v2).'
-    )
+        help='The module_name under benchmark/api (tests|tests_v2).')
     parser.add_argument(
         '--info_file',
         type=str,
@@ -150,7 +149,7 @@ if __name__ == '__main__':
         help='Specify the operator list.')
     args = parser.parse_args()
     assert args.test_module_name in [
-        "tests", "tests_v2", "dynamic_tests_v2"
-    ], "Please set test_module_name to \"tests\", \"tests_v2\", \"dynamic_tests_v2\"."
+        "tests", "tests_v2"
+    ], "Please set test_module_name to \"tests\", \"tests_v2\"."
     sys.path.append(os.path.join(package_path, args.test_module_name))
     main(args)
