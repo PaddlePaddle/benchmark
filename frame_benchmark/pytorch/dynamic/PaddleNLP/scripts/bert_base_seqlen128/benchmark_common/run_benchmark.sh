@@ -37,7 +37,9 @@ function _set_params(){
     fi
 }
 function _analysis_log(){
-    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num}
+    cmd="python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} ${fp_item} ${base_batch_size}"
+    echo $cmd
+    eval $cmd
 }
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
@@ -51,44 +53,47 @@ function _train(){
 
     PREC=""
     if [ ${fp_item} = "fp16" ];then
-        PREC="fp16"
+        PREC="--fp16"
     fi
 
     ALL_REDUCE_POST_ACCUMULATION="--allreduce_post_accumulation"
     ALL_REDUCE_POST_ACCUMULATION_FP16="--allreduce_post_accumulation_fp16"
     CHECKPOINT=""
     INIT_CHECKPOINT=""
-    ACCUMULATE_GRADIENTS="--gradient_accumulation_steps=128"
+    gradient_accumulation_steps=$(expr 67584 \/ $base_batch_size \/ $num_gpu_devices)
+    train_batch_size=$(expr 67584 \/ $num_gpu_devices)   # total batch_size per gpu
     
     CMD=" --input_dir=$DATA_DIR_PHASE1"
     CMD+=" --output_dir=$CHECKPOINTS_DIR"
     CMD+=" --config_file=${BERT_CONFIG}"
-    CMD+=" --train_batch_size=${base_batch_size}"
+    CMD+=" --train_batch_size=${train_batch_size}"
     CMD+=" --max_seq_length=128"
-    CMD+=" --max_predictions_per_seq=80"
-    CMD+=" --max_steps=1563"
-    CMD+=" --warmup_proportion=0.128"
+    CMD+=" --max_predictions_per_seq=20"
+    CMD+=" --max_steps=${max_iter}"
+    CMD+=" --warmup_proportion=0.2843"
     CMD+=" --num_steps_per_checkpoint=200"
-    CMD+=" --learning_rate=4e-3"
-    CMD+=" --bert_model=bert-base-uncased"
+    CMD+=" --learning_rate=6e-3"
     CMD+=" --seed=12439"
+    CMD+=" --bert_model=bert-base-uncased"
     CMD+=" $PREC"
-    CMD+=" $ACCUMULATE_GRADIENTS"
+    CMD+=" --gradient_accumulation_steps=${gradient_accumulation_steps}"
     CMD+=" $CHECKPOINT"
     CMD+=" $ALL_REDUCE_POST_ACCUMULATION"
     CMD+=" $ALL_REDUCE_POST_ACCUMULATION_FP16"
     CMD+=" $INIT_CHECKPOINT"
     CMD+=" --do_train"
     CMD+=" --json-summary ${RESULTS_DIR}/dllogger.json"
-
+    CMD+=" --disable_progress_bar"
+    rm -rf /workspace/bert/results/checkpoints/
     case ${run_process_type} in
-    SingleP) train_cmd="python3 /workspace/bert/run_pretraining.py ${CMD}" ;;
+    SingleP) train_cmd="python3 -m torch.distributed.launch --nproc_per_node=1  /workspace/bert/run_pretraining.py ${CMD}" ;;
     MultiP)
         train_cmd="python3 -m torch.distributed.launch  --nproc_per_node=8 /workspace/bert/run_pretraining.py  ${CMD}" ;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
 #   以下为通用执行命令，无特殊可不用修改
-    timeout 15m ${train_cmd} > ${log_file} 2>&1
+    echo ${train_cmd}
+    timeout 40m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
     else
@@ -98,6 +103,8 @@ function _train(){
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
     fi
+    echo ${train_cmd} >> ${log_file}
+    cat  ${log_file}
     #kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 }
 _set_params $@

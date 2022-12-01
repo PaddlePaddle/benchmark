@@ -1,6 +1,6 @@
-model_item=bert_large_seqlen512
-bs_item=10
-fp_item=fp32
+model_item=bert_base_seqlen128
+bs_item=32
+fp_item=fp16
 run_process_type=MultiP
 run_mode=DP
 device_num=N1C8
