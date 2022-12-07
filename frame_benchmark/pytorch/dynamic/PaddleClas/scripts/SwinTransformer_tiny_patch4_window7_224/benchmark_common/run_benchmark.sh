@@ -1,15 +1,5 @@
 #!/usr/bin/env bash
 
-# Test training benchmark for a model.
-declare -A dic
-dic=( ["MobileNetV2_fp32"]="configs/mobilenet_v2/mobilenet_v2_b32x8_imagenet.py"
-      ["ShuffleNetV2_x1_0_fp32"]="configs/shufflenet_v2/shufflenet_v2_1x_b64x16_linearlr_bn_nowd_imagenet.py"
-      ["SwinTransformer_tiny_patch4_window7_224_fp32"]="configs/swin_transformer/swin_base_224_b16x64_300e_imagenet.py"
-      ["MobileNetV3_large_x1_0_fp32"]="configs/mobilenet_v3/mobilenet_v3_large_imagenet.py"
-      ["ResNet50_fp32"]="configs/resnet/resnet50_b32x8_imagenet.py"
-      ["ResNet152_fp32"]="configs/resnet/resnet152_b32x8_imagenet.py"
-	)
-
 # Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_name} ${run_mode} ${fp_item} ${bs_item} ${max_epochs} ${num_workers}
 
 function _set_params(){
@@ -20,7 +10,7 @@ function _set_params(){
     run_mode=${5:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
     device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
-    model_repo="mmclassification"          # (必选) 模型套件的名字
+    model_repo="pytorch-image-models"          # (必选) 模型套件的名字
     ips_unit="samples/sec"         # (必选)速度指标单位
     skip_steps=10                  # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="ips:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
@@ -58,27 +48,25 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py -d work_dirs -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item}
+    python analysis_log.py -l ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item}
 }
 
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
-    train_config=${dic["${model_item}_${fp_item}"]}
-    train_options="--no-validate \
-                   --cfg-options log_config.interval=1 \
-                   runner.max_epochs=${max_epochs} \
-                   data.samples_per_gpu=${batch_size}  \
-                   data.workers_per_gpu=${num_workers}"
+    train_options="ILSVRC2012_w --model swin_tiny_patch4_window7_224 --lr 0.001 --warmup-epochs 20 --epochs ${max_epochs} --weight-decay 0.05 --sched cosine --aa rand-m7-mstd0.5-inc1 --reprob=0.25 --remode='pixel' --mixup=0.2 --cutmix=1.0 --opt=adamw --batch-size ${batch_size} --workers ${num_workers}"
+    if [ ${fp_item} = 'fp16' ];then
+        train_options="${train_options} --amp"
+    fi
 
     case ${run_process_type} in
-    SingleP) train_cmd="python tools/train.py ${train_config} ${train_options}" ;;
+    SingleP) train_cmd="python train.py ${train_options}" ;;
     MultiP) 
     if [ ${device_num:3} = '32' ];then
-        train_cmd="python -m torch.distributed.run --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} --nproc_per_node=8 ./tools/train.py ${train_config} ${train_options} --launcher pytorch"
+        train_cmd="python -m torch.distributed.run --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} --nproc_per_node=8 train.py ${train_options}"
     elif [ ${device_num:3} = '8' ];then
-        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --master_port=29500 ./tools/train.py ${train_config} ${train_options} --launcher pytorch"
+        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --master_port=29500 train.py ${train_options}"
     fi  ;; 
     *) echo "choose run_process_type(SingleP or MultiP)"; exit 1;
     esac

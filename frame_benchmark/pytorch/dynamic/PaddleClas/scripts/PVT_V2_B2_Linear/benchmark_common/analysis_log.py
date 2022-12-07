@@ -6,7 +6,7 @@ import re
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--dir', type=str, default='work_dirs')
+    parser.add_argument('-l', '--log', type=str, default='log path')
     parser.add_argument('-m', '--model_name', type=str, required=True)
     parser.add_argument('-b', '--batch_size', type=int, required=True)
     parser.add_argument('-n', '--device_num', type=str, required=True)
@@ -16,29 +16,33 @@ def parse_args():
     return args
 
 
-def get_log_file(path):
-    with open(path) as fd:
+def get_log_file(log_path):
+    with open(log_path) as fd:
         lines = fd.readlines()
-    return lines[1:]
+    return list(filter(lambda l: "Train:" in l, lines))
 
 
 def calculate_ips(log_list, batch_size):
-    log_list = list(filter(lambda l: "Epoch" in l and "lr" in l, log_list))
-
     if len(log_list) < 5:
         print('log number is smaller than 5, the ips may be inaccurate!')
-    line = log_list[-1]
-    avg_time = re.findall(r"time: (\d+\.?\d*)", line)[0]
-    avg_time = float(avg_time)
-
-    return batch_size / avg_time
+    else:
+        log_list = log_list[4:]
+    
+    pattern = re.compile(r"^.*Time:\s?(\d+\.?\d*)s,.*$")
+    total_time = 0
+    for line in log_list:
+        time = pattern.findall(line)[0]
+        total_time += float(time)
+    avg_time = total_time / len(log_list)
+    ips = batch_size / avg_time
+    return ips
 
 
 if __name__ == "__main__":
     args = parse_args()
     try:
         num_gpu = int(args.device_num[3:])
-        log_list = get_log_file(args.dir)
+        log_list = get_log_file(args.log)
         ips = calculate_ips(log_list, num_gpu * args.batch_size)
     except Exception as e:
         ips = 0
@@ -55,6 +59,7 @@ if __name__ == "__main__":
         "model_name": args.model_name+"_bs"+str(args.batch_size)+"_"+args.fp+run_mode,
         "batch_size": args.batch_size,
         "fp_item": args.fp,
+        "run_process_type": "MultiP",
         "run_mode": run_mode,
         "convergence_value": 0,
         "convergence_key": "",
