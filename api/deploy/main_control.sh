@@ -119,8 +119,6 @@ FRAMEWORK_SET=("paddle" "pytorch")
 if [ $# -ge 8 ]; then
     if [ $# -ge 9 ]; then
         TESTING_MODE=${9}
-    elif [ ${TEST_MODULE_NAME} == "dynamic_tests_v2" ]; then
-        TESTING_MODE="dynamic"
     elif [ ${TEST_MODULE_NAME} == "tests_v2" ]; then
         TESTING_MODE="static"
     fi
