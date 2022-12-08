@@ -31,7 +31,7 @@ class PaddleEigh(PaddleOpBenchmarkBase):
         self.feed_list = [x]
         self.fetch_list = [out_w, out_v]
         if config.backward:
-            self.append_gradients([out_w, out_v], [x])
+            self.append_gradients(out_w.sum() + paddle.abs(out_v).sum(), [x])
 
 
 @benchmark_registry.register("eigh")
@@ -43,4 +43,4 @@ class TorchEigh(PytorchOpBenchmarkBase):
         self.feed_list = [x]
         self.fetch_list = [out_w, out_v]
         if config.backward:
-            self.append_gradients([out_w, out_v], [x])
+            self.append_gradients(out_w.sum() + torch.abs(out_v).sum(), [x])
