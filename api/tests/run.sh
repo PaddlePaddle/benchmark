@@ -17,7 +17,7 @@ task=${3:-"speed"} # "accuracy" or "speed"
 
 testing_mode="dynamic" # "static" or "dynamic"
 framework="paddle"  # "paddle" or "tensorflow" or "pytorch"
-filename="${OP_BENCHMARK_ROOT}/tests_v2/configs/${name}.json"
+filename="${OP_BENCHMARK_ROOT}/configs/default/${name}.json"
 if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
   use_gpu=False
 else

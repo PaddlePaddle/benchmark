@@ -1,0 +1,35 @@
+[{
+    "op": "reduce",
+    "param_info": {
+        "axis": {
+            "type": "list",
+            "value": "[0]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[10201L, 1L]",
+            "type": "Variable"
+        },
+        "keepdim": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}, {
+    "op": "reduce",
+    "param_info": {
+        "axis": {
+            "type": "list",
+            "value": "[0]"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[10201L, 50L]",
+            "type": "Variable"
+        },
+        "keepdim": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+}]

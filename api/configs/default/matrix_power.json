@@ -11,7 +11,7 @@
             "type": "Variable"
         }
     }
-},{
+}, {
     "op": "matrix_power",
     "param_info": {
         "n": {
@@ -24,7 +24,7 @@
             "type": "Variable"
         }
     }
-},{
+}, {
     "op": "matrix_power",
     "param_info": {
         "n": {

@@ -1,7 +1,7 @@
 [{
     "op": "broadcast_tensors",
     "param_info": {
-        "input":{
+        "input": {
             "type": "list<Variable>",
             "input0": {
                 "dtype": "float32",
@@ -21,10 +21,10 @@
         }
     },
     "repeat": 5000
-},{
+}, {
     "op": "broadcast_tensors",
     "param_info": {
-        "input":{
+        "input": {
             "type": "list<Variable>",
             "input0": {
                 "dtype": "float32",
@@ -44,5 +44,4 @@
         }
     },
     "repeat": 5000
-}
-]
+}]

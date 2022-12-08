@@ -75,7 +75,7 @@ run_op_benchmark() {
   fi
   echo "-- output_dir: ${output_dir}"
   
-  config_dir=${OP_BENCHMARK_ROOT}/tests_v2/configs
+  config_dir=${OP_BENCHMARK_ROOT}/configs/default
   echo "-- config_dir: ${config_dir}"
   
   tests_dir=${OP_BENCHMARK_ROOT}/${test_module_name}
@@ -103,7 +103,7 @@ run_specified_op() {
   fi
   echo "-- output_dir: ${output_dir}"
   
-  config_dir=${OP_BENCHMARK_ROOT}/tests_v2/op_configs
+  config_dir=${OP_BENCHMARK_ROOT}/configs/general
   echo "-- config_dir: ${config_dir}"
  
   tests_dir=${OP_BENCHMARK_ROOT}/${test_module_name}
