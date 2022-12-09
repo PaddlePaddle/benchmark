@@ -30,7 +30,7 @@ BENCHMARK_ROOT=$(cd $(dirname $0)/../.. && pwd)
 [ -z "$CUDA_VISIBLE_DEVICES" ] && CUDA_VISIBLE_DEVICES="0"
 
 function prepare_env(){
-  num_changed_files=$(git diff --name-only master | grep -E "api/(common)?(dynamic_)?(tests)?(_v2)?/(.*\.py|configs/.*\.json)" | wc -l)
+  num_changed_files=$(git diff --name-only master | grep -E "api/(common)?(tests)?(_v2)?/(.*\.py|configs/.*\.json)" | wc -l)
   if [ ${num_changed_files} -eq 0 ]; then
     LOG "[INFO] This pull request doesn't change any files of op benchmark, skip the CI."
     exit 0
@@ -74,7 +74,7 @@ function prepare_env(){
 function run_api(){
   LOG "[INFO] Start run api test ..."
   API_NAMES=()
-  for file in $(git diff --name-only master | grep -E "api/(dynamic_)?tests(_v2)?/(.*\.py|configs/.*\.json)")
+  for file in $(git diff --name-only master | grep -E "api/tests(_v2)?/(.*\.py|configs/.*\.json)")
   do
     LOG "[INFO] Found ${file} modified."
     api=${file#*api/} && api=${api%.*}
@@ -92,8 +92,8 @@ function run_api(){
     fi
   done
   API_NAMES=($(echo ${API_NAMES[@]} | tr ' ' '\n' | sort | uniq))
+  [ -z "$(echo ${API_NAMES[@]} | grep -w 'tests')" ] && API_NAMES[${#API_NAMES[@]}]=tests/abs
   [ -z "$(echo ${API_NAMES[@]} | grep -w 'tests_v2')" ] && API_NAMES[${#API_NAMES[@]}]=tests_v2/abs
-  [ -z "$(echo ${API_NAMES[@]} | grep -w 'dynamic_tests_v2')" ] && API_NAMES[${#API_NAMES[@]}]=dynamic_tests_v2/abs
   LOG "[INFO] These APIs will run: ${API_NAMES[@]}"
   fail_name=()
   for name in ${API_NAMES[@]}
