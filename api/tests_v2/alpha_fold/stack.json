@@ -1,0 +1,764 @@
+[{
+    "config_id": 0,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "0"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[1]",
+                "type": "Variable"
+            },
+            "x4": {
+                "dtype": "float32",
+                "shape": "[1]",
+                "type": "Variable"
+            },
+            "x5": {
+                "dtype": "float32",
+                "shape": "[1]",
+                "type": "Variable"
+            },
+            "x6": {
+                "dtype": "float32",
+                "shape": "[1]",
+                "type": "Variable"
+            },
+            "x7": {
+                "dtype": "float32",
+                "shape": "[1]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 1,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "3"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 2048, 3584]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 2048, 3584]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 2048, 3584]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 2,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "3"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256, 256]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256, 256]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256, 256]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 3,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "2"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 2048]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 2048]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 2048]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 4,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "2"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 5,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "2"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 3584]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 3584]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 3584]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 6,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "0"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14, 3]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14, 3]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14, 3]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14, 3]",
+                "type": "Variable"
+            },
+            "x4": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14, 3]",
+                "type": "Variable"
+            },
+            "x5": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14, 3]",
+                "type": "Variable"
+            },
+            "x6": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14, 3]",
+                "type": "Variable"
+            },
+            "x7": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14, 3]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 7,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "2"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 2048]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 2048]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 2048]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[1, 2048]",
+                "type": "Variable"
+            },
+            "x4": {
+                "dtype": "float32",
+                "shape": "[1, 2048]",
+                "type": "Variable"
+            },
+            "x5": {
+                "dtype": "float32",
+                "shape": "[1, 2048]",
+                "type": "Variable"
+            },
+            "x6": {
+                "dtype": "float32",
+                "shape": "[1, 2048]",
+                "type": "Variable"
+            },
+            "x7": {
+                "dtype": "float32",
+                "shape": "[1, 2048]",
+                "type": "Variable"
+            },
+            "x8": {
+                "dtype": "float32",
+                "shape": "[1, 2048]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 8,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "3"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 9,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "2"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[1, 256]",
+                "type": "Variable"
+            },
+            "x4": {
+                "dtype": "float32",
+                "shape": "[1, 256]",
+                "type": "Variable"
+            },
+            "x5": {
+                "dtype": "float32",
+                "shape": "[1, 256]",
+                "type": "Variable"
+            },
+            "x6": {
+                "dtype": "float32",
+                "shape": "[1, 256]",
+                "type": "Variable"
+            },
+            "x7": {
+                "dtype": "float32",
+                "shape": "[1, 256]",
+                "type": "Variable"
+            },
+            "x8": {
+                "dtype": "float32",
+                "shape": "[1, 256]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 10,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "0"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3]",
+                "type": "Variable"
+            },
+            "x4": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3]",
+                "type": "Variable"
+            },
+            "x5": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3]",
+                "type": "Variable"
+            },
+            "x6": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3]",
+                "type": "Variable"
+            },
+            "x7": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 11,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "0"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3, 3]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3, 3]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3, 3]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3, 3]",
+                "type": "Variable"
+            },
+            "x4": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3, 3]",
+                "type": "Variable"
+            },
+            "x5": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3, 3]",
+                "type": "Variable"
+            },
+            "x6": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3, 3]",
+                "type": "Variable"
+            },
+            "x7": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8, 3, 3]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 12,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "3"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14, 3]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14, 3]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256, 14, 3]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 13,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "3"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 14,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "0"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256, 7]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256, 7]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256, 7]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[1, 256, 7]",
+                "type": "Variable"
+            },
+            "x4": {
+                "dtype": "float32",
+                "shape": "[1, 256, 7]",
+                "type": "Variable"
+            },
+            "x5": {
+                "dtype": "float32",
+                "shape": "[1, 256, 7]",
+                "type": "Variable"
+            },
+            "x6": {
+                "dtype": "float32",
+                "shape": "[1, 256, 7]",
+                "type": "Variable"
+            },
+            "x7": {
+                "dtype": "float32",
+                "shape": "[1, 256, 7]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 15,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "3"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8]",
+                "type": "Variable"
+            },
+            "x4": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8]",
+                "type": "Variable"
+            },
+            "x5": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8]",
+                "type": "Variable"
+            },
+            "x6": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8]",
+                "type": "Variable"
+            },
+            "x7": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8]",
+                "type": "Variable"
+            },
+            "x8": {
+                "dtype": "float32",
+                "shape": "[1, 256, 8]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 16,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "3"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256, 1]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256, 1]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256, 1]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 17,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "3"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256, 1]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256, 1]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256, 1]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[1, 256, 1]",
+                "type": "Variable"
+            },
+            "x4": {
+                "dtype": "float32",
+                "shape": "[1, 256, 1]",
+                "type": "Variable"
+            },
+            "x5": {
+                "dtype": "float32",
+                "shape": "[1, 256, 1]",
+                "type": "Variable"
+            },
+            "x6": {
+                "dtype": "float32",
+                "shape": "[1, 256, 1]",
+                "type": "Variable"
+            },
+            "x7": {
+                "dtype": "float32",
+                "shape": "[1, 256, 1]",
+                "type": "Variable"
+            },
+            "x8": {
+                "dtype": "float32",
+                "shape": "[1, 256, 1]",
+                "type": "Variable"
+            }
+        }
+    }
+}, {
+    "config_id": 18,
+    "op": "stack",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "type": "list<Variable>",
+            "x0": {
+                "dtype": "float32",
+                "shape": "[1, 256, 256, 64]",
+                "type": "Variable"
+            },
+            "x1": {
+                "dtype": "float32",
+                "shape": "[1, 256, 256, 64]",
+                "type": "Variable"
+            },
+            "x2": {
+                "dtype": "float32",
+                "shape": "[1, 256, 256, 64]",
+                "type": "Variable"
+            },
+            "x3": {
+                "dtype": "float32",
+                "shape": "[1, 256, 256, 64]",
+                "type": "Variable"
+            }
+        }
+    }
+}]
