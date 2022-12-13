@@ -1,0 +1,29 @@
+[{
+    "op": "eigh",
+    "param_info": {
+        "UPLO": {
+            "type": "string",
+            "value": "L"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[256L, 4L, 4L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001
+}, {
+    "op": "eigh",
+    "param_info": {
+        "UPLO": {
+            "type": "string",
+            "value": "U"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[256L, 4L, 4L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 0.00001
+}]
