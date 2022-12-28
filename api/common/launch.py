@@ -119,16 +119,16 @@ class NsightRunner(object):
         memsize_line_from, memsize_line_to = None, None
         for i in range(len(logs)):
             line = api_param.parse_string(logs[i])
-            if "[4/7] Executing 'cudaapisum' stats report" in line:
+            if "Executing 'cudaapisum' stats report" in line:
                 cudaapi_line_from, cudaapi_line_to = self._extract_line_range(
                     logs, i)
-            if "CUDA Kernel Statistics:" in line or "[5/7] Executing 'gpukernsum' stats report" in line:
+            if "CUDA Kernel Statistics:" in line or "Executing 'gpukernsum' stats report" in line:
                 kernel_line_from, kernel_line_to = self._extract_line_range(
                     logs, i)
-            if "CUDA Memory Operation Statistics (by time):" in line or "[6/7] Executing 'gpumemtimesum' stats report" in line:
+            if "CUDA Memory Operation Statistics (by time):" in line or "Executing 'gpumemtimesum' stats report" in line:
                 memcpy_line_from, memcpy_line_to = self._extract_line_range(
                     logs, i)
-            if "[7/7] Executing 'gpumemsizesum' stats report" in line:
+            if "Executing 'gpumemsizesum' stats report" in line:
                 memsize_line_from, memsize_line_to = self._extract_line_range(
                     logs, i)
 
