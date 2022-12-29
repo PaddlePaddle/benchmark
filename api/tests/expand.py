@@ -52,7 +52,7 @@ class PaddleExpand(PaddleOpBenchmarkBase):
 class TorchExpand(PytorchOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
-        result = x.expand(config.shape)
+        result = x.expand(config.shape).contiguous()
 
         self.feed_list = [x]
         self.fetch_list = [result]
