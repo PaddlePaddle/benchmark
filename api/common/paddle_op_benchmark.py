@@ -661,8 +661,3 @@ class PaddleAPIBenchmarkBase(PaddleOpBenchmarkBase):
         self.build_program(config)
         self.feed_list = self.feed_vars
         self.fetch_list = self.fetch_vars
-
-
-class PaddleDynamicAPIBenchmarkBase(PaddleOpBenchmarkBase):
-    def __init__(self):
-        super(PaddleDynamicAPIBenchmarkBase, self).__init__("dynamic")

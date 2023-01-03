@@ -85,6 +85,7 @@ NO_BACKWARD_OPS = [
     "less",
     "linspace",
     "remainder",
+    "set_value",
     "shard_index",
     "size",
     "truncated_gaussian_random",

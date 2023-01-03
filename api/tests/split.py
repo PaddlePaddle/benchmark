@@ -62,6 +62,7 @@ class TorchSplit(PytorchOpBenchmarkBase):
             config.backward = False
         else:
             self.fetch_list = [result]
+
         self.feed_list = [x]
         if config.backward:
             self.append_gradients(result, [x])
