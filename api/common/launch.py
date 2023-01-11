@@ -96,11 +96,11 @@ class NvprofRunner(object):
 class NsightRunner(object):
     def run(self, cmd, profile_from_start=False):
         stdout, exit_code = self._nsight(cmd, profile_from_start)
+        parse_status, gpu_time = self._parse_logs(stdout.split("\n"))
+        if parse_status:
+            return gpu_time
         if exit_code == 0:
-            parse_status, gpu_time = self._parse_logs(stdout.split("\n"))
-            if parse_status:
-                return gpu_time
-        print("Running Error:\n {}".format(stdout))
+            print("Running Error:\n {}".format(stdout))
         return 0.0
 
     def _nsight(self, cmd, profile_from_start):
@@ -179,16 +179,20 @@ class NsightRunner(object):
             print("")
 
     def _parse_gpu_time(self, line):
-        infos = line.strip().split()
-        percent = float(infos[0].replace("%", "")) * 0.01
-        gpu_time = float(infos[1].replace(",", "")) * 1E-6
-        calls = int(infos[2].replace(",", ""))
-        function = infos[7]
-        for i in range(8, len(infos)):
-            function = function + " " + infos[i]
-        #print("percent: %.2f; gpu_time: %.4f ms; calls: %d; function: %s" %
-        #      (percent, gpu_time, calls, function))
-        return gpu_time / percent
+        try:
+            infos = line.strip().split()
+            percent = float(infos[0].replace("%", "")) * 0.01
+            gpu_time = float(infos[1].replace(",", "")) * 1E-6
+            calls = int(infos[2].replace(",", ""))
+            function = infos[7]
+            for i in range(8, len(infos)):
+                function = function + " " + infos[i]
+            #print("percent: %.2f; gpu_time: %.4f ms; calls: %d; function: %s" %
+            #      (percent, gpu_time, calls, function))
+            return gpu_time / percent
+        except Exception as e:
+            sys.stderr.write("Error: parsing \"{}\". {}\n".format(line, e))
+            return 0.0
 
 
 class NsightRunnerForDynamicScheduling(object):
