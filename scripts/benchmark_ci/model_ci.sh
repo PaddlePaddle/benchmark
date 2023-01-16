@@ -7,6 +7,7 @@ mkdir logs
 cd logs
 mkdir static
 mkdir dynamic
+pip install --upgrade pip
 pip install opencv-python==4.2.0.32
 pip install tqdm
 pip install paddlenlp
@@ -14,7 +15,7 @@ export FLAGS_call_stack_level=2
 #run models
 cd ${BENCHMARK_ROOT}/scripts/benchmark_ci
 #model_list='ResNet50_bs32_dygraph ResNet50_bs32 bert_base_seqlen128_fp32_bs32 transformer_base_bs4096_amp_fp16 yolov3_bs8 TSM_bs16 deeplabv3_bs4_fp32 CycleGAN_bs1 mask_rcnn_bs1 PPOCR_mobile_2_bs8 seq2seq_bs128'
-model_list='ResNet50_bs32_dygraph deeplabv3_bs4_fp32 bert_base_seqlen128_fp32_bs32 yolov3_bs8'
+model_list='ResNet50_bs32_dygraph ResNet50_bs64_fp16_dygraph deeplabv3_bs4_fp32 bert_base_seqlen128_fp32_bs32 yolov3_bs8 ppyolov2_bs6'
 source run_models.sh
 for model in ${model_list}
 do

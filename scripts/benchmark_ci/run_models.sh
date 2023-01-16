@@ -2,7 +2,6 @@
 ResNet50_bs32_dygraph(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    git checkout 98db91b2118deb0f6f1c0bf90708c1bc34687f8d
     # Prepare data
     ln -s ${data_path}/imagenet100_data/ ${cur_model_path}/dataset
     # Copy run_benchmark.sh and running ...
@@ -18,10 +17,30 @@ ResNet50_bs32_dygraph(){
     cat dynamic_${model_name}_1_2_mp
 }
 
+ResNet50_bs64_fp16_dygraph(){
+    cur_model_path=${BENCHMARK_ROOT}/PaddleClas
+    cd ${cur_model_path}
+    #install dali
+    pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda110
+    # Prepare data
+    ln -s ${data_path}/imagenet100_data/ ${cur_model_path}/dataset
+    # Copy run_benchmark.sh and running ...
+    rm -rf ./run_benchmark_dygraph.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./run_benchmark_dygraph.sh
+    sed -i '/set\ -xe/d' run_benchmark_dygraph.sh
+    #running models cases
+    model_name=ResNet50_pure_fp16_bs64
+    run_batchsize=64
+    echo "index is speed, 2gpu, begin, ResNet50_pure_fp16_bs64"
+    CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark_dygraph.sh 1 ${run_batchsize} ${model_name} mp 1 | tee ${BENCHMARK_ROOT}/logs/dynamic/${model_name}_speed_2gpus 2>&1
+    sleep 1s
+    cat dynamic_${model_name}_1_2_mp
+}
+
 ResNet50_bs32(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
-    python -m pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda100
+    python -m pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda110
     #git checkout a8f21e0167e4de101cbcd241b575fb09bbcaced9
     # Prepare data
     ln -s ${data_path}/imagenet100_data/ ${cur_model_path}/dataset
@@ -113,13 +132,39 @@ yolov3_bs8(){
     cp ${BENCHMARK_ROOT}/dynamic_graph/yolov3/paddle/run_benchmark.sh ./
     sed -i '/set\ -xe/d' run_benchmark.sh
     echo "index is speed, 2gpu, begin"
-    CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 mp 200 | tee ${BENCHMARK_ROOT}/logs/dynamic/yolov3_bs1_speed_2gpus 2>&1
+    CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark.sh 1 mp 50 | tee ${BENCHMARK_ROOT}/logs/dynamic/yolov3_bs1_speed_2gpus 2>&1
     sleep 1s
     cat dynamic_yolov3_1_2_mp
     echo "--------worklog.0"
     cat mylog/workerlog.0
     echo "--------worklog.1"
     cat mylog/workerlog.1
+}
+#ppyolov2
+ppyolov2_bs6(){
+    cur_model_path=${BENCHMARK_ROOT}/PaddleDetection
+    git branch    #develop 分支
+    cd ${cur_model_path}
+    pip install Cython
+    pip install pycocotools
+    pip install -r requirements.txt
+    pip install numpy==1.20.3
+
+    echo "-------before data prepare"
+    rm -rf dataset/coco
+    ln -s ${data_path}/COCO17 ./dataset/coco
+    echo "-------after data prepare"
+    rm -rf run_benchmark.sh
+    cp ${BENCHMARK_ROOT}/dynamic_graph/ppyolov2/paddle/run_benchmark_ppyolov2.sh ./
+    sed -i '/set\ -xe/d' run_benchmark.sh
+    echo "index is speed, 2gpu,ppyolov2 begin"
+    CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark_ppyolov2.sh 1 mp 50 | tee ${BENCHMARK_ROOT}/logs/dynamic/ppyolov2_bs6_speed_2gpus 2>&1
+    sleep 1s
+    cat dynamic_ppyolov2_1_2_mp
+    echo "--------worklog.0"
+    cat ppyolov2_log/workerlog.0
+    echo "--------worklog.1"
+    cat ppyolov2_log/workerlog.1
 }
 #tsm
 TSM_bs16(){
