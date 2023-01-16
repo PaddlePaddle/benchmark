@@ -157,9 +157,9 @@ ppyolov2_bs6(){
     rm -rf dataset/coco
     ln -s ${data_path}/COCO17 ./dataset/coco
     echo "-------after data prepare"
-    rm -rf run_benchmark.sh
+    rm -rf run_benchmark_ppyolov2.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/ppyolov2/paddle/run_benchmark_ppyolov2.sh ./
-    sed -i '/set\ -xe/d' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark_ppyolov2.sh
     echo "index is speed, 2gpu,ppyolov2 begin"
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark_ppyolov2.sh 1 mp 50 | tee ${BENCHMARK_ROOT}/logs/dynamic/ppyolov2_bs6_speed_2gpus 2>&1
     sleep 1s
