@@ -78,8 +78,8 @@ def compare():
             os.system(command)
             print("{} running failed!".format(model))
         else:
-            print("result:{}".format(result))
-            print("result_loss:{}".format(loss_result))
+            print("ips_result:{}".format(result))
+            print("loss_result:{}".format(loss_result))
             print("model:{}".format(model))
             standard_record = os.path.join(args.standard_path, model + '.txt')
             loss_standard_record =  os.path.join(args.standard_path, model + '_loss' + '.txt')
@@ -87,11 +87,11 @@ def compare():
             with open(threshold_record, 'r') as f:
                 for line in f:
                     threshold = float(line.strip('\n'))
-                    print("threshold:{}".format(threshold))
+                    print("ips_threshold:{}".format(threshold))
             with open(standard_record, 'r') as f:
                 for line in f:
                     standard_result = float(line.strip('\n'))
-                    print("standard_result:{}".format(standard_result))
+                    print("ips_standard_result:{}".format(standard_result))
                     ranges = round((float(result) - standard_result) / standard_result, 4)
                     if ranges >= threshold:
                         if args.paddle_dev:
@@ -131,8 +131,8 @@ def compare():
                 for line in f:
                     loss_standard_result = float(line.strip('\n'))
                     loss_ranges = round((float(loss_result) - loss_standard_result) / loss_standard_result, 4)
-                    print("loss result:{}".format(loss_result))
-                    print("loss standard result:{}".format(loss_standard_result))
+                    print("loss_result:{}".format(loss_result))
+                    print("loss_standard_result:{}".format(loss_standard_result))
                     if loss_ranges >= args.loss_threshold:
                         if args.paddle_dev:
                             pass
