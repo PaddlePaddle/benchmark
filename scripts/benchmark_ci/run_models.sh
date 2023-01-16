@@ -4,6 +4,7 @@ ResNet50_bs32_dygraph(){
     cd ${cur_model_path}
     # Prepare data
     ln -s ${data_path}/imagenet100_data/ ${cur_model_path}/dataset
+    pip install -r requirements.txt
     # Copy run_benchmark.sh and running ...
     rm -rf ./run_benchmark_dygraph.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/resnet/paddle/run_benchmark_resnet.sh ./run_benchmark_dygraph.sh
@@ -20,6 +21,7 @@ ResNet50_bs32_dygraph(){
 ResNet50_bs64_fp16_dygraph(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    pip install -r requirements.txt
     #install dali
     pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda110
     # Prepare data
@@ -40,6 +42,7 @@ ResNet50_bs64_fp16_dygraph(){
 ResNet50_bs32(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
+    pip install -r requirements.txt
     python -m pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda110
     #git checkout a8f21e0167e4de101cbcd241b575fb09bbcaced9
     # Prepare data
@@ -154,9 +157,9 @@ ppyolov2_bs6(){
     rm -rf dataset/coco
     ln -s ${data_path}/COCO17 ./dataset/coco
     echo "-------after data prepare"
-    rm -rf run_benchmark.sh
+    rm -rf run_benchmark_ppyolov2.sh
     cp ${BENCHMARK_ROOT}/dynamic_graph/ppyolov2/paddle/run_benchmark_ppyolov2.sh ./
-    sed -i '/set\ -xe/d' run_benchmark.sh
+    sed -i '/set\ -xe/d' run_benchmark_ppyolov2.sh
     echo "index is speed, 2gpu,ppyolov2 begin"
     CUDA_VISIBLE_DEVICES=0,1 bash run_benchmark_ppyolov2.sh 1 mp 50 | tee ${BENCHMARK_ROOT}/logs/dynamic/ppyolov2_bs6_speed_2gpus 2>&1
     sleep 1s
