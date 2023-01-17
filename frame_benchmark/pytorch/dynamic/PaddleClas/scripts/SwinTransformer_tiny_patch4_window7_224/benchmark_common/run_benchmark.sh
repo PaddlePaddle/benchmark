@@ -18,12 +18,13 @@ function _set_params(){
     convergence_key=""             # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
     max_epochs=${7:-"1"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"4"}             # (可选)
+    use_compile=${9:-"false"}         # (可选)
 
     # Added for distributed training
-    node_num=${9:-"2"}                      #（可选） 节点数量
-    node_rank=${10:-"0"}                    # (可选)  节点rank
-    master_addr=${11:-"127.0.0.1"}       # (可选) 主节点ip地址
-    master_port=${12:-"1928"}               # (可选) 主节点端口号
+    node_num=${10:-"2"}                      #（可选） 节点数量
+    node_rank=${11:-"0"}                    # (可选)  节点rank
+    master_addr=${12:-"127.0.0.1"}       # (可选) 主节点ip地址
+    master_port=${13:-"1928"}               # (可选) 主节点端口号
     # Added for distributed training
 
     #   以下为通用拼接log路径，无特殊可不用修改
@@ -58,6 +59,10 @@ function _train(){
     train_options="ILSVRC2012_w --model swin_tiny_patch4_window7_224 --lr 0.001 --warmup-epochs 20 --epochs ${max_epochs} --weight-decay 0.05 --sched cosine --aa rand-m7-mstd0.5-inc1 --reprob=0.25 --remode=pixel --mixup=0.2 --cutmix=1.0 --opt=adamw --batch-size ${batch_size} --workers ${num_workers}"
     if [ ${fp_item} = 'fp16' ];then
         train_options="${train_options} --amp"
+    fi
+
+    if [ ${use_compile} = 'true' ];then
+        train_options="${train_options} --torchcompile"
     fi
 
     case ${run_process_type} in

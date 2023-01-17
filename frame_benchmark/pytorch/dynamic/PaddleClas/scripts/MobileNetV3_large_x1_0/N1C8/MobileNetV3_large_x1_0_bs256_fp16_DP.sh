@@ -1,9 +1,9 @@
-model_item=SwinTransformer_tiny_patch4_window7_224
-bs_item=128
-fp_item=fp32
-run_process_type=SingleP
+model_item=MobileNetV3_large_x1_0
+bs_item=256
+fp_item=fp16
+run_process_type=MultiP
 run_mode=DP
-device_num=N1C1
+device_num=N1C8
 max_epoch=1
 num_workers=4
 use_compile=false

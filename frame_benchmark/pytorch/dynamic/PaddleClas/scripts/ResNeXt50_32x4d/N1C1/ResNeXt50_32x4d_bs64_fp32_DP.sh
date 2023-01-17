@@ -6,6 +6,7 @@ run_mode=DP
 device_num=N1C1
 max_epoch=1
 num_workers=4
+use_compile=false
 
 sed -i '/set\ -xe/d' run_benchmark.sh
 bash PrepareEnv.sh;

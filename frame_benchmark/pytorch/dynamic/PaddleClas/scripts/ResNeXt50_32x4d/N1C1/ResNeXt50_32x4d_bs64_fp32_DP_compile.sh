@@ -1,12 +1,12 @@
-model_item=SwinTransformer_tiny_patch4_window7_224
-bs_item=128
+model_item=ResNeXt50_32x4d
+bs_item=64
 fp_item=fp32
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
 max_epoch=1
 num_workers=4
-use_compile=false
+use_compile=true
 
 sed -i '/set\ -xe/d' run_benchmark.sh
 bash PrepareEnv.sh;
