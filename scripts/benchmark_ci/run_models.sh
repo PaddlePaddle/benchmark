@@ -22,7 +22,7 @@ ResNet50_bs64_fp16_dygraph(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
     pip install -r requirements.txt
-    #install dali
+    # install dali
     pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda110
     # Prepare data
     ln -s ${data_path}/imagenet100_data/ ${cur_model_path}/dataset
