@@ -18,7 +18,7 @@ ResNet50_bs32_dygraph(){
     cat dynamic_${model_name}_1_2_mp
 }
 
-ResNet50_bs64_fp16_dygraph(){
+ResNet50_pure_fp16_bs64(){
     cur_model_path=${BENCHMARK_ROOT}/PaddleClas
     cd ${cur_model_path}
     pip install -r requirements.txt
