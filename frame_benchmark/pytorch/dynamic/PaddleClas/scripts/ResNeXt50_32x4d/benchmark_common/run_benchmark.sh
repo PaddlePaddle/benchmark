@@ -29,6 +29,9 @@ function _set_params(){
 
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
+    if [ ${use_compile} = 'true' ];then
+        model_name="${model_name}_compile"
+    fi
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}

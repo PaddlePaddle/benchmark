@@ -29,6 +29,9 @@ function _set_params(){
 
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
+    if [ ${use_compile} = 'true' ];then
+        model_name="${model_name}_compile"
+    fi
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
@@ -67,12 +70,12 @@ function _train(){
 
     case ${run_process_type} in
     SingleP) train_cmd="python train.py ${train_options}" ;;
-    MultiP) 
+    MultiP)
     if [ ${device_num:3} = '32' ];then
         train_cmd="python -m torch.distributed.run --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} --nproc_per_node=8 train.py ${train_options}"
     elif [ ${device_num:3} = '8' ];then
         train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --master_port=29500 train.py ${train_options}"
-    fi  ;; 
+    fi  ;;
     *) echo "choose run_process_type(SingleP or MultiP)"; exit 1;
     esac
 
