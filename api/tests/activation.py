@@ -23,6 +23,7 @@ class ActivationConfig(APIConfig):
         self.api_list = {
             'sigmoid': 'sigmoid',
             'hardsigmoid': 'hardsigmoid',
+            'swish': 'swish',
             'hardswish': 'hardswish',
             'softplus': 'softplus',
             'tanhshrink': 'tanhshrink',
