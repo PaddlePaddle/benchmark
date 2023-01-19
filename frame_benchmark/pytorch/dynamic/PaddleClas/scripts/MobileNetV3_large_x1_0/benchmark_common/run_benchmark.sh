@@ -52,7 +52,7 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py -l ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item}
+    python analysis_log.py -l ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item} -c ${use_compile}
 }
 
 function _train(){
@@ -70,12 +70,12 @@ function _train(){
 
     case ${run_process_type} in
     SingleP) train_cmd="python train.py ${train_options}" ;;
-    MultiP)
+    MultiP) 
     if [ ${device_num:3} = '32' ];then
         train_cmd="python -m torch.distributed.run --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} --nproc_per_node=8 train.py ${train_options}"
     elif [ ${device_num:3} = '8' ];then
         train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --master_port=29500 train.py ${train_options}"
-    fi  ;;
+    fi  ;; 
     *) echo "choose run_process_type(SingleP or MultiP)"; exit 1;
     esac
 

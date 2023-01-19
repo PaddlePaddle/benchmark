@@ -5,6 +5,12 @@ import re
 
 
 def parse_args():
+    def str2bool(v):
+        if v.lower() in ('true', 't', '1'):
+            return True
+        else:
+            return False
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--log', type=str, default='log path')
     parser.add_argument('-m', '--model_name', type=str, required=True)
@@ -12,6 +18,7 @@ def parse_args():
     parser.add_argument('-n', '--device_num', type=str, required=True)
     parser.add_argument('-s', '--save_path', type=str, default=None)
     parser.add_argument('-f', '--fp', type=str, default='fp32')
+    parser.add_argument('-c', '--compile', type=str2bool, default=False)
     args = parser.parse_args()
     return args
 
@@ -59,6 +66,7 @@ if __name__ == "__main__":
         "model_name": args.model_name+"_bs"+str(args.batch_size)+"_"+args.fp+run_mode,
         "batch_size": args.batch_size,
         "fp_item": args.fp,
+        "compile": args.compile,
         "run_process_type": "MultiP",
         "run_mode": run_mode,
         "convergence_value": 0,
