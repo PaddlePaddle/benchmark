@@ -1,0 +1,109 @@
+[{
+    "config_id": 0,
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "3"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[1, 256, 12, 32]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "int",
+            "value": "2"
+        }
+    }
+}, {
+    "config_id": 1,
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "2"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[1, 256, 144]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "int",
+            "value": "3"
+        }
+    }
+}, {
+    "config_id": 2,
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "2"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[1, 256, 432]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "int",
+            "value": "3"
+        }
+    }
+}, {
+    "config_id": 3,
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "3"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[1, 256, 12, 12]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "int",
+            "value": "2"
+        }
+    }
+}, {
+    "config_id": 4,
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "2"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[1, 256, 8, 3, 3]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "int",
+            "value": "4"
+        }
+    }
+}, {
+    "config_id": 5,
+    "op": "split",
+    "param_info": {
+        "axis": {
+            "type": "int",
+            "value": "2"
+        },
+        "x": {
+            "dtype": "float16",
+            "shape": "[1, 256, 2112]",
+            "type": "Variable"
+        },
+        "num_or_sections": {
+            "type": "int",
+            "value": "6"
+        }
+    }
+}]
