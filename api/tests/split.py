@@ -45,6 +45,15 @@ class PaddleSplit(PaddleOpBenchmarkBase):
         if config.backward:
             self.append_gradients(result, [x])
 
+    def compute_flop_and_byte(self, config):
+        forward_flop = 0
+        forward_byte = numel(config.x_shape) * sizeof(config.x_dtype) * 2
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
+
 
 @benchmark_registry.register("split")
 class TorchSplit(PytorchOpBenchmarkBase):
