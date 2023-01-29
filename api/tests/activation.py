@@ -40,6 +40,13 @@ class ActivationConfig(APIConfig):
             return False
         return True
 
+    @property
+    def run_torch(self):
+        if self.api_name in ["swish"]:
+            print("-- %s is not supported in torch." % self.api_name)
+            return False
+        return True
+
 
 @benchmark_registry.register("activation")
 class PaddleActivation(PaddleOpBenchmarkBase):
