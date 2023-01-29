@@ -9,7 +9,7 @@ bash prepare.sh
 # 3 批量运行（如不方便批量，1，2需放到单个模型中）
 
 model_item=pwgan
-bs_item=26
+bs_item=16
 fp_item=fp32
 run_process_type=MultiP
 run_mode=DP
