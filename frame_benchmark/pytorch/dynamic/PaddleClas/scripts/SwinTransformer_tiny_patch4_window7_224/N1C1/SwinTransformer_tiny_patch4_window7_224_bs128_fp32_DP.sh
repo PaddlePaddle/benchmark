@@ -1,5 +1,5 @@
 model_item=SwinTransformer_tiny_patch4_window7_224
-bs_item=64
+bs_item=128
 fp_item=fp32
 run_process_type=SingleP
 run_mode=DP
