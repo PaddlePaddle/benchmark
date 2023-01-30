@@ -45,7 +45,9 @@ class BatchNormConfig(APIConfig):
     def convert_to_fp16(self):
         super(BatchNormConfig, self).convert_to_fp16()
         if self.data_format == "NHWC":
-            paddle.set_flags({'FLAGS_cudnn_batchnorm_spatial_persistent': 1})
+            paddle.fluid.set_flags({
+                'FLAGS_cudnn_batchnorm_spatial_persistent': 1
+            })
         self._set_param_dtype()
 
 
@@ -96,7 +98,6 @@ class PaddleBatchNorm(PaddleOpBenchmarkBase):
             training=config.training,
             data_format=config.data_format)
 
-        self.extra_tensors = [self._running_mean, self._running_var]
         self.feed_list = [x, weight, bias]
         self.fetch_list = [result]
         if config.backward:
@@ -168,7 +169,6 @@ class TorchBatchNorm(PytorchOpBenchmarkBase):
             momentum=config.momentum,
             eps=config.epsilon)
 
-        self.extra_tensors = [self._running_mean, self._running_var]
         self.feed_list = [x, weight, bias]
         self.fetch_list = [result]
         if config.backward:
