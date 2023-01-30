@@ -96,6 +96,7 @@ class PaddleBatchNorm(PaddleOpBenchmarkBase):
             training=config.training,
             data_format=config.data_format)
 
+        self.extra_tensors = [self._running_mean, self._running_var]
         self.feed_list = [x, weight, bias]
         self.fetch_list = [result]
         if config.backward:
@@ -167,6 +168,7 @@ class TorchBatchNorm(PytorchOpBenchmarkBase):
             momentum=config.momentum,
             eps=config.epsilon)
 
+        self.extra_tensors = [self._running_mean, self._running_var]
         self.feed_list = [x, weight, bias]
         self.fetch_list = [result]
         if config.backward:
