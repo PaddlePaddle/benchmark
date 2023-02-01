@@ -95,12 +95,12 @@
         "inputs": {
             "inputs0": {
                 "dtype": "float16",
-                "shape": "[1L]",
+                "shape": "[-1L, 256L]",
                 "type": "Variable"
             },
             "inputs1": {
                 "dtype": "float16",
-                "shape": "[1L]",
+                "shape": "[-1L, 256L]",
                 "type": "Variable"
             },
             "type": "list<Variable>"
@@ -112,42 +112,7 @@
         "inputs": {
             "inputs0": {
                 "dtype": "float16",
-                "shape": "[1L]",
-                "type": "Variable"
-            },
-            "inputs1": {
-                "dtype": "float16",
-                "shape": "[1L]",
-                "type": "Variable"
-            },
-            "inputs2": {
-                "dtype": "float16",
-                "shape": "[1L]",
-                "type": "Variable"
-            },
-            "inputs3": {
-                "dtype": "float16",
-                "shape": "[1L]",
-                "type": "Variable"
-            },
-            "inputs4": {
-                "dtype": "float16",
-                "shape": "[1L]",
-                "type": "Variable"
-            },
-            "inputs5": {
-                "dtype": "float16",
-                "shape": "[1L]",
-                "type": "Variable"
-            },
-            "inputs6": {
-                "dtype": "float16",
-                "shape": "[1L]",
-                "type": "Variable"
-            },
-            "inputs7": {
-                "dtype": "float16",
-                "shape": "[1L]",
+                "shape": "[-1L, 256L]",
                 "type": "Variable"
             },
             "type": "list<Variable>"
