@@ -1,0 +1,10 @@
+[{
+    "op": "categorical",
+    "param_info": {
+        "logits": {
+            "dtype": "float32",
+            "shape": "[524288L, 23L]",
+            "type": "Variable"
+        }
+    }
+}]
