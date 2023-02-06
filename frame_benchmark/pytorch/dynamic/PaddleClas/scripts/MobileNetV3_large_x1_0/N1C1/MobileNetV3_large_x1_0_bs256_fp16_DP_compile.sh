@@ -5,7 +5,7 @@ run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
 max_epoch=1
-num_workers=4
+num_workers=12
 use_compile=true
 
 sed -i '/set\ -xe/d' run_benchmark.sh
