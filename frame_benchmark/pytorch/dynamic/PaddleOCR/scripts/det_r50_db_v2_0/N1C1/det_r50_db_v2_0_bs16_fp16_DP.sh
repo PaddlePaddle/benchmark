@@ -1,11 +1,11 @@
 model_item=det_r50_db_v2_0
 #max_token
-bs_item=8
-fp_item=fp32
+bs_item=16
+fp_item=fp16
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
-max_iter=2
+max_iter=5
 num_workers=1
 
 sed -i '/set\ -xe/d' run_benchmark.sh

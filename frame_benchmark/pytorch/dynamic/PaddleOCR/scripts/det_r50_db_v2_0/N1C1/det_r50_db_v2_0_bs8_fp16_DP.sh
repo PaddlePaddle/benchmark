@@ -1,7 +1,7 @@
 model_item=det_r50_db_v2_0
 #max_token
 bs_item=8
-fp_item=fp32
+fp_item=fp16
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
