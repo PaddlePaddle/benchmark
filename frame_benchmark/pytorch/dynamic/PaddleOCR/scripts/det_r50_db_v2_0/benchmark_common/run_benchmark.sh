@@ -61,10 +61,16 @@ function _train(){
     fi
     train_options="--cfg-options dataset.train.loader.batch_size=${batch_size} \
                    trainer.epochs=${max_iter}\
-                   lr_scheduler.args.warmup_epoch=1 arch.backbone.pretrained=False"
-    
+                   lr_scheduler.args.warmup_epoch=1 arch.backbone.pretrained=False trainer.log_iter=1 \
+                   trainer.enable_eval=False dataset.train.loader.shuffle=false"
+    if [ ${fp_item} = "fp16" ]; then
+        train_options="${train_options} trainer.amp=true"
+    fi
+
     if [ ${device_num} = "N1C1" ]; then
         train_cmd="python tools/train.py ${train_config} ${train_options}"
+    elif [ ${device_num} = 'N1C8' ];then
+        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 tools/train.py ${train_config}  ${train_options}"
     else
         train_cmd="python -m torch.distributed.launch --nnodes=${device_num:1:1} --node_rank=${PADDLE_TRAINER_ID} --nproc_per_node=8 --master_addr=${POD_0_IP} --master_port=8877 tools/train.py ${train_config}  ${train_options}"
     fi
