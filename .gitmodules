@@ -66,9 +66,6 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSpeech/models/ParallelWaveGAN"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSpeech/models/ParallelWaveGAN
 	url = https://github.com/PaddleBenchmark/ParallelWaveGAN.git
-[submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet-pytorch"]
-	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet.pytorch
-	url = https://github.com/PaddleBenchmark/DBNet.pytorch.git
 [submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers"]
 	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers
 	url = https://github.com/huggingface/transformers.git
@@ -93,3 +90,6 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/ml-cvnets"]
 	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/ml-cvnets
 	url = https://github.com/apple/ml-cvnets.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch"]
+	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch
+	url = https://github.com/PaddleBenchmark/DBNet_pytorch
