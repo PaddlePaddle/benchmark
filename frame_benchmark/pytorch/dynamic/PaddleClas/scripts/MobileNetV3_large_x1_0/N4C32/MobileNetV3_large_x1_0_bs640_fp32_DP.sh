@@ -6,7 +6,6 @@ run_mode=DP
 device_num=N4C32
 max_epoch=1
 num_workers=4
-use_compile=false
 
 node_num=${PADDLE_TRAINERS_NUM}
 node_rank=${PADDLE_TRAINER_ID}

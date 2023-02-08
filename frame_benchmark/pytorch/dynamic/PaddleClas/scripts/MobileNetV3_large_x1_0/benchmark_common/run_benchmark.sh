@@ -18,7 +18,6 @@ function _set_params(){
     convergence_key=""             # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
     max_epochs=${7:-"1"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"4"}             # (可选)
-    use_compile=${9:-"false"}         # (可选)
 
     # Added for distributed training
     node_num=${10:-"2"}                      #（可选） 节点数量
@@ -29,7 +28,7 @@ function _set_params(){
 
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
-    if [ ${use_compile} = 'true' ];then
+    if [ "${FLAG_TORCH_COMPILE}" = "True"  ] || [ "${FLAG_TORCH_COMPILE}" = "true"  ];then
         model_name="${model_name}_compile"
     fi
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -52,7 +51,7 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py -l ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item} -c ${use_compile} --skip_steps 100
+    python analysis_log.py -l ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item} -c ${FLAG_TORCH_COMPILE} --skip_steps 100
 }
 
 function _train(){
@@ -64,7 +63,7 @@ function _train(){
         train_options="${train_options} --amp"
     fi
 
-    if [ ${use_compile} = 'true' ];then
+    if [ "${FLAG_TORCH_COMPILE}" = "True"  ] || [ "${FLAG_TORCH_COMPILE}" = "true"  ];then
         train_options="${train_options} --torchcompile"
     fi
 
