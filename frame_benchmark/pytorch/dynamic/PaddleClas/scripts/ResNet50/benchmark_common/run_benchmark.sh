@@ -28,9 +28,6 @@ function _set_params(){
 
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
-    if [ "${FLAG_TORCH_COMPILE}" = "True"  ] || [ "${FLAG_TORCH_COMPILE}" = "true"  ];then
-        model_name="${model_name}_compile"
-    fi
     device=${CUDA_VISIBLE_DEVICES//,/ }
     arr=(${device})
     num_gpu_devices=${#arr[*]}
@@ -51,7 +48,7 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py -l ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item} -c ${FLAG_TORCH_COMPILE} --skip_steps 100
+    python analysis_log.py -l ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item} --skip_steps 100
 }
 
 function _train(){

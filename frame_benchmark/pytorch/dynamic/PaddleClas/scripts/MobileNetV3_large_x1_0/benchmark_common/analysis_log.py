@@ -19,7 +19,6 @@ def parse_args():
     parser.add_argument('-n', '--device_num', type=str, required=True)
     parser.add_argument('-s', '--save_path', type=str, default=None)
     parser.add_argument('-f', '--fp', type=str, default='fp32')
-    parser.add_argument('-c', '--compile', type=str2bool, default=False)
     parser.add_argument('--skip_steps', type=int, default=0, help='The number of steps to be skipped')
     args = parser.parse_args()
     return args
@@ -77,7 +76,6 @@ if __name__ == "__main__":
         "model_name": args.model_name+"_bs"+str(args.batch_size)+"_"+args.fp+run_mode,
         "batch_size": args.batch_size,
         "fp_item": args.fp,
-        "compile": args.compile,
         "run_process_type": "MultiP",
         "run_mode": run_mode,
         "convergence_value": 0,
