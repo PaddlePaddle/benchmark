@@ -46,7 +46,7 @@ function _set_params(){
     fi
 
     use_com_args=""
-    if [ ${FLAG_TORCH_COMPILE} = "true" ];then
+    if [ ${FLAG_TORCH_COMPILE:-"false"} = "true" ];then
             use_com_args="--backend=inductor"
         else
             use_com_args="--backend=eager"
@@ -62,24 +62,24 @@ function _train(){
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
 
     if [ $fp_item = "fp16" ]; then
-            train_cmd="\
-                --output-directory ./ \
-                --batch_size $batch_size \
-                --training \
-                --performance \
-                --only=BertForQuestionAnswering \
-                --amp \
-                ${use_com_args}
-                "
-        else
-            train_cmd="\
-                --output-directory ./ \
-                --batch_size $batch_size \
-                --training \
-                --performance \
-                --only=BertForQuestionAnswering \
-                ${use_com_args}
-                "
+        train_cmd="\
+            --output-directory ./ \
+            --batch_size $batch_size \
+            --training \
+            --performance \
+            --only=BertForQuestionAnswering \
+            --amp \
+            ${use_com_args}
+            "
+    else
+        train_cmd="\
+            --output-directory ./ \
+            --batch_size $batch_size \
+            --training \
+            --performance \
+            --only=BertForQuestionAnswering \
+            ${use_com_args}
+            "
     fi
 
     case ${run_process_type} in
@@ -105,7 +105,12 @@ function _train(){
     fi
 
     rm -rf ${log_file}
-    mv speedup_eager.csv ${log_file}
+    if [ ${FLAG_TORCH_COMPILE:-"false"} = "true" ];then
+        mv speedup_inductor.csv ${log_file}
+    else
+        mv speedup_eager.csv ${log_file}
+    fi
+    
     # 注释掉，会异常退出
     #kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
     #cd -
