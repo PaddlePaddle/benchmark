@@ -1,39 +1,56 @@
 import os
 import argparse
 import json
+import re
+from numpy import mean,var
 
 
 def parse_args():
+    def str2bool(v):
+        if v.lower() in ('true', 't', '1'):
+            return True
+        else:
+            return False
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--dir', type=str, default='work_dirs')
+    parser.add_argument('-l', '--log', type=str, default='log path')
     parser.add_argument('-m', '--model_name', type=str, required=True)
     parser.add_argument('-b', '--batch_size', type=int, required=True)
     parser.add_argument('-n', '--device_num', type=str, required=True)
     parser.add_argument('-s', '--save_path', type=str, default=None)
     parser.add_argument('-f', '--fp', type=str, default='fp32')
+    parser.add_argument('--skip_steps', type=int, default=0, help='The number of steps to be skipped')
     args = parser.parse_args()
     return args
 
 
-def get_log_file(root, ends_with='json'):
-    for r, d, f in os.walk(root):
-        for ff in f:
-            if ff.endswith(ends_with):
-                log_path = os.path.join(r, ff)
-                with open(log_path) as fd:
-                    lines = fd.readlines()
-                return lines[1:], log_path
+def get_log_file(log_path):
+    with open(log_path) as fd:
+        lines = fd.readlines()
+    return list(filter(lambda l: "Train:" in l, lines))
 
 
-def calculate_ips(log_list, batch_size):
-    if len(log_list) < 5:
-        print('log number is smaller than 5, the ips may be inaccurate!')
-    else:
-        log_list = log_list[4:]
-    time = 0
-    for x in log_list:
-        time += float(eval(x.strip())["time"])
-    avg_time = time / len(log_list)
+def calculate_ips(log_list, batch_size, skip_steps=0):
+    pattern = re.compile(r"^.*Time:\s?(\d+\.?\d*)s,.*$")
+    records = []
+    for line in log_list:
+        time = pattern.findall(line)[0]
+        records.append(float(time))
+
+    if len(records) < skip_steps + 10:
+        print('ERROR!!! too few logs printed')
+        return 0
+
+    # skip后去掉去除前max(5%,5)和后max(5%,5)个数据再计算平均值
+    sorted_records = sorted(records[skip_steps:])
+    skip_step2 = max(int(len(sorted_records)*0.05), 5)
+    try:
+        del sorted_records[:skip_step2]
+        del sorted_records[-skip_step2:]
+        avg_time = mean(sorted_records)
+    except Exception:
+        print("no records")
+        return 0
     ips = batch_size / avg_time
     return ips
 
@@ -42,8 +59,8 @@ if __name__ == "__main__":
     args = parse_args()
     try:
         num_gpu = int(args.device_num[3:])
-        log_list, log_path = get_log_file(args.dir)
-        ips = calculate_ips(log_list, num_gpu * args.batch_size)
+        log_list = get_log_file(args.log)
+        ips = calculate_ips(log_list, num_gpu * args.batch_size, args.skip_steps)
     except Exception as e:
         ips = 0
 
@@ -59,7 +76,6 @@ if __name__ == "__main__":
         "model_name": args.model_name+"_bs"+str(args.batch_size)+"_"+args.fp+run_mode,
         "batch_size": args.batch_size,
         "fp_item": args.fp,
-        "run_process_type": "MultiP",
         "run_mode": run_mode,
         "convergence_value": 0,
         "convergence_key": "",
