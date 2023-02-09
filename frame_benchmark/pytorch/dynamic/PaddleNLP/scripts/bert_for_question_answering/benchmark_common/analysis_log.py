@@ -10,8 +10,8 @@ import pandas as pd
 def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, run_process_type):
     seqlen = 512
     df = pd.read_csv(log_file)
-    abs_latency = df.abs_latency.mean()
     num_gpus = int(device_num[3:])
+    abs_latency = df.abs_latency[-num_gpus:].mean()
     ips = num_gpus * 1000 * seqlen * bs / abs_latency
     ips = round(ips, 2)
     run_mode = "DP"

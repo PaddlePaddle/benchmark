@@ -93,3 +93,6 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch"]
 	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch
 	url = https://github.com/PaddleBenchmark/DBNet_pytorch
+[submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch"]
+	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
+	url = https://github.com/pytorch/pytorch

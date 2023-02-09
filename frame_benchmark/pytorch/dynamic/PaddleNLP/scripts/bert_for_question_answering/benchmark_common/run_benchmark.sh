@@ -45,6 +45,12 @@ function _set_params(){
             log_file=${train_log_file}
     fi
 
+    use_com_args=""
+    if [ ${FLAG_TORCH_COMPILE} = "true" ];then
+            use_com_args="--backend=inductor"
+        else
+            use_com_args="--backend=eager"
+    fi
 }
 
 function _analysis_log(){
@@ -56,18 +62,25 @@ function _train(){
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
 
     if [ $fp_item = "fp16" ]; then
-        use_fp16_cmd="--amp"
-    fi 
-
-    train_cmd="\
-       --output-directory ./ \
-       --batch_size $batch_size \
-       --training \
-       --backend=eager \
-       --performance \
-       --only=BertForQuestionAnswering \
-       $use_fp16_cmd
-    "
+            train_cmd="\
+                --output-directory ./ \
+                --batch_size $batch_size \
+                --training \
+                --performance \
+                --only=BertForQuestionAnswering \
+                --amp \
+                ${use_com_args}
+                "
+        else
+            train_cmd="\
+                --output-directory ./ \
+                --batch_size $batch_size \
+                --training \
+                --performance \
+                --only=BertForQuestionAnswering \
+                ${use_com_args}
+                "
+    fi
 
     case ${run_process_type} in
     SingleP) train_cmd="python benchmarks/dynamo/huggingface.py ${train_cmd}" ;;
