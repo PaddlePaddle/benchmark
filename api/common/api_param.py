@@ -166,6 +166,7 @@ class APIConfig(object):
         self.__name = op_type
         self.__framework = "paddle"
         self.__run_tf = True
+        self.__run_torch = True
         self.api_name = self.name
         self.paddle_api = None
         self.torch_api = None
@@ -174,7 +175,6 @@ class APIConfig(object):
         self.params_list = None
         self.backward = False
         self.feed_spec = None
-        self.run_torch = True
         self.alias_name = None
 
     @classmethod
@@ -212,6 +212,14 @@ class APIConfig(object):
     @run_tf.setter
     def run_tf(self, value):
         self.__run_tf = value
+
+    @property
+    def run_torch(self):
+        return self.__run_torch
+
+    @run_torch.setter
+    def run_torch(self, value):
+        self.__run_torch = value
 
     def compute_dtype(self):
         dtype = None
@@ -336,7 +344,7 @@ class APIConfig(object):
             'feed_spec', 'alias_name'
         ]
         if self.framework != "paddle":
-            exclude_attrs.append("run_torch")
+            exclude_attrs.append("_APIConfig__run_torch")
             exclude_attrs.append("_APIConfig__run_tf")
         prefix = ""
         debug_str = ('[%s][%s] %s {\n') % (self.framework, self.name,
