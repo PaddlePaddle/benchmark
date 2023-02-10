@@ -96,3 +96,7 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch"]
 	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
 	url = https://github.com/pytorch/pytorch.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models"]
+	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
+	url = https://github.com/rwightman/pytorch-image-models
+	branch = main
