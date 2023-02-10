@@ -16,7 +16,7 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}
     profiler_path=${PROFILER_LOG_DIR:-$(pwd)}
 
-    model_name="yolov3"
+    model_name="ppyolov2"
     mission_name="目标检测"           # 模型所属任务名称，具体可参考scripts/config.ini                                （必填）
     direction_id=0                   # 任务所属方向，0：CV，1：NLP，2：Rec。                                         (必填)
     skip_steps=5                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
@@ -29,7 +29,7 @@ function _set_params(){
     arr=(${device})
     num_gpu_devices=${#arr[*]}
 
-    base_batch_size=8
+    base_batch_size=6
 
     log_file=${run_log_path}/dynamic_${model_name}_${index}_${num_gpu_devices}_${run_mode}
     log_with_profiler=${profiler_path}/${model_name}_3_${num_gpu_devices}_${run_mode}
@@ -53,14 +53,14 @@ function _train(){
     model_name=${model_name}_bs${base_batch_size}
 
     if [ $num_gpu_devices -eq 1 ]; then norm_type="bn"; else norm_type="sync_bn"; fi
-    train_cmd="-c configs/yolov3/yolov3_darknet53_270e_coco.yml
-               --opt epoch=1 TrainReader.batch_size=${base_batch_size} worker_num=2 norm_type=${norm_type} log_iter=1"
+    train_cmd="-c configs/ppyolo/ppyolov2_r50vd_dcn_365e_coco.yml
+               --opt epoch=1 TrainReader.batch_size=${base_batch_size} norm_type=${norm_type} log_iter=1"
     case ${run_mode} in
     sp) train_cmd="python -u tools/train.py "${train_cmd} ;;
     mp)
-        rm -rf ./mylog
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
-        log_parse_file="mylog/workerlog.0" ;;
+        rm -rf ./ppyolov2_log
+        train_cmd="python -m paddle.distributed.launch --log_dir=./ppyolov2_log --gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}
+        log_parse_file="ppyolov2_log/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
 
@@ -74,9 +74,9 @@ function _train(){
     fi
     kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 
-    if [ $run_mode = "mp" -a -d mylog ]; then
+    if [ $run_mode = "mp" -a -d ppyolov2_log ]; then
         rm ${log_file}
-        cp mylog/workerlog.0 ${log_file}
+        cp ppyolov2_log/workerlog.0 ${log_file}
     fi
 }
 

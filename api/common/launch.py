@@ -96,57 +96,58 @@ class NvprofRunner(object):
 class NsightRunner(object):
     def run(self, cmd, profile_from_start=False):
         stdout, exit_code = self._nsight(cmd, profile_from_start)
+        parse_status, gpu_time = self._parse_logs(stdout.split("\n"))
+        if parse_status:
+            return gpu_time
         if exit_code == 0:
-            parse_status, gpu_time = self._parse_logs(stdout.split("\n"))
-            if parse_status:
-                return gpu_time
-        print("Running Error:\n {}".format(stdout))
+            print("Running Error:\n {}".format(stdout))
         return 0.0
 
     def _nsight(self, cmd, profile_from_start):
+        gpu_id = os.environ.get("CUDA_VISIBLE_DEVICES", "")
         if profile_from_start:
-            profile_cmd = "nsys nvprof -o tmp.qdrep {}".format(cmd)
+            profile_cmd = "nsys nvprof -o tmp_{}.qdrep {}".format(gpu_id, cmd)
         else:
-            profile_cmd = "nsys nvprof --profile-from-start=off -o tmp.qdrep {}".format(
-                cmd)
+            profile_cmd = "nsys nvprof --profile-from-start=off -o tmp_{}.qdrep {}".format(
+                gpu_id, cmd)
         return system.run_command(profile_cmd)
 
     def _parse_logs(self, logs):
-        kernel_line_from = None
-        kernel_line_to = None
-        memcpy_line_from = None
-        memcpy_line_to = None
+        cudaapi_line_from, cudaapi_line_to = None, None
+        kernel_line_from, kernel_line_to = None, None
+        memcpy_line_from, memcpy_line_to = None, None
+        memsize_line_from, memsize_line_to = None, None
         for i in range(len(logs)):
             line = api_param.parse_string(logs[i])
-            if "CUDA Kernel Statistics:" in line:
-                kernel_line_from = i
-                for j in range(i + 2, len(logs)):
-                    if logs[j] == "":
-                        kernel_line_to = j
-                        break
-            if "CUDA Memory Operation Statistics (by time):" in line:
-                memcpy_line_from = i
-                for j in range(i + 2, len(logs)):
-                    if logs[j] == "":
-                        memcpy_line_to = j
-                        break
+            if "Executing 'cudaapisum' stats report" in line:
+                cudaapi_line_from, cudaapi_line_to = self._extract_line_range(
+                    logs, i)
+            if "CUDA Kernel Statistics:" in line or "Executing 'gpukernsum' stats report" in line:
+                kernel_line_from, kernel_line_to = self._extract_line_range(
+                    logs, i)
+            if "CUDA Memory Operation Statistics (by time):" in line or "Executing 'gpumemtimesum' stats report" in line:
+                memcpy_line_from, memcpy_line_to = self._extract_line_range(
+                    logs, i)
+            if "Executing 'gpumemsizesum' stats report" in line:
+                memsize_line_from, memsize_line_to = self._extract_line_range(
+                    logs, i)
+
+        self._print_logs_in_range(logs, cudaapi_line_from, cudaapi_line_to)
 
         parse_status = False
         kernel_gpu_time = 0.0
+        self._print_logs_in_range(logs, kernel_line_from, kernel_line_to)
         if kernel_line_from is not None and kernel_line_to is not None:
-            for i in range(kernel_line_from, kernel_line_to):
-                print(logs[i])
-            print("")
             parse_status = True
             kernel_gpu_time = self._parse_gpu_time(logs[kernel_line_from + 4])
 
         memcpy_gpu_time = 0.0
+        self._print_logs_in_range(logs, memcpy_line_from, memcpy_line_to)
         if memcpy_line_from is not None and memcpy_line_to is not None:
-            for i in range(memcpy_line_from, memcpy_line_to):
-                print(logs[i])
-            print("")
             parse_status = True
             memcpy_gpu_time = self._parse_gpu_time(logs[memcpy_line_from + 4])
+
+        self._print_logs_in_range(logs, memsize_line_from, memsize_line_to)
 
         total_gpu_time = kernel_gpu_time + memcpy_gpu_time
         if total_gpu_time != 0.0:
@@ -162,17 +163,36 @@ class NsightRunner(object):
         print("")
         return parse_status, total_gpu_time
 
+    def _extract_line_range(self, logs, line_from):
+        line_to = None
+        if logs[line_from + 1] == "" or "SKIPPED" not in logs[line_from + 1]:
+            for j in range(line_from + 2, len(logs)):
+                if logs[j] == "":
+                    line_to = j
+                    break
+        return line_from, line_to
+
+    def _print_logs_in_range(self, logs, line_from, line_to):
+        if line_from is not None and line_to is not None:
+            for i in range(line_from, line_to):
+                print(logs[i])
+            print("")
+
     def _parse_gpu_time(self, line):
-        infos = line.strip().split()
-        percent = float(infos[0].replace("%", "")) * 0.01
-        gpu_time = float(infos[1].replace(",", "")) * 1E-6
-        calls = int(infos[2].replace(",", ""))
-        function = infos[7]
-        for i in range(8, len(infos)):
-            function = function + " " + infos[i]
-        #print("percent: %.2f; gpu_time: %.4f ms; calls: %d; function: %s" %
-        #      (percent, gpu_time, calls, function))
-        return gpu_time / percent
+        try:
+            infos = line.strip().split()
+            percent = float(infos[0].replace("%", "")) * 0.01
+            gpu_time = float(infos[1].replace(",", "")) * 1E-6
+            calls = int(infos[2].replace(",", ""))
+            function = infos[7]
+            for i in range(8, len(infos)):
+                function = function + " " + infos[i]
+            #print("percent: %.2f; gpu_time: %.4f ms; calls: %d; function: %s" %
+            #      (percent, gpu_time, calls, function))
+            return gpu_time / percent
+        except Exception as e:
+            sys.stderr.write("Error: parsing \"{}\". {}\n".format(line, e))
+            return 0.0
 
 
 class NsightRunnerForDynamicScheduling(object):

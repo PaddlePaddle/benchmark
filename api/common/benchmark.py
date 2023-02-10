@@ -26,6 +26,9 @@ class BenchmarkBase(object):
         self.reset()
 
     def reset(self):
+        if hasattr(self, "extra_tensors") and self.extra_tensors is not None:
+            del self.extra_tensors
+        self.extra_tensors = None
         self.feed_list = None
         self.fetch_list = None
         self._backward = False

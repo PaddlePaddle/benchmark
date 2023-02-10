@@ -90,7 +90,7 @@ class TorchSlice(PytorchOpBenchmarkBase):
             input=x,
             dim=config.axes[0],
             start=config.starts[0],
-            length=config.length)
+            length=config.length).contiguous()
 
         self.feed_list = [x]
         self.fetch_list = [result]
