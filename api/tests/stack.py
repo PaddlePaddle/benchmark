@@ -32,6 +32,17 @@ class PaddleStack(PaddleOpBenchmarkBase):
         if config.backward:
             self.append_gradients(result, xs)
 
+    def compute_flop_and_byte(self, config):
+        num_xs = len(config.x_shape)
+        forward_flop = 0
+        forward_byte = num_xs * numel(config.x_shape[0]) * sizeof(
+            config.x_dtype[0]) * 2
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
+
 
 @benchmark_registry.register("stack")
 class TorchStack(PytorchOpBenchmarkBase):

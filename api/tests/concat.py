@@ -32,6 +32,17 @@ class PaddleConcat(PaddleOpBenchmarkBase):
         if config.backward:
             self.append_gradients(result, xs)
 
+    def compute_flop_and_byte(self, config):
+        forward_flop = 0
+        forward_byte = 0
+        for shape in config.x_shape:
+            forward_byte += numel(shape) * sizeof(config.x_dtype[0]) * 2
+        if not config.backward:
+            return forward_flop, forward_byte
+        else:
+            # To be implemented.
+            return None, None
+
 
 @benchmark_registry.register("concat")
 class TorchConcat(PytorchOpBenchmarkBase):

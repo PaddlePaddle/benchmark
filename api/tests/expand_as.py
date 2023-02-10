@@ -36,7 +36,7 @@ class TorchExpandAs(PytorchOpBenchmarkBase):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         y = self.variable(name='y', shape=config.y_shape, dtype=config.y_dtype)
         y.requires_grad = False
-        result = x.expand_as(y)
+        result = x.expand_as(y).contiguous()
 
         self.feed_list = [x]
         self.fetch_list = [result]

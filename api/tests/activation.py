@@ -23,6 +23,7 @@ class ActivationConfig(APIConfig):
         self.api_list = {
             'sigmoid': 'sigmoid',
             'hardsigmoid': 'hardsigmoid',
+            'swish': 'swish',
             'hardswish': 'hardswish',
             'softplus': 'softplus',
             'tanhshrink': 'tanhshrink',
@@ -36,6 +37,13 @@ class ActivationConfig(APIConfig):
                 "hardsigmoid", "hardswish", "tanhshrink", "softshrink"
         ]:
             print("-- %s is not supported in tf." % self.api_name)
+            return False
+        return True
+
+    @property
+    def run_torch(self):
+        if self.api_name in ["swish"]:
+            print("-- %s is not supported in torch." % self.api_name)
             return False
         return True
 

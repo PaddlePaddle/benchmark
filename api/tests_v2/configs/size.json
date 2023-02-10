@@ -1,7 +1,7 @@
 [{
     "op": "size",
     "param_info": {
-        "input": {
+        "x": {
             "dtype": "float32",
             "shape": "[-1L, 102400L]",
             "type": "Variable"
@@ -10,7 +10,7 @@
 }, {
     "op": "size",
     "param_info": {
-        "input": {
+        "x": {
             "dtype": "int64",
             "shape": "[512000L]",
             "type": "Variable"
