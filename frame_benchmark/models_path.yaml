@@ -48,3 +48,6 @@ pytorch:
    bert_base_seqlen128: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
    bert_large_seqlen512: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
    gpt3: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/Megatron-LM
+   bert_for_question_answering: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
+   gpt_for_sequence_classification: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
+   t5_for_conditional_generation: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
