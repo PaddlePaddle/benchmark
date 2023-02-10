@@ -1,0 +1,21 @@
+[{
+    "op": "shard_index",
+    "param_info": {
+        "input": {
+            "type": "Variable",
+            "dtype": "int64",
+            "shape": "[10000L, 5000L, 1L]"
+        }
+    },
+    "repeat": 5000
+}, {
+    "op": "shard_index",
+    "param_info": {
+        "input": {
+            "type": "Variable",
+            "dtype": "int32",
+            "shape": "[10000L, 10000L, 1L]"
+        }
+    },
+    "repeat": 5000
+}]
