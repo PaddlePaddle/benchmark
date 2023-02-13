@@ -58,8 +58,10 @@ class Executor:
                 # The more details about amp can be found in
                 # https://pytorch.org/docs/stable/notes/amp_examples.html
                 with torch.cuda.amp.autocast(scaler is not None):
-                    loss, loss_att, loss_ctc = model(feats, feats_lengths,
-                                                     target, target_lengths)
+                    result = model(feats, feats_lengths, target, target_lengths)
+                    loss = result["loss"]
+                    loss_att = result["loss_att"]
+                    loss_ctc = result["loss_ctc"]
                     loss = loss / accum_grad
                 if use_amp:
                     scaler.scale(loss).backward()
@@ -127,8 +129,10 @@ class Executor:
                 num_utts = target_lengths.size(0)
                 if num_utts == 0:
                     continue
-                loss, loss_att, loss_ctc = model(feats, feats_lengths, target,
-                                                 target_lengths)
+                result = model(feats, feats_lengths, target, target_lengths)
+                loss = result["loss"]
+                loss_att = result["loss_att"]
+                loss_ctc = result["loss_ctc"]
                 if torch.isfinite(loss):
                     num_seen_utts += num_utts
                     total_loss += loss.item() * num_utts
