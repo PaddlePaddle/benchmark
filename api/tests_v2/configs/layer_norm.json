@@ -12,4 +12,60 @@
         }
     },
     "atol": 1e-5
+}, {
+    "op": "layer_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[65536L, 64L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1e-5
+}, {
+    "op": "layer_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[65536L, 128L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1e-5
+}, {
+    "op": "layer_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32768, 256]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1e-5
+}, {
+    "op": "layer_norm",
+    "param_info": {
+        "epsilon": {
+            "type": "float",
+            "value": "1e-05"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[262144, 64L]",
+            "type": "Variable"
+        }
+    },
+    "atol": 1e-5
 }]
