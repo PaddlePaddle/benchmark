@@ -1,0 +1,37 @@
+[{
+    "op": "conv3d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCDHW"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(1, 1, 1)"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 128L, 32L, 100L, 100L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[512L, 128L, 32L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[0, 0, 0]"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(32, 1, 1)"
+        }
+    },
+    "repeat": 100
+}]
+

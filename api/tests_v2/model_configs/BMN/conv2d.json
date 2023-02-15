@@ -1,0 +1,362 @@
+[{
+    "config_id": 0,
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        },
+        "groups": {
+            "type": "int",
+            "value": "4"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 400L, 1L, 100L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[256L, 100L, 1L, 3L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[0, 1]"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        }
+    },
+    "atol": 0.001
+}, {
+    "config_id": 1,
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        },
+        "groups": {
+            "type": "int",
+            "value": "4"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 256L, 1L, 100L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[256L, 64L, 1L, 3L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[0, 1]"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        }
+    },
+    "atol": 0.001
+}, {
+    "config_id": 2,
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        },
+        "groups": {
+            "type": "int",
+            "value": "4"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 256L, 1L, 100L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[256L, 64L, 1L, 3L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[0, 1]"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        }
+    },
+    "atol": 0.001
+}, {
+    "config_id": 3,
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 256L, 1L, 100L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[1L, 256L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[0, 0]"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        }
+    },
+    "atol": 0.001
+}, {
+    "config_id": 4,
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        },
+        "groups": {
+            "type": "int",
+            "value": "4"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 256L, 1L, 100L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[256L, 64L, 1L, 3L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[0, 1]"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        }
+    },
+    "atol": 0.001
+}, {
+    "config_id": 5,
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 256L, 1L, 100L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[1L, 256L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[0, 0]"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        }
+    },
+    "atol": 0.001
+}, {
+    "config_id": 6,
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        },
+        "groups": {
+            "type": "int",
+            "value": "1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 256L, 1L, 100L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[128L, 256L, 1L, 3L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[0, 1]"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        }
+    },
+    "atol": 0.001
+}, {
+    "config_id": 7,
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        },
+        "groups": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 512L, 100L, 100L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[128L, 512L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[0, 0]"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        }
+    },
+    "atol": 0.001
+}, {
+    "config_id": 8,
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        },
+        "groups": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 128L, 100L, 100L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[128L, 128L, 3L, 3L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[1, 1]"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        }
+    },
+    "atol": 0.001
+}, {
+    "config_id":9,
+    "op": "conv2d",
+    "param_info": {
+        "data_format": {
+            "type": "string",
+            "value": "NCHW"
+        },
+        "dilation": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        },
+        "groups": {
+            "type": "string",
+            "value": "None"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[8L, 128L, 100L, 100L]",
+            "type": "Variable"
+        },
+        "weight": {
+            "dtype": "float32",
+            "shape": "[2L, 128L, 1L, 1L]",
+            "type": "Variable"
+        },
+        "padding": {
+            "type": "list",
+            "value": "[0, 0]"
+        },
+        "stride": {
+            "type": "tuple",
+            "value": "(1, 1)"
+        }
+    },
+    "atol": 0.001
+}]
+
