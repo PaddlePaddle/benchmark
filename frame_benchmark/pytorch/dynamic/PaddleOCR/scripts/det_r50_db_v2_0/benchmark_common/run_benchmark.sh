@@ -40,6 +40,10 @@ function _set_params(){
             add_options=""
             log_file=${train_log_file}
     fi
+    use_com_args="--torchcompile"
+    if [ ${FLAG_TORCH_COMPILE} = "True" ];then   # 转换成自己模型库开启torch.compile 的参数  # FLAG_TORCH_COMPILE 参数是benchmark执行时统一赋值的全局变量,True 表示执行 torch.compile 
+        use_com_args="--torchcompile"   # 如果该参数是自行开发的，各个模型库请尽量使用一致的参数，方便从运行脚本中判断是否执行了compile
+    fi
 }
 
 
@@ -59,7 +63,7 @@ function _train(){
     else
         train_config="--config_file config/icdar2015_resnet50_FPN_DBhead_polyLR.yaml"
     fi
-    train_options="--cfg-options dataset.train.loader.batch_size=${batch_size} \
+    train_options="${use_com_args} --cfg-options dataset.train.loader.batch_size=${batch_size} \
                    trainer.epochs=${max_iter}\
                    lr_scheduler.args.warmup_epoch=1 arch.backbone.pretrained=False trainer.log_iter=1 \
                    trainer.enable_eval=False dataset.train.loader.shuffle=false"
