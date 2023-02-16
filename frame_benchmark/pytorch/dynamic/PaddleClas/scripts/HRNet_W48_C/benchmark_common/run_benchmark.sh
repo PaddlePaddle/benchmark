@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Test training benchmark for a model.
 # Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_name} ${run_mode} ${fp_item} ${bs_item} ${max_epochs} ${num_workers}
 
 function _set_params(){
@@ -9,24 +8,23 @@ function _set_params(){
     fp_item=${3:-"fp32"}            # (必选) fp32|fp16
     run_process_type=${4:-"MultiP"} # (必选) 单进程 SingleP|多进程 MultiP
     run_mode=${5:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
-    device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C32 （4机32卡）
+    device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
-    model_repo="HRNet-Image-Classification"          # (必选) 模型套件的名字
+    model_repo="pytorch-image-models"          # (必选) 模型套件的名字
     ips_unit="samples/sec"         # (必选)速度指标单位
     skip_steps=10                  # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="ips:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
 
     convergence_key=""             # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
-    max_epochs=${7:-"1"}           # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
-    num_workers=${8:-"4"}          # (可选)
+    max_epochs=${7:-"1"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
+    num_workers=${8:-"4"}             # (可选)
 
     # Added for distributed training
-    node_num=${9:-"1"}                      #（可选） 节点数量
+    node_num=${9:-"2"}                      #（可选） 节点数量
     node_rank=${10:-"0"}                    # (可选)  节点rank
     master_addr=${11:-"127.0.0.1"}       # (可选) 主节点ip地址
     master_port=${12:-"1928"}               # (可选) 主节点端口号
     # Added for distributed training
-    
 
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
@@ -50,34 +48,31 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py -d output -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item}
+    python analysis_log.py -l ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item}
 }
 
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
-    sed -i "s/BATCH_SIZE_PER_GPU: 32/BATCH_SIZE_PER_GPU: $batch_size/g" experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
-    sed -i "s/WORKERS: 4/WORKERS: $num_workers/g" experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
-    if [ ${device_num:3} = '32' ];then
-            train_cmd="python -m torch.distributed.run --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} --nproc_per_node=8 tools/train.py --distributed --cfg experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml"
-        elif [ ${device_num:3} = "8" ];then
-            train_cmd="python -m torch.distributed.run --nproc_per_node=8 --master_port=14233 tools/train.py --distributed --cfg experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml"
-        else
-            train_cmd="python tools/train.py --cfg experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml"
+    train_options="ILSVRC2012_w --model hrnet_w48 --lr 0.1 --warmup-epochs 0 --epochs ${max_epochs} --weight-decay 1e-4 --sched cosine --batch-size ${batch_size} --workers ${num_workers}"
+    if [ ${fp_item} = 'fp16' ];then
+        train_options="${train_options} --amp"
     fi
 
-
-
     case ${run_process_type} in
-    SingleP) sed -ie 's/GPUS: (0,1,2,3)/GPUS: (0,)/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml;;
-    MultiP)
-        sed -ie 's/GPUS: (0,1,2,3)/GPUS: (0,1,2,3,4,5,6,7)/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml;;
+    SingleP) train_cmd="python train.py ${train_options}" ;;
+    MultiP) 
+    if [ ${device_num:3} = '32' ];then
+        train_cmd="python -m torch.distributed.run --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} --nproc_per_node=8 train.py ${train_options}"
+    elif [ ${device_num:3} = '8' ];then
+        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --master_port=29500 train.py ${train_options}"
+    fi  ;; 
     *) echo "choose run_process_type(SingleP or MultiP)"; exit 1;
     esac
 
 #   以下为通用执行命令，无特殊可不用修改
-    timeout 10m ${train_cmd} > ${log_file} 2>&1
+    timeout 5m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
     else
@@ -100,16 +95,7 @@ echo "---------model_commit is ${model_commit}"
 
 job_bt=`date '+%Y%m%d%H%M%S'`
 rm -rf work_dirs
-rm -rf output/imagenet
-cp train.py tools/
-cp utils_backup.py lib/utils/utils.py
-sed -i 's/view/reshape/g' lib/core/evaluate.py
-sed -i 's/PRINT_FREQ: 1000/PRINT_FREQ: 10/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
 _train
 job_et=`date '+%Y%m%d%H%M%S'`
 export model_run_time=$((${job_et}-${job_bt}))
 _analysis_log
-sed -i "s/BATCH_SIZE_PER_GPU: $batch_size/BATCH_SIZE_PER_GPU: 32/g" experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
-sed -i "s/WORKERS: $num_workers/WORKERS: 4/g" experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
-sed -ie 's/GPUS: (0,)/GPUS: (0,1,2,3)/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
-sed -ie 's/GPUS: (0,1,2,3,4,5,6,7)/GPUS: (0,1,2,3)/g' experiments/cls_hrnet_w48_sgd_lr5e-2_wd1e-4_bs32_x100.yaml
