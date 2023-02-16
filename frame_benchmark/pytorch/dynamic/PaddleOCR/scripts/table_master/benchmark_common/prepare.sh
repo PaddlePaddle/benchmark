@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 执行路径在模型库的根目录下
 ################################# 安装框架 如:
-# wget -nc ${FLAG_TORCH_WHL_URL}
-# tar -xvf torch_dev_whls.tar
-# pip install torch_dev_whls/*
+wget -nc ${FLAG_TORCH_WHL_URL}
+tar -xvf torch_dev_whls.tar
+pip install torch_dev_whls/*
 
 cd ./mmdetection-2.11.0
 pip install -v -e .
