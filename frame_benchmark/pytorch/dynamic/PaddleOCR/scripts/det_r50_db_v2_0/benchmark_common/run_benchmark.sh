@@ -40,7 +40,7 @@ function _set_params(){
             add_options=""
             log_file=${train_log_file}
     fi
-    use_com_args="--torchcompile"
+    use_com_args=""
     if [ ${FLAG_TORCH_COMPILE} = "True" ];then   # 转换成自己模型库开启torch.compile 的参数  # FLAG_TORCH_COMPILE 参数是benchmark执行时统一赋值的全局变量,True 表示执行 torch.compile 
         use_com_args="--torchcompile"   # 如果该参数是自行开发的，各个模型库请尽量使用一致的参数，方便从运行脚本中判断是否执行了compile
     fi
