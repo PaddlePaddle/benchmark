@@ -232,7 +232,6 @@ if __name__ == "__main__":
                 "model_name": args.mission_name,
                 "batch_size": args.base_batch_size,
                 "fp_item": args.fp_item,
-                "run_process_type": args.run_mode,
                 "run_mode": "DP",
                 "convergence_value": 0,
                 "convergence_key": "",
