@@ -5,17 +5,17 @@
 # Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_name} ${run_mode} ${fp_item} ${bs_item} ${max_iter} ${num_workers}
 
 function _set_params(){
-    model_item=${1:-"det_res18_db"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
+    model_item=${1:-"table_master"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
     base_batch_size=${2:-"2"}       # (必选) 每张卡上的batch_size
     fp_item=${3:-"fp32"}            # (必选) fp32|fp16
     run_process_type=${4:-"SingleP"} # (必选) 单进程 SingleP|多进程 MultiP
     run_mode=${5:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
     device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
-    model_repo="DBNet-pytorch"          # (必选) 模型套件的名字
+    model_repo="TableMASTER_mmocr"          # (必选) 模型套件的名字
     speed_unit="samples/sec"         # (必选)速度指标单位
     skip_steps=10                  # (必选)解析日志，跳过模型前几个性能不稳定的step
-    keyword="speed:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
+    keyword="ips:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
     convergence_key=""             # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
     max_iter=${7:-"3"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"3"}             # (可选)
@@ -50,6 +50,7 @@ function _set_params(){
 
 function _analysis_log(){
     analysis_cmd="python analysis_log.py --filename ${log_file}  --mission_name ${model_name} --run_mode ${run_process_type} --direction_id 0 --keyword ${keyword} --base_batch_size ${base_batch_size} --skip_steps 1 --gpu_num ${num_gpu_devices}  --index 1  --model_mode=-1  --speed_unit=samples/sec --fp_item=${fp_item} --device_num=${device_num} --res_log_file=${speed_log_file}"
+    echo $analysis_cmd
     eval $analysis_cmd
 }
 
@@ -58,25 +59,21 @@ function _train(){
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
                    
-    if [ ${model_item} = "det_res18_db" ]; then
-        train_config="--config_file config/icdar2015_resnet18_FPN_DBhead_polyLR.yaml"
-    else
-        train_config="--config_file config/icdar2015_resnet50_FPN_DBhead_polyLR.yaml"
-    fi
-    train_options="${use_com_args} --cfg-options dataset.train.loader.batch_size=${batch_size} \
-                   trainer.epochs=${max_iter}\
-                   lr_scheduler.args.warmup_epoch=1 arch.backbone.pretrained=False trainer.log_iter=1 \
-                   trainer.enable_eval=False dataset.train.loader.shuffle=false"
-    if [ ${fp_item} = "fp16" ]; then
-        train_options="${train_options} trainer.amp=true"
+    train_config="configs/textrecog/master/table_master_lmdb_ResnetExtract_Ranger_0930.py"
+    train_options="${use_com_args} --cfg-options data.samples_per_gpu=${batch_size} \
+                   total_epochs=${max_iter}\
+                   log_config.interval=1 \
+                   data.train.shuffle=false"
+    if [ ${fp_item} == "fp32" ]; then
+        train_options="${train_options} fp16=None"
     fi
 
     if [ ${device_num} = "N1C1" ]; then
-        train_cmd="python tools/train.py ${train_config} ${train_options}"
+        train_cmd="python tools/train.py ${train_config} --no-validate ${train_options}"
     elif [ ${device_num} = 'N1C8' ];then
-        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 tools/train.py ${train_config}  ${train_options}"
+        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --master_port=8877 tools/train.py ${train_config} --no-validate ${train_options} --launcher pytorch"
     else
-        train_cmd="python -m torch.distributed.launch --nnodes=${device_num:1:1} --node_rank=${PADDLE_TRAINER_ID} --nproc_per_node=8 --master_addr=${POD_0_IP} --master_port=8877 tools/train.py ${train_config}  ${train_options}"
+        train_cmd="python -m torch.distributed.launch --nnodes=${device_num:1:1} --node_rank=${PADDLE_TRAINER_ID} --nproc_per_node=8 --master_addr=${POD_0_IP} --master_port=8877 tools/train.py ${train_config} --no-validate ${train_options} --launcher pytorch"
     fi
 
     echo "=============="

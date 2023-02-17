@@ -1,7 +1,7 @@
-model_item=det_r50_db_v2_0
+model_item=table_master
 #max_token
-bs_item=16
-fp_item=fp32
+bs_item=10
+fp_item=fp16
 run_process_type=MultiP
 run_mode=DP
 device_num=N4C32
