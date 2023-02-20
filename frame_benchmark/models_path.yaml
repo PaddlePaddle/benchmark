@@ -48,5 +48,6 @@ pytorch:
    bert_base_seqlen128: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
    bert_large_seqlen512: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
    gpt3: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/Megatron-LM
+   CLIP: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/PaddleClas_CLIP_torch
    bert_for_question_answering: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
    table_master: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/TableMASTER_mmocr
