@@ -46,7 +46,7 @@ function _set_params(){
     fi
 
     use_com_args=""
-    if [ ${FLAG_TORCH_COMPILE:-"false"} = "true" ];then
+    if [ ${FLAG_TORCH_COMPILE:-"False"} = "True" ];then
             use_com_args="--backend=inductor"
         else
             use_com_args="--backend=eager"
@@ -105,7 +105,7 @@ function _train(){
     fi
 
     rm -rf ${log_file}
-    if [ ${FLAG_TORCH_COMPILE:-"false"} = "true" ];then
+    if [ ${FLAG_TORCH_COMPILE:-"False"} = "True" ];then
         mv speedup_inductor.csv ${log_file}
     else
         mv speedup_eager.csv ${log_file}
