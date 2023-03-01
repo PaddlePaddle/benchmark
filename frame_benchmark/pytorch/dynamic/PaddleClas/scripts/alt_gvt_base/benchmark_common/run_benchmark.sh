@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Test training benchmark for a model.
 # Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_name} ${run_mode} ${fp_item} ${bs_item} ${max_epochs} ${num_workers}
 
 function _set_params(){
@@ -9,9 +8,9 @@ function _set_params(){
     fp_item=${3:-"fp32"}            # (必选) fp32|fp16
     run_process_type=${4:-"MultiP"} # (必选) 单进程 SingleP|多进程 MultiP
     run_mode=${5:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
-    device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C32 （4机32卡）
+    device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
-    model_repo="Twins"          # (必选) 模型套件的名字
+    model_repo="pytorch-image-models"          # (必选) 模型套件的名字
     ips_unit="samples/sec"         # (必选)速度指标单位
     skip_steps=10                  # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="ips:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
@@ -19,6 +18,13 @@ function _set_params(){
     convergence_key=""             # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
     max_epochs=${7:-"1"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"4"}             # (可选)
+
+    # Added for distributed training
+    node_num=${10:-"2"}                      #（可选） 节点数量
+    node_rank=${11:-"0"}                    # (可选)  节点rank
+    master_addr=${12:-"127.0.0.1"}       # (可选) 主节点ip地址
+    master_port=${13:-"1928"}               # (可选) 主节点端口号
+    # Added for distributed training
 
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
@@ -42,19 +48,30 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py -f ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} --fp ${fp_item}
+    python analysis_log.py -l ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item} --skip_steps 100
 }
 
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
 
-    echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${num_gpu_devices}, batch_size=${batch_size}"
+    echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
+    train_options="ILSVRC2012_w --model twins_svt_base --epochs ${max_epochs} --drop 0.0 --drop-path 0.3 --opt adamw --weight-decay 0.05 --lr 1e-3 --min-lr 2e-5 --warmup-epochs 5 --warmup-lr 2e-6 --sched cosine --hflip 0.5 --aa rand-m9-mstd0.5-inc1 --reprob 0.25 --mixup 0.8 --mixup-prob 1.0 --cutmix 1.0 --batch-size ${batch_size} --workers ${num_workers} --log-interval 1"
+    if [ ${fp_item} = 'fp16' ];then
+        train_options="${train_options} --amp"
+    fi
 
-    train_cmd="--model ${model_item} --batch-size ${batch_size} --data-path data/imagenet --dist-eval --drop-path 0.3 --epochs ${max_epochs} --num_workers ${num_workers}"
+    if [ "${FLAG_TORCH_COMPILE}" = "True"  ] || [ "${FLAG_TORCH_COMPILE}" = "true"  ];then
+        train_options="${train_options} --torchcompile"
+    fi
+
     case ${run_process_type} in
-    SingleP) train_cmd="python main.py ${train_cmd}" ;;
+    SingleP) train_cmd="python train.py ${train_options}" ;;
     MultiP)
-        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --use_env main.py ${train_cmd}" ;;
+    if [ ${device_num:3} = '32' ];then
+        train_cmd="python -m torch.distributed.run --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} --nproc_per_node=8 train.py ${train_options}"
+    elif [ ${device_num:3} = '8' ];then
+        train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --master_port=29500 train.py ${train_options}"
+    fi  ;;
     *) echo "choose run_process_type(SingleP or MultiP)"; exit 1;
     esac
 
