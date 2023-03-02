@@ -1,6 +1,6 @@
-model_item=HRNet_W48_C
+model_item=HRNet_W30_C
 bs_item=64
-fp_item=fp32
+fp_item=fp16
 run_process_type=MultiP
 run_mode=DP
 device_num=N1C8

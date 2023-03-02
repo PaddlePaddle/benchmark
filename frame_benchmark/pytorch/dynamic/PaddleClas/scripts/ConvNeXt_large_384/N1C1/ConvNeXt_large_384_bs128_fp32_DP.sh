@@ -1,9 +1,9 @@
-model_item=HRNet_W48_C
-bs_item=64
+model_item=ConvNeXt_large_384
+bs_item=128
 fp_item=fp32
-run_process_type=MultiP
+run_process_type=SingleP
 run_mode=DP
-device_num=N1C8
+device_num=N1C1
 max_epoch=1
 num_workers=12
 

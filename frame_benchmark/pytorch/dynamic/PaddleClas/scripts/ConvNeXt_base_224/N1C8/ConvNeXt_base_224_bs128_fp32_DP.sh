@@ -1,5 +1,5 @@
-model_item=HRNet_W48_C
-bs_item=64
+model_item=ConvNeXt_base_224
+bs_item=128
 fp_item=fp32
 run_process_type=MultiP
 run_mode=DP

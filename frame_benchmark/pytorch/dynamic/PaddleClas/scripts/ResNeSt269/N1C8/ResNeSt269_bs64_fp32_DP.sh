@@ -1,4 +1,4 @@
-model_item=HRNet_W48_C
+model_item=ResNeSt269
 bs_item=64
 fp_item=fp32
 run_process_type=MultiP
