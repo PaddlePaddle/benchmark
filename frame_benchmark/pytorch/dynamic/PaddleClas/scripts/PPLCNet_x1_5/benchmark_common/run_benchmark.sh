@@ -55,7 +55,7 @@ function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
-    train_options="ILSVRC2012_w --model twins_svt_base --epochs ${max_epochs} --drop 0.0 --drop-path 0.3 --opt adamw --weight-decay 0.05 --lr 1e-3 --min-lr 2e-5 --warmup-epochs 5 --warmup-lr 2e-6 --sched cosine --hflip 0.5 --aa rand-m9-mstd0.5-inc1 --reprob 0.25 --mixup 0.8 --mixup-prob 1.0 --cutmix 1.0 --batch-size ${batch_size} --workers ${num_workers} --log-interval 1"
+    train_options="ILSVRC2012_w --model lcnet_150 --epochs ${max_epochs} --weight-decay 4e-5 --lr 0.8 --warmup-epochs 5 --sched cosine --batch-size ${batch_size} --workers ${num_workers} --log-interval 1"
     if [ ${fp_item} = 'fp16' ];then
         train_options="${train_options} --amp"
     fi

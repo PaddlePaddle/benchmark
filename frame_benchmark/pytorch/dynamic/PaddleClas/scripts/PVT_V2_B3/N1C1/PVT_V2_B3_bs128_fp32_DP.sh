@@ -1,4 +1,4 @@
-model_item=PVT_V2_B2_Linear
+model_item=PVT_V2_B3
 bs_item=128
 fp_item=fp32
 run_process_type=SingleP

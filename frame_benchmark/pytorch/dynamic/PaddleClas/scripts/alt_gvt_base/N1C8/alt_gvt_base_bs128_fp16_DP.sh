@@ -1,9 +1,9 @@
-model_item=PVT_V2_B2_Linear
+model_item=alt_gvt_base
 bs_item=128
-fp_item=fp32
-run_process_type=SingleP
+fp_item=fp16
+run_process_type=MultiP
 run_mode=DP
-device_num=N1C1
+device_num=N1C8
 max_epoch=1
 num_workers=12
 
