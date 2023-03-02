@@ -1,4 +1,4 @@
-model_item=ResNet152
+model_item=ResNeXt50_vd_32x4d
 bs_item=64
 fp_item=fp32
 run_process_type=MultiP

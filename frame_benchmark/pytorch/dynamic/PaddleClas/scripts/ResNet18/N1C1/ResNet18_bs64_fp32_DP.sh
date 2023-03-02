@@ -1,9 +1,9 @@
-model_item=ResNet152
+model_item=ResNet18
 bs_item=64
 fp_item=fp32
-run_process_type=MultiP
+run_process_type=SingleP
 run_mode=DP
-device_num=N1C8
+device_num=N1C1
 max_epoch=1
 num_workers=12
 
