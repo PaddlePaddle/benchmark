@@ -1,6 +1,6 @@
-model_item=MobileNetV2
-bs_item=64
-fp_item=fp32
+model_item=MobileNetV3_large_x0_75
+bs_item=512
+fp_item=fp16
 run_process_type=MultiP
 run_mode=DP
 device_num=N1C8

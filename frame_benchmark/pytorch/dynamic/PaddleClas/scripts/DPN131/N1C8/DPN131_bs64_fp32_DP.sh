@@ -1,4 +1,4 @@
-model_item=MobileNetV2
+model_item=DPN131
 bs_item=64
 fp_item=fp32
 run_process_type=MultiP
