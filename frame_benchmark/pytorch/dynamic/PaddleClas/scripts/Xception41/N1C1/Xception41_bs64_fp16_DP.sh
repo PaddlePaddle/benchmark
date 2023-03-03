@@ -1,11 +1,11 @@
-model_item=MobileNetV2
-bs_item=128
-fp_item=fp32
-run_process_type=MultiP
+model_item=Xception41
+bs_item=64
+fp_item=fp16
+run_process_type=SingleP
 run_mode=DP
-device_num=N1C8
+device_num=N1C1
 max_epoch=1
-num_workers=4
+num_workers=12
 
 sed -i '/set\ -xe/d' run_benchmark.sh
 bash PrepareEnv.sh;
