@@ -1,6 +1,6 @@
-model_item=PVT_V2_B2_Linear
+model_item=SwinTransformer_base_patch4_window7_224
 bs_item=128
-fp_item=fp32
+fp_item=fp16
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1

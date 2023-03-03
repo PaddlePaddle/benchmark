@@ -1,6 +1,6 @@
-model_item=PVT_V2_B2_Linear
+model_item=MobileViT_S
 bs_item=128
-fp_item=fp32
+fp_item=fp16
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
