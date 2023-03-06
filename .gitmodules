@@ -37,7 +37,7 @@
 	url = https://github.com/wenet-e2e/wenet.git
 [submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection"]
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
-	url = https://github.com/open-mmlab/mmdetection.git
+	url = https://github.com/PaddleBenchmark/mmdetection.git
 	branch = master
 [submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose"]
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose
