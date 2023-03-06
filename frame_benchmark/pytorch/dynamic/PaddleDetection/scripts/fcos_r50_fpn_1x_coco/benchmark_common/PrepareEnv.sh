@@ -4,9 +4,22 @@
 echo "*******prepare benchmark start ***********"
 pip install -U pip
 echo `pip --version`
+wget -nc ${FLAG_TORCH_WHL_URL}
+tar -xvf torch_dev_whls.tar
+python -m pip install torch_dev_whls/*
+rm -rf torch_dev_whls*
 pip install Cython
-pip install torch==1.10.0 torchvision==0.11.1
-pip install mmcv-full==1.4.4 -f https://download.openmmlab.com/mmcv/dist/cu102/torch1.10.0/index.html
+
+if [ `nvidia-smi --list-gpus | grep A100 | wc -l` -ne "0" ]; then
+    echo "Run on A100 Cluster"
+    wget https://paddle-wheel.bj.bcebos.com/benchmark/mmcv_full-1.7.1-cp37-cp37m-linux_x86_64_A100_cuda117.whl -O mmcv_full-1.7.1-cp37-cp37m-linux_x86_64.whl
+    pip install mmcv_full-1.7.1-cp37-cp37m-linux_x86_64.whl && rm -f mmcv_full-1.7.1-cp37-cp37m-linux_x86_64.whl
+else
+    echo "Run on V100 Cluster"
+    wget https://paddle-wheel.bj.bcebos.com/benchmark/mmcv_full-1.5.0-cp37-cp37m-linux_x86_64_V100.whl -O mmcv_full-1.5.0-cp37-cp37m-linux_x86_64.whl
+    pip install mmcv_full-1.5.0-cp37-cp37m-linux_x86_64.whl && rm -f mmcv_full-1.5.0-cp37-cp37m-linux_x86_64.whl
+fi
+
 pip install -r requirements.txt
 pip install -v -e .
 
