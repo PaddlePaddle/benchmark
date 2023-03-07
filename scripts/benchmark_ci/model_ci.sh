@@ -36,6 +36,8 @@ python analysis.py --log_path=${BENCHMARK_ROOT}/logs/dynamic --standard_path=${B
 if [ -f "rerun_model.txt" ];then
     echo -e "rerun model in paddle develop start!"
     #install paddle develop
+    #avoid import error in paddle develop
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/python3.7.0/lib/python3.7/site-packages/paddle/fluid/../libs/
     cd /workspace/Paddle
     pip uninstall -y paddlepaddle_gpu
     pip install build/python/dist/paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl
