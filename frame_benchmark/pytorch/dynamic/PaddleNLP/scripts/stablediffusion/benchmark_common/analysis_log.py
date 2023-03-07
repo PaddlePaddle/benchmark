@@ -18,7 +18,7 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, run_pro
             if "ips:" in eachline:
                 ips = float(eachline.split('ips: ')[1].split()[0])
                 ips_lines.append(ips)
-        all_ips_value.append(np.mean(ips_lines[50:550]))
+        all_ips_value.append(np.mean(ips_lines[2:42]))
     ips = round(np.sum(all_ips_value), 2)
     run_mode = "DP"
     
