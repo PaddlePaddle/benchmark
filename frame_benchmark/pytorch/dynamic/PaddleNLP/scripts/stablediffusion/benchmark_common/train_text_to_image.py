@@ -168,6 +168,12 @@ def parse_args():
         help="Initial learning rate (after the potential warmup period) to use.",
     )
     parser.add_argument(
+        "--logging_steps",
+        type=int,
+        default=10,
+        help="logging_steps.",
+    )
+    parser.add_argument(
         "--scale_lr",
         action="store_true",
         default=False,
@@ -589,28 +595,34 @@ def main():
                 progress_bar.update(1)
                 global_step += 1
 
-                # log on each node
-                train_batch_cost = time.time() - batch_start
-                reader_cost_avg.record(train_reader_cost)
-                batch_cost_avg.record(train_batch_cost)
-                batch_ips_avg.record(train_batch_cost, sample_per_cards)
+                if global_step % args.logging_steps == 0:
+                    # log on each node
+                    train_batch_cost = time.time() - batch_start
+                    reader_cost_avg.record(train_reader_cost)
+                    batch_cost_avg.record(train_batch_cost)
+                    batch_ips_avg.record(train_batch_cost, sample_per_cards)
 
-                logger.info(
-                    "global step %d / %d, loss: %f, avg_reader_cost: %.5f sec, avg_batch_cost: %.5f sec, avg_samples: %.5f, ips: %.5f sample/sec"
-                    % (
-                        global_step,
-                        args.max_train_steps,
-                        train_loss,
-                        reader_cost_avg.get_average(),
-                        batch_cost_avg.get_average(),
-                        sample_per_cards,
-                        batch_ips_avg.get_average_per_sec(),
-                    ),
-                    **logger_kwargs,
-                )
-                reader_cost_avg.reset()
-                batch_cost_avg.reset()
-                batch_ips_avg.reset()
+                    logger.info(
+                        "global step %d / %d, loss: %f, avg_reader_cost: %.5f sec, avg_batch_cost: %.5f sec, avg_samples: %.5f, ips: %.5f sample/sec"
+                        % (
+                            global_step,
+                            args.max_train_steps,
+                            train_loss,
+                            reader_cost_avg.get_average(),
+                            batch_cost_avg.get_average(),
+                            sample_per_cards,
+                            batch_ips_avg.get_average_per_sec(),
+                        ),
+                        **logger_kwargs,
+                    )
+                    reader_cost_avg.reset()
+                    batch_cost_avg.reset()
+                    batch_ips_avg.reset()
+                else:
+                    train_batch_cost = time.time() - batch_start
+                    reader_cost_avg.record(train_reader_cost)
+                    batch_cost_avg.record(train_batch_cost)
+                    batch_ips_avg.record(train_batch_cost, sample_per_cards)
 
                 train_loss = 0.0
                 if global_step % args.checkpointing_steps == 0:
