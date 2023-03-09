@@ -6,12 +6,14 @@ echo "*******prepare benchmark start ***********"
 pip install -U pip
 echo `pip --version`
 
+wget -nc ${FLAG_TORCH_WHL_URL}
+tar -xvf torch_dev_whls.tar
+python -m pip install torch_dev_whls/*
 pip install Cython
-pip install https://paddle-wheel.bj.bcebos.com/benchmark/torch-1.12.0%2Bcu113-cp37-cp37m-linux_x86_64.whl
-pip install https://paddle-wheel.bj.bcebos.com/benchmark/torchvision-0.13.0%2Bcu113-cp37-cp37m-linux_x86_64.whl
+
 # pip install openmim
 pip install setuptools==50.3.2
-pip install -e .
+
 
 
 # mmcv-full wheel takes too long to compile online,
@@ -19,13 +21,14 @@ pip install -e .
 # different compiled wheels are provided for different cluster
 if [ `nvidia-smi --list-gpus | grep A100 | wc -l` -ne "0" ]; then
     echo "Run on A100 Cluster"
-    wget https://paddle-wheel.bj.bcebos.com/benchmark/mmcv_full-1.5.0-cp37-cp37m-linux_x86_64_A100.whl -O mmcv_full-1.5.0-cp37-cp37m-linux_x86_64.whl
+    wget https://paddle-wheel.bj.bcebos.com/benchmark/mmcv_full-1.7.1-cp37-cp37m-linux_x86_64_A100_cuda117.whl -O mmcv_full-1.7.1-cp37-cp37m-linux_x86_64.whl
+    pip install mmcv_full-1.7.1-cp37-cp37m-linux_x86_64.whl && rm -f mmcv_full-1.7.1-cp37-cp37m-linux_x86_64.whl
 else
     echo "Run on V100 Cluster"
     wget https://paddle-wheel.bj.bcebos.com/benchmark/mmcv_full-1.5.0-cp37-cp37m-linux_x86_64_V100.whl -O mmcv_full-1.5.0-cp37-cp37m-linux_x86_64.whl
+    pip install mmcv_full-1.5.0-cp37-cp37m-linux_x86_64.whl && rm -f mmcv_full-1.5.0-cp37-cp37m-linux_x86_64.whl
 fi
-pip install mmcv_full-1.5.0-cp37-cp37m-linux_x86_64.whl && rm -f mmcv_full-1.5.0-cp37-cp37m-linux_x86_64.whl
-
+pip install -e .
 
 # Download pretrained weights
 mkdir -p /root/.cache/torch/hub/checkpoints/
