@@ -42,7 +42,7 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py ${model_name} ${log_file} ${speed_log_file} ${device_num}
+    python analysis_log.py ${model_name} ${log_file} ${speed_log_file} ${device_num} ${fp_item}
 }
 
 function _train(){
@@ -51,17 +51,33 @@ function _train(){
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
 
     train_config="mmseg_benchmark_configs/${model_item}.py"
+    if [ ${fp_item} = "fp16" ];then
+        train_config_fp16="mmseg_benchmark_configs/${model_item}_fp16.py"
+        cp -r ${train_config} ${train_config_fp16}
+        echo " " >> ${train_config_fp16}
+        echo "optimizer_config = dict(type='Fp16OptimizerHook', loss_scale=512.)" >> ${train_config_fp16}
+        echo "fp16 = dict()" >> ${train_config_fp16}
+        train_config=${train_config_fp16}
+    fi
+
+    use_com_args=""
+    if [ ${FLAG_TORCH_COMPILE} = "True" ];then
+        use_com_args="--torchcompile"
+    fi
+
     train_options="--no-validate \
-                   --options log_config.interval=10 \
+                   --options log_config.interval=15 \
                    runner.max_iters=${max_iter} \
                    data.samples_per_gpu=${batch_size}  \
-                   data.workers_per_gpu=${num_workers}"
+                   data.workers_per_gpu=${num_workers} \
+                   ${use_com_args}"
 
     if [ ${device_num} = "N1C1" ]; then
-        train_cmd="python tools/train.py ${train_config} ${train_options}"
+        train_cmd="python tools/train.py ${train_config} ${train_options}" 
     else
-        train_cmd="./tools/dist_train.sh ${train_config} 8 ${device_num:1:1} ${train_options}"
+        train_cmd="./tools/dist_train.sh ${train_config} ${device_num:3:1} ${device_num:1:1} ${train_options}" 
     fi
+
 #   以下为通用执行命令，无特殊可不用修改
     echo ${train_cmd}
     timeout 15m ${train_cmd} > ${log_file} 2>&1

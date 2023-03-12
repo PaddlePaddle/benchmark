@@ -7,7 +7,7 @@ import sys
 import json
 import os
 
-def analyze(model_name, log_file, res_log_file, device_num):
+def analyze(model_name, log_file, res_log_file, device_num, fp_item):
     bs_pat = re.compile(r"samples_per_gpu=(.*),")
     time_pat = re.compile(r"(?<=, time: )\d+\.?\d*")
     loss_pat = re.compile(r"loss: (.*)")
@@ -27,7 +27,6 @@ def analyze(model_name, log_file, res_log_file, device_num):
     run_mode = ""
     # gpu_num = 0
     ips = 0
-    fp_item = "fp32"
     bs = 0
     if time_res == []:
         ips = 0
@@ -62,7 +61,7 @@ def analyze(model_name, log_file, res_log_file, device_num):
         of.write(json_info)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 6:
         print("Usage:" + sys.argv[0] + " model_item path/to/log/file path/to/res/log/file")
         sys.exit()
 
@@ -70,4 +69,5 @@ if __name__ == "__main__":
     log_file = sys.argv[2]
     res_log_file = sys.argv[3]
     device_num = sys.argv[4]
-    analyze(model_item, log_file, res_log_file, device_num)
+    fp_item = sys.argv[5]
+    analyze(model_item, log_file, res_log_file, device_num, fp_item)
