@@ -6,13 +6,13 @@ export https_proxy=$HTTPS_PRO
 export http_proxy=$HTTP_PRO
 export no_proxy=localhost,bj.bcebos.com,su.bcebos.com 
 
-# wget ${FLAG_TORCH_WHL_URL}
+wget ${FLAG_TORCH_WHL_URL}
 
-# tar -xf torch_dev_whls.tar
+tar -xf torch_dev_whls.tar
 
-# pip install torch_dev_whls/*
+pip install torch_dev_whls/*
 
-# pip install transformers pandas psutil scipy
+pip install transformers pandas psutil scipy
 
 git checkout .
 

@@ -46,8 +46,6 @@ if __name__ == "__main__":
         '--model_name', type=str, default=0, help='training model_name, transformer_base')
     parser.add_argument(
         '--device_num', type=str, default="N1C1", help='N1C1|N1C8|N4C32')
-    parser.add_argument(
-        '--run_process_type', type=str, default="SingleP", help='multi process or single process')
 
     args = parser.parse_args()
     base_batch_size, fp_item, run_mode = args.model_name.split("_")[-3:]
@@ -59,7 +57,6 @@ if __name__ == "__main__":
                 "model_name": args.model_name,
                 "batch_size": base_batch_size,
                 "fp_item": fp_item,
-                "run_process_type": args.run_process_type,
                 "run_mode": run_mode,
                 "convergence_value": 0,
                 "convergence_key": "",
