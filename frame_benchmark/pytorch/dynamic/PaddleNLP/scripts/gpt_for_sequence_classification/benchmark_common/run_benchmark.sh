@@ -49,7 +49,7 @@ function _set_params(){
     fi
 }
 function _analysis_log(){
-    python analysis_log.py --filename "./speedup_${use_com_args}.csv" --sequence_length 1024 --model_name ${model_name} --run_process_type ${run_process_type} --device_num=${device_num} --res_log_file=${speed_log_file}
+    python analysis_log.py --filename "./speedup_${use_com_args}.csv" --sequence_length 1024 --model_name ${model_name} --device_num=${device_num} --res_log_file=${speed_log_file}
 }
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
