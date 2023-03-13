@@ -19,6 +19,8 @@ def analyze(args, run_info):
     all_speed_logs =[]
     with open(log_file, 'r', encoding="utf8") as f:
         for line in f.readlines()[-gpu_num:]:
+            if type(line.strip().split(",")[4]) == str:
+                continue
             ms_per_batch = float(line.strip().split(",")[4])
             tokens_per_second = 1000.0 / ms_per_batch * run_info["batch_size"] * args.sequence_length
             all_speed_logs.append(tokens_per_second)

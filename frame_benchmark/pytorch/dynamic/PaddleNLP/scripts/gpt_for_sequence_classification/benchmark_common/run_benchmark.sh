@@ -15,7 +15,7 @@ function _set_params(){
     keyword="|tokens/s"                 # (必选)解析日志，筛选出性能数据所在行的关键字
     convergence_key=""             # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
     max_iter=${7:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
-    num_workers=${8:-"3"}             # (可选)
+    num_workers=${8:-"8"}             # (可选)
 
     # Added for distributed training
     node_num=${9:-"2"}                      #（可选） 节点数量
@@ -70,9 +70,9 @@ function _train(){
     SingleP) train_cmd="python -u ${train_script} ${train_config} ${train_options}" ;;
     MultiP)
     if [ ${device_num:3} = '32' ];then
-        train_cmd="torchrun --nproc_per_node=${num_workers} --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} ${train_script} ${train_config} ${train_options}"
+        train_cmd="torchrun --nproc_per_node=${num_workers} --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} ${train_script} ${train_config} ${train_options} --ddp"
     else
-        train_cmd="torchrun --nproc_per_node=${num_workers} ${train_script} ${train_config} ${train_options}"
+        train_cmd="torchrun --nproc_per_node=${num_workers} ${train_script} ${train_config} ${train_options} --ddp"
     fi;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
