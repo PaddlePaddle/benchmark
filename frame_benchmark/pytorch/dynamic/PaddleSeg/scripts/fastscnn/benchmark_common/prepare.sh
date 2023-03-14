@@ -13,8 +13,10 @@ pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -e .
 
 echo "******* prepare dataset for benchmark ***********"
-wget https://paddleseg.bj.bcebos.com/benchmark/mmseg/mmseg_benchmark_configs.zip
-unzip mmseg_benchmark_configs.zip 
+if [ ! -f "mmseg_benchmark_configs.zip" ];then
+  wget https://paddleseg.bj.bcebos.com/benchmark/mmseg/mmseg_benchmark_configs.zip
+fi
+unzip -o mmseg_benchmark_configs.zip 
 cp dist_train.sh tools/dist_train.sh
 
 if [ $(ls -lR data/cityscapes | grep "^-" | wc -l) -ne 600 ];then
