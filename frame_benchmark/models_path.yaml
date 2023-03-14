@@ -79,3 +79,5 @@ pytorch:
    bert_for_question_answering: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
    table_master: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/TableMASTER_mmocr
    stablediffusion: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/diffusers
+   Eular_beam: benchmark/frame_benchmark/pytorch/dynamic/deepxde/models/deepxde
+   Navier_Stokes_inverse: benchmark/frame_benchmark/pytorch/dynamic/deepxde/models/deepxde
