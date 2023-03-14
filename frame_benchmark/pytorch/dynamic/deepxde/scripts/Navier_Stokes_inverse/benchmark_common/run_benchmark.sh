@@ -48,7 +48,7 @@ function _train(){
 
 #   以下为通用执行命令，无特殊可不用修改
 
-    export DDE_BACKEND=paddle
+    export DDE_BACKEND=pytorch
     train_cmd="python3.7 examples/pinn_forward/Euler_beam.py" 
 
     echo "train_cmd: ${train_cmd}  log_file: ${train_log_file}"
@@ -61,15 +61,9 @@ function _train(){
     #kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
 }
 
-# source ${BENCHMARK_ROOT}/scripts/run_model.sh   # 在该脚本中会对符合benchmark规范的log使用analysis.py 脚本进行性能数据解析;如果不联调只想要产出训练log可以注掉本行,提交时需打开
 _set_params $@
-str_tmp=$(echo `pip list|grep paddlepaddle-gpu|awk -F ' ' '{print $2}'`)
-export frame_version=${str_tmp%%.post*}
-export frame_commit=$(echo `python -c "import paddle;print(paddle.version.commit)"`)
-export model_branch=`git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3`
-export model_commit=$(git log|head -n1|awk '{print $2}')
+export frame_version=`python -c "import torch;print(torch.__version__)"`
 echo "---------frame_version is ${frame_version}"
-echo "---------Paddle commit is ${frame_commit}"
 echo "---------Model commit is ${model_commit}"
 echo "---------model_branch is ${model_branch}"
 
