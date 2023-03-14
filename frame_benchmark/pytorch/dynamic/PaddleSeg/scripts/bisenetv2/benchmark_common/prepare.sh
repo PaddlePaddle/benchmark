@@ -4,7 +4,7 @@ echo "******* install enviroments for benchmark ***********"
 echo `pip --version`
 
 if [ ! -f "torch_dev_whls.tar" ];then
-  wget https://paddle-wheel.bj.bcebos.com/benchmark/torch_dev_whls.tar  
+  wget ${FLAG_TORCH_WHL_URL}
 fi
 tar -xf torch_dev_whls.tar
 pip install torch_dev_whls/*

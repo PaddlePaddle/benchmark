@@ -34,14 +34,11 @@ pytorch:
    mask_rcnn_r50_fpn_1x_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
    yolov3_darknet53_270e_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
    conformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
-   fastscnn: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    det_r50_vd_pse: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/PSENet
    TSM: benchmark/frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module
    deeplabv3p_resnet50: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
-   fcn_hrnetw18: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    det_res18_db: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch
    det_r50_db_v2_0: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch
-   ocrnet_hrnetw48: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    segformer_b0: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    xlnet: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers
    pwgan: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/ParallelWaveGAN
@@ -52,3 +49,8 @@ pytorch:
    bert_for_question_answering: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
    table_master: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/TableMASTER_mmocr
    stablediffusion: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/diffusers
+   stdc_stdc1: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+   bisenetv2: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+   fastscnn: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+   fcn_hrnetw18: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+   ocrnet_hrnetw48: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
