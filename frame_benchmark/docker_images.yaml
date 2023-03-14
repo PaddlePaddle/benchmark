@@ -50,3 +50,4 @@ pytorch:
    CLIP : iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    bert_for_question_answering: registry.baidubce.com/paddlepaddle/paddle:2.4.1-gpu-cuda11.7-cudnn8.4-trt8.4
    table_master: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
+   stablediffusion: registry.baidubce.com/paddlepaddle/paddle:2.4.1-gpu-cuda11.7-cudnn8.4-trt8.4
