@@ -81,3 +81,5 @@ pytorch:
    stablediffusion: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/diffusers
    Eular_beam: benchmark/frame_benchmark/pytorch/dynamic/deepxde/models/deepxde
    Navier_Stokes_inverse: benchmark/frame_benchmark/pytorch/dynamic/deepxde/models/deepxde
+   bisenetv2: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+   stdc_stdc1: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
