@@ -107,3 +107,7 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/diffusers
 	url = https://github.com/huggingface/diffusers.git
 	branch = v0.11.1-patch
+[submodule "frame_benchmark/pytorch/dynamic/deepxde/models/deepxde"]
+	path = frame_benchmark/pytorch/dynamic/deepxde/models/deepxde
+	url = https://github.com/PaddleBenchmark/deepxde.git
+	branch = pytorch_benchmark

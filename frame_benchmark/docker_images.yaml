@@ -78,3 +78,5 @@ pytorch:
    bert_for_question_answering: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
    table_master: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
    stablediffusion: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
+   Eular_beam: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
+   Navier_Stokes_inverse: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
