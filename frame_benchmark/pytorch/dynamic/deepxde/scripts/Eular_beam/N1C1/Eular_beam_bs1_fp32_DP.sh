@@ -4,7 +4,7 @@ fp_item=fp32
 run_mode=DP
 device_num=N1C1
 #prepare
-bash scripts/${model_item}/benchmark_common/prepare.sh
+bash prepare.sh
 #run
-bash scripts/${model_item}/benchmark_common/run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_mode} ${device_num} 2>&1;
+bash run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_mode} ${device_num} 2>&1;
 sleep 10;
