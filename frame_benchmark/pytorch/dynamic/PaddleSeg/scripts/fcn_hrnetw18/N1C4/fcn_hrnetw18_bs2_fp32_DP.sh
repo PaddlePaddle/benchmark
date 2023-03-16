@@ -1,8 +1,8 @@
-model_item="ocrnet_hrnetw48"
+model_item="fcn_hrnetw18"
 bs_item=2
 fp_item=fp32
 run_mode=DP
-device_num=N1C8
+device_num=N1C4
 max_iter=400
 num_workers=8
 
