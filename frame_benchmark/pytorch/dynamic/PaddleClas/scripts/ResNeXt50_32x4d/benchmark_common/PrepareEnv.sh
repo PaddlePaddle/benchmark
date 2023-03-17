@@ -15,7 +15,7 @@ pip install -r requirements.txt
 dataset_url="https://paddleclas.bj.bcebos.com/data/TIPC/ILSVRC2012_benchmark.tar"
 wget -c ${dataset_url} --no-proxy
 tar xf ILSVRC2012_benchmark.tar
-mv ILSVRC2012_benchmark ILSVRC2012
+mv ILSVRC2012_benchmark ILSVRC2012_w
 rm -f ILSVRC2012_benchmark.tar
 
 echo "*******prepare benchmark end***********"
