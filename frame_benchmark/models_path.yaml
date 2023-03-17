@@ -1,6 +1,7 @@
 mxnet:
   MobileNetV1: benchmark/frame_benchmark/mxnet/dynamic/PaddleClas/models/gluon-cv
 pytorch:
+   ViT_base_patch16_224: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    MobileViT_small: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    CSwinTransformer_tiny: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    PVT_V2_B2_Linear: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
@@ -15,6 +16,7 @@ pytorch:
    DenseNet121: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    ResNeXt50_32x4d: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    ConvNeXt_small: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
+   HRNet_W18_C: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    HRNet_W40_C: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    RepVGG_B3: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    ResNeSt101: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
