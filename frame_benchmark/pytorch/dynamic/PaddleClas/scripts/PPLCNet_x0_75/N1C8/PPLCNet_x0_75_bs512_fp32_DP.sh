@@ -1,5 +1,5 @@
-model_item=MobileNetV2
-bs_item=64
+model_item=PPLCNet_x0_75
+bs_item=512
 fp_item=fp32
 run_process_type=MultiP
 run_mode=DP
