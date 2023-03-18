@@ -63,6 +63,7 @@ pytorch:
    mask_rcnn_r50_fpn_1x_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
    yolov3_darknet53_270e_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
    yolov5_l_300e_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5
+   yolov7_l_300e_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7
    conformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
    fastscnn: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    det_r50_vd_pse: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/PSENet

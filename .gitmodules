@@ -118,3 +118,7 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5
 	url = https://github.com/PaddleBenchmark/yolov5.git
 	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7
+	url = https://github.com/PaddleBenchmark/yolov7.git
+	branch = main
