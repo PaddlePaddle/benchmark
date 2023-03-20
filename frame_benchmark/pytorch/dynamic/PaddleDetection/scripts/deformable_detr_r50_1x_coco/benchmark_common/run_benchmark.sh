@@ -46,6 +46,12 @@ function _set_params(){
         add_options=""
         log_file=${train_log_file}
     fi
+
+    if [ ${FLAG_TORCH_COMPILE} = "true" ];then
+        use_com_args="--torchcompile"
+    else
+        use_com_args=""
+    fi
 }
 
 function _analysis_log(){
@@ -64,6 +70,7 @@ function _train(){
         set_fp_item=" "
     fi
     train_options="--no-validate \
+                   ${use_com_args} \
                    --cfg-options log_config.interval=1 \
                    data.samples_per_gpu=${batch_size} \
                    runner.max_epochs=${max_epochs} \

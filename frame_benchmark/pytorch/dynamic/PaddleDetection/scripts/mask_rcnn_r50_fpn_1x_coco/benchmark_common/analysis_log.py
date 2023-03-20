@@ -22,7 +22,7 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_nu
     if len(time_res) > skip_num:
         time_res = [float(a) for a in time_res]
         time_res = sorted(time_res)
-        skip_num2 = max((len(time_res) * 0.05), 5)
+        skip_num2 = max(int((len(time_res) * 0.05)), 5)
         time_res = time_res[skip_num2:len(time_res)-skip_num2]
         avg_time = sum(time_res) / len(time_res)
         ips = round(bs / avg_time, 3) * gpu_num
