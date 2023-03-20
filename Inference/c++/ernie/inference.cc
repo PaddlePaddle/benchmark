@@ -38,7 +38,8 @@ DEFINE_int32(num_threads, 1, "num_threads");
 DEFINE_bool(print_outputs, false, "Whether to output the prediction results.");
 DEFINE_bool(use_gpu, false, "Whether use GPU to infer.");
 DEFINE_bool(use_analysis, false, "Whether use Paddle's AnalysisPredictor.");
-
+DEFINE_bool(enable_int8_qat, false, "Whether enable INT8 quant-aware training prediction");
+DEFINE_string(ops_to_quantize, "", "Comma-separated list of ops to be quantized");
 
 template <typename T>
 void Print(std::string key, T value) {
@@ -54,6 +55,21 @@ void Print<bool>(std::string key, bool value) {
   } else {
     std::cout << std::setw(20) << key << ": false" << std::endl;
   }
+}
+
+std::unordered_set<std::string> GetOpsToQuantize() {
+  std::unordered_set<std::string> ops_to_quantize;
+  std::stringstream ss(FLAGS_ops_to_quantize);
+
+  while (ss.good()) {
+    std::string substr;
+    getline(ss, substr, ',');
+    std::cout << substr << "\n";
+    if (!substr.empty())
+      ops_to_quantize.insert(substr);
+  }
+
+  return ops_to_quantize;
 }
 
 void InitFLAGS(int argc, char *argv[]) {
@@ -267,8 +283,10 @@ void SetConfig<paddle::AnalysisConfig>(paddle::AnalysisConfig* config, std::stri
   } else {
     config->DisableGpu();
     config->EnableMKLDNN();
-
-    // this model unreasonably set a output tensor persistable, 
+    if (FLAGS_enable_int8_qat) {
+      std::unordered_set<std::string> ops_to_quantize = GetOpsToQuantize();
+      config->EnableMkldnnInt8(ops_to_quantize);
+    }
     // so I disable constant_folding_pass
     auto pass_builder = config->pass_builder();
     pass_builder->DeletePass("constant_folding_pass");
