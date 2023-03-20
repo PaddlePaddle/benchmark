@@ -54,7 +54,11 @@ function _train(){
                    --epochs ${max_epoch} \
                    --batch-size ${batch_size} \
                    -j ${num_workers}"
-    
+
+    if [ "${FLAG_TORCH_COMPILE}" = "True"  ] || [ "${FLAG_TORCH_COMPILE}" = "true"  ];then
+        train_options="${train_options} --torchcompile"
+    fi
+        
     nodes="${device_num:1:1}"
 
     if [[ nodes -gt 1 ]];then
