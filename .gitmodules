@@ -93,6 +93,9 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch"]
 	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch
 	url = https://github.com/PaddleBenchmark/DBNet_pytorch
+[submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch"]
+	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
+	url = https://github.com/pytorch/pytorch.git
 [submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models"]
 	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
 	url = https://github.com/rwightman/pytorch-image-models
@@ -111,3 +114,18 @@
 	path = frame_benchmark/pytorch/dynamic/deepxde/models/deepxde
 	url = https://github.com/PaddleBenchmark/deepxde.git
 	branch = pytorch_benchmark
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5
+	url = https://github.com/PaddleBenchmark/yolov5.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7
+	url = https://github.com/PaddleBenchmark/yolov7.git
+	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former
+	url = git@github.com:facebookresearch/Mask2Former.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer
+	url = git@github.com:facebookresearch/MaskFormer.git
+>>>>>>> 435bcbd2353b9a519566d2563b16c10668c1936f

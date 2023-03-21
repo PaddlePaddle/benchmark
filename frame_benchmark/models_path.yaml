@@ -1,6 +1,7 @@
 mxnet:
   MobileNetV1: benchmark/frame_benchmark/mxnet/dynamic/PaddleClas/models/gluon-cv
 pytorch:
+   ViT_base_patch16_224: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    MobileViT_small: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    CSwinTransformer_tiny: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    PVT_V2_B2_Linear: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
@@ -15,6 +16,7 @@ pytorch:
    DenseNet121: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    ResNeXt50_32x4d: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    ConvNeXt_small: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
+   HRNet_W18_C: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    HRNet_W40_C: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    RepVGG_B3: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    ResNeSt101: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
@@ -60,6 +62,8 @@ pytorch:
    mask_rcnn_r50_1x_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
    mask_rcnn_r50_fpn_1x_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
    yolov3_darknet53_270e_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
+   yolov5_l_300e_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5
+   yolov7_l_300e_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7
    conformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
    fastscnn: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    det_r50_vd_pse: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/PSENet
@@ -75,9 +79,14 @@ pytorch:
    bert_base_seqlen128: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
    bert_large_seqlen512: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/DeepLearningExamples
    gpt3: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/Megatron-LM
+   gpt_for_sequence_classification: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
    CLIP: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/PaddleClas_CLIP_torch
    bert_for_question_answering: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
    table_master: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/TableMASTER_mmocr
    stablediffusion: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/diffusers
    Eular_beam: benchmark/frame_benchmark/pytorch/dynamic/deepxde/models/deepxde
    Navier_Stokes_inverse: benchmark/frame_benchmark/pytorch/dynamic/deepxde/models/deepxde
+   bisenetv2: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+   stdc_stdc1: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+   maskformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer
+   mask2former: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former
