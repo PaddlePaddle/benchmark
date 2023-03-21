@@ -122,3 +122,9 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7
 	url = https://github.com/PaddleBenchmark/yolov7.git
 	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former
+	url = git@github.com:facebookresearch/Mask2Former.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer
+	url = git@github.com:facebookresearch/MaskFormer.git

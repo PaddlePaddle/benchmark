@@ -1,9 +1,9 @@
 model_item=fcos_r50_fpn_1x_coco
 bs_item=8
-fp_item=fp32
-run_process_type=MultiP
+fp_item=fp16
+run_process_type=SingleP
 run_mode=DP
-device_num=N1C8
+device_num=N1C1
 max_epochs=5
 num_workers=2
 

@@ -7,35 +7,39 @@ import sys
 import json
 import os
 
-def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_num=2):
-    time_pat = re.compile(r"time: (.*), data_time")
+def analyze(model_name, log_file, res_log_file, device_num, fp_item, bs):
+    time_pat = re.compile(r'(?<= time: )(\d+\.?\d*)(?= )')
+
     logs = open(log_file).readlines()
     logs = ";".join(logs)
     time_res = time_pat.findall(logs)
 
-    gpu_num = int(device_num[3:])
-    run_mode = "DP"
-    bs = int(bs)
-    ips = 0
+    print("---device_num:-", device_num)
+    index_c = device_num.index('C')
+    print("---index_c:-", index_c)
+    gpu_num = int(device_num[index_c + 1:len(device_num)])
+    print("-----gpu_num:", gpu_num)
 
-    
-    if len(time_res) > skip_num:
-        time_res = [float(a) for a in time_res]
-        time_res = sorted(time_res)
-        skip_num2 = max(int((len(time_res) * 0.05)), 5)
-        time_res = time_res[skip_num2:len(time_res)-skip_num2]
-        avg_time = sum(time_res) / len(time_res)
-        ips = round(bs / avg_time, 3) * gpu_num
-    model_name = model_item+"_"+"bs"+str(bs)+"_"+fp_item+"_"+run_mode
+    run_mode = ""
+    ips = 0
+    print("match time:\t", time_res)
+    print("len of time_res", len(time_res))
+    if time_res == []:
+        ips = 0
+    else:
+        skip_num = 4
+        total_time = 0
+        for i in range(skip_num, len(time_res)):
+            total_time += float(time_res[i])
+        avg_time = total_time / (len(time_res) - skip_num)
+        ips = round(int(bs) * gpu_num / avg_time, 3)
+
     info = {    "model_branch": os.getenv('model_branch'),
                 "model_commit": os.getenv('model_commit'),
                 "model_name": model_name,
                 "batch_size": bs,
                 "fp_item": fp_item,
-                "run_process_type": "MultiP",
-                "run_mode": run_mode,
-                "convergence_value": 0,
-                "convergence_key": "",
+                "run_mode": "DP",
                 "ips": ips,
                 "speed_unit":"images/s",
                 "device_num": device_num,
@@ -57,6 +61,6 @@ if __name__ == "__main__":
     log_file = sys.argv[2]
     res_log_file = sys.argv[3]
     device_num = sys.argv[4]
-    bs = sys.argv[5]
-    fp_item = sys.argv[6]
-    analyze(model_item, log_file, res_log_file, device_num, bs, fp_item)
+    fp_item = sys.argv[5]
+    bs = sys.argv[6]
+    analyze(model_item, log_file, res_log_file, device_num, fp_item, bs)

@@ -1,6 +1,6 @@
 model_item=fcos_r50_fpn_1x_coco
 bs_item=8
-fp_item=fp32
+fp_item=fp16
 run_process_type=MultiP
 run_mode=DP
 device_num=N1C8
