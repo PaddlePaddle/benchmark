@@ -86,3 +86,5 @@ pytorch:
    Navier_Stokes_inverse: benchmark/frame_benchmark/pytorch/dynamic/deepxde/models/deepxde
    bisenetv2: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    stdc_stdc1: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+   maskformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer
+   mask2former: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former
