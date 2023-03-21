@@ -128,3 +128,4 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer
 	url = git@github.com:facebookresearch/MaskFormer.git
+
