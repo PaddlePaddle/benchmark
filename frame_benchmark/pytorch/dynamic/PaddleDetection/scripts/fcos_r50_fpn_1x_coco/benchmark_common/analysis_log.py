@@ -7,20 +7,24 @@ import sys
 import json
 import os
 
-def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_num=4):
+def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_num=2):
     time_pat = re.compile(r"time: (.*), data_time")
     logs = open(log_file).readlines()
     logs = ";".join(logs)
     time_res = time_pat.findall(logs)
 
-    gpu_num = int(device_num[-1])
+    gpu_num = int(device_num[3:])
     run_mode = "DP"
     bs = int(bs)
     ips = 0
 
+    
     if len(time_res) > skip_num:
         time_res = [float(a) for a in time_res]
-        avg_time = sum(time_res[skip_num:]) / (len(time_res) - skip_num)
+        time_res = sorted(time_res)
+        skip_num2 = max(int((len(time_res) * 0.05)), 5)
+        time_res = time_res[skip_num2:len(time_res)-skip_num2]
+        avg_time = sum(time_res) / len(time_res)
         ips = round(bs / avg_time, 3) * gpu_num
     model_name = model_item+"_"+"bs"+str(bs)+"_"+fp_item+"_"+run_mode
     info = {    "model_branch": os.getenv('model_branch'),
