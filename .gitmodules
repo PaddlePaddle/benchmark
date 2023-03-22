@@ -133,3 +133,6 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex
 	url = https://github.com/PaddleBenchmark/detrex.git
 	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR"]
+	path = frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR
+	url = https://github.com/megvii-research/PETR.git
