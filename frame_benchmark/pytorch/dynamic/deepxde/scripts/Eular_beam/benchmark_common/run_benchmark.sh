@@ -30,7 +30,7 @@ function _set_params(){
 function _analysis_log(){
     echo "train_log_file: ${train_log_file}"
     echo "speed_log_file: ${speed_log_file}"
-    cmd="python test_tipc/dynamic/${model_item}/benchmark_common/analysis_log.py --filename ${train_log_file} \
+    cmd="python analysis_log.py --filename ${train_log_file} \
         --speed_log_file ${speed_log_file} \
         --model_name ${model_name} \
         --base_batch_size ${base_batch_size} \
