@@ -131,4 +131,4 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex"]
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex
 	url = https://github.com/PaddleBenchmark/detrex.git
-	branch = mainhd
+	branch = main
