@@ -128,7 +128,6 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer
 	url = git@github.com:facebookresearch/MaskFormer.git
-
 [submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex"]
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex
 	url = https://github.com/PaddleBenchmark/detrex.git
