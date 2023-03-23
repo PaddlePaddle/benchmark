@@ -82,13 +82,13 @@ class TimeAnalyzer(object):
                     for i in range(len(line_words) - 1):
                             if line_words[i] == self.keyword:
                                 result = line_words[i + 1]
-                                return float(result), 'batchsize/s' 
+                                return float(result)
                     # Distil the result from the picked string.
                     
                 except Exception as exc:
                     print("line is: {}; failed".format(line_prefix))
 
-        return float(result), 'batchsize/s' 
+        return float(result) 
     
 
 if __name__ == "__main__":
@@ -128,7 +128,8 @@ if __name__ == "__main__":
 
     try:
         analyzer = TimeAnalyzer(args.filename, args.keyword)
-        run_info["ips"], run_info["speed_unit"] = analyzer.get_ips()
+        run_info["ips"] = analyzer.get_ips()
+        run_info["speed_unit"] = "samples/sec"
             
     except Exception:
         traceback.print_exc()
