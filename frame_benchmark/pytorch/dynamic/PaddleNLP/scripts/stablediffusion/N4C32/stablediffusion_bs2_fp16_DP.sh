@@ -5,7 +5,7 @@ run_process_type=MultiP
 run_mode=DP
 device_num=N4C32
 max_iter=-1
-num_workers=8
+num_workers=32
 
 node_num=${PADDLE_TRAINERS_NUM}
 node_rank=${PADDLE_TRAINER_ID}

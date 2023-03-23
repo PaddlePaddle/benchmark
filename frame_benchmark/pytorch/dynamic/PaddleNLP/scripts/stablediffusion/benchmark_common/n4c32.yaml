@@ -10,7 +10,7 @@ main_training_function: main
 megatron_lm_config: {}
 mixed_precision: 'no'
 num_machines: 4
-num_processes: 8
+num_processes: 32
 rdzv_backend: static
 same_network: true
 use_cpu: false
