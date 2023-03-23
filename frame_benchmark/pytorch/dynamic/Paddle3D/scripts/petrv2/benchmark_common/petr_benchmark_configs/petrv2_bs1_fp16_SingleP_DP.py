@@ -235,12 +235,11 @@ lr_config = dict(
     warmup_ratio=1.0 / 3,
     min_lr_ratio=1e-3,
     )
-total_iters = 300
-# total_epochs = 24
-evaluation = dict(interval=100, pipeline=test_pipeline)
+total_iters = 100
+evaluation = dict(interval=1000, pipeline=test_pipeline)
 find_unused_parameters=False #### when use checkpoint, find_unused_parameters must be False
 checkpoint_config = dict(interval=100, max_keep_ckpts=3)
-runner = dict(type='EpochBasedRunner', max_iters=total_iters)
+runner = dict(type='IterBasedRunner', max_iters=total_iters)
 load_from='ckpts/fcos3d_vovnet_imgbackbone-remapped.pth'
 resume_from=None
 
