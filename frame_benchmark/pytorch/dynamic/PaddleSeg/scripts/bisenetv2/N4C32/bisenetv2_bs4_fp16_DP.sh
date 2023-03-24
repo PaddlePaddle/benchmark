@@ -1,8 +1,8 @@
-model_item="fcn_hrnetw18"
-bs_item=2
-fp_item=fp32
+model_item="bisenetv2"
+bs_item=4
+fp_item=fp16
 run_mode=DP
-device_num=N1C8
+device_num=N4C32
 max_iter=400
 num_workers=8
 

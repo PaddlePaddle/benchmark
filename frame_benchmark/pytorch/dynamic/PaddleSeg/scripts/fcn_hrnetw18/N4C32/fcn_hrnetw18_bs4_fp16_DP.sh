@@ -1,5 +1,5 @@
-model_item="ocrnet_hrnetw48"
-bs_item=2
+model_item="fcn_hrnetw18"
+bs_item=4
 fp_item=fp16
 run_mode=DP
 device_num=N4C32
