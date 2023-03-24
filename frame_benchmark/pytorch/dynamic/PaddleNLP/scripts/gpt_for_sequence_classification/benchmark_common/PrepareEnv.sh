@@ -14,8 +14,6 @@ pip install torch_dev_whls/*
 
 pip install transformers pandas psutil scipy
 
-git checkout .
-
 # rm current torch
 rm -rf torch_tmp/
 mv torch torch_tmp
