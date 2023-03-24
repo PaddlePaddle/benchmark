@@ -1,4 +1,4 @@
-tem=dino_r50_4scale_1x_coco
+model_item=dino_r50_4scale_1x_coco
 bs_item=2
 fp_item=fp32
 run_process_type=SingleP
