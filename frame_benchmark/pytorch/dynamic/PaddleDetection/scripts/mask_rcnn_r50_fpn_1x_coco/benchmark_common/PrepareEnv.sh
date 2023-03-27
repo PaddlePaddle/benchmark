@@ -35,6 +35,6 @@ mkdir -p /root/.cache/torch/hub/checkpoints/
 wget https://paddle-wheel.bj.bcebos.com/benchmark/resnet50-0676ba61.pth -O /root/.cache/torch/hub/checkpoints/resnet50-0676ba61.pth
 # prepare data
 rm -rf data
-wget -nc -P data https://paddledet.bj.bcebos.com/data/coco_benchmark.tar
-cd ./data && tar -xf coco_benchmark.tar && mv coco_benchmark coco && cd ..
+wget -nc -P data https://bj.bcebos.com/v1/paddledet/data/cocomini.zip
+cd ./data && unzip cocomini.zip && mv cocomini coco && cd ..
 echo "*******prepare benchmark end***********"
