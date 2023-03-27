@@ -22,7 +22,7 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_nu
     
     time_res = set(time_res[skip_num:])
     time_res = sorted(time_res)
-    skip_num2 = max((len(time_res) * 0.05), 5)
+    skip_num2 = max(int((len(time_res) * 0.05)), 5)
     time_res = time_res[skip_num2:len(time_res)-skip_num2]
     gpu_num = int(device_num[3:])
     run_mode = "DP"
