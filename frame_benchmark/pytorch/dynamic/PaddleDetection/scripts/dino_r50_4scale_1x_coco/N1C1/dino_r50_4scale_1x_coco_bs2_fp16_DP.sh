@@ -4,7 +4,7 @@ fp_item=fp16
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
-max_iter=64
+max_iter=1000
 num_workers=4
 
 sed -i '/set\ -xe/d' run_benchmark.sh
