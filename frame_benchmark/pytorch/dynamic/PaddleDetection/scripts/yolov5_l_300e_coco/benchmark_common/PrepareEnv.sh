@@ -12,9 +12,10 @@ python -m pip install torch_dev_whls/*
 rm -rf torch_dev_whls*
 pip install -r requirements.txt
 
-wget -nc -P datasets  https://bj.bcebos.com/v1/paddledet/data/coco128_yolov5_yolov7.tar
-cd ./datasets && tar -xf coco128_yolov5_yolov7.tar 
-cd coco128 && mkdir images && mv train2017 images/ && mv val2017 images/
+rm -rf datasets
+wget -nc -P datasets/coco128/  https://paddledet.bj.bcebos.com/data/tipc/cocomini_yolov5_yolov7.tar
+cd ./datasets/coco128/ && tar -xf cocomini_yolov5_yolov7.tar 
+mv cocomini_yolov5_yolov7/* ./
 cd .. && cd ..
 rm -rf ./datasets/coco128/labels/*.cache
 rm -rf ./runs
