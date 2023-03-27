@@ -102,7 +102,7 @@ def main():
 
    # compile mode to speed up 
     if args.torchcompile:
-        model = torch.compile (model)
+        model = torch.compile(model)
         
     optimizer = torch.optim.SGD(policies,
                                 args.lr,
