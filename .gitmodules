@@ -114,21 +114,12 @@
 	path = frame_benchmark/pytorch/dynamic/deepxde/models/deepxde
 	url = https://github.com/PaddleBenchmark/deepxde.git
 	branch = pytorch_benchmark
-[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5"]
-	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5
-	url = https://github.com/PaddleBenchmark/yolov5.git
-	branch = master
-[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7"]
-	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7
-	url = https://github.com/PaddleBenchmark/yolov7.git
-	branch = main
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former
 	url = git@github.com:facebookresearch/Mask2Former.git
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer
 	url = git@github.com:facebookresearch/MaskFormer.git
-
 [submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex"]
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex
 	url = https://github.com/PaddleBenchmark/detrex.git
@@ -136,3 +127,11 @@
 [submodule "frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR"]
 	path = frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR
 	url = https://github.com/megvii-research/PETR.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7
+	url = https://github.com/PaddleBenchmark/yolov7.git
+	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5
+	url = https://github.com/PaddleBenchmark/yolov5.git
+	branch = master

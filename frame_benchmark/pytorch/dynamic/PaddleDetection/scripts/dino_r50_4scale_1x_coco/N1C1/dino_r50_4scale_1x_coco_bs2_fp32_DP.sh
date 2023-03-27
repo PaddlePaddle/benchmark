@@ -1,10 +1,10 @@
-tem=dino_r50_4scale_1x_coco
+model_item=dino_r50_4scale_1x_coco
 bs_item=2
 fp_item=fp32
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
-max_iter=64
+max_iter=1000
 num_workers=4
 
 sed -i '/set\ -xe/d' run_benchmark.sh

@@ -30,6 +30,6 @@ mkdir -p /root/.cache/torch/hub/checkpoints/
 wget https://download.openmmlab.com/pretrain/third_party/darknet53-a628ea1b.pth -O /root/.cache/torch/hub/checkpoints/darknet53-a628ea1b.pth
 # prepare data
 rm -rf data
-wget -nc -P data https://bj.bcebos.com/v1/paddledet/data/coco.tar
-cd ./data && tar -xf coco.tar && cd ..
+wget -nc -P data https://bj.bcebos.com/v1/paddledet/data/cocomini.zip
+cd ./data && unzip cocomini.zip && mv cocomini coco && cd ..
 echo "*******prepare benchmark end***********"
