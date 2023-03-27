@@ -43,6 +43,11 @@ pytorch:
    PVT_V2_B2: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    SwinTransformer_base_patch4_window7_224: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    TNT_small: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
+   DeiT_tiny_patch16_224: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
+   MobileNetV3_small_x0_5: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
+   MobileNetV3_small_x1_0: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
+   PPLCNet_x0_75: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
+   PPLCNet_x1_0: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    StyleGANv2: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch
    FOMM: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/first-order-model
    edvr: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting

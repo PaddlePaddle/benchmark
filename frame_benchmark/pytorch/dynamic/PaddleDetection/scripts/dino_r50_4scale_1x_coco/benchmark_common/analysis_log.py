@@ -3,7 +3,7 @@ import sys
 import json
 import os
 
-def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_num=2):
+def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_num=4):
     time_res=[]
     
     for line in open(log_file).readlines():
@@ -27,7 +27,7 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_nu
  
     if len(time_res) > 0:
         avg_time = sum(time_res) / (len(time_res))
-        ips = round(bs * avg_time, 3) * gpu_num
+        ips = round(bs * avg_time, 3) 
 
     model_name = model_item+"_"+"bs"+str(bs)+"_"+fp_item+"_"+run_mode
     info = {    "model_branch": os.getenv('model_branch'),

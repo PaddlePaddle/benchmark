@@ -86,7 +86,7 @@ function _train(){
     SingleP) train_cmd="accelerate launch --config_file n1c1.yaml train_text_to_image.py ${train_cmd}" ;;
     MultiP)
     if [ ${device_num:3} = '32' ];then
-        train_cmd="TODO"
+	train_cmd="accelerate launch --config_file n4c32.yaml --num_processes $num_workers --num_machines $node_num --machine_rank $node_rank --main_process_ip $master_addr --main_process_port $master_port train_text_to_image.py ${train_cmd}"
     else
         train_cmd="accelerate launch --config_file n1c8.yaml train_text_to_image.py ${train_cmd}"
     fi;;
