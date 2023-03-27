@@ -100,10 +100,11 @@ def main():
 
     #print("torch.distributed.get_world_size() = ", torch.distributed.get_world_size())
 
-   # compile mode to speed up 
+    # compile mode to speed up 
     if args.torchcompile:
         model = torch.compile(model)
-        
+
+
     optimizer = torch.optim.SGD(policies,
                                 args.lr,
                                 momentum=args.momentum,
