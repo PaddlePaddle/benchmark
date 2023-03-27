@@ -44,7 +44,6 @@ def analyze(model_name, batch_size, log_file, res_log_file, device_num):
                 "model_name": model_name,
                 "batch_size": batch_size,
                 "fp_item": fp_item,
-                "run_process_type": "MultiP",
                 "run_mode": run_mode,
                 "convergence_value": 0,
                 "convergence_key": "",
