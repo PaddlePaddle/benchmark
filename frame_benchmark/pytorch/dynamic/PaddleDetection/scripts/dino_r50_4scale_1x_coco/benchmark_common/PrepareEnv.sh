@@ -14,9 +14,10 @@ python -m pip install -e detectron2
 pip install -e .
 
 
-wget -nc -P ./datasets/coco/ https://paddledet.bj.bcebos.com/data/coco_benchmark.tar --no-check-certificate
-cd ./datasets/coco/ && tar -xf coco_benchmark.tar
-mv -u coco_benchmark/* ./
+rm -rf ./datasets/coco/
+wget -nc -P ./datasets/coco/ https://bj.bcebos.com/v1/paddledet/data/cocomini.zip --no-check-certificate
+cd ./datasets/coco/ && unzip cocomini.zip
+mv -u cocomini/* ./
 cd ../../
 
 echo "*******prepare benchmark end***********"

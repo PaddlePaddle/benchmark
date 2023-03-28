@@ -170,7 +170,7 @@ def parse_args():
     parser.add_argument(
         "--logging_steps",
         type=int,
-        default=10,
+        default=1,
         help="logging_steps.",
     )
     parser.add_argument(
@@ -343,6 +343,7 @@ def main():
     # Enable TF32 for faster training on Ampere GPUs,
     # cf https://pytorch.org/docs/stable/notes/cuda.html#tensorfloat-32-tf32-on-ampere-devices
     torch.backends.cuda.matmul.allow_tf32 = True
+    torch.backends.cudnn.benchmark = True
 
     if args.scale_lr:
         args.learning_rate = (
@@ -453,7 +454,7 @@ def main():
         pixel_values = pixel_values.to(memory_format=torch.contiguous_format).float()
         input_ids = [example["input_ids"] for example in examples]
         input_ids = tokenizer.pad(
-            {"input_ids": input_ids}, padding=True, return_tensors="pt", return_attention_mask=False
+            {"input_ids": input_ids}, padding="max_length", max_length=tokenizer.model_max_length, return_tensors="pt", return_attention_mask=False
         ).input_ids
         return {
             "pixel_values": pixel_values,
