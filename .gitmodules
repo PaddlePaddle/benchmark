@@ -132,3 +132,7 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex
 	url = https://github.com/PaddleBenchmark/detrex.git
 	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleVideo/models/Video-Swin-Transformer/Video-Swin-Transformer"]
+	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/Video-Swin-Transformer/Video-Swin-Transformer
+	url = https://github.com/PaddleBenchmark/Video-Swin-Transformer.git
+	branch = master
