@@ -135,3 +135,7 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5
 	url = https://github.com/PaddleBenchmark/yolov5.git
 	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleVideo/models/--force"]
+	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/--force
+	url = https://github.com/PaddleBenchmark/Video-Swin-Transformer.git
+	branch = master
