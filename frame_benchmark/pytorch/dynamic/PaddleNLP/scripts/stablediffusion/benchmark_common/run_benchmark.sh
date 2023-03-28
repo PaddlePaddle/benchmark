@@ -63,7 +63,7 @@ function _train(){
             --resolution=512 --center_crop --random_flip \
             --train_batch_size=${base_batch_size} \
             --gradient_accumulation_steps=1 \
-            --max_train_steps=600 \
+            --max_train_steps=300 \
             --learning_rate=1e-05 \
             --max_grad_norm=-1 \
             --output_dir=logs_dir \
@@ -76,7 +76,7 @@ function _train(){
             --resolution=512 --center_crop --random_flip \
             --train_batch_size=${base_batch_size} \
             --gradient_accumulation_steps=1 \
-            --max_train_steps=600 \
+            --max_train_steps=300 \
             --learning_rate=1e-05 \
             --max_grad_norm=-1 \
             --output_dir=logs_dir
