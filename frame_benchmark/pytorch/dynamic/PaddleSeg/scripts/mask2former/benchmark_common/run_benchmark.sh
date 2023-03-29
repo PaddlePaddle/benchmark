@@ -5,7 +5,7 @@
 # Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_name} ${run_mode} ${fp_item} ${bs_item} ${max_iter} ${num_workers}
 
 function _set_params(){
-    model_item=${1:-"model_item"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
+    model_item=${1:-"mask2former"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
     base_batch_size=${2:-"2"}       # (必选) 每张卡上的batch_size
     fp_item=${3:-"fp32"}            # (必选) fp32|fp16
     run_mode=${4:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
@@ -84,6 +84,10 @@ function _train(){
 _set_params $@
 # export model_branch=`git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3`
 # export model_commit=$(git log|head -n1|awk '{print $2}')
+
+# clear share memory
+rm -rf /dev/shm/*
+
 export frame_version=`python -c "import torch;print(torch.__version__)"`
 echo "---------frame_version is torch ${frame_version}"
 echo "---------model_branch is ${model_branch}"
@@ -95,3 +99,5 @@ job_et=`date '+%Y%m%d%H%M%S'`
 export model_run_time=$((${job_et}-${job_bt}))
 _analysis_log
 
+# kill all python processes
+ps -ef | grep python | awk '{ print $2 }' | xargs kill -9

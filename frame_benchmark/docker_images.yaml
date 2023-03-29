@@ -98,3 +98,4 @@ pytorch:
    mask2former: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
    petrv2: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
    VideoSwin: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
+   vit_adapter: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12

@@ -57,7 +57,7 @@
 	branch = main
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
-	url = https://github.com/open-mmlab/mmsegmentation.git
+	url = https://github.com/PaddleBenchmark/mmsegmentation.git
 	branch = master
 [submodule "frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module"]
 	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module
@@ -116,14 +116,17 @@
 	branch = pytorch_benchmark
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former
-	url = git@github.com:facebookresearch/Mask2Former.git
+	url = https://github.com/facebookresearch/Mask2Former.git
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer
-	url = git@github.com:facebookresearch/MaskFormer.git
+	url = https://github.com/facebookresearch/MaskFormer.git
 [submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex"]
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex
 	url = https://github.com/PaddleBenchmark/detrex.git
 	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/ViT-Adapter"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/ViT-Adapter
+	url = https://github.com/czczup/ViT-Adapter.git
 [submodule "frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR"]
 	path = frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR
 	url = https://github.com/megvii-research/PETR.git
