@@ -5,13 +5,13 @@
 # Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_name} ${run_mode} ${fp_item} ${bs_item} ${max_iter} ${num_workers}
 
 function _set_params(){
-    model_item=${1:-"mask2former"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
+    model_item=${1:-"vit_adapter"}   # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
     base_batch_size=${2:-"2"}       # (必选) 每张卡上的batch_size
     fp_item=${3:-"fp32"}            # (必选) fp32|fp16
     run_mode=${4:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
     device_num=${5:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
-    model_repo="Mask2Former"          # (必选) 模型套件的名字
+    model_repo="mmsegmentation"          # (必选) 模型套件的名字
     ips_unit="samples/sec"         # (必选)速度指标单位
     skip_steps=10                  # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="ips:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
@@ -29,6 +29,7 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}  # （必填） TRAIN_LOG_DIR  benchmark框架设置该参数为全局变量
     profiling_log_path=${PROFILING_LOG_DIR:-$(pwd)}  # （必填） PROFILING_LOG_DIR benchmark框架设置该参数为全局变量
     speed_log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}
+    # mmsegmentation_fastscnn_bs2_fp32_MultiP_DP_N1C1_log
     train_log_file=${run_log_path}/${model_repo}_${model_name}_${device_num}_log
     profiling_log_file=${profiling_log_path}/${model_repo}_${model_name}_${device_num}_profiling
     speed_log_file=${speed_log_path}/${model_repo}_${model_name}_${device_num}_speed
@@ -42,29 +43,42 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py ${model_name} ${log_file} ${speed_log_file} ${device_num} ${fp_item} ${base_batch_size}
+    python analysis_log.py ${model_name} ${log_file} ${speed_log_file} ${device_num} ${fp_item}
 }
 
 function _train(){
-    echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, device_num=${device_num}, base_batch_size=${base_batch_size}"
+    batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
 
-    AMP_ENABLED="False"
+    echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
+
     if [ ${fp_item} = "fp16" ];then
-        AMP_ENABLED="True"
+        train_config_fp16="${train_config%.*}_fp16.py"
+        cp -r ${train_config} ${train_config_fp16}
+        echo " " >> ${train_config_fp16}
+        echo "optimizer_config = dict(type='Fp16OptimizerHook', loss_scale=512.)" >> ${train_config_fp16}
+        echo "fp16 = dict()" >> ${train_config_fp16}
+        train_config=${train_config_fp16}
     fi
 
-    num_gpus=${device_num:3:1}
-    ims_per_batch=`expr ${device_num:3:1} \* ${base_batch_size}`
-    echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, num_gpus=${num_gpus}, ims_per_batch=${ims_per_batch}"
-    train_options="SOLVER.IMS_PER_BATCH ${ims_per_batch} \
-                   DATALOADER.NUM_WORKERS ${num_workers} \
-                   SOLVER.MAX_ITER ${max_iter} \
-                   SOLVER.AMP.ENABLED ${AMP_ENABLED}\
-                   MODEL.WEIGHTS None \
-                   CUDNN_BENCHMARK True
-                   TEST.EVAL_PERIOD 0"
+    use_com_args=""
+    # if [ ${FLAG_TORCH_COMPILE} = "True" ];then
+    #     use_com_args="--torchcompile"
+    # fi
 
-    train_cmd="python train_net.py --config-file ${train_config} --num-gpus ${num_gpus} ${train_options}" 
+    train_options="--no-validate \
+                   --options log_config.interval=15 \
+                   runner.max_iters=${max_iter} \
+                   data.samples_per_gpu=${batch_size}  \
+                   data.workers_per_gpu=${num_workers} \
+                   model.pretrained=None \
+                   pretrained=None \
+                   ${use_com_args}"
+
+    if [ ${device_num} = "N1C1" ]; then
+        train_cmd="python train.py ${train_config} ${train_options}" 
+    else
+        train_cmd="bash dist_train.sh ${train_config} ${device_num:3:1} ${device_num:1:1} ${train_options}" 
+    fi
 
 #   以下为通用执行命令，无特殊可不用修改
     echo ${train_cmd}

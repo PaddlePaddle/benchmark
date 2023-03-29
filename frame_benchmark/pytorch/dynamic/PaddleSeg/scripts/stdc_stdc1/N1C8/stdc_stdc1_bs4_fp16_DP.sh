@@ -1,4 +1,4 @@
-model_item="bisenetv2"
+model_item="stdc_stdc1"
 bs_item=4
 fp_item=fp16
 run_mode=DP

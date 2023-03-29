@@ -1,6 +1,6 @@
-model_item="bisenetv2"
+model_item="stdc_stdc1"
 bs_item=4
-fp_item=fp16
+fp_item=fp32
 run_mode=DP
 device_num=N1C8
 max_iter=400

@@ -132,3 +132,6 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex
 	url = https://github.com/PaddleBenchmark/detrex.git
 	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/ViT-Adapter"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/ViT-Adapter
+	url = https://github.com/czczup/ViT-Adapter.git

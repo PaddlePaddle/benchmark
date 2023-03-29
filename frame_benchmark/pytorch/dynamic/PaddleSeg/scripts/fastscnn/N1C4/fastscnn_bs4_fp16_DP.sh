@@ -1,8 +1,8 @@
-model_item="bisenetv2"
+model_item="fastscnn"
 bs_item=4
 fp_item=fp16
 run_mode=DP
-device_num=N1C8
+device_num=N1C4
 max_iter=400
 num_workers=24
 
