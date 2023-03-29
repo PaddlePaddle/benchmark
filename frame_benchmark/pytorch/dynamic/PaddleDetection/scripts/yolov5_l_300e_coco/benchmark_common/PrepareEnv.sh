@@ -19,4 +19,7 @@ mv cocomini_yolov5_yolov7/* ./
 cd .. && cd ..
 rm -rf ./datasets/coco128/labels/*.cache
 rm -rf ./runs
+wget https://paddledet.bj.bcebos.com/data/tipc/Arial.ttf
+mkdir -p /root/.config/Ultralytics/
+mv Arial.ttf /root/.config/Ultralytics/
 echo "*******prepare benchmark end***********"
