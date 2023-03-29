@@ -57,7 +57,7 @@
 	branch = main
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
-	url = https://github.com/open-mmlab/mmsegmentation.git
+	url = https://github.com/PaddleBenchmark/mmsegmentation.git
 	branch = master
 [submodule "frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module"]
 	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module
