@@ -37,6 +37,4 @@ else
   echo "******* cityscapes dataset already exists *******"
 fi
 
-rm -rf /dev/shm/*
-
 echo "******* prepare benchmark end *******"
