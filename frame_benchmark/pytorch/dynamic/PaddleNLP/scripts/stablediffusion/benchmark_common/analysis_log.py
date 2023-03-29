@@ -5,6 +5,7 @@
 import sys
 import json
 import os
+import re
 from pathlib import Path
 import numpy as np
 
@@ -18,8 +19,10 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, run_pro
             if "ips:" in eachline:
                 ips = float(eachline.split('ips: ')[1].split()[0])
                 ips_lines.append(ips)
-        all_ips_value.append(np.mean(ips_lines[2:42]))
+        all_ips_value.append(np.mean(ips_lines[200:]))
     ips = round(np.sum(all_ips_value), 2)
+    host_nums = int(re.findall("\d+",device_num)[0])
+    ips *= host_nums
     run_mode = "DP"
     
     model_name = model_item+"_"+"bs"+str(bs)+"_"+fp_item+"_"+run_mode

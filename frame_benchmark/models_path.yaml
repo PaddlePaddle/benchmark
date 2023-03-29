@@ -96,4 +96,5 @@ pytorch:
    stdc_stdc1: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
    maskformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer
    mask2former: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former
-
+   petrv2: benchmark/frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR
+   VideoSwin: benchmark/frame_benchmark/pytorch/dynamic/PaddleVideo/models/Video-Swin-Transformer
