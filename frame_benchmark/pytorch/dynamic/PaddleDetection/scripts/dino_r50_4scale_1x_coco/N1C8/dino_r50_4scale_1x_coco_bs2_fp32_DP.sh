@@ -4,7 +4,7 @@ fp_item=fp32
 run_process_type=MultiP
 run_mode=DP
 device_num=N1C8
-max_iter=64
+max_iter=780
 num_workers=4
 
 sed -i '/set\ -xe/d' run_benchmark.sh

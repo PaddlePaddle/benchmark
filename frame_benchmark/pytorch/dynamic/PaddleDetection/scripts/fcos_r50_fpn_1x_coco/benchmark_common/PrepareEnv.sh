@@ -24,7 +24,7 @@ pip install -r requirements.txt
 pip install -v -e .
 
 ################################# 准备训练数据 如:
-wget -nc -P data/coco/ https://paddledet.bj.bcebos.com/data/coco_benchmark.tar
-cd ./data/coco/ && tar -xf coco_benchmark.tar && mv -u coco_benchmark/* .
-rm -rf coco_benchmark/ && cd ../../
+rm -rf data
+wget -nc -P data https://bj.bcebos.com/v1/paddledet/data/cocomini.zip
+cd ./data && unzip cocomini.zip && mv cocomini coco && cd ..
 echo "*******prepare benchmark end***********"
