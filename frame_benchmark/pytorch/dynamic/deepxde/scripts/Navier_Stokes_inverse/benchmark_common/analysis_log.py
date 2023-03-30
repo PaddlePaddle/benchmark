@@ -109,7 +109,7 @@ if __name__ == "__main__":
     run_info["ips"] = 0
     run_info["device_num"] = args.device_num
     run_info["model_run_time"] = os.getenv('model_run_time')
-    run_info["frame_commit"] = os.getenv('frame_commit')
+    run_info["frame_commit"] = ''
     run_info["frame_version"] = os.getenv('frame_version')
     device_num = args.device_num
     print("---device_num:-", device_num)
