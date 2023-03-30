@@ -73,7 +73,7 @@ if __name__ == "__main__":
     save_content = {
         "model_branch": os.getenv('model_branch'),
         "model_commit": os.getenv('model_commit'),
-        "model_name": args.model_name+"_bs"+str(args.batch_size)+"_"+args.fp+run_mode,
+        "model_name": args.model_name+"_bs"+str(args.batch_size)+"_"+args.fp+"_"+run_mode,
         "batch_size": args.batch_size,
         "fp_item": args.fp,
         "run_mode": run_mode,

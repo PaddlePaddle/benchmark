@@ -20,10 +20,10 @@ function _set_params(){
     num_workers=${8:-"4"}             # (可选)
 
     # Added for distributed training
-    node_num=${9:-"2"}                      #（可选） 节点数量
-    node_rank=${10:-"0"}                    # (可选)  节点rank
-    master_addr=${11:-"127.0.0.1"}       # (可选) 主节点ip地址
-    master_port=${12:-"1928"}               # (可选) 主节点端口号
+    node_num=${10:-"2"}                      #（可选） 节点数量
+    node_rank=${11:-"0"}                    # (可选)  节点rank
+    master_addr=${12:-"127.0.0.1"}       # (可选) 主节点ip地址
+    master_port=${13:-"1928"}               # (可选) 主节点端口号
     # Added for distributed training
 
     #   以下为通用拼接log路径，无特殊可不用修改
@@ -48,16 +48,20 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py -l ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item}
+    python analysis_log.py -l ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item} --skip_steps 100
 }
 
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
-    train_options="ILSVRC2012_w --model pvt_v2_b2_li --lr 0.001 --warmup-epochs 20 --epochs ${max_epochs} --weight-decay 0.05 --sched cosine --aa rand-m7-mstd0.5-inc1 --batch-size ${batch_size} --workers ${num_workers} --reprob=0.25 --remode=pixel --mixup=0.2 --cutmix=1.0 --opt=adamw"
+    train_options="ILSVRC2012_w --model pvt_v2_b2_li --epochs ${max_epochs} --opt adamw --weight-decay 0.05 --lr 1e-3 --min-lr 1e-5 --warmup-epochs 20 --warmup-lr 1e-6 --sched cosine --hflip 0.5 --aa rand-m9-mstd0.5-inc1 --reprob 0.25 --mixup 0.8 --mixup-prob 1.0 --cutmix 1.0 --batch-size ${batch_size} --workers ${num_workers} --log-interval 1"
     if [ ${fp_item} = 'fp16' ];then
         train_options="${train_options} --amp"
+    fi
+
+    if [ "${FLAG_TORCH_COMPILE}" = "True"  ] || [ "${FLAG_TORCH_COMPILE}" = "true"  ];then
+        train_options="${train_options} --torchcompile"
     fi
 
     case ${run_process_type} in

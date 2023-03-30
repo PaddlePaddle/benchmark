@@ -37,7 +37,7 @@
 	url = https://github.com/wenet-e2e/wenet.git
 [submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection"]
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
-	url = https://github.com/open-mmlab/mmdetection.git
+	url = https://github.com/PaddleBenchmark/mmdetection.git
 	branch = master
 [submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose"]
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmpose
@@ -57,7 +57,7 @@
 	branch = main
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
-	url = https://github.com/open-mmlab/mmsegmentation.git
+	url = https://github.com/PaddleBenchmark/mmsegmentation.git
 	branch = master
 [submodule "frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module"]
 	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module
@@ -93,6 +93,9 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch"]
 	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch
 	url = https://github.com/PaddleBenchmark/DBNet_pytorch
+[submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch"]
+	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
+	url = https://github.com/pytorch/pytorch.git
 [submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models"]
 	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
 	url = https://github.com/rwightman/pytorch-image-models
@@ -100,3 +103,42 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch"]
 	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
 	url = https://github.com/pytorch/pytorch
+[submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/TableMASTER_mmocr"]
+	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/TableMASTER_mmocr
+	url = https://github.com/PaddleBenchmark/TableMASTER_mmocr
+[submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/diffusers"]
+	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/diffusers
+	url = https://github.com/huggingface/diffusers.git
+	branch = v0.11.1-patch
+[submodule "frame_benchmark/pytorch/dynamic/deepxde/models/deepxde"]
+	path = frame_benchmark/pytorch/dynamic/deepxde/models/deepxde
+	url = https://github.com/PaddleBenchmark/deepxde.git
+	branch = pytorch_benchmark
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former
+	url = https://github.com/facebookresearch/Mask2Former.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/MaskFormer
+	url = https://github.com/facebookresearch/MaskFormer.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex
+	url = https://github.com/PaddleBenchmark/detrex.git
+	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/ViT-Adapter"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/ViT-Adapter
+	url = https://github.com/czczup/ViT-Adapter.git
+[submodule "frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR"]
+	path = frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR
+	url = https://github.com/megvii-research/PETR.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7
+	url = https://github.com/PaddleBenchmark/yolov7.git
+	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5
+	url = https://github.com/PaddleBenchmark/yolov5.git
+	branch = master
+[submodule "Video-Swin-Transformer"]
+	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/Video-Swin-Transformer
+	url = https://github.com/PaddleBenchmark/Video-Swin-Transformer.git
+	branch = master

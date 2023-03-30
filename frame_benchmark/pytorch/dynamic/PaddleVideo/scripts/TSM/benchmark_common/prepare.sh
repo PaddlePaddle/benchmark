@@ -7,18 +7,9 @@ echo `pip --version`
 
 CUDA_VERSION=`nvcc -run detect_cuda.cu | awk -F. '{print $1}'`
 
-WHEEL_URL_PREFIX="https://paddle-wheel.bj.bcebos.com/benchmark"
-if [ `nvidia-smi --list-gpus | grep A100 | wc -l` -ne "0" ]; then
-  wget "$WHEEL_URL_PREFIX/torch-1.9.1%2Bcu111-cp37-cp37m-linux_x86_64.whl"
-  wget "$WHEEL_URL_PREFIX/torchvision-0.10.1%2Bcu111-cp37-cp37m-linux_x86_64.whl"
-  pip install torch-1.9.1+cu111-cp37-cp37m-linux_x86_64.whl
-  pip install torchvision-0.10.1+cu111-cp37-cp37m-linux_x86_64.whl
-else
-  wget "$WHEEL_URL_PREFIX/torch-1.9.1-cp37-cp37m-manylinux1_x86_64.whl" 
-  wget "$WHEEL_URL_PREFIX/torchvision-0.10.1-cp37-cp37m-manylinux1_x86_64.whl"
-  pip install torch-1.9.1-cp37-cp37m-manylinux1_x86_64.whl
-  pip install torchvision-0.10.1-cp37-cp37m-manylinux1_x86_64.whl
-fi
+wget  ${FLAG_TORCH_WHL_URL}
+tar -xvf  torch_dev_whls.tar
+pip install torch_dev_whls/*
 
 echo "PWD = $PWD"
 

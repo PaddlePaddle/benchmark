@@ -1,26 +1,40 @@
 #!/usr/bin/env bash
-# 执行路径在模型库的根目录下
-################################# 安装框架 如:
-echo "*******prepare benchmark start ***********"
-pip install -U pip
+
+echo "******* install enviroments for benchmark ***********"
 echo `pip --version`
-pip install torch==1.9.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install torchvision==0.10.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install mmcv-full==1.3.13 -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+if [ ! -f "torch_dev_whls.tar" ];then
+  unset https_proxy && unset http_proxy
+  wget ${FLAG_TORCH_WHL_URL}
+fi
+tar -xf torch_dev_whls.tar
+export https_proxy=${HTTP_PRO} && export http_proxy=${HTTPS_PRO}
+for whl_file in torch_dev_whls/*
+do
+  pip install ${whl_file}
+done
+unset https_proxy && unset http_proxy
+pip install ninja -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install -v mmcv-full==1.7.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install -e .
-pip list
+pip install -v -e .
 
-mkdir mmseg_benchmark_configs
-mv fcn_hrnetw18.py mmseg_benchmark_configs/
-################################# 准备训练数据 如:
-mkdir -p data
-wget https://paddleseg.bj.bcebos.com/dataset/cityscapes_30imgs.tar.gz \
-    -O data/cityscapes_30imgs.tar.gz
-tar -zxf data/cityscapes_30imgs.tar.gz -C data/
-mv data/cityscapes_30imgs data/cityscapes
-echo "*******prepare benchmark end***********"
+echo "******* prepare dataset for benchmark ***********"
+if [ ! -f "mmseg_benchmark_configs.zip" ];then
+  wget https://paddleseg.bj.bcebos.com/benchmark/mmseg/mmseg_benchmark_configs.zip
+fi
+unzip -o mmseg_benchmark_configs.zip 
+cp dist_train.sh tools/dist_train.sh
 
+if [ $(ls -lR data/cityscapes | grep "^-" | wc -l) -ne 600 ];then
+  rm -rf data
+  mkdir -p data
+  wget https://dataset.bj.bcebos.com/benchmark/cityscapes_300imgs.tar.gz -O "data/cityscapes_300imgs.tar.gz"
+  tar -zxf data/cityscapes_300imgs.tar.gz -C data/
+  rm -rf data/cityscapes_300imgs.tar.gz
+  mv data/cityscapes_300imgs data/cityscapes
+else
+  echo "******* cityscapes dataset already exists *******"
+fi
 
-
-
+echo "******* prepare benchmark end *******"
