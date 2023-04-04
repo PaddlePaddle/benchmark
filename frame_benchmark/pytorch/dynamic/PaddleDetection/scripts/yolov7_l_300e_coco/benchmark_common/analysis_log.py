@@ -19,7 +19,8 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_nu
             if len(res)>0:
                 res = float(res[0].strip())
                 time_res.append(1.0/res)
-    time_res = set(time_res[skip_num:])
+  
+    time_res = time_res[skip_num:]
     time_res = sorted(time_res)
     skip_num2 = max(int((len(time_res) * 0.05)), 5)
     time_res = time_res[skip_num2:len(time_res)-skip_num2]
@@ -30,7 +31,7 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_nu
 
     if len(time_res) > 0:
         avg_time = sum(time_res) / (len(time_res))
-        ips = round(bs * avg_time, 3) * gpu_num
+        ips = round(bs * avg_time, 3)
 
     model_name = model_item+"_"+"bs"+str(bs)+"_"+fp_item+"_"+run_mode
     info = {    "model_branch": os.getenv('model_branch'),
