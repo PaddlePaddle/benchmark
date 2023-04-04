@@ -14,7 +14,7 @@ pip install setuptools==59.5.0
 pip install mmcv-full==1.4.0 -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.9.1/index.html
 
 wget https://paddle-wheel.bj.bcebos.com/benchmark/mmdetection-2.24.1.zip
-unzip mmdetection-2.24.1.zip
+unzip -o mmdetection-2.24.1.zip
 rm -rf mmdetection-2.24.1.zip
 mv mmdetection-2.24.1 mmdetection
 cd mmdetection
