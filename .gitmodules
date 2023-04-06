@@ -143,4 +143,5 @@
 	branch = main
 [submodule "frame_benchmark/pytorch/dynamic/Paddle3D/models/OpenPCDet"]
 	path = frame_benchmark/pytorch/dynamic/Paddle3D/models/OpenPCDet
-	url = https://github.com/open-mmlab/OpenPCDet.git
+	url = git@github.com:PaddleBenchmark/OpenPCDet.git
+	breanch = master
