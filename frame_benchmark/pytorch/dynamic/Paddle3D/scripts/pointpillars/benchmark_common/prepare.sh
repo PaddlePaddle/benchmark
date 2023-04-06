@@ -22,6 +22,7 @@ unset https_proxy && unset http_proxy
 
 
 # 由于kitti数据集太大，为避免每次下载过于耗时，请将kitti数据集下载后，软链到/data/Dataset/kitti
+mkdir -p /data/Dataset
 if [ ! -d "/data/Dataset/KITTI_800" ]; then
     cd /data/Dataset
     wget https://paddle3d.bj.bcebos.com/TIPC/dataset/KITTI_800.tar --no-check-certificate
