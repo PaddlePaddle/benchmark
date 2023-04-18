@@ -1,5 +1,5 @@
 model_item=yolov5_l_300e_coco
-bs_item=16
+bs_item=128
 fp_item=fp16
 run_process_type=MultiP
 run_mode=DP

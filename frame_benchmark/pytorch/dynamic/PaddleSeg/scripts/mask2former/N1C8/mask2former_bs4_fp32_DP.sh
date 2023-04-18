@@ -1,10 +1,10 @@
 model_item="mask2former"
-bs_item=1
-fp_item=fp16
+bs_item=4
+fp_item=fp32
 run_mode=DP
 device_num=N1C8
-max_iter=600
-num_workers=8
+max_iter=400
+num_workers=24
 train_config=configs/coco/panoptic-segmentation/maskformer2_R50_bs16_50ep.yaml
 
 bash prepare.sh;

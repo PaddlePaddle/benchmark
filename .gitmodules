@@ -55,10 +55,6 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/fairmot
 	url = https://github.com/nemonameless/fairmot.git
 	branch = main
-[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation"]
-	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
-	url = https://github.com/PaddleBenchmark/mmsegmentation.git
-	branch = master
 [submodule "frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module"]
 	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/temporal-shift-module
 	url = https://github.com/PaddleBenchmark/temporal-shift-module.git
@@ -130,15 +126,18 @@
 [submodule "frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR"]
 	path = frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR
 	url = https://github.com/megvii-research/PETR.git
-[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7"]
-	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7
-	url = https://github.com/PaddleBenchmark/yolov7.git
-	branch = main
-[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5"]
-	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5
-	url = https://github.com/PaddleBenchmark/yolov5.git
-	branch = master
 [submodule "Video-Swin-Transformer"]
 	path = frame_benchmark/pytorch/dynamic/PaddleVideo/models/Video-Swin-Transformer
 	url = https://github.com/PaddleBenchmark/Video-Swin-Transformer.git
 	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation"]
+	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
+	url = https://github.com/PaddleBenchmark/mmsegmentation.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5
+	url = https://github.com/PaddleBenchmark/yolov5.git
+	branch = master
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7
+	url = https://github.com/PaddleBenchmark/yolov7.git
+	branch = main
