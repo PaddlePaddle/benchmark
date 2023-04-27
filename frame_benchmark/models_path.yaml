@@ -49,6 +49,7 @@ pytorch:
    MobileNetV3_small_x1_0: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    PPLCNet_x0_75: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    PPLCNet_x1_0: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
+   CLIP_ViT_base_patch16_224_finetune: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    StyleGANv2: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch
    FOMM: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/first-order-model
    edvr: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
