@@ -1,7 +1,7 @@
 model_item=ResNet50_NHWC
 bs_item=256
 fp_item=fp16
-run_process_type=SingleP
+run_process_type=MultiP
 run_mode=DP
 device_num=N1C8
 max_epoch=1
