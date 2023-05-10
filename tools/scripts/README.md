@@ -8,6 +8,7 @@ GetResourceUtilization.py  # gpu利用率统计脚本
 
 paddle模型执行步骤:
 ```bash
+# 请先准备好docker python paddle;进入docker后
 # clone 解析脚本
 git clone https://github.com/PaddlePaddle/benchmark.git -b develop 
 export BENCHMARK_ROOT=$PWD/benchmark/tools
