@@ -13,7 +13,7 @@ unset https_proxy && unset http_proxy
 wget ${FLAG_TORCH_WHL_URL}
 tar -xvf torch_dev_whls.tar
 pip install torch_dev_whls/*
-pip install transformers==4.26.1 accelerate==0.19.0 pandas numpy scipy datasets diffusers==0.16.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install transformers==4.26.1 accelerate==0.18.0 pandas numpy scipy datasets diffusers==0.16.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 python setup.py install
 
