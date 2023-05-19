@@ -225,7 +225,7 @@ optimizer = dict(
         }),
     weight_decay=0.01)
 
-optimizer_config = dict(loss_scale=512., grad_clip=dict(max_norm=35, norm_type=2))
+optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 
 # learning policy
 lr_config = dict(
