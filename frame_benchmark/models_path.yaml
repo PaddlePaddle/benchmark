@@ -9,6 +9,7 @@ pytorch:
    MobileNetV3_large_x1_0: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    ResNet152: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    ResNet50: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
+   ResNet50_NHWC: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    ShuffleNetV2_x1_0: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/mmclassification
    SwinTransformer_tiny_patch4_window7_224: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    HRNet_W48_C: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models

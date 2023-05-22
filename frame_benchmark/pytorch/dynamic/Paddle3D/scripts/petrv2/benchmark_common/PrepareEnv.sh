@@ -25,7 +25,7 @@ cd ..
 
 pip install pycocotools
 pip install mmsegmentation==0.20.2
-
+pip install lyft-dataset-sdk
 wget https://paddle-wheel.bj.bcebos.com/benchmark/mmdetection3d-0.17.1.zip
 unzip mmdetection3d-0.17.1.zip
 rm -rf mmdetection3d-0.17.1.zip
@@ -58,9 +58,12 @@ cd ..
 mkdir -p data/
 mkdir -p /data/Dataset/
 # 由于nuscenes数据集太大，为避免每次下载过于耗时，请将nuscenes数据集下载后，软链到/data/Dataset/nuScenes
-# ln -s /nuscenes_dataste_root /data/Dataset/nuScenes
+cp ${BENCHMARK_ROOT}/models_data_cfs/model_benchmark/petrv2/nuscenes.zip ./
+unzip -q nuscenes.zip
+ln -s $PWD/nuscenes /data/Dataset/nuScenes
 # 并软链到data/nuscenes目录
 ln -s /data/Dataset/nuScenes ./data/nuscenes
+
 echo "download data" #waiting data process
 echo "dataset prepared done"
 echo "*******prepare benchmark end***********"
