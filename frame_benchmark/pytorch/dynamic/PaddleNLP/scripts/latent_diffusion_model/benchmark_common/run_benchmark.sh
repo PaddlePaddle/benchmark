@@ -47,57 +47,85 @@ function _set_params(){
 
     use_com_args=""
     if [ ${FLAG_TORCH_COMPILE:-"False"} = "True" ];then
-            use_com_args="--dynamo_backend=inductor"
+            use_com_args="--torch_compile True --torch_compile_backend inductor"
         else
-            use_com_args="--dynamo_backend=no"
+            use_com_args="--torch_compile False"
     fi
 }
 
 function _analysis_log(){
-    python analysis_log.py ${model_item} logs_dir ${speed_log_file} ${device_num} ${base_batch_size} ${fp_item} ${run_process_type}
+    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} ${base_batch_size} ${fp_item} ${run_process_type}
 }
 
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
-    rm -rf logs_dir
+    rm -rf outputs
 
     if [ $fp_item = "fp16" ]; then
         train_cmd="\
-            --pretrained_model_name_or_path=./ldm-text2im-large-256 \
-            --dataset_name=pokemon-blip-captions \
-            --resolution=256 --center_crop --random_flip \
-            --train_batch_size=${base_batch_size} \
-            --gradient_accumulation_steps=1 \
-            --max_train_steps=${max_iter} \
-            --learning_rate=1e-05 \
-            --max_grad_norm=-1 \
-            --output_dir=logs_dir \
-            --mixed_precision=fp16 \
+            --do_train \
+            --output_dir ./outputs \
+            --per_device_train_batch_size ${base_batch_size} \
+            --gradient_accumulation_steps 1 \
+            --learning_rate 5e-5 \
+            --weight_decay 0.02 \
+            --max_steps ${max_iter} \
+            --lr_scheduler_type "constant" \
+            --warmup_steps 0 \
+            --logging_steps 10 \
+            --save_steps 999999 \
+            --save_total_limit 50 \
+            --seed 23 \
+            --dataloader_num_workers 8 \
+            --pretrained_model_name_or_path ./ldm-text2im-large-256 \
+            --file_list ./data/filelist/train.filelist.list \
+            --model_max_length 77 \
+            --max_grad_norm -1 \
+            --disable_tqdm True \
+            --overwrite_output_dir True \
+            --optim adamw_hf \
+            --tf32 True  \
+            --benchmark True \
+            --fp16 True \
             ${use_com_args}
             "
     else
         train_cmd="\
-            --pretrained_model_name_or_path=./ldm-text2im-large-256 \
-            --dataset_name=pokemon-blip-captions \
-            --resolution=256 --center_crop --random_flip \
-            --train_batch_size=${base_batch_size} \
-            --gradient_accumulation_steps=1 \
-            --max_train_steps=${max_iter} \
-            --learning_rate=1e-05 \
-            --max_grad_norm=-1 \
-            --output_dir=logs_dir
-            --mixed_precision=no \
+            --do_train \
+            --output_dir ./outputs \
+            --per_device_train_batch_size ${base_batch_size} \
+            --gradient_accumulation_steps 1 \
+            --learning_rate 5e-5 \
+            --weight_decay 0.02 \
+            --max_steps ${max_iter} \
+            --lr_scheduler_type "constant" \
+            --warmup_steps 0 \
+            --logging_steps 10 \
+            --save_steps 999999 \
+            --save_total_limit 50 \
+            --seed 23 \
+            --dataloader_num_workers 8 \
+            --pretrained_model_name_or_path ./ldm-text2im-large-256 \
+            --file_list ./data/filelist/train.filelist.list \
+            --model_max_length 77 \
+            --max_grad_norm -1 \
+            --disable_tqdm True \
+            --overwrite_output_dir True \
+            --optim adamw_hf \
+            --tf32 True  \
+            --benchmark True \
+            --fp16 False \
             ${use_com_args}
             "
     fi
     case ${run_process_type} in
-    SingleP) train_cmd="accelerate launch --config_file n1c1.yaml train_text_to_image.py ${train_cmd}" ;;
+    SingleP) train_cmd="python train_txt2img_laion400m_trainer.py ${train_cmd}" ;;
     MultiP)
-    if [ ${device_num:3} = '32' ];then
-	train_cmd="accelerate launch --config_file n4c32.yaml --num_processes $num_workers --num_machines $node_num --machine_rank $node_rank --main_process_ip $master_addr --main_process_port $master_port train_text_to_image.py ${train_cmd}"
+    if [ ${device_num:3} = '32' ];then 
+        train_cmd="torchrun --nnodes ${node_num} --nproc_per_node ${num_workers} --node_rank ${node_rank} --master_addr ${master_addr} --master_port ${master_port} train_txt2img_laion400m_trainer.py ${train_cmd}"
     else
-        train_cmd="accelerate launch --config_file n1c8.yaml train_text_to_image.py ${train_cmd}"
+        train_cmd="torchrun --nnodes 1 --nproc_per_node 8 train_txt2img_laion400m_trainer.py ${train_cmd}"
     fi;;
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
