@@ -31,8 +31,8 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, run_pro
             ips = float(eachline.split("ips: ")[1].split()[0])
             ips_lines.append(ips)
     ips = np.mean(ips_lines[10:])
-    host_nums = int(re.findall("\d+", device_num)[0])
-    ips *= host_nums
+    ngpus = int(re.findall("\d+", device_num)[-1])
+    ips *= ngpus
     run_mode = "DP"
 
     model_name = model_item + "_" + "bs" + str(bs) + "_" + fp_item + "_" + run_mode
