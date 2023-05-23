@@ -1,5 +1,5 @@
 model_item=latent_diffusion_model
-bs_item=8
+bs_item=16
 fp_item=fp16
 run_process_type=MultiP
 run_mode=DP

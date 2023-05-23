@@ -1,6 +1,6 @@
 model_item=latent_diffusion_model
-bs_item=8
-fp_item=fp16
+bs_item=16
+fp_item=fp32
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
