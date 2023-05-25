@@ -10,12 +10,15 @@ log_date=`date "+%Y.%m%d.%H%M%S"`
 
 unset https_proxy && unset http_proxy
 
-wget ${FLAG_TORCH_WHL_URL}
-tar -xvf torch_dev_whls.tar
-pip install torch_dev_whls/*
+wget -c --no-proxy ${FLAG_TORCH_WHL_URL}
+tar_file_name=$(echo ${FLAG_TORCH_WHL_URL} | awk -F '/' '{print $NF}')
+dir_name=$(echo ${tar_file_name} | awk -F '.tar' '{print $1}')
+tar xf ${tar_file_name}
+rm -rf ${tar_file_name}
+pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/web/simple
+pip install ${dir_name}/*
 pip install install accelerate==0.19.0 transformers==4.29.1 pandas numpy scipy datasets diffusers==0.16.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-python setup.py install
 
 rm -rf CompVis-ldm-text2im-large-256-pt.tar.gz
 wget https://bj.bcebos.com/paddlenlp/models/community/CompVis/CompVis-ldm-text2im-large-256-pt.tar.gz
