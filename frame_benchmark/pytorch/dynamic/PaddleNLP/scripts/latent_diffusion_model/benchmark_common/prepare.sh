@@ -17,7 +17,7 @@ tar xf ${tar_file_name}
 rm -rf ${tar_file_name}
 pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/web/simple
 pip install ${dir_name}/*
-pip install install accelerate==0.19.0 transformers==4.29.1 pandas numpy scipy datasets diffusers==0.16.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install install accelerate==0.19.0 transformers==4.29.1 pandas numpy scipy datasets diffusers==0.16.1
 
 
 rm -rf CompVis-ldm-text2im-large-256-pt.tar.gz
