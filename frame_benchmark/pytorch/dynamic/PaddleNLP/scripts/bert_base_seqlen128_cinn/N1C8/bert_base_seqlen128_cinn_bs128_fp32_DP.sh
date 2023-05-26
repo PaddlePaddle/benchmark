@@ -1,4 +1,4 @@
-model_item=bert_base_seqlen128_hf
+model_item=bert_base_seqlen128_cinn
 bs_item=128
 fp_item=fp32
 run_process_type=MultiP
