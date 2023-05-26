@@ -101,3 +101,4 @@ pytorch:
    VideoSwin: benchmark/frame_benchmark/pytorch/dynamic/PaddleVideo/models/Video-Swin-Transformer
    vit_adapter: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/ViT-Adapter
    bert_base_seqlen128_cinn: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers
+   latent_diffusion_model: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/diffusers
