@@ -3,16 +3,13 @@
 echo "******* install enviroments for benchmark ***********"
 echo `pip --version`
 
-if [ ! -f "torch_dev_whls.tar" ];then
-  unset https_proxy && unset http_proxy
-  wget ${FLAG_TORCH_WHL_URL}
-fi
-tar -xf torch_dev_whls.tar
-export https_proxy=${HTTP_PRO} && export http_proxy=${HTTPS_PRO}
-for whl_file in torch_dev_whls/*
-do
-  pip install ${whl_file}
-done
+wget -c --no-proxy ${FLAG_TORCH_WHL_URL}
+tar_file_name=$(echo ${FLAG_TORCH_WHL_URL} | awk -F '/' '{print $NF}')
+dir_name=$(echo ${tar_file_name} | awk -F '.' '{print $1}')
+tar xf ${tar_file_name}
+rm -rf ${tar_file_name}
+pip install ${dir_name}/*
+
 unset https_proxy && unset http_proxy
 pip install ninja -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -v mmcv-full==1.7.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
@@ -23,7 +20,7 @@ echo "******* prepare dataset for benchmark ***********"
 if [ ! -f "mmseg_benchmark_configs.zip" ];then
   wget https://paddleseg.bj.bcebos.com/benchmark/mmseg/mmseg_benchmark_configs.zip
 fi
-unzip -o mmseg_benchmark_configs.zip 
+unzip -o mmseg_benchmark_configs.zip
 cp dist_train.sh tools/dist_train.sh
 
 if [ $(ls -lR data/cityscapes | grep "^-" | wc -l) -ne 600 ];then
