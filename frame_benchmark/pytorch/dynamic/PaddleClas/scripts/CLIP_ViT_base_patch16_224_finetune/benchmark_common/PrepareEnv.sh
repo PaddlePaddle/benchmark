@@ -18,4 +18,7 @@ tar xf ILSVRC2012_benchmark.tar
 mv ILSVRC2012_benchmark ILSVRC2012_w
 rm -f ILSVRC2012_benchmark.tar
 
+# fix bug to adapt to torch 2.0
+sed -i 's/local_rank/local-rank/g' train.py
+
 echo "*******prepare benchmark end***********"
