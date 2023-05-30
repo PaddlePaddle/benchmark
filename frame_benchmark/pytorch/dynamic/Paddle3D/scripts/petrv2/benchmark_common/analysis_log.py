@@ -55,6 +55,7 @@ def analyze(model_name, batch_size, log_file, res_log_file, device_num):
                 "frame_version": os.getenv('frame_version'),
         }
     json_info = json.dumps(info)
+    print(json_info)
     with open(res_log_file, "w") as of:
         of.write(json_info)
 

@@ -17,6 +17,13 @@ function _set_params(){
     max_iter=${6:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${7:-"4"}               # (可选)
 
+    # Added for distributed training
+    node_num=${8:-"2"}                      #（可选） 节点数量
+    node_rank=${9:-"0"}                    # (可选)  节点rank
+    master_addr=${10:-"127.0.0.1"}       # (可选) 主节点ip地址
+    master_port=${11:-"1928"}               # (可选) 主节点端口号
+    # Added for distributed training
+
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -41,6 +48,7 @@ function _analysis_log(){
     python analysis_log.py ${model_item} ${base_batch_size} ${log_file} ${speed_log_file} ${device_num}
 }
 
+    #N4C32) train_cmd="PYTHONPATH="$(dirname $0)/..":$PYTHONPATH ; \
 function _train(){
     batch_size=${base_batch_size}
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
@@ -50,7 +58,10 @@ function _train(){
     case ${device_num} in
     N1C1) train_cmd="./tools/dist_train.sh ${train_config} 1 --work-dir ${train_options}" ;;
     N1C8) train_cmd="./tools/dist_train.sh ${train_config} 8 --work-dir ${train_options}" ;;
-    *) echo "choose device_num(N1C1, N1C8)"; exit 1;
+    N4C32) train_cmd="python3 -m torch.distributed.launch --nproc_per_node=8 --nnodes=$node_num \
+    --node_rank=$node_rank --master_addr=$master_addr --master_port=$master_port \
+    $(dirname "$0")/tools/train.py ${train_config} --launcher pytorch  --work-dir ${train_options}" ;;
+    *) echo "choose device_num(N1C1, N1C8, N4C32)"; exit 1;
     esac
 
     timeout 5m ${train_cmd} > ${log_file} 2>&1
