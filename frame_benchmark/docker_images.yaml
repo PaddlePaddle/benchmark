@@ -49,7 +49,6 @@ pytorch:
    MobileNetV3_small_x1_0: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    PPLCNet_x0_75: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    PPLCNet_x1_0: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
-   CLIP_ViT_base_patch16_224_finetune: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    FOMM: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda10.2-cudnn7    
    StyleGANv2: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8  
    edvr: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
@@ -84,7 +83,7 @@ pytorch:
    deeplabv3p_resnet50: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    fcn_hrnetw18: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    ocrnet_hrnetw48: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
-   segformer_b0: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
+   segformer_b0: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    xlnet: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    gpt3: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.1-cudnn8
    CLIP : iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
@@ -101,5 +100,6 @@ pytorch:
    petrv2: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    VideoSwin: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    vit_adapter: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
-   bert_base_seqlen128_cinn: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
-   latent_diffusion_model: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
+   bert_base_seqlen128_hf: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
+   petrv2_vovnet_gridmask_p4_800x320_dn_centerview: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
+   petr_vovnet_gridmask_p4_800x320: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
