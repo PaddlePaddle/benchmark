@@ -19,9 +19,9 @@ pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/web/simple
 pip install ${dir_name}/*
 pip install install accelerate==0.19.0 transformers==4.29.2 numpy scipy datasets
 
-rm -rf llama-7b-2l.tar.gz
-wget https://bj.bcebos.com/paddlenlp/models/community/facebook/llama-7b-2l.tar.gz
-tar -xvf llama-7b-2l.tar.gz
+rm -rf llama-7b-2l.tar
+wget https://bj.bcebos.com/paddlenlp/models/community/facebook/llama-7b-2l.tar
+tar -xvf llama-7b-2l.tar
 
 rm -rf llama_sft_demo_data.tar.gz
 rm -rf data

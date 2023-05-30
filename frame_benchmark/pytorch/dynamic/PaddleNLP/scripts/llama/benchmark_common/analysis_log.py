@@ -30,7 +30,7 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, run_pro
         "convergence_value": 0,
         "convergence_key": "",
         "ips": ips,
-        "speed_unit": "text_image_pair/s",
+        "speed_unit": "sequence/s",
         "device_num": device_num,
         "model_run_time": os.getenv("model_run_time"),
         "frame_commit": "",

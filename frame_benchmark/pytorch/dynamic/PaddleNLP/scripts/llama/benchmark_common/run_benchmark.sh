@@ -10,7 +10,7 @@ function _set_params(){
     run_mode=${5:-"DP"}                  # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
     device_num=${6:-"N1C1"}              # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
-    model_repo="paddlenlp"             # (必选) 模型套件的名字
+    model_repo="transformers"             # (必选) 模型套件的名字
     speed_unit="sequences/s"                # (必选)速度指标单位
     skip_steps=20                        # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="ips:"                       # (必选)解析日志，筛选出性能数据所在行的关键字
@@ -65,7 +65,7 @@ function _train(){
     if [ $fp_item = "fp16" ]; then
         train_cmd="\
             --do_train \
-            --model_name_or_path ./llama-7b-2nd-layer \
+            --model_name_or_path ./llama-7b-2l \
             --output_dir output \
             --per_device_train_batch_size ${base_batch_size} \
             --gradient_accumulation_steps 1 \
@@ -82,14 +82,13 @@ function _train(){
             --benchmark True \
             --fp16 True \
             --overwrite_output_dir True \
-            --data_path ./train.txt \
-            --fp16 True \
+            --data_path ./data/train.txt \
             ${use_com_args}
             "
     else
         train_cmd="\
             --do_train \
-            --model_name_or_path ./llama-7b-2nd-layer \
+            --model_name_or_path ./llama-7b-2l \
             --output_dir output \
             --per_device_train_batch_size ${base_batch_size} \
             --gradient_accumulation_steps 1 \
@@ -105,7 +104,7 @@ function _train(){
             --tf32 True  \
             --benchmark True \
             --overwrite_output_dir True \
-            --data_path ./train.txt \
+            --data_path ./data/train.txt \
             --fp16 False \
             ${use_com_args}
             "
