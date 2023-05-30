@@ -1,4 +1,4 @@
-model_item=latent_diffusion_model
+model_item=llama
 bs_item=8
 fp_item=fp16
 run_process_type=MultiP
