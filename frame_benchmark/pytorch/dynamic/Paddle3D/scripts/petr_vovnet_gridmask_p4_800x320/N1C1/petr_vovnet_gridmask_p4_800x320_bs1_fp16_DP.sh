@@ -1,4 +1,4 @@
-model_item=petrv2
+model_item=petr_vovnet_gridmask_p4_800x320
 bs_item=1
 fp_item=fp16
 run_process_type=SingleP
