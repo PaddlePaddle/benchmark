@@ -59,6 +59,8 @@ mkdir -p data/
 mkdir -p /data/Dataset/
 # 由于nuscenes数据集太大，为避免每次下载过于耗时，请将nuscenes数据集下载后，软链到/data/Dataset/nuScenes
 # 并软链到data/nuscenes目录
+cp ${BENCHMARK_ROOT}/models_data_cfs/model_benchmark/paddle3d/petr_data/nuscenes.tar ./
+tar -xvf nuscenes.tar && cd ../
 ln -s ./data/nuscenes /data/Dataset/nuScenes
 
 echo "download data" #waiting data process
