@@ -26,4 +26,6 @@ cd ./data/
 tar -xf benchmark_wikicorpus_en_seqlen128.tar
 cd ../
 
+# 解决compile下报错的问题
+ln -s /usr/include/python3.10 /usr/local/include/ 
 echo "*******prepare benchmark end***********"
