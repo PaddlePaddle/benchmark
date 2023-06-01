@@ -11,8 +11,8 @@ pip install https://paddle-wheel.bj.bcebos.com/benchmark/torch-1.9.1%2Bcu111-cp3
 pip install https://paddle-wheel.bj.bcebos.com/benchmark/torchvision-0.10.1%2Bcu111-cp37-cp37m-linux_x86_64.whl
 pip install setuptools==59.5.0
 
-pip install https://download.openmmlab.com/mmcv/dist/cu111/torch1.9.0/mmcv_full-1.4.0-cp37-cp37m-manylinux1_x86_64.wh
-l
+pip install https://download.openmmlab.com/mmcv/dist/cu111/torch1.9.0/mmcv_full-1.4.0-cp37-cp37m-manylinux1_x86_64.whl
+
 wget https://paddle-wheel.bj.bcebos.com/benchmark/mmdetection-2.24.1.zip
 unzip mmdetection-2.24.1.zip
 rm -rf mmdetection-2.24.1.zip
