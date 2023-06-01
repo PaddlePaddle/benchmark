@@ -120,7 +120,8 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
-
+    echo ${train_cmd} >> ${log_file} 
+    cat ${log_file} 
     # 注释掉，会异常退出
     #kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
     #cd -
