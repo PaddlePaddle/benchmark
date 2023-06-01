@@ -46,7 +46,7 @@ function _train(){
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
     train_config="petr_benchmark_configs/${model_name}.py"
     train_options="work_dirs/${model_name}/ "
-
+    sed -i "s/python3/python/g" ./tools/dist_train.sh
     case ${device_num} in
     N1C1) train_cmd="./tools/dist_train.sh ${train_config} 1 --work-dir ${train_options}" ;;
     N1C8) train_cmd="./tools/dist_train.sh ${train_config} 8 --work-dir ${train_options}" ;;
