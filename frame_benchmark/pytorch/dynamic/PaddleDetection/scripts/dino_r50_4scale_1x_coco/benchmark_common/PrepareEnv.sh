@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 
 # install env
-pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/web/simple
 echo "*******prepare benchmark start ***********"
+pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/web/simple
 pip install -U pip
 echo `pip --version`
 
-pip install https://paddle-wheel.bj.bcebos.com/benchmark/torch-1.12.0%2Bcu113-cp37-cp37m-linux_x86_64.whl
-pip install https://paddle-wheel.bj.bcebos.com/benchmark/torchvision-0.13.0%2Bcu113-cp37-cp37m-linux_x86_64.whl
+wget -c --no-proxy ${FLAG_TORCH_WHL_URL}
+tar_file_name=$(echo ${FLAG_TORCH_WHL_URL} | awk -F '/' '{print $NF}')
+dir_name=$(echo ${tar_file_name} | awk -F '.' '{print $1}')
+tar xf ${tar_file_name}
+rm -rf ${tar_file_name}
+pip install ${dir_name}/*
+
 git submodule init
 git submodule update
 python -m pip install -e detectron2
