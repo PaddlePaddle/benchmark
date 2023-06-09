@@ -61,10 +61,11 @@ mkdir -p /data/Dataset/
 mkdir -p /workspace/datset/nuScenes/
 # 由于nuscenes数据集太大，为避免每次下载过于耗时，请将nuscenes数据集下载后，软链到/data/Dataset/nuScenes
 # 并软链到data/nuscenes目录
+current_path=`pwd`
 cp ${BENCHMARK_ROOT}/models_data_cfs/model_benchmark/paddle3d/petr_data/nuscenes.tar ./data
 cd data && tar -xvf nuscenes.tar && cd ../
-ln -s ./data/nuscenes /data/Dataset/nuScenes
-ln -s ./data/nuscenes /workspace/datset/nuScenes/nuscenes
+ln -s ${current_path}/data/nuscenes /data/Dataset/nuScenes
+ln -s ${current_path}/data/nuscenes /workspace/datset/nuScenes/nuscenes
 echo "download data" #waiting data process
 echo "dataset prepared done"
 echo "*******prepare benchmark end***********"
