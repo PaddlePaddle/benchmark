@@ -17,7 +17,7 @@ tar xf ${tar_file_name}
 rm -rf ${tar_file_name}
 pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/web/simple
 pip install ${dir_name}/*
-pip install install accelerate==0.19.0 transformers==4.29.2 numpy scipy datasets
+pip install install accelerate==0.19.0 transformers==4.29.2 networkx==2.6 sentencepiece numpy scipy datasets
 
 rm -rf llama-7b-2l.tar
 wget https://bj.bcebos.com/paddlenlp/models/community/facebook/llama-7b-2l.tar
