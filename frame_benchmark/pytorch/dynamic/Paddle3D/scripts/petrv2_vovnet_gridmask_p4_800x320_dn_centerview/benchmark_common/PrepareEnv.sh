@@ -62,7 +62,8 @@ mkdir -p /data/Dataset/
 # 并软链到data/nuscenes目录
 cp ${BENCHMARK_ROOT}/models_data_cfs/model_benchmark/paddle3d/petr_data/nuscenes.tar ./data
 cd data && tar -xvf nuscenes.tar && cd ../
-ln -s ./data/nuscenes /data/Dataset/nuScenes
+current_path=`pwd`
+ln -s ${current_path}/data/nuscenes /data/Dataset/nuScenes
 
 echo "download data" #waiting data process
 echo "dataset prepared done"
