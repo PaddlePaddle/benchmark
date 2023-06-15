@@ -243,7 +243,7 @@ total_iters = 100
 evaluation = dict(interval=1000, pipeline=test_pipeline)
 find_unused_parameters=False #### when use checkpoint, find_unused_parameters must be False
 checkpoint_config = dict(interval=100, max_keep_ckpts=3)
-runner = dict(type='IterBasedRunner', max_epochs=total_iters)
+runner = dict(type='IterBasedRunner', max_iters=total_iters)
 load_from='ckpts/fcos3d_vovnet_imgbackbone-remapped.pth'
 resume_from=None
 

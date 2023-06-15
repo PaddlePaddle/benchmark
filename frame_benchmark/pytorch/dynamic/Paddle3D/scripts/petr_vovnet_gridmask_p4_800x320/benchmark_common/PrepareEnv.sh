@@ -18,9 +18,13 @@ unzip mmdetection-2.24.1.zip
 rm -rf mmdetection-2.24.1.zip
 mv mmdetection-2.24.1 mmdetection
 cd mmdetection
+export https_proxy=http://172.19.57.45:3128/
+export http_proxy=http://172.19.57.45:3128/
 pip install -r requirements/build.txt
 pip install terminaltables
 python setup.py develop
+unset http_proxy
+unset https_proxy
 cd ..
 
 pip install pycocotools
@@ -31,6 +35,8 @@ unzip mmdetection3d-0.17.1.zip
 rm -rf mmdetection3d-0.17.1.zip
 mv mmdetection3d-0.17.1 mmdetection3d
 cd mmdetection3d
+export https_proxy=http://172.19.57.45:3128/
+export http_proxy=http://172.19.57.45:3128/
 pip install -r requirements/build.txt
 pip install trimesh==2.35.39
 pip install tensorboard
@@ -47,6 +53,8 @@ pip install flake8
 pip install pytest
 pip install importlib-metadata==4.2
 python setup.py develop
+unset http_proxy
+unset https_proxy
 cd ..
 
 pip install einops

@@ -44,7 +44,7 @@ function _analysis_log(){
 function _train(){
     batch_size=${base_batch_size}
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
-    train_config="petr_benchmark_configs/${model_name}.py"
+    train_config="petrv2_vovnet_gridmask_p4_800x320_dn_centerview_benchmark_configs/${model_name}.py"
     train_options="work_dirs/${model_name}/ "
     
     sed -i "s/python3/python/g" ./tools/dist_train.sh
