@@ -141,3 +141,7 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7
 	url = https://github.com/PaddleBenchmark/yolov7.git
 	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleScience/models/cylinder_2d"]
+	path = frame_benchmark/pytorch/dynamic/PaddleScience/models/cylinder_2d
+	url = https://github.com/wangguan1995/cylinder_2d.git
+	branch = main

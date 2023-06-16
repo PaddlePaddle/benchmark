@@ -9,11 +9,11 @@ function _set_params(){
     device_num=${5:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C32 （4机32卡）
  
     backend="pytorch"
-    model_repo="deepxde"          # (必选) 模型套件的名字
-    speed_unit="samples/sec"         # (必选)速度指标单位
-    skip_steps=0                  # (必选)解析日志，跳过模型前几个性能不稳定的step
-    keyword="ips:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
-    convergence_key="loss:"        # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
+    model_repo="PaddleScience"      # (必选) 模型套件的名字
+    speed_unit="samples/sec"        # (必选)速度指标单位
+    skip_steps=0                    # (必选)解析日志，跳过模型前几个性能不稳定的step
+    keyword="ips:"                  # (必选)解析日志，筛选出性能数据所在行的关键字
+    convergence_key="loss:"         # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
 
 #   以下为通用执行命令，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 且格式不要改动,与竞品名称对齐
@@ -22,7 +22,7 @@ function _set_params(){
     num_gpu_devices=${#arr[*]}
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}  # （必填） TRAIN_LOG_DIR  benchmark框架设置该参数为全局变量
     speed_log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}
-    # deepxde_Eular_beam_bs2_fp32_DP_N1C1_log
+    # none_cylinder_2d_bs2_fp32_DP_N1C1_log
     train_log_file=${run_log_path}/${model_repo}_${model_name}_${device_num}_log
     speed_log_file=${speed_log_path}/${model_repo}_${model_name}_${device_num}_speed
 }
@@ -49,7 +49,7 @@ function _train(){
 #   以下为通用执行命令，无特殊可不用修改
 
     export DDE_BACKEND=pytorch
-    train_cmd="python3.10 examples/pinn_forward/Euler_beam.py" 
+    train_cmd="python3.10 cylinder2d_unsteady_Re100_torch.py -e 20" 
 
     echo "train_cmd: ${train_cmd}  log_file: ${train_log_file}"
     timeout 15m ${train_cmd} > ${train_log_file} 2>&1

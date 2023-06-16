@@ -1,4 +1,4 @@
-model_item=Eular_beam
+model_item=Cylinder_2d
 bs_item=1
 fp_item=fp32
 run_mode=DP

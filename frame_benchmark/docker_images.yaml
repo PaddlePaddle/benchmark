@@ -106,4 +106,4 @@ pytorch:
    latent_diffusion_model: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    petrv2_vovnet_gridmask_p4_800x320_dn_centerview: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
    petr_vovnet_gridmask_p4_800x320: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
-
+   cylinder_2d: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
