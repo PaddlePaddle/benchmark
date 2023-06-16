@@ -3,6 +3,7 @@ bs_item=1
 fp_item=fp32
 run_mode=DP
 device_num=N1C1
+pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/web/simple
 #prepare
 bash prepare.sh
 #run
