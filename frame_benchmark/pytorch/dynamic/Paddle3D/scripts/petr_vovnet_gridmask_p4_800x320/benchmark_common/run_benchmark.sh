@@ -38,7 +38,7 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py ${model_item} ${base_batch_size} ${log_file} ${speed_log_file} ${device_num}
+    python analysis_log.py ${model_item} ${base_batch_size} ${log_file} ${speed_log_file} ${device_num} ${fp_item}
 }
 
 function _train(){
