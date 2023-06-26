@@ -11,6 +11,7 @@ rm -rf ${tar_file_name}
 pip install ${dir_name}/*
 
 unset https_proxy && unset http_proxy
+pip install --upgrade pip
 pip install ninja -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -v mmcv-full==1.7.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple
