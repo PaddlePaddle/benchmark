@@ -25,4 +25,8 @@ rm -rf ./runs
 wget https://paddledet.bj.bcebos.com/data/tipc/Arial.ttf
 mkdir -p /root/.config/Ultralytics/
 mv Arial.ttf /root/.config/Ultralytics/
+
+# fix bug to adapt to torch 2.0
+sed -i 's/local_rank/local-rank/g' train.py
+
 echo "*******prepare benchmark end***********"
