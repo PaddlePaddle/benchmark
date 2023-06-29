@@ -18,8 +18,8 @@ unzip mmdetection-2.24.1.zip
 rm -rf mmdetection-2.24.1.zip
 mv mmdetection-2.24.1 mmdetection
 cd mmdetection
-export https_proxy=http://172.19.57.45:3128/
-export http_proxy=http://172.19.57.45:3128/
+export https_proxy=${HTTP_PRO}
+export http_proxy=${HTTP_PRO}
 pip install -r requirements/build.txt
 pip install terminaltables
 python setup.py develop
@@ -35,8 +35,8 @@ unzip mmdetection3d-0.17.1.zip
 rm -rf mmdetection3d-0.17.1.zip
 mv mmdetection3d-0.17.1 mmdetection3d
 cd mmdetection3d
-export https_proxy=http://172.19.57.45:3128/
-export http_proxy=http://172.19.57.45:3128/
+export https_proxy=${HTTP_PRO}
+export http_proxy=${HTTP_PRO}
 pip install -r requirements/build.txt
 pip install trimesh==2.35.39
 pip install tensorboard
