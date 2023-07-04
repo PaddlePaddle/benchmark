@@ -28,4 +28,6 @@ rm -rf data
 wget https://bj.bcebos.com/paddlenlp/models/community/facebook/llama_sft_demo_data.tar.gz
 tar -xvf llama_sft_demo_data.tar.gz
 
+# 解决compile下报错的问题
+ln -s /usr/include/python3.10 /usr/local/include/ 
 echo "*******prepare benchmark end***********"

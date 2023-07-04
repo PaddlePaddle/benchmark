@@ -13,14 +13,18 @@ tar xf ${tar_file_name}
 rm -rf ${tar_file_name}
 pip install ${dir_name}/*
 
+export http_proxy=${HTTP_PRO}
+export https_proxy=${HTTPS_PRO}
 git submodule init
 git submodule update
+unset http_proxy
+unset https_proxy
 python -m pip install -e detectron2
 pip install -e .
 
 
 rm -rf ./datasets/coco/
-wget -nc -P ./datasets/coco/ https://bj.bcebos.com/v1/paddledet/data/cocomini.zip --no-check-certificate
+wget --no-proxy -nc -P ./datasets/coco/ https://bj.bcebos.com/v1/paddledet/data/cocomini.zip --no-check-certificate
 cd ./datasets/coco/ && unzip cocomini.zip
 mv -u cocomini/* ./
 cd ../../
