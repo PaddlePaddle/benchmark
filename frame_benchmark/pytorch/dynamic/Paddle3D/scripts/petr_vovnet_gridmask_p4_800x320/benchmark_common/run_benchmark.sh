@@ -10,12 +10,12 @@ function _set_params(){
     fp_item=${3:-"fp32"}        # fp32 or fp16
     run_mode=${4:-"DP"}
     device_num=${5:-"N1C1"}
+    num_workers=${6:-"4"}               # (可选)
     profiling=${PROFILING:-"false"}
     model_repo="petr"
     speed_unit="samples/sec"
     skip_steps=10
-    max_iter=${6:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
-    num_workers=${7:-"4"}               # (可选)
+    max_iter=${7:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
 
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
@@ -44,7 +44,11 @@ function _analysis_log(){
 function _train(){
     batch_size=${base_batch_size}
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
-    train_config="petr_vovnet_gridmask_p4_800x320_benchmark_configs/${model_name}.py"
+    if [ ${num_workers} != "4" ];then
+            train_config="petr_vovnet_gridmask_p4_800x320_benchmark_configs_ultra/${model_name}.py"
+        else
+            train_config="petr_vovnet_gridmask_p4_800x320_benchmark_configs/${model_name}.py"
+    fi
     train_options="work_dirs/${model_name}/ "
     
     sed -i "s/python3/python/g" ./tools/dist_train.sh
