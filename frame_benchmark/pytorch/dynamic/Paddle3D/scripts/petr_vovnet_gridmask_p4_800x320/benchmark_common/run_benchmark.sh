@@ -12,7 +12,7 @@ function _set_params(){
     device_num=${5:-"N1C1"}
     num_workers=${6:-"4"}               # (可选)
     profiling=${PROFILING:-"false"}
-    model_repo="petr"
+    model_repo="PETR"
     speed_unit="samples/sec"
     skip_steps=10
     max_iter=${7:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
