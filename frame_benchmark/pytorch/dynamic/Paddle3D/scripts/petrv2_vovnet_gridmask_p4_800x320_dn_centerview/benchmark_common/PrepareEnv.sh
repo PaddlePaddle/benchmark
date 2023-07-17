@@ -18,7 +18,7 @@ unzip mmdetection-2.24.1.zip
 rm -rf mmdetection-2.24.1.zip
 mv mmdetection-2.24.1 mmdetection
 cd mmdetection
-export https_proxy=${HTTP_PRO}
+export https_proxy=${HTTPS_PRO}
 export http_proxy=${HTTP_PRO}
 pip install -r requirements/build.txt
 pip install terminaltables
@@ -35,7 +35,7 @@ unzip mmdetection3d-0.17.1.zip
 rm -rf mmdetection3d-0.17.1.zip
 mv mmdetection3d-0.17.1 mmdetection3d
 cd mmdetection3d
-export https_proxy=${HTTP_PRO}
+export https_proxy=${HTTPS_PRO}
 export http_proxy=${HTTP_PRO}
 pip install -r requirements/build.txt
 pip install trimesh==2.35.39
