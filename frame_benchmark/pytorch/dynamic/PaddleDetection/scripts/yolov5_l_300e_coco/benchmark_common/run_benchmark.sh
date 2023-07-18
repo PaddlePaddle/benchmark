@@ -48,7 +48,7 @@ function _set_params(){
         add_options=""
         log_file=${train_log_file}
     fi
-    
+
     if [ ${FLAG_TORCH_COMPILE} = "true" ];then
         use_com_args="--torchcompile"
     else
@@ -61,9 +61,9 @@ function _analysis_log(){
 }
 
 function _train(){
-    batch_size=${base_batch_size}  # 如果模型跑多卡单进程时,请在_train函数中计算出多卡需要的bs
+    batch_size=$(expr ${device_num:3} \* ${base_batch_size})  # 如果模型跑多卡单进程时,请在_train函数中计算出多卡需要的bs
 
-    echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
+    echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${base_batch_size}"
 
     train_config="models/yolov5l.yaml"
     if [ ${fp_item} = "fp16" ]; then
@@ -82,7 +82,7 @@ function _train(){
 
     case ${run_process_type} in
     SingleP) train_cmd="python train.py --weights yolov5s.pt --cfg ${train_config} ${train_options} ${set_fp_item} --device 0" ;;
-    MultiP) 
+    MultiP)
     if [ ${device_num:3} = '32' ];then
         train_cmd="python -m torch.distributed.launch  --master_port=${master_port} --nproc_per_node=8 train.py --weights yolov5s.pt --cfg ${train_config}  ${train_options} ${set_fp_item} --device 0,1,2,3,4,5,6,7"
     elif [ ${device_num:3} = '8' ];then
