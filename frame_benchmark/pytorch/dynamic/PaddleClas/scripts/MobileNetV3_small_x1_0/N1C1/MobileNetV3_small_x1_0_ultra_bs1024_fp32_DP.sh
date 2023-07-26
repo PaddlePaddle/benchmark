@@ -1,9 +1,9 @@
-model_item=ResNet50_fp32_ultra
-bs_item=256
+model_item=MobileNetV3_small_x1_0_ultra
+bs_item=1024
 fp_item=fp32
-run_process_type=MultiP
+run_process_type=SingleP
 run_mode=DP
-device_num=N1C8
+device_num=N1C1
 max_epoch=1
 num_workers=16
 

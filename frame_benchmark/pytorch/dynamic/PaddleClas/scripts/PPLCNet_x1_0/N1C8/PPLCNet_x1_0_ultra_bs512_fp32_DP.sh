@@ -1,9 +1,9 @@
-model_item=PPLCNet_x1_0_fp16_ultra
-bs_item=1024
-fp_item=fp16
-run_process_type=SingleP
+model_item=PPLCNet_x1_0_ultra
+bs_item=512
+fp_item=fp32
+run_process_type=MultiP
 run_mode=DP
-device_num=N1C1
+device_num=N1C8
 max_epoch=1
 num_workers=16
 

@@ -1,5 +1,5 @@
-model_item=MobileNetV3_small_x1_0_fp32_ultra
-bs_item=1024
+model_item=PPLCNet_x1_0_ultra
+bs_item=512
 fp_item=fp32
 run_process_type=SingleP
 run_mode=DP

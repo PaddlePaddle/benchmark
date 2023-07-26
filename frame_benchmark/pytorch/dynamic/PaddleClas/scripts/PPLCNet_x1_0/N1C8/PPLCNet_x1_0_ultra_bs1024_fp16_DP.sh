@@ -1,5 +1,5 @@
-model_item=ResNet50_fp16_ultra
-bs_item=256
+model_item=PPLCNet_x1_0_ultra
+bs_item=1024
 fp_item=fp16
 run_process_type=MultiP
 run_mode=DP

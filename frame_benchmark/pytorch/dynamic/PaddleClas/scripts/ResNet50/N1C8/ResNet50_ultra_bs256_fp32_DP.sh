@@ -1,9 +1,9 @@
-model_item=PPLCNet_x1_0_fp32_ultra
-bs_item=512
+model_item=ResNet50_ultra
+bs_item=256
 fp_item=fp32
-run_process_type=SingleP
+run_process_type=MultiP
 run_mode=DP
-device_num=N1C1
+device_num=N1C8
 max_epoch=1
 num_workers=16
 

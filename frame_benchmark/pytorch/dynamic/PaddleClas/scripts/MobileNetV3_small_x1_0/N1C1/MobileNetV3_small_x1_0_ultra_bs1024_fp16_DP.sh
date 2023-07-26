@@ -1,5 +1,5 @@
-model_item=ResNet50_fp16_ultra
-bs_item=256
+model_item=MobileNetV3_small_x1_0_ultra
+bs_item=1024
 fp_item=fp16
 run_process_type=SingleP
 run_mode=DP
