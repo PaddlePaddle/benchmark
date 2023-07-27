@@ -1,6 +1,6 @@
-model_item=PPLCNet_x1_0_fp16_ultra
+model_item=MobileNetV3_small_x1_0_ultra
 bs_item=1024
-fp_item=fp16
+fp_item=fp32
 run_process_type=MultiP
 run_mode=DP
 device_num=N1C8
