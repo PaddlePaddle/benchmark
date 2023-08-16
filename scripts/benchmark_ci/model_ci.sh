@@ -40,7 +40,7 @@ if [ -f "rerun_model.txt" ];then
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/python3.7.0/lib/python3.7/site-packages/paddle/fluid/../libs/
     cd /workspace/Paddle
     pip uninstall -y paddlepaddle_gpu
-    pip install build/dev_whl/paddlepaddle_gpu*.whl
+    pip install build/python/dist/paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl
     [ $? -ne 0 ] && echo "install paddle failed." && exit 1
     #running model in paddle develop
     mv ${BENCHMARK_ROOT}/logs/static ${BENCHMARK_ROOT}/logs/static_pr
