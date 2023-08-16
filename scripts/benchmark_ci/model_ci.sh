@@ -82,3 +82,4 @@ if [[ -z `cat log.txt | grep success` ]];then
 else
     echo -e "model benchmark ci job success!"
 fi
+
