@@ -3,9 +3,9 @@
 # Usage: CUDA_VISIBLE_DEVICES=xxx bash run_benchmark.sh ${model_name} ${run_mode} ${fp_item} ${bs_item} ${max_iter} ${num_workers}
 
 function _set_params(){
-    model_item=${1:-"stable_diffusion_model"}        # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
+    model_item=${1:-"stable_diffusion-098b_pretrain"}        # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
     base_batch_size=${2:-"2"}            # (必选) 每张卡上的batch_size
-    fp_item=${3:-"fp32"}                 # (必选) fp32|fp16
+    fp_item=${3:-"fp32"}                 # (必选) fp32|fp16|bf16
     run_process_type=${4:-"MultiP"}      # (必选) 单进程 SingleP|多进程 MultiP
     run_mode=${5:-"DP"}                  # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
     device_num=${6:-"N1C1"}              # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）

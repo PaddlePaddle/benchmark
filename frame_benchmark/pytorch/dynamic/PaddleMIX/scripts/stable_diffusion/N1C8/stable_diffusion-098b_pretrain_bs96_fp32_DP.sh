@@ -1,6 +1,6 @@
-model_item=stable_diffusion_model
-bs_item=144
-fp_item=bf16
+model_item=stable_diffusion-098b_pretrain
+bs_item=96
+fp_item=fp32
 run_process_type=MultiP
 run_mode=DP
 device_num=N1C8
