@@ -1,5 +1,5 @@
 model_item=stable_diffusion_model
-bs_item=32
+bs_item=96
 fp_item=fp32
 run_process_type=MultiP
 run_mode=DP

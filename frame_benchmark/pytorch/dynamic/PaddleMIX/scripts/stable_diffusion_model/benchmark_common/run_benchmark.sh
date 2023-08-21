@@ -11,8 +11,8 @@ function _set_params(){
     device_num=${6:-"N1C1"}              # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
     model_repo="diffusers"             # (必选) 模型套件的名字
-    speed_unit="text_image_pair/s"                # (必选)速度指标单位
-    skip_steps=20                        # (必选)解析日志，跳过模型前几个性能不稳定的step
+    speed_unit="sample/sec"                # (必选)速度指标单位
+    skip_steps=4                        # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="ips:"                       # (必选)解析日志，筛选出性能数据所在行的关键字
     convergence_key=""                   # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
     max_iter=${7:-"100"}                 # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
@@ -109,7 +109,7 @@ function _train(){
     SingleP) train_cmd="python ${train_cmd}" ;;
     MultiP)
     if [ ${device_num:3} = '32' ];then 
-        train_cmd="torchrun --nnodes ${node_num} --nproc_per_node ${num_workers} --node_rank ${node_rank} --master_addr ${master_addr} --master_port ${master_port} ${train_cmd}"
+        train_cmd="torchrun --nnodes ${node_num} --nproc_per_node 8 --node_rank ${node_rank} --master_addr ${master_addr} --master_port ${master_port} ${train_cmd}"
     else
         train_cmd="torchrun --nnodes 1 --nproc_per_node 8 ${train_cmd}"
     fi;;
