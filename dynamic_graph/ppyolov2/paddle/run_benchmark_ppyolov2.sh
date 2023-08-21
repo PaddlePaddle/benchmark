@@ -63,7 +63,7 @@ function _train(){
         log_parse_file="ppyolov2_log/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
-
+    echo ${train_cmd}
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"

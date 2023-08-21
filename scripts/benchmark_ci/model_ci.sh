@@ -8,7 +8,7 @@ cd logs
 mkdir static
 mkdir dynamic
 pip install --upgrade pip
-pip install opencv-python==4.2.0.32
+pip install -U opencv-python
 pip install tqdm
 pip install paddlenlp
 export FLAGS_call_stack_level=2
