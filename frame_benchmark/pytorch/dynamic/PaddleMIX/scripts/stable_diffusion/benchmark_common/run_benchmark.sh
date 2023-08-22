@@ -84,11 +84,11 @@ function _train(){
             --gradient_accumulation_steps 1 \
             --learning_rate 1e-4 \
             --weight_decay 0.01 \
-            --max_steps ${MAX_ITER} \
+            --max_steps ${max_iter} \
             --lr_scheduler_type "constant" \
             --warmup_steps 0 \
             --image_logging_steps 1000 \
-            --logging_steps 10 \
+            --logging_steps 5 \
             --resolution 256 \
             --save_steps 10000 \
             --save_total_limit 20 \
