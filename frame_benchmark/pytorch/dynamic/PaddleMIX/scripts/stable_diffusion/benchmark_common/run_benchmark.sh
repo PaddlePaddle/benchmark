@@ -116,7 +116,7 @@ function _train(){
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
 
-    timeout 15m ${train_cmd} > ${log_file} 2>&1
+    timeout 30m ${train_cmd} > ${log_file} 2>&1
     # 这个判断，无论是否成功都是0
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
