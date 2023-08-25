@@ -109,7 +109,7 @@
 [submodule "frame_benchmark/pytorch/dynamic/deepxde/models/deepxde"]
 	path = frame_benchmark/pytorch/dynamic/deepxde/models/deepxde
 	url = https://github.com/PaddleBenchmark/deepxde.git
-	branch = pytorch_benchmark
+	branch = master
 [submodule "frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former"]
 	path = frame_benchmark/pytorch/dynamic/PaddleSeg/models/Mask2Former
 	url = https://github.com/facebookresearch/Mask2Former.git
