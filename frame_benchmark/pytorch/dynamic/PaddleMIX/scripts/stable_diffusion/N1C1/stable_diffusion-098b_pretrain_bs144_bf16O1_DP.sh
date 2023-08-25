@@ -1,6 +1,6 @@
 model_item=stable_diffusion-098b_pretrain
 bs_item=144
-fp_item=bf16
+fp_item=bf16O1
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
