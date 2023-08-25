@@ -52,10 +52,10 @@ function _set_params(){
             use_com_args="--torch_compile False"
     fi
 
-    if [ $fp_item = "fp16" ]; then
+    if [ $fp_item = "fp16O1" ]; then
         use_fp16_cmd="--fp16 True"
     fi 
-    if [ $fp_item = "bf16" ]; then
+    if [ $fp_item = "bf16O1" ]; then
         use_fp16_cmd="--bf16 True"
     fi 
 }
