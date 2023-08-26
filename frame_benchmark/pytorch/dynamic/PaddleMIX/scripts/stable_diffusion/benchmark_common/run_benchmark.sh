@@ -45,19 +45,6 @@ function _set_params(){
             log_file=${train_log_file}
     fi
 
-    use_com_args=""
-    if [ ${FLAG_TORCH_COMPILE:-"False"} = "True" ];then
-            use_com_args="--torch_compile True --torch_compile_backend inductor"
-        else
-            use_com_args="--torch_compile False"
-    fi
-
-    if [ $fp_item = "fp16O1" ]; then
-        use_fp16_cmd="--fp16 True"
-    fi 
-    if [ $fp_item = "bf16O1" ]; then
-        use_fp16_cmd="--bf16 True"
-    fi 
 }
 
 function _analysis_log(){
@@ -69,52 +56,110 @@ function _train(){
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
     rm -rf outputs
 
-    export FLAG_USE_EMA=0
-    export FLAG_BENCHMARK=1
-    export FLAG_RECOMPUTE=1
-    # use torch2.0 scaled dot product attention
-    export FLAG_SDP=1
-    export FLAG_XFORMERS=0
+    if [ ${model_item} = "stable_diffusion-098b_lora" ];then
+        use_com_args=""
+        if [ ${FLAG_TORCH_COMPILE:-"False"} = "True" ];then
+                use_com_args="--dynamo_backend inductor"
+            else
+                use_com_args="--dynamo_backend no"
+        fi
 
-    train_cmd="train_txt2img_laion400m_trainer.py \
-            --do_train \
-            ${use_com_args} \
-            --output_dir ./outputs \
-            --per_device_train_batch_size ${base_batch_size} \
-            --gradient_accumulation_steps 1 \
-            --learning_rate 1e-4 \
-            --weight_decay 0.01 \
-            --max_steps ${max_iter} \
-            --lr_scheduler_type "constant" \
-            --warmup_steps 0 \
-            --image_logging_steps 1000 \
-            --logging_steps 5 \
-            --resolution 256 \
-            --save_steps 10000 \
-            --save_total_limit 20 \
-            --seed 23 \
-            --dataloader_num_workers 8 \
-            --pretrained_model_name_or_path ./CompVis-stable-diffusion-v1-4-paddle-init \
-            --file_list ./data/filelist/train.filelist.list \
-            --model_max_length 77 \
-            --max_grad_norm -1 \
-            --disable_tqdm True \
-            --tf32 True \
-            --optim adamw_torch \
-            --ddp_find_unused_parameters False \
-            ${use_fp16_cmd}
-        "
-
-    case ${run_process_type} in
-    SingleP) train_cmd="python ${train_cmd}" ;;
-    MultiP)
-    if [ ${device_num:3} = '32' ];then 
-        train_cmd="torchrun --nnodes ${node_num} --nproc_per_node 8 --node_rank ${node_rank} --master_addr ${master_addr} --master_port ${master_port} ${train_cmd}"
+        if [ $fp_item = "fp16O1" ]; then
+            use_fp16_cmd="--mixed_precision fp16"
+        fi 
+        if [ $fp_item = "bf16O1" ]; then
+            use_fp16_cmd="--mixed_precision bf16"
+        fi 
+        # use torch2.0 scaled dot product attention
+        export FLAG_SDP=1
+        train_cmd="train_text_to_image_lora.py \
+                ${use_com_args} \
+                --output_dir ./outputs \
+                --train_batch_size=${base_batch_size} \
+                --gradient_accumulation_steps=1 \
+                --logging_steps=5 \
+                --max_train_steps=${max_iter} \
+                --pretrained_model_name_or_path=./CompVis-stable-diffusion-v1-4-paddle-init \
+                --resolution=512 --random_flip \
+                --checkpointing_steps=99999 \
+                --learning_rate=1e-04 --lr_scheduler="constant" --lr_warmup_steps=0 \
+                --seed=42 \
+                --gradient_checkpointing \
+                --dataloader_num_workers 8 \
+                --allow_tf32 \
+                ${use_fp16_cmd}
+                "
+        case ${run_process_type} in
+        SingleP) train_cmd="accelerate launch --config_file n1c1.yaml ${train_cmd}" ;;
+        MultiP)
+        if [ ${device_num:3} = '32' ];then 
+            train_cmd="accelerate launch --config_file n4c32.yaml --num_processes ${num_workers} --num_machines ${node_num} --machine_rank ${node_rank} --main_process_ip ${master_addr} --main_process_port ${master_port} ${train_cmd}"
+        else
+            train_cmd="accelerate launch --config_file n1c8.yaml ${train_cmd}"
+        fi;;
+        *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
+        esac
     else
-        train_cmd="torchrun --nnodes 1 --nproc_per_node 8 ${train_cmd}"
-    fi;;
-    *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
-    esac
+        use_com_args=""
+        if [ ${FLAG_TORCH_COMPILE:-"False"} = "True" ];then
+                use_com_args="--torch_compile True --torch_compile_backend inductor"
+            else
+                use_com_args="--torch_compile False"
+        fi
+
+        if [ $fp_item = "fp16O1" ]; then
+            use_fp16_cmd="--fp16 True"
+        fi 
+        if [ $fp_item = "bf16O1" ]; then
+            use_fp16_cmd="--bf16 True"
+        fi 
+        export FLAG_USE_EMA=0
+        export FLAG_BENCHMARK=1
+        export FLAG_RECOMPUTE=1
+        # use torch2.0 scaled dot product attention
+        export FLAG_SDP=1
+        export FLAG_XFORMERS=0
+
+        train_cmd="train_txt2img_laion400m_trainer.py \
+                --do_train \
+                ${use_com_args} \
+                --output_dir ./outputs \
+                --per_device_train_batch_size ${base_batch_size} \
+                --gradient_accumulation_steps 1 \
+                --learning_rate 1e-4 \
+                --weight_decay 0.01 \
+                --max_steps ${max_iter} \
+                --lr_scheduler_type "constant" \
+                --warmup_steps 0 \
+                --image_logging_steps 1000 \
+                --logging_steps 5 \
+                --resolution 256 \
+                --save_steps 10000 \
+                --save_total_limit 20 \
+                --seed 23 \
+                --dataloader_num_workers 8 \
+                --pretrained_model_name_or_path ./CompVis-stable-diffusion-v1-4-paddle-init \
+                --file_list ./data/filelist/train.filelist.list \
+                --model_max_length 77 \
+                --max_grad_norm -1 \
+                --disable_tqdm True \
+                --tf32 True \
+                --optim adamw_torch \
+                --ddp_find_unused_parameters False \
+                ${use_fp16_cmd}
+            "
+
+        case ${run_process_type} in
+        SingleP) train_cmd="python ${train_cmd}" ;;
+        MultiP)
+        if [ ${device_num:3} = '32' ];then 
+            train_cmd="torchrun --nnodes ${node_num} --nproc_per_node 8 --node_rank ${node_rank} --master_addr ${master_addr} --master_port ${master_port} ${train_cmd}"
+        else
+            train_cmd="torchrun --nnodes 1 --nproc_per_node 8 ${train_cmd}"
+        fi;;
+        *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
+        esac
+    fi
 
     timeout 30m ${train_cmd} > ${log_file} 2>&1
     # 这个判断，无论是否成功都是0
