@@ -818,6 +818,13 @@ def main():
     batch_ips_avg = AverageStatistical()
     sample_per_cards = args.train_batch_size * args.gradient_accumulation_steps
 
+    batch_size_chunks = []
+    if args.resolution == 512:
+        if args.train_batch_size == 104:
+            batch_size_chunks = [56, 48]
+        elif args.train_batch_size == 96:
+            batch_size_chunks = [56, 40]
+    
     for epoch in range(first_epoch, args.num_train_epochs):
         unet.train()
         train_loss = 0.0
@@ -832,8 +839,13 @@ def main():
                 continue
 
             with accelerator.accumulate(unet):
-                # Convert images to latent space
-                latents = vae.encode(batch["pixel_values"].to(dtype=weight_dtype)).latent_dist.sample()
+                if len(batch_size_chunks) > 1:
+                    latents_list = []
+                    for mini_pixel_values in batch["pixel_values"].to(dtype=weight_dtype).split(batch_size_chunks, dim=0):
+                        latents_list.append(vae.encode(mini_pixel_values).latent_dist.sample())
+                    latents = torch.cat(latents_list, dim=0)
+                else:
+                    latents = vae.encode(batch["pixel_values"].to(dtype=weight_dtype)).latent_dist.sample()
                 latents = latents * vae.config.scaling_factor
 
                 # Sample noise that we'll add to the latents
