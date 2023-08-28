@@ -107,4 +107,4 @@ pytorch:
    petrv2_vovnet_gridmask_p4_800x320_dn_centerview: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
    petr_vovnet_gridmask_p4_800x320: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8.4.1-nccl2.12.12
    Cylinder_2d: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
-   stable_diffusion_model: registry.baidubce.com/paddlepaddle/paddle:latest-dev-cuda12.0-cudnn8.9-trt8.6-gcc12.2
+   stable_diffusion: registry.baidubce.com/paddlepaddle/paddle:latest-dev-cuda12.0-cudnn8.9-trt8.6-gcc12.2
