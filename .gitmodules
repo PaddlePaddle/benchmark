@@ -145,3 +145,6 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleScience/models/cylinder_2d
 	url = https://github.com/wangguan1995/cylinder_2d.git
 	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleMIX/models/diffusers"]
+	path = frame_benchmark/pytorch/dynamic/PaddleMIX/models/diffusers
+	url = https://github.com/huggingface/diffusers
