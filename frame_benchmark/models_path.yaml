@@ -107,3 +107,4 @@ pytorch:
    petrv2_vovnet_gridmask_p4_800x320_dn_centerview: benchmark/frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR
    petr_vovnet_gridmask_p4_800x320: benchmark/frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR
    Cylinder_2d: benchmark/frame_benchmark/pytorch/dynamic/PaddleScience/models/cylinder_2d
+   llm: /root/paddlejob/lugim/benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/scripts/llm
