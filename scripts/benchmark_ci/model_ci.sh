@@ -8,7 +8,7 @@ cd logs
 mkdir static
 mkdir dynamic
 pip install --upgrade pip
-pip install opencv-python==4.2.0.32
+pip install -U opencv-python
 pip install tqdm
 pip install paddlenlp
 export FLAGS_call_stack_level=2
@@ -40,7 +40,7 @@ if [ -f "rerun_model.txt" ];then
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/python3.7.0/lib/python3.7/site-packages/paddle/fluid/../libs/
     cd /workspace/Paddle
     pip uninstall -y paddlepaddle_gpu
-    pip install build/python/dist/paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl
+    pip install build/dev_whl/paddlepaddle_gpu*.whl
     [ $? -ne 0 ] && echo "install paddle failed." && exit 1
     #running model in paddle develop
     mv ${BENCHMARK_ROOT}/logs/static ${BENCHMARK_ROOT}/logs/static_pr

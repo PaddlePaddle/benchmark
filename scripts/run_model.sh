@@ -42,7 +42,7 @@ function _run(){
         kill ${gpu_memory_pid}
         awk 'BEGIN {max = 0} {if(NR>1){if ($1 > max) max=$1}} END {print "MAX_GPU_MEMORY_USE=", max}' gpu_use.log
         job_et=`date '+%Y%m%d%H%M%S'`
-        _collect_occupancy
+        #_collect_occupancy
     elif [[ ${index} -eq 3 ]]; then
         job_bt=`date '+%Y%m%d%H%M%S'`
         _train
