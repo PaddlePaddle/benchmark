@@ -96,17 +96,9 @@ def main():
             torch_dtype=torch_dtype,
         )
     else:
-        free_in_GB = int(torch.cuda.mem_get_info()[0] / 1024**3)
-        max_memory = f"{free_in_GB-2}GB"
-        max_memory = f"30GB"
-        n_gpus = torch.cuda.device_count()
-        max_memory = {i: max_memory for i in range(n_gpus)}
-        max_memory["cpu"] = "30GB"
-
         model = AutoModelForCausalLM.from_pretrained(
             model_args.model_name_or_path,
             torch_dtype=torch_dtype,
-            max_memory=max_memory,
         )
     if model_args.lora:
         target_modules = get_lora_target_modules(model_args.model_name_or_path)

@@ -23,6 +23,7 @@ function _set_params(){
     dataset_name_or_path=${9:-"llm_benchmark_zh"}
     learning_rate=${10:-"3e-05"}
     gradient_checkpointing=${11:-"true"}
+    gradient_accumulation_steps=${12:-"8"}
     is_large_model=True           # (可选)普通模型默认为False，如果添加大模型且只取一条ips设置为True
 
     #   以下为通用拼接log路径，无特殊可不用修改
@@ -71,6 +72,7 @@ function _train(){
             --dataset_name_or_path ${dataset_name_or_path} \
             --per_device_train_batch_size ${base_batch_size} \
             --output_dir output \
+            --gradient_accumulation_steps ${gradient_accumulation_steps} \
             --fp16 1 \
             --fp16_opt_level O2 \
             --num_train_epochs 1 \
