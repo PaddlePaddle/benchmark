@@ -12,7 +12,7 @@ function _set_params(){
     device_num=${5:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
     model_repo="PaddleNLP"          # (必选) 模型套件的名字
-    speed_unit="tokens/sec"         # (必选)速度指标单位
+    speed_unit="tokens/s"          # (必选)速度指标单位
     skip_steps=0                  # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="Effective_Tokens_per_second:"                # (必选)解析日志，筛选出性能数据所在行的关键字 
     
@@ -46,19 +46,21 @@ function _set_params(){
     fi
 }
 
-# function _analysis_log(){
-#     python ${BENCHMARK_ROOT}/scripts/analysis.py \
-#         --filename ${log_file} \
-#         --speed_log_file ${speed_log_file} \
-#         --model_name ${model_name} \
-#         --base_batch_size ${base_batch_size} \
-#         --run_mode ${run_mode} \
-#         --fp_item ${fp_item} \
-#         --keyword ${keyword} \
-#         --skip_steps ${skip_steps} \
-#         --device_num ${device_num} \
-#         --is_large_model ${is_large_model} \
-# }
+function _analysis_log(){
+    python analysis_log.py \
+        --filename ${log_file} \
+        --speed_log_file ${speed_log_file} \
+        --model_name ${model_name} \
+        --base_batch_size ${base_batch_size} \
+        --run_mode ${run_mode} \
+        --fp_item ${fp_item} \
+        --keyword ${keyword} \
+        --skip_steps ${skip_steps} \
+        --device_num ${device_num} \
+        --is_large_model ${is_large_model} \
+        --speed_unit ${speed_unit} \
+        --convergence_key ${convergence_key}
+}
 
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
@@ -77,8 +79,6 @@ function _train(){
             --save_strategy no \
             --src_length 1024 \
             --max_length ${max_length} \
-            --fp16 1 \
-            --fp16_opt_level O2 \
             --do_train 1 \
             --do_eval 0 \
             --gradient_checkpointing ${gradient_checkpointing} \
@@ -109,6 +109,6 @@ echo "---------model_commit is ${model_commit}"
 
 job_bt=`date '+%Y%m%d%H%M%S'`
 _train
-# job_et=`date '+%Y%m%d%H%M%S'`
-# export model_run_time=$((${job_et}-${job_bt}))
-# _analysis_log
+job_et=`date '+%Y%m%d%H%M%S'`
+export model_run_time=$((${job_et}-${job_bt}))
+_analysis_log

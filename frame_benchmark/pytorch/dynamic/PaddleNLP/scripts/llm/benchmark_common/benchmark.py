@@ -18,15 +18,6 @@ from transformers import (
 
 logger = logging.getLogger(__name__)
 
-class CustomTrainer(Trainer):
-    total_observed_tokens = 0
-    total_effective_tokens = 0
-
-    def training_step(self, model, inputs):
-        input_ids = inputs["input_ids"]
-        self.total_observed_tokens += int(input_ids.shape[0] * input_ids.shape[1])
-        self.total_effective_tokens += int((input_ids != self.tokenizer.pad_token_id).sum())
-        return super().training_step(model, inputs)
 
 def get_lora_target_modules(model_name_or_path):
     # Not yet support RowParallelLinear
@@ -105,9 +96,17 @@ def main():
             torch_dtype=torch_dtype,
         )
     else:
+        free_in_GB = int(torch.cuda.mem_get_info()[0] / 1024**3)
+        max_memory = f"{free_in_GB-2}GB"
+        max_memory = f"30GB"
+        n_gpus = torch.cuda.device_count()
+        max_memory = {i: max_memory for i in range(n_gpus)}
+        max_memory["cpu"] = "30GB"
+
         model = AutoModelForCausalLM.from_pretrained(
             model_args.model_name_or_path,
             torch_dtype=torch_dtype,
+            max_memory=max_memory,
         )
     if model_args.lora:
         target_modules = get_lora_target_modules(model_args.model_name_or_path)
@@ -157,7 +156,7 @@ def main():
     dataset = dataset.map(lambda example: preprocess_function(example, data_args.src_length, data_args.max_length), remove_columns=["src", "tgt"])
     data_collator = DataCollatorForSeq2Seq(return_tensors="pt", tokenizer=tokenizer)
 
-    trainer = CustomTrainer(
+    trainer = Trainer(
         model=model,
         tokenizer=tokenizer,
         train_dataset=dataset,
@@ -167,9 +166,11 @@ def main():
     )
     model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
     train_metrics = trainer.train()
-    tokens_per_second = trainer.total_observed_tokens / train_metrics.metrics["train_runtime"]
-    effective_tokens_per_second = trainer.total_effective_tokens / train_metrics.metrics["train_runtime"]
-    print(f"Tokens_per_second: {tokens_per_second:.2f} ")
+
+    total_effective_tokens = sum([len(i["input_ids"]) for i in dataset]) * training_args.num_train_epochs
+    effective_tokens_per_second = total_effective_tokens / train_metrics.metrics["train_runtime"]
+    train_loss = train_metrics.metrics["train_loss"]
+    print(f"train_loss: {train_loss:.2f} ")
     print(f"Effective_Tokens_per_second: {effective_tokens_per_second:.2f} ")
 
 
