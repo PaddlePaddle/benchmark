@@ -159,7 +159,7 @@ def main():
     model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
     train_metrics = trainer.train()
 
-    total_effective_tokens = sum([len(i["input_ids"]) for i in dataset]) * training_args.num_train_epochs
+    total_effective_tokens = sum([len(i["input_ids"]) for i in trainer.train_dataset]) * training_args.num_train_epochs
     effective_tokens_per_second = total_effective_tokens / train_metrics.metrics["train_runtime"]
     train_loss = train_metrics.metrics["train_loss"]
     print(f"train_loss: {train_loss:.2f} ")
