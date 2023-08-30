@@ -61,8 +61,7 @@ function _analysis_log(){
         --device_num ${device_num} \
         --is_large_model ${is_large_model} \
         --speed_unit ${speed_unit} \
-        --convergence_key ${convergence_key} \
-        --num_train_epochs ${num_train_epochs}
+        --convergence_key ${convergence_key}
 }
 
 function _train(){
@@ -77,7 +76,7 @@ function _train(){
             --gradient_accumulation_steps ${gradient_accumulation_steps} \
             --fp16 1 \
             --fp16_opt_level O2 \
-            --num_train_epochs 1 \
+            --num_train_epochs ${num_train_epochs} \
             --learning_rate ${learning_rate} \
             --evaluation_strategy no \
             --save_strategy no \
