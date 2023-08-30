@@ -24,6 +24,7 @@ function _set_params(){
     learning_rate=${10:-"3e-05"}
     gradient_checkpointing=${11:-"true"}
     gradient_accumulation_steps=${12:-"8"}
+    num_train_epochs=${13:-"1"}
     is_large_model=True           # (可选)普通模型默认为False，如果添加大模型且只取一条ips设置为True
 
     #   以下为通用拼接log路径，无特殊可不用修改
@@ -60,7 +61,8 @@ function _analysis_log(){
         --device_num ${device_num} \
         --is_large_model ${is_large_model} \
         --speed_unit ${speed_unit} \
-        --convergence_key ${convergence_key}
+        --convergence_key ${convergence_key} \
+        --num_train_epochs ${num_train_epochs}
 }
 
 function _train(){
