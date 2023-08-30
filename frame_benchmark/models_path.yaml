@@ -108,3 +108,4 @@ pytorch:
    petr_vovnet_gridmask_p4_800x320: benchmark/frame_benchmark/pytorch/dynamic/Paddle3D/models/PETR
    Cylinder_2d: benchmark/frame_benchmark/pytorch/dynamic/PaddleScience/models/cylinder_2d
    stable_diffusion: benchmark/frame_benchmark/pytorch/dynamic/PaddleMIX/models/diffusers
+   llama_pretrain: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/PaddleNLP_LLAMA_torch
