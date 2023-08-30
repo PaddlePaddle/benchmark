@@ -1,4 +1,4 @@
-model_item="huggyllama-llama-7b_sft"  
+model_item="facebook-llama-7b_sft"  
 base_batch_size=8    
 fp_item="fp16"    
 run_mode="SD8"    
