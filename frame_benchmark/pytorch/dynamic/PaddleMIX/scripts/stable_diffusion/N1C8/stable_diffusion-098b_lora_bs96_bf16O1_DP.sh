@@ -1,5 +1,5 @@
 model_item=stable_diffusion-098b_lora
-bs_item=104
+bs_item=96
 fp_item=bf16O1
 run_process_type=MultiP
 run_mode=DP
