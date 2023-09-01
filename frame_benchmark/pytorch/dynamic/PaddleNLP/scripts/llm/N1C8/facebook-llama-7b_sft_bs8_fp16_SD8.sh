@@ -12,5 +12,6 @@ gradient_checkpointing="true"
 gradient_accumulation_steps=5
 num_train_epochs=5
 bash prepare.sh
+bash llama-7b.sh
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ${model_item} ${base_batch_size} ${fp_item} ${run_mode} ${device_num} ${model_name_or_path} ${lora} ${max_length} ${dataset_name_or_path} ${learning_rate} ${gradient_checkpointing} ${gradient_accumulation_steps} ${num_train_epochs} 2>&1;
