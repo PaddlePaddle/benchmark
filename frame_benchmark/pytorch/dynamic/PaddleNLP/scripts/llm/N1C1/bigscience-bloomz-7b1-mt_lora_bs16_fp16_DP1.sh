@@ -1,4 +1,4 @@
-model_item="bigscience-bloomz-7b1_lora"  
+model_item="bigscience-bloomz-7b1-mt_lora"  
 base_batch_size=8
 fp_item="fp16"    
 run_mode="DP1"    

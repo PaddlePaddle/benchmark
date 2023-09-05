@@ -1,4 +1,4 @@
-model_item="bigscience-bloomz-7b1_sft"  
+model_item="bigscience-bloomz-7b1-mt_sft"  
 base_batch_size=2    
 fp_item="fp16"    
 run_mode="SD8"    
