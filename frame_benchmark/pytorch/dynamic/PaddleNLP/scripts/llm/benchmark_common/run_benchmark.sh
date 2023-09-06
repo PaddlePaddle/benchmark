@@ -93,7 +93,7 @@ function _train(){
         train_cmd="python -m torch.distributed.run --nproc_per_node=8 benchmark.py --deepspeed ds_config_stage3.json ${train_options}" ;
     fi
     
-    echo ${train_cmd}
+    echo "train_cmd: ${train_cmd}  log_file: ${log_file}"
     ${train_cmd} > ${log_file} 2>&1
 
     if [ $? -ne 0 ];then
