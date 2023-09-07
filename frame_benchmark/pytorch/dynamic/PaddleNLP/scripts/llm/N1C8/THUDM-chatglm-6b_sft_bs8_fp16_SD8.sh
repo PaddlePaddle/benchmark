@@ -1,5 +1,5 @@
 model_item="THUDM-chatglm-6b_sft"  
-base_batch_size=2    
+base_batch_size=8    
 fp_item="fp16"    
 run_mode="SD8"    
 device_num="N1C8"
