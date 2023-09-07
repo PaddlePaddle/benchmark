@@ -9,7 +9,7 @@ max_length=2048
 dataset_name_or_path="llm_benchmark_zh"
 learning_rate="3e-05"
 gradient_checkpointing="true"
-gradient_accumulation_steps=2
+gradient_accumulation_steps=20
 num_train_epochs=2
 bash prepare.sh
 bash bloom-7b1.sh
