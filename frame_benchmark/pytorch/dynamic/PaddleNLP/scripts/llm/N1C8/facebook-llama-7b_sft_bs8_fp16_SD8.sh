@@ -1,5 +1,5 @@
 model_item="facebook-llama-7b_sft"  
-base_batch_size=8    
+base_batch_size=8   
 fp_item="fp16"    
 run_mode="SD8"    
 device_num="N1C8"

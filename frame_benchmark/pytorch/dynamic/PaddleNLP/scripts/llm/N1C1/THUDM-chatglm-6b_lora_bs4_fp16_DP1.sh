@@ -9,7 +9,7 @@ max_length=2000
 dataset_name_or_path="llm_benchmark_zh"
 learning_rate="3e-04"
 gradient_checkpointing="1"
-gradient_accumulation_steps=8
+gradient_accumulation_steps=3
 num_train_epochs=2
 bash prepare.sh
 bash chatglm-6b.sh

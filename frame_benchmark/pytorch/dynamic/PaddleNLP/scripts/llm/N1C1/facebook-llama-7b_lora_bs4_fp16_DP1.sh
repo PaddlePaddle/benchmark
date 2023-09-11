@@ -1,5 +1,5 @@
 model_item="facebook-llama-7b_lora"  
-base_batch_size=16
+base_batch_size=4
 fp_item="fp16"    
 run_mode="DP1"    
 device_num="N1C1"
@@ -9,7 +9,7 @@ max_length=2048
 dataset_name_or_path="llm_benchmark_en"
 learning_rate="3e-04"
 gradient_checkpointing="1"
-gradient_accumulation_steps=2
+gradient_accumulation_steps=3
 num_train_epochs=2
 bash prepare.sh
 bash llama-7b.sh
