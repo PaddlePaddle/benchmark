@@ -9,7 +9,7 @@ max_length=2048
 dataset_name_or_path="llm_benchmark_en"
 learning_rate="3e-05"
 gradient_checkpointing="true"
-gradient_accumulation_steps=5
+gradient_accumulation_steps=1
 num_train_epochs=5
 bash prepare.sh
 bash llama-7b.sh

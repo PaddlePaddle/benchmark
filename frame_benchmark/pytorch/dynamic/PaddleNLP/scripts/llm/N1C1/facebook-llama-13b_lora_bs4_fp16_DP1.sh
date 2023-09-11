@@ -10,7 +10,7 @@ dataset_name_or_path="llm_benchmark_en"
 learning_rate="3e-04"
 gradient_checkpointing="1"
 num_train_epochs=2
-gradient_accumulation_steps = 2
+gradient_accumulation_steps=4
 bash prepare.sh
 bash llama-13b.sh
 export CUDA_VISIBLE_DEVICES=0
