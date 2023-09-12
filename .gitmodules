@@ -148,3 +148,6 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleMIX/models/diffusers"]
 	path = frame_benchmark/pytorch/dynamic/PaddleMIX/models/diffusers
 	url = https://github.com/huggingface/diffusers
+[submodule "frame_benchmark/pytorch/dynamic/PaddleMIX/models/LAVIS"]
+	path = frame_benchmark/pytorch/dynamic/PaddleMIX/models/LAVIS
+	url = https://github.com/wjm202/LAVIS.git
