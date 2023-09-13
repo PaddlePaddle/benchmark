@@ -84,6 +84,9 @@ def main():
     if "llama" in model_args.model_name_or_path:
         tokenizer = LlamaTokenizer.from_pretrained(model_args.model_name_or_path, use_fast=False)
         tokenizer.pad_token_id = tokenizer.eos_token_id
+    elif "chatglm-6b" in model_args.model_name_or_path:
+        from tokenization_chatglm import ChatGLMTokenizer
+        tokenizer = ChatGLMTokenizer.from_pretrained(model_args.model_name_or_path)
     else:
         tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, trust_remote_code=True)
     torch_dtype = torch.float16 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32)
