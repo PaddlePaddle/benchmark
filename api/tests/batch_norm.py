@@ -45,9 +45,7 @@ class BatchNormConfig(APIConfig):
     def convert_to_fp16(self):
         super(BatchNormConfig, self).convert_to_fp16()
         if self.data_format == "NHWC":
-            paddle.fluid.set_flags({
-                'FLAGS_cudnn_batchnorm_spatial_persistent': 1
-            })
+            paddle.set_flags({'FLAGS_cudnn_batchnorm_spatial_persistent': 1})
         self._set_param_dtype()
 
 
