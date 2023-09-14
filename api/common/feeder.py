@@ -23,27 +23,27 @@ def _convert_paddle_dtype(dtype, to_string=True):
         dtype = dtype_str if to_string else np.dtype(np_dtype)
         return dtype
 
-    if not isinstance(dtype, paddle.fluid.core.VarDesc.VarType):
-        raise TypeError("dtype is not of type fluid.core.VarDesc.VarType")
-    if dtype == paddle.fluid.core.VarDesc.VarType.FP32:
+    if not isinstance(dtype, paddle.base.core.VarDesc.VarType):
+        raise TypeError("dtype is not of type base.core.VarDesc.VarType")
+    if dtype == paddle.base.core.VarDesc.VarType.FP32:
         return _trans(to_string, "float32", np.float32)
-    elif dtype == paddle.fluid.core.VarDesc.VarType.FP64:
+    elif dtype == paddle.base.core.VarDesc.VarType.FP64:
         return _trans(to_string, "float64", np.float64)
-    elif dtype == paddle.fluid.core.VarDesc.VarType.FP16:
+    elif dtype == paddle.base.core.VarDesc.VarType.FP16:
         return _trans(to_string, "float16", np.float16)
-    elif dtype == paddle.fluid.core.VarDesc.VarType.INT32:
+    elif dtype == paddle.base.core.VarDesc.VarType.INT32:
         return _trans(to_string, "int32", np.int32)
-    elif dtype == paddle.fluid.core.VarDesc.VarType.INT16:
+    elif dtype == paddle.base.core.VarDesc.VarType.INT16:
         return _trans(to_string, "int16", np.int16)
-    elif dtype == paddle.fluid.core.VarDesc.VarType.INT64:
+    elif dtype == paddle.base.core.VarDesc.VarType.INT64:
         return _trans(to_string, "int64", np.int64)
-    elif dtype == paddle.fluid.core.VarDesc.VarType.BOOL:
+    elif dtype == paddle.base.core.VarDesc.VarType.BOOL:
         return _trans(to_string, "bool", np.bool)
-    elif dtype == paddle.fluid.core.VarDesc.VarType.INT16:
+    elif dtype == paddle.base.core.VarDesc.VarType.INT16:
         return _trans(to_string, "uint16", np.uint16)
-    elif dtype == paddle.fluid.core.VarDesc.VarType.UINT8:
+    elif dtype == paddle.base.core.VarDesc.VarType.UINT8:
         return _trans(to_string, "uint8", np.uint8)
-    elif dtype == paddle.fluid.core.VarDesc.VarType.INT8:
+    elif dtype == paddle.base.core.VarDesc.VarType.INT8:
         return _trans(to_string, "int8", np.int8)
     else:
         raise ValueError("Unsupported dtype %s" % dtype)
@@ -188,7 +188,7 @@ class FeederAdapter(object):
         self.__feed_list = feed_list
 
     def to_paddle(self, feed_vars=None):
-        import paddle.fluid as fluid
+        import paddle
 
         if self.__framework == "paddle":
             return self.__feed_list
@@ -212,7 +212,7 @@ class FeederAdapter(object):
                 # On dynamic mode, the check is skipped.
                 if feed_vars is not None:
                     var = feed_vars[i]
-                    if var.type != fluid.core.VarDesc.VarType.LOD_TENSOR:
+                    if var.type != paddle.base.core.VarDesc.VarType.LOD_TENSOR:
                         raise TypeError(
                             "Feed data of non LoDTensor is not supported.")
 
