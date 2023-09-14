@@ -109,3 +109,4 @@ pytorch:
    Cylinder_2d: benchmark/frame_benchmark/pytorch/dynamic/PaddleScience/models/cylinder_2d
    stable_diffusion: benchmark/frame_benchmark/pytorch/dynamic/PaddleMIX/models/diffusers
    llama_pretrain: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/PaddleNLP_LLAMA_torch
+   llm: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers
