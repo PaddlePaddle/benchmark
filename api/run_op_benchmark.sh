@@ -59,57 +59,36 @@ install_package() {
 run_op_benchmark() {
   local testing_mode=$1
 
-  OUTPUT_ROOT=${OP_BENCHMARK_ROOT}/logs
+  if [ "${op_type}" = "all" ]; then
+    OUTPUT_ROOT=${OP_BENCHMARK_ROOT}/logs
+    op_type="None"
+  else
+    OUTPUT_ROOT=${OP_BENCHMARK_ROOT}/logs/${op_type}
+  fi
   if [ ! -d ${OUTPUT_ROOT} ]; then
     mkdir -p ${OUTPUT_ROOT}
   fi
   
   timestamp=`date '+%Y%m%d-%H%M%S'`
   if [ ${test_module_name} == "tests" ]; then
-    output_dir=${OUTPUT_ROOT}/${test_module_name}_${testing_mode}/${timestamp}
+    subdir=${test_module_name}_${testing_mode}
   else
-    output_dir=${OUTPUT_ROOT}/${test_module_name}/${timestamp}
+    subdir=${test_module_name}
   fi
+  output_dir=${OUTPUT_ROOT}/${subdir}/${timestamp}
   if [ ! -d ${output_dir} ]; then
     mkdir -p ${output_dir}
   fi
   echo "-- output_dir: ${output_dir}"
   
   config_dir=${OP_BENCHMARK_ROOT}/tests_v2/configs
+  #config_dir=${OP_BENCHMARK_ROOT}/tests_v2/op_configs
   echo "-- config_dir: ${config_dir}"
   
   tests_dir=${OP_BENCHMARK_ROOT}/${test_module_name}
   echo "-- tests_dir: ${tests_dir}"
-  log_path=${OUTPUT_ROOT}/log_${test_module_name}_${timestamp}.txt
-  bash ${OP_BENCHMARK_ROOT}/deploy/main_control.sh ${tests_dir} ${config_dir} ${output_dir} ${gpu_ids} ${device_type} "both" "none" "both" "${testing_mode}" "None" "${precision}" > ${log_path} 2>&1 &
-}
-
-run_specified_op() {
-  local testing_mode=$1
-
-  OUTPUT_ROOT=${OP_BENCHMARK_ROOT}/logs/${op_type}
-  if [ ! -d ${OUTPUT_ROOT} ]; then
-    mkdir -p ${OUTPUT_ROOT}
-  fi
-
-  timestamp=`date '+%Y%m%d-%H%M%S'`
-  if [ ${test_module_name} == "tests" ]; then
-    output_dir=${OUTPUT_ROOT}/${test_module_name}_${testing_mode}/${timestamp}
-  else
-    output_dir=${OUTPUT_ROOT}/${test_module_name}/${timestamp}
-  fi
-  if [ ! -d ${output_dir} ]; then
-    mkdir -p ${output_dir}
-  fi
-  echo "-- output_dir: ${output_dir}"
-  
-  config_dir=${OP_BENCHMARK_ROOT}/tests_v2/op_configs
-  echo "-- config_dir: ${config_dir}"
- 
-  tests_dir=${OP_BENCHMARK_ROOT}/${test_module_name}
-  echo "-- tests_dir: ${tests_dir}"
-  log_path=${OUTPUT_ROOT}/log_${test_module_name}_${timestamp}.txt
-  bash ${OP_BENCHMARK_ROOT}/deploy/main_control.sh ${tests_dir} ${config_dir} ${output_dir} "${gpu_ids}" "gpu" "${task}" "none" "${framework}" "${testing_mode}" "${op_type}" "${precision}" > ${log_path} 2>&1 &
+  log_path=${OUTPUT_ROOT}/log_${subdir}_${timestamp}.txt
+  bash ${OP_BENCHMARK_ROOT}/deploy/main_control.sh ${tests_dir} ${config_dir} ${output_dir} ${gpu_ids} ${device_type} ${task} "none" ${framework} ${testing_mode} ${op_type} ${precision} > ${log_path} 2>&1 &
 }
 
 main() {
@@ -124,14 +103,7 @@ main() {
     install_package "tensorflow" "2.3.1"
   fi
 
-  case ${op_type} in
-    all)
-      run_op_benchmark ${testing_mode}
-      ;;
-    *)
-      run_specified_op ${testing_mode}
-      ;;
-  esac
+  run_op_benchmark ${testing_mode}
 }
 
 main
