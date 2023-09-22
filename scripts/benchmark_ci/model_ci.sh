@@ -8,14 +8,14 @@ cd logs
 mkdir static
 mkdir dynamic
 pip install --upgrade pip
-pip install opencv-python==4.2.0.32
+pip install -U opencv-python
 pip install tqdm
 pip install paddlenlp
 export FLAGS_call_stack_level=2
 # run models
 cd ${BENCHMARK_ROOT}/scripts/benchmark_ci
 #model_list='ResNet50_bs32_dygraph ResNet50_bs32 bert_base_seqlen128_fp32_bs32 transformer_base_bs4096_amp_fp16 yolov3_bs8 TSM_bs16 deeplabv3_bs4_fp32 CycleGAN_bs1 mask_rcnn_bs1 PPOCR_mobile_2_bs8 seq2seq_bs128'
-model_list='ResNet50_bs32_dygraph deeplabv3_bs4_fp32 bert_base_seqlen128_fp32_bs32 yolov3_bs8 ppyolov2_bs6'
+model_list='ResNet50_bs32_dygraph deeplabv3_bs4_fp32 bert_base_seqlen128_fp32_bs32 yolov3_bs8 ppyolov2_bs6 ResNet50_pure_fp16_bs64'
 source run_models.sh
 for model in ${model_list}
 do
@@ -40,7 +40,7 @@ if [ -f "rerun_model.txt" ];then
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/python3.7.0/lib/python3.7/site-packages/paddle/fluid/../libs/
     cd /workspace/Paddle
     pip uninstall -y paddlepaddle_gpu
-    pip install build/python/dist/paddlepaddle_gpu-0.0.0-cp37-cp37m-linux_x86_64.whl
+    pip install build/dev_whl/paddlepaddle_gpu*.whl
     [ $? -ne 0 ] && echo "install paddle failed." && exit 1
     #running model in paddle develop
     mv ${BENCHMARK_ROOT}/logs/static ${BENCHMARK_ROOT}/logs/static_pr

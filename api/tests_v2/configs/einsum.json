@@ -1,0 +1,55 @@
+[{
+    "op": "einsum",
+    "param_info": {
+        "equation": {
+            "type": "string",
+            "value": "nabc,nadc->nbdc"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1L, 128L, 256L, 1L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L, 128L, 256L, 1L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "einsum",
+    "param_info": {
+        "equation": {
+            "type": "string",
+            "value": "nacb,nade->ndceb"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1L, 128L, 32L, 256L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[1L, 128L, 256L, 32L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "op": "einsum",
+    "param_info": {
+        "equation": {
+            "type": "string",
+            "value": "ndceb,cef->ndbf"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[1L, 256L, 32L, 32L, 256L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[32L, 32L, 128L]",
+            "type": "Variable"
+        }
+    }
+}]

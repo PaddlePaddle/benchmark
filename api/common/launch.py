@@ -45,9 +45,10 @@ class NvprofRunner(object):
 
     def _nvprof(self, cmd, profile_from_start):
         if profile_from_start:
-            profile_cmd = "nvprof {}".format(cmd)
+            profile_cmd = "nvprof --openacc-profiling off {}".format(cmd)
         else:
-            profile_cmd = "nvprof --profile-from-start off {}".format(cmd)
+            profile_cmd = "nvprof --profile-from-start off --openacc-profiling off {}".format(
+                cmd)
         return system.run_command(profile_cmd)
 
     def _parse_logs(self, logs):
@@ -97,10 +98,9 @@ class NsightRunner(object):
     def run(self, cmd, profile_from_start=False):
         stdout, exit_code = self._nsight(cmd, profile_from_start)
         parse_status, gpu_time = self._parse_logs(stdout.split("\n"))
-        if parse_status:
+        if parse_status and gpu_time != 0:
             return gpu_time
-        if exit_code == 0:
-            print("Running Error:\n {}".format(stdout))
+        print("Running Error:\n {}".format(stdout))
         return 0.0
 
     def _nsight(self, cmd, profile_from_start):
