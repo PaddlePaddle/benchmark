@@ -46,7 +46,14 @@ def dropout_nd(x,
 
 
 @benchmark_registry.register("dropout_nd")
-class PaddleDropout(PaddleOpBenchmarkBase):
+class PaddleDropoutNdConfig(APIConfig):
+    def __init__(self):
+        super(PaddleDropoutNdConfig, self).__init__('dropout_nd')
+        self.run_torch = False
+
+
+@benchmark_registry.register("dropout_nd")
+class PaddleDropoutNd(PaddleOpBenchmarkBase):
     def build_graph(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         result = dropout_nd(
