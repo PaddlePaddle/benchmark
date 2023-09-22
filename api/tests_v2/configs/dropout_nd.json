@@ -1,0 +1,66 @@
+[{
+    "op": "dropout_nd",
+    "param_info": {
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.5"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 16L, -1L]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "list",
+            "value": "[1]"
+        }
+    },
+    "repeat": 2000
+}, {
+    "op": "dropout_nd",
+    "param_info": {
+        "mode": {
+            "type": "string",
+            "value": "downscale_in_infer"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.5"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[-1L, 16L, -1L, -1L]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "list",
+            "value": "[0,1]"
+        }
+    },
+    "repeat": 2000
+}, {
+    "op": "dropout_nd",
+    "param_info": {
+        "mode": {
+            "type": "string",
+            "value": "upscale_in_train"
+        },
+        "p": {
+            "type": "float",
+            "value": "0.1"
+        },
+        "x": {
+            "dtype": "float32",
+            "shape": "[32L, 128L, 768L]",
+            "type": "Variable"
+        },
+        "axis": {
+            "type": "list",
+            "value": "[0]"
+        }
+    }
+}]
