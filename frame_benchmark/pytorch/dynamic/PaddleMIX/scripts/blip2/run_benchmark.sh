@@ -60,7 +60,7 @@ function _train(){
             --cfg-path \
             lavis/projects/blip2/train/pretrain_stage2.yaml \
             --options \
-            run.batch_size_train=${batch_size}
+            run.batch_size_train=${batch_size} \   
             run.max_epoch=${max_epochs}
         "
     case ${run_process_type} in
