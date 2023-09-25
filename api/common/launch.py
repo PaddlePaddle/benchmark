@@ -34,7 +34,7 @@ def is_ampere_gpu():
                 compute_cap = float(compute_cap_list[1])
                 #Capability for ampere  is  8.x, Ada lovelace is 8.9, H100 is 9.0
                 if compute_cap>8:
-                 return True
+                    return True
     return False
 
 
