@@ -22,6 +22,6 @@ max_epochs=20
 num_workers=1
 
 # #get data
-bash scripts/blip2/prepare.sh
+bash scripts/blip2/benchmark_common/prepare.sh
 #run
-bash scripts/blip2/run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_process_type} ${run_mode} ${device_num} ${max_epochs} ${num_workers} 2>&1;
+bash scripts/blip2/benchmark_common/run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_process_type} ${run_mode} ${device_num} ${max_epochs} ${num_workers} 2>&1;
