@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-model_item=blip2-opt-2.7b-stage2
-bs_item=32
-fp_item=fp32
-run_process_type=MultiP
+model_item=blip2-opt-stage2
+bs_item=64
+fp_item=fp16
+run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
-max_epochs=10
+max_epochs=20
 num_workers=1
 
 #get data
-bash prepare.sh
+bash scripts/blip2/prepare.sh
 #run
-bash ../../LAVIS/run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_mode} ${device_num} ${max_epochs} ${num_workers} 2>&1;
+bash scripts/blip2/run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_process_type} ${run_mode} ${device_num} ${max_epochs} ${num_workers} 2>&1;

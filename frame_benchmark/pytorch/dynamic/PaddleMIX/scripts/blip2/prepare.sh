@@ -7,4 +7,4 @@ mv coco /export/home/.cache/lavis/
 rm -rf coco
 rm -rf coco.tar.gz
 # env
-# pip install -r scripts/blip2/requirements.txt
+pip install -r scripts/blip2/requirements.txt
