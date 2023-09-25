@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-model_item=blip2-opt-stage2
-bs_item=128
+model_item=blip2-opt-2d7b_pretrain
+bs_item=32
 fp_item=fp16
 run_process_type=MultiP
 run_mode=DP
