@@ -48,7 +48,7 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python scripts/blip2/benchmark_common/analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} ${base_batch_size} ${fp_item} ${run_process_type}
+    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} ${base_batch_size} ${fp_item} ${run_process_type}
 }
 
 function _train(){
@@ -56,7 +56,7 @@ function _train(){
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
     rm -rf lavis/outputs
 
-    train_cmd="scripts/blip2/benchmark_common/train.py \
+    train_cmd="train.py \
             --cfg-path \
             lavis/projects/blip2/train/pretrain_stage2.yaml \
             --options \

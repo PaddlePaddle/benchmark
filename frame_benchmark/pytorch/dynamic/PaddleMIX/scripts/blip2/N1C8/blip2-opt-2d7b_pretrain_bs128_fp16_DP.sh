@@ -15,13 +15,13 @@
 model_item=blip2-opt-2d7b_pretrain
 bs_item=128
 fp_item=fp16
-run_process_type=SingleP
+run_process_type=MultiP
 run_mode=DP
 device_num=N1C1
 max_epochs=20
 num_workers=1
 
 #get data
-bash scripts/blip2/benchmark_common/prepare.sh
+bash prepare.sh
 #run
-bash scripts/blip2/benchmark_common/run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_process_type} ${run_mode} ${device_num} ${max_epochs} ${num_workers} 2>&1;
+bash run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_process_type} ${run_mode} ${device_num} ${max_epochs} ${num_workers} 2>&1;

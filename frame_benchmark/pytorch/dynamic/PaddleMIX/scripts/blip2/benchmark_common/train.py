@@ -29,8 +29,8 @@ from lavis.models import *
 from lavis.processors import *
 from lavis.runners import *
 from lavis.tasks import *
-import os
-os.chdir('models/LAVIS')
+# import os
+# os.chdir('models/LAVIS')
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Training")
