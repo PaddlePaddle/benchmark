@@ -10,7 +10,7 @@ function _set_params(){
     run_mode=${5:-"DP"}                  # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
     device_num=${6:-"N1C1"}              # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
-    model_repo="blip2"             # (必选) 模型套件的名字
+    model_repo="LAVIS"             # (必选) 模型套件的名字
     speed_unit="sample/sec"                # (必选)速度指标单位
     skip_steps=4                        # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="ips:"                       # (必选)解析日志，筛选出性能数据所在行的关键字
@@ -91,6 +91,11 @@ function _train(){
 
 
 _set_params $@
+echo "https_proxy $HTTPS_PRO" 
+echo "http_proxy $HTTP_PRO" 
+export https_proxy=$HTTPS_PRO
+export http_proxy=$HTTP_PRO
+export no_proxy=localhost,bj.bcebos.com,su.bcebos.com
 export frame_version=`python -c "import torch;print(torch.__version__)"`
 echo "---------frame_version is torch ${frame_version}"
 echo "---------model_branch is ${model_branch}"
