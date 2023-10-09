@@ -21,8 +21,8 @@ sentencepiece
 spacy
 streamlit
 timm==0.4.12
-torch>=1.10.0
-torchvision
+torch==1.13.1
+torchvision==0.14.1
 tqdm
 transformers>=4.28.0
 webdataset
