@@ -1,4 +1,4 @@
-
+mkdir -p /export/home/.cache/lavis/coco/
 rm -rf /export/home/.cache/lavis/coco/
 # dataset
 wget https://paddlenlp.bj.bcebos.com/models/community/paddlemix/benchmark/blip2/coco.tar.gz
