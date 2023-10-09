@@ -17,7 +17,7 @@ bs_item=64
 fp_item=fp16
 run_process_type=MultiP
 run_mode=DP
-device_num=N1C1
+device_num=N1C8
 max_iter=20
 num_workers=1
 
