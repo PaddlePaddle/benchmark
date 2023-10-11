@@ -15,7 +15,7 @@ function _set_params(){
     skip_steps=4                        # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="ips:"                       # (必选)解析日志，筛选出性能数据所在行的关键字
     convergence_key=""                   # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
-    max_epochs=${7:-"1"}                 # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
+    max_epochs=${7:-"10"}                 # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"3"}                # (可选)
 
     # Added for distributed training
