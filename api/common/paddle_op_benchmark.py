@@ -39,7 +39,7 @@ def profile_context(name, use_gpu, profiler, iter_id=0, start=5, end=10):
     if profiler in ["Default", "OpDetail", "AllOpDetail"]:
         profile_type = "All" if use_gpu else "CPU"
         output_file = "./outputs/" + name + ".pd.profile"
-        with paddle.fluid.profiler.profiler(
+        with paddle.base.profiler.profiler(
                 profile_type, 'total', output_file, tracer_option=profiler):
             yield
     elif profiler == "pyprof":
@@ -56,22 +56,22 @@ def profile_context(name, use_gpu, profiler, iter_id=0, start=5, end=10):
         ps.print_stats()
         print(s.getvalue())
     elif profiler == "nvprof":
-        paddle.fluid.core.nvprof_start()
+        paddle.base.core.nvprof_start()
         yield
-        paddle.fluid.core.nvprof_stop()
+        paddle.base.core.nvprof_stop()
     elif profiler == "nvprof_nvtx":
         if iter_id == start:
-            paddle.fluid.core.nvprof_start()
-            paddle.fluid.core.nvprof_enable_record_event()
+            paddle.base.core.nvprof_start()
+            paddle.base.core.nvprof_enable_record_event()
         if iter_id >= start:
-            paddle.fluid.core.nvprof_nvtx_push(str(iter_id))
+            paddle.base.core.nvprof_nvtx_push(str(iter_id))
         yield
         if iter_id < end:
-            paddle.fluid.core.nvprof_nvtx_pop()
+            paddle.base.core.nvprof_nvtx_pop()
         if iter_id == end:
             if use_gpu:
                 paddle.device.cuda.synchronize(0)
-            paddle.fluid.core.nvprof_stop()
+            paddle.base.core.nvprof_stop()
     else:
         yield
 
@@ -142,7 +142,7 @@ class StaticHelper(object):
     def init_feed_tensor(self, use_gpu, feed_vars, feed_dict, scope):
         place = paddle.CUDAPlace(0) if use_gpu else paddle.CPUPlace()
         for var in feed_vars:
-            if var.type != paddle.fluid.core.VarDesc.VarType.LOD_TENSOR:
+            if var.type != paddle.base.core.VarDesc.VarType.LOD_TENSOR:
                 raise TypeError("Feed data of non LoDTensor is not supported.")
 
             var_in_scope = scope.var(var.name)
@@ -150,7 +150,7 @@ class StaticHelper(object):
 
             cur_feed = feed_dict[var.name]
             if isinstance(cur_feed, np.ndarray) or isinstance(
-                    cur_feed, paddle.fluid.core.LoDTensor):
+                    cur_feed, paddle.base.core.LoDTensor):
                 tensor.set(cur_feed, place)
             else:
                 raise TypeError(
@@ -158,11 +158,11 @@ class StaticHelper(object):
                 )
 
     def get_fetch_tensor(self, fetch_vars, scope):
-        place = paddle.fluid.core.Place()
+        place = paddle.base.core.Place()
         place.set_place(paddle.CPUPlace())
         output = []
         for var in fetch_vars:
-            if var.type != paddle.fluid.core.VarDesc.VarType.LOD_TENSOR:
+            if var.type != paddle.base.core.VarDesc.VarType.LOD_TENSOR:
                 raise TypeError(
                     "Fetch data of non LoDTensor is not supported.")
 
@@ -325,13 +325,13 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                 },
             }
             paddle.incubate.autotune.set_config(config)
-            paddle.fluid.core.update_autotune_status()
+            paddle.base.core.update_autotune_status()
 
     def variable(self, name, shape, dtype, value=None, stop_gradient=False):
         return self._helper.variable(name, shape, dtype, value, stop_gradient)
 
-    def fluid_layers(self, name, **kwargs):
-        module = importlib.import_module("paddle.fluid.layers")
+    def base_layers(self, name, **kwargs):
+        module = importlib.import_module("paddle.base.layers")
         func = getattr(module, name)
         result = func(**kwargs)
         return result
@@ -449,7 +449,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
                     else:
                         outputs.append(var.numpy())
             if self._use_autotune and not self.backward:
-                paddle.fluid.core.update_autotune_status()
+                paddle.base.core.update_autotune_status()
             return outputs
 
         # warmup run
@@ -561,7 +561,7 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
             stats = self.get_running_stats(use_gpu, config, runtimes, walltimes
                                            if self.name != "null" else None)
             return outputs, stats
-        except paddle.fluid.core.EnforceNotMet as ex:
+        except paddle.base.core.EnforceNotMet as ex:
             logging.basicConfig(level=logging.INFO)
             logger = logging.getLogger(__name__)
             logger.error(ex.message)

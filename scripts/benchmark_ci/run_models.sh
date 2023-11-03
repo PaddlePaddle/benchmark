@@ -23,7 +23,8 @@ ResNet50_pure_fp16_bs64(){
     cd ${cur_model_path}
     pip install -r requirements.txt
     # install dali
-    pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda110
+    # pip install --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda110 # 20230904 paddle下线 fluid api,已同步修改dali库开发分支，因此在dali发版之前使用dali 0901版本
+    pip install https://paddle-qa.bj.bcebos.com/benchmark/dali_temp_20230904/nvidia_dali_nightly_cuda110-1.30.0.dev20230901-9606845-py3-none-manylinux2014_x86_64.whl 
     # Prepare data
     ln -s ${data_path}/imagenet100_data/ ${cur_model_path}/dataset
     # Copy run_benchmark.sh and running ...
