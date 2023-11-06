@@ -135,8 +135,13 @@ def parse_args():
             "task should be paddle, tensorflow, tf, pytorch, torch, both")
 
     if args.get_status_without_running:
-        assert args.task == "scheduling", "task must be 'scheduling' if get_status_without_running is True."
-        assert args.scheduling_times != "{}", "scheduling_times can't be {} if task is 'scheduling' and get_status_without_running is True."
+        assert args.task in [
+            "speed", "scheduling"
+        ], "task must be 'speed' or 'scheduling' if get_status_without_running is True."
+        if args.task == "speed":
+            assert args.gpu_time != 0, "gpu_time can't be 0 if task is 'speed' and get_status_without_running is True."
+        if args.task == "scheduling":
+            assert args.scheduling_times != "{}", "scheduling_times can't be {} if task is 'scheduling' and get_status_without_running is True."
 
     if args.task == "accuracy":
         args.repeat = 1
