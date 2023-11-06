@@ -128,7 +128,7 @@ function(third_party_library TARGET_NAME TARGET_DIRNAME)
 endfunction()
 
 third_party_library(mklml ${THIRD_PARTY_ROOT}/install/mklml/lib libiomp5.so libmklml_intel.so)
-third_party_library(mkldnn ${THIRD_PARTY_ROOT}/install/mkldnn/lib libmkldnn.so.0)
+third_party_library(mkldnn ${THIRD_PARTY_ROOT}/install/mkldnn/lib libdnnl.so.3)
 if(NOT USE_SHARED)
   third_party_library(glog ${THIRD_PARTY_ROOT}/install/glog/lib libglog.a)
   third_party_library(protobuf ${THIRD_PARTY_ROOT}/install/protobuf/lib libprotobuf.a)
