@@ -33,6 +33,15 @@ class MathsConfig(APIConfig):
         }
         self.alias_name = "activation"
 
+    def disabled(self):
+        if self.api_name in ["lgamma"] and self.x_dtype == "float16":
+            print(
+                "Warning:\n" +
+                f"  1. This config is disabled because float16 is not supported for {self.api_name}.\n"
+            )
+            return True
+        return super(MathsConfig, self).disabled()
+
 
 @benchmark_registry.register("maths")
 class PaddleMaths(PaddleOpBenchmarkBase):

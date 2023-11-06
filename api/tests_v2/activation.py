@@ -32,11 +32,11 @@ class ActivationConfig(APIConfig):
         }
 
     def disabled(self):
-        if self.api_name in ["lgamma"] and self.x_dtype == "float16":
+        if self.api_name in ["lgamma", "log"] and self.x_dtype == "float16":
             print(
-                "Warning:\n"
-                "  1. This config is disabled because float16 is not supported for %s.\n"
-                % (self.api_name))
+                "Warning:\n" + 
+                f"  1. This config is disabled because float16 is not supported for {self.api_name}.\n"
+            )
             return True
         return super(ActivationConfig, self).disabled()
 
