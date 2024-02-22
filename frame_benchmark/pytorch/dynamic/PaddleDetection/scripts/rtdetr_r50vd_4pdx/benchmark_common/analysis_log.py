@@ -8,7 +8,7 @@ import json
 import os
 
 def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, skip_num=4):
-    time_pat = re.compile(r"time: (.*), data_time")
+    time_pat = re.compile(r"time: (.*)  data")
     logs = open(log_file).readlines()
     logs = ";".join(logs)
     time_res = time_pat.findall(logs)
