@@ -19,7 +19,7 @@ train_dataloader:
         - {type: SanitizeBoundingBox, min_size: 1}
         - {type: ConvertBox, out_fmt: 'cxcywh', normalize: True}
   shuffle: True
-  batch_size: 8
+  batch_size: 16
   num_workers: 16
   collate_fn: default_collate_fn
 

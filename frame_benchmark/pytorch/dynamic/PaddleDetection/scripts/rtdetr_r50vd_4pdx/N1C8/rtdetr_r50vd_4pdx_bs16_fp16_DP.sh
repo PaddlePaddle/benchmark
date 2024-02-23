@@ -6,7 +6,7 @@ run_mode='DP'
 device_num='N1C8'
 max_epochs=1
 num_workers=16
-repeats=12
+repeats=96
 
 bash PrepareEnv.sh
 bash repeat_data.sh "${repeats}"

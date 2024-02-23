@@ -12,7 +12,7 @@ function _set_params(){
     run_mode=${5:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
     device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C32 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
-    model_repo="RT-DETR"          # (必选) 模型套件的名字
+    model_repo="mmyolo"          # (必选) 模型套件的名字
     ips_unit="samples/sec"         # (必选)速度指标单位
     skip_steps=10                  # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="ips:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
@@ -49,7 +49,7 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py "${model_item}" "${log_file}" "${speed_log_file}" "${device_num}" "${base_batch_size}" "${fp_item}" 'time: (.*)  data'
+    python analysis_log.py "${model_item}" "${log_file}" "${speed_log_file}" "${device_num}" "${base_batch_size}" "${fp_item}" 'time: (.*)  data_time'
 }
 
 function _train(){
@@ -75,7 +75,7 @@ function _train(){
         exit 1
     fi
 
-    _expected_num_workers=16
+    _expected_num_workers=4
     if [ "${num_workers}" -ne "${_expected_num_workers}" ]; then
         echo "num_workers must be ${_expected_num_workers}" 1>&2
         exit 1
@@ -87,15 +87,15 @@ function _train(){
         set_amp=""
     fi
 
-    train_config="custom_configs/rtdetr/rtdetr_r50vd_4pdx.yml"
+    train_config="custom_configs/ppyoloe/ppyoloe_plus_l_4pdx.py"
 
     case "${run_process_type}" in
-    SingleP) train_cmd="python ./rtdetr_pytorch/tools/train.py -c ${train_config} ${set_amp}" ;;
+    SingleP) train_cmd="python ./tools/train.py ${train_config} ${set_amp}" ;;
     MultiP)
       if [ "${device_num:3}" = '32' ]; then
-          train_cmd="torchrun --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} --nproc_per_node=8 ./rtdetr_pytorch/tools/train.py -c ${train_config} ${set_amp}"
+          train_cmd="python -m torch.distributed.launch --nnodes=${node_num} --node_rank=${node_rank} --master_addr=${master_addr} --master_port=${master_port} --nproc_per_node=8 ./tools/train.py ${train_config} --launcher pytorch ${set_amp}"
       elif [ "${device_num:3}" = '8' ]; then
-          train_cmd="torchrun --nproc_per_node=8 --master_port=29500 ./rtdetr_pytorch/tools/train.py -c ${train_config} ${set_amp}"
+          train_cmd="python -m torch.distributed.launch --nproc_per_node=8 --master_port=29500 ./tools/train.py ${train_config} --launcher pytorch ${set_amp}"
       else
           echo "invalid number of devices" 1>&2
           exit 1

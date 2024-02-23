@@ -76,6 +76,3 @@ SetCriterion:
     # use_focal_loss: True 
     alpha: 0.25
     gamma: 2.0
-
-
-

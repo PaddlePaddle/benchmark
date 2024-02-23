@@ -15,3 +15,5 @@ ema:
   decay: 0.9999
   warmups: 2000
 
+
+log_step: 1

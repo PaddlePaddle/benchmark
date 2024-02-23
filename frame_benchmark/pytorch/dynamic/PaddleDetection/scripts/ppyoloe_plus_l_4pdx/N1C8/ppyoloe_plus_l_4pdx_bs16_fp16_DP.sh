@@ -1,12 +1,12 @@
-model_item='rtdetr_r50vd_4pdx'
+model_item='ppyoloe_plus_l_4pdx'
 bs_item=16
-fp_item='fp32'
+fp_item='fp16'
 run_process_type='MultiP'
 run_mode='DP'
 device_num='N1C8'
 max_epochs=1
-num_workers=16
-repeats=96
+num_workers=4
+repeats=12
 
 bash PrepareEnv.sh
 bash repeat_data.sh "${repeats}"

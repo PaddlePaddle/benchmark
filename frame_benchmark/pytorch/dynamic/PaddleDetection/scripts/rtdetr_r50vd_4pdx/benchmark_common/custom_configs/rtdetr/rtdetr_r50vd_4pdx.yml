@@ -1,5 +1,5 @@
 __include__: [
-  ../dataset/coco_detection.yml,
+  ../dataset/benchmark_coco.yml,
   ../runtime.yml,
   ./include/dataloader.yml,
   ./include/optimizer.yml,
