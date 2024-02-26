@@ -113,3 +113,4 @@ pytorch:
    llm: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/transformers
    rtdetr_r50vd_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/RT-DETR
    ppyoloe_plus_l_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmyolo
+   nanodet_plus_m_1.5x_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/nanodet
