@@ -1,0 +1,9 @@
+__include__: [
+  ../dataset/benchmark_coco.yml,
+  ../runtime.yml,
+  ./include/dataloader.yml,
+  ./include/optimizer.yml,
+  ./include/rtdetr_r50vd.yml,
+]
+
+output_dir: ./output/rtdetr_r50vd_4pdx

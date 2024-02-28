@@ -111,5 +111,8 @@ pytorch:
    llama_pretrain: iregistry.baidu-int.com/paddle-benchmark/llama-megatron:cuda11.7-cudnn8.4.1-nccl2.12.12-torch1.13.1
    blip2: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu20.04-gcc12.0-cuda12.0-cudnn8.9-nccl2.17.1-openmpi4.1.5
    llm: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu20.04-gcc12.0-cuda12.0-cudnn8.9-nccl2.17.1-openmpi4.1.5
+   rtdetr_r50vd_4pdx: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
+   ppyoloe_plus_l_4pdx: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
+   nanodet_plus_m_1.5x_4pdx: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    ResNet50_4pdx: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    TResNet_L_4pdx: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10

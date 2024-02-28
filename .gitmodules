@@ -151,3 +151,13 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleMIX/models/LAVIS"]
 	path = frame_benchmark/pytorch/dynamic/PaddleMIX/models/LAVIS
 	url = https://github.com/wjm202/LAVIS.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/nanodet"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/nanodet
+	url = https://github.com/RangiLyu/nanodet.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/RT-DETR"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/RT-DETR
+	url = https://github.com/lyuwenyu/RT-DETR.git
+	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmyolo"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmyolo
+	url = https://github.com/open-mmlab/mmyolo.git
