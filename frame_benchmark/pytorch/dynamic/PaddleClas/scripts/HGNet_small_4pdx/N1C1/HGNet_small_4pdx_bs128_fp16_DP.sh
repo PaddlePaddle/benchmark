@@ -1,4 +1,4 @@
-model_item=TResNet_L_4pdx
+model_item=HGNet_small_4pdx
 bs_item=128
 fp_item=fp16
 run_process_type=SingleP

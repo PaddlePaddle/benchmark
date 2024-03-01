@@ -115,4 +115,4 @@ pytorch:
    ppyoloe_plus_l_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmyolo
    nanodet_plus_m_1.5x_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/nanodet
    ResNet50_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
-   TResNet_L_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
+   HGNet_small_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
