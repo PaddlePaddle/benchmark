@@ -1,6 +1,6 @@
-model_item='nanodet_plus_m_1.5x_4pdx'
+model_item='nanodet_plus_m_1_5x_4pdx'
 bs_item=64
-fp_item='fp16'
+fp_item='fp32'
 run_process_type='SingleP'
 run_mode='DP'
 device_num='N1C1'

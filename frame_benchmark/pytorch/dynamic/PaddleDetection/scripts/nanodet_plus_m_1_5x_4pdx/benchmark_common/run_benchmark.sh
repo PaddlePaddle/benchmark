@@ -84,18 +84,18 @@ function _train(){
     case "${run_process_type}" in
     SingleP) 
         if [ "${fp_item}" = 'fp16' ]; then
-            train_config="custom_configs/nanodet_plus_m_1.5x_4pdx_n1c1_fp32.yml"
+            train_config="custom_configs/nanodet_plus_m_1_5x_4pdx_n1c1_fp32.yml"
         else
-            train_config="custom_configs/nanodet_plus_m_1.5x_4pdx_n1c1_fp16.yml"
+            train_config="custom_configs/nanodet_plus_m_1_5x_4pdx_n1c1_fp16.yml"
         fi
         train_cmd="python ./tools/train.py ${train_config}"
         ;;
     MultiP)
       if [ "${device_num:3}" = '8' ]; then
         if [ "${fp_item}" = 'fp16' ]; then
-            train_config="custom_configs/nanodet_plus_m_1.5x_4pdx_n1c8_fp32.yml"
+            train_config="custom_configs/nanodet_plus_m_1_5x_4pdx_n1c8_fp32.yml"
         else
-            train_config="custom_configs/nanodet_plus_m_1.5x_4pdx_n1c8_fp16.yml"
+            train_config="custom_configs/nanodet_plus_m_1_5x_4pdx_n1c8_fp16.yml"
         fi
         train_cmd="python ./tools/train.py ${train_config}"
       else
