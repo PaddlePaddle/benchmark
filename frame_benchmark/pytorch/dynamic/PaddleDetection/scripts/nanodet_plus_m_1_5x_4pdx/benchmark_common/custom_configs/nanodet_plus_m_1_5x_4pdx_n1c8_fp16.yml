@@ -5,7 +5,7 @@
 #           AP_small = 0.102
 #               AP_m = 0.309
 #               AP_l = 0.493
-save_dir: nanodet_plus_m_1.5x_4pdx_n1c8_fp32
+save_dir: nanodet_plus_m_1_5x_4pdx_n1c8_fp16
 model:
   weight_averager:
     name: ExpMovingAverager
@@ -91,7 +91,7 @@ device:
   gpu_ids: [0, 1, 2, 3, 4, 5, 6, 7]
   workers_per_gpu: 6
   batchsize_per_gpu: 64
-  precision: 32 # set to 16 to use AMP training
+  precision: 16 # set to 16 to use AMP training
 schedule:
 #  resume:
 #  load_model:
