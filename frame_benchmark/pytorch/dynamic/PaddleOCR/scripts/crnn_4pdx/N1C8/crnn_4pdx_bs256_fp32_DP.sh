@@ -8,8 +8,7 @@ max_epochs=1
 num_workers=16
 
 bash PrepareEnv.sh
-bash repeat_data.sh "${repeats}"
-bash run_benchmark.sh \
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh \
     "${model_item}" \
     "${bs_item}" \
     "${fp_item}" \

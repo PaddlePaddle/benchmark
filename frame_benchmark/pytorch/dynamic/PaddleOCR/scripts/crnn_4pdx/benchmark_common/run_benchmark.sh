@@ -12,7 +12,7 @@ function _set_params(){
     run_mode=${5:-"DP"}             # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
     device_num=${6:-"N1C1"}         # (必选) 使用的卡数量，N1C1|N1C8|N4C32 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
-    model_repo="nanodet"          # (必选) 模型套件的名字
+    model_repo="deep-text-recognition-benchmark"          # (必选) 模型套件的名字
     ips_unit="samples/sec"         # (必选)速度指标单位
     skip_steps=10                  # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="ips:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
@@ -64,8 +64,9 @@ function _train(){
     fi
 
     num_samples=$(cat ./datasets/ocr_rec_dataset_examples/train.txt | wc -l)
-    num_iters=$((max_epochs * num_samples / batch_size))
-    train_params='--train_data ./datasets/ocr_rec_dataset_examples/train_data_lmdb/ --val_data ./datasets/ocr_rec_dataset_examples/val_data_lmdb/ --select_data / --batch_ratio 1 --Transformation None --FeatureExtraction ResNet --SequenceModeling BiLSTM --Prediction CTC'
+    num_devices="${device_num:3}"
+    num_iters=$((max_epochs * num_samples / batch_size / num_devices))
+    train_params='--valInterval 1 --train_data ./datasets/ocr_rec_dataset_examples/train_data_lmdb/ --valid_data ./datasets/ocr_rec_dataset_examples/val_data_lmdb/ --select_data / --batch_ratio 1 --Transformation None --FeatureExtraction ResNet --SequenceModeling BiLSTM --Prediction CTC'
     train_params="${train_params} --batch_size ${batch_size} --workers ${num_workers} --num_iter ${num_iters}"
     train_cmd="python ./train.py ${train_params}"
 

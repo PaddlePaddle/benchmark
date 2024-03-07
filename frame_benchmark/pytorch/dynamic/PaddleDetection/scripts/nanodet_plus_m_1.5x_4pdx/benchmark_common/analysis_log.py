@@ -20,7 +20,7 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, time_pa
     bs = int(bs)
     ips = 0
 
-    if len(time_res) > skip_num:
+    if len(time_res) > skip_num + 1:
         time_res = time_res[skip_num:]
         curr_year = datetime.datetime.today().year
         st_time = datetime.datetime(curr_year, *time_res[0])
