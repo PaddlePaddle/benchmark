@@ -116,3 +116,5 @@ pytorch:
    nanodet_plus_m_1_5x_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/nanodet
    ResNet50_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
    HGNet_small_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
+   crnn_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/deep-text-recognition-benchmark
+   det_r50_db_v2_0_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch

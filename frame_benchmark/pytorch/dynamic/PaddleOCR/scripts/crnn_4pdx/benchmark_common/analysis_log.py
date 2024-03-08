@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # encoding=utf-8 vi:ts=4:sw=4:expandtab:ft=python
 
-import datetime
 import re
 import sys
 import json
@@ -13,7 +12,7 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, time_pa
     logs = open(log_file).readlines()
     logs = ";".join(logs)
     time_res = time_pat.findall(logs)
-    time_res = [tuple(map(int, x)) for x in time_res]
+    time_res = list(map(float, time_res))
 
     gpu_num = int(device_num[3:])
     run_mode = "DP"
@@ -22,12 +21,9 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, time_pa
 
     if len(time_res) > skip_num + 1:
         time_res = time_res[skip_num:]
-        curr_year = datetime.datetime.today().year
-        st_time = datetime.datetime(curr_year, *time_res[0])
-        ed_time = datetime.datetime(curr_year, *time_res[-1])
-        if ed_time <= st_time:
-            ed_time = datetime.datetime(curr_year + 1, *time_res[-1])
-        avg_time = (ed_time - st_time).total_seconds() / (len(time_res) - 1)
+        st_time = time_res[0]
+        ed_time = time_res[-1]
+        avg_time = (ed_time - st_time) / (len(time_res) - 1)
         ips = round(bs / avg_time, 3) * gpu_num
     model_name = model_item+"_"+"bs"+str(bs)+"_"+fp_item+"_"+run_mode
     info = {    "model_branch": os.getenv('model_branch'),

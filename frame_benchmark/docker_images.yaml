@@ -116,3 +116,5 @@ pytorch:
    nanodet_plus_m_1_5x_4pdx: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    ResNet50_4pdx: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    HGNet_small_4pdx: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
+   crnn_4pdx: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
+   det_r50_db_v2_0_4pdx: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
