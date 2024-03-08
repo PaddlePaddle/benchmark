@@ -1,4 +1,4 @@
-model_item=det_r50_db_v2_0
+model_item=det_r50_db_v2_0_4pdx
 #max_token
 bs_item=4
 fp_item=fp32
