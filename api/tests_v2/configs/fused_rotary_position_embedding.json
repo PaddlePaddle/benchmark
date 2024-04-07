@@ -1,0 +1,155 @@
+[{
+    "op": "fused_rotary_position_embedding",
+    "param_info": {
+        "q": {
+            "dtype": "float32",
+            "shape": "[4L, 4096L, 32L, 128L]",
+            "type": "Variable"
+        },
+        "k": {
+            "dtype": "float32",
+            "shape": "[4L, 4096L, 32L, 128L]",
+            "type": "Variable"
+        },
+        "v": {
+            "type": "string",
+            "value": "None"
+        },
+        "cached_sin_cos": {
+            "type": "bool",
+            "value": "True"
+        },
+        "position_ids": {
+            "type": "string",
+            "value": "None"
+        },
+        "use_neox_rotary_style": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+},
+{
+    "op": "fused_rotary_position_embedding",
+    "param_info": {
+        "q": {
+            "dtype": "float32",
+            "shape": "[4L, 4096L, 32L, 128L]",
+            "type": "Variable"
+        },
+        "k": {
+            "dtype": "float32",
+            "shape": "[4L, 4096L, 4L, 128L]",
+            "type": "Variable"
+        },
+        "v": {
+            "type": "string",
+            "value": "None"
+        },
+        "cached_sin_cos": {
+            "type": "bool",
+            "value": "True"
+        },
+        "position_ids": {
+            "type": "string",
+            "value": "None"
+        },
+        "use_neox_rotary_style": {
+            "type": "bool",
+            "value": "False"
+        }
+    }
+},
+{
+    "op": "fused_rotary_position_embedding",
+    "param_info": {
+        "q": {
+            "dtype": "float32",
+            "shape": "[4L, 4096L, 32L, 128L]",
+            "type": "Variable"
+        },
+        "k": {
+            "dtype": "float32",
+            "shape": "[4L, 4096L, 32L, 128L]",
+            "type": "Variable"
+        },
+        "v": {
+            "type": "string",
+            "value": "None"
+        },
+        "cached_sin_cos": {
+            "type": "bool",
+            "value": "True"
+        },
+        "position_ids": {
+            "type": "string",
+            "value": "None"
+        },
+        "use_neox_rotary_style": {
+            "type": "bool",
+            "value": "True"
+        }
+    }
+},
+{
+    "op": "fused_rotary_position_embedding",
+    "param_info": {
+        "q": {
+            "dtype": "float32",
+            "shape": "[4L, 4096L, 32L, 128L]",
+            "type": "Variable"
+        },
+        "k": {
+            "dtype": "float32",
+            "shape": "[4L, 4096L, 32L, 128L]",
+            "type": "Variable"
+        },
+        "v": {
+            "type": "string",
+            "value": "None"
+        },
+        "cached_sin_cos": {
+            "type": "bool",
+            "value": "False"
+        },
+        "position_ids": {
+            "type": "string",
+            "value": "None"
+        },
+        "use_neox_rotary_style": {
+            "type": "bool",
+            "value": "True"
+        }
+    }
+},
+{
+    "op": "fused_rotary_position_embedding",
+    "param_info": {
+        "q": {
+            "dtype": "float32",
+            "shape": "[4L, 4096L, 32L, 128L]",
+            "type": "Variable"
+        },
+        "k": {
+            "dtype": "float32",
+            "shape": "[4L, 4096L, 4L, 128L]",
+            "type": "Variable"
+        },
+        "v": {
+            "type": "string",
+            "value": "None"
+        },
+        "cached_sin_cos": {
+            "type": "bool",
+            "value": "True"
+        },
+        "position_ids": {
+            "type": "string",
+            "value": "None"
+        },
+        "use_neox_rotary_style": {
+            "type": "bool",
+            "value": "True"
+        }
+    }
+}]
