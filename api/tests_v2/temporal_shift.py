@@ -25,7 +25,7 @@ class PDTemporalShift(PaddleAPIBenchmarkBase):
     def build_program(self, config):
         x = self.variable(name='x', shape=config.x_shape, dtype=config.x_dtype)
         out = paddle.nn.functional.temporal_shift(
-            x=x, seg_num=config.seg_num, shift_ratio=config.shift_ratio)
+            x=x, seg_num=config.seg_num, shift_ratio=config.shift_ratio, config.data_format)
 
         self.feed_vars = [x]
         self.fetch_vars = [out]
