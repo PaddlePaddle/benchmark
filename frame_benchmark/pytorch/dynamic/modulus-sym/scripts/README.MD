@@ -15,25 +15,25 @@ docker image: registry.baidubce.com/paddlepaddle/paddle:latest-dev-cuda11.8-cudn
 paddle = 0.0.0
 python >= 3.9
 
-## 3. 运行benchmark测试步骤
-
-git clone <https://github.com/PaddleBenchmark/modulus-sym> -b modified_torch
-git clone <https://github.com/PaddleBenchmark/modulus>
-cd modulus-sym
-pip install -e .
-
-## 4. 运行模型
-
-### 4.1 单卡
+## 3. 运行 benchmark 测试步骤
 
 以 annular_ring-annular_ring_equation_instancing-annular_ring 模型为例，运行命令如下。
 
 ``` sh
-export CUDA_VISIBLE_DEVICES=0
+export ROOT_DIR=$PWD
+cd ${ROOT_DIR}
 
-bash scripts/annular_ring-annular_ring_equation_instancing-annular_ring/N1C1/annular_ring-annular_ring_equation_instancing-annular_ring_bs1_fp32_DP.sh
+git clone https://github.com/PaddlePaddle/benchmark.git -b develop
+wget https://paddle-qa.bj.bcebos.com/benchmark/tools.tar.gz
+export BENCHMARK_ROOT=${ROOT_DIR}/benchmark-frame/tools
+
+model_path=${ROOT_DIR}/benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
+script_path=${ROOT_DIR}benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/scripts/annular_ring-annular_ring_equation_instancing-annular_ring/N1C1/annular_ring-annular_ring_equation_instancing-annular_ring_bs1_fp32_DP.sh
+
+\cp ${script_path} ${model_path}
+model_benchmark_common=$(dirname $(dirname ${script_path}))
+\cp -r ${model_benchmark_common}/benchmark_common/* ${model_path}/
+
+cd ${model_path}
+bash annular_ring-annular_ring_equation_instancing-annular_ring_bs1_fp32_DP.sh
 ```
-
-### 4.2 多卡（暂无需求）
-
-### 4.3 profiling（无）
