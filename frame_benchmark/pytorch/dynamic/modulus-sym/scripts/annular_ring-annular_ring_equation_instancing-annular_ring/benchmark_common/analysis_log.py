@@ -114,7 +114,7 @@ if __name__ == "__main__":
         run_info["run_mode"] = args.run_mode
     run_info["convergence_value"] = 0
     run_info["convergence_key"] = ""
-    run_info["iteration_cost(ms)"] = 0
+    run_info["ips"] = 0
     run_info["device_num"] = args.device_num
     run_info["model_run_time"] = os.getenv("model_run_time")
     run_info["frame_commit"] = ""
@@ -136,8 +136,8 @@ if __name__ == "__main__":
 
     try:
         analyzer = TimeAnalyzer(args.filename, args.keyword)
-        run_info["iteration_cost(ms)"] = analyzer.get_iteration_cost()
-        run_info["speed_unit"] = "ms"
+        run_info["ips"] = analyzer.get_iteration_cost()
+        run_info["speed_unit"] = "ms/iteration"
 
     except Exception:
         traceback.print_exc()
