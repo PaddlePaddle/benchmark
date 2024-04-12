@@ -167,6 +167,8 @@
 [submodule "frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym"]
 	path = frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
 	url = https://github.com/PaddleBenchmark/modulus-sym.git
+	branch = modified_torch
 [submodule "frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus"]
 	path = frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus
 	url = https://github.com/PaddleBenchmark/modulus.git
+	branch = main
