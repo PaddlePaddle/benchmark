@@ -374,7 +374,7 @@ def gen_end_to_end_shells():
 
         ## generate benchmark_common/analysis_log.py
         shutil.copy(
-            "/workspace/hesensen/PaddleScience_enn_debug/benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/scripts/analysis_log.py",
+            "./analysis_log.py",
             osp.join(example_name, "benchmark_common", "analysis_log.py"),
         )
 

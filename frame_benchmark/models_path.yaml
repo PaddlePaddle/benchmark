@@ -118,6 +118,8 @@ pytorch:
   HGNet_small_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
   crnn_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/deep-text-recognition-benchmark
   det_r50_db_v2_0_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch
+
+  # --- modulus 51 examples below --- #
   darcy-darcy_PINO: benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
   chip_2d-chip_2d_solid_fluid_heat_transfer_heat: benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
   waveguide-cavity_3D-waveguide3D: benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
