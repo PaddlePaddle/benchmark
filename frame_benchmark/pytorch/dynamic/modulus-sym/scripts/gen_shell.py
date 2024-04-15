@@ -273,7 +273,7 @@ function _set_params(){{
     device_num=${{5:-"N1C1"}}         # (必选) 使用的卡数量，N1C1|N1C8|N4C32 （4机32卡）
 
     backend="pytorch"
-    model_repo="modulus"          # (必选) 模型套件的名字
+    model_repo="modulus-sym"          # (必选) 模型套件的名字
     speed_unit="ms/iteration"         # (必选)速度指标单位
     skip_steps=0                  # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="time/iteration:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
