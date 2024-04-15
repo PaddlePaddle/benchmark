@@ -1,13 +1,22 @@
 #!/usr/bin/env bash
 # 执行路径在模型库的根目录下
 ################################# 安装框架 如:
-wget -nc ${FLAG_TORCH_WHL_URL}
-tar -xvf torch_dev_whls.tar
-python -m pip install torch_dev_whls/*
+# install env
+wget -c -q --no-proxy ${FLAG_TORCH_WHL_URL}
+tar_file_name=$(echo ${FLAG_TORCH_WHL_URL} | awk -F '/' '{print $NF}')
+dir_name=$(echo ${tar_file_name} | awk -F '.' '{print $1}')
+tar xf ${tar_file_name}
+rm -rf ${tar_file_name}
+python -m pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/web/simple
+python -m pip install ${dir_name}/*
+
+python -m pip install -U openmim
+mim install mmcv
+# requirement.txt 里的版本太低,需要更新
 python -m pip install -r requirement.txt
 # 下载数据集并解压
 rm -rf datasets
-wget -nc https://paddleocr.bj.bcebos.com/dygraph_v2.0/test/benchmark_train/datasets.tar
+wget -nc -q https://paddleocr.bj.bcebos.com/dygraph_v2.0/test/benchmark_train/datasets.tar
 tar xf datasets.tar
 
 cd datasets

@@ -85,6 +85,7 @@ function _train(){
     echo "=============="
     
 #   以下为通用执行命令，无特殊可不用修改
+    echo ${train_cmd} 
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
@@ -96,6 +97,7 @@ function _train(){
         rm ${log_file}
         cp mylog/workerlog.0 ${log_file}
     fi
+    cat ${log_file}
 }
 
 _set_params $@
