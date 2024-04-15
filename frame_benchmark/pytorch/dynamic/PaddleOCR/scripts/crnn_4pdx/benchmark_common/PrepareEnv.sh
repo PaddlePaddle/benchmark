@@ -8,7 +8,7 @@ pip install -U pip
 echo `pip --version`
 
 pip install torch==2.2.0 torchvision==0.17.0
-pip install lmdb pillow torchvision nltk natsort
+pip install lmdb pillow torchvision nltk natsort fire
 
 rm -rf ./datasets/ocr_rec_dataset_examples/
 wget -nc -P ./datasets/ https://paddle-model-ecology.bj.bcebos.com/uapi/data/ocr_rec_dataset_examples.tar --no-check-certificate
