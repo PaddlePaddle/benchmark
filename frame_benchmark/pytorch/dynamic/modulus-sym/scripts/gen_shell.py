@@ -362,7 +362,7 @@ def gen_end_to_end_shells():
         ## generate benchmark_common/prepare.sh
         with open(osp.join(example_name, "benchmark_common", "prepare.sh"), "w") as f:
             f.write("# install pytorch\n")
-            f.write("pip install torch --index-url https://download.pytorch.org/whl/cu118\n\n")
+            f.write("pip install torch==2.0.1 --index-url https://download.pytorch.org/whl/cu118\n\n")
             # install modulus
             f.write("# install modulus\n")
             f.write("pushd ../modulus/\n")
@@ -378,8 +378,9 @@ def gen_end_to_end_shells():
             # unzip dataset and move to each example directory if not exist
             f.write("if [ ! -d './examples_sym' ]; then\n")
             f.write("    unzip examples_sym.zip\n")
-            f.write("    \\cp -r -f -v ./examples_sym/examples/* ./examples/\n")
             f.write("fi\n")
+            f.write("unalias cp 2>/dev/null\n")
+            f.write("\\cp -r -f -v ./examples_sym/examples/* ./examples/\n")
 
         ## generate benchmark_common/analysis_log.py
         shutil.copy(
