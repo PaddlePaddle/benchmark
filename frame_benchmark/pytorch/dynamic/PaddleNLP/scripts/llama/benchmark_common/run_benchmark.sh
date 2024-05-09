@@ -83,6 +83,7 @@ function _train(){
             --fp16 True \
             --overwrite_output_dir True \
             --data_path ./data/train.txt \
+            --dataloader_num_workers 1 \
             ${use_com_args}
             "
     else
@@ -106,6 +107,7 @@ function _train(){
             --overwrite_output_dir True \
             --data_path ./data/train.txt \
             --fp16 False \
+            --dataloader_num_workers 1 \
             ${use_com_args}
             "
     fi

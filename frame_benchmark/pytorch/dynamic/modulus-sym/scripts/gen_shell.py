@@ -273,7 +273,7 @@ function _set_params(){{
     device_num=${{5:-"N1C1"}}         # (必选) 使用的卡数量，N1C1|N1C8|N4C32 （4机32卡）
 
     backend="pytorch"
-    model_repo="modulus"          # (必选) 模型套件的名字
+    model_repo="modulus-sym"          # (必选) 模型套件的名字
     speed_unit="ms/iteration"         # (必选)速度指标单位
     skip_steps=0                  # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="time/iteration:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
@@ -362,7 +362,7 @@ def gen_end_to_end_shells():
         ## generate benchmark_common/prepare.sh
         with open(osp.join(example_name, "benchmark_common", "prepare.sh"), "w") as f:
             f.write("# install pytorch\n")
-            f.write("pip install torch --index-url https://download.pytorch.org/whl/cu118\n\n")
+            f.write("pip install torch==2.0.1 --index-url https://download.pytorch.org/whl/cu118\n\n")
             # install modulus
             f.write("# install modulus\n")
             f.write("pushd ../modulus/\n")
@@ -378,8 +378,9 @@ def gen_end_to_end_shells():
             # unzip dataset and move to each example directory if not exist
             f.write("if [ ! -d './examples_sym' ]; then\n")
             f.write("    unzip examples_sym.zip\n")
-            f.write("    \\cp -r -f -v ./examples_sym/examples/* ./examples/\n")
             f.write("fi\n")
+            f.write("unalias cp 2>/dev/null\n")
+            f.write("\\cp -r -f -v ./examples_sym/examples/* ./examples/\n")
 
         ## generate benchmark_common/analysis_log.py
         shutil.copy(
