@@ -26,3 +26,4 @@ if [ ! -d './examples/darcy/datasets' ]; then
     tar xf Darcy_241.tar.gz
     cd -
 fi
+
