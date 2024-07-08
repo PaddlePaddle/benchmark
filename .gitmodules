@@ -163,7 +163,8 @@
 	url = https://github.com/open-mmlab/mmyolo.git
 [submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/deep-text-recognition-benchmark"]
 	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/deep-text-recognition-benchmark
-	url = https://github.com/clovaai/deep-text-recognition-benchmark.git
+	url = https://github.com/PaddleBenchmark/deep-text-recognition-benchmark.git
+    branch = master
 [submodule "frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym"]
 	path = frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
 	url = https://github.com/PaddleBenchmark/modulus-sym.git
