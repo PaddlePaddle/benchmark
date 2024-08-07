@@ -48,7 +48,6 @@ function _train(){
 
 #   以下为通用执行命令，无特殊可不用修改
 
-    export DDE_BACKEND=pytorch
     train_cmd="pushd examples/three_fin_2d; python heat_sink.py training.max_steps=600; popd"
     echo "pwd: $PWD train_cmd: ${train_cmd} log_file: ${train_log_file}"
     set -x
