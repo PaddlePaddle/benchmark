@@ -48,7 +48,6 @@ function _train(){
 
 #   以下为通用执行命令，无特殊可不用修改
 
-    export DDE_BACKEND=pytorch
     train_cmd="pushd examples/turbulent_channel/2d_std_wf; python re590_k_om.py training.max_steps=600; popd"
     echo "pwd: $PWD train_cmd: ${train_cmd} log_file: ${train_log_file}"
     set -x

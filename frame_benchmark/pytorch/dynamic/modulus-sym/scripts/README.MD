@@ -27,8 +27,13 @@ git clone https://github.com/PaddlePaddle/benchmark.git -b develop
 wget https://paddle-qa.bj.bcebos.com/benchmark/tools.tar.gz
 export BENCHMARK_ROOT=${ROOT_DIR}/benchmark-frame/tools
 
+pushd ${ROOT_DIR}/benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/
+git submodule update --init .
+popd
+
 model_path=${ROOT_DIR}/benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
-script_path=${ROOT_DIR}benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/scripts/annular_ring-annular_ring_equation_instancing-annular_ring/N1C1/annular_ring-annular_ring_equation_instancing-annular_ring_bs1_fp32_DP.sh
+
+script_path=${ROOT_DIR}/benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/scripts/annular_ring-annular_ring_equation_instancing-annular_ring/N1C1/annular_ring-annular_ring_equation_instancing-annular_ring_bs1_fp32_DP.sh
 
 \cp ${script_path} ${model_path}
 model_benchmark_common=$(dirname $(dirname ${script_path}))
