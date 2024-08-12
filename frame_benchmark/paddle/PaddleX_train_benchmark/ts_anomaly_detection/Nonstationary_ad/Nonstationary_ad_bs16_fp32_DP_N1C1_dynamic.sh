@@ -9,7 +9,7 @@ export run_mode=DP
 export device_num=N1C1
 export model_name=Nonstationary_ad_bs16_fp32_DP
 export job_name=PaddleX_ts_anomaly_detection_Nonstationary_ad_bs16_fp32_DP_N1C1
-export skip_steps=10
+export skip_steps=2
 export keyword="ips: "
 export convergence_key="loss: "
 export speed_unit="samples/s"
@@ -20,5 +20,5 @@ export distributed_train_logs=${MODEL_REPO_ROOT:-$PWD}/output/${job_name}/distri
 train_cmd="python main.py -c paddlex/configs/ts_anomaly_detection/Nonstationary_ad.yaml -o Global.device=gpu:${CUDA_VISIBLE_DEVICES} -o Global.mode=train -o Global.dataset_dir=dataset/ts_anomaly_detection_train_benchmark -o Global.output=output/${job_name} -o Train.batch_size=16 -o Train.epochs_iters=20"
 
 echo $train_cmd
-timeout 5m $train_cmd > $log_file 2>&1
+timeout 10m $train_cmd > $log_file 2>&1
 echo $train_cmd >> $log_file
