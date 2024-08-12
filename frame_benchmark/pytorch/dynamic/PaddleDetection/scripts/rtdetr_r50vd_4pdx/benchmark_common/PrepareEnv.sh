@@ -7,8 +7,8 @@ echo "*******prepare benchmark start ***********"
 pip install -U pip
 echo `pip --version`
 
-pip install torch==2.0.1 torchvision==0.15.2
-pip install pycocotools PyYAML scipy
+pip install torch==2.0.1 torchvision==0.15.2  # 升级torchvision 会报错cannot import name 'datapoints' from 'torchvision'
+pip install pycocotools==2.0.8 PyYAML==6.0 scipy==1.14.0
 
 rm -rf data
 wget -nc -q -P data https://paddledet.bj.bcebos.com/data/uapi_benchmark/benchmark_coco.tar
