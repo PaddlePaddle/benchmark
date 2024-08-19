@@ -17,7 +17,7 @@ export log_file=${TRAIN_LOG_DIR:-$PWD}/${job_name}_log
 export speed_log_file=${LOG_PATH_INDEX_DIR:-$PWD}/${job_name}_speed
 export distributed_train_logs=${MODEL_REPO_ROOT:-$PWD}/output/${job_name}/distributed_train_logs
 
-train_cmd="python main.py -c paddlex/configs/table_recognition/SLANet.yaml -o Global.device=gpu:${CUDA_VISIBLE_DEVICES} -o Global.mode=train -o Global.dataset_dir=dataset/table_rec_dataset_train_benchmark -o Global.output=output/${job_name} -o Train.batch_size=64 -o Train.log_interval=1 -o Train.epochs_iters=1"
+train_cmd="python main.py -c paddlex/configs/table_recognition/SLANet.yaml -o Global.mode=train -o Global.dataset_dir=dataset/table_rec_dataset_train_benchmark -o Train.epochs_iters=1 -o Train.log_interval=1 -o Benchmark.shuffle=False -o Benchmark.print_mem_info=True -o Benchmark.cal_metrics=False -o Benchmark.seed=1024 -o Benchmark.num_workers=1 -o Benchmark.do_eval=False -o Benchmark.disable_deamon=True -o Benchmark.env.FLAGS_eager_delete_tensor_gb=0.0 -o Benchmark.env.FLAGS_fraction_of_gpu_memory_to_use=0.98 -o Benchmark.env.FLAGS_conv_workspace_size_limit=4096 -o Global.model=SLANet -o Train.batch_size=64 -o Global.device=gpu:${CUDA_VISIBLE_DEVICES} -o Global.output=output/${job_name}"
 
 echo $train_cmd
 timeout 5m $train_cmd > $log_file 2>&1

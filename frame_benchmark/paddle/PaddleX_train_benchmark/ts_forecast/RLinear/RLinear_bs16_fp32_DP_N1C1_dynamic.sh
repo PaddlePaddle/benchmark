@@ -17,7 +17,7 @@ export log_file=${TRAIN_LOG_DIR:-$PWD}/${job_name}_log
 export speed_log_file=${LOG_PATH_INDEX_DIR:-$PWD}/${job_name}_speed
 export distributed_train_logs=${MODEL_REPO_ROOT:-$PWD}/output/${job_name}/distributed_train_logs
 
-train_cmd="python main.py -c paddlex/configs/ts_forecast/RLinear.yaml -o Global.device=gpu:${CUDA_VISIBLE_DEVICES} -o Global.mode=train -o Global.dataset_dir=dataset/ts_forecast_train_benchmark -o Global.output=output/${job_name} -o Train.batch_size=16 -o Train.patience=40 -o Train.epochs_iters=40"
+train_cmd="python main.py -c paddlex/configs/ts_forecast/RLinear.yaml -o Global.mode=train -o Global.dataset_dir=dataset/ts_anomaly_detection_train_benchmark -o Train.epochs_iters=40 -o Train.patience=40 -o Benchmark.print_mem_info=True -o Benchmark.disable_deamon=True -o Benchmark.env.FLAGS_eager_delete_tensor_gb=0.0 -o Benchmark.env.FLAGS_fraction_of_gpu_memory_to_use=0.98 -o Benchmark.env.FLAGS_conv_workspace_size_limit=4096 -o Global.model=RLinear -o Train.batch_size=16 -o Global.device=gpu:${CUDA_VISIBLE_DEVICES} -o Global.output=output/${job_name}"
 
 echo $train_cmd
 timeout 5m $train_cmd > $log_file 2>&1
