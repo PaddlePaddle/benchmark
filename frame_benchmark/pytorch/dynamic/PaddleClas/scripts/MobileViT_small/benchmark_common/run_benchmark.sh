@@ -85,7 +85,10 @@ function _train(){
     esac
 
     train_cmd="python -u main_train.py --common.config-file ${train_config} --common.results-loc results_mobilevit_small"
-
+    if [ "${FLAG_TORCH_COMPILE}" = "True"  ] || [ "${FLAG_TORCH_COMPILE}" = "true"  ];then
+        train_cmd="${train_cmd} --torchcompile"
+    fi
+    echo $train_cmd
 #   以下为通用执行命令，无特殊可不用修改
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then

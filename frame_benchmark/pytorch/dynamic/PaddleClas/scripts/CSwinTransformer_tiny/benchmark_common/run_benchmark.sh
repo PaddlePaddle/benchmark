@@ -65,6 +65,9 @@ function _train(){
 		   --drop-path=0.2 \
 		   --img-size=224 \
 		   --log-interval=1"
+    if [ "${FLAG_TORCH_COMPILE}" = "True"  ] || [ "${FLAG_TORCH_COMPILE}" = "true"  ];then
+        train_options="${train_options} --torchcompile"
+    fi
 
     case ${device_num} in
     N1C1) train_cmd="python -u main.py ${train_options}" ;;
