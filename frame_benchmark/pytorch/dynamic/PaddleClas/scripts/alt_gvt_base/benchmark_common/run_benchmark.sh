@@ -51,6 +51,10 @@ function _train(){
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${num_gpu_devices}, batch_size=${batch_size}"
 
     train_cmd="--model ${model_item} --batch-size ${batch_size} --data-path data/imagenet --dist-eval --drop-path 0.3 --epochs ${max_epochs} --num_workers ${num_workers}"
+    if [ "${FLAG_TORCH_COMPILE}" = "True"  ] || [ "${FLAG_TORCH_COMPILE}" = "true"  ];then
+        train_cmd="${train_cmd} --torchcompile"
+    fi
+
     case ${run_process_type} in
     SingleP) train_cmd="python main.py ${train_cmd}" ;;
     MultiP)
@@ -59,6 +63,7 @@ function _train(){
     esac
 
 #   以下为通用执行命令，无特殊可不用修改
+    echo "${train_cmd}"
     timeout 5m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"

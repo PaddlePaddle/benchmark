@@ -59,7 +59,9 @@ function _train(){
     if [ ${fp_item} = 'fp16' ];then
         train_options="${train_options} --amp"
     fi
-
+    if [ "${FLAG_TORCH_COMPILE}" = "True"  ] || [ "${FLAG_TORCH_COMPILE}" = "true"  ];then
+        train_options="${train_options} --torchcompile"
+    fi
     case ${run_process_type} in
     SingleP) train_cmd="python train.py ${train_options}" ;;
     MultiP) 
