@@ -50,6 +50,7 @@ pytorch:
   PPLCNet_x0_75: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
   PPLCNet_x1_0: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
   CLIP_ViT_base_patch16_224_finetune: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
+  PPHGNetV2_B0: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
   StyleGANv2: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/stylegan2-pytorch
   FOMM: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/first-order-model
   edvr: benchmark/frame_benchmark/pytorch/dynamic/PaddleGAN/models/mmediting
@@ -72,6 +73,7 @@ pytorch:
   yolov5_l_300e_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5
   yolov7_l_300e_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7
   dino_r50_4scale_1x_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex
+  rtdetr_l: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/ultralytics
   conformer: benchmark/frame_benchmark/pytorch/dynamic/PaddleSpeech/models/wenet
   fastscnn: benchmark/frame_benchmark/pytorch/dynamic/PaddleSeg/models/mmsegmentation
   det_r50_vd_pse: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/PSENet
@@ -118,7 +120,7 @@ pytorch:
   HGNet_small_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
   crnn_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/deep-text-recognition-benchmark
   det_r50_db_v2_0_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch
-
+  
   # --- paths of modulus 51 examples below --- #
   darcy-darcy_PINO: benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
   chip_2d-chip_2d_solid_fluid_heat_transfer_heat: benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
