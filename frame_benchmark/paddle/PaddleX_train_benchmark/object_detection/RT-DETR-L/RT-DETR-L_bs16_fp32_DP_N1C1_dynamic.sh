@@ -17,7 +17,7 @@ export log_file=${TRAIN_LOG_DIR:-$PWD}/${job_name}_log
 export speed_log_file=${LOG_PATH_INDEX_DIR:-$PWD}/${job_name}_speed
 export distributed_train_logs=${MODEL_REPO_ROOT:-$PWD}/output/${job_name}/distributed_train_logs
 
-train_cmd="python main.py -c paddlex/configs/object_detection/RT-DETR-L.yaml -o Global.mode=train -o Global.dataset_dir=dataset/coco_train_benchmark -o Train.epochs_iters=1 -o Train.log_interval=1 -o Train.num_classes=80 -o Benchmark.shuffle=False -o Benchmark.shared_memory=True -o Benchmark.print_mem_info=True -o Benchmark.do_eval=False -o Benchmark.disable_deamon=True -o Global.model=RT-DETR-L -o Train.batch_size=16 -o Benchmark.num_workers=16 -o Global.device=gpu:${CUDA_VISIBLE_DEVICES} -o Global.output=output/${job_name}"
+train_cmd="python main.py -c paddlex/configs/object_detection/RT-DETR-L.yaml -o Global.mode=train -o Global.dataset_dir=dataset/coco_train_benchmark -o Train.epochs_iters=1 -o Train.log_interval=1 -o Train.num_classes=80 -o Benchmark.shuffle=False -o Benchmark.shared_memory=True -o Benchmark.print_mem_info=True -o Benchmark.do_eval=False -o Benchmark.disable_deamon=True -o Global.model=RT-DETR-L -o Train.batch_size=16 -o Benchmark.num_workers=16 -o Global.device=gpu:${CUDA_VISIBLE_DEVICES} -o Global.output=output/${job_name} -o Train.uniform_output_enabled=False"
 
 echo $train_cmd
 timeout 5m $train_cmd > $log_file 2>&1
