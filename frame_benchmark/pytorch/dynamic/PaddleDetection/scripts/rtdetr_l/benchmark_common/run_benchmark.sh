@@ -49,7 +49,7 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py "${model_item}" "${log_file}" "${speed_log_file}" "${device_num}" "${base_batch_size}" "${fp_item}" 'batch_cost: (.*) data'
+    python analysis_log.py "${model_item}" "${log_file}" "${speed_log_file}" "${device_num}" "${base_batch_size}" "${fp_item}" 'ips:(.*) '
 }
 
 function _train(){
@@ -93,6 +93,7 @@ function _train(){
     SingleP) train_cmd="yolo detect train data=custom_configs/dataset/coco_benchmark.yaml model=${train_config} val=False epochs=${max_epochs} batch=${batch_size} workers=${num_workers}  ${set_amp}" ;;
     MultiP)
       if [ "${device_num:3}" = '8' ]; then
+          batch_size=`expr ${batch_size} \* 8`
           train_cmd="yolo detect train data=custom_configs/dataset/coco_benchmark.yaml model=${train_config} val=False epochs=${max_epochs} batch=${batch_size} workers=${num_workers}  ${set_amp} device=0,1,2,3,4,5,6,7"
       else
           echo "invalid number of devices" 1>&2

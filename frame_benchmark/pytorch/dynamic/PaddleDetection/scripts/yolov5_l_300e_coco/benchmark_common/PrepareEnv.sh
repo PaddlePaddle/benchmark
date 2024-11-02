@@ -13,7 +13,7 @@ tar xf ${tar_file_name}
 rm -rf ${tar_file_name}
 pip install ${dir_name}/*
 
-pip install -r requirements.txt
+pip install -e .
 
 rm -rf datasets
 wget --no-proxy -nc -P datasets/coco128/  https://paddledet.bj.bcebos.com/data/tipc/cocomini_yolov5_yolov7.tar
@@ -22,11 +22,12 @@ mv cocomini_yolov5_yolov7/* ./
 cd .. && cd ..
 rm -rf ./datasets/coco128/labels/*.cache
 rm -rf ./runs
+rm -rf /root/.config/Ultralytics
 wget --no-proxy https://paddledet.bj.bcebos.com/data/tipc/Arial.ttf
 mkdir -p /root/.config/Ultralytics/
 mv Arial.ttf /root/.config/Ultralytics/
 
 # fix bug to adapt to torch 2.0
-sed -i 's/local_rank/local-rank/g' train.py
+# sed -i 's/local_rank/local-rank/g' train.py
 
 echo "*******prepare benchmark end***********"

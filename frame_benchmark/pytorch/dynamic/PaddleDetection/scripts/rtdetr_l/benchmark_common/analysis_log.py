@@ -7,21 +7,20 @@ import sys
 import json
 import os
 
-def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, time_pat, skip_num=4):
-    time_pat = re.compile(time_pat)
+def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, ips_pat, skip_num=4):
+    ips_pat = re.compile(ips_pat)
     logs = open(log_file).readlines()
     logs = ";".join(logs)
-    time_res = time_pat.findall(logs)
+    ips_res = ips_pat.findall(logs)
 
-    gpu_num = int(device_num[3:])
     run_mode = "DP"
     bs = int(bs)
     ips = 0
 
-    if len(time_res) > skip_num:
-        time_res = [float(a) for a in time_res]
-        avg_time = sum(time_res[skip_num:]) / (len(time_res) - skip_num)
-        ips = round(bs / avg_time, 3) * gpu_num
+    if len(ips_res) > skip_num:
+        ips_res = [float(a) for a in ips_res]
+        avg_ips = sum(ips_res[skip_num:]) / (len(ips_res) - skip_num)
+        ips = avg_ips
     model_name = model_item+"_"+"bs"+str(bs)+"_"+fp_item+"_"+run_mode
     info = {    "model_branch": os.getenv('model_branch'),
                 "model_commit": os.getenv('model_commit'),
@@ -54,5 +53,5 @@ if __name__ == "__main__":
     device_num = sys.argv[4]
     bs = sys.argv[5]
     fp_item = sys.argv[6]
-    time_pat = sys.argv[7]
-    analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, time_pat)
+    ips_pat = sys.argv[7]
+    analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, ips_pat)
