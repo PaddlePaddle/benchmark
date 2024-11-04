@@ -20,5 +20,5 @@ export distributed_train_logs=${MODEL_REPO_ROOT:-$PWD}/output/${job_name}/distri
 train_cmd="python main.py -c paddlex/configs/semantic_segmentation/Deeplabv3-R50.yaml -o Global.mode=train -o Global.dataset_dir=dataset/cityscapes_train_benchmark -o Train.log_interval=15 -o Train.num_classes=19 -o Benchmark.shuffle=False -o Benchmark.print_mem_info=True -o Benchmark.seed=100 -o Benchmark.repeats=500 -o Benchmark.num_workers=8 -o Benchmark.do_eval=False -o Benchmark.disable_deamon=True -o Benchmark.env.FLAGS_eager_delete_tensor_gb=0.0 -o Benchmark.env.FLAGS_fraction_of_gpu_memory_to_use=0.98 -o Benchmark.env.FLAGS_conv_workspace_size_limit=4096 -o Global.model=Deeplabv3-R50 -o Train.epochs_iters=400 -o Train.batch_size=4 -o Benchmark.amp=O2 -o Global.device=gpu:${CUDA_VISIBLE_DEVICES} -o Global.output=output/${job_name} -o Train.dy2st=True -o Train.uniform_output_enabled=False"
 
 echo $train_cmd
-timeout 5m $train_cmd > $log_file 2>&1
+timeout 15m $train_cmd > $log_file 2>&1
 echo $train_cmd >> $log_file
