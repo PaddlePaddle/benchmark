@@ -15,6 +15,7 @@ pip install --upgrade pip
 pip install ninja -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -v mmcv-full==1.7.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install yapf==0.40.1
 pip install -v -e .
 
 echo "******* prepare dataset for benchmark ***********"
