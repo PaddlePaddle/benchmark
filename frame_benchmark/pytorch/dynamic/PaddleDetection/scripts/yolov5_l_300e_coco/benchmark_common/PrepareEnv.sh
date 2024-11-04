@@ -26,8 +26,10 @@ rm -rf /root/.config/Ultralytics
 wget --no-proxy https://paddledet.bj.bcebos.com/data/tipc/Arial.ttf
 mkdir -p /root/.config/Ultralytics/
 mv Arial.ttf /root/.config/Ultralytics/
+wget --no-proxy https://paddle-qa.bj.bcebos.com/benchmark/pretrained/yolo11n.pt
 
 # fix bug to adapt to torch 2.0
 # sed -i 's/local_rank/local-rank/g' train.py
 
+yolo settings datasets_dir=${PWD}/datasets
 echo "*******prepare benchmark end***********"
