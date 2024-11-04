@@ -19,10 +19,12 @@ rm -rf /root/.config/Ultralytics
 wget --no-proxy https://paddledet.bj.bcebos.com/data/tipc/Arial.ttf
 mkdir -p /root/.config/Ultralytics/
 mv Arial.ttf /root/.config/Ultralytics/
+wget --no-proxy https://paddle-qa.bj.bcebos.com/benchmark/pretrained/yolo11n.pt
 
 
 rm -rf data
 wget -nc -q -P data https://paddle-model-ecology.bj.bcebos.com/paddlex/PaddleX3.0/benchmark/dataset/coco_train_benchmark.tar
 
 ( cd ./data && tar -xf coco_train_benchmark.tar )
+yolo settings datasets_dir=${PWD}/data
 echo "*******prepare benchmark end***********"
