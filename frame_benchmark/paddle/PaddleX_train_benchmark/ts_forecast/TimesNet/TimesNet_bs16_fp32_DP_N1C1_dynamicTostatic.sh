@@ -20,5 +20,5 @@ export distributed_train_logs=${MODEL_REPO_ROOT:-$PWD}/output/${job_name}/distri
 train_cmd="python main.py -c paddlex/configs/ts_forecast/TimesNet.yaml -o Global.mode=train -o Global.dataset_dir=dataset/ts_forecast_train_benchmark -o Train.epochs_iters=5 -o Train.patience=40 -o Benchmark.print_mem_info=True -o Benchmark.disable_deamon=True -o Benchmark.env.FLAGS_eager_delete_tensor_gb=0.0 -o Benchmark.env.FLAGS_fraction_of_gpu_memory_to_use=0.98 -o Benchmark.env.FLAGS_conv_workspace_size_limit=4096 -o Global.model=TimesNet -o Train.batch_size=16 -o Global.device=gpu:${CUDA_VISIBLE_DEVICES} -o Global.output=output/${job_name} -o Train.dy2st=True -o Train.uniform_output_enabled=False"
 
 echo $train_cmd
-timeout 5m $train_cmd > $log_file 2>&1
+timeout 15m $train_cmd > $log_file 2>&1
 echo $train_cmd >> $log_file
