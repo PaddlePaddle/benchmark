@@ -50,12 +50,12 @@ pytorch:
    PPLCNet_x1_0: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.8-cudnn8.6-nccl2.15.5
    CLIP_ViT_base_patch16_224_finetune: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.8-cudnn8.6-nccl2.15.5
    PPHGNetV2_B0: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.8-cudnn8.6-nccl2.15.5
-   FOMM: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda10.2-cudnn7   
-   StyleGANv2: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8 
+   FOMM: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda10.2-cudnn7
+   StyleGANv2: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    edvr: iregistry.baidu-int.com/paddle-benchmark/paddlecloud-base-image:paddlecloud-ubuntu18.04-gcc8.2-cuda11.2-cudnn8
    transformer_big: iregistry.baidu-int.com/paddle-benchmark/pytorch-ngc:21.11-py3
    bert_base_seqlen128: iregistry.baidu-int.com/paddle-benchmark/pytorch-ngc:21.11-py3
-   bert_large_seqlen512: iregistry.baidu-int.com/paddle-benchmark/pytorch-ngc:21.11-py3 
+   bert_large_seqlen512: iregistry.baidu-int.com/paddle-benchmark/pytorch-ngc:21.11-py3
    basicvsr: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    esrgan: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    conformer: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
@@ -67,13 +67,13 @@ pytorch:
    hrnet_w32_256x192: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    solov2_r50_fpn_1x_coco: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    gfl_r50_fpn_1x_coco: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
-   fcos_r50_fpn_1x_coco: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10 
+   fcos_r50_fpn_1x_coco: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    faster_rcnn_r50_fpn_1x_coco: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    deformable_detr_r50_1x_coco: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    mask_rcnn_r50_1x_coco: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    mask_rcnn_r50_fpn_1x_coco: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    yolov3_darknet53_270e_coco: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
-   yolov5_l_300e_coco: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
+   yolov5_l_300e_coco: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.8-cudnn8.6-nccl2.15.5
    yolov7_l_300e_coco: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    dino_r50_4scale_1x_coco: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
    det_r50_vd_pse: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.7-cudnn8-nccl2.12.12-python3.10
@@ -114,7 +114,7 @@ pytorch:
    llama_pretrain: iregistry.baidu-int.com/paddle-benchmark/llama-megatron:cuda11.7-cudnn8.4.1-nccl2.12.12-torch1.13.1
    blip2: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu20.04-gcc12.0-cuda12.0-cudnn8.9-nccl2.17.1-openmpi4.1.5
    llm: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu20.04-gcc12.0-cuda12.0-cudnn8.9-nccl2.17.1-openmpi4.1.5
-   
+
    # --- docker images of uapi examples below --- #
    rtdetr_r50vd_4pdx: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.8-cudnn8.6-nccl2.15.5
    ppyoloe_plus_l_4pdx: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.8-cudnn8.6-nccl2.15.5
