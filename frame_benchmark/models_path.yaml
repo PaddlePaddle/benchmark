@@ -70,7 +70,7 @@ pytorch:
   mask_rcnn_r50_1x_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
   mask_rcnn_r50_fpn_1x_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
   yolov3_darknet53_270e_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmdetection
-  yolov5_l_300e_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov5
+  yolov5_l_300e_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/ultralytics
   yolov7_l_300e_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/yolov7
   dino_r50_4scale_1x_coco: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/detrex
   rtdetr_l: benchmark/frame_benchmark/pytorch/dynamic/PaddleDetection/models/ultralytics
@@ -120,7 +120,7 @@ pytorch:
   HGNet_small_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
   crnn_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/deep-text-recognition-benchmark
   det_r50_db_v2_0_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch
-  
+
   # --- paths of modulus 51 examples below --- #
   darcy-darcy_PINO: benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
   chip_2d-chip_2d_solid_fluid_heat_transfer_heat: benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
