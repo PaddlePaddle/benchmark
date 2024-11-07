@@ -1,4 +1,4 @@
-model_item="ocrnet_hrnetw48"
+model_item="ocrnet_hrnetw48_crop_size_512"
 bs_item=4
 fp_item=fp32
 run_mode=DP
