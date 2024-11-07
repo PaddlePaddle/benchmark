@@ -24,3 +24,9 @@ fi
 unalias cp 2>/dev/null
 \cp -r -f -v ./examples_sym/examples/* ./examples/
 
+if [ ! -d './examples/darcy/datasets' ]; then
+    mkdir -p ./examples/darcy/datasets && cd ./examples/darcy/datasets
+    wget https://paddle-qa.bj.bcebos.com/benchmark/pretrained/Darcy_241.tar.gz
+    tar xf Darcy_241.tar.gz
+    cd -
+fi
