@@ -1,6 +1,6 @@
 model_item=yolov5_l_300e_coco
 bs_item=16
-fp_item=fp16
+fp_item=amp
 run_process_type=SingleP
 run_mode=DP
 device_num=N1C1
