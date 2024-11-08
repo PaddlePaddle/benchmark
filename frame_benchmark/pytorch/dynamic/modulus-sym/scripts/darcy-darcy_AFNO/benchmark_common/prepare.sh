@@ -6,6 +6,7 @@ tar_file_name=$(echo ${FLAG_TORCH_WHL_URL} | awk -F '/' '{print $NF}')
 dir_name=$(echo ${tar_file_name} | awk -F '.' '{print $1}')
 tar xf ${tar_file_name}
 rm -rf ${tar_file_name}
+pip install ${dir_name}/*
 
 # install modulus
 pushd ../modulus/
