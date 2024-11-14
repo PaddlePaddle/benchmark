@@ -50,7 +50,7 @@ function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
-
+    train_config="mmseg_benchmark_configs/${model_item}.py"
     if [ ${fp_item} = "fp16" ];then
         train_config_fp16="mmseg_benchmark_configs/${model_item}_fp16.py"
         cp -r ${train_config} ${train_config_fp16}
