@@ -51,11 +51,6 @@ function _train(){
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
 
-    if [ ${crop_size} = "512" ];then
-        train_config="mmseg_benchmark_configs/${model_item}_crop_size_512.py"
-    else
-        train_config="mmseg_benchmark_configs/${model_item}.py"
-    fi
     if [ ${fp_item} = "fp16" ];then
         train_config_fp16="mmseg_benchmark_configs/${model_item}_fp16.py"
         cp -r ${train_config} ${train_config_fp16}
