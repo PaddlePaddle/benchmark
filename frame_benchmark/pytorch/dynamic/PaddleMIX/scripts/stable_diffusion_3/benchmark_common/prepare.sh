@@ -10,16 +10,9 @@ log_date=`date "+%Y.%m%d.%H%M%S"`
 
 unset https_proxy && unset http_proxy
 
-# wget -c --no-proxy ${FLAG_TORCH_WHL_URL}
-# tar_file_name=$(echo ${FLAG_TORCH_WHL_URL} | awk -F '/' '{print $NF}')
-# dir_name=$(echo ${tar_file_name} | awk -F '.tar' '{print $1}')
-# tar xf ${tar_file_name}
-# rm -rf ${tar_file_name}
 
 RUN_SETUP=${RUN_SETUP:-"true"}
 if [ "$RUN_SETUP" = "true" ]; then
-    # pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/web/simple
-    # pip install ${dir_name}/*
     pip install torch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 
     # --index-url https://download.pytorch.org/whl/cu118
     pip install diffusers==0.29.0 
@@ -30,10 +23,6 @@ if [ "$RUN_SETUP" = "true" ]; then
     pip install protobuf==5.28.3
     pip install datasets==3.1.0
     pip install peft==0.13.2
-    # pip install --upgrade tokenizers
-    # pip install --upgrade transformers
-    # # pip install pybind11>=2.12
-    # pip install install accelerate==0.29.3  pandas numpy scipy datasets diffusers==0.29.0 ftfy safetensors tensorboard
 else
     echo "Skipping setup and installation steps as RUN_SETUP is set to false."
 fi
@@ -57,16 +46,5 @@ if [ ! -d "dog" ]; then
 else
     echo "Directory dog already exists. Skipping download."
 fi
-# rm -rf stable-diffusion-3-medium-diffusers
-# rm -rf stable-diffusion-3-medium-diffusers.tar
-# rm -rf dog
-# rm -rf dog.zip
-# wget https://paddlenlp.bj.bcebos.com/models/community/westfish/sd3/stable-diffusion-3-medium-diffusers.tar
-# tar -xvf stable-diffusion-3-medium-diffusers.tar
-# wget https://paddlenlp.bj.bcebos.com/models/community/westfish/develop-sdxl/dog.zip
-# unzip dog.zip
 
-
-# 解决compile下报错的问题
-# ln -s /usr/include/python3.10 /usr/local/include/ 
 echo "*******prepare benchmark end***********"
