@@ -143,18 +143,19 @@ class StaticHelper(object):
         place = paddle.CUDAPlace(0) if use_gpu else paddle.CPUPlace()
         for var in feed_vars:
             if var.type != paddle.base.core.VarDesc.VarType.LOD_TENSOR:
-                raise TypeError("Feed data of non LoDTensor is not supported.")
+                raise TypeError(
+                    "Feed data of non DenseTensor is not supported.")
 
             var_in_scope = scope.var(var.name)
             tensor = var_in_scope.get_tensor()
 
             cur_feed = feed_dict[var.name]
             if isinstance(cur_feed, np.ndarray) or isinstance(
-                    cur_feed, paddle.base.core.LoDTensor):
+                    cur_feed, paddle.base.core.DenseTensor):
                 tensor.set(cur_feed, place)
             else:
                 raise TypeError(
-                    "Feed data of non LoDTensor/np.ndarray is not supported yet."
+                    "Feed data of non DenseTensor/np.ndarray is not supported yet."
                 )
 
     def get_fetch_tensor(self, fetch_vars, scope):
@@ -164,7 +165,7 @@ class StaticHelper(object):
         for var in fetch_vars:
             if var.type != paddle.base.core.VarDesc.VarType.LOD_TENSOR:
                 raise TypeError(
-                    "Fetch data of non LoDTensor is not supported.")
+                    "Fetch data of non DenseTensor is not supported.")
 
             var_in_scope = scope.find_var(var.name)
             assert var_in_scope, "Variable {} is not created.".format(var.name)

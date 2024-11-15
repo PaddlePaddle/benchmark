@@ -214,7 +214,7 @@ class FeederAdapter(object):
                     var = feed_vars[i]
                     if var.type != paddle.base.core.VarDesc.VarType.LOD_TENSOR:
                         raise TypeError(
-                            "Feed data of non LoDTensor is not supported.")
+                            "Feed data of non DenseTensor is not supported.")
 
                     # Check shape and dtype
                     var_shape = var.shape
