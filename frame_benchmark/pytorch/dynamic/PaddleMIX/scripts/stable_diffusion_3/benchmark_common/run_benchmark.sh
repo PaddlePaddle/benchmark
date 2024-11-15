@@ -47,10 +47,16 @@ function _set_params(){
 
 }
 
+# function _analysis_log(){
+#     python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} ${base_batch_size} ${fp_item} ${run_process_type}
+# }
 function _analysis_log(){
-    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} ${base_batch_size} ${fp_item} ${run_process_type}
+    # cd -
+    analysis_log_cmd="python analysis_log.py \
+        ${model_item} ${log_file} ${speed_log_file} ${device_num} ${base_batch_size} ${fp_item}"
+    echo ${analysis_log_cmd}
+    eval ${analysis_log_cmd}
 }
-
 function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
@@ -223,7 +229,13 @@ function _train(){
     *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
     esac
 
-    timeout 30m ${train_cmd} > ${log_file} 2>&1
+    RUN_SETUP=${RUN_SETUP:-"true"}
+    if [ "$RUN_SETUP" = "true" ]; then
+        timeout 30m ${train_cmd} > ${log_file} 2>&1
+    else
+        echo "fast mode, only run 3m"
+        timeout 3m ${train_cmd} > ${log_file} 2>&1
+    fi
     # eval "timeout 30m ${train_cmd} > ${log_file} 2>&1"
     # 这个判断，无论是否成功都是0
     if [ $? -ne 0 ];then
@@ -243,8 +255,8 @@ function _train(){
 _set_params $@
 export frame_version=`python -c "import torch;print(torch.__version__)"`
 echo "---------frame_version is torch ${frame_version}"
-echo "---------model_branch is ${model_branch}"
-echo "---------model_commit is ${model_commit}"
+# echo "---------model_branch is ${model_branch}"
+# echo "---------model_commit is ${model_commit}"
 job_bt=`date '+%Y%m%d%H%M%S'`
 _train
 job_et=`date '+%Y%m%d%H%M%S'`

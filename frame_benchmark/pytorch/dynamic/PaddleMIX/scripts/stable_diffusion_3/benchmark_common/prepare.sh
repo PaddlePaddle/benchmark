@@ -20,11 +20,16 @@ RUN_SETUP=${RUN_SETUP:-"true"}
 if [ "$RUN_SETUP" = "true" ]; then
     # pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/web/simple
     # pip install ${dir_name}/*
-    pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 
+    pip install torch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 
+    # --index-url https://download.pytorch.org/whl/cu118
     pip install diffusers==0.29.0 
-    pip install sentencepiece
-    pip install accelerate
-    pip install transformers
+    pip install sentencepiece==0.2.0
+    pip install accelerate==1.1.1
+    pip install transformers==4.46.2
+    pip install tensorboard==2.18.0
+    pip install protobuf==5.28.3
+    pip install datasets==3.1.0
+    pip install peft==0.13.2
     # pip install --upgrade tokenizers
     # pip install --upgrade transformers
     # # pip install pybind11>=2.12
