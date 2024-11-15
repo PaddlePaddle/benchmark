@@ -142,7 +142,7 @@ class StaticHelper(object):
     def init_feed_tensor(self, use_gpu, feed_vars, feed_dict, scope):
         place = paddle.CUDAPlace(0) if use_gpu else paddle.CPUPlace()
         for var in feed_vars:
-            if var.type != paddle.base.core.VarDesc.VarType.LOD_TENSOR:
+            if var.type != paddle.base.core.VarDesc.VarType.DENSE_TENSOR:
                 raise TypeError(
                     "Feed data of non DenseTensor is not supported.")
 
@@ -163,7 +163,7 @@ class StaticHelper(object):
         place.set_place(paddle.CPUPlace())
         output = []
         for var in fetch_vars:
-            if var.type != paddle.base.core.VarDesc.VarType.LOD_TENSOR:
+            if var.type != paddle.base.core.VarDesc.VarType.DENSE_TENSOR:
                 raise TypeError(
                     "Fetch data of non DenseTensor is not supported.")
 
