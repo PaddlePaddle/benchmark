@@ -22,7 +22,7 @@ import sys
 import numpy as np
 
 
-def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, run_process_type):
+def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item):
     with open(str(log_file), "r", encoding="utf8") as f:
         data = f.readlines()
     ips_lines = []
@@ -69,6 +69,5 @@ if __name__ == "__main__":
     device_num = sys.argv[4]
     bs = int(sys.argv[5])
     fp_item = sys.argv[6]
-    run_process_type = sys.argv[7]
 
-    analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, run_process_type)
+    analyze(model_item, log_file, res_log_file, device_num, bs, fp_item)

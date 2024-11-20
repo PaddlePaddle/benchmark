@@ -6,17 +6,16 @@ function _set_params(){
     model_item=${1:-"llava-v1.6-vicuna-7b-sft"}   # (必选) 模型 item |llava-v1.6-vicuna-7b-sft|llava-v1.6-vicuna-13b-sft|llava-v1.6-vicuna-7b-pretrain|llava-v1.6-vicuna-7b-lora_sft|llava-v1.6-vicuna-13b-pretrain|llava-v1.6-vicuna-13b-lora_sft
     base_batch_size=${2:-"1"}            # (必选) 每张卡上的batch_size
     fp_item=${3:-"bf16"}                 # (必选) fp32|fp16|bf16
-    run_process_type=${4:-"MultiP"}      # (必选) 单进程 SingleP|多进程 MultiP
-    run_mode=${5:-"DP"}                  # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
-    device_num=${6:-"N1C8"}              # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
+    run_mode=${4:-"DP"}                  # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
+    device_num=${5:-"N1C8"}              # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
     model_repo="LLaMA-Factory"             # (必选) 模型套件的名字
     speed_unit="sample/sec"                # (必选)速度指标单位
     skip_steps=2                        # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="train_samples_per_second"                       # (必选)解析日志，筛选出性能数据所在行的关键字
     convergence_key="loss"                   # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
-    max_epochs=${7:-"1"}                 # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
-    num_workers=${8:-"1"}                # (可选)
+    max_epochs=${6:-"1"}                 # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
+    num_workers=${7:-"1"}                # (可选)
 
     # Added for distributed training
     node_num=${9:-"1"}                      #（可选） 节点数量
@@ -48,7 +47,7 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} ${base_batch_size} ${fp_item} ${run_process_type}
+    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} ${base_batch_size} ${fp_item}
 }
 
 function _train(){
@@ -191,16 +190,13 @@ function _train(){
         "
     fi
     
-    case ${run_process_type} in
-    SingleP) train_cmd="torchrun --nnodes 1 --nproc_per_node 1 ${train_cmd}" ;;
-    MultiP)
-    if [ ${device_num:3} = '32' ];then 
+
+    if [ ${device_num} = 'N1C8' ];then 
         train_cmd="torchrun --nnodes ${node_num} --nproc_per_node 8 --node_rank ${node_rank} --master_addr ${master_addr} --master_port ${master_port} ${train_cmd}"
     else
         train_cmd="torchrun --nnodes 1 --nproc_per_node 8 ${train_cmd}"
-    fi;;
-    *) echo "choose run_mode(SingleP or MultiP)"; exit 1;
-    esac
+    fi
+
 
     timeout 30m ${train_cmd} > ${log_file} 2>&1
     rm -rf work_dirs
