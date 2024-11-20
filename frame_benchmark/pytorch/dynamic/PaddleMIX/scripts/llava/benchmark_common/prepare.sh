@@ -28,4 +28,5 @@ export PYTHONPATH=$(dirname "$PWD"):$PYTHONPATH
 python -m pip install --upgrade pip -i https://mirror.baidu.com/pypi/simple
 python -m pip install einops -i https://mirror.baidu.com/pypi/simple
 python -m pip install -r requirements.txt
+pip install flash-attn --no-build-isolation
 
