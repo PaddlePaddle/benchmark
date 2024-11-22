@@ -57,27 +57,27 @@ function _train(){
 
     #模型权重
     if [ ${model_item} = "llava-v1.6-vicuna-7b-sft" ]; then
-        model_path="liuhaotian/llava-v1.6-vicuna-7b"
+        model_path="models--liuhaotian--llava-v1.6-vicuna-7b"
         train_stage="sft"
     fi
     if [ ${model_item} = "llava-v1.6-vicuna-7b-pretrain" ]; then
-        model_path="lmsys/vicuna-7b-v1.5"
+        model_path="models--lmsys--vicuna-7b-v1.5"
         train_stage="pretrain"
     fi
     if [ ${model_item} = "llava-v1.6-vicuna-7b-lora_sft" ]; then
-        model_path="liuhaotian/llava-v1.6-vicuna-7b"
+        model_path="models--liuhaotian--llava-v1.6-vicuna-7b"
         train_stage="lora_sft"
     fi
     if [ ${model_item} = "llava-v1.6-vicuna-13b-sft" ]; then
-        model_path="liuhaotian/llava-v1.6-vicuna-13b"
+        model_path="models--liuhaotian--llava-v1.6-vicuna-13b"
         train_stage="sft"
     fi
     if [ ${model_item} = "llava-v1.6-vicuna-13b-pretrain" ]; then
-        model_path="lmsys/vicuna-13b-v1.5"
+        model_path="models--lmsys--vicuna-13b-v1.5"
         train_stage="pretrain"
     fi
     if [ ${model_item} = "llava-v1.6-vicuna-13b-lora_sft" ]; then
-        model_path="liuhaotian/llava-v1.6-vicuna-13b"
+        model_path="models--liuhaotian--llava-v1.6-vicuna-13b"
         train_stage="lora_sft"
     fi
 
@@ -89,16 +89,16 @@ function _train(){
         --version v1 \
         --data_path /root/.paddlemix/datasets/llava_bench_data/ScienceQA_val_500_torch.json \
         --image_folder /root/.paddlemix/datasets \
-        --vision_tower openai/clip-vit-large-patch14-336 \
+        --vision_tower models--openai--clip-vit-large-patch14-336 \
         --mm_projector_type mlp2x_gelu \
         --mm_vision_select_layer -2 \
         --mm_use_im_start_end False \
         --mm_use_im_patch_token False \
-        --image_aspect_ratio pad \
+        --image_aspect_ratio anyres \
         --group_by_modality_length True \
         --bf16 True \
         --output_dir ./checkpoints/${model_item} \
-        --num_train_epochs 1 \
+        --num_train_epochs ${max_epochs} \
         --per_device_train_batch_size ${base_batch_size} \
         --gradient_accumulation_steps 1 \
         --evaluation_strategy "no" \
@@ -126,16 +126,16 @@ function _train(){
         --version v1 \
         --data_path /root/.paddlemix/datasets/llava_bench_data/ScienceQA_val_500_torch.json \
         --image_folder /root/.paddlemix/datasets \
-        --vision_tower openai/clip-vit-large-patch14-336 \
+        --vision_tower models--openai--clip-vit-large-patch14-336 \
         --mm_projector_type mlp2x_gelu \
         --mm_vision_select_layer -2 \
         --mm_use_im_start_end False \
         --mm_use_im_patch_token False \
-        --image_aspect_ratio pad \
+        --image_aspect_ratio anyres \
         --group_by_modality_length True \
         --bf16 True \
         --output_dir ./checkpoints/${model_item} \
-        --num_train_epochs 1 \
+        --num_train_epochs ${max_epochs} \
         --per_device_train_batch_size ${base_batch_size} \
         --gradient_accumulation_steps 1 \
         --evaluation_strategy "no" \
@@ -159,10 +159,10 @@ function _train(){
         train_cmd="llava/train/train_mem.py \
         --deepspeed zero2.json \
         --model_name_or_path ${model_path} \
-        --version plain \
+        --version v1 \
         --data_path /root/.paddlemix/datasets/llava_bench_data/ScienceQA_val_500_torch.json \
         --image_folder /root/.paddlemix/datasets \
-        --vision_tower openai/clip-vit-large-patch14-336 \
+        --vision_tower models--openai--clip-vit-large-patch14-336 \
         --mm_projector_type mlp2x_gelu \
         --tune_mm_mlp_adapter True \
         --mm_vision_select_layer -2 \
@@ -170,7 +170,7 @@ function _train(){
         --mm_use_im_patch_token False \
         --bf16 True \
         --output_dir ./checkpoints/${model_item} \
-        --num_train_epochs 1 \
+        --num_train_epochs ${max_epochs} \
         --per_device_train_batch_size ${base_batch_size} \
         --gradient_accumulation_steps 1 \
         --evaluation_strategy "no" \

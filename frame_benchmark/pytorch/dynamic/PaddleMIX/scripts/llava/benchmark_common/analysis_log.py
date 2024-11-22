@@ -59,7 +59,7 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 8:
+    if len(sys.argv) != 7:
         print("Usage:" + sys.argv[0] + " model_item path/to/log/file path/to/res/log/file")
         sys.exit()
 
