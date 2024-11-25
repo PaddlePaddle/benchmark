@@ -27,12 +27,15 @@ def analyze(model_item, log_file, res_log_file, device_num, bs, fp_item, run_pro
         data = f.readlines()
     ips_lines = []
     for eachline in data:
-        if "ips:" in eachline:
-            ips = float(eachline.split("ips: ")[1].split()[0])
+        if "train_samples_per_second =" in eachline:
+            ips = float(eachline.split("train_samples_per_second =")[1].split()[0])
             ips_lines.append(ips)
-    ips = np.mean(ips_lines[4:])
+    
+    # print('ips_lines', ips_lines)
+    ips = np.mean(ips_lines)
+    # ips = np.mean(ips_lines[4:])
     ngpus = int(re.findall("\d+", device_num)[-1])
-    ips *= ngpus
+    # ips *= ngpus
     run_mode = "DP"
 
     model_name = model_item + "_" + "bs" + str(bs) + "_" + fp_item + "_" + run_mode

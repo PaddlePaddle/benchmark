@@ -16,7 +16,7 @@ wget https://paddlenlp.bj.bcebos.com/datasets/benchmark/torch_models/Qwen2-VL-7B
 tar -xf Qwen2-VL-2B-Instruct.tar
 tar -xf Qwen2-VL-7B-Instruct.tar
 mv Qwen2-VL-2B-Instruct /root/.paddlemix/torch_models
-mv Qwen2-VL-2B-Instruct /root/.paddlemix/torch_models
+mv Qwen2-VL-7B-Instruct /root/.paddlemix/torch_models
 rm -f Qwen2-VL-2B-Instruct.tar
 rm -f Qwen2-VL-7B-Instruct.tar
 ln -s /root/.paddlemix/torch_models/Qwen2-VL-2B-Instruct ./

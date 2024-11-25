@@ -75,7 +75,7 @@ function _train(){
             --dataset_dir data/ \
             --template qwen2_vl \
             --cutoff_len 8192 \
-            --max_samples 2000 \
+            --max_samples 500 \
             --overwrite_cache \
             --preprocessing_num_workers 8 \
             ${use_output_args} \
