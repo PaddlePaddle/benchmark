@@ -32,6 +32,10 @@ if [ $(ls -lR data/cityscapes | grep "^-" | wc -l) -ne 600 ];then
   tar -zxf data/cityscapes_300imgs.tar.gz -C data/
   rm -rf data/cityscapes_300imgs.tar.gz
   mv data/cityscapes_300imgs data/cityscapes
+  cp repeat.py data/cityscapes
+  cd data/cityscapes
+  python repeat.py
+  cd -
 else
   echo "******* cityscapes dataset already exists *******"
 fi
