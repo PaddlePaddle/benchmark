@@ -26,5 +26,9 @@ cd scripts/llava/benchmark_common/
 
 #get data
 bash prepare.sh
+#get model
+wget https://paddlenlp.bj.bcebos.com/models/community/paddlemix/llava_torch/models--liuhaotian--llava-v1.6-vicuna-7b.tar
+tar -xf models--liuhaotian--llava-v1.6-vicuna-13b.tar
+rm -rf models--liuhaotian--llava-v1.6-vicuna-13b.tar
 #run
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_mode} ${device_num} ${max_epochs} ${num_workers} 2>&1;

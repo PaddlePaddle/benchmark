@@ -21,19 +21,10 @@ mv llava_bench_data /root/.paddlemix/datasets/
 rm -rf llava_bench_data.tar
 ln -s /root/.paddlemix/datasets/llava_bench_data ./
 
-#model
-wget https://paddlenlp.bj.bcebos.com/models/community/paddlemix/llava_torch/models--lmsys--vicuna-13b-v1.5.tar
-wget https://paddlenlp.bj.bcebos.com/models/community/paddlemix/llava_torch/models--lmsys--vicuna-7b-v1.5.tar
-wget https://paddlenlp.bj.bcebos.com/models/community/paddlemix/llava_torch/models--liuhaotian--llava-v1.6-vicuna-13b.tar
-wget https://paddlenlp.bj.bcebos.com/models/community/paddlemix/llava_torch/models--liuhaotian--llava-v1.6-vicuna-7b.tar
-tar -xf models--lmsys--vicuna-13b-v1.5.tar
-tar -xf models--lmsys--vicuna-7b-v1.5.tar
-tar -xf models--liuhaotian--llava-v1.6-vicuna-7b.tar
-tar -xf models--liuhaotian--llava-v1.6-vicuna-13b.tar
-rm -rf models--lmsys--vicuna-13b-v1.5.tar
-rm -rf models--lmsys--vicuna-7b-v1.5.tar
-rm -rf models--liuhaotian--llava-v1.6-vicuna-7b.tar
-rm -rf models--liuhaotian--llava-v1.6-vicuna-13b.tar
+#get clip model
+wget https://paddlenlp.bj.bcebos.com/models/community/paddlemix/llava_torch/models--openai--clip-vit-large-patch14-336.tar
+tar -xf models--openai--clip-vit-large-patch14-336.tar
+rm -rf models--openai--clip-vit-large-patch14-336.tar
 
 export http_proxy=agent.baidu.com:8188
 export https_proxy=agent.baidu.com:8188
