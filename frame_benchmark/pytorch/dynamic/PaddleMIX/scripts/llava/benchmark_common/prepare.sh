@@ -22,6 +22,7 @@ rm -rf llava_bench_data.tar
 ln -s /root/.paddlemix/datasets/llava_bench_data ./
 
 #get clip model
+rm -rf models--openai--clip-vit-large-patch14-336
 wget https://paddlenlp.bj.bcebos.com/models/community/paddlemix/llava_torch/models--openai--clip-vit-large-patch14-336.tar
 tar -xf models--openai--clip-vit-large-patch14-336.tar
 rm -rf models--openai--clip-vit-large-patch14-336.tar

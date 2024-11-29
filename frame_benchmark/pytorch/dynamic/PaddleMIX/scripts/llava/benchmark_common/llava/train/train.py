@@ -65,7 +65,15 @@ class ModelArguments:
     mm_patch_merge_type: Optional[str] = field(default='flat')
     mm_vision_select_feature: Optional[str] = field(default="patch")
 
-
+def get_torch_memory_info():
+    """get_memory_info"""
+    divisor = 2**30
+    return (
+        torch.cuda.memory_allocated() / divisor,
+        torch.cuda.max_memory_allocated() / divisor,
+        torch.cuda.memory_reserved() / divisor,
+        torch.cuda.max_memory_reserved() / divisor,
+    )
 @dataclass
 class DataArguments:
     data_path: str = field(default=None,
@@ -968,7 +976,8 @@ def train(attn_implementation=None):
     else:
         trainer.train()
     trainer.save_state()
-
+    memory_allocated,max_memory_allocated, memory_reserved,max_memory_reserved = get_torch_memory_info()
+    print(f'memory_allocated:{memory_allocated}GB, max_memory_allocated: {max_memory_allocated}GB, memory_reserved:{memory_reserved}GB, max_memory_reserved: {max_memory_reserved}GB \n')
     model.config.use_cache = True
 
     if training_args.lora_enable:

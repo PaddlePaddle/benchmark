@@ -27,6 +27,7 @@ cd scripts/llava/benchmark_common/
 #get data
 bash prepare.sh
 #get model
+rm -rf models--lmsys--vicuna-13b-v1.5
 wget https://paddlenlp.bj.bcebos.com/models/community/paddlemix/llava_torch/models--lmsys--vicuna-13b-v1.5.tar
 tar -xf models--lmsys--vicuna-13b-v1.5.tar
 rm -rf models--lmsys--vicuna-13b-v1.5.tar

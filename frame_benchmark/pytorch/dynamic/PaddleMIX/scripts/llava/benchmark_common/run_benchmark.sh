@@ -87,8 +87,8 @@ function _train(){
         --deepspeed zero2.json \
         --model_name_or_path ${model_path} \
         --version v1 \
-        --data_path /root/.paddlemix/datasets/llava_bench_data/ScienceQA_val_500_torch.json \
-        --image_folder /root/.paddlemix/datasets \
+        --data_path llava_bench_data/ScienceQA_val_500_torch.json \
+        --image_folder ./ \
         --vision_tower models--openai--clip-vit-large-patch14-336 \
         --mm_projector_type mlp2x_gelu \
         --mm_vision_select_layer -2 \
@@ -124,8 +124,8 @@ function _train(){
         --deepspeed zero2.json \
         --model_name_or_path ${model_path} \
         --version v1 \
-        --data_path /root/.paddlemix/datasets/llava_bench_data/ScienceQA_val_500_torch.json \
-        --image_folder /root/.paddlemix/datasets \
+        --data_path llava_bench_data/ScienceQA_val_500_torch.json \
+        --image_folder ./ \
         --vision_tower models--openai--clip-vit-large-patch14-336 \
         --mm_projector_type mlp2x_gelu \
         --mm_vision_select_layer -2 \
@@ -160,8 +160,8 @@ function _train(){
         --deepspeed zero2.json \
         --model_name_or_path ${model_path} \
         --version v1 \
-        --data_path /root/.paddlemix/datasets/llava_bench_data/ScienceQA_val_500_torch.json \
-        --image_folder /root/.paddlemix/datasets \
+        --data_path llava_bench_data/ScienceQA_val_500_torch.json \
+        --image_folder ./ \
         --vision_tower models--openai--clip-vit-large-patch14-336 \
         --mm_projector_type mlp2x_gelu \
         --tune_mm_mlp_adapter True \
