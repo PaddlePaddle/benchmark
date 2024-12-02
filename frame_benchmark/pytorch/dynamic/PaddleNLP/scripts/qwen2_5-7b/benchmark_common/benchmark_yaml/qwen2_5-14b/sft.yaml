@@ -1,5 +1,5 @@
 ### model
-model_name_or_path: /root/.cache/modelscope/hub/Qwen/Qwen2.5-7B/
+model_name_or_path: /root/.cache/modelscope/hub/Qwen/Qwen2.5-14B/
 flash_attn: fa2
 
 ### method
@@ -9,12 +9,12 @@ finetuning_type: full
 
 ### ddp
 ddp_timeout: 180000000
-deepspeed: deepspeed/ds_z1_config.json
+deepspeed: deepspeed/ds_z3_config.json
 
 ### dataset
 dataset: hf_train
 template: qwen
-cutoff_len: 8196
+cutoff_len: 8192
 packing: true
 neat_packing: true
 max_samples: 10000
@@ -22,7 +22,7 @@ overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: saves/qwen2_5-7b/sft
+output_dir: saves/qwen2_5-14b/sft
 logging_steps: 10
 save_steps: 500
 plot_loss: true

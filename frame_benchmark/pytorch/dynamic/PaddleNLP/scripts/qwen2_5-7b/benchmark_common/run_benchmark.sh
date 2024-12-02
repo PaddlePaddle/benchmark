@@ -56,10 +56,22 @@ function _train(){
     rm -rf outputs
 
     case ${run_stage} in
-    sft) train_cmd="llamafactory-cli train benchmark_yaml/sft.yaml" ;;
-    lora) train_cmd="llamafactory-cli train benchmark_yaml/lora.yaml" ;;
-    dpo) train_cmd="llamafactory-cli train benchmark_yaml/dpo.yaml" ;;
+    sft)  train_cmd="llamafactory-cli train benchmark_yaml/${model_item%_*}/sft.yaml" ;;
+    lora) train_cmd="llamafactory-cli train benchmark_yaml/${model_item%_*}/lora.yaml" ;;
+    dpo)  train_cmd="llamafactory-cli train benchmark_yaml/${model_item%_*}/dpo.yaml" ;;
     *) echo "choose run_stage(sft | lora | dpo)"; exit 1;
+    esac
+
+    # 以下为通用执行命令，无特殊可不用修改
+    case ${device_num} in
+    N1C1) echo "Run with: device_num=${device_num}, run_mode=${run_mode}, run_stage=${run_stage}"
+        train_cmd="CUDA_VISIBLE_DEVICES=0 ${train_cmd}"
+        workerlog_id=0
+        ;;
+    *) echo "Run with: device_num=${device_num}, run_mode=${run_mode}, run_stage=${run_stage}"
+        train_cmd="CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 ${train_cmd}"
+        workerlog_id=0
+        ;;
     esac
 
     timeout 15m ${train_cmd} > ${log_file} 2>&1
