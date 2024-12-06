@@ -73,14 +73,14 @@ def to_lodtensor(data, place):
         lod.append(cur_len)
     flattened_data = np.concatenate(data, axis=0).astype("int32")
     flattened_data = flattened_data.reshape([len(flattened_data), 1])
-    res = core.LoDTensor()
+    res = core.DenseTensor()
     res.set(flattened_data, place)
     res.set_lod([lod])
     return res
 
 
 def get_ctc_feeder_data(data, place, need_label=True):
-    pixel_tensor = core.LoDTensor()
+    pixel_tensor = core.DenseTensor()
     pixel_data = None
     pixel_data = np.concatenate(
         list(map(lambda x: x[0][np.newaxis, :], data)), axis=0).astype("float32")
@@ -93,7 +93,7 @@ def get_ctc_feeder_data(data, place, need_label=True):
 
 
 def get_attention_feeder_data(data, place, need_label=True):
-    pixel_tensor = core.LoDTensor()
+    pixel_tensor = core.DenseTensor()
     pixel_data = None
     pixel_data = np.concatenate(
         list(map(lambda x: x[0][np.newaxis, :], data)), axis=0).astype("float32")
@@ -124,7 +124,7 @@ def get_attention_feeder_for_infer(data, place, need_label=False):
     init_scores = fluid.create_lod_tensor(init_scores_data,
                                           init_recursive_seq_lens, place)
 
-    pixel_tensor = core.LoDTensor()
+    pixel_tensor = core.DenseTensor()
     pixel_data = None
     pixel_data = np.concatenate(
         list(map(lambda x: x[0][np.newaxis, :], data)), axis=0).astype("float32")

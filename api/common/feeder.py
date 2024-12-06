@@ -212,9 +212,9 @@ class FeederAdapter(object):
                 # On dynamic mode, the check is skipped.
                 if feed_vars is not None:
                     var = feed_vars[i]
-                    if var.type != paddle.base.core.VarDesc.VarType.LOD_TENSOR:
+                    if var.type != paddle.base.core.VarDesc.VarType.DENSE_TENSOR:
                         raise TypeError(
-                            "Feed data of non LoDTensor is not supported.")
+                            "Feed data of non DenseTensor is not supported.")
 
                     # Check shape and dtype
                     var_shape = var.shape
