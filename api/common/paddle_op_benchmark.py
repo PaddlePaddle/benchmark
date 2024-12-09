@@ -463,7 +463,8 @@ class PaddleOpBenchmarkBase(BenchmarkBase):
         # "_run_main_iter" needs to be executed firstly because
         # parameter "self._backward" needs to be update.
         if get_status_without_running:
-            stats = self.get_running_stats(use_gpu, config, None)
+            stats = self.get_running_stats(
+                use_gpu, config, runtimes=None, repeat=repeat)
             return None, stats
 
         runtimes = []
