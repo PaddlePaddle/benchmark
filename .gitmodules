@@ -125,3 +125,7 @@
 [submodule "OtherFrame/ocr/TensorFlow/models/EAST"]
 	path = OtherFrame/ocr/TensorFlow/models/EAST
 	url = https://github.com/argman/EAST.git
+[submodule "OtherFrame/3d/PyTorch/petr/models/petr"]
+	path = OtherFrame/3d/PyTorch/petr/models/petr
+	url = https://github.com/wangna11BD/PETR.git
+	branch = main
