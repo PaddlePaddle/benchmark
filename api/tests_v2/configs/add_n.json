@@ -89,4 +89,60 @@
             "type": "list<Variable>"
         }
     }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float16",
+                "shape": "[-1L, 256L]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float16",
+                "shape": "[-1L, 256L]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float16",
+                "shape": "[-1L, 256L]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
+}, {
+    "op": "add_n",
+    "param_info": {
+        "inputs": {
+            "inputs0": {
+                "dtype": "float16",
+                "shape": "[-1L, 256L]",
+                "type": "Variable"
+            },
+            "inputs1": {
+                "dtype": "float16",
+                "shape": "[-1L, 256L]",
+                "type": "Variable"
+            },
+            "inputs2": {
+                "dtype": "float16",
+                "shape": "[-1L, 256L]",
+                "type": "Variable"
+            },
+            "inputs3": {
+                "dtype": "float16",
+                "shape": "[-1L, 256L]",
+                "type": "Variable"
+            },
+            "type": "list<Variable>"
+        }
+    }
 }]
