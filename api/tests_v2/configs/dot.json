@@ -1,0 +1,46 @@
+[{
+    "config_id": 0,
+    "op": "dot",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[10000L, 100L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[10000L, 100L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 1,
+    "op": "dot",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[100000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[100000L]",
+            "type": "Variable"
+        }
+    }
+}, {
+    "config_id": 2,
+    "op": "dot",
+    "param_info": {
+        "x": {
+            "dtype": "float32",
+            "shape": "[100L, 10000L]",
+            "type": "Variable"
+        },
+        "y": {
+            "dtype": "float32",
+            "shape": "[100L, 10000L]",
+            "type": "Variable"
+        }
+    }
+}]
