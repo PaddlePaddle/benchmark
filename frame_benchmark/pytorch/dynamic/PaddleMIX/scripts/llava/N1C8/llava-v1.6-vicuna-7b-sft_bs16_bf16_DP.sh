@@ -28,7 +28,7 @@ cd scripts/llava/benchmark_common/
 bash prepare.sh
 #get model
 rm -rf models--liuhaotian--llava-v1.6-vicuna-7b
-wget https://paddlenlp.bj.bcebos.com/models/community/paddlemix/llava_torch/models--liuhaotian--llava-v1.6-vicuna-13b.tar
+wget https://paddlenlp.bj.bcebos.com/models/community/paddlemix/llava_torch/models--liuhaotian--llava-v1.6-vicuna-7b.tar
 tar -xf models--liuhaotian--llava-v1.6-vicuna-7b.tar
 rm -rf models--liuhaotian--llava-v1.6-vicuna-7b.tar
 #run
