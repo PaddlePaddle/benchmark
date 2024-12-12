@@ -21,6 +21,6 @@ python -m pip install modelscope
 mv -v data data_bak
 mv -v data data_bak
 wget https://paddlenlp.bj.bcebos.com/llm_benchmark_data/llamafactory_data.tar.gz
-tar zxvf llamafactory_data.tar.gz && rm -rf llamafactory_data.tar.gz
+tar zxf llamafactory_data.tar.gz && rm -rf llamafactory_data.tar.gz
 wget https://paddlenlp.bj.bcebos.com/llm_benchmark_data/deepspeed.tar.gz
-tar zxvf deepspeed.tar.gz && rm -rf deepspeed.tar.gz
+tar zxf deepspeed.tar.gz && rm -rf deepspeed.tar.gz
