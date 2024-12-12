@@ -13,10 +13,11 @@ function _set_params(){
     model_repo="LLaMA-Factory"             # (必选) 模型套件的名字
     speed_unit="effective_tokens/sec"                # (必选)速度指标单位
     skip_steps=0                        # (必选)解析日志，跳过模型前几个性能不稳定的step
-    keyword="effective_tokens_per_sec = "                       # (必选)解析日志，筛选出性能数据所在行的关键字
-    convergence_key=""                   # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
+    keyword="effective_tokens_per_sec"                       # (必选)解析日志，筛选出性能数据所在行的关键字
+    convergence_key="train_loss"                   # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
     max_iter=${7:-"100"}                 # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${8:-"3"}                # (可选)
+    is_large_model=True
 
     # Added for distributed training
     node_num=${9:-"2"}                      #（可选） 节点数量
@@ -47,7 +48,22 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py ${model_item} ${log_file} ${speed_log_file} ${device_num} ${base_batch_size} ${fp_item} ${run_process_type}
+    python analysis_log.py \
+            --filename ${log_file} \
+            --log_with_profiler ${profiling_log_file:-"not found!"} \
+            --profiler_path ${profiler_path:-"not found!"} \
+            --speed_log_file ${speed_log_file} \
+            --model_name ${model_name} \
+            --base_batch_size ${base_batch_size} \
+            --run_mode ${run_mode} \
+            --fp_item ${fp_item} \
+            --keyword ${keyword} \
+            --skip_steps ${skip_steps} \
+            --device_num ${device_num} \
+            --is_large_model ${is_large_model:-"False"} \
+            --convergence_key ${convergence_key} \
+            --speed_unit ${speed_unit} \
+            --position ${position:-1}
 }
 
 function _train(){
@@ -63,17 +79,8 @@ function _train(){
     esac
 
     # 以下为通用执行命令，无特殊可不用修改
-    case ${device_num} in
-    N1C1) echo "Run with: device_num=${device_num}, run_mode=${run_mode}, run_stage=${run_stage}"
-        train_cmd="CUDA_VISIBLE_DEVICES=0 ${train_cmd}"
-        workerlog_id=0
-        ;;
-    *) echo "Run with: device_num=${device_num}, run_mode=${run_mode}, run_stage=${run_stage}"
-        train_cmd="CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 ${train_cmd}"
-        workerlog_id=0
-        ;;
-    esac
-
+    echo "Run with: device_num=${device_num}, run_mode=${run_mode}, run_stage=${run_stage}"
+    echo "train_cmd: ${train_cmd}  log_file: ${log_file}"
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     # 这个判断，无论是否成功都是0
     if [ $? -ne 0 ];then
