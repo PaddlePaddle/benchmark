@@ -19,6 +19,8 @@ python -m pip install deepspeed==0.14.2
 python -m pip install modelscope
 
 python -c "from modelscope import snapshot_download; \
+            model_dir = snapshot_download('Qwen/Qwen2.5-1.5B')"
+python -c "from modelscope import snapshot_download; \
             model_dir = snapshot_download('Qwen/Qwen2.5-7B')"
 python -c "from modelscope import snapshot_download; \
             model_dir = snapshot_download('Qwen/Qwen2.5-14B')"
