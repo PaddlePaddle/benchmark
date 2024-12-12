@@ -18,11 +18,6 @@ python -m pip install -e .
 python -m pip install deepspeed==0.14.2
 python -m pip install modelscope
 
-python -c "from modelscope import snapshot_download; \
-            model_dir = snapshot_download('shakechen/Llama-2-7b-hf')"
-python -c "from modelscope import snapshot_download; \
-            model_dir = snapshot_download('ydyajyA/Llama-2-13b-chat-hf')"
-
 mv -v data data_bak
 wget https://paddlenlp.bj.bcebos.com/llm_benchmark_data/llamafactory_data.tar.gz
 tar zxvf llamafactory_data.tar.gz && rm -rf llamafactory_data.tar.gz

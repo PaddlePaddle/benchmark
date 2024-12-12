@@ -4,28 +4,24 @@
 
 function _set_params(){
     model_item=${1:-"qwen2_5-7b_sft"}        # (必选) 模型 item |fastscnn|segformer_b0| ocrnet_hrnetw48
-    base_batch_size=${2:-"1"}            # (必选) 每张卡上的batch_size
-    fp_item=${3:-"bf16"}                 # (必选) fp32|fp16|bf16
-    run_stage=${4:-"sft"}                # (必选) sft|lora|dpo
-    run_mode=${5:-"DP"}                  # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
-    device_num=${6:-"N1C1"}              # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
+    model_name_or_path=${2:-"Qwen/Qwen2.5-1.5B"}    # (必选) 模型名称或路径
+    base_batch_size=${3:-"1"}            # (必选) 每张卡上的batch_size
+    fp_item=${4:-"bf16"}                 # (必选) fp32|fp16|bf16
+    run_stage=${5:-"sft"}                # (必选) sft|lora|dpo
+    run_mode=${6:-"DP"}                  # (必选) MP模型并行|DP数据并行|PP流水线并行|混合并行DP1-MP1-PP1|DP1-MP4-PP1
+    device_num=${7:-"N1C1"}              # (必选) 使用的卡数量，N1C1|N1C8|N4C8 （4机32卡）
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
     model_repo="LLaMA-Factory"             # (必选) 模型套件的名字
     speed_unit="effective_tokens/sec"                # (必选)速度指标单位
     skip_steps=0                        # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="effective_tokens_per_sec"                       # (必选)解析日志，筛选出性能数据所在行的关键字
     convergence_key="train_loss"                   # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
-    max_iter=${7:-"100"}                 # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
-    num_workers=${8:-"3"}                # (可选)
+    max_iter=${8:-"100"}                 # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
+    num_workers=${9:-"3"}                # (可选)
     is_large_model=True
+    position=${10:-"1"}                  # (可选) 解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
 
     # Added for distributed training
-    node_num=${9:-"2"}                      #（可选） 节点数量
-    node_rank=${10:-"0"}                    # (可选)  节点rank
-    master_addr=${11:-"127.0.0.1"}       # (可选) 主节点ip地址
-    master_port=${12:-"1928"}               # (可选) 主节点端口号
-    # Added for distributed training
-
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
     device=${CUDA_VISIBLE_DEVICES//,/ }
@@ -80,7 +76,9 @@ function _train(){
 
     # 以下为通用执行命令，无特殊可不用修改
     echo "Run with: device_num=${device_num}, run_mode=${run_mode}, run_stage=${run_stage}"
+    echo "python -c \"from modelscope import snapshot_download;model_dir = snapshot_download('${model_name_or_path}')\""
     echo "train_cmd: ${train_cmd}  log_file: ${log_file}"
+    python -c "from modelscope import snapshot_download;model_dir = snapshot_download('${model_name_or_path}')"
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     # 这个判断，无论是否成功都是0
     if [ $? -ne 0 ];then
