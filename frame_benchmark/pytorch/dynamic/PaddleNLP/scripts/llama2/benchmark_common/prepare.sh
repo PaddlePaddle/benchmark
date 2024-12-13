@@ -13,6 +13,7 @@ export LD_LIBRARY_PATH=/home/opt/nvidia_lib:$LD_LIBRARY_PATH
 
 echo $PWD
 python -m pip install -U pip
+python -m pip install torch==2.3.1
 python -m pip install setuptools==61.0 --force-reinstall
 python -m pip install -e .
 python -m pip install deepspeed==0.14.2
