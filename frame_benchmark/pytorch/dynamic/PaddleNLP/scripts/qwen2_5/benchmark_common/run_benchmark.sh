@@ -77,6 +77,7 @@ function _train(){
     # 以下为通用执行命令，无特殊可不用修改
     echo "Run with: device_num=${device_num}, run_mode=${run_mode}, run_stage=${run_stage}"
     echo "train_cmd: ${train_cmd}  log_file: ${log_file}"
+    source /opt/torch_native_venv/bin/activate
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     # 这个判断，无论是否成功都是0
     if [ $? -ne 0 ];then
