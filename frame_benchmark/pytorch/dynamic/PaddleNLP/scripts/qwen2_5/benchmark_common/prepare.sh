@@ -10,10 +10,10 @@ export PATH=/opt/torch_native_venv/bin:${PATH}
 export LD_LIBRARY_PATH=/home/opt/nvidia_lib:$LD_LIBRARY_PATH
 
 echo $PWD
+python -m pip install torch==2.3.1 --extra-index https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 pip config set global.index-url http://pip.baidu.com/root/baidu/+simple/
 pip config set install.trusted-host  pip.baidu.com
 python -m pip install -U pip
-python -m pip install torch==2.3.1
 python -m pip install setuptools==61.0 --force-reinstall
 python -m pip install -e .
 python -m pip install deepspeed==0.14.2
