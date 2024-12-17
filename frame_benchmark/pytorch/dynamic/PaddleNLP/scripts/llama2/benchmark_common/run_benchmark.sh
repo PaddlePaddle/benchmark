@@ -19,7 +19,7 @@ function _set_params(){
     max_iter=${8:-"100"}                 # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${9:-"3"}                # (可选)
     is_large_model=True
-    position=${10:-"1"}                  # (可选) 解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
+    position=${10:-"2"}                  # (可选) 解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
 
     # Added for distributed training
     #   以下为通用拼接log路径，无特殊可不用修改
@@ -59,7 +59,7 @@ function _analysis_log(){
             --is_large_model ${is_large_model:-"False"} \
             --convergence_key ${convergence_key} \
             --speed_unit ${speed_unit} \
-            --position ${position:-1}
+            --position ${position:-2}
 }
 
 function _train(){
