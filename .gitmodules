@@ -169,3 +169,7 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/ultralytics"]
 	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/ultralytics
 	url = https://github.com/changdazhou/ultralytics.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/LLaMA-Factory"]
+	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/LLaMA-Factory
+	url = https://github.com/hiyouga/LLaMA-Factory
+	branch = main
