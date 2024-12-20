@@ -1,5 +1,5 @@
 ### model
-model_name_or_path: /opt/meta-llama/Llama-2-7b-hf/
+model_name_or_path: /opt/shakechen/Llama-2-7b-hf/
 flash_attn: fa2
 
 ### method
@@ -14,7 +14,7 @@ deepspeed: deepspeed/ds_z1_config.json
 ### dataset
 dataset: hf_dpo_train
 template: llama2
-cutoff_len: 8192
+cutoff_len: 4096
 max_samples: 10000
 overwrite_cache: true
 preprocessing_num_workers: 16
@@ -36,4 +36,7 @@ num_train_epochs: 1.0
 lr_scheduler_type: cosine
 warmup_ratio: 0.1
 disable_gradient_checkpointing: false
+eval_strategy: "no"
+save_strategy: "no"
 bf16: true
+train_from_scratch: false
