@@ -1,5 +1,5 @@
 ### model
-model_name_or_path: /root/.cache/modelscope/hub/ydyajyA/Llama-2-13b-chat-hf/
+model_name_or_path: /opt/meta-llama/Llama-2-13b-hf/
 flash_attn: fa2
 
 ### method

@@ -1,5 +1,5 @@
 ### model
-model_name_or_path: /root/.cache/modelscope/hub/Qwen/Qwen2.5-14B-Instruct/
+model_name_or_path: /opt/Qwen/Qwen2.5-14B/
 flash_attn: fa2
 
 ### method
