@@ -10,7 +10,8 @@ export PATH=/opt/torch_native_venv/bin:${PATH}
 export LD_LIBRARY_PATH=/home/opt/nvidia_lib:$LD_LIBRARY_PATH
 
 echo $PWD
-global.index-url='https://pip.baidu-int.com/simple/'
+python -m pip config set global.index-url https://pip.baidu-int.com/simple/
+python -m pip config list
 python -m pip install -U pip
 python -m pip install setuptools==61.0 --force-reinstall
 python -m pip install torch==2.3.1
