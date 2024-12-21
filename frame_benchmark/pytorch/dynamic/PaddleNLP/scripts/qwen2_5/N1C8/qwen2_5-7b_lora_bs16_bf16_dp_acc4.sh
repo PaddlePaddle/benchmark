@@ -1,9 +1,9 @@
-model_item=qwen2_5-7b_sft
+model_item=qwen2_5-7b_lora
 model_name_or_path=Qwen/Qwen2.5-7B
 bs_item=16
 fp_item=bf16
-run_stage=sft
-run_mode=DP
+run_stage=lora
+run_mode=dp_acc4
 device_num=N1C8
 max_iter=500
 num_workers=8

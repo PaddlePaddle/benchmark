@@ -1,9 +1,9 @@
-model_item=llama2-7b_sft
-model_name_or_path=shakechen/Llama-2-7b-hf
+model_item=llama2-13b_dpo
+model_name_or_path=ydyajyA/Llama-2-13b-chat-hf
 bs_item=16
 fp_item=bf16
-run_stage=sft
-run_mode=DP
+run_stage=dpo
+run_mode=dp_acc32
 device_num=N1C8
 max_iter=500
 num_workers=8

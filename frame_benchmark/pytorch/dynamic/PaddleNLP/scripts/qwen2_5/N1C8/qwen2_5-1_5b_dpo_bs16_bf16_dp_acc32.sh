@@ -1,9 +1,9 @@
-model_item=llama2-7b_dpo
-model_name_or_path=shakechen/Llama-2-7b-hf
+model_item=qwen2_5-1_5b_dpo
+model_name_or_path=Qwen/Qwen2.5-1.5B
 bs_item=16
 fp_item=bf16
 run_stage=dpo
-run_mode=DP
+run_mode=dp_acc32
 device_num=N1C8
 max_iter=500
 num_workers=8
