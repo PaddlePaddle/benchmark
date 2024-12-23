@@ -22,35 +22,43 @@ python -m pip install modelscope
 model_name_or_path=${1:-"meta-llama/Llama-2-7b-hf"}
 mkdir -p /opt/${model_name_or_path} && cd /opt/${model_name_or_path}
 case ${model_name_or_path} in
-meta-llama/Llama-2-7b-hf)
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-7b-hf/README.md
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-7b-hf/USE_POLICY.md
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-7b-hf/config.json
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-7b-hf/generation_config.json
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-7b-hf/model-00001-of-00002.safetensors
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-7b-hf/model-00002-of-00002.safetensors
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-7b-hf/model.safetensors.index.json
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-7b-hf/special_tokens_map.json
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-7b-hf/tokenizer.json
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-7b-hf/tokenizer.model
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-7b-hf/tokenizer_config.json
-    echo "download models for meta-llama/Llama-2-7b-hf done" ;;
-meta-llama/Llama-2-13b-hf)
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/LICENSE.txt
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/README.md
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/Responsible-Use-Guide.pdf
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/USE_POLICY.md
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/config.json
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/configuration.json
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/generation_config.json
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/model-00001-of-00003.safetensors
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/model-00002-of-00003.safetensors
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/model-00003-of-00003.safetensors
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/model.safetensors.index.json
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/special_tokens_map.json
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/tokenizer.model
-    wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-13b-hf/tokenizer_config.json
-    echo "download models for meta-llama/Llama-2-13b-hf done" ;;
+shakechen/Llama-2-7b-hf)
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/LICENSE.txt
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/README.md
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/Responsible-Use-Guide.pdf
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/USE_POLICY.md
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/config.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/configuration.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/generation_config.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/model-00001-of-00002.safetensors
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/model-00002-of-00002.safetensors
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/model.safetensors.index.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/pytorch_model-00001-of-00002.bin
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/pytorch_model-00002-of-00002.bin
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/pytorch_model.bin.index.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/special_tokens_map.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/tokenizer.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/tokenizer.model
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/shakechen/Llama-2-7b-hf/tokenizer_config.json
+    echo "download models for shakechen/Llama-2-7b-hf done" ;;
+ydyajyA/Llama-2-13b-chat-hf)
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/config.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/configuration.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/generation_config.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/model-00001-of-00006.safetensors
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/model-00002-of-00006.safetensors
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/model-00003-of-00006.safetensors
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/model-00004-of-00006.safetensors
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/model-00005-of-00006.safetensors
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/model-00006-of-00006.safetensors
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/model.safetensors.index.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/pytorch_model.bin.index.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/special_tokens_map.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/tokenizer.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/tokenizer.model
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/tokenizer_config.json
+    wget https://paddlenlp.bj.bcebos.com/models/huggingface/ydyajyA/Llama-2-13b-chat-hf/up.ipynb
+    echo "download models for ydyajyA/Llama-2-13b-chat-hf done" ;;
 meta-llama/Llama-2-70b-hf)
     wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-70b-hf/LICENSE.txt
     wget https://paddlenlp.bj.bcebos.com/models/huggingface/meta-llama/Llama-2-70b-hf/README.md
