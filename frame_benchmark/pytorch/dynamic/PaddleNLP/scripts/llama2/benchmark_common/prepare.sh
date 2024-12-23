@@ -95,6 +95,7 @@ meta-llama/Llama-2-70b-hf)
     ln -s /root/.cache/modelscope/hub/${model_name_or_path} /opt/${model_name_or_path}
     echo "download models for ${model_name_or_path} done" ;;
 esac
+cd -
 
 
 mv -v data data_bak
