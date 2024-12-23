@@ -5,7 +5,7 @@ tokenizers==0.15.1
 sentencepiece==0.1.99
 shortuuid
 accelerate==0.21.0
-peft
+peft==0.13.2
 bitsandbytes
 pydantic
 markdown2[all]
