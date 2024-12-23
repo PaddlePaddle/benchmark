@@ -126,7 +126,12 @@ Qwen/Qwen2.5-72B)
     wget https://paddlenlp.bj.bcebos.com/models/huggingface/Qwen/Qwen2.5-72B/tokenizer_config.json
     wget https://paddlenlp.bj.bcebos.com/models/huggingface/Qwen/Qwen2.5-72B/vocab.json
     echo "download models for Qwen/Qwen2.5-72B done" ;;
-*) echo "no ${model_name_or_path}"; exit 1;
+*) 
+    echo "${model_name_or_path} not in bos, download from modelscope"; 
+    python -c "from modelscope import snapshot_download;\
+        model_dir = snapshot_download('${model_name_or_path}', ignore_file_pattern=[\"*.safetensors\", \"*.bin\"])"
+    ln -s /root/.cache/modelscope/hub/${model_name_or_path} /opt/${model_name_or_path}
+    echo "download models for ${model_name_or_path} done" ;;
 esac
 
 
