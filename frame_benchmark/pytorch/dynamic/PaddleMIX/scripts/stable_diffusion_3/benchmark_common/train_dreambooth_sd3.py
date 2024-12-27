@@ -153,6 +153,12 @@ def log_validation(
     epoch,
     is_final_validation=False,
 ):
+    if accelerator.is_main_process:
+        logger.info("\nValidation GPU memory usage (before):")
+        allocated, max_allocated, reserved, max_reserved = get_torch_memory_info()
+        logger.info(f"Allocated: {allocated:.2f}GB, Max allocated: {max_allocated:.2f}GB")
+        logger.info(f"Reserved: {reserved:.2f}GB, Max reserved: {max_reserved:.2f}GB")
+
     logger.info(
         f"Running validation... \n Generating {args.num_validation_images} images with prompt:"
         f" {args.validation_prompt}."
@@ -185,6 +191,12 @@ def log_validation(
     del pipeline
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
+
+    if accelerator.is_main_process:
+        logger.info("\nValidation GPU memory usage (after):")
+        allocated, max_allocated, reserved, max_reserved = get_torch_memory_info()
+        logger.info(f"Allocated: {allocated:.2f}GB, Max allocated: {max_allocated:.2f}GB")
+        logger.info(f"Reserved: {reserved:.2f}GB, Max reserved: {max_reserved:.2f}GB")
 
     return images
 
@@ -935,6 +947,17 @@ def encode_prompt(
     return prompt_embeds, pooled_prompt_embeds
 
 
+def get_torch_memory_info():
+    """get_memory_info"""
+    divisor = 2**30
+    return (
+        torch.cuda.memory_allocated() / divisor,
+        torch.cuda.max_memory_allocated() / divisor,
+        torch.cuda.memory_reserved() / divisor,
+        torch.cuda.max_memory_reserved() / divisor,
+    )
+
+
 def main(args):
     if args.report_to == "wandb" and args.hub_token is not None:
         raise ValueError(
@@ -1490,7 +1513,18 @@ def main(args):
             sigma = sigma.unsqueeze(-1)
         return sigma
 
+    logger.info("Initial GPU memory usage:")
+    allocated, max_allocated, reserved, max_reserved = get_torch_memory_info()
+    logger.info(f"Allocated: {allocated:.2f}GB, Max allocated: {max_allocated:.2f}GB")
+    logger.info(f"Reserved: {reserved:.2f}GB, Max reserved: {max_reserved:.2f}GB")
+
     for epoch in range(first_epoch, args.num_train_epochs):
+        if accelerator.is_main_process:
+            logger.info(f"\nEpoch {epoch} GPU memory usage:")
+            allocated, max_allocated, reserved, max_reserved = get_torch_memory_info()
+            logger.info(f"Allocated: {allocated:.2f}GB, Max allocated: {max_allocated:.2f}GB")
+            logger.info(f"Reserved: {reserved:.2f}GB, Max reserved: {max_reserved:.2f}GB")
+
         transformer.train()
         if args.train_text_encoder:
             text_encoder_one.train()
@@ -1654,6 +1688,12 @@ def main(args):
             logs = {"loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
             progress_bar.set_postfix(**logs)
             accelerator.log(logs, step=global_step)
+
+            if accelerator.sync_gradients and accelerator.is_main_process and global_step % 100 == 0:
+                allocated, max_allocated, reserved, max_reserved = get_torch_memory_info()
+                logger.info(f"\nStep {global_step} GPU memory usage:")
+                logger.info(f"Allocated: {allocated:.2f}GB, Max allocated: {max_allocated:.2f}GB")
+                logger.info(f"Reserved: {reserved:.2f}GB, Max reserved: {max_reserved:.2f}GB")
 
             if global_step >= args.max_train_steps:
                 break
