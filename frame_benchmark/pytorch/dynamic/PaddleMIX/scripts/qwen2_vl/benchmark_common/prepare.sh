@@ -22,6 +22,8 @@ rm -f Qwen2-VL-7B-Instruct.tar
 ln -s /root/.paddlemix/torch_models/Qwen2-VL-2B-Instruct ./
 ln -s /root/.paddlemix/torch_models/Qwen2-VL-7B-Instruct ./
 
+pip install liger-kernel
+
 # export http_proxy=agent.baidu.com:8188
 # export https_proxy=agent.baidu.com:8188
 
