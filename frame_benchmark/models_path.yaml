@@ -173,3 +173,7 @@ pytorch:
   turbulent_channel-2d_std_wf-u_tau_lookup: benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
   annular_ring-annular_ring_hardBC-annular_ring_hardBC: benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
   helmholtz-helmholtz_hardBC: benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
+  # --- paths of deepmd 3 examples below --- #
+  deepmd_3: benchmark/frame_benchmark/pytorch/dynamic/deepmd-kit/models/deepmd-kit
+  se_e2_a: benchmark/frame_benchmark/pytorch/dynamic/deepmd-kit/models/deepmd-kit
+  se_atten: benchmark/frame_benchmark/pytorch/dynamic/deepmd-kit/models/deepmd-kit
