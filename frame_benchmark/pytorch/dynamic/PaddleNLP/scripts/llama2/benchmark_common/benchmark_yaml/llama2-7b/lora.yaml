@@ -1,0 +1,46 @@
+### model
+model_name_or_path: /opt/shakechen/Llama-2-7b-hf/
+flash_attn: fa2
+
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_target: all 
+### ddp
+ddp_timeout: 180000000
+deepspeed: deepspeed/ds_z0_config.json
+
+### dataset
+dataset: hf_train
+cutoff_len: 4096
+template: llama2
+packing: true
+neat_packing: true
+max_samples: 10000
+overwrite_cache: true
+preprocessing_num_workers: 16
+
+### output
+output_dir: saves/llama2-7b/sft
+logging_steps: 10
+save_steps: 500
+plot_loss: true
+overwrite_output_dir: true
+
+### train
+include_effective_tokens_per_second: true
+include_tokens_per_second: true
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 3.0e-4
+num_train_epochs: 1.0
+lr_scheduler_type: cosine
+disable_gradient_checkpointing: true
+warmup_ratio: 0.1
+eval_strategy: "no"
+save_strategy: "no"
+bf16: true
+
+train_from_scratch: false
+enable_liger_kernel: true

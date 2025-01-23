@@ -120,6 +120,8 @@ pytorch:
   HGNet_small_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
   crnn_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/deep-text-recognition-benchmark
   det_r50_db_v2_0_4pdx: benchmark/frame_benchmark/pytorch/dynamic/PaddleOCR/models/DBNet_pytorch
+  qwen2_5: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/LLaMA-Factory
+  llama2: benchmark/frame_benchmark/pytorch/dynamic/PaddleNLP/models/LLaMA-Factory
 
   # --- paths of modulus 51 examples below --- #
   darcy-darcy_PINO: benchmark/frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
@@ -177,3 +179,6 @@ pytorch:
   dpa2: benchmark/frame_benchmark/pytorch/dynamic/deepmd-kit/models/deepmd-kit
   se_e2_a: benchmark/frame_benchmark/pytorch/dynamic/deepmd-kit/models/deepmd-kit
   se_atten: benchmark/frame_benchmark/pytorch/dynamic/deepmd-kit/models/deepmd-kit
+NeMo:
+  qwen2_5: benchmark/frame_benchmark/NeMo/dynamic/PaddleNLP/models/NeMo
+  llama2: benchmark/frame_benchmark/NeMo/dynamic/PaddleNLP/models/NeMo
