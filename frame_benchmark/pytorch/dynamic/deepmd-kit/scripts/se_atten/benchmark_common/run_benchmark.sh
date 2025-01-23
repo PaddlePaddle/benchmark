@@ -58,7 +58,7 @@ function _train(){
     echo "current $PWD ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
     cd examples/water/se_atten;
     sed -i 's/"numb_steps": [0-9]*,/"numb_steps": 2000,/' input_torch.json;
-    train_cmd="dp --pt train train input_torch.json"
+    train_cmd="dp --pt train input_torch.json"
 
 #   以下为通用执行命令，无特殊可不用修改
     echo "run_cmd: ${train_cmd}"
