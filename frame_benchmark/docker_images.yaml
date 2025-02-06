@@ -183,6 +183,6 @@ pytorch:
    dpa2: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.8-cudnn8.6-nccl2.15.5
    se_e2_a: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.8-cudnn8.6-nccl2.15.5
    se_atten: iregistry.baidu-int.com/paddlecloud/base-images:paddlecloud-ubuntu18.04-gcc8.2-cuda11.8-cudnn8.6-nccl2.15.5
- NeMo:
+NeMo:
    qwen2_5: iregistry.baidu-int.com/tiangexiao/base-images:benchmark_ngc_pytorch_2407_20241108
    llama2: iregistry.baidu-int.com/tiangexiao/base-images:benchmark_ngc_pytorch_2407_20241108
