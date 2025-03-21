@@ -13,7 +13,7 @@
 # limitations under the License.
 
 model=llava
-model_item=llava-v1.6-vicuna-13b-pretrain
+model_item=llava-v1_6-vicuna-13b-sft
 bs_item=16
 fp_item=bf16
 run_mode=DP
@@ -27,9 +27,9 @@ cd scripts/llava/benchmark_common/
 #get data
 bash prepare.sh
 #get model
-rm -rf models--lmsys--vicuna-13b-v1.5
-wget https://paddlenlp.bj.bcebos.com/models/community/paddlemix/llava_torch/models--lmsys--vicuna-13b-v1.5.tar
-tar -xf models--lmsys--vicuna-13b-v1.5.tar
-rm -rf models--lmsys--vicuna-13b-v1.5.tar
+rm -rf models--liuhaotian--llava-v1.6-vicuna-13b
+wget https://paddlenlp.bj.bcebos.com/models/community/paddlemix/llava_torch/models--liuhaotian--llava-v1.6-vicuna-13b.tar
+tar -xf models--liuhaotian--llava-v1.6-vicuna-13b.tar
+rm -rf models--liuhaotian--llava-v1.6-vicuna-13b.tar
 #run
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash run_benchmark.sh ${model_item} ${bs_item} ${fp_item} ${run_mode} ${device_num} ${max_epochs} ${num_workers} 2>&1;
