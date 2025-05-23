@@ -36,5 +36,6 @@ export PYTHONPATH=$(dirname "$PWD"):$PYTHONPATH
 python -m pip install --upgrade pip -i https://mirror.baidu.com/pypi/simple
 python -m pip install einops -i https://mirror.baidu.com/pypi/simple
 python -m pip install -r requirements.txt
-pip install flash-attn --no-build-isolation
+pip install https://github.com/Dao-AILab/flash-attention/releases/download/v2.4.1/flash_attn-2.4.1+cu122torch2.1cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
+
 
