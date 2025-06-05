@@ -173,3 +173,7 @@
 	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/LLaMA-Factory
 	url = https://github.com/hiyouga/LLaMA-Factory
 	branch = main
+[submodule "path/to/submodule"]
+    path = frame_benchmark/pytorch/dynamic/deepmd-kit/models/deepmd-kit
+    url = https://github.com/deepmodeling/deepmd-kit.git
+    branch = devel
