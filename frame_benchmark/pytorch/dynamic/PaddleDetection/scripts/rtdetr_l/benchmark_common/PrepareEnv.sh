@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/web/simple
-
+# H 卡的队列要使用baidu-int 源
+pip install -U numpy 
 echo "*******prepare benchmark start ***********"
 pip install -U pip
 echo `pip --version`
