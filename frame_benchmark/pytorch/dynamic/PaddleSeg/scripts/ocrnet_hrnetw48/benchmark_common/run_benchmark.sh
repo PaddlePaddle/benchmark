@@ -19,6 +19,7 @@ function _set_params(){
     convergence_key=""             # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
     max_iter=${6:-"100"}                # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${7:-"3"}             # (可选)
+    crop_size=${8:-"1024"}             # (可选)
 
     #   以下为通用拼接log路径，无特殊可不用修改
     model_name=${model_item}_bs${base_batch_size}_${fp_item}_${run_mode}  # (必填) 切格式不要改动,与平台页面展示对齐
@@ -49,7 +50,6 @@ function _train(){
     batch_size=${base_batch_size}  # 如果模型跑多卡但进程时,请在_train函数中计算出多卡需要的bs
 
     echo "current ${model_name} CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=${device_num}, batch_size=${batch_size}"
-
     train_config="mmseg_benchmark_configs/${model_item}.py"
     if [ ${fp_item} = "fp16" ];then
         train_config_fp16="mmseg_benchmark_configs/${model_item}_fp16.py"

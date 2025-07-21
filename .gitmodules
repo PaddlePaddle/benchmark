@@ -91,14 +91,11 @@
 	url = https://github.com/PaddleBenchmark/DBNet_pytorch
 [submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch"]
 	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
-	url = https://github.com/pytorch/pytorch.git
+	url = https://github.com/pytorch/pytorch
 [submodule "frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models"]
 	path = frame_benchmark/pytorch/dynamic/PaddleClas/models/pytorch-image-models
 	url = https://github.com/rwightman/pytorch-image-models
 	branch = main
-[submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch"]
-	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/pytorch
-	url = https://github.com/pytorch/pytorch
 [submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/TableMASTER_mmocr"]
 	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/TableMASTER_mmocr
 	url = https://github.com/PaddleBenchmark/TableMASTER_mmocr
@@ -151,3 +148,32 @@
 [submodule "frame_benchmark/pytorch/dynamic/PaddleMIX/models/LAVIS"]
 	path = frame_benchmark/pytorch/dynamic/PaddleMIX/models/LAVIS
 	url = https://github.com/wjm202/LAVIS.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/nanodet"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/nanodet
+	url = https://github.com/RangiLyu/nanodet.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmyolo"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/mmyolo
+	url = https://github.com/open-mmlab/mmyolo.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleOCR/models/deep-text-recognition-benchmark"]
+	path = frame_benchmark/pytorch/dynamic/PaddleOCR/models/deep-text-recognition-benchmark
+	url = https://github.com/PaddleBenchmark/deep-text-recognition-benchmark.git
+    branch = master
+[submodule "frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym"]
+	path = frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus-sym
+	url = https://github.com/PaddleBenchmark/modulus-sym.git
+	branch = modified_torch
+[submodule "frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus"]
+	path = frame_benchmark/pytorch/dynamic/modulus-sym/models/modulus
+	url = https://github.com/PaddleBenchmark/modulus.git
+	branch = main
+[submodule "frame_benchmark/pytorch/dynamic/PaddleDetection/models/ultralytics"]
+	path = frame_benchmark/pytorch/dynamic/PaddleDetection/models/ultralytics
+	url = https://github.com/changdazhou/ultralytics.git
+[submodule "frame_benchmark/pytorch/dynamic/PaddleNLP/models/LLaMA-Factory"]
+	path = frame_benchmark/pytorch/dynamic/PaddleNLP/models/LLaMA-Factory
+	url = https://github.com/hiyouga/LLaMA-Factory
+	branch = main
+[submodule "path/to/submodule"]
+    path = frame_benchmark/pytorch/dynamic/deepmd-kit/models/deepmd-kit
+    url = https://github.com/deepmodeling/deepmd-kit.git
+    branch = devel

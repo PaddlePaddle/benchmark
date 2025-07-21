@@ -12,7 +12,7 @@ function _set_params(){
     profiling=${PROFILING:-"false"}      # (必选) Profiling  开关，默认关闭，通过全局变量传递
     model_repo="pytorch-image-models"          # (必选) 模型套件的名字
     ips_unit="samples/sec"         # (必选)速度指标单位
-    skip_steps=10                  # (必选)解析日志，跳过模型前几个性能不稳定的step
+    skip_steps=20                  # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="ips:"                 # (必选)解析日志，筛选出性能数据所在行的关键字
 
     convergence_key=""             # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
@@ -48,7 +48,9 @@ function _set_params(){
 }
 
 function _analysis_log(){
-    python analysis_log.py -l ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item} --skip_steps 100
+    _cmd="python analysis_log.py -l ${log_file} -m ${model_item} -b ${batch_size} -n ${device_num} -s ${speed_log_file} -f ${fp_item} --skip_steps ${skip_steps}"
+    echo ${_cmd}
+    eval ${_cmd}
 }
 
 function _train(){
@@ -75,7 +77,8 @@ function _train(){
     *) echo "choose run_process_type(SingleP or MultiP)"; exit 1;
     esac
 
-#   以下为通用执行命令，无特殊可不用修改
+    #   以下为通用执行命令，无特殊可不用修改
+    echo ${train_cmd}
     timeout 5m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"

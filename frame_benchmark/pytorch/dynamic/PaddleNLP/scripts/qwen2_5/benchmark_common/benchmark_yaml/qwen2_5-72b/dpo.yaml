@@ -1,0 +1,43 @@
+### model
+model_name_or_path: /opt/Qwen/Qwen2.5-72B/
+flash_attn: fa2
+
+### method
+stage: dpo
+do_train: true
+finetuning_type: full
+
+### ddp
+ddp_timeout: 180000000
+deepspeed: deepspeed/ds_z3_config.json
+
+### dataset
+dataset: hf_dpo_train
+template: qwen
+cutoff_len: 4096
+max_samples: 10000
+overwrite_cache: true
+preprocessing_num_workers: 16
+
+### output
+output_dir: saves/qwen2_5-72b/sft
+logging_steps: 10
+save_steps: 500
+plot_loss: true
+overwrite_output_dir: true
+
+### train
+include_effective_tokens_per_second: true
+include_tokens_per_second: true
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 1
+learning_rate: 3.0e-4
+num_train_epochs: 1.0
+lr_scheduler_type: cosine
+eval_strategy: "no"
+save_strategy: "no"
+warmup_ratio: 0.1
+disable_gradient_checkpointing: false
+bf16: true
+train_from_scratch: true
+enable_liger_kernel: true
