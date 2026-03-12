@@ -17,6 +17,7 @@ export log_file=${TRAIN_LOG_DIR:-$PWD}/${job_name}_log
 export speed_log_file=${LOG_PATH_INDEX_DIR:-$PWD}/${job_name}_speed
 export distributed_train_logs=${MODEL_REPO_ROOT:-$PWD}/output/${job_name}/distributed_train_logs
 export FLAGS_use_legacy_linear=1 #Paddle的#77039影响性能，benchmark监控打开此flag
+export NVIDIA_TF32_OVERRIDE=0 #Paddle的#77781影响性能，benchmark监控关闭此flag
 
 train_cmd="python main.py -c paddlex/configs/modules/ts_anomaly_detection/Nonstationary_ad.yaml -o Global.mode=train -o Global.dataset_dir=dataset/ts_anomaly_detection_train_benchmark -o Train.epochs_iters=5 -o Benchmark.print_mem_info=True -o Benchmark.disable_deamon=True -o Benchmark.env.FLAGS_eager_delete_tensor_gb=0.0 -o Benchmark.env.FLAGS_fraction_of_gpu_memory_to_use=0.98 -o Benchmark.env.FLAGS_conv_workspace_size_limit=4096 -o Global.model=Nonstationary_ad -o Train.batch_size=16 -o Global.device=gpu:${CUDA_VISIBLE_DEVICES} -o Global.output=output/${job_name} -o Train.dy2st=True -o Train.uniform_output_enabled=False"
 
