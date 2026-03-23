@@ -21,5 +21,5 @@ export NVIDIA_TF32_OVERRIDE=1 #Paddle的PR#75907默认关闭此flag，影响性�
 train_cmd="python main.py -c paddlex/configs/modules/object_detection/PicoDet-S.yaml -o Global.mode=train -o Global.dataset_dir=dataset/coco_train_benchmark -o Train.epochs_iters=1 -o Train.log_interval=1 -o Train.num_classes=80 -o Benchmark.shuffle=False -o Benchmark.shared_memory=True -o Benchmark.print_mem_info=True -o Benchmark.do_eval=False -o Benchmark.disable_deamon=True -o Global.model=PicoDet-S -o Train.batch_size=64 -o Benchmark.num_workers=6 -o Global.device=gpu:${CUDA_VISIBLE_DEVICES} -o Global.output=output/${job_name} -o Train.dy2st=True -o Train.uniform_output_enabled=False"
 
 echo $train_cmd
-timeout 5m $train_cmd > $log_file 2>&1
+timeout 15m $train_cmd > $log_file 2>&1
 echo $train_cmd >> $log_file
