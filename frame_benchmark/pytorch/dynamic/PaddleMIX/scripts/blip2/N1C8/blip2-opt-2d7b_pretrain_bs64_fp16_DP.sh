@@ -18,7 +18,7 @@ fp_item=fp16
 run_process_type=MultiP
 run_mode=DP
 device_num=N1C8
-max_iter=20
+max_epochs=20
 num_workers=1
 
 #get data
