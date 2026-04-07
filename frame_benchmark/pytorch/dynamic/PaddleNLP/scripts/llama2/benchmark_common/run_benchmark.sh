@@ -15,7 +15,7 @@ function _set_params(){
     speed_unit="effective_tokens/sec"                # (必选)速度指标单位
     skip_steps=0                        # (必选)解析日志，跳过模型前几个性能不稳定的step
     keyword="effective_tokens_per_sec"                       # (必选)解析日志，筛选出性能数据所在行的关键字
-    convergence_key="total_tokens:"                   # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
+    convergence_key="train_tokens_per_second"                   # (可选)解析日志，筛选出收敛数据所在行的关键字 如：convergence_key="loss:"
     max_iter=${8:-"100"}                 # （可选）需保证模型执行时间在5分钟内，需要修改代码提前中断的直接提PR 合入套件  或是max_epoch
     num_workers=${9:-"3"}                # (可选)
     is_large_model=True
@@ -91,11 +91,11 @@ function _train(){
         export TOKENS_PER_STEP=131072
     fi
     timeout 40m ${train_cmd} > ${log_file} 2>&1
-    Tokens_per_second_per_gpu=`cat ${log_file} | grep 'train_samples_per_second =' \
-                                            |awk -F'= ' '{print $2}' |awk -F' ' '{print $1}'`
-    length=4096
-    Total_Tokens_per_second_per_gpu=$(awk -v a="$Tokens_per_second_per_gpu" -v b="$length" 'BEGIN {printf "%.2f\n", a * b}')
-    echo "total_tokens: ${Total_Tokens_per_second_per_gpu}" >> ${log_file}
+    # Tokens_per_second_per_gpu=`cat ${log_file} | grep 'train_samples_per_second =' \
+    #                                         |awk -F'= ' '{print $2}' |awk -F' ' '{print $1}'`
+    # length=4096
+    # Total_Tokens_per_second_per_gpu=$(awk -v a="$Tokens_per_second_per_gpu" -v b="$length" 'BEGIN {printf "%.2f\n", a * b}')
+    # echo "total_tokens: ${Total_Tokens_per_second_per_gpu}" >> ${log_file}
     # 这个判断，无论是否成功都是0
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
